@@ -1,6 +1,0 @@
-decode SORM default Unknown::unknown() {
-0x0:
-##include "sdecoder.isa"
-0x1:
-##include "mdecoder.isa"
-}

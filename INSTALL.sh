@@ -67,22 +67,22 @@ MCFLAG='-j 64'
 if [ "$gem5_en" -eq 1 ]
 then
   cd $root
-  if [ -e "build_gem5" ]
+  if [ -e "build_gem5_apc" ]
   then
-    rm -rf build_gem5
+    rm -rf build_gem5_apc
   fi
-  mkdir build_gem5
-  cd build_gem5
+  mkdir build_gem5_apc
+  cd build_gem5_apc
   mkdir ext
   cp -r $source_path/MaPUSim/ext/mapudrv ./ext
   echo scons -C $source_path/MaPUSim build/MAPU/gem5.opt CPU_MODELS=InOrderCPU
-  scons -C $source_path/MaPUSim build/MAPU/gem5.opt CPU_MODELS=InOrderCPU $MCFLAG
+  scons -C $source_path/MaPUSim/APC build/MAPU/gem5.opt CPU_MODELS=InOrderCPU $MCFLAG
   cd $root
   install -v build_gem5/build/MAPU/gem5.opt -D $install_path/simulator/apc/gem5.opt
   install -v -d $install_path/simulator/apc/system
-  install -v $source_path/MaPUSim/configs/example/* -t $install_path/simulator/apc/system
+  install -v $source_path/MaPUSim/APC/configs/example/* -t $install_path/simulator/apc/system
   install -v -d $install_path/simulator/apc/common
-  install -v $source_path/MaPUSim/configs/common/* -t $install_path/simulator/apc/common
+  install -v $source_path/MaPUSim/APC/configs/common/* -t $install_path/simulator/apc/common
   install -v -d $install_path/simulator/libs
   install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
   install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
@@ -163,7 +163,7 @@ then
     mkdir build_gcc
     cd build_gcc
     ../gcc/configure --prefix=$install_path/gcc-4.8.3 --with-gmp=$install_path/gmp-4.3.2 --with-mpfr=$install_path/mpfr-2.4.2 --with-mpc=$install_path/mpc-0.8.1 --enable-languages=c,c++ --disable-multilib
-    export LD_LIBRARY_PATH=$install_path/gmp-4.3.2/lib:$install_path/mpfr-2.4.2/lib:$install_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=$install_path/gmp-4.3.2/lib:$install_path/mpfr-2.4.2/lib:$install_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
     make $MCFLAG
     make install
     cd $root
@@ -202,13 +202,12 @@ then
   mkdir build_llvm
   cd build_llvm
   # libstdc++ is required while compiling llvm not only by the linker but also by the execution of tblgen
-  export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
+  # export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
   $source_path/llvm-3.4/configure --prefix=$install_path --disable-assertions \
     --enable-optimized --disable-debug-symbols --enable-cxx11\
-    --enable-targets=mspu,mmpu,mmpulite,x86 CC=$CC CXX=$CXX LDFLAGS="-L$source_path/deplibs -L$install_path/lib"\
-    CFLAGS="-I$install_path/include" CXXFLAGS="-I$install_path/include"
+    --enable-targets=mspu,mmpu,mmpulite,x86
   make OPTIMIZE_OPTION=-O0 RAGEL=$root/ragel/bin/ragel $MCFLAG
-  install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
+  #install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
   make install
 fi
 
