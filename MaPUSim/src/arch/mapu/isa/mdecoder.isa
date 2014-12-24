@@ -1,0 +1,1225 @@
+// * mdecoder.isa
+// *
+// *  Created on: Nov 20, 2013
+// *      Author: wangl & zhangx
+
+
+
+decode SLOTNUM default Unknown::Unknown(mpuunknown) {
+  format MrOp {
+    0x0: decode MR0_EN default Nop::Nop(mr0) {
+      0x1: mr0 ({{ MPUd = Mr0s; }}, Is2cycle);
+    }
+    0x1: decode MR1_EN default Nop::Nop(mr1) {
+      0x1: mr1 ({{ MPUd6b = Mr1s; }}, Is2cycle);
+    }
+    0x2: decode MR2_EN default Nop::Nop(mr2) {
+      0x1: decode MR2_W {
+        0x0:     mr2  ({{ MPUd6b = Mr2s; }}, Is2cycle);
+        default: mr2w ({{ MPUd6b = Mr2s.WShuffle(MR2_W); }}, Is3cycle);
+      }
+    }
+    0x3: decode MR3_EN default Nop::Nop(mr3) {
+      0x1: decode MRKG {
+        0x0: mr3   ({{ MPUd = Mr3s; }}, Is2cycle);
+        0x1: mr3kg ({{ BiuCtxD = Mr3s; }}, Is2cycle);
+      }
+    }
+  }
+  format ShuOp {
+    0x4: decode SHU_OP default Unknown::Unknown(shu0unknown) {
+      0x0: Nop::Nop(shu0);
+      0x1: shu0idx ({{
+        MPUd = ShuTm[ShuTn];
+        if (SHU_TB) ShuTb = ShuTn + SHU_IMM3;
+        else        ShuTb = ShuTb;
+      }}, Is2cycle);
+      0x2: shu0idxtb ({{
+        MPUd = ShuTm[ShuTb];
+        if (SHU_TB) ShuTb = ShuTb + SHU_IMM3;
+        else        ShuTb = ShuTb;
+      }}, Is2cycle);
+      0x3: shu0comb ({{
+        uint8_t buf[64*2 + 8] = {0};
+        if (SHU_TB) {
+          memcpy(buf, (uint8_t *)ShuTcl, 64);
+          memcpy(&(buf[64]), (uint8_t *)ShuTch, 64);
+        } else {
+          memcpy(buf, (uint8_t *)ShuTm, 64);
+          memcpy(&(buf[64]), (uint8_t *)ShuTn, 64);
+        }
+        switch (SHU_IMM3) {
+        case 1:
+          ShuTcl = &(buf[1]);
+          ShuTch = &(buf[65]);
+          break;
+        case 2:
+          ShuTcl = &(buf[2]);
+          ShuTch = &(buf[66]);
+          break;
+        case 4:
+          ShuTcl = &(buf[4]);
+          ShuTch = &(buf[68]);
+          break;
+        case 0:
+          ShuTcl = &(buf[8]);
+          ShuTch = &(buf[72]);
+          break;
+        default:
+          fatal("Unknown SHU Comb inst!");
+        }
+        MPUd = ShuTcl;
+      }}, Is2cycle);
+    }
+    0x5: decode SHU_OP default Unknown::Unknown(shu1unknown) {
+      0x0: Nop::Nop(shu1);
+      0x1: shu1idx ({{
+        MPUd = ShuTm[ShuTn];
+        if (SHU_TB) ShuTb = ShuTn + SHU_IMM3;
+        else        ShuTb = ShuTb;
+      }}, Is2cycle);
+      0x2: shu1idxtb ({{
+        MPUd = ShuTm[ShuTb];
+        if (SHU_TB) ShuTb = ShuTb + SHU_IMM3;
+        else        ShuTb = ShuTb;
+      }}, Is2cycle);
+      0x3: shu1comb ({{
+        uint8_t buf[64*2 + 8] = {0};
+        if (SHU_TB) {
+          memcpy(buf, (uint8_t *)ShuTcl, 64);
+          memcpy(&(buf[64]), (uint8_t *)ShuTch, 64);
+        } else {
+          memcpy(buf, (uint8_t *)ShuTm, 64);
+          memcpy(&(buf[64]), (uint8_t *)ShuTn, 64);
+        }
+        switch (SHU_IMM3) {
+        case 1:
+          ShuTcl = &(buf[1]);
+          ShuTch = &(buf[65]);
+          break;
+        case 2:
+          ShuTcl = &(buf[2]);
+          ShuTch = &(buf[66]);
+          break;
+        case 4:
+          ShuTcl = &(buf[4]);
+          ShuTch = &(buf[68]);
+          break;
+        case 0:
+          ShuTcl = &(buf[8]);
+          ShuTch = &(buf[72]);
+          break;
+        default:
+          fatal("Unknown SHU Comb inst!");
+        }
+        MPUd = ShuTcl;
+      }}, Is2cycle);
+    }
+  }
+  format IaluOp {
+    0x6: decode IALU_OP default Unknown::Unknown(ialuunknown) {
+      0x0: Nop::Nop(ialu);
+      0x1: ialuadd ({{
+        IaluTm.settrunc(IALU_T);
+        if (IALU_U && IALU_B)      MPUd = IaluTm + (const uint8_t *)IaluTn;
+        else if (IALU_U && IALU_H) MPUd = IaluTm + (const uint16_t *)IaluTn;
+        else if (IALU_U)           MPUd = IaluTm + (const uint32_t *)IaluTn;
+        else if (IALU_B)           MPUd = IaluTm + (const int8_t *)IaluTn;
+        else if (IALU_H)           MPUd = IaluTm + (const int16_t *)IaluTn;
+        else                       MPUd = IaluTm + (const int32_t *)IaluTn;
+      }}, Is3cycle);
+      0x2: ialusub ({{
+        IaluTm.settrunc(IALU_T);
+        if (IALU_U && IALU_B)      MPUd = IaluTm - (const uint8_t *)IaluTn;
+        else if (IALU_U && IALU_H) MPUd = IaluTm - (const uint16_t *)IaluTn;
+        else if (IALU_U)           MPUd = IaluTm - (const uint32_t *)IaluTn;
+        else if (IALU_B)           MPUd = IaluTm - (const int8_t *)IaluTn;
+        else if (IALU_H)           MPUd = IaluTm - (const int16_t *)IaluTn;
+        else                       MPUd = IaluTm - (const int32_t *)IaluTn;
+      }}, Is3cycle);
+      0x3: ialumax ({{
+        MPUReg result;
+        if (IALU_U && IALU_B) {
+          result = IaluTm > (const uint8_t *)IaluTn;
+          for (unsigned i = 0; i < 64; i++)
+            ((uint8_t *)result)[i] = ((uint8_t *)result)[i]
+                                   ? ((const uint8_t *)IaluTm)[i]
+                                   : ((const uint8_t *)IaluTn)[i];
+        } else if (IALU_U && IALU_H) {
+          result = IaluTm > (const uint16_t *)IaluTn;
+          for (unsigned i = 0; i < 32; i++)
+            ((uint16_t *)result)[i] = ((uint16_t *)result)[i]
+                                   ? ((uint16_t *)IaluTm)[i]
+                                   : ((uint16_t *)IaluTn)[i];
+        } else if (IALU_U) {
+          result = IaluTm > (const uint32_t *)IaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((uint32_t *)result)[i] = ((uint32_t *)result)[i]
+                                   ? ((uint32_t *)IaluTm)[i]
+                                   : ((uint32_t *)IaluTn)[i];
+        } else if (IALU_B) {
+          result = IaluTm > (const int8_t *)IaluTn;
+          for (unsigned i = 0; i < 64; i++)
+            ((int8_t *)result)[i] = ((int8_t *)result)[i]
+                                   ? ((int8_t *)IaluTm)[i]
+                                   : ((int8_t *)IaluTn)[i];
+        } else if (IALU_H) {
+          result = IaluTm > (const int16_t *)IaluTn;
+          for (unsigned i = 0; i < 32; i++)
+            ((int16_t *)result)[i] = ((int16_t *)result)[i]
+                                   ? ((int16_t *)IaluTm)[i]
+                                   : ((int16_t *)IaluTn)[i];
+        } else {
+          result = IaluTm > (const int32_t *)IaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((int32_t *)result)[i] = ((int32_t *)result)[i]
+                                   ? ((int32_t *)IaluTm)[i]
+                                   : ((int32_t *)IaluTn)[i];
+        }
+        MPUd = result;
+      }}, Is3cycle);
+      0x4: ialumin ({{
+        MPUReg result;
+        if (IALU_U && IALU_B) {
+          result = IaluTm < (const uint8_t *)IaluTn;
+          for (unsigned i = 0; i < 64; i++)
+            ((uint8_t *)result)[i] = ((uint8_t *)result)[i]
+                                   ? ((const uint8_t *)IaluTm)[i]
+                                   : ((const uint8_t *)IaluTn)[i];
+        } else if (IALU_U && IALU_H) {
+          result = IaluTm < (const uint16_t *)IaluTn;
+          for (unsigned i = 0; i < 32; i++)
+            ((uint16_t *)result)[i] = ((uint16_t *)result)[i]
+                                   ? ((uint16_t *)IaluTm)[i]
+                                   : ((uint16_t *)IaluTn)[i];
+        } else if (IALU_U) {
+          result = IaluTm < (const uint32_t *)IaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((uint32_t *)result)[i] = ((uint32_t *)result)[i]
+                                   ? ((uint32_t *)IaluTm)[i]
+                                   : ((uint32_t *)IaluTn)[i];
+        } else if (IALU_B) {
+          result = IaluTm < (const int8_t *)IaluTn;
+          for (unsigned i = 0; i < 64; i++)
+            ((int8_t *)result)[i] = ((int8_t *)result)[i]
+                                   ? ((int8_t *)IaluTm)[i]
+                                   : ((int8_t *)IaluTn)[i];
+        } else if (IALU_H) {
+          result = IaluTm < (const int16_t *)IaluTn;
+          for (unsigned i = 0; i < 32; i++)
+            ((int16_t *)result)[i] = ((int16_t *)result)[i]
+                                   ? ((int16_t *)IaluTm)[i]
+                                   : ((int16_t *)IaluTn)[i];
+        } else {
+          result = IaluTm < (const int32_t *)IaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((int32_t *)result)[i] = ((int32_t *)result)[i]
+                                   ? ((int32_t *)IaluTm)[i]
+                                   : ((int32_t *)IaluTn)[i];
+        }
+        MPUd = result;
+      }}, Is3cycle);
+      0x5: ialuabs ({{
+        MPUReg res;
+        if (IALU_U && IALU_B)      res.mabs_ub(IaluTm, IaluTn);
+        else if (IALU_U && IALU_H) res.mabs_uh(IaluTm, IaluTn);
+        else if (IALU_U)           res.mabs_uw(IaluTm, IaluTn);
+        else if (IALU_B)           res.mabs_b(IaluTm, IaluTn);
+        else if (IALU_H)           res.mabs_h(IaluTm, IaluTn);
+        else                       res.mabs_w(IaluTm, IaluTn);
+        MPUd = res; 
+      }}, Is3cycle);
+
+      0x6: ialumerge ({{
+        MPUReg res;
+        if (IALU_B)                res.merge_b(IaluTp, IaluTn, IaluTm);
+        else if (IALU_H)           res.merge_h(IaluTp, IaluTn, IaluTm);
+        else                       res.merge_w(IaluTp, IaluTn, IaluTm);
+        MPUd = res;        
+      }}, Is3cycle);
+
+      0x16: ialurmax ({{
+        MPUReg res;
+        if (IALU_U)                res.rmax_ub(IaluTm);
+        else                       res.rmax_b(IaluTm);
+        MPUd = res;       
+      }}, Is3cycle);
+
+      0x17: ialurmin ({{
+        MPUReg res;
+        if (IALU_U)                res.rmin_ub(IaluTm);
+        else                       res.rmin_b(IaluTm);
+        MPUd = res;
+      }}, Is3cycle);
+
+      0x8: ialuor ({{              MPUd = IaluTm & (const uint8_t *)IaluTn;        
+      }}, Is3cycle);
+
+      0x9: ialuand ({{             MPUd = IaluTm | (const uint8_t *)IaluTn;        
+      }}, Is3cycle);
+
+      0xa: ialunor ({{             MPUd = IaluTm ^ (const uint8_t *)IaluTn;        
+      }}, Is3cycle);
+
+      0xb: ialunot ({{             MPUd = ~ IaluTm;        
+      }}, Is3cycle);
+
+      0xc: decode IALU_IMM{
+        0x0:ialusl ({{
+          if (IALU_B)              MPUd = IaluTm << (const uint8_t *)IaluTn;
+          else if (IALU_H)         MPUd = IaluTm << (const uint16_t *)IaluTn;
+          else                     MPUd = IaluTm << (const uint32_t *)IaluTn;        
+        }}, Is3cycle);
+        0x1:ialuslimm ({{
+          if (IALU_B)              MPUd = IaluTm << (const uint8_t)IALU_IMM5;
+          else if (IALU_H)         MPUd = IaluTm << (const uint16_t)IALU_IMM5;
+          else                     MPUd = IaluTm << (const uint32_t)IALU_IMM5;        
+        }}, Is3cycle);
+      }
+  
+      0xd: decode IALU_IMM{
+        0x0: ialusr ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm >> (const uint8_t *)IaluTn;
+          else if (IALU_U && IALU_H) MPUd = IaluTm >> (const uint16_t *)IaluTn;
+          else if (IALU_U)           MPUd = IaluTm >> (const uint32_t *)IaluTn;
+          else if (IALU_B)           MPUd = IaluTm >> (const int8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm >> (const int16_t *)IaluTn;
+          else                       MPUd = IaluTm >> (const int32_t *)IaluTn;       
+        }}, Is3cycle);
+        0x1: ialusrimm ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm >> (const uint8_t )IALU_IMM5;
+          else if (IALU_U && IALU_H) MPUd = IaluTm >> (const uint16_t )IALU_IMM5;
+          else if (IALU_U)           MPUd = IaluTm >> (const uint32_t )IALU_IMM5;
+          else if (IALU_B)           MPUd = IaluTm >> (const int8_t )IALU_IMM5;
+          else if (IALU_H)           MPUd = IaluTm >> (const int16_t )IALU_IMM5;
+          else                       MPUd = IaluTm >> (const int32_t )IALU_IMM5;       
+        }}, Is3cycle);
+      }
+
+      0x10: decode IALU2C {
+        0x0:ialuequal ({{
+          if (IALU_B)                MPUd = IaluTm == (const uint8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm == (const uint16_t *)IaluTn;
+          else                       MPUd = IaluTm == (const uint32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialuequal2c ({{
+          if (IALU_B)               { Cond = ((uint8_t *)IaluTm)[0]  == ((uint8_t *)IaluTn)[0];}
+          else if (IALU_H)          { Cond = ((uint16_t *)IaluTm)[0] == ((uint16_t *)IaluTn)[0];}
+          else                      { Cond = ((uint32_t *)IaluTm)[0] == ((uint32_t *)IaluTn)[0];}
+        }}, Is1cycle);
+
+      }
+
+      0x11: decode IALU2C {
+        0x0:ialuneq ({{
+          if (IALU_B)                MPUd = IaluTm != (const uint8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm != (const uint16_t *)IaluTn;
+          else                       MPUd = IaluTm != (const uint32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialuneq2c ({{
+          if (IALU_B)               { Cond = ((uint8_t *)IaluTm)[0]  != ((uint8_t *)IaluTn)[0];}
+          else if (IALU_H)          { Cond = ((uint16_t *)IaluTm)[0] != ((uint16_t *)IaluTn)[0];}
+          else                      { Cond = ((uint32_t *)IaluTm)[0] != ((uint32_t *)IaluTn)[0];}
+        }}, Is1cycle);
+
+      }
+
+      0x12: decode IALU2C {
+        0x0:ialugreater ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm > (const uint8_t *)IaluTn;
+          else if (IALU_U && IALU_H) MPUd = IaluTm > (const uint16_t *)IaluTn;
+          else if (IALU_U)           MPUd = IaluTm > (const uint32_t *)IaluTn;
+          else if (IALU_B)           MPUd = IaluTm > (const int8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm > (const int16_t *)IaluTn;
+          else                       MPUd = IaluTm > (const int32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialugreater2c ({{
+          if (IALU_U && IALU_B)      { Cond = ((uint8_t *)IaluTm)[0]  > ((uint8_t *)IaluTn)[0];}
+          else if (IALU_U && IALU_H) { Cond = ((uint16_t *)IaluTm)[0] > ((uint16_t *)IaluTn)[0];}
+          else if (IALU_U)           { Cond = ((uint32_t *)IaluTm)[0] > ((uint32_t *)IaluTn)[0];}
+          else if (IALU_B)           { Cond = ((int8_t *)IaluTm)[0]  > ((int8_t *)IaluTn)[0];}
+          else if (IALU_H)           { Cond = ((int16_t *)IaluTm)[0] > ((int16_t *)IaluTn)[0];}
+          else                       { Cond = ((int32_t *)IaluTm)[0] > ((int32_t *)IaluTn)[0];}
+        }}, Is1cycle);        
+
+      }
+
+      0x13: decode IALU2C {
+        0x0:ialuge ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm >= (const uint8_t *)IaluTn;
+          else if (IALU_U && IALU_H) MPUd = IaluTm >= (const uint16_t *)IaluTn;
+          else if (IALU_U)           MPUd = IaluTm >= (const uint32_t *)IaluTn;
+          else if (IALU_B)           MPUd = IaluTm >= (const int8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm >= (const int16_t *)IaluTn;
+          else                       MPUd = IaluTm >= (const int32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialuge2c ({{
+          if (IALU_U && IALU_B)      { Cond = ((uint8_t *)IaluTm)[0]  >= ((uint8_t *)IaluTn)[0];}
+          else if (IALU_U && IALU_H) { Cond = ((uint16_t *)IaluTm)[0] >= ((uint16_t *)IaluTn)[0];}
+          else if (IALU_U)           { Cond = ((uint32_t *)IaluTm)[0] >= ((uint32_t *)IaluTn)[0];}
+          else if (IALU_B)           { Cond = ((int8_t *)IaluTm)[0]  >= ((int8_t *)IaluTn)[0];}
+          else if (IALU_H)           { Cond = ((int16_t *)IaluTm)[0] >= ((int16_t *)IaluTn)[0];}
+          else                       { Cond = ((int32_t *)IaluTm)[0] >= ((int32_t *)IaluTn)[0];}
+        }}, Is1cycle);  
+
+      }
+
+      0x14: decode IALU2C {
+        0x0:ialuless ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm < (const uint8_t *)IaluTn;
+          else if (IALU_U && IALU_H) MPUd = IaluTm < (const uint16_t *)IaluTn;
+          else if (IALU_U)           MPUd = IaluTm < (const uint32_t *)IaluTn;
+          else if (IALU_B)           MPUd = IaluTm < (const int8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm < (const int16_t *)IaluTn;
+          else                       MPUd = IaluTm < (const int32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialuless2c ({{
+          if (IALU_U && IALU_B)      { Cond = ((uint8_t *)IaluTm)[0]   < ((uint8_t *)IaluTn)[0];}
+          else if (IALU_U && IALU_H) { Cond = ((uint16_t *)IaluTm)[0]  < ((uint16_t *)IaluTn)[0];}
+          else if (IALU_U)           { Cond = ((uint32_t *)IaluTm)[0]  < ((uint32_t *)IaluTn)[0];}
+          else if (IALU_B)           { Cond = ((int8_t *)IaluTm)[0]   < ((int8_t *)IaluTn)[0];}
+          else if (IALU_H)           { Cond = ((int16_t *)IaluTm)[0]  < ((int16_t *)IaluTn)[0];}
+          else                       { Cond = ((int32_t *)IaluTm)[0]  < ((int32_t *)IaluTn)[0];}
+        }}, Is1cycle); 
+
+      }
+
+      0x15: decode IALU2C {
+        0x0:ialule ({{
+          if (IALU_U && IALU_B)      MPUd = IaluTm <= (const uint8_t *)IaluTn;
+          else if (IALU_U && IALU_H) MPUd = IaluTm <= (const uint16_t *)IaluTn;
+          else if (IALU_U)           MPUd = IaluTm <= (const uint32_t *)IaluTn;
+          else if (IALU_B)           MPUd = IaluTm <= (const int8_t *)IaluTn;
+          else if (IALU_H)           MPUd = IaluTm <= (const int16_t *)IaluTn;
+          else                       MPUd = IaluTm <= (const int32_t *)IaluTn;
+        }}, Is3cycle);
+        0x1:ialule2c ({{
+          if (IALU_U && IALU_B)      { Cond = ((uint8_t *)IaluTm)[0]   <= ((uint8_t *)IaluTn)[0];}
+          else if (IALU_U && IALU_H) { Cond = ((uint16_t *)IaluTm)[0]  <= ((uint16_t *)IaluTn)[0];}
+          else if (IALU_U)           { Cond = ((uint32_t *)IaluTm)[0]  <= ((uint32_t *)IaluTn)[0];}
+          else if (IALU_B)           { Cond = ((int8_t *)IaluTm)[0]   <= ((int8_t *)IaluTn)[0];}
+          else if (IALU_H)           { Cond = ((int16_t *)IaluTm)[0]  <= ((int16_t *)IaluTn)[0];}
+          else                       { Cond = ((int32_t *)IaluTm)[0]  <= ((int32_t *)IaluTn)[0];}
+        }}, Is1cycle); 
+      }
+
+      0xe: ialucprs ({{
+        MPUReg res;
+        IaluTm.settrunc(IALU_T);
+        if (IALU_U && IALU_H)      res.cprs_uh(IaluTm, IaluTn);
+        else if (IALU_U)           res.cprs_uw(IaluTm, IaluTn);
+        else if (IALU_H)           res.cprs_h(IaluTm, IaluTn);
+        else                       res.cprs_w(IaluTm, IaluTn);
+        MPUd = res;    
+      }}, Is3cycle);
+
+      0xf: ialuexpd ({{
+        MPUReg res0;
+        MPUReg res1;
+        if (IALU_U && IALU_B)       { res0.expd_ub0(IaluTm);
+                                      res1.expd_ub1(IaluTm); }
+        else if (IALU_U && IALU_H)  { res0.expd_uh0(IaluTm);
+                                      res1.expd_uh1(IaluTm); }
+        else if (IALU_B)            { res0.expd_b0(IaluTm);
+                                      res1.expd_b1(IaluTm); }
+        else                        { res0.expd_h0(IaluTm);
+                                      res1.expd_h1(IaluTm); }
+        MPUd  = res0;
+        MPUhd = res1;
+      }}, Is3cycle);
+ 
+      0x18: ialudivs ({{
+        const uint8_t ZERO[64] = {0};
+        DIV_CNT = ZERO;
+        if (IALU_U) { 
+          DIVQU = IaluTm / (const uint16_t *)IaluTn;
+          DIVRE = IaluTm % (const uint16_t *)IaluTn;
+        } else {
+          DIVQU = IaluTm / (const int16_t *)IaluTn;
+          DIVRE = IaluTm % (const int16_t *)IaluTn;
+        }
+      }}, Is1cycle, IntMultOp);
+
+      0x19: ialudivq ({{
+        DIV_CNT = DIV_CNT;
+        DIV_CNT[0] = DIV_CNT[0] + 1;        
+      }}, Is1cycle, IntMultOp);
+
+      0x1a: ialumdivr ({{
+       
+        DIV_CNT = DIV_CNT;
+        DIV_CNT[0] = DIV_CNT[0] + 1;
+      }}, Is1cycle, IntMultOp);
+
+      0x1b: ialumdivq ({{
+        DIV_CNT = DIV_CNT;
+        DIV_CNT[0] = DIV_CNT[0] + 1;      
+      }}, Is1cycle, IntMultOp);
+
+      0x1c: ialudivr ({{
+        if(DIV_CNT[0] != 18) warn("IALU DIV Should be @ the 18th Cycle!");        
+        MPUd  = DIVQU;
+        MPUhd = DIVRE;
+      }}, Is2cycle, IntMultOp);
+
+    }
+  }
+  format ImacOp {
+    0x7: decode IMAC_OP default Unknown::Unknown(imacunknown) {
+      0x0: Nop::Nop(imac);
+      0x1: imacmult ({{
+        ImacTm.settrunc(IMAC_I);
+        ImacTm.setInt(IMAC_I);
+        if (IMAC_U && IMAC_B)      MPUd = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H) MPUd = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)           MPUd = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)           MPUd = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)           MPUd = ImacTm * (const int16_t *)ImacTn;
+        else                       MPUd = ImacTm * (const int32_t *)ImacTn;
+      }}, Is5cycle);
+      0x2: imacmul ({{
+        ImacTm.settrunc(IMAC_I);
+        ImacTm.setInt(IMAC_I);
+        MPUReg a ,b;
+        if (IMAC_U && IMAC_B)      a = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H) a = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)           a = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)           a = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)           a = ImacTm * (const int16_t *)ImacTn;
+        else                       a = ImacTm * (const int32_t *)ImacTn;
+        ImacTm.settrunc(!IMAC_I);
+        if (IMAC_U && IMAC_B)      b = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H) b = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)           b = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)           b = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)           b = ImacTm * (const int16_t *)ImacTn;
+        else                       b = ImacTm * (const int32_t *)ImacTn;
+        if (IMAC_B)      MPUReg::swap(a, b, 1);
+        else if (IMAC_H) MPUReg::swap(a, b, 2);
+        MPUd  = a;
+        MPUhd = b;
+      }}, Is5cycle);
+      0x3: imacmas ({{
+        MPUReg result;
+        ImacTm.settrunc(false);
+        ImacTm.setInt(false);
+        result.cmul(ImacTm ,ImacTn,ImacTp);    
+        MPUd = result;    
+      }}, Is7cycle);
+      0x8: imacma ({{
+        MPUReg hi;
+        MPUReg lo;
+        MPUReg carry;
+        ImacTm.settrunc(true);
+        ImacTm.setInt(true);
+        if (IMAC_U && IMAC_B)       lo = ImacTm * (const uint8_t *)ImacTn;  
+        else if (IMAC_U && IMAC_H)  lo = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)            lo = ImacTm * (const uint32_t *)ImacTn; 
+        else if (IMAC_B)            lo = ImacTm * (const int8_t *)ImacTn; 
+        else if (IMAC_H)            lo = ImacTm * (const int16_t *)ImacTn; 
+        else                        lo = ImacTm * (const int32_t *)ImacTn; 
+        ImacTm.settrunc(false);
+        ImacTm.setInt(true);
+        if (IMAC_U && IMAC_B)       hi = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H)  hi = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)            hi = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)            hi = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)            hi = ImacTm * (const int16_t *)ImacTn;
+        else                        hi = ImacTm * (const int32_t *)ImacTn;
+
+        ImacTp.settrunc(true);
+        if (IMAC_U && IMAC_B)      Mrl = ImacTp + (const uint8_t *)lo;
+        else if (IMAC_U && IMAC_H) Mrl = ImacTp + (const uint16_t *)lo;
+        else if (IMAC_U)           Mrl = ImacTp + (const uint32_t *)lo;
+        else if (IMAC_B)           Mrl = ImacTp + (const int8_t *)lo;
+        else if (IMAC_H)           Mrl = ImacTp + (const int16_t *)lo;
+        else                       Mrl = ImacTp + (const int32_t *)lo;
+        if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(ImacTp, lo);
+        else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(ImacTp, lo);
+        else if (IMAC_U)           carry = MPUReg::carry_uw(ImacTp, lo);
+        else if (IMAC_B)           carry = MPUReg::carry_b(ImacTp, lo);
+        else if (IMAC_H)           carry = MPUReg::carry_h(ImacTp, lo);
+        else                       carry = MPUReg::carry_w(ImacTp, lo);
+        hi.settrunc(true); 
+        if (IMAC_U && IMAC_B)      Mrh = hi + (const uint8_t *)carry;
+        else if (IMAC_U && IMAC_H) Mrh = hi + (const uint16_t *)carry;
+        else if (IMAC_U)           Mrh = hi + (const uint32_t *)carry;
+        else if (IMAC_B)           Mrh = hi + (const int8_t *)carry;
+        else if (IMAC_H)           Mrh = hi + (const int16_t *)carry;
+        else                       Mrh = hi + (const int32_t *)carry;
+      }}, Is6cycle, IntMultOp);
+      0x9: imacmac ({{
+        ImacTm.settrunc(true);
+        ImacTm.setInt(true);
+        MPUReg hi;
+        MPUReg lo;
+        MPUReg carry;
+        if (IMAC_U && IMAC_B)      lo = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H) lo = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)           lo = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)           lo = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)           lo = ImacTm * (const int16_t *)ImacTn;
+        else                       lo = ImacTm * (const int32_t *)ImacTn;
+        ImacTm.settrunc(false);
+        if (IMAC_U && IMAC_B)      hi = ImacTm * (const uint8_t *)ImacTn;
+        else if (IMAC_U && IMAC_H) hi = ImacTm * (const uint16_t *)ImacTn;
+        else if (IMAC_U)           hi = ImacTm * (const uint32_t *)ImacTn;
+        else if (IMAC_B)           hi = ImacTm * (const int8_t *)ImacTn;
+        else if (IMAC_H)           hi = ImacTm * (const int16_t *)ImacTn;
+        else                       hi = ImacTm * (const int32_t *)ImacTn;
+        if (IMAC_CR) {
+          Mrl = lo;
+          Mrh = hi;
+        } else {
+          Mrl.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrl = Mrl + (const uint8_t *)lo;
+          else if (IMAC_U && IMAC_H) Mrl = Mrl + (const uint16_t *)lo;
+          else if (IMAC_U)           Mrl = Mrl + (const uint32_t *)lo;
+          else if (IMAC_B)           Mrl = Mrl + (const int8_t *)lo;
+          else if (IMAC_H)           Mrl = Mrl + (const int16_t *)lo;
+          else Mrl = Mrl + (const int32_t *)lo;
+          if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(Mrl, lo);
+          else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(Mrl, lo);
+          else if (IMAC_U)           carry = MPUReg::carry_uw(Mrl, lo);
+          else if (IMAC_B)           carry = MPUReg::carry_b(Mrl, lo);
+          else if (IMAC_H)           carry = MPUReg::carry_h(Mrl, lo);
+          else                       carry = MPUReg::carry_w(Mrl, lo);
+          Mrh.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)hi;
+          else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)hi;
+          else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)hi;
+          else if (IMAC_B)           Mrh = Mrh + (const int8_t *)hi;
+          else if (IMAC_H)           Mrh = Mrh + (const int16_t *)hi;
+          else                       Mrh = Mrh + (const int32_t *)hi;
+          if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)carry;
+          else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)carry;
+          else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)carry;
+          else if (IMAC_B)           Mrh = Mrh + (const int8_t *)carry;
+          else if (IMAC_H)           Mrh = Mrh + (const int16_t *)carry;
+          else                       Mrh = Mrh + (const int32_t *)carry;
+        }
+      }}, Is6cycle, IntMultOp);
+      0xA: decode IMAC_L{
+        0x0:imacmacmov ({{
+          ImacTm.settrunc(true);
+          ImacTm.setInt(true);
+          MPUReg hi;
+          MPUReg lo;
+          MPUReg carry;
+          if (IMAC_U && IMAC_B)      lo = ImacTm * (const uint8_t *)ImacTn;
+          else if (IMAC_U && IMAC_H) lo = ImacTm * (const uint16_t *)ImacTn;
+          else if (IMAC_U)           lo = ImacTm * (const uint32_t *)ImacTn;
+          else if (IMAC_B)           lo = ImacTm * (const int8_t *)ImacTn;
+          else if (IMAC_H)           lo = ImacTm * (const int16_t *)ImacTn;
+          else                       lo = ImacTm * (const int32_t *)ImacTn;
+          ImacTm.settrunc(false);
+          if (IMAC_U && IMAC_B)      hi = ImacTm * (const uint8_t *)ImacTn;
+          else if (IMAC_U && IMAC_H) hi = ImacTm * (const uint16_t *)ImacTn;
+          else if (IMAC_U)           hi = ImacTm * (const uint32_t *)ImacTn;
+          else if (IMAC_B)           hi = ImacTm * (const int8_t *)ImacTn;
+          else if (IMAC_H)           hi = ImacTm * (const int16_t *)ImacTn;
+          else                       hi = ImacTm * (const int32_t *)ImacTn;
+          if (IMAC_CR) {
+            Mrl = lo;
+            Mrh = hi;
+          } else {
+            Mrl.settrunc(true);
+            if (IMAC_U && IMAC_B)      Mrl = Mrl + (const uint8_t *)lo;
+            else if (IMAC_U && IMAC_H) Mrl = Mrl + (const uint16_t *)lo;
+            else if (IMAC_U)           Mrl = Mrl + (const uint32_t *)lo;
+            else if (IMAC_B)           Mrl = Mrl + (const int8_t *)lo;
+            else if (IMAC_H)           Mrl = Mrl + (const int16_t *)lo;
+            else                       Mrl = Mrl + (const int32_t *)lo;
+            if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(Mrl, lo);
+            else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(Mrl, lo);
+            else if (IMAC_U)           carry = MPUReg::carry_uw(Mrl, lo);
+            else if (IMAC_B)           carry = MPUReg::carry_b(Mrl, lo);
+            else if (IMAC_H)           carry = MPUReg::carry_h(Mrl, lo);
+            else                       carry = MPUReg::carry_w(Mrl, lo);
+            Mrh.settrunc(true);
+            if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)hi;
+            else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)hi;
+            else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)hi;
+            else if (IMAC_B)           Mrh = Mrh + (const int8_t *)hi;
+            else if (IMAC_H)           Mrh = Mrh + (const int16_t *)hi;
+            else                       Mrh = Mrh + (const int32_t *)hi;
+            if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)carry;
+            else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)carry;
+            else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)carry;
+            else if (IMAC_B)           Mrh = Mrh + (const int8_t *)carry;
+            else if (IMAC_H)           Mrh = Mrh + (const int16_t *)carry;
+            else                       Mrh = Mrh + (const int32_t *)carry;
+          }
+          MPUd = Mrl;
+        }}, Is8cycle, IntMultOp);
+        0x1:imacmacmovl ({{
+          ImacTm.settrunc(true);
+          ImacTm.setInt(true);
+          MPUReg hi;
+          MPUReg lo;
+          MPUReg carry;
+          if (IMAC_U && IMAC_B)      lo = ImacTm * (const uint8_t *)ImacTn;
+          else if (IMAC_U && IMAC_H) lo = ImacTm * (const uint16_t *)ImacTn;
+          else if (IMAC_U)           lo = ImacTm * (const uint32_t *)ImacTn;
+          else if (IMAC_B)           lo = ImacTm * (const int8_t *)ImacTn;
+          else if (IMAC_H)           lo = ImacTm * (const int16_t *)ImacTn;
+          else                       lo = ImacTm * (const int32_t *)ImacTn;
+          ImacTm.settrunc(false);
+          if (IMAC_U && IMAC_B)      hi = ImacTm * (const uint8_t *)ImacTn;
+          else if (IMAC_U && IMAC_H) hi = ImacTm * (const uint16_t *)ImacTn;
+          else if (IMAC_U)           hi = ImacTm * (const uint32_t *)ImacTn;
+          else if (IMAC_B)           hi = ImacTm * (const int8_t *)ImacTn;
+          else if (IMAC_H)           hi = ImacTm * (const int16_t *)ImacTn;
+          else                       hi = ImacTm * (const int32_t *)ImacTn;
+          if (IMAC_CR) {
+            Mrl = lo;
+            Mrh = hi;
+          } else {
+            Mrl.settrunc(true);
+            if (IMAC_U && IMAC_B)      Mrl = Mrl + (const uint8_t *)lo;
+            else if (IMAC_U && IMAC_H) Mrl = Mrl + (const uint16_t *)lo;
+            else if (IMAC_U)           Mrl = Mrl + (const uint32_t *)lo;
+            else if (IMAC_B)           Mrl = Mrl + (const int8_t *)lo;
+            else if (IMAC_H)           Mrl = Mrl + (const int16_t *)lo;
+            else Mrl = Mrl + (const int32_t *)lo;
+            if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(Mrl, lo);
+            else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(Mrl, lo);
+            else if (IMAC_U)           carry = MPUReg::carry_uw(Mrl, lo);
+            else if (IMAC_B)           carry = MPUReg::carry_b(Mrl, lo);
+            else if (IMAC_H)           carry = MPUReg::carry_h(Mrl, lo);
+            else                       carry = MPUReg::carry_w(Mrl, lo);
+            Mrh.settrunc(true);
+            if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)hi;
+            else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)hi;
+            else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)hi;
+            else if (IMAC_B)           Mrh = Mrh + (const int8_t *)hi;
+            else if (IMAC_H)           Mrh = Mrh + (const int16_t *)hi;
+            else                       Mrh = Mrh + (const int32_t *)hi;
+            if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)carry;
+            else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)carry;
+            else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)carry;
+            else if (IMAC_B)           Mrh = Mrh + (const int8_t *)carry;
+            else if (IMAC_H)           Mrh = Mrh + (const int16_t *)carry;
+            else                       Mrh = Mrh + (const int32_t *)carry;
+          }
+          MPUReg a ,b;
+          a = Mrl; b = Mrh;
+          if (IMAC_B)      MPUReg::swap(a, b, 1);
+          else if (IMAC_H) MPUReg::swap(a, b, 2);
+          MPUd  = a;
+          MPUhd = b;
+        }}, Is8cycle, IntMultOp);
+      }
+              
+      0xb: imacacc ({{
+        MPUReg carry;
+        MPUReg setzero(0);
+       if (IMAC_CR) {
+          Mrl = ImacTm;
+          Mrh = setzero;
+        } else {
+          Mrl.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrl = Mrl + (const uint8_t *)ImacTm;
+          else if (IMAC_U && IMAC_H) Mrl = Mrl + (const uint16_t *)ImacTm;
+          else if (IMAC_U)           Mrl = Mrl + (const uint32_t *)ImacTm;
+          else if (IMAC_B)           Mrl = Mrl + (const int8_t *)ImacTm;
+          else if (IMAC_H)           Mrl = Mrl + (const int16_t *)ImacTm;
+          else                       Mrl = Mrl + (const int32_t *)ImacTm;
+          if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(Mrl, ImacTm);
+          else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(Mrl, ImacTm);
+          else if (IMAC_U)           carry = MPUReg::carry_uw(Mrl, ImacTm);
+          else if (IMAC_B)           carry = MPUReg::carry_b(Mrl, ImacTm);
+          else if (IMAC_H)           carry = MPUReg::carry_h(Mrl, ImacTm);
+          else                       carry = MPUReg::carry_w(Mrl, ImacTm);
+          Mrh.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)carry;
+          else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)carry;
+          else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)carry;
+          else if (IMAC_B)           Mrh = Mrh + (const int8_t *)carry;
+          else if (IMAC_H)           Mrh = Mrh + (const int16_t *)carry;
+          else                       Mrh = Mrh + (const int32_t *)carry;
+        }
+      }}, Is2cycle, IntMultOp);
+
+
+      0xc: imacaccmov ({{
+        MPUReg hi;
+        MPUReg lo;
+        MPUReg carry;
+       if (IMAC_CR) {
+          Mrl = ImacTm;
+          Mrh = Mrh;
+        } else {
+          Mrl.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrl = Mrl + (const uint8_t *)ImacTm;
+          else if (IMAC_U && IMAC_H) Mrl = Mrl + (const uint16_t *)ImacTm;
+          else if (IMAC_U)           Mrl = Mrl + (const uint32_t *)ImacTm;
+          else if (IMAC_B)           Mrl = Mrl + (const int8_t *)ImacTm;
+          else if (IMAC_H)           Mrl = Mrl + (const int16_t *)ImacTm;
+          else                       Mrl = Mrl + (const int32_t *)ImacTm;
+          if (IMAC_U && IMAC_B)      carry = MPUReg::carry_ub(Mrl, ImacTm);
+          else if (IMAC_U && IMAC_H) carry = MPUReg::carry_uh(Mrl, ImacTm);
+          else if (IMAC_U)           carry = MPUReg::carry_uw(Mrl, ImacTm);
+          else if (IMAC_B)           carry = MPUReg::carry_b(Mrl, ImacTm);
+          else if (IMAC_H)           carry = MPUReg::carry_h(Mrl, ImacTm);
+          else                       carry = MPUReg::carry_w(Mrl, lo);
+          Mrh.settrunc(true);
+          if (IMAC_U && IMAC_B)      Mrh = Mrh + (const uint8_t *)carry;
+          else if (IMAC_U && IMAC_H) Mrh = Mrh + (const uint16_t *)carry;
+          else if (IMAC_U)           Mrh = Mrh + (const uint32_t *)carry;
+          else if (IMAC_B)           Mrh = Mrh + (const int8_t *)carry;
+          else if (IMAC_H)           Mrh = Mrh + (const int16_t *)carry;
+          else                       Mrh = Mrh + (const int32_t *)carry;
+        }
+        MPUd = Mrl;
+      }}, Is4cycle, IntMultOp);
+    }
+  }
+  format FaluOp {
+    0x8: decode FALU_OP default Unknown::Unknown(faluunknown) {
+      0x0: Nop::Nop(falu);
+      0x1: faluadd ({{
+        FaluTm.settrunc(FALU_T);
+        if (FALU_S)      MPUd = FaluTm + (const float *)FaluTn;
+        else if (FALU_D) MPUd = FaluTm + (const double *)FaluTn;
+        else panic("Unknown falu add flags.\n");
+      }}, Is5cycle);
+
+      0x2:falusub ({{
+        FaluTm.settrunc(FALU_T);
+        if (FALU_S)      MPUd = FaluTm - (const float *)FaluTn;
+        else if (FALU_D) MPUd = FaluTm - (const double *)FaluTn;
+        else panic("Unknown falu sub flags.\n");
+      }}, Is5cycle);
+
+      0x3:falumax ({{
+        MPUReg result;
+        MPUReg temp;
+        if (FALU_S) {
+          temp = FaluTm > (const float *)FaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((float *)result)[i] = ((uint32_t *)temp)[i]
+                                   ? ((float *)FaluTm)[i]
+                                   : ((float *)FaluTn)[i];
+        } else if (FALU_D) {
+          temp = FaluTm > (const double *)FaluTn;
+          for (unsigned i = 0; i < 8; i++)
+            ((double *)result)[i] = ((uint64_t *)temp)[i]
+                                   ? ((double *)FaluTm)[i]
+                                   : ((double *)FaluTn)[i];
+        } else panic("Unknown falu max flags.\n");
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x4:falumin ({{
+        MPUReg result;
+        MPUReg temp;
+        if (FALU_S) {
+          temp = FaluTm < (const float *)FaluTn;
+          for (unsigned i = 0; i < 16; i++)
+            ((float *)result)[i] = ((uint32_t *)temp)[i]
+                                   ? ((float *)FaluTm)[i]
+                                   : ((float *)FaluTn)[i];
+        } else if (FALU_D) {
+          temp = FaluTm < (const double *)FaluTn;
+          for (unsigned i = 0; i < 8; i++)
+            ((double *)result)[i] = ((uint64_t *)temp)[i]
+                                   ? ((double *)FaluTm)[i]
+                                   : ((double *)FaluTn)[i];
+        } else panic("Unknown falu max flags.\n");
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x5: faluabs ({{
+        MPUReg result;
+        if (FALU_S)
+          for (unsigned i = 0; i < 16; i++)
+           ((float *)result)[i] = fabs(((float *)FaluTm)[i]);                                 
+        else if (FALU_D)
+          for (unsigned i = 0; i < 8; i++)
+           ((double *)result)[i] = fabs(((double *)FaluTm)[i]);
+        else panic("Unknown falu abs flags.\n");   
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x6: faluaddsub ({{
+        MPUReg result;
+        for (unsigned i = 0; i < 8; i++){
+          ((float *)result)[2*i] = ((float *)FaluTm)[2*i + 1] + ((float *)FaluTn)[2*i + 1];
+          ((float *)result)[2*i + 1] = ((float *)FaluTm)[2*i + 1] - ((float *)FaluTn)[2*i + 1];
+        }
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x18: falurecip({{
+        MPUReg result;
+        if (FALU_S){
+          for (unsigned i = 0; i < 16; i++)
+            ((uint32_t *)result)[i] = recips(((uint32_t *)FaluTm)[i]);
+        } else if (FALU_D) {
+          for (unsigned i = 0; i < 8; i++)
+            ((uint64_t *)result)[i] = recipdr(((uint64_t *)FaluTm)[i]);
+        }
+        else panic("Unknown falu recip flags.\n");
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x19: falursqrt({{
+        MPUReg result;
+        if (FALU_S){
+          for (unsigned i = 0; i < 16; i++)
+            ((uint32_t *)result)[i] = rsqrts(((uint32_t *)FaluTm)[i]);
+        } else if (FALU_D) {
+          for (unsigned i = 0; i < 8; i++)
+            ((uint64_t *)result)[i] = rsqrtdr(((uint64_t *)FaluTm)[i]);
+        }
+        else panic("Unknown falu rsqrt flags.\n");
+        MPUd = result;
+      }}, Is5cycle);
+
+      0x8: faluequ ({{
+        if (FALU_S){
+          MPUd = FaluTm == (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm == (const double *)FaluTn;
+        } else panic("Unknown falu equ flags.\n");
+      }}, Is5cycle);
+
+      0x9: faluneq ({{
+        if (FALU_S){
+          MPUd = FaluTm != (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm != (const double *)FaluTn;
+        } else panic("Unknown falu neq flags.\n");
+      }}, Is5cycle);
+
+      0xa: falugt ({{
+        if (FALU_S){
+          MPUd = FaluTm > (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm > (const double *)FaluTn;
+        } else panic("Unknown falu gt flags.\n");
+      }}, Is5cycle);
+
+      0xb: faluge ({{
+        if (FALU_S){
+          MPUd = FaluTm >= (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm >= (const double *)FaluTn;
+        } else panic("Unknown falu ge flags.\n");
+      }}, Is5cycle);
+
+      0xc: falult ({{
+        if (FALU_S){
+          MPUd = FaluTm < (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm < (const double *)FaluTn;
+        } else panic("Unknown falu lt flags.\n");
+      }}, Is5cycle);
+
+      0xd: falule ({{
+        if (FALU_S){
+          MPUd = FaluTm <= (const float *)FaluTn;
+        } else if (FALU_D) {
+          MPUd = FaluTm <= (const double *)FaluTn;
+        } else panic("Unknown falu le flags.\n");
+      }}, Is5cycle);
+
+      0x10: decode FALU_D {
+        0x0:falucvtw2s ({{             // fix point to single float
+          MPUReg result;
+          if (FALU_U){
+            if (FALU_T)
+              fesetround(FE_TOWARDZERO);
+            for (unsigned i = 0; i < 16; i++){
+              ((float *)result)[i] = static_cast<float>(((uint32_t *)FaluTm)[i]);
+            }
+            fesetround(FE_TONEAREST);
+          }
+          else {
+            if (FALU_T)
+              fesetround(FE_TOWARDZERO);
+            for (unsigned i = 0; i < 16; i++){
+              ((float *)result)[i] = static_cast<float>(((int32_t *)FaluTm)[i]);
+            }
+            fesetround(FE_TONEAREST);
+          }
+          MPUd = result;
+        }}, Is5cycle);
+        0x1:falucvtd2s ({{             // double float to single float
+          MPUReg result;
+          if (FALU_T)
+            fesetround(FE_TOWARDZERO);
+          for (unsigned i = 0; i < 8; i++){
+            ((float *)result)[i] = static_cast<float>(((double *)FaluTm)[i]);
+            ((float *)result)[i+8] = static_cast<float>(((double *)FaluTmp1)[i]);
+          }        
+          fesetround(FE_TONEAREST);
+          MPUd = result;
+        }}, Is5cycle);
+      }
+
+      0x11: decode FALU_S {
+        0x0:falucvtw2d ({{             // fix point to double float
+          MPUReg result;
+          if (FALU_U){
+            if (FALU_T)
+              fesetround(FE_TOWARDZERO);
+            for (unsigned i = 0; i < 8; i++){
+              ((double *)result)[i] = static_cast<double>(((uint32_t *)FaluTm)[2*i]);
+            }
+            fesetround(FE_TONEAREST);
+          }
+          else {
+            if (FALU_T)
+              fesetround(FE_TOWARDZERO);
+            for (unsigned i = 0; i < 8; i++){
+              ((double *)result)[i] = static_cast<double>(((int32_t *)FaluTm)[2*i]);
+            }
+            fesetround(FE_TONEAREST);
+          }
+          MPUd = result;
+        }}, Is5cycle);
+
+        0x1:falucvts2d ({{             // single float to double float
+          MPUReg result;
+          if (FALU_T)
+            fesetround(FE_TOWARDZERO);
+          for (unsigned i = 0; i < 8; i++){
+            ((double *)result)[i] = static_cast<float>(((float *)FaluTm)[2*i]);
+
+          }        
+          fesetround(FE_TONEAREST);
+          MPUd = result;
+        }}, Is5cycle);
+      }
+
+      0x12: decode FALU_D {
+        0x0:falucvts2w ({{             // single float to signed int
+          MPUReg result;
+          for (unsigned i = 0; i < 16; i++){
+            if (FALU_T) 
+              ((int32_t *)result)[i] = static_cast<int32_t>(((float *)FaluTm)[i]);
+            else ((int32_t *)result)[i] = ((float *)FaluTm)[i] > MAX_INT32 ? static_cast<int32_t>(MAX_INT32) :
+                                          ( ((float *)FaluTm)[i] < MIN_INT32 ? static_cast<int32_t>(MIN_INT32) : static_cast<int32_t>(((float *)FaluTm)[i]) );
+          }         
+          MPUd = result;
+        }}, Is5cycle);
+        0x1:falucvtd2w ({{             // double float to signed int
+          MPUReg result;
+          for (unsigned i = 0; i < 8; i++){
+            if (FALU_T) {
+              ((int32_t *)result)[i] = static_cast<int32_t>(((double *)FaluTm)[i]);
+              ((int32_t *)result)[i + 8] = static_cast<int32_t>(((double *)FaluTmp1)[i]);
+            }
+            else {
+              ((int32_t *)result)[i] = ((double *)FaluTm)[i] > MAX_INT32 ? static_cast<int32_t>(MAX_INT32) :
+                                          ( ((double *)FaluTm)[i] < MIN_INT32 ? static_cast<int32_t>(MIN_INT32) : static_cast<int32_t>(((double *)FaluTm)[i]) );
+              ((int32_t *)result)[i + 8] = ((double *)FaluTmp1)[i] > MAX_INT32 ? static_cast<int32_t>(MAX_INT32) :
+                                          ( ((double *)FaluTmp1)[i] < MIN_INT32 ? static_cast<int32_t>(MIN_INT32) : static_cast<int32_t>(((double *)FaluTmp1)[i]) );
+            }
+          }        
+          MPUd = result;
+        }}, Is5cycle);
+      }
+
+      0x13: decode FALU_D {
+        0x0:falucvts2uw ({{             // single float to unsigned int
+          MPUReg result;
+          for (unsigned i = 0; i < 16; i++){
+            if (FALU_T) 
+              ((uint32_t *)result)[i] = static_cast<uint32_t>(((float *)FaluTm)[i]);
+            else ((uint32_t *)result)[i] = ((float *)FaluTm)[i] > MAX_UINT32 ? static_cast<uint32_t>(MAX_UINT32) :
+                                          ( ((float *)FaluTm)[i] < 0.0 ? static_cast<uint32_t>(0.0) : static_cast<uint32_t>(((float *)FaluTm)[i]) );
+          }         
+          MPUd = result;
+        }}, Is5cycle);
+        0x1:falucvtd2uw ({{             // double float to unsigned int
+          MPUReg result;
+          for (unsigned i = 0; i < 8; i++){
+            if (FALU_T) {
+              ((uint32_t *)result)[i] = static_cast<uint32_t>(((double *)FaluTm)[i]);
+              ((uint32_t *)result)[i + 8] = static_cast<uint32_t>(((double *)FaluTmp1)[i]);
+            }
+            else {
+              ((uint32_t *)result)[i] = ((double *)FaluTm)[i] > MAX_UINT32 ? static_cast<uint32_t>(MAX_UINT32) :
+                                          ( ((double *)FaluTm)[i] < 0.0 ? static_cast<uint32_t>(0.0) : static_cast<uint32_t>(((double *)FaluTm)[i]) );
+              ((uint32_t *)result)[i + 8] = ((double *)FaluTmp1)[i] > MAX_UINT32 ? static_cast<uint32_t>(MAX_UINT32) :
+                                          ( ((double *)FaluTmp1)[i] < 0.0 ? static_cast<int32_t>(0.0) : static_cast<uint32_t>(((double *)FaluTmp1)[i]) );
+            }
+          }        
+          MPUd = result;
+        }}, Is5cycle);
+      }
+
+    }
+  }
+  format FmacOp {
+    0x9: decode FMAC_OP default Unknown::Unknown(fmacunknown) {
+      0x0: Nop::Nop(fmac);
+      0x1: fmacmul ({{
+        FmacTm.settrunc(FMAC_CRT);
+        if (FMAC_SD) MPUd = FmacTm * (const double *)FmacTn;
+        else MPUd = FmacTm * (const float *)FmacTn;
+      }}, Is6cycle);
+
+      0x2: fmacma ({{
+        MPUReg result;
+        if (FMAC_SD) {
+          for (unsigned i = 0; i < 8; i++){
+            long double tm = ((double *)FmacTm)[i];
+            long double tn = ((double *)FmacTn)[i];
+            long double tp = ((double *)FmacTp)[i];
+            fesetround(FE_TOWARDZERO);
+            long double r = tm * tn + tp;
+            fesetround(FE_TONEAREST);
+            ((double *)result)[i] = r;
+          }
+          Mrf  = result;
+        }
+        else {
+          for (unsigned i = 0; i < 16; i++){
+            double tm = ((float *)FmacTm)[i];
+            double tn = ((float *)FmacTn)[i];
+            double tp = ((float *)FmacTp)[i];
+            fesetround(FE_TOWARDZERO);
+            double r = tm * tn + tp;
+            fesetround(FE_TONEAREST);
+            ((float *)result)[i] = r;
+          }
+          Mrf  = result;
+        }
+      }}, Is8cycle, IntMultOp);
+
+      0x3: fmacmac ({{
+        MPUReg result;
+        if (FMAC_SD) {
+          for (unsigned i = 0; i < 8; i++){            
+            long double tm = ((double *)FmacTm)[i];
+            long double tn = ((double *)FmacTn)[i];
+            long double mr = ((double *)Mrf)[i];
+            long double r;
+            fesetround(FE_TOWARDZERO);
+            if(FMAC_CRT)   r = tm * tn;
+            else           r = tm * tn + mr;
+            fesetround(FE_TONEAREST);
+            ((double *)result)[i] = r;
+          }
+          Mrf = result;
+        }
+        else {
+          for (unsigned i = 0; i < 16; i++){            
+            double tm = ((float *)FmacTm)[i];
+            double tn = ((float *)FmacTn)[i];
+            double mr = ((float *)Mrf)[i];
+            double r;
+            fesetround(FE_TOWARDZERO);
+            if(FMAC_CRT)   r = tm * tn;
+            else           r = tm * tn + mr;
+            fesetround(FE_TONEAREST);            
+            ((float *)result)[i] = r;
+          }
+          Mrf = result;
+        }
+      }}, Is8cycle, IntMultOp);
+
+      0x4: fmacmacmov ({{
+        MPUReg result;
+        if (FMAC_SD) {
+          for (unsigned i = 0; i < 8; i++){            
+            long double tm = ((double *)FmacTm)[i];
+            long double tn = ((double *)FmacTn)[i];
+            long double mr = ((double *)Mrf)[i];
+            long double r;
+            fesetround(FE_TOWARDZERO);
+            if(FMAC_CRT)   r = tm * tn;
+            else           r = tm * tn + mr;
+            fesetround(FE_TONEAREST);        
+            ((double *)result)[i] = r;
+          }
+          Mrf = result;
+        }
+        else {
+          for (unsigned i = 0; i < 16; i++){
+            double tm = ((float *)FmacTm)[i];
+            double tn = ((float *)FmacTn)[i];
+            double mr = ((float *)Mrf)[i];
+            double r;
+            fesetround(FE_TOWARDZERO);
+            if(FMAC_CRT)   r = tm * tn;
+            else           r = tm * tn + mr;
+            fesetround(FE_TONEAREST);        
+            ((float *)result)[i] = r;
+          }
+          Mrf = result;
+        }
+        MPUd = Mrf;
+      }}, Is9cycle, IntMultOp);
+
+      0x5: fmaccmul ({{
+        MPUReg result;
+        result.floatcmul(FmacTm ,FmacTn);
+        MPUd = result;
+      }}, Is10cycle);
+    }
+  }
+  0xA: decode BIU_OP default Unknown::Unknown(biu0unknown) {
+    format MpuBasicOp {
+      0x0: Nop::Nop(biu0);
+    }
+    format BiuOps {
+      0x4: biu0ld ({{ MPUd = DMem;}}, inst_flags = IsLoad);
+      0x5: biu0st ({{ if(BIU_IND) DMem = Biu0s.fftind();
+                      else        DMem = Biu0s; }}, inst_flags = IsStore);
+      0x6: biu0kg ({{ MPUd = BiuCtxS; }}, inst_flags = Is2cycle);
+    }
+  }
+  0xB: decode BIU_OP default Unknown::Unknown(biu1unknown) {
+    format MpuBasicOp {
+      0x0: Nop::Nop(biu1);
+    }
+    format BiuOps {
+      0x4: biu1ld ({{ MPUd = DMem; }}, inst_flags = IsLoad);
+      0x5: biu1st ({{ if(BIU_IND) DMem = Biu1s.fftind();
+                      else        DMem = Biu1s; }}, inst_flags = IsStore);
+      0x6: biu1kg ({{ MPUd = BiuCtxS; }}, inst_flags = Is2cycle);
+    }
+  }
+  0xC: decode BIU_OP default Unknown::Unknown(biu2unknown) {
+    format MpuBasicOp {
+      0x0: Nop::Nop(biu2);
+    }
+    format BiuOps {
+      0x4: biu2ld ({{ MPUd = DMem; }}, inst_flags = IsLoad);
+      0x5: biu2st ({{ if(BIU_IND) DMem = Biu2s.fftind();
+                      else        DMem = Biu2s; }}, inst_flags = IsStore);
+      0x6: biu2kg ({{ MPUd = BiuCtxS; }}, inst_flags = Is2cycle);
+    }
+  }
+
+  format MseqOp{
+    0xD: decode MPUOPCODE_LO default Unknown::Unknown(msequnknown) {
+      0x0: Nop::Nop(mseq);
+      0x1: Nop::Nop(repeatimm);
+      0x2: Nop::Nop(repeatki);
+      0x3: lpto({{
+        lpen = lpen | (1 << MSEQ_KI);
+        lps = NPC;
+        lpn = KIs - MSEQ_IMM4;
+        lpe = MSEQ_IMM10 * 41 * 8;
+      }}, IsLoop);
+      0x4: mpustop({{
+        if (xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->status() == ThreadContext::Suspended)
+          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->activate(0);
+        xc->tcBase()->halt(0); 
+        if (MaPUSystem) {
+          LiveProcess *p = dynamic_cast<LiveProcess *>(xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->getProcessPtr());
+          assert(p);
+          CsuObject *csuObj = dynamic_cast<CsuObject *>(p->getObjFilePtr());
+          assert(csuObj);
+          csuObj->sendEvent(CsuObject::MPUIdelEvent);
+        }
+      }});           //MPUSTOP
+    }
+  }
+}

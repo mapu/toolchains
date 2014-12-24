@@ -1,0 +1,14 @@
+to build openocd, do as follows:
+1. run "./configure" shell script.
+2. run "make" to build binary object. 
+   Afte make, an executable named "openocd" is generated, run openocd to start openocd
+   
+Optional make targets:
+(1) "make clean" to delete generated object files, not including makefiles 
+	residing in each subdirectories.
+(2) "make distclean" delete all generated object files and all make files, 
+	which means you need to rerun configure script to generate makefiles
+	
+(3) "make install" will install mocd at /usr/local. 
+	This operation is not recommended at present.
+

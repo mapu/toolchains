@@ -1,0 +1,389 @@
+////////////////////////////////////////////////////////////////////
+//
+// Bus interface unit instructions
+//
+output header {{
+using namespace MapuISA;
+
+class BiuOp : public MpuStaticInst {
+protected:
+  Request::Flags memAccessFlags;
+  // Constructor
+  BiuOp(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+    : MpuStaticInst(mnem, _machInst, __opClass) {
+    cond = BIU_C;
+    c_not = BIU_CN;
+    Flags = BIU_FLAG;
+  }
+
+  void printDest(std::ostream &os, int dest) const ;
+
+  void printLeft(std::ostream &os) const ;
+
+  void printFlags(std::ostream &os) const ;
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+void BiuOp::printDest(std::ostream &os, int dest) const {
+  if (BIU_OP == 5)
+    os << "->DM";
+  else
+    MpuStaticInst::printDest(os, dest);
+}
+
+void BiuOp::printLeft(std::ostream &os) const {
+  if (BIU_OP == 4)
+    os << "DM";
+  else if (BIU_OP == 5)
+    os << "BIU";
+  else if (BIU_OP == 6)
+    os << "KG";
+  printFlags(os);
+}
+
+void BiuOp::printFlags(std::ostream &os) const {
+  std::string split = "";
+  if (Flags) {
+    os << "(";
+    if (BIU_M) {
+      os << "M";
+      split = ",";
+    }
+    if (BIU_BR) {
+      os << split << "BR";
+      split = ",";
+    }
+    if (BIU_A) {
+      os << split << "A++";
+      split = ",";
+    }
+    if (BIU_K) os << split << "K++";
+    os << ")";
+  }
+}
+}};
+
+def template BiuExecute {{
+  Fault %(class_name)s::execute(%(CPU_exec_context)s *xc,
+                                Trace::InstRecord *traceData) const {
+    Addr EA[64];
+    unsigned i = 0;
+    Fault fault = NoFault;
+
+    %(op_decl)s;
+    %(op_rd)s;
+    %(ea_code)s;
+
+    if (fault == NoFault) {
+      %(memst_code)s;
+      fault = readMemAtomic(xc, traceData, EA[i], DMem[i], memAccessFlags);
+      %(memld_code)s;
+    }
+
+    if (fault == NoFault) {
+      %(op_wb)s;
+    }
+
+    return fault;
+  }
+}};
+
+
+def template BiuInitiateAcc {{
+  Fault %(class_name)s::initiateAcc(%(CPU_exec_context)s *xc,
+                                    Trace::InstRecord *traceData) const {
+    Addr *EA = (Addr *)(xc->getEA());
+    Fault fault = NoFault;
+    
+    uint8_t Data[64];
+
+    %(op_decl)s;
+    if (isStore()) %(op_rd)s;
+
+    if (fault == NoFault) {
+      %(memst_code)s;
+      if (isLoad())
+          fault = readMemTiming(xc, traceData, EA[0], Data, memAccessFlags);
+      else if (isStore()) {
+          fault = xc->writeMem((uint8_t *)DMem, 64, EA[0], memAccessFlags, NULL);
+          for (unsigned i = 0; i < 64; i++) {
+            if (i % 4 == 0) DPRINTFR(MapuBIU, "EA=0x%x ", EA[i+1]);
+            DPRINTFR(MapuBIU, "%02x ", EA[i] ? DMem[i] : 0);
+            if ((i + 1)%4 == 0) DPRINTFR(MapuBIU, "\n");
+          }
+          if (traceData) {
+              traceData->setData(new MPUReg(DMem));
+          }
+      }
+      //EA[64] = (++i) % 64;
+    }
+
+    return fault;
+  }
+}};
+
+def template BiuCompleteAcc {{
+  Fault %(class_name)s::completeAcc(Packet *pkt,
+                                    %(CPU_exec_context)s *xc,
+                                    Trace::InstRecord *traceData) const {
+    Fault fault = NoFault;
+    uint8_t Data[64];
+
+    %(op_decl)s;
+    %(op_rd)s;
+
+    if (isLoad()) {
+      memcpy(Data, pkt->getPtr<uint8_t>(), 64);
+      DMem = Data;
+      %(memld_code)s;
+      %(op_wb)s;
+    }
+
+    return fault;
+  }
+}};
+
+def template BiuEACompExecute {{
+  Fault
+  %(class_name)s::eaComp(%(CPU_exec_context)s *xc,
+                         Trace::InstRecord *traceData) const {
+    Addr *EA = new Addr[65];
+    EA[64] = 0;
+    Addr EAAddr;
+    Fault fault = NoFault;
+
+    %(op_decl)s;
+    %(op_rd)s;
+    %(ea_code)s;
+
+    /*std::cout << "EA:";
+    for (unsigned i = 0; i < 64; i++)
+      std::cout << std::hex << " " << EA[i];
+    std::cout << std::endl;*/
+
+    // NOTE: Trace Data is written using execute or completeAcc templates
+    if (fault == NoFault) {
+      EAAddr = Addr(EA);
+      xc->setEA(EAAddr);
+    }
+
+    if (fault == NoFault) {
+      %(op_wb)s;
+    }
+    
+    return fault;
+  }
+}};
+
+def format BiuOps(memacc_code, inst_flags = []) {{
+  ea_code = '''
+    static const struct br {
+      uint16_t tab[1 << 13];
+      br() {
+        for (unsigned i = 0; i < (1 << 13); i++) {
+          tab[i] = 0;
+          for (unsigned j = 0; j < 13; j++) {
+            tab[i] |= (i >> j) & 0x1;
+            tab[i] <<= 1;
+          }
+          tab[i] >>= 1;
+        }
+      } 
+    }br_tab; 
+    static const Addr lowmask[14] = {0x0, 0x1, 0x3, 0x7, 0xF, 0x1F, 
+                                     0x3F, 0x7F, 0xFF, 0x1FF, 0x3FF,
+                                     0x7FF, 0xFFF, 0x1FFF};
+    int32_t *KB = (int32_t *)(BiuCtx.KB);
+    int32_t *KC = (int32_t *)(BiuCtx.KC);
+    int32_t *KE = (int32_t *)(BiuCtx.KE);
+    int32_t *KS = (int32_t *)(BiuCtx.KS);
+    int32_t *KI = (int32_t *)(BiuCtx.KI);
+    uint32_t *KM = (uint32_t *)(BiuCtx.KM);
+    uint32_t &KG = BiuCtx.KG;
+    uint32_t &KL = BiuCtx.KL;
+    std::bitset<64> Mask(-1ULL);
+    if (BIU_M) 
+      Mask = (((uint64_t)KM[1]) << 32ULL) | ((uint64_t)KM[0]);
+    const int32_t unit = 1 << KG;
+    EA[0] = KB[0];
+    if (BIU_BR) {
+      assert(KM[0] < 14);
+      Addr addmask = lowmask[KM[0]];
+      Addr lowaddr = br_tab.tab[EA[0] & addmask];
+      lowaddr >>= 13 - KM[0];
+      EA[0] &= ~addmask;
+      EA[0] += lowaddr;
+      //std::cout << "addmask:" << addmask << " lowaddr:" << lowaddr << std::endl;
+    }
+    int32_t offset = EA[0] % 0x200000;
+    int32_t base = EA[0] - offset;
+    int32_t cid0 = offset / 4096;
+    int32_t bid0 = offset % 4096;
+    int32_t cid = 0;
+    int32_t bid = 0;
+    EA[1] = Mask.test(0) ? EA[0] : 0;
+    //std::cout << "SN:" << (int32_t)SlotNum << " EA[0]:" << bid0 << "," << cid0 << "," << KG
+    //          << " A:"<< std::hex << EA[0] << std::endl;
+    for (unsigned i = 1; i < 64; i++) {
+      cid = (cid0 + (i / unit) * unit + (bid0 + i % unit) / 4096 % unit) % 64;
+      bid = (bid0 + i % unit) % 4096;
+      EA[i + 1] = Mask.test(i) ? cid * 4096 + bid + base : 0;
+      //std::cout << "SN:" << (int32_t)SlotNum << " EA[" << i << "]:" << bid << "," << cid << "," << KG
+      //          << " A:"<< std::hex << EA[i] << std::endl;
+    }
+    if (BIU_A && !BIU_K) {
+      KB[0] = KB[0] + KS[0];
+    } else {
+      if (BIU_A) {
+        switch (KL) {
+        case 1:
+          if (KC[0] != 1) KB[0] = KB[0] + KS[0];
+          break;
+        case 2:
+          if (KC[0] == 1) {
+            if ((KC[1] != 1 || KE[0]) && KC[1]) {
+              KB[1] = KB[1] + KS[1];
+              KB[0] = KB[1];
+            }
+          } else {
+            KB[0] = KB[0] + KS[0];
+          }
+          break;
+        case 3:
+          if (KC[0] == 1) {
+            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] != 1 || KE[1]) && KC[2])) {
+              KB[2] = KB[2] + KS[2];
+              KB[1] = KB[2];
+              KB[0] = KB[1];
+            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+              KB[1] = KB[1] + KS[1];
+              KB[0] = KB[1];
+            }
+          } else {
+            KB[0] = KB[0] + KS[0];
+          }
+          break;
+        case 4:
+          if (KC[0] == 1) {
+            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
+              ((KC[3] != 1 || KE[2]) && KC[3])) {
+              KB[3] = KB[3] + KS[3];
+              KB[2] = KB[3];
+              KB[1] = KB[2];
+              KB[0] = KB[1];
+            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] != 1 || KE[1]) && KC[2])) {
+              KB[2] = KB[2] + KS[2];
+              KB[1] = KB[2];
+              KB[0] = KB[1];
+            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+              KB[1] = KB[1] + KS[1];
+              KB[0] = KB[1];
+            }
+          } else {
+            KB[0] = KB[0] + KS[0];
+          }
+          break;
+        default: break;
+        }
+      }
+
+      if (BIU_K) {
+        switch (KL) {
+        case 1:
+          KC[0]--;
+          break;
+        case 2:
+          if (KC[0] == 1) {
+            if ((KC[1] == 1 && !KE[0]) || !KC[1]) {
+              KC[0] = 0;
+              KC[1] = 0;
+            } else if (KC[1] == 1 && KE[0]) {
+              KC[0] = KE[0];
+              KC[1] = 0;
+            } else {
+              KC[0] = KI[0];
+              KC[1]--;
+            }
+          } else {
+            KC[0]--;
+          }
+          break;
+        case 3:
+          if (KC[0] == 1) {
+            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] == 1 && !KE[1]) || !KC[2])) {
+              KC[0] = 0;
+              KC[1] = 0;
+              KC[2] = 0;
+            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] != 1 || KE[1]) && KC[2])) {
+              KC[0] = KI[0];
+              if (KC[2] == 1) KC[1] = KE[1];
+              else KC[1] = KI[1];
+              KC[2]--;
+            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+              if (KC[1] == 1) KC[0] = KE[0];
+              else KC[0] = KI[0];
+              KC[1]--;
+            }
+          } else {
+            KC[0]--;
+          }
+          break;
+        case 4:
+          if (KC[0] == 1) {
+            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
+              ((KC[3] == 1 && !KE[2]) || !KC[3])) {
+              KC[0] = 0;
+              KC[1] = 0;
+              KC[2] = 0;
+              KC[3] = 0;
+            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
+              ((KC[3] != 1 || KE[2]) && KC[3])) {
+              KC[0] = KI[0];
+              KC[1] = KI[1];
+              if (KC[3] == 1) KC[2] = KE[2];
+              else KC[2] = KI[2];
+              KC[3]--;
+            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
+              ((KC[2] != 1 || KE[1]) && KC[2])) {
+              KC[0] = KI[0];
+              if (KC[2] == 1) KC[1] = KE[1];
+              else KC[1] = KI[1];
+              KC[2]--;
+            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+              if (KC[1] == 1) KC[0] = KE[0];
+              else KC[0] = KI[0];
+              KC[1]--;
+            }
+          } else {
+            KC[0]--;
+          }
+          break;
+        default: break;
+        }
+      }
+    }
+'''
+  
+  if 'IsLoad' in inst_flags :
+      (header_output, decoder_output, decode_block, exec_output) = \
+           BiuBase(name, Name, ea_code, '', memacc_code, inst_flags)
+  elif 'IsStore' in inst_flags:
+      (header_output, decoder_output, decode_block, exec_output) = \
+           BiuBase(name, Name, ea_code, memacc_code, '', inst_flags)
+  else:
+    iop = InstObjParams(name, Name, 'BiuOp', memacc_code, makeList(inst_flags))
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = CondCheckDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+

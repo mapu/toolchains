@@ -1,0 +1,1047 @@
+// sdecoder.isa
+// 
+//   Created on: May 20, 2013
+//   Author:  zhangx & wangl 
+// 
+
+decode OPCODE_HI default Unknown::unknown() {
+
+//SEQ Instructions
+  0x0:decode OPCODE_LO {                                
+    format BasicOp {
+      0x1F: decode SYSCALLFG {
+        0x0: syscall_se   ({{ xc->syscall(Rs); }},         IsSerializeAfter, IsNonSpeculative, Is1cycle);
+        0x1: syscall_seimm({{ xc->syscall(SYSCALLIMM); }}, IsSerializeAfter, IsNonSpeculative, Is1cycle);
+      }
+    }
+    
+    format Nop {
+      0x0: noop('spu');                                           //NOP 
+    }
+
+    format IntOp{                                
+      0x2: spustop({{ xc->syscall(246); }}, Is1cycle);            //SPUSTOP       
+    }
+
+    format Loop{                                                  //lpto
+      0x18: lpto0({{LPEN=1; LP0S=NLPC;LP0E=PC+disp; LP0N=Jd;}});
+      0x19: lpto1({{LPEN=2; LP0S=NLPC;LP1E=PC+disp; LP1N=Jd;}});
+    }
+
+    0x8: decode SHIFT {
+      format Branch {
+        0x1: b({{ cond = 1; }});                                 //JUMP Imm
+      }
+      format Jump {
+        0x0: j({{ NPC = Js; if (JS == 30) _level--; }});         //JUMP Jm
+      }
+    }
+
+    0x9: decode SHIFT {
+      format Branch {
+        0x1: bne({{ cond = (Rd != 0); }});                       //IF JUMP Imm
+      }
+      format Jump {
+        0x0: jne({{                                              //IF JUMP Jm
+          if(Rd !=0) { NPC = Js; }
+          else {  NPC = PC + 4;}
+        }});
+      }
+    }
+
+    0x10: decode SHIFT {
+      format Branch {
+        0x1: callimm({{ cond = 1; J30 = NLPC; _level++;}});      //CALL Imm
+      }
+      format Jump {
+        0x0: calljm ({{  J30 = NLPC; NPC = Js; _level++;}});     //CALL Jm
+      }
+    }
+
+    0x11: decode SHIFT {
+      format Branch {
+        0x1: callimmne({{ cond = (Rd != 0); if(cond) J30 = NLPC;}}); //IF CALL Imm
+      }
+      format Jump {
+        0x0: calljmne ({{                                            //IF CALL Jm
+          if(Rd != 0) {
+            J30 = NLPC;
+            NPC = Js;
+          }
+          else { NPC = PC + 4;};
+        }});
+      }
+    }
+  }
+
+//SCU Instructions
+  0x1:decode OPCODE_LO {                              
+    0x1:decode SD {
+      format IntCIOp {
+        0x0: fixadd({{
+          if(SCU_U){
+            uint64_t a, b, c;
+            a = Rs;
+            b = Rt;
+            c = a + b;
+            CI = (c >> 32) ;
+            if(SCU_T) Rd = c;                                      // Rs = Rm + Rn(U)(T)
+            else      Rd = c > MAX_UINT32 ? MAX_UINT32 : c;        // Rs = Rm + Rn(U)
+          } else {
+            uint64_t i, j, k;
+            i = Rs;
+            j = Rt;
+            k = i + j;
+            CI = (k >> 32) ;
+            int64_t a, b, c;
+            a = (int32_t)Rs;
+            b = (int32_t)Rt;
+            c = a + b;
+            if(SCU_T) Rd = c;                                      // Rs = Rm + Rn(T)
+            else      Rd = c > MAX_INT32 ? MAX_INT32 :             // Rs = Rm + Rn
+                           c < MIN_INT32 ? MIN_INT32 : c;
+          }
+        }}, Is2cycle);
+      }
+
+      format FloatOp {
+        0x2: add_s({{ 
+          if(SCU_T) 
+            fesetround(FE_TOWARDZERO); 
+          Fd_sf = Fs_sf + Ft_sf;                              //  Rs = Rm + Rn(S)
+          fesetround(FE_TONEAREST); }}, Is5cycle);
+      }
+
+      format Float64Op {
+        0x1: add_dr({{  
+          if(SCU_T) 
+            fesetround(FE_TOWARDZERO); 
+          DRd = DRs + DRt;                                    //  DRs = DRm + DRn(D)
+          fesetround(FE_TONEAREST); }}, Is5cycle);
+      }
+    }
+
+    0x2:decode SD {
+      format IntCIOp {
+        0x0: fixsub({{
+          if(SCU_U){
+            int64_t a, b, c;
+            a = Rs;
+            b = Rt;
+            c = a - b;
+            CI = ! ( c < 0 );
+            if(SCU_T) Rd = c;                                 // Rs = Rm - Rn(U)(T)
+            else      Rd = c < 0 ? 0 : c;                     // Rs = Rm - Rn(U)
+          }else{
+            int64_t a, b, c;
+            a = (int32_t)Rs;
+            b = (int32_t)Rt;
+            c = a - b;
+            CI = ! ( c < 0 );
+            if(SCU_T) Rd = c;                                 // Rs = Rm - Rn(T)
+            else      Rd = c > MAX_INT32 ? MAX_INT32 :        // Rs = Rm - Rn
+                           c < MIN_INT32 ? MIN_INT32 : c;
+          }
+        }}, Is2cycle);
+      }
+
+      format FloatOp {
+        0x2: sub_s({{  
+          if(SCU_T) 
+            fesetround(FE_TOWARDZERO); 
+          Fd_sf = Fs_sf - Ft_sf;                              //  Rs = Rm - Rn(S)
+          fesetround(FE_TONEAREST); }}, Is5cycle);
+      }
+
+      format Float64Op {
+        0x1: sub_dr({{   
+               if(SCU_T) 
+                 fesetround(FE_TOWARDZERO); 
+               DRd = DRs - DRt;                               //  DRs = DRm - DRn(D)
+               fesetround(FE_TONEAREST);}}, Is5cycle);
+      }
+    }
+
+    0x3:decode SD {
+      format IntOp {
+        0x0: mul({{
+          if(SCU_U){
+            union {
+              uint32_t dw[2];
+              uint64_t sd;
+            };
+            sd = Rs * Rt ;
+            if(!SCU_T) Rd = sd > MAX_UINT32 ? MAX_UINT32 : sd; // Rs = Rm * Rn(U)
+            else       Rd = dw[0];                             // Rs = Rm * Rn(U)(T)
+          }else{
+            union {
+              int32_t dw[2];
+              int64_t sd;
+            };
+            sd = ((int32_t)Rs) * ((int32_t)Rt) ;
+            if(!SCU_T) Rd = sd > MAX_INT32 ? MAX_INT32 :       // Rs = Rm * Rn
+                            sd < MIN_INT32 ? MIN_INT32 : sd;
+            else       Rd = dw[0];                             // Rs = Rm * Rn(T)
+          }
+        }}, Is3cycle);
+
+      }
+
+      format FloatOp {
+        0x2: mul_s({{   
+          if(SCU_T) 
+            fesetround(FE_TOWARDZERO); 
+          Fd_sf = Fs_sf * Ft_sf;                               // Rs = Rm * Rn (S)
+          fesetround(FE_TONEAREST); }}, Is5cycle);
+      }
+
+      format Float64Op {
+        0x1: mul_dr({{    
+          if(SCU_T) 
+            fesetround(FE_TOWARDZERO); 
+          DRd = DRs * DRt;                                     // DRs = DRm * DRn (D)
+          fesetround(FE_TONEAREST);  }}, Is5cycle);
+      }
+    }
+
+    format IntCIOp{
+      0x12: addci_t({{
+        if(SCU_U){
+          uint64_t a, b, c;
+          a = Rs;
+          b = Rt;
+          c = a + b + CI;
+          if(SCU_T) Rd = c;                                     // Rs = Rm + Rn (CI)
+          else      Rd = c > MAX_UINT32 ? MAX_UINT32 : c;
+          CI =  (c >> 32);
+        }else{
+          int64_t a, b, c;
+          a = (int32_t)Rs;
+          b = (int32_t)Rt;
+          c = a + b + CI;
+          uint64_t i, j, k;
+          i = Rs;
+          j = Rt;
+          k = i + j + CI;
+          if(SCU_T) Rd = c ;                 
+          else      Rd = c  > MAX_INT32 ? MAX_INT32 :
+                         c  < MIN_INT32 ? MIN_INT32 : c;
+          CI = (k >> 32);
+        }
+      }}, Is2cycle);
+
+      0x13: subci_t({{                                           // Rs = Rm - Rn (CI)
+        if(SCU_U){
+          int64_t a, b, c;
+          a = Rs;
+          b = Rt;
+          c = a - b - (!CI);          
+          if(SCU_T) Rd = c;                
+          else      Rd = c < 0 ? 0 : c;  
+          CI = !( c < 0 );
+        }else{
+          int64_t a, b, c;
+          a = (int32_t)Rs;
+          b = (int32_t)Rt;
+          c = a - b - (!CI);
+          if(SCU_T) Rd = c; 
+          else      Rd = c > MAX_INT32 ? MAX_INT32 :
+                         c < MIN_INT32 ? MIN_INT32 : c;
+          CI = ! ( c < 0 );
+        } 
+      }}, Is2cycle);
+    }
+
+    format FloatConvertOp {
+      0x4: decode SD {
+        0x0: decode SCU_U {
+          0x0: cvt_s_w({{ val = *(int32_t *)(&Rs_w); }}, ToSingle, Is5cycle);    // fixed point to single float point
+          0x1: cvt_s_w_u({{ val = Rs_uw; }}, UToSingle, Is5cycle);
+        }
+        0x1: cvt_s_d({{ val = DRs_df; }}, ToSingle, Is5cycle);                   // double float to single float point
+      }
+      0x5: decode SD {
+        0x0: decode SCU_U {
+          0x0: cvt_d_w({{ val = *(int32_t *)(&Rs_w); }}, ToDouble, Is5cycle);    // fixed point to double float point
+          0x1: cvt_d_w_u({{ val = Rs_uw; }}, UToDouble, Is5cycle);
+        }
+        0x2: cvt_d_s({{ val = Fs_sf; }}, ToDouble, Is5cycle);                    // single point to double float point
+      }
+      0x6: decode SD {
+        0x2: cvt_w_s({{ val = Fs_sf; }}, ToWord, Is5cycle);                      // single point to fixed point signed
+        0x1: cvt_w_d({{ val = DRs_df; }}, ToWord, Is5cycle);                     // double point to fixed point signed
+      }
+      0x7: decode SD {
+        0x2: cvt_w_s_u({{ val = Fs_sf; }}, ToUWord, Is5cycle);                   // single point to fixed point unsigned
+        0x1: cvt_w_d_u({{ val = DRs_df; }}, ToUWord, Is5cycle);                  // double point to fixed point unsigned
+      }
+    }
+
+    0x8: decode SD {
+      format FloatOp {
+        0x2: abs_s({{ Fd_sf = fabs(Fs_sf); }}, Is5cycle);                          //ABS
+      }
+      format Float64Op {
+        0x1: abs_dr({{ DRd = fabs(DRs);}}, Is5cycle);                              //ABS
+      }
+      format IntOp {
+        0x0: abs ({{ Rd = fabs(Rs); }}, Is2cycle);                                 // Rs = ABS Rm
+      }
+    }
+
+    0x9: decode SD {
+      format FloatOp {
+        0x2: recip_s({{ /*uint32_t sig1;
+                        uint32_t exp0, exp1;
+                        uint32_t man0, man1;
+                        sig1 = Fs_uw >> 31;
+                        exp0 = (Fs_uw & 0x7FFFFFFF) >> 23; 
+                        exp1 = (253 - exp0) & 0xFF;
+                        man0 = (Fs_uw & 0x7FFFFF) >> 16;
+                        man1 = (man0==0x0)?0xFF:((256*256)/(128+man0) - 256)&0xFF;
+                        Fd_uw =  (sig1 << 31) | (exp1 << 23) | (man1 << 15);*/
+                        Fd_uw = recips(Fs_uw);
+                     }}, Is5cycle);                                //RECIP
+      }
+      format Float64Op {
+        0x1: recip_dr({{/*uint64_t sig1;
+                        uint64_t exp0, exp1;
+                        uint64_t man0, man1;
+                        sig1 = DRs_ud >> 63;
+                        exp0 = (DRs_ud & 0x7FFFFFFFFFFFFFFF) >> 52; 
+                        exp1 = (2045 - exp0) & 0x7FF;
+                        man0 = (DRs_ud & 0xFFFFFFFFFFFFF) >> 44;
+                        man1 = (man0==0x0)?0x1FF:((512*512)/(256+man0) - 512)&0x1FF;;
+                        DRd_ud =  (sig1 << 63) | (exp1 << 52) | (man1 << 43);*/
+                        DRd_ud = recipdr(DRs_ud);
+                     }}, Is5cycle);                              // RECIP
+      }
+    }
+
+    0xa: decode SD {
+      format FloatOp {
+        0x2: rsqrt_s({{ /*uint32_t sig1;
+                        uint32_t exp0, exp1;
+                        uint32_t man0, man1;
+                        sig1 = Fs_uw >> 31;
+                        exp0 = (Fs_uw & 0x7FFFFFFF) >> 23; 
+                        exp1 = (exp0&0x1)?(189-(exp0>>1)):(190-(exp0>>1));
+                        man0 = (Fs_uw & 0xFFFFFF) >> 17;
+                        man1 = CrtRsqrtSeed32(man0);
+                        Fd_uw =  (sig1 << 31) | (exp1 << 23) | (man1 << 15);*/
+                        Fd_uw = rsqrts(Fs_uw);
+                     }}, Is5cycle);                              //RSQRT
+      }
+      format Float64Op {
+        0x1: rsqrt_dr({{/*uint64_t sig1;
+                        uint64_t exp0, exp1;
+                        uint64_t man0, man1;
+                        sig1 = DRs_ud >> 63;
+                        exp0 = (DRs_ud & 0x7FFFFFFFFFFFFFFF) >> 52; 
+                        exp1 = (exp0&0x1)?(1533-(exp0>>1)):(1534-(exp0>>1));
+                        man0 = (DRs_ud & 0x1FFFFFFFFFFFFF) >> 45;
+                        man1 = CrtRsqrtSeed64(man0);
+                        DRd_ud =  (sig1 << 63) | (exp1 << 52) | (man1 << 43);*/
+                        DRd_ud = rsqrtdr(DRs_ud);
+                     }}, Is5cycle);   
+      }
+    }
+
+    0x18:  decode SD {                                                             // ==
+      format FloatOp {
+        0x2: eq_s({{ Rd = (Fs == Ft);}}, Is2cycle);
+      }
+      format Float64Op {
+        0x1: eq_dr({{  Rd = (DRs == DRt); }}, Is2cycle);
+      }
+      format IntOp {
+        0x0: eq({{ Rd = (Rs == Rt); }}, Is2cycle);                 
+      }
+    }
+
+    0x19:  decode SD {                                                             // !=
+      format FloatOp {
+        0x2: neq_s({{ Rd = (Fs != Ft); }}, Is2cycle);
+      }
+      format Float64Op {
+        0x1: neq_dr({{ Rd = (DRs != DRt); }}, Is2cycle);
+      }
+      format IntOp {
+        0x0: neq({{ Rd = (Rs != Rt); }}, Is2cycle);                 
+      }
+    }
+
+    0x1a:  decode SD {                                                             // >
+      format FloatOp {
+        0x2: greater_s({{ Rd = (Fs > Ft); }}, Is5cycle);
+      }
+      format Float64Op {
+        0x1: greater_dr({{  Rd = (DRs > DRt);}}, Is5cycle);
+      }
+      format IntOp {
+        0x0: decode SCU_U {
+          0x1: greater_u({{ Rd = (Rs > Rt); }}, Is2cycle);              
+          0x0: greater  ({{ Rd = (Rs_sw > Rt_sw); }}, Is2cycle);
+        }
+      }
+    }
+
+    0x1b:  decode SD {                                                               
+      format FloatOp {                                                              // >=
+        0x2: ge_s({{ Rd = (Fs >= Ft); }}, Is5cycle);
+      }
+      format Float64Op {
+        0x1: ge_dr({{ Rd = (DRs >= DRt); }}, Is5cycle); 
+      }
+      format IntOp {
+        0x0: decode SCU_U {
+          0x1: ge_u({{ Rd = (Rs >= Rt); }}, Is2cycle);              // Rs = Rm >= Rn (U)
+          0x0: ge  ({{ Rd = (Rs_sw >= Rt_sw); }}, Is2cycle);        // Rs = Rm >= Rn 
+        }
+      }
+    }
+
+    0x1c:  decode SD {                                                                // <
+      format FloatOp {
+        0x2: less_s({{ Rd = (Fs < Ft); }}, Is5cycle);
+      }
+      format Float64Op {
+        0x1: less_dr({{ Rd = (DRs < DRt);}}, Is5cycle);
+      }
+      format IntOp {
+        0x0: decode SCU_U {
+          0x1: less_u({{ Rd = (Rs < Rt); }}, Is2cycle);              // Rs = Rm < Rn (U)
+          0x0: less  ({{ Rd = (Rs_sw < Rt_sw); }}, Is2cycle);        // Rs = Rm < Rn
+        }
+      }
+    }
+
+    0x1d:  decode SD {                                                                // <=
+      format FloatOp {
+        0x2: le_s({{ Rd = (Fs <= Ft); }}, Is5cycle);
+      }
+      format Float64Op {
+        0x1: le_dr({{ Rd = (DRs <= DRt);}}, Is5cycle);
+      }
+      format IntOp {
+        0x0: decode SCU_U {
+          0x1: le_u({{ Rd = (Rs <= Rt); }}, Is2cycle);              // Rs = Rm <= Rn (U)
+          0x0: le  ({{ Rd = (Rs_sw <= Rt_sw); }}, Is2cycle);        // Rs = Rm <= Rn 
+        }
+      }
+    }
+
+    format IntOp{
+      0x14: and({{ Rd = Rs & Rt; }}, Is2cycle);                    // Rs = Rm & Rn
+      0x15: or ({{ Rd = Rs | Rt; }}, Is2cycle);                    // Rs = Rm | Rn
+      0x16: not({{ Rd = ~ Rs ; }}, Is2cycle);                      // Rs = ~ Rm
+      0x17: xor({{ Rd = Rs ^ Rt; }}, Is2cycle);                    // Rs = Rm ^ Rn
+    }
+
+    format BasicOp{
+      0x10:decode SHIFT {
+        0x0: sllv ({{ Rd = Rs << Rt; }}, Is2cycle);                // Rs = Rm << Rn
+        0x1: sll  ({{ Rd = Rs << SA; }}, Is2cycle);                // Rs = Rm << Imm
+      }
+
+      0x11:decode SHIFT {
+        0x0: decode SCU_U {
+          0x1: srlv_u ({{ Rd = Rs >> Rt; }}, Is2cycle);            // Rs = Rm >> Rn (U)
+          0x0: srlv   ({{ Rd = Rs_sw >> Rt; }}, Is2cycle);         // Rs = Rm >> Rn
+        }
+        0x1: decode SCU_U {
+          0x1: srl_u  ({{ Rd = Rs >> SA; }}, Is2cycle);            // Rs = Rm >> Imm (U)
+          0x0: srl    ({{ Rd = Rs_sw >> SA; }}, Is2cycle);         // Rs = Rm >> Imm
+        }
+      }
+    }
+  }
+//AGU instructions
+  0x3: decode OPCODE_LO {
+    format IntOp {
+      0x4: addradd({{
+        IntReg result;
+        Jd = result = Js + Jt;                                    // Js = Jm + Jn
+      }}, Is2cycle); 
+      0x5: addrsub({{
+        IntReg result;
+        Jd = result = Js - Jt;                                    // Js = Jm - Jn
+      }}, Is2cycle);
+      0x6: addrslreg ({{ Jd  = Js << Jt; }}, Is2cycle);           // Js = Jm << Jn
+    }
+    format IntImmOp {
+      0x1: decode IMMTRANJR {
+        0x0: immtransr({{ int32_t temp;
+        if( (imm >> 10) == 1) temp = imm | 0xFFFFF800;
+        else                  temp = imm;
+        Rd  = (extImm<<4) | temp;}}, Is2cycle);                   // Rs = Imm
+        0x1: immtransj({{ int32_t temp;
+        if( (imm >> 10) == 1) temp = imm | 0xFFFFF800;
+        else                  temp = imm;
+        Jd  = (extImm<<4) | temp;}}, Is2cycle);                   // Js = Imm
+      }
+    }
+
+    format BasicOp {
+      0x7: addrslimm ({{ Jd  = Js << SA; }}, Is2cycle);           // Js = Jm << Imm
+      0x8: decode MOVJR{
+        0x0: movrr({{ Rd = Rs; }}, Is2cycle);                     // R/J = R/J
+        0x2: movrj({{ Rd = Js; }}, Is2cycle);
+        0x1: movjr({{ Jd = Rs; }}, Is2cycle);
+        0x3: movjj({{ Jd = Js; }}, Is2cycle);
+      }
+      0x9: movdr({{ DRd = DRs; }}, Is2cycle);                     // DR = DR
+
+// CSU instructions
+                                                                  //CH[Imm5]  = Rm/Jm
+      0x10: decode CSUSRJ {
+        0x0: wrchimmr({{ uint32_t CHd; uint64_t Addr; Addr = CHDIMM; xc->setEA(Addr); CHd = Rs; }}, IsCSUOp, Is2cycle);
+        0x1: wrchimmj({{ uint32_t CHd; uint64_t Addr; Addr = CHDIMM; xc->setEA(Addr); CHd = Js; }}, IsCSUOp, Is2cycle);
+      } 
+      0x11: decode CSUSRJ {
+        0x0: decode CSUDRJ {                                     //CH[Rs/Js]  = Rm/Jm
+          0x0:wrchrr({{ uint32_t CHd; uint64_t Addr; Addr = Rd; xc->setEA(Addr); CHd = Rs; }}, IsCSUOp, Is2cycle);
+          0x1:wrchjr({{ uint32_t CHd; uint64_t Addr; Addr = Jd; xc->setEA(Addr); CHd = Rs; }}, IsCSUOp, Is2cycle);
+        }
+        0x1: decode CSUDRJ {
+          0x0:wrchrj({{ uint32_t CHd; uint64_t Addr; Addr = Rd; xc->setEA(Addr); CHd = Js; }}, IsCSUOp, Is2cycle);
+          0x1:wrchjj({{ uint32_t CHd; uint64_t Addr; Addr = Jd; xc->setEA(Addr); CHd = Js; }}, IsCSUOp, Is2cycle);
+        }
+      } 
+      0x12: decode CSUDRJ {                                      //Rm/Jm  = CH[Imm5]
+        0x0:rdchrimm ({{ uint64_t Addr; Addr = CHSIMM; xc->setEA(Addr); Rd = CHSIMM;}}, IsCSUOp, Is3cycle);
+        0x1:rdchjimm ({{ uint64_t Addr; Addr = CHSIMM; xc->setEA(Addr); Jd = CHSIMM;}}, IsCSUOp, Is3cycle);
+      }
+      0x13 : decode CSUSRJ {
+        0x0: decode CSUDRJ {                                     //Rm/Jm  = CH[Rs/Js]
+          0x0:rdchrr({{ uint64_t Addr; Addr = Rs; xc->setEA(Addr); Rd = Rs;}}, IsCSUOp, Is3cycle);
+          0x1:rdchjr({{ uint64_t Addr; Addr = Rs; xc->setEA(Addr); Jd = Rs;}}, IsCSUOp, Is3cycle);
+        }
+        0x1: decode CSUDRJ {
+          0x0:rdchrj({{ uint64_t Addr; Addr = Js; xc->setEA(Addr); Rd = Js;}}, IsCSUOp, Is3cycle);
+          0x1:rdchjj({{ uint64_t Addr; Addr = Js; xc->setEA(Addr); Jd = Js;}}, IsCSUOp, Is3cycle);
+        }
+      }
+      0x14: decode CSUDRJ {                                      //Rm/Jm  = CH[Imm5] (N)
+        0x0:rdchnumrimm ({{ uint64_t Addr; Addr = CHSIMM; xc->setEA(Addr); Rd = CHSIMM; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+        0x1:rdchnumjimm ({{ uint64_t Addr; Addr = CHSIMM; xc->setEA(Addr); Jd = CHSIMM; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+      }
+      0x15 : decode CSUSRJ {
+        0x0: decode CSUDRJ {                                     //Rm/Jm  = CH[Rs/Js] (N)
+          0x0:rdchnumrr({{ uint64_t Addr; Addr = Rs; xc->setEA(Addr); Rd = Rs; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+          0x1:rdchnumjr({{ uint64_t Addr; Addr = Rs; xc->setEA(Addr); Jd = Rs; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+        }
+        0x1: decode CSUDRJ {
+          0x0:rdchnumrj({{ uint64_t Addr; Addr = Js; xc->setEA(Addr); Rd = Js; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+          0x1:rdchnumjj({{ uint64_t Addr; Addr = Js; xc->setEA(Addr); Jd = Js; }}, IsCSUOp, IsCSUNumOp, Is3cycle);
+        }
+      }
+    }
+
+    format BasicOp {
+      0xa: mfc({{ Rd = CI;}}, Is2cycle);                         //Rs = STAT
+    }
+
+// Load instru    
+      0x18: decode LSPLUS{
+        format LoadMemory {
+         0x0:decode LSDR{
+          0x0:decode LSRJ{
+            0x0: decode LSBHU {
+              0x0: lwr({{ assert( ((Jt+Js) & 0x3) == 0 && "load address should be aligned!"); 
+                          Rd_sw = Mem_sw; }}, inst_flags = Is6cycle);
+              0x4: lbr({{ Rd_sw = Mem_sb; }}, inst_flags = Is6cycle);
+              0x2: lhr({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!");  
+                          Rd_sw = Mem_sh; }}, inst_flags = Is6cycle);
+              0x5: lbur({{ Rd_uw = Mem_ub; }}, inst_flags = Is6cycle);
+              0x3: lhur({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                           Rd_uw = Mem_uh; }}, inst_flags = Is6cycle);
+            }
+            0x1: decode LSBHU {
+              0x0: lwj({{ assert( ((Jt+Js) & 0x3) == 0 && "load address should be aligned!");  
+                          Jd_sw = Mem_sw; }}, inst_flags = Is6cycle);
+              0x4: lbj({{ Jd_sw = Mem_sb; }}, inst_flags = Is6cycle);
+              0x2: lhj({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!");  
+                          Jd_sw = Mem_sh; }}, inst_flags = Is6cycle);
+              0x5: lbuj({{ Jd_uw = Mem_ub; }}, inst_flags = Is6cycle);
+              0x3: lhuj({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                           Jd_uw = Mem_uh; }}, inst_flags = Is6cycle);
+            }
+          }
+        0x1: ldr({{ DRd_ud = Mem_ud; }}, inst_flags = Is6cycle);
+        }
+       }
+// += Load instru   
+       format LoadMemorypost {
+        0x1:decode LSDR{          
+           0x0:decode LSRJ{
+            0x0: decode LSBHU {
+              0x0: lwrpost({{  assert( ((Jt+Js) & 0x3) == 0 && "load address should be aligned!");  
+                               Rd_sw = Mem_sw;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x4: lbrpost({{  Rd_sw = Mem_sb; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x2: lhrpost({{  assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                               Rd_sw = Mem_sh;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x5: lburpost({{ Rd_uw = Mem_ub; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x3: lhurpost({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                               Rd_uw = Mem_uh;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+            }
+            0x1: decode LSBHU {
+              0x0: lwjpost({{  assert( ((Jt+Js) & 0x3) == 0 && "load address should be aligned!");  
+                               Jd_sw = Mem_sw;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x4: lbjpost({{  Jd_sw = Mem_sb; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x2: lhjpost({{  assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!");  
+                               Jd_sw = Mem_sh;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x5: lbujpost({{ Jd_uw = Mem_ub; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x3: lhujpost({{ assert( ((Jt+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                               Jd_uw = Mem_uh;}}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+            }
+          }
+        0x1: ldrpost({{ DRd_ud = Mem_ud; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+        }
+      }
+
+    }
+
+// atomic load ll
+    0x1a: decode LSPLUS {
+      format LoadMemory {
+        0x0:decode LSRJ{
+          0x0: llr({{ Rd_uw = Mem_uw; }}, mem_flags=LLSC);
+          0x1: llj({{ Jd_uw = Mem_uw; }}, mem_flags=LLSC);
+        }
+        0x1:decode LSRJ{
+          0x0: llrpost({{ Rd_uw = Mem_uw; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, mem_flags=LLSC);
+          0x1: lljpost({{ Jd_uw = Mem_uw; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, mem_flags=LLSC);
+        }
+      } 
+    }
+
+// atomic store sc
+    0x1b: decode LSPLUS {
+        0x0:decode LSRJ{
+          0x0: StoreCond::scr({{ Mem_uw = Rd_uw; }},
+                           {{ uint64_t tmp = write_result;
+                              Rd_uw = (tmp == 0 || tmp == 1) ? tmp : Rd_uw;
+                           }}, mem_flags=LLSC,
+                               inst_flags = IsStoreConditional);
+          0x1: StoreCond::scj({{ Mem_uw = Jd_uw; }},
+                           {{ uint64_t tmp = write_result;
+                              Jd_uw = (tmp == 0 || tmp == 1) ? tmp : Jd_uw;
+                           }}, mem_flags=LLSC,
+                               inst_flags = IsStoreConditional);
+        }
+        0x1:decode LSRJ{
+          0x0: StoreCond::scrpost({{ Mem_uw = Rd_uw; }},
+                           {{ uint64_t tmp = write_result;
+                              Rd_uw = (tmp == 0 || tmp == 1) ? tmp : Rd_uw;
+                           }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, mem_flags=LLSC,
+                               inst_flags = IsStoreConditional);
+          0x1: StoreCond::scjpost({{ Mem_uw = Jd_uw; }},
+                           {{ uint64_t tmp = write_result;
+                              Jd_uw = (tmp == 0 || tmp == 1) ? tmp : Jd_uw;
+                           }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, mem_flags=LLSC,
+                               inst_flags = IsStoreConditional);
+        }
+    }
+
+// svr load
+    format SvrLdOps { 
+      0x1c: lsvr ({{ SVRs = Mem_v; }},inst_flags = Is5cycle);
+    }
+
+
+//store instr    
+      0x19: decode LSPLUS{
+       format StoreMemory {
+         0x0:decode LSDR{
+           0x0:decode LSRJ{
+             0x0: decode LSBHU {
+               0x0: swr({{ assert( ((Jt+Js) & 0x3) == 0 && "store address should be aligned!");  
+                           Mem_uw = Rd<31:0>; }}, inst_flags = Is5cycle);
+               0x4: sbr({{ Mem_ub = Rd<7:0>; }},  inst_flags = Is5cycle);
+               0x2: shr({{ assert( ((Jt+Js) & 0x1) == 0 && "store address should be aligned!");  
+                           Mem_uh = Rd<15:0>; }}, inst_flags = Is5cycle);
+             }
+
+             0x1: decode LSBHU {
+               0x0: swj({{ assert( ((Jt+Js) & 0x3) == 0 && "store address should be aligned!");  
+                           Mem_uw = Jd<31:0>; }}, inst_flags = Is5cycle);
+               0x4: sbj({{ Mem_ub = Jd<7:0>; }},  inst_flags = Is5cycle);
+               0x2: shj({{ assert( ((Jt+Js) & 0x1) == 0 && "store address should be aligned!"); 
+                           Mem_uh = Jd<15:0>; }}, inst_flags = Is5cycle);
+             }
+           }
+           0x1:sdr({{ Mem_ud = DRd_ud; }}, inst_flags = Is5cycle);
+         }
+       }
+
+// += store
+       format StoreMemorypost {
+        0x1:decode LSDR{
+          0x0:decode LSRJ{
+            0x0: decode LSBHU {
+              0x0: swrpost({{ assert( ((Jt+Js) & 0x3) == 0 && "store address should be aligned!");  
+                              Mem_uw = Rd<31:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x4: sbrpost({{ Mem_ub = Rd<7:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }},  inst_flags = Is2cycle);
+              0x2: shrpost({{ assert( ((Jt+Js) & 0x1) == 0 && "store address should be aligned!");  
+                              Mem_uh = Rd<15:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+            }
+            0x1: decode LSBHU {
+              0x0: swjpost({{ assert( ((Jt+Js) & 0x3) == 0 && "store address should be aligned!");  
+                              Mem_uw = Jd<31:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+              0x4: sbjpost({{ Mem_ub = Jd<7:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }},  inst_flags = Is2cycle);
+              0x2: shjpost({{ assert( ((Jt+Js) & 0x1) == 0 && "store address should be aligned!");  
+                              Mem_uh = Jd<15:0>; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+            }
+          }
+          0x1:sdrpost({{ Mem_ud = DRd_ud; }}, ea_code = {{ EA = Js; Js = Jt + Js; }}, inst_flags = Is2cycle);
+        }
+      }
+    }
+
+//svr store
+    format SvrStOps { 
+      0x1d: ssvr ({{ Mem_v = SVRs; }}, inst_flags = Is5cycle);
+    }
+
+  }
+
+  format IntImmOp {
+    0x5: immtranse({{ }}, Is2cycle, IsNop);              // Rs = Imm28
+  }
+
+// load instr
+  0x2: decode OPCODE_LSIM {    
+      0x0: decode LSIMMPLUS{
+       format LoadMemoryImm {
+        0x0:decode LSIMDR{
+          0x0:decode LSIMRJ {
+            0x0: decode LSIMBHU {
+              0x0: lwir({{  assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                            Rd_sw = Mem_sw; }}, inst_flags = Is6cycle);
+              0x4: lbir({{  Rd_sw = Mem_sb; }}, inst_flags = Is6cycle);
+              0x2: lhir({{  assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                            Rd_sw = Mem_sh; }}, inst_flags = Is6cycle);
+              0x5: lbuir({{ Rd_uw = Mem_ub; }}, inst_flags = Is6cycle);
+              0x3: lhuir({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                            Rd_uw = Mem_uh; }}, inst_flags = Is6cycle);
+            }
+            0x1: decode LSIMBHU {
+              0x0: lwij({{  assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                            Jd_sw = Mem_sw; }}, inst_flags = Is6cycle);
+              0x4: lbij({{  Jd_sw = Mem_sb; }}, inst_flags = Is6cycle);
+              0x2: lhij({{  assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                            Jd_sw = Mem_sh; }}, inst_flags = Is6cycle);
+              0x5: lbuij({{ Jd_uw = Mem_ub; }}, inst_flags = Is6cycle);
+              0x3: lhuij({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                            Jd_uw = Mem_uh; }}, inst_flags = Is6cycle);
+            }
+          }
+        0x1:lidr({{ DRd_ud = Mem_ud; }}, inst_flags = Is6cycle);
+      }
+     }
+
+     format LoadMemorypost {
+      0x1:decode LSIMDR{
+          0x0:decode LSIMRJ {
+            0x0: decode LSIMBHU {
+              0x0: lwirpost({{  assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                                Rd_sw = Mem_sw;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x4: lbirpost({{  Rd_sw = Mem_sb;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x2: lhirpost({{  assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                                Rd_sw = Mem_sh;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x5: lbuirpost({{ Rd_uw = Mem_ub;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x3: lhuirpost({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                                Rd_uw = Mem_uh;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+            }
+            0x1: decode LSIMBHU {
+              0x0: lwijpost({{  assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                                Jd_sw = Mem_sw; }}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x4: lbijpost({{  Jd_sw = Mem_sb;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x2: lhijpost({{  assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                                Jd_sw = Mem_sh;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x5: lbuijpost({{ Jd_uw = Mem_ub;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x3: lhuijpost({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!"); 
+                                Jd_uw = Mem_uh;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+            }
+          }
+          0x1:lidrpost({{ DRd_ud = Mem_ud;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+        }
+      }
+
+    }
+    
+      0x1: decode LSIMMPLUS{
+       format StoreMemoryImm {
+        0x0:decode LSIMDR{
+          0x0:decode LSIMRJ {
+            0x0: decode LSIMBHU {
+              0x0: swir({{ assert( ((disp+Js) & 0x3) == 0 && "store address should be aligned!"); 
+                           Mem_uw = Rd<31:0>; }}, inst_flags = Is5cycle);
+              0x4: sbir({{ Mem_ub = Rd<7:0>; }},  inst_flags = Is5cycle);
+              0x2: shir({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                           Mem_uh = Rd<15:0>; }}, inst_flags = Is5cycle);
+            }
+            0x1: decode LSIMBHU {
+              0x0: swij({{ assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                           Mem_uw = Jd<31:0>; }}, inst_flags = Is5cycle);
+              0x4: sbij({{ Mem_ub = Jd<7:0>; }},  inst_flags = Is5cycle);
+              0x2: shij({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                           Mem_uh = Jd<15:0>; }}, inst_flags = Is5cycle);
+            }
+          }
+          0x1:sidr({{ Mem_ud = DRd_ud; }},  inst_flags = Is5cycle);
+        }
+       }
+       format StoreMemorypost {
+        0x1:decode LSIMDR{
+          0x0:decode LSIMRJ {
+            0x0: decode LSIMBHU {
+              0x0: swirpost({{ assert( ((disp+Js) & 0x3) == 0 && "store address should be aligned!"); 
+                               Mem_uw = Rd<31:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x4: sbirpost({{ Mem_ub = Rd<7:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }},  inst_flags = Is2cycle);
+              0x2: shirpost({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                               Mem_uh = Rd<15:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+            }
+            0x1: decode LSIMBHU {
+              0x0: swijpost({{ assert( ((disp+Js) & 0x3) == 0 && "load address should be aligned!");  
+                               Mem_uw = Jd<31:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+              0x4: sbijpost({{ Mem_ub = Jd<7:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }},  inst_flags = Is2cycle);
+              0x2: shijpost({{ assert( ((disp+Js) & 0x1) == 0 && "load address should be aligned!");  
+                               Mem_uh = Jd<15:0>;}}, ea_code = {{ EA = Js; Js = disp + Js; }}, inst_flags = Is2cycle);
+            }
+          }
+          0x1:sidrpost({{ Mem_ud = DRd_ud;}}, ea_code = {{ EA = Js; Js = disp + Js; }},  inst_flags = Is2cycle);
+        }
+      }
+    }
+  }
+
+//SYN Instructions
+  0x4:decode OPCODE_LO {                             
+    format BasicOp{
+      0x4: decode KTYPE {                                                    // K Reg transfer
+        0x3: r2ki ({{KIReg = Rm;}}, Is1cycle);
+        0x7: r2stat ({{fatal("CStat cannot be modified from SPU side.\n");}}, Is2cycle);
+        default: r2k ({{KREGs = Rm;}}, Is1cycle);
+      }
+      0x5:  k2r({{ 
+        if (KTYPE != 7)
+          Rm = KREGs; 
+        else
+          Rm = xc->tcBase()->getCpuPtr()->getContext(0 + ThePipeline::MaxSThreads)->status() ==
+               ThreadContext::Active;
+      }}, Is2cycle);                   //including Rs = Cstat;;
+    }
+
+    0x1:decode CALLMIMM {
+      format Callm {
+        0x1: decode BF{
+          0x0: callmimm  ({{ mtarget = IMM17 * 41; }});                       //CallM Imm
+          0x1: callmimmb ({{ mtarget = IMM17 * 41; xc->tcBase()->suspend(0); }});
+        }
+      }
+      format Callm {
+        0x0: decode BF{
+          0x0: callmjm  ({{ mtarget = Js; }});                                //CallM Jm
+          0x1: callmjmb ({{ mtarget = Js; xc->tcBase()->suspend(0); }});
+        }
+      }
+    }
+
+    format BasicOp{
+      0x8: decode SYN_SHUID {                                                 // SHU0s <-> SVRm
+        0x0:svr2shu0 ({{SHU0s = SVRm;}}, Is1cycle);
+        0x1:svr2shu1 ({{SHU1s = SVRm;}}, Is1cycle);
+      }
+
+      0x9: decode SYN_SHUID {
+        0x0:shu02svr ({{SVRm = SHU0s;}}, Is2cycle);
+        0x1:shu12svr ({{SVRm = SHU1s;}}, Is2cycle);
+      }
+
+      0xa: decode SYN_SHUID {                                                 // SHU = R 
+        0x0:decode SYN_DR{
+          0x0:decode SYN_BHU{
+            0x4:r2shu0b ({{uint8_t temp[64];
+                         for(int i = 0;i < 64;i++){
+                           temp[i] = Rm_ub; 
+                         }
+                         SHU0s = temp;}}, Is1cycle);
+            0x2:r2shu0h ({{uint16_t temp[32];
+                         for(int i = 0;i < 32;i++){
+                           temp[i] = Rm_uh;
+                         }
+                         SHU0s = temp;}}, Is1cycle);
+            0x0:r2shu0w ({{uint32_t temp[16];
+                         for(int i = 0;i < 16;i++){
+                           temp[i] = Rm_uw;
+                         }
+                         SHU0s = temp;}}, Is1cycle);           
+          }
+          0x1:dr2shu0 ({{double temp[8];
+                         for(int i = 0;i < 8;i++){
+                           temp[i] = DRm;
+                         }
+                         SHU0s = temp;}}, Is1cycle);
+        }
+        0x1:decode SYN_DR{
+          0x0:decode SYN_BHU{
+            0x4:r2shu1b ({{uint8_t temp[64];
+                         for(int i = 0;i < 64;i++){
+                           temp[i] = Rm_ub;
+                         }
+                         SHU1s = temp;}}, Is1cycle);
+            0x2:r2shu1h ({{uint16_t temp[32];
+                         for(int i = 0;i < 32;i++){
+                           temp[i] = Rm_uh;
+                         }
+                         SHU1s = temp;}}, Is1cycle);
+            0x0:r2shu1w ({{uint32_t temp[16];
+                         for(int i = 0;i < 16;i++){
+                           temp[i] = Rm_uw;
+                         }
+                         SHU1s = temp;}}, Is1cycle);           
+          }
+          0x1:dr2shu1 ({{double temp[8];
+                         for(int i = 0;i < 8;i++){
+                           temp[i] = DRm;
+                         }
+                         SHU1s = temp;}}, Is1cycle);
+        }
+      }
+
+      0xb: decode SYN_SHUID {                                               // R = SHU
+        0x0:decode SYN_DR{
+          0x0:decode SYN_BHU{
+            0x4:shu02rb  ({{int8_t *p;
+                            p = ((int8_t *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle);
+            0x2:shu02rh  ({{int16_t *p;
+                            p = ((int16_t *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle);
+            0x0:shu02rw  ({{uint32_t *p;
+                            p = ((uint32_t *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle);
+            0x5:shu02rbu ({{uint8_t *p;
+                            p = ((uint8_t *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle); 
+            0x3:shu02rhu ({{uint16_t *p;
+                            p = ((uint16_t *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle);       
+          }
+          0x1:shu02dr ({{double *p;
+                            p = ((double *)SHU0s);
+                            Rm = p[0];
+                          }}, Is2cycle);
+        }
+        0x1:decode SYN_DR{
+          0x0:decode SYN_BHU{
+            0x4:shu12rb  ({{int8_t *p;
+                            p = ((int8_t *)SHU1s);
+                            Rm_sb = p[0];
+                          }}, Is2cycle);
+            0x2:shu12rh  ({{int16_t *p;
+                            p = ((int16_t *)SHU1s);
+                            Rm_sh = p[0];
+                          }}, Is2cycle);
+            0x0:shu12rw  ({{int32_t *p;
+                            p = ((int32_t *)SHU1s);
+                            Rm = p[0];
+                          }}, Is2cycle);
+            0x5:shu12rbu ({{uint8_t *p;
+                            p = ((uint8_t *)SHU1s);
+                            Rm_ub = p[0];
+                          }}, Is2cycle); 
+            0x3:shu12rhu ({{uint16_t *p;
+                            p = ((uint16_t *)SHU1s);
+                            Rm_uh = p[0];
+                          }}, Is2cycle);       
+          }
+          0x1:shu12dr ({{double *p;
+                            p = ((double *)SHU1s);
+                            DRm = p[0];
+                          }}, Is2cycle);
+        }
+      }
+
+      0xc: r2mc ({{MCi = Rm;}}, Is1cycle);                                // R <-> MC
+      0xd: mc2r ({{Rm = MCi;}}, Is2cycle);
+    
+      0x10: decode SYN_BHU {
+        0x4:r2svrb ({{ MPUReg buf = SVRp; idx = Ri;                       // R <-> SVR
+                       PSVRm_ub = Rm_ub;
+                   }}, Is2cycle);
+        0x2:r2svrh ({{ MPUReg buf = SVRp; idx = Ri;
+                       PSVRm_uh = Rm_uh;
+                   }}, Is2cycle);
+        0x0:r2svrw ({{ MPUReg buf = SVRp; idx = Ri;
+                       PSVRm_uw = Rm_uw;
+                   }}, Is2cycle);
+      }
+
+      0x11: decode SYN_BHU {
+        0x4:svr2rb ({{ int8_t *p;
+                       p = ((int8_t *)SVRm);
+                       Rd_sb = p[Rm];
+                   }}, Is2cycle);
+        0x2:svr2rh ({{ int16_t *p;
+                       p = ((int16_t *)SVRm);
+                       Rd_sh = p[Rm];
+                   }}, Is2cycle);
+        0x5:svr2rbu ({{ uint8_t *p;
+                       p = ((uint8_t *)SVRm);
+                       Rd_ub = p[Rm];
+                   }}, Is2cycle);
+        0x3:svr2rhu ({{ uint16_t *p;
+                       p = ((uint16_t *)SVRm);
+                       Rd_uh = p[Rm];
+                   }}, Is2cycle);
+        0x0:svr2rw ({{ uint32_t *p;
+                       p = ((uint32_t *)SVRm);
+                       Rd = p[Rm];
+                   }}, Is2cycle);
+      }
+
+      0x12: decode SYN_BHU {
+        0x4:r2svrbimm ({{ MPUReg buf = SVRp; idx = SYN_IMM6;
+                          PSVRm_ub = Rm_ub;
+                       }}, Is2cycle);
+        0x2:r2svrhimm ({{ MPUReg buf = SVRp; idx = SYN_IMM6;
+                          PSVRm_uh = Rm_uh;
+                       }}, Is2cycle);
+        0x0:r2svrwimm ({{ MPUReg buf = SVRp; idx = SYN_IMM6;
+                          PSVRm_uw = Rm_uw;
+                       }}, Is2cycle);
+      }
+
+      0x13: decode SYN_BHU {
+        0x4:svr2rbimm ({{ int8_t *p;
+                       p = ((int8_t *)SVRm);
+                       Rd_sb = p[SYN_IMM6];
+                   }}, Is2cycle);
+        0x2:svr2rhimm ({{ int16_t *p;
+                       p = ((int16_t *)SVRm);
+                       Rd_sh = p[SYN_IMM6];
+                   }}, Is2cycle);
+        0x5:svr2rbuimm ({{ uint8_t *p;
+                       p = ((uint8_t *)SVRm);
+                       Rd_ub = p[SYN_IMM6];
+                   }}, Is2cycle);
+        0x3:svr2rhuimm ({{ uint16_t *p;
+                       p = ((uint16_t *)SVRm);
+                       Rd_uh = p[SYN_IMM6];
+                   }}, Is2cycle);
+        0x0:svr2rwimm ({{ uint32_t *p;
+                       p = ((uint32_t *)SVRm);
+                       Rd = p[SYN_IMM6];
+                   }}, Is2cycle);
+      }
+    }  
+  } //OP_low
+}

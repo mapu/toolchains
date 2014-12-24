@@ -1,0 +1,65 @@
+#!/bin/sh
+#The machine code definition
+#Adde with make install
+MMPUCode='\x60\x04'
+MSPUCode='\x88\x02'
+DefalutLD="/opt/mapu-llvm/bin/ld.gold"
+DefalutSC="/opt/mapu-llvm/share/MaPU_ASM.s.ld"
+
+function SetMMPUCode() {
+	echo "Patching file $1 into MMPU object file"
+	printf $MMPUCode | dd  of=$1 bs=1 count=2 conv=notrunc seek=18 >/dev/null 2>&1;
+}
+
+function SetMSPUCode() {
+	echo "Patching file $1 into MSPU object file"
+	printf $MSPUCode | dd  of=$1 bs=1 count=2 conv=notrunc seek=18 >/dev/null 2>&1;
+}
+
+
+########################################################################
+# first we get the files to be patched.
+files=$( echo $* | grep -oE '\-\-just\-symbols *[^ \t].*[^ \t]*' )
+
+########################################################################
+# patching the files to MSPU obejct file.
+for ops in $files; do
+	if [ $ops != '--just-symbols' ]; then
+	        SetMSPUCode $ops	
+	fi
+done
+
+########################################################################
+# We Check whether  ld.gold  is avaliable
+LD_BIN=""
+if  which ld.gold >/dev/null 2>&1 ; then
+	LD_BIN="ld.gold"
+else
+	if [ -f $DefalutLD ] ; then
+		LD_BIN=$DefalutLD; 
+		echo "    INFO : Using $LD_BIN  ....."
+	fi
+fi
+# run the original commands if we the ld.gold is avaliable
+if [ $LD_BIN != ""  ]; then
+	if  echo $* | grep '\-T' >/dev/null 2>&1 ; then
+		#The user have assigned the Script
+		$LD_BIN -n $*
+	elif [ -f $DefalutSC ] ; then 
+		echo "    INFO:Using defalut sciprt file $DefalutSC"
+		$LD_BIN -n $* "-T" $DefalutSC;
+	else
+		echo "    INFO:Can't found valid link script..."
+		echo "    INFO:Aborting..."
+	fi
+else 
+	echo "    Aborting ..."
+fi 
+
+########################################################################
+# patching the files back to  MMPU obejct file.
+for ops in $files; do
+	if [ $ops != '--just-symbols' ]; then
+	        SetMMPUCode $ops	
+	fi
+done

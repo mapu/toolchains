@@ -1,0 +1,19 @@
+/******how to do the power estimation******/
+1.build and run the gem5 simulation
+  cd ../trunk
+  scons build/MIPS/gem5.debug CPU_MODELS=InOrderCPU
+  ./build/MIPS/gem5.debug --debug-flags=Exec,-ExecSymbol --trace-file=mips_hello.out configs/example/se.py --cpu-type=inorder --caches --l2cache --l2_size=8kB --l1d_size=4kB -c tests/test-progs/hello/bin/mips/linux/hello
+Then you can get the status.txt and config.ini in the trunk/m5out, which will be used for the power estimation.
+
+2.run the run.sh
+  cd power_estimate
+  ./run.sh
+
+/*****note for the run.sh*******/
+  cd McPAT08release
+  make                             // make to generate the mcpat executable file
+  cd ..
+  perl m5-mcpat.pl ../m5out/stats.txt ../m5out/config.ini mcpat-template.xml > result.xml
+                                   // perl to generate the xml that mcpat can recognize according to the m5out files and the template xml
+  ./McPAT08release/mcpat -infile result.xml
+                                   // run the mcpat to get the power/area/timing infomation

@@ -1,0 +1,10 @@
+[MIM]
+Page = 0
+MemoryMap = 0..1ffff
+Endianess = LITTLE
+AddressWidth = 32
+NumberSystemAddress = HEX
+DataWidth = 8
+NumberSystemData = HEX
+AddressableUnitSize = 8
+MemoryContentFile = MIMX.data 

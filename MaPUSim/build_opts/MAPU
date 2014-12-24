@@ -1,0 +1,3 @@
+TARGET_ISA = 'mapu'
+CPU_MODELS = 'AtomicSimpleCPU,TimingSimpleCPU,O3CPU,InOrderCPU,VliwSimpleCPU'
+PROTOCOL = 'MI_example'

@@ -1,0 +1,83 @@
+////////////////////////////////////////////////////////////////////
+//
+// Floating point MAC instructions
+//
+output header {{
+using namespace MapuISA;
+
+class FmacOp : public MpuStaticInst {
+protected:
+  // Constructor
+  FmacOp(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+    : MpuStaticInst(mnem, _machInst, __opClass) {
+    cond = FMAC_C;
+    c_not = FMAC_CN;
+    Flags = FMAC_FLAG;
+  }
+
+  void printDest(std::ostream &os, int dest) const ;
+
+  void print1stOp(std::ostream &os) const ;
+
+  void print2ndOp(std::ostream &os) const ;
+
+  void printExpHead(std::ostream &os) const ;
+
+  void printFlags(std::ostream &os) const ;
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+void FmacOp::printDest(std::ostream &os, int dest) const {
+  if ( FMAC_OP == 0x2 || FMAC_OP == 0x3)
+    os << "->MR";
+  else if (FMAC_OP == 0x4)
+    MpuStaticInst::printDest(os, _destRegIdx[1]);
+  else if (FMAC_OP == 0x1 || FMAC_OP == 0x5)
+    MpuStaticInst::printDest(os, _destRegIdx[0]);
+}
+
+void FmacOp::print1stOp(std::ostream &os) const {
+  switch (FMAC_OP) {
+  case 0x5: os << "**"; break;
+  default: os << "*"; break;
+  }
+}
+
+void FmacOp::print2ndOp(std::ostream &os) const {
+  switch (FMAC_OP) {
+  case 0x2: os << "+"; break;
+  default: break;
+  }
+}
+
+void FmacOp::printExpHead(std::ostream &os) const {
+  switch (FMAC_OP) {
+  case 0x3: os << "MR+="; break;
+  case 0x4: os << "MR+="; break;
+  default: break;
+  }
+}
+
+void FmacOp::printFlags(std::ostream &os) const {
+  os << "(";
+  if (FMAC_SD) os << "D";
+  else os << "S";
+  if (FMAC_CRT) {
+    if (FMAC_OP == 0x1) os << ",T";
+    else os << ",CR";
+  }
+  os << ")";
+}
+
+}};
+
+def format FmacOp(code, *opt_flags) {{
+  iop = InstObjParams(name, Name, 'FmacOp', code, opt_flags)
+  header_output = BasicDeclare.subst(iop)
+  decoder_output = BasicConstructor.subst(iop)
+  decode_block = CondCheckDecode.subst(iop)
+  exec_output = BasicExecute.subst(iop)
+}};
+
