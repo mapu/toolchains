@@ -1,0 +1,198 @@
+////////////////////////////////////////////////////////////////////
+//
+// MPU micro code instructions
+//
+output header {{
+using namespace MapuISA;
+
+/**
+ * Base class for all MPU static instructions.
+ */
+class MpuStaticInst : public StaticInst {
+protected:
+  uint8_t SlotNum;
+  uint8_t Flags;
+
+  // Constructor
+  MpuStaticInst(const char *mnem, ExtMachInst _machInst, MOpClass __mopClass)
+    : StaticInst(mnem, _machInst, __mopClass),
+      SlotNum(SLOTNUM), Flags(0), cond(false), c_not(false) {}
+
+  int flattenedRegIdx(int slot, int id) const;
+
+  virtual void printReg(std::ostream &os, int reg) const;
+
+  virtual void printDest(std::ostream &os, int dest) const;
+
+  virtual void printLeft(std::ostream &os) const;
+
+  virtual void printUnit(std::ostream &os, int unit) const;
+
+  virtual void printIPath(std::ostream &os, int i) const;
+
+  virtual void printExpHead(std::ostream &os) const {}
+
+  virtual void print1stOp(std::ostream &os) const { os << ","; }
+
+  virtual void print2ndOp(std::ostream &os) const { os << ","; }
+
+  virtual void printExpTail(std::ostream &os) const {}
+
+  virtual void printFlags(std::ostream &os) const {}
+
+  std::string generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+
+public:
+  bool cond;
+  bool c_not;
+  void advancePC(MapuISA::PCState &pc) const { pc.madvance(); }
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+inline
+StaticInst *makeMpuNop(MpuStaticInst *inst) {
+  std::string nop_str = "(" + inst->disassemble(0) + ")";
+  MapuStaticInst *nop = new Nop(nop_str, 
+    inst->cond ? inst->machInst + (1ULL << 32) : inst->machInst);
+  delete inst;
+  return nop;
+}
+
+int MpuStaticInst::flattenedRegIdx(int slot, int id) const {
+  if (id >= NumMPUGPRegs) return id;
+  switch (slot) {
+  case 4: return id + NumMRegs;
+  case 5: return id + NumMRegs + NumShu0TRegs;
+  case 6: return id + NumMRegs + NumShu0TRegs + NumShu1TRegs;
+  case 7: return id + NumMRegs + NumShu0TRegs + NumShu1TRegs + NumIaluTRegs;
+  case 8: return id + NumMRegs + NumShu0TRegs + NumShu1TRegs + NumIaluTRegs + NumImacTRegs;
+  case 9: return id + NumMRegs + NumShu0TRegs + NumShu1TRegs + NumIaluTRegs + NumImacTRegs + NumFaluTRegs;
+  default: return id;
+  }
+}
+
+void MpuStaticInst::printReg(std::ostream &os, int reg) const {
+  if (reg < NumMRegs) {
+    ccprintf(os, "M[%d]", reg);
+  } else if (reg < NumMRegs + NumShu0TRegs + NumShu1TRegs) {
+    if ((reg - NumMRegs) % NumShu0TRegs < 4)
+      ccprintf(os, "T%d", (reg - NumMRegs) % NumShu0TRegs);
+    else
+      switch ((reg - NumMRegs) % NumShu0TRegs) {
+      case 4: os << "TBB"; break;
+      case 5: os << "TBH"; break;
+      case 6: os << "TBW"; break;
+      case 7: os << "TBD"; break;
+      case 8: os << "TSQ"; break;
+      case 13:
+      case 14:
+      case 15: os << ""; break;
+      default: panic("Unknown SHU reg index.\n");
+      }
+  } else if (reg < NumMPUGPRegs) {
+    ccprintf(os, "T%d", (reg - NumMRegs - NumShu0TRegs - NumShu1TRegs) % NumIaluTRegs);
+  } else if (reg < NumMPURegs) ;
+  else panic("Unknown reg index %d.\n", reg);
+}
+
+void MpuStaticInst::printIPath(std::ostream &os, int i) const {
+  if (i != 0) ccprintf(os, "(I%d)", i - 1);
+}
+
+void MpuStaticInst::printDest(std::ostream &os, int dest) const {
+  if (_numDestRegs == 0) return;
+  os << "->";
+  const char MACCName[4][6] = {"IALU.", "IMAC.", "FALU.", "FMAC."};
+  uint8_t gid = dest & 0x3;
+  uint8_t did = (dest >> 2) & 0x3;
+  uint8_t idx = (dest >> 4) & 0xF;
+  uint8_t ipath = (dest >> 6) & 0x7;
+  switch (gid) {
+  case 0x0: // M[n]
+    if (did == 1) os << "M[I++]";
+    else printReg(os, dest >> 4);
+    break;
+  case 0x1: // SHU
+    ccprintf(os, "SHU%d.", did);
+    printReg(os, flattenedRegIdx(4 + did, idx));
+    break;
+  case 0x2: // BIU
+    ccprintf(os, "BIU%d", did);
+    break;
+  case 0x3: // MACC
+    os << MACCName[did];
+    printReg(os, flattenedRegIdx(6 + did, idx & 0x3));
+    printIPath(os, ipath);
+    break;
+  default:
+    ccprintf(os, "Unknown Unit(dest id:%d, group id:%d).", did, gid);
+    printReg(os, idx);
+    break;
+  }
+}
+
+void MpuStaticInst::printUnit(std::ostream &os, int unit) const {
+  const char UnitName[NumSlots][6] = {"R0.", "R1.", "R2.", "R3.", "SHU0.", "SHU1.", "IALU.",
+                                "IMAC.", "FALU.", "FMAC.", "BIU0.", "BIU1.", "BIU2.", "MSEQ."};
+  os << UnitName[unit];
+}
+
+void MpuStaticInst::printLeft(std::ostream &os) const {
+  printExpHead(os);
+  if (_numSrcRegs > 0) {
+    printReg(os, flattenedRegIdx(SlotNum, _srcRegIdx[0]));
+  }
+  if (_numSrcRegs > 1) {
+    print1stOp(os);
+    printReg(os, flattenedRegIdx(SlotNum, _srcRegIdx[1]));
+  }
+  if (_numSrcRegs > 2) {
+    print2ndOp(os);
+    printReg(os,flattenedRegIdx(SlotNum,  _srcRegIdx[2]));
+  }
+  printExpTail(os);
+  printFlags(os);
+}
+
+std::string
+MpuStaticInst::generateDisassembly(Addr pc,
+                                   const SymbolTable *symtab) const {
+  std::stringstream ss;
+
+  ccprintf(ss, "(memo:%-10s) ", mnemonic);
+
+  printUnit(ss, SlotNum);
+
+  printLeft(ss);
+
+  printDest(ss, _destRegIdx[0]);
+
+  return ss.str();
+}
+}};
+
+def template CondCheckDecode {{
+{
+  MpuStaticInst *i = new %(class_name)s(machInst);
+  if (i->cond) {
+    if (!(tc->readMiscReg(MISCREG_MPUCOND) ^ i->c_not))
+      return makeMpuNop(i);
+    else {
+      delete i;
+      i = new %(class_name)s(machInst | (1ULL << 31));
+    } 
+  }
+  return i;
+}
+}};
+
+def format MpuBasicOp(code, *opt_flags) {{
+  iop = InstObjParams(name, Name, 'MpuStaticInst', code, opt_flags)
+  header_output = BasicDeclare.subst(iop)
+  decoder_output = BasicConstructor.subst(iop)
+  decode_block = CondCheckDecode.subst(iop)
+  exec_output = BasicExecute.subst(iop)
+}};
+

@@ -1,0 +1,111 @@
+////////////////////////////////////////////////////////////////////
+//
+// Nop
+//
+
+output header {{
+    /**
+     * Static instruction class for no-ops.  This is a leaf class.
+     */
+    class Nop : public MapuStaticInst
+    {
+        /// Disassembly of original instruction.
+        const std::string originalDisassembly;
+
+      public:
+        /// Constructor
+        Nop(const std::string _originalDisassembly, ExtMachInst _machInst)
+            : MapuStaticInst("nop", _machInst, No_OpClass),
+              originalDisassembly(_originalDisassembly)
+        {
+            flags[IsNop] = true;
+        }
+
+        ~Nop() { }
+
+        std::string
+        generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+
+        %(BasicExecDeclare)s
+    };
+}};
+
+output decoder {{
+    std::string Nop::generateDisassembly(Addr pc,
+                                         const SymbolTable *symtab) const
+    {
+        return csprintf("%-10s %s", "nop", originalDisassembly);
+    }
+
+    /// Helper function for decoding nops.  Substitute Nop object
+    /// for original inst passed in as arg (and delete latter).
+    inline
+    MapuStaticInst *
+    makeNop(MapuStaticInst *inst)
+    {
+        std::string nop_str = "(" + inst->disassemble(0) + ")";
+        MapuStaticInst *nop = new Nop(nop_str, inst->machInst);
+        delete inst;
+        return nop;
+    }
+}};
+
+output exec {{
+    Fault
+    Nop::execute(%(CPU_exec_context)s *, Trace::InstRecord *) const
+    {
+        return NoFault;
+    }
+}};
+
+// Int & FP operate instructions use RD as dest, so check for
+// RD == 0 to detect nops
+def template RegNopCheckDecode {{
+ {
+     MapuStaticInst *i = new %(class_name)s(machInst);
+     //if (RD == 0) {
+         //i = makeNop(i);
+         //}
+     return i;
+ }
+}};
+
+def template OperateNopCheckDecode {{
+ {
+     MapuStaticInst *i = new %(class_name)s(machInst);
+     //if (RD == 0) {
+     // i = makeNop(i);
+     //}
+     return i;
+ }
+}};
+
+// IntImm & Memory  instructions use Rt as dest, so check for
+// Rt == 0 to detect nops
+def template ImmNopCheckDecode {{
+ {
+     MapuStaticInst *i = new %(class_name)s(machInst);
+     //if (RT == 0) {
+     // i = makeNop(i);
+     // }
+     return i;
+ }
+}};
+
+
+// Like BasicOperate format, but generates NOP if RC/FC == 31
+def format BasicOperateWithNopCheck(code, *opt_args) {{
+    iop = InstObjParams(name, Name, 'MapuStaticInst', code,
+                        opt_args)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = OperateNopCheckDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format Nop(name = ' ') {{
+    decode_block = '''
+      return new Nop("%(name)s",machInst);\n
+    ''' % { 'name' : name}
+}};
+

@@ -1,0 +1,31 @@
+////////////////////////////////////////////////////////////////////
+//
+// MAPU ISA description file.
+//
+////////////////////////////////////////////////////////////////////
+
+//Include the C++ include directives
+##include "includes.isa"
+
+////////////////////////////////////////////////////////////////////
+//
+// Namespace statement.  Everything below this line will be in the
+// MapuISAInst namespace.
+//
+
+namespace MapuISA;
+
+//Include the bitfield definitions
+##include "bitfields.isa"
+
+//Include the operand_types and operand definitions
+##include "operands.isa"
+
+//Include the base class for mapu instructions, and some support code
+##include "base.isa"
+
+//Include the definitions for the instruction formats
+##include "formats/formats.isa"
+
+//Include the decoder definition
+##include "decoder.isa"
