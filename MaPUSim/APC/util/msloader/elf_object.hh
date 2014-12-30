@@ -34,6 +34,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <cstdio>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <stdint.h>

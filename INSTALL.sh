@@ -7,6 +7,7 @@ gold_en=1
 llvm_en=1
 newlib_en=1
 openocd_en=1
+debug_mode=0
 install_path=
 while (( $# != 0 ))
 do
@@ -31,6 +32,38 @@ do
      openocd_en=0
      shift
   ;;
+  "--disable-all" )
+     gem5_en=0
+     gold_en=0
+     llvm_en=0
+     newlib_en=0
+     openocd_en=0
+     shift
+  ;;
+  "--enable-gem5" )
+     gem5_en=1
+     shift
+  ;;
+  "--enable-gold" )
+     gold_en=1
+     shift
+  ;;
+  "--enable-llvm" )
+     llvm_en=1
+     shift
+  ;;
+  "--enable-newlib" )
+     newlib_en=1
+     shift
+  ;;
+  "--enable-openocd" )
+     openocd_en=1
+     shift
+  ;;
+  "--enable-debug" )
+     debug_mode=1
+     shift
+  ;;
   "-h" )
     echo "Usage of $0:"
     echo -e "\t-h\t\t\t\tShow this list"
@@ -39,6 +72,9 @@ do
     echo -e "\t--disable-llvm\t\t\tDo not install llvm toolchain"
     echo -e "\t--disable-newlib\t\tDo not install newlib"
     echo -e "\t--disable-openocd\t\tDo not install openocd"
+    echo -e "\t--enable-xxx\t\tInstall xxx package"
+    echo -e "\t--disable-all\t\tDo not install anything (used with following --enable-xxx)"
+    echo -e "\t--enable-debug\t\tBuild in debug and incremental mode, and do not remove the building dirs"
     exit 0
   ;;
   * )
@@ -63,30 +99,72 @@ done
 # Define multi-core option
 MCFLAG='-j 64'
 
+# Switch debug mode
+if [ "$debug_mode" -eq 1 ]
+then
+  gem5_opt_mode='.debug'
+  llvm_cfg='--disable-optimized --enable-assertions'
+else
+  gem5_opt_mode='.opt'
+  llvm_cfg='--enable-optimized --disable-assertions'
+fi
+
+# Initialize error status
+gem5_err=0
+llvm_err=0
+gold_err=0
+newlib_err=0
+openocd_err=0
+
 # Install Gem5
+gem5_opt_mode='.opt'
 if [ "$gem5_en" -eq 1 ]
 then
   cd $root
-  if [ -e "build_gem5_apc" ]
-  then
-    rm -rf build_gem5_apc
+  if [ -e "build_gem5_apc" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_gem5_apc
   fi
-  mkdir build_gem5_apc
+  if [ ! -e "build_gem5_apc" ]
+  then mkdir build_gem5_apc
+  fi
   cd build_gem5_apc
-  mkdir ext
-  cp -r $source_path/MaPUSim/ext/mapudrv ./ext
-  echo scons -C $source_path/MaPUSim build/MAPU/gem5.opt CPU_MODELS=InOrderCPU
-  scons -C $source_path/MaPUSim/APC build/MAPU/gem5.opt CPU_MODELS=InOrderCPU $MCFLAG
+  if [ ! -e "ext" ]
+  then
+    mkdir ext
+    cp -r $source_path/MaPUSim/APC/ext/mapudrv ./ext
+  fi
+  scons -C $source_path/MaPUSim/APC build/MAPU/gem5$gem5_opt_mode CPU_MODELS=InOrderCPU $MCFLAG || gem5_err=1
   cd $root
-  install -v build_gem5/build/MAPU/gem5.opt -D $install_path/simulator/apc/gem5.opt
-  install -v -d $install_path/simulator/apc/system
-  install -v $source_path/MaPUSim/APC/configs/example/* -t $install_path/simulator/apc/system
-  install -v -d $install_path/simulator/apc/common
-  install -v $source_path/MaPUSim/APC/configs/common/* -t $install_path/simulator/apc/common
-  install -v -d $install_path/simulator/libs
-  install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
-  install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
-  install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
+  if [ "$debug_mode" -eq 0 ]
+  then 
+    install -v -d $install_path/simulator/apc
+    install -v build_gem5_apc/build/MAPU/gem5$gem5_opt_mode -D $install_path/simulator/apc/gem5$gem5_opt_mode
+    install -v -d $install_path/simulator/apc/system
+    install -v $source_path/MaPUSim/APC/configs/example/* -t $install_path/simulator/apc/system
+    install -v -d $install_path/simulator/apc/common
+    install -v $source_path/MaPUSim/APC/configs/common/* -t $install_path/simulator/apc/common
+    install -v -d $install_path/simulator/libs
+    #install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
+    #install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
+    #install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
+  fi
+  if [ -e "build_gem5_arm" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_gem5_arm
+  fi
+  if [ ! -e "build_gem5_arm" ]
+  then mkdir build_gem5_arm
+  fi
+  cd build_gem5_arm
+  scons -C $source_path/MaPUSim/ARM build/ARM/gem5$gem5_opt_mode CPU_MODELS=AtomicSimpleCPU $MCFLAG || gem5_err=1
+  if [ "$debug_mode" -eq 0 ]
+  then
+    install -v -d $install_path/simulator/arm
+    install -v build_gem5_arm/build/ARM/gem5$gem5_opt_mode -D $install_path/simulator/arm/gem5$gem5_opt_mode
+    install -v -d $install_path/simulator/arm/system
+    install -v $source_path/MaPUSim/ARM/configs/example/* -t $install_path/simulator/arm/system
+    install -v -d $install_path/simulator/arm/common
+    install -v $source_path/MaPUSim/ARM/configs/common/* -t $install_path/simulator/arm/common
+  fi
 fi
 
 # Install llvm
@@ -171,11 +249,12 @@ then
 
   # Build ragel first
   cd $root
-  if [ -e "build_ragel" ]
-  then
-    rm -rf build_ragel
+  if [ -e "build_ragel" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_ragel
   fi
-  mkdir build_ragel
+  if [ ! -e "build_ragel" ]
+  then mkdir build_ragel
+  fi
   cd build_ragel
   $source_path/ragel-6.8/configure --prefix=$root/ragel CFLAGS='-O2' CXXFLAGS='-O2'
   make $MCFLAG
@@ -184,112 +263,147 @@ then
   # Build libedit for lldb
   cd $root
   tar -xzvf $source_path/libedit-20130712-3.1.tar.gz
-  if [ -e "build_edit" ]
-  then
-    rm -rf build_edit
+  if [ -e "build_edit" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_edit
   fi
-  mkdir build_edit
+  if [ ! -e "build_edit" ]
+  then mkdir build_edit
+  fi
   cd build_edit
   ../libedit-20130712-3.1/configure --prefix=$install_path
   make $MCFLAG
   make install
 
   cd $root
-  if [ -e "build_llvm" ]
-  then
-    rm -rf build_llvm
+  if [ -e "build_llvm" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_llvm
   fi
-  mkdir build_llvm
+  if [ ! -e "build_llvm" ]
+  then mkdir build_llvm
+  fi
   cd build_llvm
   # libstdc++ is required while compiling llvm not only by the linker but also by the execution of tblgen
   # export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
-  $source_path/llvm-3.4/configure --prefix=$install_path --disable-assertions \
-    --enable-optimized --disable-debug-symbols --enable-cxx11\
-    --enable-targets=mspu,mmpu,mmpulite,x86
-  make OPTIMIZE_OPTION=-O0 RAGEL=$root/ragel/bin/ragel $MCFLAG
+  $source_path/llvm-3.4/configure --prefix=$install_path $llvm_cfg \
+    --enable-cxx11 --enable-targets=mspu,mmpu,mmpulite,x86 CC=gcc CXX=g++
+  make RAGEL=$root/ragel/bin/ragel $MCFLAG || llvm_err=1
   #install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
-  make install
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
 fi
 
 # Install ld.gold
 if [ "$gold_en" -eq 1 ]
 then
   cd $root
-  if [ -e "build_gold" ]
-  then
-    rm -rf build_gold
+  if [ -e "build_gold" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_gold
   fi
-  mkdir build_gold
+  if [ ! -e "build_gold" ]
+  then mkdir build_gold
+  fi
   cd build_gold
   # Build libiberty first
   $source_path/MaPUGold/libiberty/configure --prefix=$root/build_gold
-  make $MCFLAG
-  $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all
-  make $MCFLAG
-  make install DATADIRNAME=abc
+  make $MCFLAG || gold_err=1
+  $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all --disable-werror
+  make $MCFLAG || gold_err=1
+  if [ "$debug_mode" -eq 0 ]
+  then make install DATADIRNAME=abc
+  fi
 fi
 
 # Install newlib
 if [ "$newlib_en" -eq 1 ]
 then
   cd $root
-  if [ -e "build_newlib" ]
-  then
-    rm -rf build_newlib
+  if [ -e "build_newlib" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_newlib
   fi
-  mkdir build_newlib
+  if [ ! -e "build_newlib" ]
+  then mkdir build_newlib
+  fi
   cd build_newlib
   $source_path/newlib/configure --target=mspu \
     CC_FOR_TARGET="$install_path/bin/clang -target mspu" \
-    CFLAGS_FOR_TARGET="-O0 -nostdlibinc" "CFLAGS_FOR_BUILD=-g -O0" \
-    DEBUG_PREFIX_CFLAGS_FOR_TARGET="-O0 -g -nostdlibinc" \
+    DEBUG_PREFIX_CFLAGS_FOR_TARGET=" -nostdlibinc" \
     AR_FOR_TARGET=ar AS_FOR_TARGET="$install_path/bin/llvm-mc  -arch=mspu" \
     LD_FOR_TARGET="$install_path/bin/ld.gold" \
     OBJDUMP_FOR_TARGET="$install_path/bin/llvm-objdump -arch=mspu -d" \
     READELF_FOR_TARGET=readelf RANLIB_FOR_TARGET=ranlib  STRIP_FOR_TARGET=strip \
     --enable-multilib=no  --prefix="$install_path/lib"
-  make $MCFLAG
-  make install
+  make $MCFLAG || newlib_err=1
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
 fi
 
 # Install openocd
 if [ "$openocd_en" -eq 1 ]
 then
   cd $root
-  if [ -e "build_openocd" ]
-  then
-    rm -rf build_openocd
+  if [ -e "build_openocd" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_openocd
   fi
-  mkdir build_openocd
+  if [ ! -e "build_openocd" ]
+  then mkdir build_openocd
+  fi
   cd build_openocd
   $source_path/openocd-0.5/configure --prefix="$install_path" --program-suffix="-jtag" CFLAGS="-O2 -std=gnu99"
-  make $MCFLAG
-  make install
+  make $MCFLAG || openocd_err=1
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
   make clean
   $source_path/openocd-0.5/configure --prefix="$install_path" --program-suffix="-sim" CFLAGS="-O2 -std=gnu99 -DSIM"
-  make $MCFLAG
-  make install
+  make $MCFLAG || openocd_err=1
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
 fi
 
 # Clean up all temporary files
 cd $root
-rm -rf build_gem5
-rm -f $source_path/MaPUSim/parsetab.py
-rm -f $source_path/MaPUSim/parser.out
-rm -f `find $source_path -name "*.pyc"`
-rm -rf build_ragel
-rm -rf gmp-4.3.2
-rm -rf build_gmp
-rm -rf mpfr-2.4.2
-rm -rf build_mpfr
-rm -rf mpc-0.8.1
-rm -rf build_mpc
-rm -rf gcc
-rm -rf build_gcc
-rm -rf libedit-20130712-3.1
-rm -rf build_edit
-rm -rf build_llvm
-rm -rf build_gold
-rm -rf ragel
-rm -rf build_newlib
-rm -rf build_openocd
+if [ "$debug_mode" -eq 0 ]
+then
+  if [ "$gem5_err" -eq 0 ]
+  then
+    rm -rf build_gem5_apc
+    rm -rf build_gem5_arm
+  else
+    echo "Failed to install Gem5"
+  fi
+  rm -f $source_path/MaPUSim/parsetab.py
+  rm -f $source_path/MaPUSim/parser.out
+  rm -f `find $source_path -name "*.pyc"`
+  rm -rf build_ragel
+  rm -rf gmp-4.3.2
+  rm -rf build_gmp
+  rm -rf mpfr-2.4.2
+  rm -rf build_mpfr
+  rm -rf mpc-0.8.1
+  rm -rf build_mpc
+  rm -rf gcc
+  rm -rf build_gcc
+  rm -rf libedit-20130712-3.1
+  rm -rf build_edit
+  if [ "$llvm_err" -eq 0 ]
+  then rm -rf build_llvm
+  else echo "Failed to install LLVM"
+  fi
+  if [ "$gold_err" -eq 0 ]
+  then rm -rf build_gold
+  else echo "Failed to install Gold"
+  fi
+  rm -rf ragel
+  if [ "$newlib_err" -eq 0 ]
+  then rm -rf build_newlib
+  else echo "Failed to install Newlibc"
+  fi
+  if [ "$openocd_err" -eq 0 ]
+  then rm -rf build_openocd
+  else echo "Failed to install openocd"
+  fi
+fi
+

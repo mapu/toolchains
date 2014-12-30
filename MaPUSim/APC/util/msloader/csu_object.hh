@@ -33,6 +33,7 @@
 
 #include <set>
 #include <vector>
+#include <cstdio>
 #include <string.h>
 #include "../../ext/mapudrv/mapu.h"
 #include "../../src/base/types.hh"

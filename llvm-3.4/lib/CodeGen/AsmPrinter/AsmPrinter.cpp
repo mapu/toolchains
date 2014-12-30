@@ -2238,11 +2238,11 @@ isBlockOnlyReachableByFallthrough(const MachineBasicBlock *MBB) const {
     // if this is a bundle instruction, we check operands of inside-bundle instructions
     if(MI.isBundle())
     {
-      MachineBasicBlock::const_instr_iterator MII = MI;
-      for(++MII; MII->isInsideBundle(); ++MII)
+      MachineBasicBlock::const_instr_iterator I = &MI;
+      for(++I; I != MI.getParent()->instr_end() && I->isInsideBundle(); ++I)
       {
-        for(MachineInstr::const_mop_iterator OI = MII->operands_begin(),
-              OE = MI.operands_end(); OI != OE; ++OI)
+        for(MachineInstr::const_mop_iterator OI = I->operands_begin(),
+              OE = I->operands_end(); OI != OE; ++OI)
         {
           const MachineOperand& OP = *OI;
           if(OP.isJTI())
@@ -2251,7 +2251,8 @@ isBlockOnlyReachableByFallthrough(const MachineBasicBlock *MBB) const {
             return false;
         }
       }
-    } // MaPU hacking ends.
+    }
+    // MaPU hacking ends.
 
 
   }
