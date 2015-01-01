@@ -848,6 +848,12 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
     case ELF::EM_SPARC:
     case ELF::EM_SPARC32PLUS:
       return "ELF32-sparc";
+#ifdef ARCH_MAPU
+    case ELF::EM_MSPU:
+      return "ELF32-mspu";
+    case ELF::EM_MMPU:
+      return "ELF32-mmpu";
+#endif
     default:
       return "ELF32-unknown";
     }

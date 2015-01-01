@@ -309,6 +309,10 @@ enum {
   EM_COOL          = 217, // iCelero CoolEngine
   EM_NORC          = 218, // Nanoradio Optimized RISC
   EM_CSR_KALIMBA   = 219  // CSR Kalimba architecture family
+#ifdef ARCH_MAPU
+  ,EM_MSPU          = 0x288, // MaPU SPU
+  EM_MMPU          = 0x460 // MaPU MPU
+#endif
 };
 
 // Object file classes.
@@ -518,6 +522,12 @@ enum {
 #include "ELFRelocs/Sparc.def"
 };
 
+#ifdef ARCH_MAPU
+// ELF Relocation type for MaPU
+enum {
+#include "ELFRelocs/MaPU.def"
+};
+#endif
 #undef ELF_RELOC
 
 // Section header.

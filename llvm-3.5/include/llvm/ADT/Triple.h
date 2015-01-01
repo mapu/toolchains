@@ -80,6 +80,11 @@ public:
     spir,       // SPIR: standard portable IR for OpenCL 32-bit version
     spir64,     // SPIR: standard portable IR for OpenCL 64-bit version
     kalimba     // Kalimba: generic kalimba
+#ifdef ARCH_MAPU
+    ,mspu,    // mspu: MaPU SPU
+    mmpu,     // mmpu: MaPU MPU
+    mmpulite     // mmpu: MaPU MPU
+#endif
   };
   enum SubArchType {
     NoSubArch,
