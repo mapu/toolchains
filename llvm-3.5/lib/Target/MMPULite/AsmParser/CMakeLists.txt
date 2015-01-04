@@ -7,9 +7,9 @@ bison(LLVM MMPULiteGenInstrParser.bison)
 add_public_bison_target(MMPULiteInstrParser)
 
 include(Flex)
-set(LLVM_TARGET_LEXER MMPULiteInstrLexer.l)
-flex(LLVM MMPULiteGenInstrLexer.flex)
-add_public_flex_target(MMPULiteInstrLexer)
+set(LLVM_TARGET_LEXER MMPULiteInstrFLexer.l)
+flex(LLVM MMPULiteGenInstrFLexer.flex)
+add_public_flex_target(MMPULiteInstrFLexer)
 
 add_llvm_library(LLVMMMPULiteAsmParser
   MMPULiteAsmParser.cpp
@@ -17,5 +17,5 @@ add_llvm_library(LLVMMMPULiteAsmParser
   MCFunction.cpp
   )
 
-add_dependencies(LLVMMMPULiteAsmParser MMPULiteCommonTableGen MMPULiteParser 
-MMPULiteInstrLexer)
+add_dependencies(LLVMMMPULiteAsmParser MMPULiteCommonTableGen MMPULiteInstrParser 
+MMPULiteInstrFLexer)

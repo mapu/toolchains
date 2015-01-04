@@ -590,3 +590,6 @@ include "llvm/IR/IntrinsicsHexagon.td"
 include "llvm/IR/IntrinsicsNVVM.td"
 include "llvm/IR/IntrinsicsMips.td"
 include "llvm/IR/IntrinsicsR600.td"
+// MaPU intrinsics
+include "llvm/IR/IntrinsicsMSPU.td"
+// MaPU intrinsics end

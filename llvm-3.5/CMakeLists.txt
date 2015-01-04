@@ -168,6 +168,10 @@ set(LLVM_ALL_TARGETS
   SystemZ
   X86
   XCore
+# MaPU Archs
+  MSPU
+  MMPULite
+# MaPU Archs
   )
 
 # List of targets with JIT support:

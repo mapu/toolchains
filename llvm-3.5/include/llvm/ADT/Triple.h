@@ -82,7 +82,6 @@ public:
     kalimba     // Kalimba: generic kalimba
 #ifdef ARCH_MAPU
     ,mspu,    // mspu: MaPU SPU
-    mmpu,     // mmpu: MaPU MPU
     mmpulite     // mmpu: MaPU MPU
 #endif
   };
@@ -104,6 +103,10 @@ public:
     KalimbaSubArch_v3,
     KalimbaSubArch_v4,
     KalimbaSubArch_v5
+#ifdef ARCH_MAPU
+    ,mspu_v1    // MaPU v1
+    ,mmpu_v1    // MaPU v1
+#endif
   };
   enum VendorType {
     UnknownVendor,
@@ -119,6 +122,9 @@ public:
     MipsTechnologies,
     NVIDIA,
     CSR
+#ifdef ARCH_MAPU
+    ,CASIA    // IA, CAS
+#endif
   };
   enum OSType {
     UnknownOS,

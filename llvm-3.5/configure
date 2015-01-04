@@ -5346,7 +5346,10 @@ case "$enableval" in
         nvptx)    TARGETS_TO_BUILD="NVPTX $TARGETS_TO_BUILD" ;;
         systemz)  TARGETS_TO_BUILD="SystemZ $TARGETS_TO_BUILD" ;;
         r600)     TARGETS_TO_BUILD="R600 $TARGETS_TO_BUILD" ;;
+# MaPU Archs
+        mspu)     TARGETS_TO_BUILD="MSPU $TARGETS_TO_BUILD" ;;
         mmpulite)     TARGETS_TO_BUILD="MMPULite $TARGETS_TO_BUILD" ;;
+# end of MaPU Archs
         host) case "$llvm_cv_target_arch" in
             x86)         TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
             x86_64)      TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;

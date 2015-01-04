@@ -4,7 +4,7 @@ tablegen(LLVM MMPULiteGenRegisterInfo.inc -gen-register-info)
 tablegen(LLVM MMPULiteGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM MMPULiteGenDisassemblerTables.inc -gen-disassembler)
 
-tablegen(LLVM MMPULiteGenMCCodeEmitter.inc -gen-emitter -mc-emitter)
+tablegen(LLVM MMPULiteGenMCCodeEmitter.inc -gen-emitter)
 tablegen(LLVM MMPULiteGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM MMPULiteGenSubtargetInfo.inc -gen-subtarget)
 

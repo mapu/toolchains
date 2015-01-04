@@ -53,6 +53,10 @@ const char *Triple::getArchTypeName(ArchType Kind) {
   case spir:        return "spir";
   case spir64:      return "spir64";
   case kalimba:     return "kalimba";
+#ifdef ARCH_MAPU
+  case mspu:        return "mspu";
+  case mmpulite:    return "mmpulite";
+#endif
   }
 
   llvm_unreachable("Invalid ArchType!");
@@ -109,6 +113,10 @@ const char *Triple::getArchTypePrefix(ArchType Kind) {
   case spir:
   case spir64:      return "spir";
   case kalimba:     return "kalimba";
+#ifdef ARCH_MAPU
+  case mspu:        return "mspu";
+  case mmpulite:    return "mmpulite";
+#endif
   }
 }
 
@@ -127,6 +135,9 @@ const char *Triple::getVendorTypeName(VendorType Kind) {
   case MipsTechnologies: return "mti";
   case NVIDIA: return "nvidia";
   case CSR: return "csr";
+#ifdef ARCH_MAPU
+  case CASIA: return "casia";
+#endif
   }
 
   llvm_unreachable("Invalid VendorType!");
@@ -220,6 +231,10 @@ Triple::ArchType Triple::getArchTypeForLLVMName(StringRef Name) {
     .Case("spir", spir)
     .Case("spir64", spir64)
     .Case("kalimba", kalimba)
+#ifdef ARCH_MAPU
+    .Case("mspu", mspu)
+    .Case("mmpulite", mmpulite)
+#endif
     .Default(UnknownArch);
 }
 
@@ -302,6 +317,10 @@ static Triple::ArchType parseArch(StringRef ArchName) {
     .Case("hsail64", Triple::hsail64)
     .Case("spir", Triple::spir)
     .Case("spir64", Triple::spir64)
+#ifdef ARCH_MAPU
+    .Case("mspu", Triple::mspu)
+    .Case("mmpulite", Triple::mmpulite)
+#endif
     .StartsWith("kalimba", Triple::kalimba)
     .Default(Triple::UnknownArch);
 }
@@ -319,6 +338,9 @@ static Triple::VendorType parseVendor(StringRef VendorName) {
     .Case("mti", Triple::MipsTechnologies)
     .Case("nvidia", Triple::NVIDIA)
     .Case("csr", Triple::CSR)
+#ifdef ARCH_MAPU
+    .Case("casia", Triple::CASIA)
+#endif
     .Default(Triple::UnknownVendor);
 }
 
@@ -396,6 +418,10 @@ static Triple::SubArchType parseSubArch(StringRef SubArchName) {
     .EndsWith("kalimba3", Triple::KalimbaSubArch_v3)
     .EndsWith("kalimba4", Triple::KalimbaSubArch_v4)
     .EndsWith("kalimba5", Triple::KalimbaSubArch_v5)
+#ifdef ARCH_MAPU
+    .EndsWith("mspu_v1", Triple::mspu_v1)
+    .EndsWith("mmpu_v1", Triple::mmpu_v1)
+#endif
     .Default(Triple::NoSubArch);
 }
 
@@ -860,6 +886,10 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case llvm::Triple::hsail:
   case llvm::Triple::spir:
   case llvm::Triple::kalimba:
+#ifdef ARCH_MAPU
+  case Triple::mspu:
+  case Triple::mmpulite:
+#endif
     return 32;
 
   case llvm::Triple::aarch64:
@@ -924,6 +954,10 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::thumbeb:
   case Triple::x86:
   case Triple::xcore:
+#ifdef ARCH_MAPU
+  case Triple::mspu:
+  case Triple::mmpulite:
+#endif
     // Already 32-bit.
     break;
 
@@ -955,6 +989,10 @@ Triple Triple::get64BitArchVariant() const {
   case Triple::thumb:
   case Triple::thumbeb:
   case Triple::xcore:
+#ifdef ARCH_MAPU
+  case Triple::mspu:
+  case Triple::mmpulite:
+#endif
     T.setArch(UnknownArch);
     break;
 

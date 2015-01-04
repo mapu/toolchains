@@ -19,5 +19,5 @@
 type = Library
 name = MMPULiteDisassembler
 parent = MMPULite
-required_libraries = MC Support MMPULiteInfo MMPULiteDesc
+required_libraries = MC Support MMPULiteInfo MMPULiteDesc MMPULiteAsmParser
 add_to_library_groups = MMPULite

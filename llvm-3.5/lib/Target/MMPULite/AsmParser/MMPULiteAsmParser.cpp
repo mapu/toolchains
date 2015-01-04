@@ -338,7 +338,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   MCInst *CurInst = Inst, *NewInst;
   SmallVector<SharedOperand, 256> os;
   SharedOperandVector *ops;
-  std::shared_ptr<MMPULiteAsmOperand>op;
+  std::shared_ptr<MMPULiteAsmOperand> op;
   MCOperand MO;
   MCParsedInst *ParsedInst;
   std::vector<HMacroInstantiation*>::iterator iter;

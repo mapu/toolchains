@@ -202,11 +202,15 @@ void llvm::DumpBytes(StringRef bytes) {
   // 15 is the longest x86 instruction
   // 3 is for the hex rep of a byte + a space.
   // 1 is for the null terminator.
-  enum { OutputSize = (15 * 3) + 1 };
+
+  // MaPU maximum inst length
+#define MAPU_MAX_LEN 38
+  enum { OutputSize = (/*15*/MAPU_MAX_LEN * 3) + 1 };
   char output[OutputSize];
 
-  assert(bytes.size() <= 15
+  assert(bytes.size() <= /*15*/MAPU_MAX_LEN
     && "DumpBytes only supports instructions of up to 15 bytes");
+  // MaPU modification end
   memset(output, ' ', sizeof(output));
   unsigned index = 0;
   for (StringRef::iterator i = bytes.begin(),
