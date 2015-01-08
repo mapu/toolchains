@@ -49,7 +49,7 @@ MSPUTargetMachine::MSPUTargetMachine(const Target &T,
                                      CodeGenOpt::Level OL)
   : LLVMTargetMachine(T, TT, CPU, FS, Options, RM, CM, OL),
     TLOF(make_unique<MSPUTargetObjectFile>()),
-    Subtarget(TT, CPU, FS) {
+    Subtarget(TT, CPU, FS, *this) {
   initAsmInfo();
 }
 

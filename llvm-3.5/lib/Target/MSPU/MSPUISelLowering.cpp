@@ -665,16 +665,19 @@ MSPUTargetLowering::MSPUTargetLowering(TargetMachine &TM)
 
 	addRegisterClass(MVT::f32, &MSPUReg::F32RegRegClass);
 	addRegisterClass(MVT::f64, &MSPUReg::F64RegRegClass);
+  for (MVT VT : MVT::integer_valuetypes()) {
+	setLoadExtAction( ISD::EXTLOAD, VT, MVT::i1, Custom);
+  setLoadExtAction(ISD::SEXTLOAD, VT, MVT::i1, Custom);
+  setLoadExtAction(ISD::ZEXTLOAD, VT, MVT::i1, Custom);
 
-	setLoadExtAction( ISD::EXTLOAD, MVT::i1, Custom);
-  setLoadExtAction(ISD::SEXTLOAD, MVT::i1, Custom);
-  setLoadExtAction(ISD::ZEXTLOAD, MVT::i1, Custom);
-
-	setLoadExtAction(ISD::EXTLOAD, MVT::i8, Custom);
-	setLoadExtAction(ISD::EXTLOAD, MVT::i16, Custom);
-	setLoadExtAction(ISD::EXTLOAD, MVT::i64, Expand);
-	setLoadExtAction(ISD::EXTLOAD, MVT::f32, Expand);
-	setLoadExtAction(ISD::EXTLOAD, MVT::f64, Expand);
+	setLoadExtAction(ISD::EXTLOAD, VT, MVT::i8, Custom);
+	setLoadExtAction(ISD::EXTLOAD, VT, MVT::i16, Custom);
+	setLoadExtAction(ISD::EXTLOAD, VT, MVT::i64, Expand);
+  }
+  for (MVT VT : MVT::fp_valuetypes()) {
+	setLoadExtAction(ISD::EXTLOAD, VT, MVT::f32, Expand);
+	setLoadExtAction(ISD::EXTLOAD, VT, MVT::f64, Expand);
+  }
 
 	setTruncStoreAction(MVT::f64, MVT::f32, Expand);
 

@@ -112,8 +112,7 @@ namespace llvm
 								const TargetRegisterClass *RC,
 								const TargetRegisterInfo *TRI) const;
 			virtual DFAPacketizer*
-			CreateTargetScheduleState(const TargetMachine *TM,
-										const ScheduleDAG *DAG) const;
+			CreateTargetScheduleState(const TargetSubtargetInfo &STI) const;
 
 			virtual void
 			loadRegFromStackSlot(MachineBasicBlock &MBB,

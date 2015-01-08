@@ -3484,3 +3484,56 @@ void XCore::AddCXXStdlibLibArgs(const ArgList &Args,
                                 ArgStringList &CmdArgs) const {
   // We don't output any lib args. This is handled by xcc.
 }
+
+#ifdef ARCH_MAPU
+/// MSPU_ELF - MSPU_ELF tool chain which can call llvm-mc and ld.gold directly.
+MSPU_ELF::MSPU_ELF(const Driver &D, const llvm::Triple& Triple, const ArgList &Args)
+: Generic_ELF(D, Triple, Args) {
+  // add search directories for libraries
+  getFilePaths().push_back(D.Dir + "/../lib");
+  getFilePaths().push_back(D.Dir + "/../lib/mspu/lib");
+}
+
+Tool *
+MSPU_ELF::buildAssembler() const {
+  return new tools::msputools::Assemble(*this);
+}
+
+Tool *
+MSPU_ELF::buildLinker() const {
+  return new tools::msputools::Link(*this);
+}
+
+DerivedArgList *
+MSPU_ELF::TranslateArgs(const DerivedArgList &Args, const char *BoundArch)
+const {
+  /*DerivedArgList *DAL = new DerivedArgList(Args.getBaseArgs());
+
+   //
+   DAL->AddSeparateArg();
+   for (ArgList::const_iterator it = Args.begin(),
+   ie = Args.end(); it != ie; ++it) {
+   Arg *A = *it;
+   DAL->append(A);
+   }*/
+
+  return 0;
+}
+
+void MSPU_ELF::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+                                         ArgStringList &CC1Args) const {
+  const Driver &D = getDriver();
+
+  // nostdlibinc disables seach path for *stdlib* headers on host.
+  // nostdinc disables seach path for *stdlib* and *clang builtin* headers
+  /*if (DriverArgs.hasArg(options::OPT_nostdinc) ||
+   DriverArgs.hasArg(options::OPT_nostdlibinc))
+   return;*/
+
+  if (!DriverArgs.hasArg(options::OPT_nostdlibinc)) {
+    addExternCSystemIncludeIfExists(DriverArgs, CC1Args, D.Dir + "/../lib/mspu/include");
+  }
+
+  return;
+}
+#endif

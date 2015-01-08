@@ -77,9 +77,10 @@ class CoverageData {
   void DumpTrace();
 
   ALWAYS_INLINE
-  void TraceBasicBlock(uptr *cache);
+  void TraceBasicBlock(s32 *id);
 
-  void InitializeGuards(s32 **guards, uptr n);
+  void InitializeGuardArray(s32 *guards);
+  void InitializeGuards(s32 *guards, uptr n);
 
   uptr *data();
   uptr size();
@@ -103,32 +104,27 @@ class CoverageData {
   // Descriptor of the file mapped pc array.
   int pc_fd;
 
+  // Vector of coverage guard arrays, protected by mu.
+  InternalMmapVectorNoCtor<s32*> guard_array_vec;
+
   // Caller-Callee (cc) array, size and current index.
   static const uptr kCcArrayMaxSize = FIRST_32_SECOND_64(1 << 18, 1 << 24);
   uptr **cc_array;
   atomic_uintptr_t cc_array_index;
   atomic_uintptr_t cc_array_size;
 
-  // Tracing (tr) pc and event arrays, their size and current index.
+  // Tracing event array, size and current pointer.
   // We record all events (basic block entries) in a global buffer of u32
-  // values. Each such value is an index in the table of TracedPc objects.
+  // values. Each such value is the index in pc_array.
   // So far the tracing is highly experimental:
   //   - not thread-safe;
   //   - does not support long traces;
   //   - not tuned for performance.
-  struct TracedPc {
-    uptr pc;
-    const char *module_name;
-    uptr module_offset;
-  };
   static const uptr kTrEventArrayMaxSize = FIRST_32_SECOND_64(1 << 22, 1 << 30);
   u32 *tr_event_array;
   uptr tr_event_array_size;
-  uptr tr_event_array_index;
+  u32 *tr_event_pointer;
   static const uptr kTrPcArrayMaxSize    = FIRST_32_SECOND_64(1 << 22, 1 << 27);
-  TracedPc *tr_pc_array;
-  uptr tr_pc_array_size;
-  uptr tr_pc_array_index;
 
   StaticSpinMutex mu;
 
@@ -154,6 +150,7 @@ void CoverageData::DirectOpen() {
 }
 
 void CoverageData::Init() {
+  CHECK_EQ(pc_array, nullptr);
   pc_array = reinterpret_cast<uptr *>(
       MmapNoReserveOrDie(sizeof(uptr) * kPcArrayMaxSize, "CovInit"));
   pc_fd = kInvalidFd;
@@ -169,16 +166,22 @@ void CoverageData::Init() {
   atomic_store(&cc_array_size, kCcArrayMaxSize, memory_order_relaxed);
   atomic_store(&cc_array_index, 0, memory_order_relaxed);
 
-  tr_event_array = reinterpret_cast<u32 *>(
-      MmapNoReserveOrDie(sizeof(tr_event_array[0]) * kTrEventArrayMaxSize,
-                         "CovInit::tr_event_array"));
+  // Allocate tr_event_array with a guard page at the end.
+  tr_event_array = reinterpret_cast<u32 *>(MmapNoReserveOrDie(
+      sizeof(tr_event_array[0]) * kTrEventArrayMaxSize + GetMmapGranularity(),
+      "CovInit::tr_event_array"));
+  Mprotect(reinterpret_cast<uptr>(&tr_event_array[kTrEventArrayMaxSize]),
+           GetMmapGranularity());
   tr_event_array_size = kTrEventArrayMaxSize;
-  tr_event_array_index = 0;
+  tr_event_pointer = tr_event_array;
+}
 
-  tr_pc_array = reinterpret_cast<TracedPc *>(MmapNoReserveOrDie(
-      sizeof(tr_pc_array[0]) * kTrEventArrayMaxSize, "CovInit::tr_pc_array"));
-  tr_pc_array_size = kTrEventArrayMaxSize;
-  tr_pc_array_index = 0;
+void CoverageData::InitializeGuardArray(s32 *guards) {
+  s32 n = guards[0];
+  for (s32 j = 1; j <= n; j++) {
+    uptr idx = atomic_fetch_add(&pc_array_index, 1, memory_order_relaxed);
+    guards[j] = -static_cast<s32>(idx + 1);
+  }
 }
 
 void CoverageData::ReInit() {
@@ -199,6 +202,11 @@ void CoverageData::ReInit() {
       Init();
     }
   }
+  // Re-initialize the guards.
+  // We are single-threaded now, no need to grab any lock.
+  CHECK_EQ(atomic_load(&pc_array_index, memory_order_relaxed), 0);
+  for (uptr i = 0; i < guard_array_vec.size(); i++)
+    InitializeGuardArray(guard_array_vec[i]);
 }
 
 void CoverageData::BeforeFork() {
@@ -246,16 +254,18 @@ void CoverageData::Extend(uptr npcs) {
   atomic_store(&pc_array_size, size, memory_order_release);
 }
 
-void CoverageData::InitializeGuards(s32 **guards, uptr n) {
-  for (uptr i = 0; i < n; i++) {
-    uptr idx = atomic_fetch_add(&pc_array_index, 1, memory_order_relaxed);
-    *guards[i] = -static_cast<s32>(idx + 1);
-  }
+void CoverageData::InitializeGuards(s32 *guards, uptr n) {
+  // The array 'guards' has n+1 elements, we use the element zero
+  // to store 'n'.
+  CHECK_LT(n, 1 << 30);
+  guards[0] = static_cast<s32>(n);
+  InitializeGuardArray(guards);
+  SpinMutexLock l(&mu);
+  guard_array_vec.push_back(guards);
 }
 
-// Atomically add the pc to the vector. The atomically set the guard to 1.
-// If the function is called more than once for a given PC it will
-// be inserted multiple times, which is fine.
+// If guard is negative, atomically set it to -guard and store the PC in
+// pc_array.
 void CoverageData::Add(uptr pc, u32 *guard) {
   atomic_uint32_t *atomic_guard = reinterpret_cast<atomic_uint32_t*>(guard);
   s32 guard_value = atomic_load(atomic_guard, memory_order_relaxed);
@@ -390,23 +400,18 @@ static int CovOpenFile(bool packed, const char *name,
 
 // Dump trace PCs and trace events into two separate files.
 void CoverageData::DumpTrace() {
-  uptr max_idx = tr_event_array_index;
+  uptr max_idx = tr_event_pointer - tr_event_array;
   if (!max_idx) return;
   auto sym = Symbolizer::GetOrInit();
   if (!sym)
     return;
   InternalScopedString out(32 << 20);
-  for (uptr i = 0; i < max_idx; i++) {
-    u32 pc_idx = tr_event_array[i];
-    TracedPc *t = &tr_pc_array[pc_idx];
-    if (!t->module_name) {
-      const char *module_name = "<unknown>";
-      uptr module_address = 0;
-      sym->GetModuleNameAndOffsetForPC(t->pc, &module_name, &module_address);
-      t->module_name = internal_strdup(module_name);
-      t->module_offset = module_address;
-      out.append("%s 0x%zx\n", t->module_name, t->module_offset);
-    }
+  for (uptr i = 0, n = size(); i < n; i++) {
+    const char *module_name = "<unknown>";
+    uptr module_address = 0;
+    sym->GetModuleNameAndOffsetForPC(pc_array[i], &module_name,
+                                     &module_address);
+    out.append("%s 0x%zx\n", module_name, module_address);
   }
   int fd = CovOpenFile(false, "trace-points");
   if (fd < 0) return;
@@ -415,10 +420,21 @@ void CoverageData::DumpTrace() {
 
   fd = CovOpenFile(false, "trace-events");
   if (fd < 0) return;
-  internal_write(fd, tr_event_array, max_idx * sizeof(tr_event_array[0]));
+  uptr bytes_to_write = max_idx * sizeof(tr_event_array[0]);
+  u8 *event_bytes = reinterpret_cast<u8*>(tr_event_array);
+  // The trace file could be huge, and may not be written with a single syscall.
+  while (bytes_to_write) {
+    uptr actually_written = internal_write(fd, event_bytes, bytes_to_write);
+    if (actually_written <= bytes_to_write) {
+      bytes_to_write -= actually_written;
+      event_bytes += actually_written;
+    } else {
+      break;
+    }
+  }
   internal_close(fd);
-  VReport(1, " CovDump: Trace: %zd PCs written\n", tr_pc_array_index);
-  VReport(1, " CovDump: Trace: %zd Events written\n", tr_event_array_index);
+  VReport(1, " CovDump: Trace: %zd PCs written\n", size());
+  VReport(1, " CovDump: Trace: %zd Events written\n", max_idx);
 }
 
 // This function dumps the caller=>callee pairs into a file as a sequence of
@@ -463,20 +479,14 @@ void CoverageData::DumpCallerCalleePairs() {
 // Record the current PC into the event buffer.
 // Every event is a u32 value (index in tr_pc_array_index) so we compute
 // it once and then cache in the provided 'cache' storage.
-void CoverageData::TraceBasicBlock(uptr *cache) {
-  CHECK(coverage_enabled);
-  uptr idx = *cache;
-  if (!idx) {
-    CHECK_LT(tr_pc_array_index, kTrPcArrayMaxSize);
-    idx = tr_pc_array_index++;
-    TracedPc *t = &tr_pc_array[idx];
-    t->pc = GET_CALLER_PC();
-    *cache = idx;
-    CHECK_LT(idx, 1U << 31);
-  }
-  CHECK_LT(tr_event_array_index, tr_event_array_size);
-  tr_event_array[tr_event_array_index] = static_cast<u32>(idx);
-  tr_event_array_index++;
+//
+// This function will eventually be inlined by the compiler.
+void CoverageData::TraceBasicBlock(s32 *id) {
+  // Will trap here if
+  //  1. coverage is not enabled at run-time.
+  //  2. The array tr_event_array is full.
+  *tr_event_pointer = static_cast<u32>(*id - 1);
+  tr_event_pointer++;
 }
 
 static void CovDumpAsBitSet() {
@@ -506,6 +516,8 @@ static void CovDump() {
   if (atomic_fetch_add(&dump_once_guard, 1, memory_order_relaxed))
     return;
   CovDumpAsBitSet();
+  coverage_data.DumpTrace();
+  if (!common_flags()->coverage_pcs) return;
   uptr size = coverage_data.size();
   InternalMmapVector<u32> offsets(size);
   uptr *vb = coverage_data.data();
@@ -556,7 +568,6 @@ static void CovDump() {
   if (cov_fd >= 0)
     internal_close(cov_fd);
   coverage_data.DumpCallerCalleePairs();
-  coverage_data.DumpTrace();
 #endif  // !SANITIZER_WINDOWS
 }
 
@@ -587,6 +598,8 @@ void CovAfterFork(int child_pid) {
 }
 
 void InitializeCoverage(bool enabled, const char *dir) {
+  if (coverage_enabled)
+    return;  // May happen if two sanitizer enable coverage in the same process.
   coverage_enabled = enabled;
   coverage_dir = dir;
   if (enabled) coverage_data.Init();
@@ -624,7 +637,7 @@ SANITIZER_INTERFACE_ATTRIBUTE void __sanitizer_cov_init() {
   coverage_data.Init();
 }
 SANITIZER_INTERFACE_ATTRIBUTE void __sanitizer_cov_dump() { CovDump(); }
-SANITIZER_INTERFACE_ATTRIBUTE void __sanitizer_cov_module_init(s32 **guards,
+SANITIZER_INTERFACE_ATTRIBUTE void __sanitizer_cov_module_init(s32 *guards,
                                                                uptr npcs) {
   coverage_data.InitializeGuards(guards, npcs);
   if (!common_flags()->coverage_direct) return;
@@ -645,11 +658,11 @@ uptr __sanitizer_get_total_unique_coverage() {
 }
 
 SANITIZER_INTERFACE_ATTRIBUTE
-void __sanitizer_cov_trace_func_enter(uptr *cache) {
-  coverage_data.TraceBasicBlock(cache);
+void __sanitizer_cov_trace_func_enter(s32 *id) {
+  coverage_data.TraceBasicBlock(id);
 }
 SANITIZER_INTERFACE_ATTRIBUTE
-void __sanitizer_cov_trace_basic_block(uptr *cache) {
-  coverage_data.TraceBasicBlock(cache);
+void __sanitizer_cov_trace_basic_block(s32 *id) {
+  coverage_data.TraceBasicBlock(id);
 }
 }  // extern "C"

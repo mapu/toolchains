@@ -61,6 +61,9 @@ namespace llvm {
       ///
       VPERM,
 
+      /// The CMPB instruction (takes two operands of i32 or i64).
+      CMPB,
+
       /// Hi/Lo - These represent the high and low 16-bit parts of a global
       /// address respectively.  These nodes have two operands, the first of
       /// which must be a TargetGlobalAddress, and the second of which must be a
@@ -384,6 +387,14 @@ namespace llvm {
 
     MVT getScalarShiftAmountTy(EVT LHSTy) const override { return MVT::i32; }
 
+    bool isCheapToSpeculateCttz() const override {
+      return true;
+    }
+
+    bool isCheapToSpeculateCtlz() const override {
+      return true;
+    }
+
     /// getSetCCResultType - Return the ISD::SETCC ValueType
     EVT getSetCCResultType(LLVMContext &Context, EVT VT) const override;
 
@@ -445,6 +456,8 @@ namespace llvm {
                                        APInt &KnownOne,
                                        const SelectionDAG &DAG,
                                        unsigned Depth = 0) const override;
+
+    unsigned getPrefLoopAlignment(MachineLoop *ML) const override;
 
     Instruction* emitLeadingFence(IRBuilder<> &Builder, AtomicOrdering Ord,
                                   bool IsStore, bool IsLoad) const override;
@@ -578,6 +591,28 @@ namespace llvm {
     }
 
   private:
+
+    struct ReuseLoadInfo {
+      SDValue Ptr;
+      SDValue Chain;
+      SDValue ResChain;
+      MachinePointerInfo MPI;
+      bool IsInvariant;
+      unsigned Alignment;
+      AAMDNodes AAInfo;
+      const MDNode *Ranges;
+
+      ReuseLoadInfo() : IsInvariant(false), Alignment(0), Ranges(nullptr) {}
+    };
+
+    bool canReuseLoadAddress(SDValue Op, EVT MemVT, ReuseLoadInfo &RLI,
+                             SelectionDAG &DAG) const;
+    void spliceIntoChain(SDValue ResChain, SDValue NewResChain,
+                         SelectionDAG &DAG) const;
+
+    void LowerFP_TO_INTForReuse(SDValue Op, ReuseLoadInfo &RLI,
+                                SelectionDAG &DAG, SDLoc dl) const;
+
     SDValue getFramePointerFrameIndex(SelectionDAG & DAG) const;
     SDValue getReturnAddrFrameIndex(SelectionDAG & DAG) const;
 
@@ -735,6 +770,7 @@ namespace llvm {
 
     SDValue DAGCombineExtBoolTrunc(SDNode *N, DAGCombinerInfo &DCI) const;
     SDValue DAGCombineTruncBoolExt(SDNode *N, DAGCombinerInfo &DCI) const;
+    SDValue combineFPToIntToFP(SDNode *N, DAGCombinerInfo &DCI) const;
 
     SDValue getRsqrtEstimate(SDValue Operand, DAGCombinerInfo &DCI,
                              unsigned &RefinementSteps,

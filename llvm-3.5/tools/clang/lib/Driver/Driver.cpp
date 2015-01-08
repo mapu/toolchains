@@ -1996,6 +1996,8 @@ const ToolChain &Driver::getToolChain(const ArgList &Args,
                                       StringRef DarwinArchName) const {
   llvm::Triple Target = computeTargetTriple(DefaultTargetTriple, Args,
                                             DarwinArchName);
+  if (Target.isOSWindows())
+    DefaultImageName = "a.exe";
 
   ToolChain *&TC = ToolChains[Target.str()];
   if (!TC) {
@@ -2074,6 +2076,13 @@ const ToolChain &Driver::getToolChain(const ArgList &Args,
         TC = new toolchains::XCore(*this, Target, Args);
         break;
       }
+#ifdef ARCH_MAPU
+      // MSPU is an OSless target
+      if(Target.getArch() == llvm::Triple::mspu) {
+        TC = new toolchains::MSPU_ELF(*this, Target, Args);
+        break;
+      }
+#endif
       if (Target.isOSBinFormatELF()) {
         TC = new toolchains::Generic_ELF(*this, Target, Args);
         break;

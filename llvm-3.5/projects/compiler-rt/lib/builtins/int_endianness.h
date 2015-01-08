@@ -105,6 +105,14 @@
 
 /* . */
 
+// MaPU SPU
+#if defined(__mspu__)
+
+#define _YUGA_LITTLE_ENDIAN 1
+#define _YUGA_BIG_ENDIAN    0
+
+#endif /* MaPU SPU */
+
 #if !defined(_YUGA_LITTLE_ENDIAN) || !defined(_YUGA_BIG_ENDIAN)
 #error Unable to determine endian
 #endif /* Check we found an endianness correctly. */

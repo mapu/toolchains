@@ -815,6 +815,37 @@ public:
                            llvm::opt::ArgStringList &CmdArgs) const override;
 };
 
+#ifdef ARCH_MAPU
+class LLVM_LIBRARY_VISIBILITY MSPU_ELF : public Generic_ELF {
+public:
+  MSPU_ELF(const Driver &D, const llvm::Triple& Triple, const llvm::opt::ArgList &Args);
+
+  virtual bool IsIntegratedAssemblerDefault() const override {
+    // Default integrated assembler to on for MSPU.
+    return true;
+  }
+
+  virtual llvm::opt::DerivedArgList *TranslateArgs(const llvm::opt::DerivedArgList &Args,
+                                        const char *BoundArch) const override;
+
+  virtual RuntimeLibType GetDefaultRuntimeLibType() const override {
+    return ToolChain::RLT_CompilerRT;
+  }
+
+  virtual void AddClangSystemIncludeArgs(const llvm::opt::ArgList &DriverArgs,
+                                         llvm::opt::ArgStringList &CC1Args)
+  const override;
+
+  virtual void addClangTargetOptions(const llvm::opt::ArgList &DriverArgs,
+                                     llvm::opt::ArgStringList &CC1Args)
+  const  override { }
+
+protected:
+  virtual Tool *buildLinker() const;
+  virtual Tool *buildAssembler() const;
+};
+#endif
+
 } // end namespace toolchains
 } // end namespace driver
 } // end namespace clang

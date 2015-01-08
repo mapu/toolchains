@@ -673,6 +673,42 @@ public:
 };
 }
 
+#ifdef ARCH_MAPU
+/// msputools -- call llvm-mc and ld.gold
+// Try to use default clang assembler driver
+namespace msputools {
+
+class LLVM_LIBRARY_VISIBILITY Assemble : public Tool  {
+public:
+  Assemble(const ToolChain &TC) : Tool("mspu::Assemble", "assembler",
+                                       TC) {}
+
+  virtual bool hasIntegratedCPP() const { return false; }
+
+  virtual void ConstructJob(Compilation &C, const JobAction &JA,
+                            const InputInfo &Output,
+                            const InputInfoList &Inputs,
+                            const llvm::opt::ArgList &TCArgs,
+                            const char *LinkingOutput) const;
+};
+
+class LLVM_LIBRARY_VISIBILITY Link : public Tool  {
+public:
+  Link(const ToolChain &TC) : Tool("mspu::Link", "linker", TC) {}
+
+  virtual bool hasIntegratedCPP() const { return false; }
+  virtual bool isLinkJob() const { return true; }
+
+  virtual void ConstructJob(Compilation &C, const JobAction &JA,
+                            const InputInfo &Output,
+                            const InputInfoList &Inputs,
+                            const llvm::opt::ArgList &TCArgs,
+                            const char *LinkingOutput) const;
+};
+
+} // end namespace msputools
+#endif
+
 } // end namespace toolchains
 } // end namespace driver
 } // end namespace clang

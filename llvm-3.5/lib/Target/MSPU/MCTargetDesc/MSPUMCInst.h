@@ -40,10 +40,10 @@ namespace llvm {
 
   public:
     explicit MSPUMCInst():
-      MCInst(), MCID(0) {};
+      MCInst(), MCID(0), Start(true), End(true), Prev(NULL), Next(NULL) {};
 
     MSPUMCInst(const MCInstrDesc& mcid):
-      MCInst(), MCID(&mcid) {};
+      MCInst(), MCID(&mcid), Start(true), End(true), Prev(NULL), Next(NULL) {};
 
     // Return the slots used by the insn.
     unsigned getUnits(const MSPUTargetMachine* TM) const;

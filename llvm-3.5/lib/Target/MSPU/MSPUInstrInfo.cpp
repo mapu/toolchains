@@ -35,11 +35,9 @@ MSPUInstrInfo::MSPUInstrInfo(MSPUSubtarget &ST)
 }
 
 DFAPacketizer *MSPUInstrInfo::
-CreateTargetScheduleState(const TargetMachine *TM,
-                           const ScheduleDAG *DAG) const {
-  const InstrItineraryData *II =
-    TM->getSubtarget<MSPUSubtarget>().getInstrItineraryData();
-  return TM->getSubtarget<MSPUGenSubtargetInfo>().createDFAPacketizer(II);
+CreateTargetScheduleState(const TargetSubtargetInfo &STI) const {
+  const InstrItineraryData *II = STI.getInstrItineraryData();
+  return static_cast<const MSPUSubtarget &>(STI).createDFAPacketizer(II);
 }
 
 /// isLoadFromStackSlot - If the specified machine instruction is a direct
@@ -372,8 +370,7 @@ storeRegToStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator MII,
                     const TargetRegisterClass *RC,
                     const TargetRegisterInfo *TRI) const
 {
-  MachineInstr * MI = MII;
-  DebugLoc DL = MI->getDebugLoc();
+  DebugLoc DL = MBB.findDebugLoc(MII);
   unsigned opc;
 
   // On the order of operands here: think "[base + frameindex + 0] = SrcReg".
@@ -392,7 +389,7 @@ storeRegToStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator MII,
   else
     llvm_unreachable("Can't store this register to stack slot");
 
-  BuildMI(MBB, MI, DL, get(opc)).addReg(SrcReg, getKillRegState(isKill)).addFrameIndex(FI).addImm(0);
+  BuildMI(MBB, MII, DL, get(opc)).addReg(SrcReg, getKillRegState(isKill)).addFrameIndex(FI).addImm(0);
 }
 
 void
@@ -401,8 +398,7 @@ loadRegFromStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator MII,
 						unsigned DestReg, int FI, const TargetRegisterClass *RC,
 						const TargetRegisterInfo *TRI) const
 {
-  MachineInstr * MI = MII;
-  DebugLoc DL = MI->getDebugLoc();
+  DebugLoc DL = MBB.findDebugLoc(MII);
   unsigned opc;
 
   // On the order of operands here: think "[base + frameindex + 0] = SrcReg".
@@ -421,7 +417,7 @@ loadRegFromStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator MII,
   else
     llvm_unreachable("Can't load this register from stack slot");
 
-  BuildMI(MBB, MI, DL, get(opc), DestReg).addFrameIndex(FI).addImm(0);
+  BuildMI(MBB, MII, DL, get(opc), DestReg).addFrameIndex(FI).addImm(0);
 }
 
 unsigned

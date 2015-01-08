@@ -175,6 +175,18 @@ namespace clang {
   };
   }
 
+#ifdef ARCH_MAPU
+  /// \brief MaPU MSPU builtins
+  namespace MSPU {
+    enum {
+        LastTIBuiltin = clang::Builtin::FirstTSBuiltin-1,
+#define BUILTIN(ID, TYPE, ATTRS) BI##ID,
+#include "clang/Basic/BuiltinsMSPU.def"
+        LastTSBuiltin
+    };
+  }
+#endif
+
 } // end namespace clang.
 
 #endif

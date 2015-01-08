@@ -26,8 +26,10 @@ using namespace llvm;
 
 MSPUSubtarget::MSPUSubtarget(const std::string &TT,
 							const std::string &CPU,
-							const std::string &FS)
-				: MSPUGenSubtargetInfo(TT, CPU, FS)
+							const std::string &FS, TargetMachine &TM)
+				: MSPUGenSubtargetInfo(TT, CPU, FS),
+				  DL("e-S64-p:32:32:32-i8:8:8-i16:16:16-i32:32:32-f32:32:32-f64:64:64-a0:8:8-s0:8:8-n32"),
+				  InstrInfo(*this), FrameLowering(*this), TLInfo(TM), TSInfo(DL)
 {
 	// Determine default and/or user specified characteristics
 	std::string CPUName = CPU;

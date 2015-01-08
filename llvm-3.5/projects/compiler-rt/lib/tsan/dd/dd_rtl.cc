@@ -73,7 +73,8 @@ void InitializeFlags(Flags *f, const char *env) {
   SetCommonFlagsDefaults();
   {
     // Override some common flags defaults.
-    CommonFlags cf = *common_flags();
+    CommonFlags cf;
+    cf.CopyFrom(*common_flags());
     cf.allow_addr2line = true;
     OverrideCommonFlags(cf);
   }

@@ -7059,6 +7059,159 @@ static bool getTypeString(SmallStringEnc &Enc, const Decl *D,
   return false;
 }
 
+#ifdef ARCH_MAPU
+//===----------------------------------------------------------------------===//
+// MaPU SPU ABI Implementation
+//===----------------------------------------------------------------------===//
+
+namespace {
+
+class MSPUABIInfo : public ABIInfo {
+
+
+public:
+  MSPUABIInfo(CodeGenTypes &CGT) : ABIInfo(CGT) {}
+
+private:
+
+  ABIArgInfo classifyReturnType(QualType RetTy) const;
+  ABIArgInfo classifyArgumentType(QualType RetTy) const;
+
+public:
+  virtual void computeInfo(CGFunctionInfo &FI) const;
+
+  virtual llvm::Value *EmitVAArg(llvm::Value *VAListAddr, QualType Ty,
+                                 CodeGenFunction &CGF) const;
+};
+
+class MSPUTargetCodeGenInfo : public TargetCodeGenInfo {
+public:
+  MSPUTargetCodeGenInfo(CodeGenTypes &CGT)
+    :TargetCodeGenInfo(new MSPUABIInfo(CGT)) {}
+
+  int getDwarfEHStackPointer(CodeGen::CodeGenModule &M) const {
+    return -1;
+  }
+};
+
+}
+
+void MSPUABIInfo::computeInfo(CGFunctionInfo &FI) const {
+  FI.getReturnInfo() = classifyReturnType(FI.getReturnType());
+
+  for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
+       it != ie; ++it)
+    it->info = classifyArgumentType(it->type);
+}
+
+ABIArgInfo MSPUABIInfo::classifyArgumentType(QualType Ty) const {
+  if (!isAggregateTypeForABI(Ty)) {
+    // Treat an enum type as its underlying type.
+    if (const EnumType *EnumTy = Ty->getAs<EnumType>())
+      Ty = EnumTy->getDecl()->getIntegerType();
+
+    return (Ty->isPromotableIntegerType() ?
+            ABIArgInfo::getExtend() : ABIArgInfo::getDirect());
+  }
+
+  // Ignore empty records.
+  if (isEmptyRecord(getContext(), Ty, true))
+    return ABIArgInfo::getIgnore();
+
+  if (CGCXXABI::RecordArgABI RAA = getRecordArgABI(Ty, getCXXABI()))
+    return ABIArgInfo::getIndirect(0, RAA == CGCXXABI::RAA_DirectInMemory);
+
+  uint64_t Size = getContext().getTypeSize(Ty);
+  if (Size > 64)
+    return ABIArgInfo::getIndirect(0, /*ByVal=*/true);
+    // Pass in the smallest viable integer type.
+  else if (Size > 32)
+      return ABIArgInfo::getDirect(llvm::Type::getInt64Ty(getVMContext()));
+  else if (Size > 16)
+      return ABIArgInfo::getDirect(llvm::Type::getInt32Ty(getVMContext()));
+  else if (Size > 8)
+      return ABIArgInfo::getDirect(llvm::Type::getInt16Ty(getVMContext()));
+  else
+      return ABIArgInfo::getDirect(llvm::Type::getInt8Ty(getVMContext()));
+}
+
+ABIArgInfo MSPUABIInfo::classifyReturnType(QualType RetTy) const {
+  if (RetTy->isVoidType())
+    return ABIArgInfo::getIgnore();
+
+  // Large vector types should be returned via memory.
+  if (RetTy->isVectorType() && getContext().getTypeSize(RetTy) > 64)
+    return ABIArgInfo::getIndirect(0);
+
+  if (!isAggregateTypeForABI(RetTy)) {
+    // Treat an enum type as its underlying type.
+    if (const EnumType *EnumTy = RetTy->getAs<EnumType>())
+      RetTy = EnumTy->getDecl()->getIntegerType();
+
+    return (RetTy->isPromotableIntegerType() ?
+            ABIArgInfo::getExtend() : ABIArgInfo::getDirect());
+  }
+
+  if (isEmptyRecord(getContext(), RetTy, true))
+    return ABIArgInfo::getIgnore();
+
+  // Aggregates <= 8 bytes are returned in r0; other aggregates
+  // are returned indirectly.
+  uint64_t Size = getContext().getTypeSize(RetTy);
+  if (Size <= 64) {
+    // Return in the smallest viable integer type.
+    if (Size <= 8)
+      return ABIArgInfo::getDirect(llvm::Type::getInt8Ty(getVMContext()));
+    if (Size <= 16)
+      return ABIArgInfo::getDirect(llvm::Type::getInt16Ty(getVMContext()));
+    if (Size <= 32)
+      return ABIArgInfo::getDirect(llvm::Type::getInt32Ty(getVMContext()));
+    return ABIArgInfo::getDirect(llvm::Type::getInt64Ty(getVMContext()));
+  }
+
+  return ABIArgInfo::getIndirect(0, /*ByVal=*/true);
+}
+
+// MaPU SPU allows 2 kinds of size-alignments:
+// 1. 8-8 for double only
+// 2. 4-4 for all other type
+// Thus, we only to fix up alignment for double.
+llvm::Value *MSPUABIInfo::EmitVAArg(llvm::Value *VAListAddr, QualType Ty,
+                                       CodeGenFunction &CGF) const {
+  CGBuilderTy &Builder = CGF.Builder;
+  llvm::Type *BPP = CGF.Int8PtrPtrTy;
+  llvm::Value *VAListAddrAsBPP = Builder.CreateBitCast(VAListAddr, BPP, "ap");
+  llvm::Value *Addr = Builder.CreateLoad(VAListAddrAsBPP, "ap.cur");
+
+  llvm::Type * ObjTy = CGF.ConvertType(Ty);
+  llvm::Type *PTy = llvm::PointerType::getUnqual(ObjTy);
+
+  uint64_t Align = CGF.getContext().getTypeAlignInChars(Ty).getQuantity();
+  Align = std::max(Align, (uint64_t)4);
+  if (ObjTy->isDoubleTy() && Align > 4) {
+    // addr = (addr + align - 1) & -align;
+    llvm::Value *Fixup = llvm::ConstantInt::get(CGF.Int32Ty, Align - 1);
+    Addr = CGF.Builder.CreateGEP(Addr, Fixup);
+    llvm::Value *AsInt = CGF.Builder.CreatePtrToInt(Addr, CGF.Int32Ty);
+    llvm::Value *Mask = llvm::ConstantInt::get(CGF.Int32Ty, -Align);
+    Addr = CGF.Builder.CreateIntToPtr(CGF.Builder.CreateAnd(AsInt, Mask),
+                                      Addr->getType(), "ap.cur.aligned");
+  }
+
+  llvm::Value *AddrTyped = Builder.CreateBitCast(Addr, PTy);
+
+  uint64_t Offset = llvm::RoundUpToAlignment(
+        CGF.getContext().getTypeSizeInChars(Ty).getQuantity(), Align);
+
+  llvm::Value *NextAddr =
+        Builder.CreateGEP(Addr, llvm::ConstantInt::get(CGF.Int32Ty, Offset), "ap.next");
+
+  Builder.CreateStore(NextAddr, VAListAddrAsBPP);
+
+  return AddrTyped;
+} // end MaPU SPU ABI
+#endif
+
 
 //===----------------------------------------------------------------------===//
 // Driver code
@@ -7198,9 +7351,15 @@ const TargetCodeGenInfo &CodeGenModule::getTargetCodeGenInfo() {
     return *(TheTargetCodeGenInfo = new HexagonTargetCodeGenInfo(Types));
   case llvm::Triple::r600:
     return *(TheTargetCodeGenInfo = new AMDGPUTargetCodeGenInfo(Types));
+  case llvm::Triple::amdgcn:
+    return *(TheTargetCodeGenInfo = new AMDGPUTargetCodeGenInfo(Types));
   case llvm::Triple::sparcv9:
     return *(TheTargetCodeGenInfo = new SparcV9TargetCodeGenInfo(Types));
   case llvm::Triple::xcore:
     return *(TheTargetCodeGenInfo = new XCoreTargetCodeGenInfo(Types));
+#ifdef ARCH_MAPU
+  case llvm::Triple::mspu:
+    return *(TheTargetCodeGenInfo = new MSPUTargetCodeGenInfo(Types));
+#endif
   }
 }

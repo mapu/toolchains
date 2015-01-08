@@ -15,7 +15,6 @@
 #define MSPU_FRAMEINFO_H
 
 #include "MSPU.h"
-#include "MSPUSubtarget.h"
 #include "llvm/Target/TargetFrameLowering.h"
 
 namespace llvm

@@ -9,8 +9,10 @@ append_list_if(COMPILER_RT_HAS_FPIE_FLAG -fPIE TSAN_CFLAGS)
 append_no_rtti_flag(TSAN_CFLAGS)
 
 set(TSAN_RTL_CFLAGS ${TSAN_CFLAGS})
-append_list_if(COMPILER_RT_HAS_WFRAME_LARGER_THAN_FLAG -Wframe-larger-than=512 TSAN_RTL_CFLAGS)
-append_list_if(COMPILER_RT_HAS_WGLOBAL_CONSTRUCTORS_FLAG -Wglobal-constructors TSAN_RTL_CFLAGS)
+append_list_if(SANITIZER_LIMIT_FRAME_SIZE -Wframe-larger-than=512
+               TSAN_RTL_CFLAGS)
+append_list_if(COMPILER_RT_HAS_WGLOBAL_CONSTRUCTORS_FLAG -Wglobal-constructors
+               TSAN_RTL_CFLAGS)
 # FIXME: Add support for --sysroot=. compile flag:
 
 set(TSAN_SOURCES
@@ -52,6 +54,7 @@ set(TSAN_HEADERS
   rtl/tsan_dense_alloc.h
   rtl/tsan_fd.h
   rtl/tsan_flags.h
+  rtl/tsan_flags.inc
   rtl/tsan_ignoreset.h
   rtl/tsan_interface_ann.h
   rtl/tsan_interface.h

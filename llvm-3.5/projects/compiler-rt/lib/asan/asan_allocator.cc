@@ -206,7 +206,7 @@ QuarantineCache *GetQuarantineCache(AsanThreadLocalMallocStorage *ms) {
 }
 
 void AllocatorOptions::SetFrom(const Flags *f, const CommonFlags *cf) {
-  quarantine_size_mb = f->quarantine_size >> 20;
+  quarantine_size_mb = f->quarantine_size_mb;
   min_redzone = f->redzone;
   max_redzone = f->max_redzone;
   may_return_null = cf->allocator_may_return_null;
@@ -214,7 +214,7 @@ void AllocatorOptions::SetFrom(const Flags *f, const CommonFlags *cf) {
 }
 
 void AllocatorOptions::CopyTo(Flags *f, CommonFlags *cf) {
-  f->quarantine_size = (int)quarantine_size_mb << 20;
+  f->quarantine_size_mb = quarantine_size_mb;
   f->redzone = min_redzone;
   f->max_redzone = max_redzone;
   cf->allocator_may_return_null = may_return_null;
@@ -361,14 +361,20 @@ struct Allocator {
 
     AsanThread *t = GetCurrentThread();
     void *allocated;
+    bool check_rss_limit = true;
     if (t) {
       AllocatorCache *cache = GetAllocatorCache(&t->malloc_storage());
-      allocated = allocator.Allocate(cache, needed_size, 8, false);
+      allocated =
+          allocator.Allocate(cache, needed_size, 8, false, check_rss_limit);
     } else {
       SpinMutexLock l(&fallback_mutex);
       AllocatorCache *cache = &fallback_allocator_cache;
-      allocated = allocator.Allocate(cache, needed_size, 8, false);
+      allocated =
+          allocator.Allocate(cache, needed_size, 8, false, check_rss_limit);
     }
+
+    if (!allocated)
+      return allocator.ReturnNullOrDie();
 
     if (*(u8 *)MEM_TO_SHADOW((uptr)allocated) == 0 && CanPoisonMemory()) {
       // Heap poisoning is enabled, but the allocator provides an unpoisoned
@@ -769,6 +775,10 @@ void asan_mz_force_lock() {
 
 void asan_mz_force_unlock() {
   instance.ForceUnlock();
+}
+
+void AsanSoftRssLimitExceededCallback(bool exceeded) {
+  instance.allocator.SetRssLimitIsExceeded(exceeded);
 }
 
 }  // namespace __asan

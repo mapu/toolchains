@@ -16,10 +16,10 @@
 using namespace llvm;
 
 static cl::opt<bool>
-DebugPM("debug-pass-manager", cl::Hidden,
-        cl::desc("Print pass management debugging information"));
+    DebugPM("debug-pass-manager", cl::Hidden,
+            cl::desc("Print pass management debugging information"));
 
-PreservedAnalyses ModulePassManager::run(Module *M, ModuleAnalysisManager *AM) {
+PreservedAnalyses ModulePassManager::run(Module &M, ModuleAnalysisManager *AM) {
   PreservedAnalyses PA = PreservedAnalyses::all();
 
   if (DebugPM)
@@ -30,11 +30,20 @@ PreservedAnalyses ModulePassManager::run(Module *M, ModuleAnalysisManager *AM) {
       dbgs() << "Running module pass: " << Passes[Idx]->name() << "\n";
 
     PreservedAnalyses PassPA = Passes[Idx]->run(M, AM);
+
+    // If we have an active analysis manager at this level we want to ensure we
+    // update it as each pass runs and potentially invalidates analyses. We
+    // also update the preserved set of analyses based on what analyses we have
+    // already handled the invalidation for here and don't need to invalidate
+    // when finished.
     if (AM)
-      AM->invalidate(M, PassPA);
+      PassPA = AM->invalidate(M, std::move(PassPA));
+
+    // Finally, we intersect the final preserved analyses to compute the
+    // aggregate preserved set for this pass manager.
     PA.intersect(std::move(PassPA));
 
-    M->getContext().yield();
+    M.getContext().yield();
   }
 
   if (DebugPM)
@@ -44,43 +53,76 @@ PreservedAnalyses ModulePassManager::run(Module *M, ModuleAnalysisManager *AM) {
 }
 
 ModuleAnalysisManager::ResultConceptT &
-ModuleAnalysisManager::getResultImpl(void *PassID, Module *M) {
+ModuleAnalysisManager::getResultImpl(void *PassID, Module &M) {
   ModuleAnalysisResultMapT::iterator RI;
   bool Inserted;
   std::tie(RI, Inserted) = ModuleAnalysisResults.insert(std::make_pair(
-      PassID, std::unique_ptr<detail::AnalysisResultConcept<Module *>>()));
+      PassID, std::unique_ptr<detail::AnalysisResultConcept<Module &>>()));
 
   // If we don't have a cached result for this module, look up the pass and run
   // it to produce a result, which we then add to the cache.
-  if (Inserted)
-    RI->second = lookupPass(PassID).run(M, this);
+  if (Inserted) {
+    auto &P = lookupPass(PassID);
+    if (DebugPM)
+      dbgs() << "Running module analysis: " << P.name() << "\n";
+    RI->second = P.run(M, this);
+  }
 
   return *RI->second;
 }
 
 ModuleAnalysisManager::ResultConceptT *
-ModuleAnalysisManager::getCachedResultImpl(void *PassID, Module *M) const {
+ModuleAnalysisManager::getCachedResultImpl(void *PassID, Module &M) const {
   ModuleAnalysisResultMapT::const_iterator RI =
       ModuleAnalysisResults.find(PassID);
   return RI == ModuleAnalysisResults.end() ? nullptr : &*RI->second;
 }
 
-void ModuleAnalysisManager::invalidateImpl(void *PassID, Module *M) {
+void ModuleAnalysisManager::invalidateImpl(void *PassID, Module &M) {
+  if (DebugPM)
+    dbgs() << "Invalidating module analysis: " << lookupPass(PassID).name()
+           << "\n";
   ModuleAnalysisResults.erase(PassID);
 }
 
-void ModuleAnalysisManager::invalidateImpl(Module *M,
-                                           const PreservedAnalyses &PA) {
+PreservedAnalyses ModuleAnalysisManager::invalidateImpl(Module &M,
+                                                        PreservedAnalyses PA) {
+  // Short circuit for a common case of all analyses being preserved.
+  if (PA.areAllPreserved())
+    return std::move(PA);
+
+  if (DebugPM)
+    dbgs() << "Invalidating all non-preserved analyses for module: "
+           << M.getModuleIdentifier() << "\n";
+
   // FIXME: This is a total hack based on the fact that erasure doesn't
   // invalidate iteration for DenseMap.
   for (ModuleAnalysisResultMapT::iterator I = ModuleAnalysisResults.begin(),
                                           E = ModuleAnalysisResults.end();
-       I != E; ++I)
-    if (I->second->invalidate(M, PA))
+       I != E; ++I) {
+    void *PassID = I->first;
+
+    // Pass the invalidation down to the pass itself to see if it thinks it is
+    // necessary. The analysis pass can return false if no action on the part
+    // of the analysis manager is required for this invalidation event.
+    if (I->second->invalidate(M, PA)) {
+      if (DebugPM)
+        dbgs() << "Invalidating module analysis: "
+               << lookupPass(PassID).name() << "\n";
+
       ModuleAnalysisResults.erase(I);
+    }
+
+    // After handling each pass, we mark it as preserved. Once we've
+    // invalidated any stale results, the rest of the system is allowed to
+    // start preserving this analysis again.
+    PA.preserve(PassID);
+  }
+
+  return std::move(PA);
 }
 
-PreservedAnalyses FunctionPassManager::run(Function *F,
+PreservedAnalyses FunctionPassManager::run(Function &F,
                                            FunctionAnalysisManager *AM) {
   PreservedAnalyses PA = PreservedAnalyses::all();
 
@@ -92,11 +134,20 @@ PreservedAnalyses FunctionPassManager::run(Function *F,
       dbgs() << "Running function pass: " << Passes[Idx]->name() << "\n";
 
     PreservedAnalyses PassPA = Passes[Idx]->run(F, AM);
+
+    // If we have an active analysis manager at this level we want to ensure we
+    // update it as each pass runs and potentially invalidates analyses. We
+    // also update the preserved set of analyses based on what analyses we have
+    // already handled the invalidation for here and don't need to invalidate
+    // when finished.
     if (AM)
-      AM->invalidate(F, PassPA);
+      PassPA = AM->invalidate(F, std::move(PassPA));
+
+    // Finally, we intersect the final preserved analyses to compute the
+    // aggregate preserved set for this pass manager.
     PA.intersect(std::move(PassPA));
 
-    F->getContext().yield();
+    F.getContext().yield();
   }
 
   if (DebugPM)
@@ -119,17 +170,20 @@ void FunctionAnalysisManager::clear() {
 }
 
 FunctionAnalysisManager::ResultConceptT &
-FunctionAnalysisManager::getResultImpl(void *PassID, Function *F) {
+FunctionAnalysisManager::getResultImpl(void *PassID, Function &F) {
   FunctionAnalysisResultMapT::iterator RI;
   bool Inserted;
   std::tie(RI, Inserted) = FunctionAnalysisResults.insert(std::make_pair(
-      std::make_pair(PassID, F), FunctionAnalysisResultListT::iterator()));
+      std::make_pair(PassID, &F), FunctionAnalysisResultListT::iterator()));
 
   // If we don't have a cached result for this function, look up the pass and
   // run it to produce a result, which we then add to the cache.
   if (Inserted) {
-    FunctionAnalysisResultListT &ResultList = FunctionAnalysisResultLists[F];
-    ResultList.emplace_back(PassID, lookupPass(PassID).run(F, this));
+    auto &P = lookupPass(PassID);
+    if (DebugPM)
+      dbgs() << "Running function analysis: " << P.name() << "\n";
+    FunctionAnalysisResultListT &ResultList = FunctionAnalysisResultLists[&F];
+    ResultList.emplace_back(PassID, P.run(F, this));
     RI->second = std::prev(ResultList.end());
   }
 
@@ -137,47 +191,76 @@ FunctionAnalysisManager::getResultImpl(void *PassID, Function *F) {
 }
 
 FunctionAnalysisManager::ResultConceptT *
-FunctionAnalysisManager::getCachedResultImpl(void *PassID, Function *F) const {
+FunctionAnalysisManager::getCachedResultImpl(void *PassID, Function &F) const {
   FunctionAnalysisResultMapT::const_iterator RI =
-      FunctionAnalysisResults.find(std::make_pair(PassID, F));
+      FunctionAnalysisResults.find(std::make_pair(PassID, &F));
   return RI == FunctionAnalysisResults.end() ? nullptr : &*RI->second->second;
 }
 
-void FunctionAnalysisManager::invalidateImpl(void *PassID, Function *F) {
+void FunctionAnalysisManager::invalidateImpl(void *PassID, Function &F) {
   FunctionAnalysisResultMapT::iterator RI =
-      FunctionAnalysisResults.find(std::make_pair(PassID, F));
+      FunctionAnalysisResults.find(std::make_pair(PassID, &F));
   if (RI == FunctionAnalysisResults.end())
     return;
 
-  FunctionAnalysisResultLists[F].erase(RI->second);
+  if (DebugPM)
+    dbgs() << "Invalidating function analysis: " << lookupPass(PassID).name()
+           << "\n";
+  FunctionAnalysisResultLists[&F].erase(RI->second);
+  FunctionAnalysisResults.erase(RI);
 }
 
-void FunctionAnalysisManager::invalidateImpl(Function *F,
-                                             const PreservedAnalyses &PA) {
+PreservedAnalyses
+FunctionAnalysisManager::invalidateImpl(Function &F, PreservedAnalyses PA) {
+  // Short circuit for a common case of all analyses being preserved.
+  if (PA.areAllPreserved())
+    return std::move(PA);
+
+  if (DebugPM)
+    dbgs() << "Invalidating all non-preserved analyses for function: "
+           << F.getName() << "\n";
+
   // Clear all the invalidated results associated specifically with this
   // function.
   SmallVector<void *, 8> InvalidatedPassIDs;
-  FunctionAnalysisResultListT &ResultsList = FunctionAnalysisResultLists[F];
+  FunctionAnalysisResultListT &ResultsList = FunctionAnalysisResultLists[&F];
   for (FunctionAnalysisResultListT::iterator I = ResultsList.begin(),
                                              E = ResultsList.end();
-       I != E;)
+       I != E;) {
+    void *PassID = I->first;
+
+    // Pass the invalidation down to the pass itself to see if it thinks it is
+    // necessary. The analysis pass can return false if no action on the part
+    // of the analysis manager is required for this invalidation event.
     if (I->second->invalidate(F, PA)) {
+      if (DebugPM)
+        dbgs() << "Invalidating function analysis: "
+               << lookupPass(PassID).name() << "\n";
+
       InvalidatedPassIDs.push_back(I->first);
       I = ResultsList.erase(I);
     } else {
       ++I;
     }
+
+    // After handling each pass, we mark it as preserved. Once we've
+    // invalidated any stale results, the rest of the system is allowed to
+    // start preserving this analysis again.
+    PA.preserve(PassID);
+  }
   while (!InvalidatedPassIDs.empty())
     FunctionAnalysisResults.erase(
-        std::make_pair(InvalidatedPassIDs.pop_back_val(), F));
+        std::make_pair(InvalidatedPassIDs.pop_back_val(), &F));
   if (ResultsList.empty())
-    FunctionAnalysisResultLists.erase(F);
+    FunctionAnalysisResultLists.erase(&F);
+
+  return std::move(PA);
 }
 
 char FunctionAnalysisManagerModuleProxy::PassID;
 
 FunctionAnalysisManagerModuleProxy::Result
-FunctionAnalysisManagerModuleProxy::run(Module *M) {
+FunctionAnalysisManagerModuleProxy::run(Module &M) {
   assert(FAM->empty() && "Function analyses ran prior to the module proxy!");
   return Result(*FAM);
 }
@@ -189,7 +272,7 @@ FunctionAnalysisManagerModuleProxy::Result::~Result() {
 }
 
 bool FunctionAnalysisManagerModuleProxy::Result::invalidate(
-    Module *M, const PreservedAnalyses &PA) {
+    Module &M, const PreservedAnalyses &PA) {
   // If this proxy isn't marked as preserved, then we can't even invalidate
   // individual function analyses, there may be an invalid set of Function
   // objects in the cache making it impossible to incrementally preserve them.

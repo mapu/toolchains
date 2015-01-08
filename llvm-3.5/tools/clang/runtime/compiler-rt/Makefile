@@ -109,6 +109,12 @@ ifeq ($(OS),Linux)
 RuntimeDirs += linux
 RuntimeLibrary.linux.Configs :=
 
+#### MaPU hacking ####
+# we always install for mspu
+RuntimeDirs += mspu
+RuntimeLibrary.mspu.Configs += builtins-mspu.a
+#### MaPU hacking end ####
+
 # TryCompile compiler source flags
 # Returns exit code of running a compiler invocation.
 TryCompile = \

@@ -36,11 +36,14 @@ MSPUInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
   assert(MI->getOpcode() != MSPUInst::ImmExt && "should not print out imm-ext instructions");
 
   while(MI) {
+    const MSPUMCInst *MSMI = static_cast<const MSPUMCInst *>(MI);
     if(MI->getOpcode() != MSPUInst::ImmExt) {
 
-      printInstruction(MI, O); // tblgen'erated function
+      if(MSMI->isStart()) {
+        O << "m.s ";
+      }
 
-      const MSPUMCInst *MSMI = static_cast<const MSPUMCInst *>(MI);
+      printInstruction(MI, O); // tblgen'erated function
 
       // ...; insn;;
       if(MSMI->isEnd()) {
@@ -58,7 +61,9 @@ MSPUInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
       // ...; insn; ...
       O << "; ";
     }
-    //else MI = MI->getNext();
+    else {
+      MSMI = MSMI->getNext();
+    }
   }
 
   return;
@@ -229,7 +234,7 @@ MSPUInstPrinter::printIntrinKREG(const MCInst *MI, unsigned OpNo, raw_ostream &O
   else if(MO.isImm()) {
     unsigned code = MO.getImm();
 
-    if(MSPUInstPrinter::KB0 <= code && code <= MSPUInstPrinter::KB15)
+    if(/*MSPUInstPrinter::KB0 <= code && */code <= MSPUInstPrinter::KB15)
       reg = MSPUReg::KB0 + (code - MSPUInstPrinter::KB0);
     else if(MSPUInstPrinter::KE0 <= code && code <= MSPUInstPrinter::KE15)
       reg = MSPUReg::KE0 + (code - MSPUInstPrinter::KE0);

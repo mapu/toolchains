@@ -231,6 +231,7 @@ append_list_if(COMPILER_RT_HAS_FUNWIND_TABLES_FLAG -funwind-tables SANITIZER_COM
 append_list_if(COMPILER_RT_HAS_FNO_STACK_PROTECTOR_FLAG -fno-stack-protector SANITIZER_COMMON_CFLAGS)
 append_list_if(COMPILER_RT_HAS_FVISIBILITY_HIDDEN_FLAG -fvisibility=hidden SANITIZER_COMMON_CFLAGS)
 append_list_if(COMPILER_RT_HAS_FNO_FUNCTION_SECTIONS_FLAG -fno-function-sections SANITIZER_COMMON_CFLAGS)
+append_list_if(COMPILER_RT_HAS_FNO_LTO_FLAG -fno-lto SANITIZER_COMMON_CFLAGS)
 
 if(MSVC)
   # Replace the /MD[d] flags with /MT.
@@ -250,10 +251,24 @@ if(MSVC)
   append_list_if(COMPILER_RT_HAS_GS_FLAG /GS- SANITIZER_COMMON_CFLAGS)
 endif()
 
+append_list_if(COMPILER_RT_DEBUG -DSANITIZER_DEBUG=1 SANITIZER_COMMON_CFLAGS)
+
 # Build with optimization, unless we're in debug mode. If we're using MSVC,
 # always respect the optimization flags set by CMAKE_BUILD_TYPE instead.
 if(NOT COMPILER_RT_DEBUG AND NOT MSVC)
   list(APPEND SANITIZER_COMMON_CFLAGS -O3)
+endif()
+
+# Determine if we should restrict stack frame sizes.
+# Stack frames on PowerPC and in debug biuld can be much larger than
+# anticipated.
+# FIXME: Fix all sanitizers and add -Wframe-larger-than to
+# SANITIZER_COMMON_FLAGS
+if(COMPILER_RT_HAS_WFRAME_LARGER_THAN_FLAG AND NOT COMPILER_RT_DEBUG
+   AND NOT ${LLVM_NATIVE_ARCH} STREQUAL "PowerPC")
+  set(SANITIZER_LIMIT_FRAME_SIZE TRUE)
+else()
+  set(SANITIZER_LIMIT_FRAME_SIZE FALSE)
 endif()
 
 # Build sanitizer runtimes with debug info.

@@ -3102,6 +3102,28 @@ X86TargetInfo::validateAsmConstraint(const char *&Name,
                                      TargetInfo::ConstraintInfo &Info) const {
   switch (*Name) {
   default: return false;
+  case 'I':
+    Info.setRequiresImmediate(0, 31);
+    return true;
+  case 'J':
+    Info.setRequiresImmediate(0, 63);
+    return true;
+  case 'K':
+    Info.setRequiresImmediate(-128, 127);
+    return true;
+  case 'L':
+    // FIXME: properly analyze this constraint:
+    //  must be one of 0xff, 0xffff, or 0xffffffff
+    return true;
+  case 'M':
+    Info.setRequiresImmediate(0, 3);
+    return true;
+  case 'N':
+    Info.setRequiresImmediate(0, 255);
+    return true;
+  case 'O':
+    Info.setRequiresImmediate(0, 127);
+    return true;
   case 'Y': // first letter of a pair:
     switch (*(Name+1)) {
     default: return false;
@@ -4289,6 +4311,13 @@ public:
     case 'P': // VFP Floating point register double precision
       Info.setAllowsRegister();
       return true;
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+      // FIXME
+      return true;
     case 'Q': // A memory address that is a single base register.
       Info.setAllowsMemory();
       return true;
@@ -5152,6 +5181,16 @@ public:
   bool validateAsmConstraint(const char *&Name,
                              TargetInfo::ConstraintInfo &info) const override {
     // FIXME: Implement!
+    switch (*Name) {
+    case 'I': // Signed 13-bit constant
+    case 'J': // Zero
+    case 'K': // 32-bit constant with the low 12 bits clear
+    case 'L': // A constant in the range supported by movcc (11-bit signed imm)
+    case 'M': // A constant in the range supported by movrcc (19-bit signed imm)
+    case 'N': // Same as 'K' but zext (required for SIMode)
+    case 'O': // The constant 4096
+      return true;
+    }
     return false;
   }
   const char *getClobbers() const override {
@@ -5444,6 +5483,13 @@ namespace {
     bool
     validateAsmConstraint(const char *&Name,
                           TargetInfo::ConstraintInfo &info) const override {
+      // FIXME: implement
+      switch (*Name) {
+      case 'K': // the constant 1
+      case 'L': // constant -1^20 .. 1^19
+      case 'M': // constant 1-4:
+        return true;
+      }
       // No target constraints for now.
       return false;
     }
@@ -5739,6 +5785,15 @@ public:
     case 'l': // lo register
     case 'x': // hilo register pair
       Info.setAllowsRegister();
+      return true;
+    case 'I': // Signed 16-bit constant
+    case 'J': // Integer 0
+    case 'K': // Unsigned 16-bit constant
+    case 'L': // Signed 32-bit constant, lower 16-bit zeros (for lui)
+    case 'M': // Constants not loadable via lui, addiu, or ori
+    case 'N': // Constant -1 to -65535
+    case 'O': // A signed 15-bit constant
+    case 'P': // A constant between 1 go 65535
       return true;
     case 'R': // An address that can be used in a non-macro load or store
       Info.setAllowsMemory();
@@ -6354,6 +6409,103 @@ const Builtin::Info XCoreTargetInfo::BuiltinInfo[] = {
 };
 } // end anonymous namespace.
 
+#ifdef ARCH_MAPU
+namespace {
+class MSPUTargetInfo : public TargetInfo {
+  static const Builtin::Info BuiltinInfo[];
+  static const TargetInfo::GCCRegAlias GCCRegAliases[];
+  static const char * const GCCRegNames[];
+public:
+  MSPUTargetInfo(const llvm::Triple &triple) : TargetInfo(triple) {
+    DescriptionString = "e-p:32:32-a:8-n32-S64";
+  }
+
+  virtual bool handleTargetFeatures(std::vector<std::string> &Features,
+                                    DiagnosticsEngine &Diags)
+  override {
+    // no features now
+    return true;
+  }
+
+  virtual void getTargetDefines(const LangOptions &Opts,
+                                MacroBuilder &Builder) const override {
+    DefineStd(Builder, "mspu", Opts);
+    // Builder.defineMacro("__mspu", "1");
+  }
+
+  virtual bool hasFeature(StringRef Feature) const override {
+    return llvm::StringSwitch<bool>(Feature).Case("mspu", true).Default(false);
+  }
+
+  virtual void getTargetBuiltins(const Builtin::Info *&Records,
+                                 unsigned &NumRecords) const override {
+    Records = BuiltinInfo;
+    NumRecords = clang::MSPU::LastTSBuiltin - Builtin::FirstTSBuiltin;
+  }
+
+  virtual BuiltinVaListKind getBuiltinVaListKind() const override {
+    return TargetInfo::VoidPtrBuiltinVaList;
+  }
+
+  virtual void getGCCRegNames(const char * const *&Names,
+    unsigned &NumNames) const override;
+
+  virtual void getGCCRegAliases(const GCCRegAlias *&Aliases,
+    unsigned &NumAliases) const override;
+
+  virtual bool validateAsmConstraint(const char *&Name,
+    TargetInfo::ConstraintInfo &info) const override {
+    // FIXME: Implement!
+    return false;
+  }
+
+  virtual const char *getClobbers() const override {
+    // FIXME: Implement!
+    return "";
+  }
+};
+
+// MaPU SPU implementation
+const Builtin::Info MSPUTargetInfo::BuiltinInfo[] = {
+#define BUILTIN(ID, TYPE, ATTRS) { #ID, TYPE, ATTRS, 0, ALL_LANGUAGES },
+#define LIBBUILTIN(ID, TYPE, ATTRS, HEADER) { #ID, TYPE, ATTRS, HEADER,\
+                                              ALL_LANGUAGES },
+#include "clang/Basic/BuiltinsMSPU.def"
+};
+
+const char * const MSPUTargetInfo::GCCRegNames[] = {
+  "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7",
+  "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15",
+  "R16", "R17", "R18", "R19", "R20", "R21", "R22", "R23",
+  "R24", "R25", "R26", "R27", "R28", "R29", "R30", "R31",
+
+  "J0", "J1", "J2", "J3", "J4", "J5", "J6", "J7",
+  "J8", "J9", "J10", "J11", "J12", "J13", "J14", "J15",
+  "J16", "J17", "J18", "J19", "J20", "J21", "J22", "J23",
+  "J24", "J25", "J26", "J27", "J28", "J29", "J30", "J31",
+
+  "DR0", "DR1", "DR2", "DR3", "DR4", "DR5", "DR6", "DR7",
+  "DR8", "DR9", "DR10", "DR11", "DR12", "DR13", "DR14", "DR15"
+};
+
+void MSPUTargetInfo::getGCCRegNames(const char * const *&Names,
+  unsigned &NumNames) const {
+  Names = GCCRegNames;
+  NumNames = llvm::array_lengthof(GCCRegNames);
+}
+
+const TargetInfo::GCCRegAlias MSPUTargetInfo::GCCRegAliases[] = {
+  { { "FP"}, "J28"},
+  { { "SP"}, "J29"}
+};
+
+void MSPUTargetInfo::getGCCRegAliases(const GCCRegAlias *&Aliases,
+  unsigned &NumAliases) const {
+  Aliases = GCCRegAliases;
+  NumAliases = llvm::array_lengthof(GCCRegAliases);
+}
+}    // end anonymous namespace for MSPU.
+#endif
 
 //===----------------------------------------------------------------------===//
 // Driver code
@@ -6579,6 +6731,7 @@ static TargetInfo *AllocateTarget(const llvm::Triple &Triple) {
   case llvm::Triple::nvptx64:
     return new NVPTX64TargetInfo(Triple);
 
+  case llvm::Triple::amdgcn:
   case llvm::Triple::r600:
     return new R600TargetInfo(Triple);
 
@@ -6720,7 +6873,13 @@ static TargetInfo *AllocateTarget(const llvm::Triple &Triple) {
         return nullptr;
       return new SPIR64TargetInfo(Triple);
     }
+
+#ifdef ARCH_MAPU
+    case llvm::Triple::mspu: {
+      return new MSPUTargetInfo(Triple);
+    }
   }
+#endif
 }
 
 /// CreateTargetInfo - Return the target info object for the specified target

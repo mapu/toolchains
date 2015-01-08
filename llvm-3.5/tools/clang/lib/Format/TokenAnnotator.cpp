@@ -741,7 +741,8 @@ private:
 
   void modifyContext(const FormatToken &Current) {
     if (Current.getPrecedence() == prec::Assignment &&
-        !Line.First->isOneOf(tok::kw_template, tok::kw_using) &&
+        !Line.First->isOneOf(tok::kw_template, tok::kw_using,
+                             TT_UnaryOperator) &&
         (!Current.Previous || Current.Previous->isNot(tok::kw_operator))) {
       Contexts.back().IsExpression = true;
       for (FormatToken *Previous = Current.Previous;
@@ -752,11 +753,10 @@ private:
           if (!Previous)
             break;
         }
-        if ((Previous->isOneOf(TT_BinaryOperator, TT_UnaryOperator)) &&
+        if (Previous->isOneOf(TT_BinaryOperator, TT_UnaryOperator) &&
             Previous->isOneOf(tok::star, tok::amp) && Previous->Previous &&
-            Previous->Previous->isNot(tok::equal)) {
+            Previous->Previous->isNot(tok::equal))
           Previous->Type = TT_PointerOrReference;
-        }
       }
     } else if (Current.isOneOf(tok::kw_return, tok::kw_throw)) {
       Contexts.back().IsExpression = true;
@@ -927,6 +927,8 @@ private:
         LeftOfParens->MatchingParen->is(TT_LambdaLSquare))
       return false;
     if (Tok.Next) {
+      if (Tok.Next->is(tok::question))
+        return false;
       if (Style.Language == FormatStyle::LK_JavaScript &&
           Tok.Next->is(Keywords.kw_in))
         return false;
