@@ -73,23 +73,26 @@ $(ParserFile) : %.bison : $(ObjDir)/%.bison.tmp
 ################################################################
 
 ################## MaPU-specific Makefile rules ################
+RAGEL ?= ragel
+FLEX ?= flex
+BISON ?= bison
 # Generate custom instruction token lexer for MaPU
 $(TARGET:%=$(ObjDir)/%GenInstrFLexer.flex.tmp): \
 $(ObjDir)/%GenInstrFLexer.flex.tmp : AsmParser/%InstrFLexer.l  $(ObjDir)/.dir
 	$(Echo) "Building $(<F) for assembly instruction lexer with flex"
-	$(Verb) flex  -o  $(call SYSPATH, $@)  $<
+	$(Verb) $(FLEX)  -o  $(call SYSPATH, $@)  $<
 
 # Generate custom instruction token lexer for MaPU
 $(TARGET:%=$(ObjDir)/%GenInstrRLexer.ragel.tmp): \
 $(ObjDir)/%GenInstrRLexer.ragel.tmp : AsmParser/%InstrRLexer.rl  $(ObjDir)/.dir
 	$(Echo) "Building $(<F) for assembly instruction lexer with ragel"
-	$(Verb) $(RAGEL)  -o  $(call SYSPATH, $@)  $<
+	$(Verb) $(RAGEL) -o  $(call SYSPATH, $@)  $<
 
 # Generate custom instruction parser for MaPU
 $(TARGET:%=$(ObjDir)/%GenInstrParser.bison.tmp): \
 $(ObjDir)/%GenInstrParser.bison.tmp : AsmParser/%InstrParser.y $(ObjDir)/.dir
 	$(Echo) "Building $(<F) for assembly instruction parser with bison"
-	$(Verb) bison -v -g -r state,lookahead,itemset -o $(call SYSPATH, $@) $<
+	$(Verb) $(BISON) -v -g -r state,lookahead,itemset -o $(call SYSPATH, $@) $<
 ################################################################
 
 clean-local::
