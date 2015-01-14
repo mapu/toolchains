@@ -41,7 +41,7 @@ namespace {
 			{
 			}
 
-			MCObjectWriter *createObjectWriter(raw_ostream &OS) const
+			MCObjectWriter *createObjectWriter(raw_ostream &OS) const override
 			{
 				return createMSPUELFObjectWriter(OS, OSABI);
 			}
@@ -155,12 +155,12 @@ namespace {
 				}
 			}
 
-			unsigned getNumFixupKinds() const
+			unsigned getNumFixupKinds() const override
 			{
 				return MSPU::NumTargetFixupKinds;
 			}
 
-			const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const
+			const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const override
 			{
 				const static MCFixupKindInfo Infos[MSPU::NumTargetFixupKinds] = {
 						// This table *must* be in the same order with those fixup_XXX_YYY kinds
@@ -241,9 +241,14 @@ namespace {
 			/// relaxation.
 			///
 			/// \param Inst - The instruction to test.
-			bool mayNeedRelaxation(const MCInst &Inst) const
+			bool mayNeedRelaxation(const MCInst &Inst) const override
 			{
-			  if(static_cast<const MSPUMCInst *>(&Inst)->getNext() != 0) return false;
+        const MCInst *MIP = &Inst;
+        while (MIP->getNumOperands() &&
+               MIP->getOperand(MIP->getNumOperands() - 1).isInst()) {
+          MIP = MIP->getOperand(MIP->getNumOperands() - 1).getInst();
+          if (MIP->getOpcode() == MSPUInst::ImmExt) return false;
+        }
 
 				int indx = getImmIndx(Inst);
         if(indx < 0) return false;
@@ -267,7 +272,7 @@ namespace {
 			bool fixupNeedsRelaxation(const MCFixup &Fixup,
 		                            uint64_t Value,
 		                            const MCRelaxableFragment *DF,
-		                            const MCAsmLayout &Layout) const
+		                            const MCAsmLayout &Layout) const override
 			{
 
 				const MCInst& inst = DF->getInst();
@@ -289,7 +294,7 @@ namespace {
 			// needs be relaxed.
 			// If there is no fixup in an instruction, relaxInstruction will not
 			// be performed.
-			void relaxInstruction(const MCInst &Inst, MCInst &Res) const
+			void relaxInstruction(const MCInst &Inst, MCInst &Res) const override
 			{
 			  Res = Inst;
         int indx = getImmIndx(Inst);
@@ -298,10 +303,12 @@ namespace {
         ImmExtInst.setOpcode(MSPUInst::ImmExt);
         ImmExtInst.addOperand(Res.getOperand(indx));
         ImmExtInst.setStart(false);
-        ImmExtInst.setEnd(static_cast<MSPUMCInst *>(&Res)->isEnd());
 
-        ImmExtInst.setPrev(&Res);
-        static_cast<MSPUMCInst *>(&Res)->setNext(&ImmExtInst);
+        if (Res.getNumOperands() &&
+            Res.getOperand(Res.getNumOperands() - 1).isInst()) {
+          ImmExtInst.addOperand(Res.getOperand(Res.getNumOperands() - 1));
+        }
+        Res.addOperand(MCOperand::CreateInst(&ImmExtInst));
 
         return;
 			}
@@ -314,7 +321,7 @@ namespace {
 			///
 			/// \return - True on success.
 			/// used for .align
-			bool writeNopData(uint64_t Count, MCObjectWriter *OW) const
+			bool writeNopData(uint64_t Count, MCObjectWriter *OW) const override
 			{
 			  // Count bytes and 4-bytes per instruction.
 				// Check for a less than instruction size number of bytes

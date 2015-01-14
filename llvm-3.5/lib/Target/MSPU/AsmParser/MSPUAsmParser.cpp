@@ -319,7 +319,7 @@ static int mspuinstlex(YYSTYPE * yylval, MSPU::InstLineToParse &InstLine) {
   // to feed bison parser.
   AsmLexer & mclexer = static_cast<AsmLexer&>(InstLine.Parser->getLexer());
   int token = msputoklex(yylval, InstLine.Parser, *InstLine.CurLoc);
-  while (InstLine.CurLoc->getPointer() >
+  while (InstLine.CurLoc->getPointer() >=
          mclexer.getTok().getEndLoc().getPointer())
     mclexer.Lex();
 
@@ -387,7 +387,7 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
                                                   uint64_t &ErrorInfo,
                                                   bool MatchingInlineAsm) {
   const MCExpr * expr;
-  MSPUMCInst Inst;
+  MSPUMCInst *InstHead = new MSPUMCInst(), *prevInst = NULL, *curInst = InstHead;
   MSPUAsmOperand * op;
   bool isTail;
   bool isHead = true;
@@ -399,27 +399,28 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
     // this is the last push-backed operand for an instruction.
     case AsmOpc:
       isTail = i == n - 1;
-      if (isTail) Inst.setEnd(true);
-      else Inst.setEnd(false);
+      if (isTail) curInst->setEnd(true);
+      else curInst->setEnd(false);
 
       if (isHead) {
-        Inst.setStart(true);
+        curInst->setStart(true);
         isHead = false;
-      } else Inst.setStart(false);
+      } else curInst->setStart(false);
 
-      Inst.setOpcode(op->getOpc());
-      Inst.setLoc(IDLoc);
-      Out.EmitInstruction(Inst, STI);
-      Inst.clear();    // clear old operands
+      curInst->setOpcode(op->getOpc());
+      curInst->setLoc(IDLoc);
+      if (prevInst) prevInst->addOperand(MCOperand::CreateInst(curInst));
+      prevInst = curInst;
+      if (!isTail) curInst = new MSPUMCInst();
       break;
     case AsmReg:
-      Inst.addOperand(MCOperand::CreateReg(op->getReg()));
+      curInst->addOperand(MCOperand::CreateReg(op->getReg()));
       break;
     case AsmImm:
-      Inst.addOperand(MCOperand::CreateImm(op->getImm()));
+      curInst->addOperand(MCOperand::CreateImm(op->getImm()));
       break;
     case AsmFPImm:
-      Inst.addOperand(MCOperand::CreateFPImm(op->getFPImm()));
+      curInst->addOperand(MCOperand::CreateFPImm(op->getFPImm()));
       break;
     case AsmExpr:
       expr = op->getExpr();
@@ -435,13 +436,14 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
 
        expr = MCSymbolRefExpr::Create(symbNew, MCSymbolRefExpr::VK_None, Parser->getContext());
        */
-      Inst.addOperand(MCOperand::CreateExpr(expr));
+      curInst->addOperand(MCOperand::CreateExpr(expr));
       break;
 
     default:
       llvm_unreachable("unknown operand");
     }
   }
+  Out.EmitInstruction(*InstHead, STI);
 
   return false;    // any error?
 }
@@ -466,11 +468,10 @@ bool MSPU::MSPUAsmParser::ParseInstruction(ParseInstructionInfo &Info,
   int err = mspuinstparse(instLine);
 
   if (err) {
-    mcparser->Error(InstLoc, "Parse Instruction failed");
-    if (mclexer.is(AsmToken::EndOfStatement)) {
-      Lex();
-      return true;
-    }
+    mcparser->Error(CurLoc, "Parse Instruction failed");
+    while (mclexer.isNot(AsmToken::EndOfStatement)) Lex();
+    if (mclexer.is(AsmToken::EndOfStatement)) Lex();
+    return true;
   }
 
   return false;

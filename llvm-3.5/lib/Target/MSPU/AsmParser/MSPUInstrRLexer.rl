@@ -16,7 +16,7 @@ main := |*
 		  MSPU::MSPUAsmOperand::createReg(
 		    (MSPU::MSPUAsmParser::getRegInfo())
 		      ->getRegClass(MSPUReg::RRegRegClassID).getRegister(atoi(ts+1)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		CurLoc = SMLoc::getFromPointer(te); return _RReg;
 	};
 
@@ -26,21 +26,21 @@ main := |*
 		  MSPU::MSPUAsmOperand::createReg(
 		    (MSPU::MSPUAsmParser::getRegInfo())
 		      ->getRegClass(MSPUReg::JRegRegClassID).getRegister(atoi(ts+1)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _JReg;
 	};
 
   "sp"i => {
 		yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::J29);
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _JReg;
 	};
 
   "fp"i => {
 		yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::J28);
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		 
 		  CurLoc = SMLoc::getFromPointer(te); return _JReg;
 	};
@@ -50,7 +50,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::
 		createReg((MSPU::MSPUAsmParser::getRegInfo())
 		  ->getRegClass(MSPUReg::DRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _DReg;
 	};
@@ -60,7 +60,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KBRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -70,7 +70,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		  ->getRegClass(MSPUReg::KERegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -80,7 +80,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KSRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -90,7 +90,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KIRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -99,14 +99,14 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KMRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _KMReg;
+		CurLoc = SMLoc::getFromPointer(te); return _KMReg;
 	};
 
   "kg"i('0'|'1'|'2') => {
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KGRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -115,7 +115,7 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::KLRegRegClassID).getRegister(atoi(ts+2)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _KReg;
 	};
@@ -124,87 +124,87 @@ main := |*
 		yylval->op = MSPU::MSPUAsmOperand::createReg(
 		  (MSPU::MSPUAsmParser::getRegInfo())
 		    ->getRegClass(MSPUReg::SVRRegRegClassID).getRegister(atoi(ts+3)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));
+		
 		
 		CurLoc = SMLoc::getFromPointer(te); return _SVRReg;
 	};
 
   "shu"i('0'|'1') => {
 		yylval->op = MSPU::MSPUAsmOperand::createReg((MSPU::MSPUAsmParser::getRegInfo())->getRegClass(MSPUReg::SHURegRegClassID).getRegister(atoi(ts+3)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _SHUReg;
+		CurLoc = SMLoc::getFromPointer(te); return _SHUReg;
 	};
 
   "t"i('0'|'1'|'2'|'3') => {
 		yylval->op = MSPU::MSPUAsmOperand::createReg((MSPU::MSPUAsmParser::getRegInfo())->getRegClass(MSPUReg::TRegRegClassID).getRegister(atoi(ts+1)));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _TReg;
+		CurLoc = SMLoc::getFromPointer(te); return _TReg;
 	};
 
 
   "mc"i[ \t]*'.'[ \t]*"r0"i => {
     yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::MC0);
-    MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MCReg;
+    CurLoc = SMLoc::getFromPointer(te); return _MCReg;
   };
 
   "mc"i[ \t]*'.'[ \t]*"r1"i => {
     yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::MC1);
-    MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MCReg;
+    CurLoc = SMLoc::getFromPointer(te); return _MCReg;
   };
 
   "mc"i[ \t]*'.'[ \t]*"w0"i => {
     yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::MC2);
-    MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MCReg;
+    CurLoc = SMLoc::getFromPointer(te); return _MCReg;
   };
 
   "mc"i[ \t]*'.'[ \t]*"w1"i => {
     yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::MC3);
-    MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MCReg;
+    CurLoc = SMLoc::getFromPointer(te); return _MCReg;
   };
 
   "mc"i[ \t]*'.'[ \t]*"w2"i => {
     yylval->op = MSPU::MSPUAsmOperand::createReg(MSPUReg::MC4);
-    MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MCReg;
+    CurLoc = SMLoc::getFromPointer(te); return _MCReg;
   };
 
-  "cctrl"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _CCtrl; };
-  "cstat"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _CStat; };
-  "stat"i  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Stat; };
-  "lpctr"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _LPCtr; };
-  "mc"i    => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _MC; };
-  "vect"i  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Vect;};
+  "cctrl"i => { CurLoc = SMLoc::getFromPointer(te); return _CCtrl; };
+  "cstat"i => { CurLoc = SMLoc::getFromPointer(te); return _CStat; };
+  "stat"i  => { CurLoc = SMLoc::getFromPointer(te); return _Stat; };
+  "lpctr"i => { CurLoc = SMLoc::getFromPointer(te); return _LPCtr; };
+  "mc"i    => { CurLoc = SMLoc::getFromPointer(te); return _MC; };
+  "vect"i  => { CurLoc = SMLoc::getFromPointer(te); return _Vect;};
 
-  "==" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _EQ; };
-  "!=" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _NE; };
-  ">"  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _GT; };
-  ">=" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _GE; };
-  "<"  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _LT; };
-  "<=" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _LE; };
+  "==" => { CurLoc = SMLoc::getFromPointer(te); return _EQ; };
+  "!=" => { CurLoc = SMLoc::getFromPointer(te); return _NE; };
+  ">"  => { CurLoc = SMLoc::getFromPointer(te); return _GT; };
+  ">=" => { CurLoc = SMLoc::getFromPointer(te); return _GE; };
+  "<"  => { CurLoc = SMLoc::getFromPointer(te); return _LT; };
+  "<=" => { CurLoc = SMLoc::getFromPointer(te); return _LE; };
 
-  "<<" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _SL; };
-  ">>" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _SR; };
+  "<<" => { CurLoc = SMLoc::getFromPointer(te); return _SL; };
+  ">>" => { CurLoc = SMLoc::getFromPointer(te); return _SR; };
 
-  ";;" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _EOS; };
-  ";"  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Pl; };
-  "+=" => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _PlusE; };
+  ";;" => { CurLoc = SMLoc::getFromPointer(te); return _EOS; };
+  ";"  => { CurLoc = SMLoc::getFromPointer(te); return _Pl; };
+  "+=" => { CurLoc = SMLoc::getFromPointer(te); return _PlusE; };
 
-  "abs"i 	 	=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Abs;};
-  "rsqrt"i 	=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _RSqRt;};
-  "recip"i 	 	=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Recip;};
-  "single"i	=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Single;};
-  "double"i	=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Double;};
-  "int"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Int;};
-  "uint"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _UInt;};
-  "jump"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Jump;};
-  "call"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Call;};
-  "callm"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _CallM;};
-  "syscall"i  => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _SysCall;};
-  "if"i 			=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _If;};
-  "lpto"i 		=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _LpTo;};
-  "by"i 			=> { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _By;};
+  "abs"i 	 	=> { CurLoc = SMLoc::getFromPointer(te); return _Abs;};
+  "rsqrt"i 	=> { CurLoc = SMLoc::getFromPointer(te); return _RSqRt;};
+  "recip"i 	 	=> { CurLoc = SMLoc::getFromPointer(te); return _Recip;};
+  "single"i	=> { CurLoc = SMLoc::getFromPointer(te); return _Single;};
+  "double"i	=> { CurLoc = SMLoc::getFromPointer(te); return _Double;};
+  "int"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _Int;};
+  "uint"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _UInt;};
+  "jump"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _Jump;};
+  "call"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _Call;};
+  "callm"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _CallM;};
+  "syscall"i  => { CurLoc = SMLoc::getFromPointer(te); return _SysCall;};
+  "if"i 			=> { CurLoc = SMLoc::getFromPointer(te); return _If;};
+  "lpto"i 		=> { CurLoc = SMLoc::getFromPointer(te); return _LpTo;};
+  "by"i 			=> { CurLoc = SMLoc::getFromPointer(te); return _By;};
   "stop"i |
   "spu"i[ \t]*'.'[ \t]*"stop"i |
-  "spustop"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Stop;};
-  "nop"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _NOP;};
-  "ch"i => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _CH;};
+  "spustop"i => { CurLoc = SMLoc::getFromPointer(te); return _Stop;};
+  "nop"i => { CurLoc = SMLoc::getFromPointer(te); return _NOP;};
+  "ch"i => { CurLoc = SMLoc::getFromPointer(te); return _CH;};
 
   '+'	|
   '~'	|
@@ -222,28 +222,28 @@ main := |*
   ')' |
   '{' |
   '}' |
-  '#' 	=> {MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return *ts;};
+  '#' 	=> {CurLoc = SMLoc::getFromPointer(te); return *ts;};
 
-  '('[ \t]*"l0"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _L0;};
-  '('[ \t]*"l1"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _L1;};
-  '('[ \t]*"at"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _AT;};
-  '('[ \t]*"t"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _T;};
-  '('[ \t]*"b"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _B;};
-  '('[ \t]*'h'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _H;};
-  '('[ \t]*'l'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _L;};
-  '('[ \t]*'n'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _N;};
-  '('[ \t]*'u'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _U;};
-  '('[ \t]*'s'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _S;};
-  '('[ \t]*'d'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _D;};
-  '('[ \t]*"ci"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _CI;};
-  '('[ \t]*'x'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _X;};
-  '('[ \t]*'y'i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Y;};
-  '('[ \t]*"xy"i[ \t]*')' => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _XY;};
+  '('[ \t]*"l0"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L0;};
+  '('[ \t]*"l1"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L1;};
+  '('[ \t]*"at"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _AT;};
+  '('[ \t]*"t"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _T;};
+  '('[ \t]*"b"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _B;};
+  '('[ \t]*'h'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _H;};
+  '('[ \t]*'l'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L;};
+  '('[ \t]*'n'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _N;};
+  '('[ \t]*'u'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _U;};
+  '('[ \t]*'s'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _S;};
+  '('[ \t]*'d'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _D;};
+  '('[ \t]*"ci"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _CI;};
+  '('[ \t]*'x'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _X;};
+  '('[ \t]*'y'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Y;};
+  '('[ \t]*"xy"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _XY;};
 
   '-'?([0-9]+|("0x"i[0-9a-f]+))	=> {
     // let llvm handle expression
 		// yylval->op = MSPU::MSPUAsmOperand::createImm(strtol(ts, NULL, 0));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Imm;
+		CurLoc = SMLoc::getFromPointer(ts); return _Imm;
 	};
 
   '-'?[0-9]+'.'[0-9]*                |
@@ -252,19 +252,19 @@ main := |*
   '-'?'.'[0-9]+('e'i['-''+']?[0-9]+)  |
   '-'?[0-9]+('e'i['-''+']?[0-9]+)     => {
 		yylval->op = MSPU::MSPUAsmOperand::createFPImm(strtod(ts, NULL));
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _FPImm;
+		CurLoc = SMLoc::getFromPointer(te); return _FPImm;
 	};
 
-  [.a-zA-Z_][.a-zA-Z_0-9]* => {
+  [a-zA-Z_][a-zA-Z_0-9]* => {
     // let llvm handle expression
     //StringRef * ref = new StringRef(MSPU::MSPUAsmParser::getParser()->getTok().getString().data(), strlen(ts));
     //yylval->op = MSPU::MSPUAsmOperand::createExpr(ref);
-		MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts));  CurLoc = SMLoc::getFromPointer(te); return _Symb;
+		CurLoc = SMLoc::getFromPointer(ts); return _Symb;
 	};
 
   [ \t\n\r]+			=> {};
 
-  any => { MSPU::MSPUAsmParser::setPreLoc(SMLoc::getFromPointer(ts)); CurLoc = SMLoc::getFromPointer(te); return *ts; }; 
+  any => {  CurLoc = SMLoc::getFromPointer(ts); return *ts; }; 
 
 *|;
 
@@ -275,7 +275,7 @@ main := |*
 static int msputoklex(YYSTYPE *yylval, MCAsmParser *parser, SMLoc &CurLoc) {
   AsmLexer &lexer = static_cast<AsmLexer &>(parser->getLexer());
   const char *p  = CurLoc.getPointer(); 	// start point for ragel lexing.
-  const char *pe = lexer.peekTok(true).getEndLoc().getPointer();   	// line end.
+  const char *pe = lexer.peekTok(true).getEndLoc().getPointer() + 1;   	// line end.
 
 	// vars for ragel scanners
   int cs; // init state
@@ -291,9 +291,9 @@ static int msputoklex(YYSTYPE *yylval, MCAsmParser *parser, SMLoc &CurLoc) {
 
   // this is where ragel-lexer works.
   do {
-    pe = lexer.peekTok(true).getEndLoc().getPointer();    // line end.
+    pe = lexer.peekTok(true).getEndLoc().getPointer() + 1;    // line end.
     %% write exec;
-    if (ts != 0 && parser->getTok().isNot(AsmToken::EndOfStatement)) lexer.Lex();
+    if (ts != 0) lexer.Lex();
     else break;
     p = pe;
   } while (ts != 0);

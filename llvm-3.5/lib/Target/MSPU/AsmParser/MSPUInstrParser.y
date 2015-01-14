@@ -50,6 +50,8 @@ using namespace llvm;
 
 %type <line>  InstLine
 
+%start MSPUInstLine
+
 %union {
 
 	MSPU::MSPUAsmOperand* op;
@@ -64,7 +66,7 @@ using namespace llvm;
 }
 
 %%
-MSPUInstLine : InstLine _EOS { assert($1.cnt < 5 && "at most 4 instructions allowed"); }
+MSPUInstLine : InstLine _EOS { assert($1.cnt < 5 && "at most 4 instructions allowed"); YYACCEPT; }
 
 InstLine:  NOPInst  {	$$.cnt = 1;	}
 | SeqInst  {	$$.bits = (1<<0);		$$.cnt = 1;	}

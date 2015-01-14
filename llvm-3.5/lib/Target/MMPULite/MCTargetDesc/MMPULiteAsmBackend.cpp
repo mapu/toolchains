@@ -136,7 +136,7 @@ public:
   /// \return - True on success.
   bool writeNopData(uint64_t Count, MCObjectWriter *OW) const override {
     // Check for a less than instruction size number of bytes
-    if (Count % 38) return false;
+    if (Count % 41) return false;
     //uint64_t NumNops = Count / 4;
     for (uint64_t i = 0; i != Count; ++i)
       OW->Write8(0);

@@ -52,20 +52,14 @@ static DecodeStatus readInstruction(ArrayRef<uint8_t> Bytes,
                                     bool isLittleEndian) {
   // We want to read exactly 4 Bytes of data.
   // not zero means fail.
-  if (Bytes.size() < 4) {
+  if (Bytes.size() < address + 4) {
     numBytes = 0;
     return MCDisassembler::Fail;
   }
 
-  if (isLittleEndian) {
-    // Encoded as a little-endian 32-bit word in the stream.
-    insnCodes = (Bytes[0] << 0) | (Bytes[1] << 8) | (Bytes[2] << 16)
-                | (Bytes[3] << 24);
-  } else {
-    // Encoded as a big-endian 32-bit word in the stream.
-    insnCodes = (Bytes[3] << 0) | (Bytes[2] << 8) | (Bytes[1] << 16)
-                | (Bytes[0] << 24);
-  }
+  // Encoded as a little-endian 32-bit word in the stream.
+  insnCodes = (Bytes[address] << 0) | (Bytes[address + 1] << 8) | (Bytes[address + 2] << 16)
+              | (Bytes[address + 3] << 24);
 
   insnCodes &= 0xFFFFFFFFu;    // or it will be sign-extended.
   numBytes = 4;
@@ -322,7 +316,7 @@ DecodeSImm17(MCInst &Inst, uint64_t bits, uint64_t Address, const void *Decoder)
   uint64_t numBytes, codes;
   int64_t  imm;
   MCInst ExtInst;
-  DecodeStatus result = readInstruction(Dis->getMemoryObject(), Address+4,
+  DecodeStatus result = readInstruction(Dis->getMemoryObject(), 4,
                                         numBytes, codes, true/*little endian*/);
 
   if(result == MCDisassembler::Success)
@@ -366,37 +360,43 @@ DecodeStatus MSPUDisassembler::getInstruction(MCInst &Inst, uint64_t &Size,
   Size = 0; // initialize Size.
 
   uint64_t codes, numBytes;  // template<typename InsnType>
-  DecodeStatus result = readInstruction(Bytes, Address, numBytes, codes, true/*little endian*/);
+  DecodeStatus result = readInstruction(Bytes, 0, numBytes, codes, true/*little endian*/);
   if(result != MCDisassembler::Success) return result;
 
-  int i = 0;
   MSPUMCInst * ITR = static_cast<MSPUMCInst *>(&Inst);
-  ITR->setStart(true);
-  ITR->setPrev(0);
-  while((codes & (1 << 31)) == 0 && i<3) {// expect for a next instruction.
+  MSPUMCInst *prev = NULL;
+  ITR->setStart(isStart);
+  if (codes & (1 << 31)) {// expect for a next instruction.
+    ITR->setEnd(true);
+    isStart = true;
+  } else {
     ITR->setEnd(false);
-    // generated decode function
-    result = decodeInstruction(DecoderTableMSPUDecode32, *ITR, codes & (~(1 << 31)), Address+Size, this, STI);
-    if(result != MCDisassembler::Success)   return result;
-    Size += 4;
-
-    MSPUMCInst * next = &(MSPUMCInstArray[i]); i++;
-
-    ITR->setNext(next);
-    next->setPrev(ITR);
-
-    ITR = next;
-    ITR->setStart(false);
-    ITR->clear(); // to clear *MSPUMCInstArray* operands to avoid pollution.
-
-    result = readInstruction(Bytes, Address+Size, numBytes, codes, true/*little endian*/);
-    if(result != MCDisassembler::Success) return result;
+    isStart = false;
   }
-
-  ITR->setEnd(true);
-  ITR->setNext(0);
+  // generated decode function
   result = decodeInstruction(DecoderTableMSPUDecode32, *ITR, codes & (~(1 << 31)), Address+Size, this, STI);
-  if(result == MCDisassembler::Success) Size += 4;
+  if (result != MCDisassembler::Success) return result;
+  Size += 4;
+  while (isStart == false) {
+    prev = ITR;
+    result = readInstruction(Bytes, Size, numBytes, codes, true/*little endian*/);
+    if (result != MCDisassembler::Success) return MCDisassembler::Success;
+    ITR = new MSPUMCInst();
+    result = decodeInstruction(DecoderTableMSPUDecode32, *ITR, codes & (~(1 << 31)), Address+Size, this, STI);
+    if (result != MCDisassembler::Success) {
+      delete ITR;
+      return MCDisassembler::Success;
+    }
+    if (codes & (1 << 31)) {// expect for a next instruction.
+      ITR->setEnd(true);
+      isStart = true;
+    } else {
+      ITR->setEnd(false);
+      isStart = false;
+    }
+    prev->addOperand(MCOperand::CreateInst(ITR));
+    Size += 4;
+  }
 
 	return result;
 }

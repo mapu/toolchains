@@ -52,7 +52,3 @@ MSPUMCInst::InstAllowsImmExt(const MCInst &MI)
 
   return false;
 }
-
-namespace llvm {
-  MSPUMCInst MSPUMCInstArray[4];
-}

@@ -34,39 +34,41 @@ MSPUInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
 							StringRef Annot)
 {
   assert(MI->getOpcode() != MSPUInst::ImmExt && "should not print out imm-ext instructions");
+  const MSPUMCInst *MSMI = static_cast<const MSPUMCInst *>(MI);
 
-  while(MI) {
-    const MSPUMCInst *MSMI = static_cast<const MSPUMCInst *>(MI);
-    if(MI->getOpcode() != MSPUInst::ImmExt) {
+  O << "\tm.s ";
+  do {
+    printInstruction(MSMI, O); // tblgen'erated function
 
-      if(MSMI->isStart()) {
-        O << "m.s ";
-      }
-
-      printInstruction(MI, O); // tblgen'erated function
-
-      // ...; insn;;
-      if(MSMI->isEnd()) {
-        O << ";;";
-        return;
-      }
-
-      // ...; insn; imm ;;
-      MSMI = MSMI->getNext();
-      if(MSMI && (MSMI->getOpcode() == MSPUInst::ImmExt) && MSMI->isEnd()) {
-        O << ";;\n";
-        return;
-      }
-
-      // ...; insn; ...
-      O << "; ";
+    // ...; insn;;
+    if (MSMI->getNumOperands() == 0 ||
+        !MSMI->getOperand(MSMI->getNumOperands() - 1).isInst()) {
+      O << ";;";
+      return;
     }
-    else {
-      MSMI = MSMI->getNext();
-    }
-  }
 
-  return;
+    // ...; insn; imm ;;
+    if (MSMI->getNumOperands() &&
+        MSMI->getOperand(MSMI->getNumOperands() - 1).isInst()) {
+      MSMI = static_cast<const MSPUMCInst *>(
+        MSMI->getOperand(MSMI->getNumOperands() - 1).getInst());
+      if (MSMI && (MSMI->getOpcode() == MSPUInst::ImmExt)) {
+        if (MSMI->getNumOperands() &&
+            MSMI->getOperand(MSMI->getNumOperands() - 1).isInst()) {
+          MSMI = static_cast<const MSPUMCInst *>(
+            MSMI->getOperand(MSMI->getNumOperands() - 1).getInst());
+          O << ";";
+        } else {
+          O << ";;";
+          return;
+        }
+      } else {
+        O << ";";
+      }
+    } else {
+      assert("Invalid instruction line end.");
+    }
+  } while (1);
 }
 
 void
@@ -125,7 +127,10 @@ MSPUInstPrinter::printImmExt(const MCInst *MI, unsigned OpNo, raw_ostream &O) co
 
 	int64_t hi=0;
 
-	if(const MSPUMCInst * sub = static_cast<const MSPUMCInst *>(MI)->getNext()) {
+  if (MI->getNumOperands() &&
+      MI->getOperand(MI->getNumOperands() - 1).isInst()) {
+    const MSPUMCInst *sub = static_cast<const MSPUMCInst *>(
+      MI->getOperand(MI->getNumOperands() - 1).getInst());
 		if(sub->getOpcode() == MSPUInst::ImmExt) {
 			assert(sub->getOperand(0).isImm() && "expect imm operand");
 			hi = sub->getOperand(0).getImm();

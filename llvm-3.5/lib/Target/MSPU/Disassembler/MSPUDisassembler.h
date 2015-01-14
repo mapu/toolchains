@@ -30,12 +30,13 @@ namespace {
     private:
       const MCRegisterInfo *RegInfo;
       mutable ArrayRef<uint8_t> MemObj;
+      mutable bool isStart;
 
     public:
       /// Constructor     - Initializes the disassembler.
       MSPUDisassembler(const MCSubtargetInfo &STI, MCContext &Ctx,
           const MCRegisterInfo *Info, bool bigEndian)
-          : MCDisassembler(STI, Ctx), RegInfo(Info)
+          : MCDisassembler(STI, Ctx), RegInfo(Info), MemObj(), isStart(true)
       { }
 
       virtual ~MSPUDisassembler() { }
