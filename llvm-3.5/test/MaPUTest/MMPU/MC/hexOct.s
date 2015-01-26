@@ -1,5 +1,5 @@
-//RUN: llvm-mc -arch=mmpulite hexOct.s -filetype=obj -o hexOct.o
-//RUN: llvm-objdump -d -arch-name=mmpulite hexOct.o -no-show-raw-insn
+//RUN: llvm-mc -arch=mmpulite -filetype=obj -o %t.o %s
+//RUN: llvm-objdump -arch-name=mmpulite -d -no-show-raw-insn %t.o | sed -e '1,5d' -e "s/[[:xdigit:]]\+://I" | FileCheck %s
 
 //dec
 T1 << 1   -> IALU.T3;
@@ -15,3 +15,13 @@ T1 << 0x13 -> IALU.T3;
 T1 << 01   -> IALU.T3;
 T1 << 012  -> IALU.T3;
 T1 << 023  -> IALU.T3;
+
+//CHECK: T1 << 1 -> IALU.T3 ;
+//CHECK-NEXT: T1 << 10  -> IALU.T3 ;
+//CHECK-NEXT: T1 << 19  -> IALU.T3 ;
+//CHECK-NEXT: T1 << 1   -> IALU.T3 ;
+//CHECK-NEXT: T1 << 10  -> IALU.T3 ;
+//CHECK-NEXT: T1 << 19  -> IALU.T3 ;
+//CHECK-NEXT: T1 << 1   -> IALU.T3 ;
+//CHECK-NEXT: T1 << 10  -> IALU.T3 ;
+//CHECK-NEXT: T1 << 19  -> IALU.T3 ;
