@@ -412,16 +412,15 @@ class MCFunction {
   // Keep BBs sorted by address.
   std::vector<MCLoopBlock *> Blocks;
   MCLoopBlock *CurBlock;
-  MCContext *Ctx;
-  std::vector<const MCSymbol*> PendingLabels;
-  const MCSymbol *cachedLabel;
+  std::shared_ptr<MMPULite::MMPULiteAsmOperand> cachedLabel;
   MCParsedInst *PreviousInst;
   bool Embedded;
 
 public:
-  MCFunction(StringRef Name, uint64_t Start, MCContext *Ctx)
-    : Name(Name), Start(Start), Index(0), CurBlock(NULL), Ctx(Ctx),
-    cachedLabel(NULL), PreviousInst(NULL), Embedded(false) {}
+  SmallVector<std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>, 8> PendingLabels;
+  MCFunction(StringRef Name, uint64_t Start)
+    : Name(Name), Start(Start), Index(0), CurBlock(NULL),
+    cachedLabel(nullptr), PreviousInst(NULL), Embedded(false) {}
   
   unsigned blocksize() const { return Blocks.size(); }
 
@@ -450,8 +449,12 @@ public:
   bool isEmbedded(void) const { return Embedded; }
   
   void ExpandEmbeddedHM(StringMap<HMacro*> &Map);
+
+  bool isPendingLabelsEmpty(void) const { return PendingLabels.empty(); }
 };
 }
 }
+#define CAST_TO_MMPU_OPRD(O) \
+  std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(O)
 
 #endif

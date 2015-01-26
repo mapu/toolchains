@@ -122,7 +122,7 @@ A   [a-zA-Z_0-9]
   }
   mmpulite_flush_buffer(YY_CURRENT_BUFFER);
   if (Lexer->isNot(AsmToken::RParen)) {
-    llvmParser->Error(End, "Right parenthesis is expected here" + Twine(yylloc->S.getPointer()));
+    llvmParser->Error(End, "Right parenthesis is expected here: " + Twine(yylloc->S.getPointer()));
     REJECT;
   }
   llvmParser->Lex();

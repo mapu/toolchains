@@ -204,7 +204,7 @@ void llvm::DumpBytes(StringRef bytes) {
   // 1 is for the null terminator.
 
   // MaPU maximum inst length
-#define MAPU_MAX_LEN 38
+#define MAPU_MAX_LEN 41
   enum { OutputSize = (/*15*/MAPU_MAX_LEN * 3) + 1 };
   char output[OutputSize];
 

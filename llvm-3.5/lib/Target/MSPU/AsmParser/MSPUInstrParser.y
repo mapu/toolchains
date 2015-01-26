@@ -567,7 +567,7 @@ SeqInst: _Jump Expr {
 CallMFlags :  { $$ = 0; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(0))); }
 | _B 				  { $$ = 1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1))); }
 
-KMFlags :   {$$ = 0     ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1<<0))); }
+KMFlags :   {$$ = 0     ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(0))); }
 | _H 				{$$ = (1<<1); InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1<<1))); }
 
 SynInst: _CallM JReg CallMFlags {

@@ -152,7 +152,8 @@ public:
     prefix = step0 + prefix;
     for (unsigned i = 0; i < Instantiation.size(); i++) {
       OS << prefix + arrow << "Block " << i << " Info:\n";
-      Instantiation[i]->Dump(OS, prefix + ((i == Instantiation.size() - 1) ? step1 : step0));
+      Instantiation[i]->
+        Dump(OS, prefix + ((i == Instantiation.size() - 1) ? step1 : step0));
     }
   }
 };
@@ -161,7 +162,6 @@ public:
 class MMPULiteAsmParser: public MCTargetAsmParser {
   MCSubtargetInfo &STI;
   MCAsmParser &Parser;
-  MCContext *Ctx;
   StringMap<HMacro*> HMacroMap;
   StringMap<bool> InvokedHM;
   std::map<std::string, std::string> PendingHM;
@@ -206,14 +206,13 @@ private:
 public:
   MMPULiteAsmParser(MCSubtargetInfo &_STI, MCAsmParser &_Parser,
                     const MCInstrInfo &MII, const MCTargetOptions &Options)
-    : MCTargetAsmParser(), STI(_STI), Parser(_Parser) {
+    : MCTargetAsmParser(), STI(_STI), Parser(_Parser), CurHMacro(NULL) {
     MCAsmParserExtension::Initialize(_Parser);
     MRI = getContext().getRegisterInfo();
     Lexer = &(Parser.getLexer());
     llvmParser = &Parser;
     inHMacro = false;
     VAddr = 0;
-    Ctx = &getContext();
     UniqueLabelID = 0;
     LoopAvailable = true;
     EnableOptimization = false;
@@ -287,6 +286,8 @@ public:
                                        MCStreamer &Out,
                                        uint64_t &ErrorInfo,
                                        bool MatchingInlineAsm) override;
+
+  virtual void onLabelParsed(MCSymbol *Symbol) override;
 };
 } // namespace MMPULite
 } // namespace llvm
@@ -596,7 +597,7 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveHMacro(AsmToken DirectiveID,
   if (HMacroMap.lookup(Name.lower()))
     return Error(DirectiveLoc, "hmacro '" + Name.lower() + "' is already defined");
 
-  MCFunction *Body = new MCFunction(*(new std::string(Name.lower())), 0, Ctx);
+  MCFunction *Body = new MCFunction(*(new std::string(Name.lower())), 0);
   CurHMacro = new HMacro(Body->getName(), Body);
   inHMacro = true;
   return false;
@@ -614,6 +615,12 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveEndHMacro(AsmToken DirectiveID,
   CurHMacro->Body->EliminateEmptyBlock();
   HMacroMap[CurHMacro->Name] = CurHMacro;
   inHMacro = false;
+
+  while (!CurHMacro->Body->isPendingLabelsEmpty()) {
+    Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
+            "Undefined LPTO label in hmacro " + CurHMacro->Name + ".");
+    CurHMacro->Body->PendingLabels.pop_back();
+  }
   return false;
 }
 
@@ -665,6 +672,28 @@ bool MMPULite::MMPULiteAsmParser::HandleHMacroEntry(StringRef Name,
   return true;
 }
 
+/* onLabelParsed: In LLVM 3.5, Local temp labels are no longer collected in
+ * Symbols vector, and LookupSymbol method cannot find local labels any more.
+ * So here utilize onLabelParsed function to keep tracking Label emit status
+ * in HMacro definitions
+ */
+void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
+  if (!inHMacro || !CurHMacro) return;
+  while (!CurHMacro->Body->isPendingLabelsEmpty() &&
+         (CurHMacro->Body->PendingLabels.back().first->getSymName() !=
+          Symbol->getName())) {
+    Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
+            "Symbol \"" +
+            CurHMacro->Body->PendingLabels.back().first->getSymName() +
+            "\" is expected before defining Label \"" + Symbol->getName() + "\".");
+    CurHMacro->Body->PendingLabels.pop_back();
+  }
+  if (!CurHMacro->Body->isPendingLabelsEmpty())
+    CurHMacro->Body->PendingLabels.back().second = true;
+  else
+    TokError("Loops are not consistent in hmacro \"" + CurHMacro->Name + "\".");
+}
+
 /* AnalyzeHMacro: All instantiated HMacros will be analyzed here to determine if 
  * LoopBlocks need to be unrolled or not
  */
@@ -677,12 +706,14 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
   for (unsigned i = 0; i < ActiveHMacros.size(); i++) {
     if (ActiveHMacros[i]->getContainer(VAddr, MB)) {
       CurType = MB->getType(VAddr);
-      if (CurType == Loop) ++CheckLoops; // else it's in the head or tail of this loop
+      if (CurType == Loop) ++CheckLoops;
+      // else it's in the head or tail of this loop
       if (Done) continue;
       if (MB->getType() == Loop) {
         ActiveHMacros[i]->getLeafContainer(VAddr, MB);
-        if (MB->getType(VAddr) == Loop) CurType = Sequential; // Consider unnested Loop as Sequential in order to deal
-                                                              // with unrolling inside loops
+        // Treat unnested Loop as Sequential in order to deal
+        // with unrolling inside the loop
+        if (MB->getType(VAddr) == Loop) CurType = Sequential;
         else CurType = MB->getType(VAddr);
       }
       // first of all, check if there is a sequential block

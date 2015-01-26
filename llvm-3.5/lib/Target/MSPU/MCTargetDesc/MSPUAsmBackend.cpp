@@ -114,7 +114,6 @@ namespace {
         switch(Kind) {
           case MSPU::fixup_MSPU_PC28:
           case MSPU::fixup_MSPU_PC17:
-            sval += offset;
             break;
 
           default: break;

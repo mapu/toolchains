@@ -31,7 +31,7 @@ MSPUAsmInfo::MSPUAsmInfo(StringRef TT)
 
 	ZeroDirective = "\t.zero\t"; // .space is used to point last byte reserved
 	CommentString = "#";
-	SeparatorString = ";;" ;
+	SeparatorString = ";" ;
 	SupportsDebugInformation = true;
 
 	GlobalDirective="\t.global\t";

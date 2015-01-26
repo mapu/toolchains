@@ -841,17 +841,16 @@ bool MCFunction::getLoopBlock(uint64_t Address, MCLoopBlock* &MB) {
 
 void MCFunction::addParsedInst(MCParsedInst *Inst) {
   unsigned OpNo;
-  std::shared_ptr<MMPULite::MMPULiteAsmOperand>op;
+  std::shared_ptr<MMPULite::MMPULiteAsmOperand> op;
   int64_t count = 1;
   unsigned ki = 0;
-  const MCSymbol *Sym;
+  bool Sym;
 
   if (!CurBlock) CurBlock = addLoopBlock(new MCLoopBlock(Sequential, Index)); 
   if (!PendingLabels.empty()) {
-    for (Sym = Ctx->LookupSymbol(PendingLabels.back()->getName());
+    for (Sym = PendingLabels.back().second;
          !PendingLabels.empty() &&
-         (Sym = Ctx->LookupSymbol(PendingLabels.back()->getName())) &&
-         Sym->isDefined();
+         (Sym = PendingLabels.back().second);
          PendingLabels.pop_back()) {
       //now the end of loop block is arrived
       if (CurBlock->size() == 0) {
@@ -878,23 +877,25 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
     }
   }
   if (cachedLabel) {
-    PendingLabels.push_back(cachedLabel);
-    cachedLabel = NULL;
+    PendingLabels.push_back(
+      std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>(cachedLabel, false));
+    cachedLabel = nullptr;
     while (PreviousInst && PreviousInst->hasLoop(OpNo)) {
-      op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand> (PreviousInst->getOperand(OpNo + 1));
+      op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 1));
       if (op->isImm()) return;  //absolute address is ignored in HMacro
       if (op->isExpr()) {
         const MCConstantExpr *CE = dyn_cast<MCConstantExpr>(op->getExpr());
-        if (CE) return; //ignored
+        if (CE) return; // absolute address is ignored
         else {
           const MCSymbolRefExpr *SE = dyn_cast<MCSymbolRefExpr>(op->getExpr());
           if (SE) {
-            op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand> (PreviousInst->getOperand(OpNo + 2));
-            PendingLabels.push_back(&(SE->getSymbol()));
+            PendingLabels.push_back(
+              std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>(op, false));
+            op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 2));
             ki = op->getImm();
-            op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand> (PreviousInst->getOperand(OpNo + 3));
+            op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 3));
             count = -op->getImm();
-          }
+          } else return; // unknown loop label
         }
       }
       MCLoopBlock *SubLoop = new MCLoopBlock(Loop, Index, count, ki);
@@ -909,21 +910,21 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
       while (PreviousInst->hasEmbeddedHMacro(OpNoH)) {
         if (OpNoH > OpNo) break;
         Embedded = true;
-        op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(PreviousInst->getOperand(OpNoH));
-        CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index - 1, Ctx));
+        op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNoH));
+        CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index - 1));
         Inst->delOperand(OpNoH);
         Inst->delOperand(OpNoH);
       }
     }
   }
   if (Inst->hasRepeat(OpNo)) {
-    op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNo + 1));
+    op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 1));
     count = op->getImm();
-    op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNo));
+    op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo));
     if (op->getOpc() == MMPULite::REPEATIMM && count == 0) count = 1024;
     else if (op->getOpc() == MMPULite::REPEATK) {
       ki = count;
-      op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNo + 2));
+      op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 2));
       count = -op->getImm();
     }
     if (count != 1) {
@@ -944,7 +945,7 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
     }
   }
   else if (Inst->hasLoop(OpNo)) {
-    op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNo + 1));
+    op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 1));
     if (op->isImm()) return;  //absolute address is ignored in HMacro
     if (op->isExpr()) {
       const MCConstantExpr *CE = dyn_cast<MCConstantExpr>(op->getExpr());
@@ -952,12 +953,10 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
       else {
         const MCSymbolRefExpr *SE = dyn_cast<MCSymbolRefExpr>(op->getExpr());
         if (SE) {
-          op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>
-                 (Inst->getOperand(OpNo + 2));
-          cachedLabel = &(SE->getSymbol());
+          cachedLabel = op;
+          op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 2));
           ki = op->getImm();
-          op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>
-                 (Inst->getOperand(OpNo + 3));
+          op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 3));
           count = -op->getImm();
         }
       }
@@ -967,8 +966,8 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
     unsigned OpNoL;
     if (Inst->hasLoop(OpNoL) && OpNoL < OpNo) break;
     Embedded = true;
-    op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNo));
-    CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index, Ctx));
+    op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo));
+    CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index));
     Inst->delOperand(OpNo);
     Inst->delOperand(OpNo);
   }
@@ -1001,8 +1000,8 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
     while (Inst->hasEmbeddedHMacro(OpNoH)) {
       if (OpNoH > OpNo) break;
       Embedded = true;
-      op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Inst->getOperand(OpNoH));
-      CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index - 1, Ctx));
+      op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNoH));
+      CurBlock->addEmbeddedHM(new MCFunction(*op->getHMacro(), Index - 1));
       Inst->delOperand(OpNoH);
       Inst->delOperand(OpNoH);
     }

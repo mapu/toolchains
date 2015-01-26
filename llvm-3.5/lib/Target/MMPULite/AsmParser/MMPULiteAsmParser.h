@@ -141,6 +141,12 @@ public:
     return Expr;
   }
 
+  StringRef getSymName() const {
+    assert(Kind == AsmExpression && "Invalid access!");
+    if (!dyn_cast<MCSymbolRefExpr>(Expr)) return StringRef();
+    else return dyn_cast<MCSymbolRefExpr>(Expr)->getSymbol().getName();
+  }
+
   bool isHMacro() const {
     return Kind == AsmHMacro;
   }

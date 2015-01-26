@@ -8408,11 +8408,11 @@ void msputools::Link::ConstructJob(Compilation &C, const JobAction &JA,
   AddLinkerInputs(getToolChain(), Inputs, Args, CmdArgs);
 
   CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/mspu/lib"));
-  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/clang/" + CLANG_VERSION_STRING + "/lib/linux"));
+  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/clang/" + CLANG_VERSION_STRING + "/lib/mspu"));
   CmdArgs.push_back("-lm");
   CmdArgs.push_back("-lc");
   CmdArgs.push_back("-lgloss");
-  CmdArgs.push_back("-lclang_rt.full-mspu");
+  CmdArgs.push_back("-lclang_rt.builtins-mspu");
 
   /*if (!Args.hasArg(options::OPT_nostdlib) &&
       !Args.hasArg(options::OPT_nostartfiles)) {
