@@ -50,14 +50,34 @@ A   [a-zA-Z_0-9]
 	/* register classes with lower-case names */
 <EXPRPARSE>[ \t\n]                {;}
 <EXPRPARSE>"("                    {BEGIN PARENEXPRPARSE;}
-<EXPRPARSE>[0-9]+                 {
+<EXPRPARSE>0[xX][[:xdigit:]]+                 { /* hex */
+  BEGIN INITIAL;
+  SAVE_TOKEN;
+  yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
+  if (yylval->val<8) return IMM3;
+  else if (yylval->val<32) return IMM5;
+  else return IMM;
+}
+<EXPRPARSE>[1-9][0-9]*    { /* dec */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<=32) return IMM5;
+  if (yylval->val<8) return IMM3;
+  else if (yylval->val<32) return IMM5;
   else return IMM;
 }
+<EXPRPARSE>0[01234567]*                       { /* oct */
+  BEGIN INITIAL;
+  SAVE_TOKEN;
+  yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
+  if (yylval->val<8) return IMM3;
+  else if (yylval->val<32) return IMM5;
+  else return IMM;
+}
+
+
+
+
 <EXPRPARSE>"t"[0-3]               {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); BEGIN INITIAL; return TREG;}
 <PARENEXPRPARSE>"ki"[0-9]+        {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(2)).c_str()); BEGIN INITIAL; return KI;}
 <EXPRPARSE>{L}{A}*                {
