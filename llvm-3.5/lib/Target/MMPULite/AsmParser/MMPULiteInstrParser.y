@@ -2,10 +2,6 @@
 #include <string>
 #include <bitset>
 
-#define OPERAND(TY, VALUE, START, END) \
-MMPULite::MMPULiteAsmOperand::create##TY(VALUE, START, END)
-#define ADDOPERAND(TY, VALUE, START, END) \
-Operands.push_back(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(OPERAND(TY, VALUE, START, END))))
 std::bitset<16> flags;
 static int flagsort;
 const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15;

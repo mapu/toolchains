@@ -45,6 +45,7 @@ def T0  : MMPULiteReg<0, "T0">, DwarfRegNum<[138]>;
 def T1  : MMPULiteReg<1, "T1">, DwarfRegNum<[139]>;
 def T2  : MMPULiteReg<2, "T2">, DwarfRegNum<[140]>;
 def T3  : MMPULiteReg<3, "T3">, DwarfRegNum<[141]>;
+def VT  : MMPULiteReg<0, "VT">, DwarfRegNum<[138]>;
 
 def TPort : RegisterClass<"MMPULiteReg", [v16i32], 32,
                           (sequence "T%u", 0, 3)>;

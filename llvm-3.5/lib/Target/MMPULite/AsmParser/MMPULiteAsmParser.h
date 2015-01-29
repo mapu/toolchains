@@ -260,6 +260,12 @@ static MMPULiteAsmOperand *createOpc(unsigned opcode,
     return Op;
   }
 };
+#define OPERAND(TY, VALUE, START, END) \
+MMPULite::MMPULiteAsmOperand::create##TY(VALUE, START, END)
+#define SHARED_OPRD(TY, VALUE, START, END) \
+SharedMMPUOprd(OPERAND(TY, VALUE, START, END))
+#define ADDOPERAND(TY, VALUE, START, END) \
+Operands.push_back(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(OPERAND(TY, VALUE, START, END))))
 
   
 struct HMacro {

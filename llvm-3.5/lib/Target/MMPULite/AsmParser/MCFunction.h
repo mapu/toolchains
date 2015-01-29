@@ -26,7 +26,10 @@ namespace Lite {
 class MCLoopBlock;
 class MCFunction;
 typedef std::shared_ptr<MCParsedAsmOperand> SharedOperand;
+typedef std::shared_ptr<MMPULiteAsmOperand> SharedMMPUOprd;
 typedef SmallVectorImpl<SharedOperand> SharedOperandVector;
+#define CAST_TO_MMPU_OPRD(O) \
+  std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(O)
 
 class MCParsedInst {
   SmallVector<SharedOperand, 256> Operands;
@@ -412,12 +415,13 @@ class MCFunction {
   // Keep BBs sorted by address.
   std::vector<MCLoopBlock *> Blocks;
   MCLoopBlock *CurBlock;
-  std::shared_ptr<MMPULite::MMPULiteAsmOperand> cachedLabel;
+  SharedMMPUOprd cachedLabel;
   MCParsedInst *PreviousInst;
   bool Embedded;
 
 public:
-  SmallVector<std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>, 8> PendingLabels;
+  SmallVector<std::pair<SharedMMPUOprd, bool>, 8> PendingLabels;
+  SmallVector<std::pair<SharedMMPUOprd, bool>, 8> DisorderedLabels;
   MCFunction(StringRef Name, uint64_t Start)
     : Name(Name), Start(Start), Index(0), CurBlock(NULL),
     cachedLabel(nullptr), PreviousInst(NULL), Embedded(false) {}
@@ -451,10 +455,10 @@ public:
   void ExpandEmbeddedHM(StringMap<HMacro*> &Map);
 
   bool isPendingLabelsEmpty(void) const { return PendingLabels.empty(); }
+
+  bool isDisorderedLabelsEmpty(void) const { return DisorderedLabels.empty(); }
 };
 }
 }
-#define CAST_TO_MMPU_OPRD(O) \
-  std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(O)
 
 #endif

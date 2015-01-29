@@ -617,9 +617,15 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveEndHMacro(AsmToken DirectiveID,
   inHMacro = false;
 
   while (!CurHMacro->Body->isPendingLabelsEmpty()) {
-    Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
-            "Undefined LPTO label in hmacro " + CurHMacro->Name + ".");
+    if (!CurHMacro->Body->PendingLabels.back().second)
+      Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
+              "Undefined LPTO label in hmacro " + CurHMacro->Name + ".");
     CurHMacro->Body->PendingLabels.pop_back();
+  }
+  while (!CurHMacro->Body->isDisorderedLabelsEmpty()) {
+    Warning(CurHMacro->Body->DisorderedLabels.back().first->getStartLoc(),
+            "Undefined LPTO label in hmacro " + CurHMacro->Name + ".");
+    CurHMacro->Body->DisorderedLabels.pop_back();
   }
   return false;
 }
@@ -678,19 +684,60 @@ bool MMPULite::MMPULiteAsmParser::HandleHMacroEntry(StringRef Name,
  * in HMacro definitions
  */
 void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
+  SmallVector<std::pair<SharedMMPUOprd, bool>, 8> MatchedLabels;
+  // Labels out of hmacro are not insterested
   if (!inHMacro || !CurHMacro) return;
-  while (!CurHMacro->Body->isPendingLabelsEmpty() \
-      && (CurHMacro->Body->PendingLabels.back().first->getSymName() !=  Symbol->getName())) {
-    if( CurHMacro->Body->PendingLabels.back().second == false )
-      Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),\
-        "Symbol \"" + CurHMacro->Body->PendingLabels.back().first->getSymName() + \
-        "\" is expected before defining Label \"" + Symbol->getName() + "\".");
-    CurHMacro->Body->PendingLabels.pop_back();
+
+  while (!CurHMacro->Body->isPendingLabelsEmpty() &&
+         (CurHMacro->Body->PendingLabels.back().first->getSymName() !=
+          Symbol->getName())) {
+    if (CurHMacro->Body->PendingLabels.back().second == false) {
+      // The most recent loop label is not equal to this label, so move the
+      // pending label into disordered labels
+      Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
+              "Symbol \"" +
+              CurHMacro->Body->PendingLabels.back().first->getSymName() +
+              "\" is expected before defining Label \"" + Symbol->getName() +
+              "\".");
+      CurHMacro->Body->DisorderedLabels.push_back(CurHMacro->Body->PendingLabels.back());
+      CurHMacro->Body->PendingLabels.pop_back();
+    } else {
+      // Move previously matched labels from pending labels into matched labels.
+      // This may happen due to nested loops endes at the same place.
+      MatchedLabels.push_back(CurHMacro->Body->PendingLabels.back());
+      CurHMacro->Body->PendingLabels.pop_back();
+    }
   }
-  if (!CurHMacro->Body->isPendingLabelsEmpty())
+  if (!CurHMacro->Body->isPendingLabelsEmpty()) {
+    // Found a matching one in pending labels
     CurHMacro->Body->PendingLabels.back().second = true;
-  else
-    TokError("Loops are not consistent in hmacro \"" + CurHMacro->Name + "\".");
+    while (!MatchedLabels.empty()) {
+      CurHMacro->Body->PendingLabels.push_back(MatchedLabels.back());
+      MatchedLabels.pop_back();
+    }
+    return;
+  } else {
+    // Cannot find one in pending labels, try to find it in disordered labels.
+    while (!MatchedLabels.empty()) {
+      CurHMacro->Body->PendingLabels.push_back(MatchedLabels.back());
+      MatchedLabels.pop_back();
+    }
+    SmallVector<std::pair<SharedMMPUOprd, bool>, 8>::iterator iter =
+      CurHMacro->Body->DisorderedLabels.begin();
+    while (iter != CurHMacro->Body->DisorderedLabels.end()) {
+      if (iter->first->getSymName() == Symbol->getName()) {
+        TokError("Loop label \"" + iter->first->getSymName() + "\" is out of order.");
+        CurHMacro->Body->PendingLabels.push_back(*iter);
+        CurHMacro->Body->DisorderedLabels.erase(iter);
+        CurHMacro->Body->PendingLabels.back().second = true;
+        return;
+      }
+      iter++;
+    }
+    // This is a spurious label.
+    Warning(Parser.getTok().getLoc(), "Spurious label \"" + Symbol->getName() +
+            "\" is found in hmacro \"" + CurHMacro->Name + "\".");
+  }
 }
 
 /* AnalyzeHMacro: All instantiated HMacros will be analyzed here to determine if 
