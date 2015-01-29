@@ -679,13 +679,12 @@ bool MMPULite::MMPULiteAsmParser::HandleHMacroEntry(StringRef Name,
  */
 void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
   if (!inHMacro || !CurHMacro) return;
-  while (!CurHMacro->Body->isPendingLabelsEmpty() &&
-         (CurHMacro->Body->PendingLabels.back().first->getSymName() !=
-          Symbol->getName())) {
-    Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),
-            "Symbol \"" +
-            CurHMacro->Body->PendingLabels.back().first->getSymName() +
-            "\" is expected before defining Label \"" + Symbol->getName() + "\".");
+  while (!CurHMacro->Body->isPendingLabelsEmpty() \
+      && (CurHMacro->Body->PendingLabels.back().first->getSymName() !=  Symbol->getName())) {
+    if( CurHMacro->Body->PendingLabels.back().second == false )
+      Warning(CurHMacro->Body->PendingLabels.back().first->getStartLoc(),\
+        "Symbol \"" + CurHMacro->Body->PendingLabels.back().first->getSymName() + \
+        "\" is expected before defining Label \"" + Symbol->getName() + "\".");
     CurHMacro->Body->PendingLabels.pop_back();
   }
   if (!CurHMacro->Body->isPendingLabelsEmpty())

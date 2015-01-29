@@ -66,13 +66,19 @@ A   [a-zA-Z_0-9]
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
-<EXPRPARSE>0[01234567]*                       { /* oct */
+<EXPRPARSE>0[01234567]+                       { /* oct */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
   if (yylval->val<8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
+}
+<EXPRPARSE>0+                       { /* num '0' */
+  BEGIN INITIAL;
+  SAVE_TOKEN;
+  yylval->val=0;
+  return IMM3;
 }
 
 
@@ -152,12 +158,12 @@ A   [a-zA-Z_0-9]
 0[xX][[:xdigit:]]+                 { /* hex */
   BEGIN INITIAL;
   SAVE_TOKEN;
-  yylval->val=atol(yylval->string->c_str());
+  yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
   if (yylval->val<8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
-([[:digit:]]{-}[0])[[:digit:]]*    { /* dec */
+[1-9][0-9]*    { /* dec */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
@@ -165,13 +171,19 @@ A   [a-zA-Z_0-9]
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
-0[01234567]*                       { /* oct */
+0[01234567]+                       { /* oct */
   BEGIN INITIAL;
   SAVE_TOKEN;
-  yylval->val=atol(yylval->string->c_str());
+  yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
   if (yylval->val<8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
+}
+0+                       { /* num '0' */
+  BEGIN INITIAL;
+  SAVE_TOKEN;
+  yylval->val=0;
+  return IMM3;
 }
 [ \t\n]                {;}
 "->"                   {return TOKEN(ASSIGNTO);}
