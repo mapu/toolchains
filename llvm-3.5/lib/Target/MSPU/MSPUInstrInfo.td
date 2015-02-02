@@ -1633,7 +1633,7 @@ def __SetKM : SynInstr<(outs), (ins IntrinKM:$i, I32Reg:$r),
   let Inst{11-7} = r;
   let Inst{6-4}  = 0b100;
   let Inst{3-2}  = i;
-  let Inst{1-0}  = 0;
+  let Inst{1-0}  = 0b01;
   let Itinerary = ItinSYN_1_1;
 }
 
@@ -1646,7 +1646,7 @@ def __GetKM : SynInstr<(outs I32Reg:$r), (ins IntrinKM:$i),
   let Inst{11-7} = r;
   let Inst{6-4}  = 0b100;
   let Inst{3-2}  = i;
-  let Inst{1-0}  = 0;
+  let Inst{1-0}  = 0b01;
   let Itinerary = ItinSYN_2_1;
 }
 

@@ -217,11 +217,11 @@ void
 MSPUInstPrinter::printKMFlag(const MCInst *MI, unsigned OpNo, raw_ostream &O) const
 {
 	const MCOperand& MO = MI->getOperand(OpNo);
-	unsigned f = MO.getImm()>>1;
+	unsigned f = MO.getImm();
 
-	switch(f&1) {
-		case 0: break;
-		case 1: O << " (H)"; break;
+	switch(f) {
+		case 1: break;
+		case 2: O << " (H)"; break;
 		default:
 			llvm_unreachable("error coding of KM-access instructions, flag bits for (L) or (H) invalid");
 	}

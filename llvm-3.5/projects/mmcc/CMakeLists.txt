@@ -2,7 +2,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/..
                      ${CMAKE_CURRENT_SOURCE_DIR}/.. 
                      ${CMAKE_CURRENT_BINARY_DIR}/../../lib/Target/MMPULite
                      ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/Target/MMPULite)
-set(LLVM_LINK_COMPONENTS jit bitwriter nativecodegen interpreter)
+set(LLVM_LINK_COMPONENTS native)
 
 include(Bison)
 set(LLVM_TARGET_PARSER MMPUFrontEndParser.y)
@@ -14,7 +14,7 @@ set(LLVM_TARGET_LEXER MMPUFrontEndLexer.l)
 flex(MMPUCompiler MMPUGenFrontEndLexer.flex)
 add_public_flex_target(MMPUFrontEndLexer)
 
-add_llvm_example(MMPUCompiler
+add_llvm_tool(mmcc
   ../../lib/Target/MMPULite/AsmParser/MMPULiteScheduler.cpp
   ../../lib/Target/MMPULite/AsmParser/MCFunction.cpp
   MMPUDAG.cpp
@@ -27,4 +27,4 @@ add_llvm_example(MMPUCompiler
   main.cpp
   )
 
-add_dependencies(MMPUCompiler MMPUFrontEndParser MMPUFrontEndLexer MMPULiteCommonTableGen)
+add_dependencies(mmcc MMPUFrontEndParser MMPUFrontEndLexer MMPULiteCommonTableGen)
