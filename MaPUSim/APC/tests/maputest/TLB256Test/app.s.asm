@@ -75,90 +75,90 @@ _start:
       
 
     
-    NOP ;;
-    NOP ;;
-    NOP ;;
-    NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
    
     // MC
-    R2 = MConfig        ;;
-    MC.r0 = R2          ;;
-    MC.w0 = R2          ;;
+ m.s     R2 = MConfig        ;;
+ m.s     MC.r0 = R2          ;;
+ m.s     MC.w0 = R2          ;;
     
 
     //////////////////////////////////////////////////////////////////////
     // BIU Configure   
     // for BIU0    
-    R1 =  SDA0DM0_START          ;; // KB for BIU0  
-    R2 =  BlockSize              ;; // KS0
-    R3 =  4                      ;; // KC0 
-    R4 =  4                      ;; // KI0  
+ m.s     R1 =  SDA0DM0_START          ;; // KB for BIU0  
+ m.s     R2 =  BlockSize              ;; // KS0
+ m.s     R3 =  4                      ;; // KC0 
+ m.s     R4 =  4                      ;; // KI0  
    
-    R14=  BlockGran              ;; // KG0
-    R15=  ACirNum                ;; // KL0 
+ m.s     R14=  BlockGran              ;; // KG0
+ m.s     R15=  ACirNum                ;; // KL0 
   
     
-    KB0 = R1 ;;
-    KS0 = R2 ;;
-  //KC0 = R3 ;;
-    KI0 = R4 ;;   
+ m.s     KB0 = R1 ;;
+ m.s     KS0 = R2 ;;
+ //   // m.s KC0 = R3 ;;
+ m.s     KI0 = R4 ;;   
     
-    KG0 = R14;;
-    KL0 = R15;; 
+ m.s     KG0 = R14;;
+ m.s     KL0 = R15;; 
 
     // for BIU1   
-    R1 =  SDA1DM0_START          ;; // KB for BIU0  
-    R2 =  BlockSize              ;; // KS0
-    R3 =  BBSNum                 ;; // KC0 
-    R4 =  BBSNum                 ;; // KI0  
+ m.s     R1 =  SDA1DM0_START          ;; // KB for BIU0  
+ m.s     R2 =  BlockSize              ;; // KS0
+ m.s     R3 =  BBSNum                 ;; // KC0 
+ m.s     R4 =  BBSNum                 ;; // KI0  
    
-    R14=  BlockGran              ;; // KG0
-    R15=  BCirNum                ;; // KL0 
+ m.s     R14=  BlockGran              ;; // KG0
+ m.s     R15=  BCirNum                ;; // KL0 
   
     
-    KB4 = R1 ;;
-    KS4 = R2 ;;
-  //KC4 = R3 ;;
-    KI4 = R4 ;;   
+ m.s     KB4 = R1 ;;
+ m.s     KS4 = R2 ;;
+  // m.s KC4 = R3 ;;
+ m.s     KI4 = R4 ;;   
     
-    KG1 = R14;;
-    KL1 = R15;; 
+ m.s     KG1 = R14;;
+ m.s     KL1 = R15;; 
     
     // for BIU1   
-    R1 =  SDA2DM0_START          ;; // KB for BIU0  
-    R2 =  BlockSize              ;; // KS0
-    R3 =  BBSNum                 ;; // KC0 
-    R4 =  BBSNum                 ;; // KI0  
+ m.s     R1 =  SDA2DM0_START          ;; // KB for BIU0  
+ m.s     R2 =  BlockSize              ;; // KS0
+ m.s     R3 =  BBSNum                 ;; // KC0 
+ m.s     R4 =  BBSNum                 ;; // KI0  
    
-    R14=  BlockGran              ;; // KG0
-    R15=  CCirNum                ;; // KL0 
+ m.s     R14=  BlockGran              ;; // KG0
+ m.s     R15=  CCirNum                ;; // KL0 
   
     
-    KB8 = R1 ;;
-    KS8 = R2 ;;
-  //KC8 = R3 ;;
-    KI8 = R4 ;;   
+ m.s     KB8 = R1 ;;
+ m.s     KS8 = R2 ;;
+  // m.s KC8 = R3 ;;
+ m.s     KI8 = R4 ;;   
     
-    KG2 = R14;;
-    KL2 = R15;; 
+ m.s     KG2 = R14;;
+ m.s     KL2 = R15;; 
 
     //LOOP 
-    R0   = BBSNum  ;;
-    NOP ;;
-    NOP ;;
-    KI12 = R0      ;;
+ m.s     R0   = BBSNum  ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     KI12 = R0      ;;
 
     // End BIU Configrure   
     //////////////////////////////////////////////////////////////////
 
-    NOP  ;;
-    NOP  ;;
-    NOP  ;;
-    CallM GammarTest(B);;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     CallM GammarTest(B);;
 
-    NOP ;;
-    NOP ;;
-    SPU.Stop ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     SPU.Stop ;;
 
    ///////////////////////////////////////////////////////////////////////////////
    //Data Segment

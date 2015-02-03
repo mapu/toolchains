@@ -129,163 +129,163 @@ _start:
     MConfig       = MCIndexStart | MCStepMode | MCLen | ICSize
 ////////////////////////////////////////////////////////////////////////////
  
-    NOP;;
+ m.s     NOP;;
     // MC
-    R2 = MConfig        ;;
-    MC.w1 = R2          ;;
-    MC.r0 = R2          ;;
+ m.s     R2 = MConfig        ;;
+ m.s     MC.w1 = R2          ;;
+ m.s     MC.r0 = R2          ;;
 
     // for Loop
-    R1 =  ARowNum                   ;; // KI12   
-    R2 =  AColBSNum  + AColTailEn   ;; // KI13
-    R3 =  BColBSNum  + BColTailEn   ;; // KI14
-    NOP;;
-    NOP;;
-    KI12 = R1     ;;
-    KI13 = R2     ;;
-    KI14 = R3     ;;
+ m.s     R1 =  ARowNum                   ;; // KI12   
+ m.s     R2 =  AColBSNum  + AColTailEn   ;; // KI13
+ m.s     R3 =  BColBSNum  + BColTailEn   ;; // KI14
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     KI12 = R1     ;;
+ m.s     KI13 = R2     ;;
+ m.s     KI14 = R3     ;;
 
     // SHU.T1
-    R1 = 0x03020100   ;;
-    SHU0.T1 = Vect R1 ;;
+ m.s     R1 = 0x03020100   ;;
+ m.s     SHU0.T1 = Vect R1 ;;
 
 // configure the K register
 // Read the date in Row mode   
 // for BIU0    
-    R1 =  SDA0DM0_START      ;; // KB for BIU0  
-    R2 =  BankSize           ;; // KS0
-    R3 =  ARowTailNum        ;; // KE0
-    R4 =  BS                 ;; // KI0
+ m.s     R1 =  SDA0DM0_START      ;; // KB for BIU0  
+ m.s     R2 =  BankSize           ;; // KS0
+ m.s     R3 =  ARowTailNum        ;; // KE0
+ m.s     R4 =  BS                 ;; // KI0
 
-    R5 =  AColNum * DataSize ;; // KS1    
-    R7 =  ARowBSNum          ;; // KI1   
+ m.s     R5 =  AColNum * DataSize ;; // KS1    
+ m.s     R7 =  ARowBSNum          ;; // KI1   
     
-    R8 =  BlockSize          ;; // KS2   
-    R10=  AColBSCeilNum      ;; // KI2
+ m.s     R8 =  BlockSize          ;; // KS2   
+ m.s     R10=  AColBSCeilNum      ;; // KI2
 
-    R11=  0                  ;; // KS3   
-    R13=  BColBSCeilNum      ;; // KI3
+ m.s     R11=  0                  ;; // KS3   
+ m.s     R13=  BColBSCeilNum      ;; // KI3
     
-    R14=  BlockGran          ;; // KG0
-    R15=  ACirNum            ;; // KL0
-    R16=  AMaskL             ;; // KM0-L
-    R17=  AMaskH             ;; // KM0-H
+ m.s     R14=  BlockGran          ;; // KG0
+ m.s     R15=  ACirNum            ;; // KL0
+ m.s     R16=  AMaskL             ;; // KM0-L
+ m.s     R17=  AMaskH             ;; // KM0-H
     
-    KB0 = R1 ;;
-    KS0 = R2 ;;
-    KE0 = R3 ;;
-    KI0 = R4 ;;
+ m.s     KB0 = R1 ;;
+ m.s     KS0 = R2 ;;
+ m.s     KE0 = R3 ;;
+ m.s     KI0 = R4 ;;
 
-    KB1 = R1 ;;
-    KS1 = R5 ;; 
-    KI1 = R7 ;;
+ m.s     KB1 = R1 ;;
+ m.s     KS1 = R5 ;; 
+ m.s     KI1 = R7 ;;
 
-    KB2 = R1 ;;
-    KS2 = R8 ;;
-    KI2 = R10;;
+ m.s     KB2 = R1 ;;
+ m.s     KS2 = R8 ;;
+ m.s     KI2 = R10;;
 
-    KB3 = R1 ;;
-    KS3 = R11;; 
-    KI3 = R13;;
+ m.s     KB3 = R1 ;;
+ m.s     KS3 = R11;; 
+ m.s     KI3 = R13;;
 
-    KG0 = R14;;
-    KL0 = R15;;
-    KM0 = R16;;
-    KM0 = R17(H) ;;
+ m.s     KG0 = R14;;
+ m.s     KL0 = R15;;
+ m.s     KM0 = R16;;
+ m.s     KM0 = R17(H) ;;
 
 
 // for BIU1, the BIU1 is related to M[I++],when the row number is not aligend to BS, it ld with no A/K
-    R1 =  SDA1DM0_START      ;; // KB for BIU1  
-    R2 =  BankSize           ;; // KS4   
-    R3 =  BRowTailNum        ;; // KE4
-    R4 =  BS                 ;; // KI4
+ m.s     R1 =  SDA1DM0_START      ;; // KB for BIU1  
+ m.s     R2 =  BankSize           ;; // KS4   
+ m.s     R3 =  BRowTailNum        ;; // KE4
+ m.s     R4 =  BS                 ;; // KI4
 
-    R5 =  BColNum * DataSize ;; // KS5    
-    R7 =  BRowBSNum          ;; // KI5 
+ m.s     R5 =  BColNum * DataSize ;; // KS5    
+ m.s     R7 =  BRowBSNum          ;; // KI5 
   
-    R8 =  BlockSize          ;; // KS6   
-    R10=  BColBSCeilNum      ;; // KI6 
+ m.s     R8 =  BlockSize          ;; // KS6   
+ m.s     R10=  BColBSCeilNum      ;; // KI6 
   
-    R11=  BlockGran          ;; // KG1
-    R12=  BCirNum            ;; // KL1
-    R16=  BMaskL             ;; // KM1-L
-    R17=  BMaskH             ;; // KM1-H
+ m.s     R11=  BlockGran          ;; // KG1
+ m.s     R12=  BCirNum            ;; // KL1
+ m.s     R16=  BMaskL             ;; // KM1-L
+ m.s     R17=  BMaskH             ;; // KM1-H
     
-    KB4 = R1 ;;
-    KS4 = R2 ;; 
-    KE4 = R3 ;;
-    KI4 = R4 ;;
+ m.s     KB4 = R1 ;;
+ m.s     KS4 = R2 ;; 
+ m.s     KE4 = R3 ;;
+ m.s     KI4 = R4 ;;
 
-    KB5 = R1 ;;
-    KS5 = R5 ;; 
-    KI5 = R7 ;;
+ m.s     KB5 = R1 ;;
+ m.s     KS5 = R5 ;; 
+ m.s     KI5 = R7 ;;
 
-    KB6 = R1 ;;
-    KS6 = R8 ;; 
-    KI6 = R10;;
+ m.s     KB6 = R1 ;;
+ m.s     KS6 = R8 ;; 
+ m.s     KI6 = R10;;
 
-    KG1 = R11;;
-    KL1 = R12;;
-    KM1 = R16;;
-    KM1 = R17(H) ;;
+ m.s     KG1 = R11;;
+ m.s     KL1 = R12;;
+ m.s     KM1 = R16;;
+ m.s     KM1 = R17(H) ;;
 
 // for BIU2    
-    R1 =  SDA2DM0_START      ;; // KB for BIU0  
-    R2 =  BankSize           ;; // KS8
-    R3 =  ARowTailNum        ;; // KE8
-    R4 =  BS                 ;; // KI8
+ m.s     R1 =  SDA2DM0_START      ;; // KB for BIU0  
+ m.s     R2 =  BankSize           ;; // KS8
+ m.s     R3 =  ARowTailNum        ;; // KE8
+ m.s     R4 =  BS                 ;; // KI8
 
-    R5 =  BColNum * DataSize ;; // KS9    
-    R7 =  ARowBSNum          ;; // KI9 
+ m.s     R5 =  BColNum * DataSize ;; // KS9    
+ m.s     R7 =  ARowBSNum          ;; // KI9 
   
-    R8 =  0                  ;; // KS10   
-    R10=  AColBSCeilNum      ;; // KI10
+ m.s     R8 =  0                  ;; // KS10   
+ m.s     R10=  AColBSCeilNum      ;; // KI10
 
-    R11=  BlockSize          ;; // KS11    
-    R13=  BColBSCeilNum      ;; // KI11
+ m.s     R11=  BlockSize          ;; // KS11    
+ m.s     R13=  BColBSCeilNum      ;; // KI11
 
-    R14=  BlockGran          ;; // KG2
-    R15=  CCirNum            ;; // KL2
-    R16=  CMaskL             ;; // KM2-L
-    R17=  CMaskH             ;; // KM2-H
+ m.s     R14=  BlockGran          ;; // KG2
+ m.s     R15=  CCirNum            ;; // KL2
+ m.s     R16=  CMaskL             ;; // KM2-L
+ m.s     R17=  CMaskH             ;; // KM2-H
     
-    KB8 = R1 ;;
-    KS8 = R2 ;;
-    KE8 = R3 ;;
-    KI8 = R4 ;;
+ m.s     KB8 = R1 ;;
+ m.s     KS8 = R2 ;;
+ m.s     KE8 = R3 ;;
+ m.s     KI8 = R4 ;;
 
-    KB9 = R1 ;;
-    KS9 = R5 ;;
-    KI9 = R7 ;;
+ m.s     KB9 = R1 ;;
+ m.s     KS9 = R5 ;;
+ m.s     KI9 = R7 ;;
 
-    KB10= R1 ;;
-    KS10= R8 ;;
-    KI10= R10;;
+ m.s     KB10= R1 ;;
+ m.s     KS10= R8 ;;
+ m.s     KI10= R10;;
 
-    KB11= R1 ;;
-    KS11= R11;;
-    KI11= R13;;
+ m.s     KB11= R1 ;;
+ m.s     KS11= R11;;
+ m.s     KI11= R13;;
 
-    KG2 = R14;;
-    KL2 = R15;; 
-    KM2 = R16 ;;
-    KM2 = R17(H) ;;
+ m.s     KG2 = R14;;
+ m.s     KL2 = R15;; 
+ m.s     KM2 = R16 ;;
+ m.s     KM2 = R17(H) ;;
   
 
 //  Matrix W Add Test
-    NOP;;
-    NOP;;
-    NOP;;
-    NOP;;
-   CallM Mat_Mul_SF_Test (B)  ;;     
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s    CallM Mat_Mul_SF_Test (B)  ;;     
   
-    NOP;;
-    NOP;;
-    NOP;;
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop ;;
 
 
 

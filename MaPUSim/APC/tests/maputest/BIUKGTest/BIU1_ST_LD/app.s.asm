@@ -18,120 +18,120 @@ _start:
 
 /*============ Call ============*/
 /*------- One Dim -------*/  /////////////////////////////////////xiugai 1wei de peizhi for BIUTEST0 (M7)
-    R0 = 0x00000031;;
-    R1 = 0x00000000;;
-    R2 = 0x00000000;;
-    R3 = 0x00080002;;
-    R4 = 0x00000010;;
-    R5 = 0x00000040;;
-    R6 = 0x00000000;;
-    R7 = 0x00000000;;
-    R8 = 0x00000000;;
-    R9 = 0x00000000;;
-    R10 = 0x00000000;;
-    R11 = 0x00000000;;
-    R12 = 0x00000000;;
-    R13 = 0x00000000;;
-    R14 = 0x00000000;;
-    R15 = 0x00000000;;
-    SVR0[0] = R0  ;;
-    SVR0[1] = R1  ;;
-    SVR0[2] = R2  ;;
-    SVR0[3] = R3  ;;
-    SVR0[4] = R4  ;;
-    SVR0[5] = R5  ;;
-    SVR0[6] = R6  ;;
-    SVR0[7] = R7  ;;
-    SVR0[8] = R8  ;;
-    SVR0[9] = R9  ;;
-    SVR0[10] = R10  ;;
-    SVR0[11] = R11  ;;
-    SVR0[12] = R12  ;;
-    SVR0[13] = R13  ;;
-    SVR0[14] = R14  ;;
-    SVR0[15] = R15  ;;   
-    SHU0.T0 = SVR0  ;;
+ m.s     R0 = 0x00000031;;
+ m.s     R1 = 0x00000000;;
+ m.s     R2 = 0x00000000;;
+ m.s     R3 = 0x00080002;;
+ m.s     R4 = 0x00000010;;
+ m.s     R5 = 0x00000040;;
+ m.s     R6 = 0x00000000;;
+ m.s     R7 = 0x00000000;;
+ m.s     R8 = 0x00000000;;
+ m.s     R9 = 0x00000000;;
+ m.s     R10 = 0x00000000;;
+ m.s     R11 = 0x00000000;;
+ m.s     R12 = 0x00000000;;
+ m.s     R13 = 0x00000000;;
+ m.s     R14 = 0x00000000;;
+ m.s     R15 = 0x00000000;;
+ m.s     SVR0[0] = R0  ;;
+ m.s     SVR0[1] = R1  ;;
+ m.s     SVR0[2] = R2  ;;
+ m.s     SVR0[3] = R3  ;;
+ m.s     SVR0[4] = R4  ;;
+ m.s     SVR0[5] = R5  ;;
+ m.s     SVR0[6] = R6  ;;
+ m.s     SVR0[7] = R7  ;;
+ m.s     SVR0[8] = R8  ;;
+ m.s     SVR0[9] = R9  ;;
+ m.s     SVR0[10] = R10  ;;
+ m.s     SVR0[11] = R11  ;;
+ m.s     SVR0[12] = R12  ;;
+ m.s     SVR0[13] = R13  ;;
+ m.s     SVR0[14] = R14  ;;
+ m.s     SVR0[15] = R15  ;;   
+ m.s     SHU0.T0 = SVR0  ;;
 
-    R0 = 0x1;;  	//KL0
-    R1 = 0x400000;; 	//KB0
-    R2 = 0x40;;  	//KS0
-    R3 = 0x80;; 	//KI0
-    R4 = 0x6;; 	 	//KG0
-    R5 = 0x00000100;;
-    R15 = 0x0;; 	//KE0
+ m.s     R0 = 0x1;;  	//KL0
+ m.s     R1 = 0x400000;; 	//KB0
+ m.s     R2 = 0x40;;  	//KS0
+ m.s     R3 = 0x80;; 	//KI0
+ m.s     R4 = 0x6;; 	 	//KG0
+ m.s     R5 = 0x00000100;;
+ m.s     R15 = 0x0;; 	//KE0
     
-    KL1 = R0 ;;
-    KB4 = R1 ;;
-    KS4 = R2 ;;
-    KI4 = R3 ;;
-    KG1 = R4 ;;
-    KE4 = R15;;
-    MC.r0 = R5;;
-    CallM _BIUTest2 (B) ;;
+ m.s     KL1 = R0 ;;
+ m.s     KB4 = R1 ;;
+ m.s     KS4 = R2 ;;
+ m.s     KI4 = R3 ;;
+ m.s     KG1 = R4 ;;
+ m.s     KE4 = R15;;
+ m.s     MC.r0 = R5;;
+ m.s     CallM _BIUTest2 (B) ;;
 
 
-    R0 = 0x4;;  	//KL0
+ m.s     R0 = 0x4;;  	//KL0
 
-    R1 = 0x400000;; 	//KB0
-    R2 = 0x40;;  	//KS0
-    R3 = 0x02;; 	//KI0
+ m.s     R1 = 0x400000;; 	//KB0
+ m.s     R2 = 0x40;;  	//KS0
+ m.s     R3 = 0x02;; 	//KI0
 
-    R4 = 0x6;; 	 	//KG0
+ m.s     R4 = 0x6;; 	 	//KG0
 
-    R5 = 0x00000100;;
+ m.s     R5 = 0x00000100;;
 
-    R6 = 0x400000;; 	//KB1
-    R7 = 0x40;; 	//KS1
-    R8 = 0x05;; 	//KI1
+ m.s     R6 = 0x400000;; 	//KB1
+ m.s     R7 = 0x40;; 	//KS1
+ m.s     R8 = 0x05;; 	//KI1
 
-    R9 = 0x400000;; 	//KB2
-    R10 = 0x40;; 	//KS2
-    R11 = 0x02;; 	//KI2
+ m.s     R9 = 0x400000;; 	//KB2
+ m.s     R10 = 0x40;; 	//KS2
+ m.s     R11 = 0x02;; 	//KI2
 
-    R12 = 0x400000;; 	//KB3
-    R13 = 0x40;;	//KS3
-    R14 = 0x05;;	//KI3
+ m.s     R12 = 0x400000;; 	//KB3
+ m.s     R13 = 0x40;;	//KS3
+ m.s     R14 = 0x05;;	//KI3
     
-    R15 = 0x1;; 	//KE0
-    R16 = 0x1;;		//KE1
-    R17 = 0x1;;		//KE2
+ m.s     R15 = 0x1;; 	//KE0
+ m.s     R16 = 0x1;;		//KE1
+ m.s     R17 = 0x1;;		//KE2
 
-    R18 = 0x02;;  //KC0
-    R19 = 0x05;;  //KC1  
-    R20 = 0x02;;  //KC2
-    R21 = 0x05;;  //KC3  
+ m.s     R18 = 0x02;;  //KC0
+ m.s     R19 = 0x05;;  //KC1  
+ m.s     R20 = 0x02;;  //KC2
+ m.s     R21 = 0x05;;  //KC3  
 
-    KC0 = R18 ;;
-    KC1 = R19 ;;  //KC1  
-    KC2 = R20 ;;  //KC2
-    KC3 = R21 ;;  //KC3  
+ //  m.s     KC0 = R18 ;;
+ //  m.s     KC1 = R19 ;;  //KC1  
+ //  m.s     KC2 = R20 ;;  //KC2
+ //  m.s     KC3 = R21 ;;  //KC3  
     
-    KL1 = R0 ;;
-    KB4 = R1 ;;
-    KS4 = R2 ;;
-    KI4 = R3 ;;
-    KG1 = R4 ;;
-    KB5 = R6 ;;
-    KS5 = R7 ;;
-    KI5 = R8 ;;
-    KB6 = R9 ;;
-    KS6 = R10;;
-    KI6 = R11;;
-    KB7 = R12;;
-    KS7 = R13;;
-    KI7 = R14;; 
-    KE4 = R15;;
-    KE5 = R16;;
-    KE6 = R17;;
-    MC.r0 = R5;;
-    CallM _BIUTest1 (B) ;;
-    NOP;;
+ m.s     KL1 = R0 ;;
+ m.s     KB4 = R1 ;;
+ m.s     KS4 = R2 ;;
+ m.s     KI4 = R3 ;;
+ m.s     KG1 = R4 ;;
+ m.s     KB5 = R6 ;;
+ m.s     KS5 = R7 ;;
+ m.s     KI5 = R8 ;;
+ m.s     KB6 = R9 ;;
+ m.s     KS6 = R10;;
+ m.s     KI6 = R11;;
+ m.s     KB7 = R12;;
+ m.s     KS7 = R13;;
+ m.s     KI7 = R14;; 
+ m.s     KE4 = R15;;
+ m.s     KE5 = R16;;
+ m.s     KE6 = R17;;
+ m.s     MC.r0 = R5;;
+ m.s     CallM _BIUTest1 (B) ;;
+ m.s     NOP;;
 
 
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop ;;
 
 //////////////////////////////////////////////
 // SDA0DM0

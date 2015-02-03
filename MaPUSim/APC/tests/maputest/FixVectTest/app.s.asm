@@ -10,58 +10,58 @@
 //*************************************************/ 
 _start:
 /**** Call ****/
-    NOP;;
+ m.s     NOP;;
 // X Cluster
   
 
 // configure the K register
-    R1 = 0x400000 ;; //KB for BIU0 
-    R2 = 0x800000 ;; //KB for BIU1
-    R3 = 0xc00000 ;; //KB for BIU2
-    R4 = 0x40     ;; //KS  
-    R5 = 0x20     ;; //KI for BIU
-    R6 = 0x20     ;; //KI for MSEQ
-    R7 = 0x6      ;; //KG
-    R8 = 1;;         //KL
+ m.s     R1 = 0x400000 ;; //KB for BIU0 
+ m.s     R2 = 0x800000 ;; //KB for BIU1
+ m.s     R3 = 0xc00000 ;; //KB for BIU2
+ m.s     R4 = 0x40     ;; //KS  
+ m.s     R5 = 0x20     ;; //KI for BIU
+ m.s     R6 = 0x20     ;; //KI for MSEQ
+ m.s     R7 = 0x6      ;; //KG
+ m.s     R8 = 1;;         //KL
     
 //IALU Add-W Test    
     //for BIU0
-    KB0 = R1  ;;
-    KS0 = R4  ;;
-    KI0 = R5  ;;
-    KG0 = R7  ;;
-    KL0 = R8  ;;
+ m.s     KB0 = R1  ;;
+ m.s     KS0 = R4  ;;
+ m.s     KI0 = R5  ;;
+ m.s     KG0 = R7  ;;
+ m.s     KL0 = R8  ;;
 
     // for BIU1
-    KB4 = R2  ;;
-    KS4 = R4  ;;
-    KI4 = R5  ;;
-    KG1 = R7  ;;
-    KL1 = R8  ;;
+ m.s     KB4 = R2  ;;
+ m.s     KS4 = R4  ;;
+ m.s     KI4 = R5  ;;
+ m.s     KG1 = R7  ;;
+ m.s     KL1 = R8  ;;
 
     // for BIU2
-    KB8 = R3  ;;
-    KS8 = R4  ;;
-    KI8 = R5  ;;
-    KG2 = R7  ;;
-    KL2 = R8  ;;   
+ m.s     KB8 = R3  ;;
+ m.s     KS8 = R4  ;;
+ m.s     KI8 = R5  ;;
+ m.s     KG2 = R7  ;;
+ m.s     KL2 = R8  ;;   
     
 
     // for Loop
-    KI12 = R6 ;;
-    NOP;;
-    NOP;;
-    NOP;;
+ m.s     KI12 = R6 ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
 
     
-    CallM IALU_Add_W_Test (B);;    // IALU Add Test
+ m.s     CallM IALU_Add_W_Test (B);;    // IALU Add Test
 
 
 
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop;;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////

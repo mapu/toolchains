@@ -10,110 +10,110 @@
 //*************************************************/ 
 _start:
 /**** Call ****/
-    NOP;;
+ m.s     NOP;;
 // X Cluster
-    //R0 = 0x0       ;;  //   Cluster    
-    //R0 = 0x3       ;;  // X   Cluster
-    //R0 = 0x5       ;;  // Y   Cluster
-    //R0 = 0x7       ;;  // X-Y Cluster
+    // m.s R0 = 0x0       ;;  //   Cluster    
+    // m.s R0 = 0x3       ;;  // X   Cluster
+    // m.s R0 = 0x5       ;;  // Y   Cluster
+    // m.s R0 = 0x7       ;;  // X-Y Cluster
    
-    //CCtrl = R0     ;;
+    // m.s CCtrl = R0     ;;
 
-    R1 = 0xffffff01;;
-    R2 = 0xffffff02;;
-    R3 = 0xffffff03;;
-    R4 = 0xffffff04;;
-    R5 = 0xffffff05;;
-    R6 = 0xffffff06;;
-    R7 = 0xffffff07;;
-    R8 = 0xffffff08;;
-    R9 = 0xffffff09;;
-    R10= 0xffffff0a;;
-    R11= 0xffffff0b;;
-    R12= 0xffffff0c;;
-    R13= 0xffffff0d;;
-    R14= 0xffffff0e;;
-    R15= 0xffffff0f;;
-    R16= 0xffffff10;;
-    R17= 0x11111111;;
-    R18= 0x2       ;;
-    J0 = 0x400000  ;;
-    J1 = 0x4       ;;
-    J2 = 0x400000  ;;
-    J3 = 0x4       ;;
-    [J0+=J1] = R1  ;;
-    [J0+=J1] = R2  ;;
-    [J0+=J1] = R3  ;;
-    [J0+=J1] = R4  ;;
-    [J0+=J1] = R5  ;;
-    [J0+=J1] = R6  ;;
-    [J0+=J1] = R7  ;;
-    [J0+=J1] = R8  ;;
-    [J0+=J1] = R9  ;;
-    [J0+=J1] = R10 ;;
-    [J0+=J1] = R11 ;;
-    [J0+=J1] = R12 ;;
-    [J0+=J1] = R13 ;;
-    [J0+=J1] = R14 ;;
-    [J0+=J1] = R15 ;;
-    [J0+=J1] = R16 ;;    
-    SVR1 = [J2+J3] ;;
-    SHU0.T1 = SVR1 ;;
-    SHU0.T2 = VECT R17 ;;
-    SHU0.T0 = VECT R18 ;;
+ m.s     R1 = 0xffffff01;;
+ m.s     R2 = 0xffffff02;;
+ m.s     R3 = 0xffffff03;;
+ m.s     R4 = 0xffffff04;;
+ m.s     R5 = 0xffffff05;;
+ m.s     R6 = 0xffffff06;;
+ m.s     R7 = 0xffffff07;;
+ m.s     R8 = 0xffffff08;;
+ m.s     R9 = 0xffffff09;;
+ m.s     R10= 0xffffff0a;;
+ m.s     R11= 0xffffff0b;;
+ m.s     R12= 0xffffff0c;;
+ m.s     R13= 0xffffff0d;;
+ m.s     R14= 0xffffff0e;;
+ m.s     R15= 0xffffff0f;;
+ m.s     R16= 0xffffff10;;
+ m.s     R17= 0x11111111;;
+ m.s     R18= 0x2       ;;
+ m.s     J0 = 0x400000  ;;
+ m.s     J1 = 0x4       ;;
+ m.s     J2 = 0x400000  ;;
+ m.s     J3 = 0x4       ;;
+ m.s     [J0+=J1] = R1  ;;
+ m.s     [J0+=J1] = R2  ;;
+ m.s     [J0+=J1] = R3  ;;
+ m.s     [J0+=J1] = R4  ;;
+ m.s     [J0+=J1] = R5  ;;
+ m.s     [J0+=J1] = R6  ;;
+ m.s     [J0+=J1] = R7  ;;
+ m.s     [J0+=J1] = R8  ;;
+ m.s     [J0+=J1] = R9  ;;
+ m.s     [J0+=J1] = R10 ;;
+ m.s     [J0+=J1] = R11 ;;
+ m.s     [J0+=J1] = R12 ;;
+ m.s     [J0+=J1] = R13 ;;
+ m.s     [J0+=J1] = R14 ;;
+ m.s     [J0+=J1] = R15 ;;
+ m.s     [J0+=J1] = R16 ;;    
+ m.s     SVR1 = [J2+J3] ;;
+ m.s     SHU0.T1 = SVR1 ;;
+ m.s     SHU0.T2 = VECT R17 ;;
+ m.s     SHU0.T0 = VECT R18 ;;
 
-    R1 = 0x03020100;;
-    R2 = 0x07060504;;
-    R3 = 0x0b0a0908;;
-    R4 = 0x0f0e0d0c;;
-    R5 = 0x13121110;;
-    R6 = 0x17161514;;
-    R7 = 0x1b1a1918;;
-    R8 = 0x1f1e1d1c;;
-    R9 = 0x23222120;;
-    R10= 0x27262524;;
-    R11= 0x2b2a2928;;
-    R12= 0x2f2e2d2c;;
-    R13= 0x33323130;;
-    R14= 0x37363534;;
-    R15= 0x3b3a3938;;
-    R16= 0x3f3e3d3c;;    
-    J0 = 0x400000  ;;
-    J1 = 0x4       ;;
-    J2 = 0x400000  ;;
-    J3 = 0x4       ;;
-    [J0+=J1] = R1  ;;
-    [J0+=J1] = R2  ;;
-    [J0+=J1] = R3  ;;
-    [J0+=J1] = R4  ;;
-    [J0+=J1] = R5  ;;
-    [J0+=J1] = R6  ;;
-    [J0+=J1] = R7  ;;
-    [J0+=J1] = R8  ;;
-    [J0+=J1] = R9  ;;
-    [J0+=J1] = R10 ;;
-    [J0+=J1] = R11 ;;
-    [J0+=J1] = R12 ;;
-    [J0+=J1] = R13 ;;
-    [J0+=J1] = R14 ;;
-    [J0+=J1] = R15 ;;
-    [J0+=J1] = R16 ;;
-    SVR1 = [J2+J3] ;;
-    SHU0.T3 = SVR1 ;;
+ m.s     R1 = 0x03020100;;
+ m.s     R2 = 0x07060504;;
+ m.s     R3 = 0x0b0a0908;;
+ m.s     R4 = 0x0f0e0d0c;;
+ m.s     R5 = 0x13121110;;
+ m.s     R6 = 0x17161514;;
+ m.s     R7 = 0x1b1a1918;;
+ m.s     R8 = 0x1f1e1d1c;;
+ m.s     R9 = 0x23222120;;
+ m.s     R10= 0x27262524;;
+ m.s     R11= 0x2b2a2928;;
+ m.s     R12= 0x2f2e2d2c;;
+ m.s     R13= 0x33323130;;
+ m.s     R14= 0x37363534;;
+ m.s     R15= 0x3b3a3938;;
+ m.s     R16= 0x3f3e3d3c;;    
+ m.s     J0 = 0x400000  ;;
+ m.s     J1 = 0x4       ;;
+ m.s     J2 = 0x400000  ;;
+ m.s     J3 = 0x4       ;;
+ m.s     [J0+=J1] = R1  ;;
+ m.s     [J0+=J1] = R2  ;;
+ m.s     [J0+=J1] = R3  ;;
+ m.s     [J0+=J1] = R4  ;;
+ m.s     [J0+=J1] = R5  ;;
+ m.s     [J0+=J1] = R6  ;;
+ m.s     [J0+=J1] = R7  ;;
+ m.s     [J0+=J1] = R8  ;;
+ m.s     [J0+=J1] = R9  ;;
+ m.s     [J0+=J1] = R10 ;;
+ m.s     [J0+=J1] = R11 ;;
+ m.s     [J0+=J1] = R12 ;;
+ m.s     [J0+=J1] = R13 ;;
+ m.s     [J0+=J1] = R14 ;;
+ m.s     [J0+=J1] = R15 ;;
+ m.s     [J0+=J1] = R16 ;;
+ m.s     SVR1 = [J2+J3] ;;
+ m.s     SHU0.T3 = SVR1 ;;
 
     
-    CallM _IALUTest(B);;    // X Cluster
-    NOP;;
+ m.s     CallM _IALUTest(B);;    // X Cluster
+ m.s     NOP;;
 
 
 
-    R0 = 0x2;;
-    R1 = 0x3;;
-    R2 = R1 + R2;;
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop ;;
+ m.s     R0 = 0x2;;
+ m.s     R1 = 0x3;;
+ m.s     R2 = R1 + R2;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop ;;
 
 /**** Stat & Ctrl reg transfer ****/
 

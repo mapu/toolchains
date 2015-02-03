@@ -2,12 +2,12 @@
   .global _start
 
 _start:  
-    J29 = 0x2FF;;
-    J28 = J29;;
-    NOP;;
+ m.s     J29 = 0x2FF;;
+ m.s     J28 = J29;;
+ m.s     NOP;;
     
-    CALL main;;
+ m.s     CALL main;;
     
-    R2 = 246;;
-    SPUStop;;
+ m.s     R2 = 246;;
+ m.s     SPUStop;;
 

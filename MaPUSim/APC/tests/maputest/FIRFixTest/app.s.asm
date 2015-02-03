@@ -69,94 +69,94 @@ _start:
     MConfig       = MCIndexStart | MCStepMode | MCLen | ICSize
 ////////////////////////////////////////////////////////////////////////////
  
-    NOP;;
+ m.s     NOP;;
 // for MC
-    R1 = MConfig ;;
-    NOP ;;
-    NOP ;;
-    MC.w0 = R1 ;;
-    MC.r0 = R1 ;;
-    MC.r1 = R1 ;;
+ m.s     R1 = MConfig ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     MC.w0 = R1 ;;
+ m.s     MC.r0 = R1 ;;
+ m.s     MC.r1 = R1 ;;
 
 // for Loop
-    R1 =  DataBSNum   ;; // KI12   
-    NOP;; 
-    NOP;;
-    NOP;;
-    KI12 = R1     ;;
+ m.s     R1 =  DataBSNum   ;; // KI12   
+ m.s     NOP;; 
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     KI12 = R1     ;;
 
 // configure the K register
 // Read the date in Row mode   
 // for BIU0    
-    R1 =  SDA0DM0_START         ;; // KB for BIU0  
-    R2 =  BlockSize             ;; // KS0    
-    R4 =  PadDataBSNum          ;; // KI0
+ m.s     R1 =  SDA0DM0_START         ;; // KB for BIU0  
+ m.s     R2 =  BlockSize             ;; // KS0    
+ m.s     R4 =  PadDataBSNum          ;; // KI0
 
-    R14=  BlockGran             ;; // KG0
-    R15=  ACirNum               ;; // KL0
+ m.s     R14=  BlockGran             ;; // KG0
+ m.s     R15=  ACirNum               ;; // KL0
     
-    KB0 = R1 ;;
-    KS0 = R2 ;;
-    KI0 = R4 ;;
+ m.s     KB0 = R1 ;;
+ m.s     KS0 = R2 ;;
+ m.s     KI0 = R4 ;;
       
-    KG0 = R14;;
-    KL0 = R15;;
+ m.s     KG0 = R14;;
+ m.s     KL0 = R15;;
 
 // for BIU1    
-    R1 =  SDA1DM0_START      ;; // KB for BIU1  
-    R2 =  BlockSize          ;; // KS4   
-    R4 =  EffiBSNum          ;; // KI4
+ m.s     R1 =  SDA1DM0_START      ;; // KB for BIU1  
+ m.s     R2 =  BlockSize          ;; // KS4   
+ m.s     R4 =  EffiBSNum          ;; // KI4
 
-    R5 =  0x0                ;; // KS5
-    R7 =  DataBSNum          ;; // KI5
+ m.s     R5 =  0x0                ;; // KS5
+ m.s     R7 =  DataBSNum          ;; // KI5
      
-    R11=  BlockGran          ;; // KG1
-    R12=  BCirNum            ;; // KL1
+ m.s     R11=  BlockGran          ;; // KG1
+ m.s     R12=  BCirNum            ;; // KL1
     
-    KB4 = R1 ;;
-    KS4 = R2 ;;
-    KI4 = R4 ;;
+ m.s     KB4 = R1 ;;
+ m.s     KS4 = R2 ;;
+ m.s     KI4 = R4 ;;
 
-    KB5 = R1 ;;
-    KS5 = R5 ;;
-    KI5 = R7 ;;
+ m.s     KB5 = R1 ;;
+ m.s     KS5 = R5 ;;
+ m.s     KI5 = R7 ;;
     
-    KG1 = R11;;
-    KL1 = R12;;
+ m.s     KG1 = R11;;
+ m.s     KL1 = R12;;
 
 // for BIU2    
-    R1 =  SDA2DM0_START      ;; // KB for BIU0  
-    R2 =  BlockSize          ;; // KS8   
-    R4 =  DataBSNum          ;; // KI8
+ m.s     R1 =  SDA2DM0_START      ;; // KB for BIU0  
+ m.s     R2 =  BlockSize          ;; // KS8   
+ m.s     R4 =  DataBSNum          ;; // KI8
       
-    R14=  BlockGran          ;; // KG2
-    R15=  CCirNum            ;; // KL2
-    R16=  CMaskL             ;; // KML
-    R17=  CMaskH             ;; // KMH
+ m.s     R14=  BlockGran          ;; // KG2
+ m.s     R15=  CCirNum            ;; // KL2
+ m.s     R16=  CMaskL             ;; // KML
+ m.s     R17=  CMaskH             ;; // KMH
     
-    KB8 = R1 ;;
-    KS8 = R2 ;;
-    KI8 = R4 ;;
+ m.s     KB8 = R1 ;;
+ m.s     KS8 = R2 ;;
+ m.s     KI8 = R4 ;;
     
-    KG2 = R14;;
-    KL2 = R15;;
-    KM2 = R16;;
-    KM2 = R17(H);;
+ m.s     KG2 = R14;;
+ m.s     KL2 = R15;;
+ m.s     KM2 = R16;;
+ m.s     KM2 = R17(H);;
 
 
 //  Filter 2D Test
-    NOP;;
-    NOP;;
-    NOP;;
-    NOP;;
-   CallM FIRFixTest (B)  ;;  
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s    CallM FIRFixTest (B)  ;;  
  
     
 
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop ;;
   
 
 //////////////////////////////////////////////

@@ -18,12 +18,12 @@ $(TARGET):	$(OBJS) app.m.out app.s.out
 %.m.out: %.m.asm
 	${LLVM_BIN_PATH}/llvm-mc -arch=mmpulite -filetype=obj $<  -o $(subst .out,.o,$@)
 	${LLVM_BIN_PATH}/llvm-ld -T ${MAPU_HOME}/apc/share/MaPU_ASM.m.ld -n -o $@  $(subst .out,.o,$@)
-	${LLVM_BIN_PATH}/llvm-objdump -arch=mmpulite -t -disassemble  -s $@ > $(subst .out,.dis,$@)
+	${LLVM_BIN_PATH}/llvm-objdump -arch-name=mmpulite -t -disassemble  -s $@ > $(subst .out,.dis,$@)
 
 %.s.out: %.s.asm
 	${LLVM_BIN_PATH}/llvm-mc -arch=mspu -filetype=obj $<  -o $(subst .out,.o,$@)
 	${LLVM_BIN_PATH}/llvm-ld -T ${MAPU_HOME}/apc/share/MaPU_ASM.s.ld -n -o $@  $(subst .out,.o,$@) --just-symbols *.m.out
-	${LLVM_BIN_PATH}/llvm-objdump -arch=mspu -t -disassemble  -s $@ > $(subst .out,.o,$@)
+	${LLVM_BIN_PATH}/llvm-objdump -arch-name=mspu -t -disassemble  -s $@ > $(subst .out,.o,$@)
 
 all:	$(TARGET)
 

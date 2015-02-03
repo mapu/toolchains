@@ -10,18 +10,18 @@
 //*************************************************/ 
 _start:
 /**** Call ****/
-    NOP;;
-    NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
     
-    CallM _IALUTest(B);;    
-    NOP;;
-    R0 = 0x2;;
-    R1 = 0x3;;
-    R2 = R1 + R2;;
+ m.s     CallM _IALUTest(B);;    
+ m.s     NOP;;
+ m.s     R0 = 0x2;;
+ m.s     R1 = 0x3;;
+ m.s     R2 = R1 + R2;;
     
-    NOP;;
-    NOP;;
-    NOP;;
-    SPU.Stop ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SPU.Stop ;;
 
 

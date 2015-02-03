@@ -189,162 +189,162 @@ _start:
 // SHU1.T0 = tempX * i + 1
 //      T1 = tempY * i + 1
 //      T3 = -1 5 etc 
-    R0            =  SHU1T0n0 ;;
-    R1            =  SHU1T0n1 ;;
-    R2            =  SHU1T0n2 ;;      
+ m.s     R0            =  SHU1T0n0 ;;
+ m.s     R1            =  SHU1T0n1 ;;
+ m.s     R2            =  SHU1T0n2 ;;      
 
-    SVR1[0]       =  R0       ;;
-    SVR1[1]       =  R1       ;;
-    SVR1[2]       =  R2       ;;    
-    SHU1.T0       =  SVR1  ;;   // SHU1.T0
+ m.s     SVR1[0]       =  R0       ;;
+ m.s     SVR1[1]       =  R1       ;;
+ m.s     SVR1[2]       =  R2       ;;    
+ m.s     SHU1.T0       =  SVR1  ;;   // SHU1.T0
 
-    R0            =  SHU1T1n0 ;;
-    R1            =  SHU1T1n1 ;;
-    R2            =  SHU1T1n2 ;;
-    R3            =  SHU1T1n3 ;;
-    R4            =  SHU1T1n4 ;;
-    R5            =  SHU1T1n5 ;;
-    R6            =  SHU1T1n6 ;;
-    R7            =  SHU1T1n7 ;;
-    R8            =  SHU1T1n8 ;;
+ m.s     R0            =  SHU1T1n0 ;;
+ m.s     R1            =  SHU1T1n1 ;;
+ m.s     R2            =  SHU1T1n2 ;;
+ m.s     R3            =  SHU1T1n3 ;;
+ m.s     R4            =  SHU1T1n4 ;;
+ m.s     R5            =  SHU1T1n5 ;;
+ m.s     R6            =  SHU1T1n6 ;;
+ m.s     R7            =  SHU1T1n7 ;;
+ m.s     R8            =  SHU1T1n8 ;;
 
-    SVR0[0]       =  R0       ;;
-    SVR0[1]       =  R1       ;;
-    SVR0[2]       =  R2       ;;
-    SVR0[3]       =  R3       ;;
-    SVR0[4]       =  R4       ;;
-    SVR0[5]       =  R5       ;;
-    SVR0[6]       =  R6       ;;
-    SVR0[7]       =  R7       ;;
-    SVR0[8]       =  R8       ;;
-    SHU1.T1       =  SVR0  ;;   // SHU1.T1
+ m.s     SVR0[0]       =  R0       ;;
+ m.s     SVR0[1]       =  R1       ;;
+ m.s     SVR0[2]       =  R2       ;;
+ m.s     SVR0[3]       =  R3       ;;
+ m.s     SVR0[4]       =  R4       ;;
+ m.s     SVR0[5]       =  R5       ;;
+ m.s     SVR0[6]       =  R6       ;;
+ m.s     SVR0[7]       =  R7       ;;
+ m.s     SVR0[8]       =  R8       ;;
+ m.s     SHU1.T1       =  SVR0  ;;   // SHU1.T1
 
-    R0  = nBits  ;;
-    R1  = WPInc  ;;
-    R2  = nHalf  ;;
-    R3  = nDBits ;;
-    R4  = nDHalf ;;
-    R5  = Mask   ;;
-    R6  = HPInc  ;;
-    R7  = nC0C0  ;;
-    R8  = nC0C1  ;;
-    R9  = nC0C2  ;;
-    R10 = nC1C0  ;;
-    R11 = nC1C1  ;;
-    R12 = nC1C2  ;;
-    R13 = nC2C0  ;;
-    R14 = nC2C1  ;;
-    R15 = nC2C2  ;;
-    SVR0[0] = R0  ;; 
-    SVR0[1] = R1  ;; 
-    SVR0[2] = R2  ;; 
-    SVR0[3] = R3  ;; 
-    SVR0[4] = R4  ;; 
-    SVR0[5] = R5  ;; 
-    SVR0[6] = R6  ;; 
-    SVR0[7] = R7  ;; 
-    SVR0[8] = R8  ;; 
-    SVR0[9] = R9  ;; 
-    SVR0[10] = R10;; 
-    SVR0[11] = R11;; 
-    SVR0[12] = R12;; 
-    SVR0[13] = R13;; 
-    SVR0[14] = R14;; 
-    SVR0[15] = R15;; 
-    SHU1.T3 = SVR0        ;;  //SHU0.T3
+ m.s     R0  = nBits  ;;
+ m.s     R1  = WPInc  ;;
+ m.s     R2  = nHalf  ;;
+ m.s     R3  = nDBits ;;
+ m.s     R4  = nDHalf ;;
+ m.s     R5  = Mask   ;;
+ m.s     R6  = HPInc  ;;
+ m.s     R7  = nC0C0  ;;
+ m.s     R8  = nC0C1  ;;
+ m.s     R9  = nC0C2  ;;
+ m.s     R10 = nC1C0  ;;
+ m.s     R11 = nC1C1  ;;
+ m.s     R12 = nC1C2  ;;
+ m.s     R13 = nC2C0  ;;
+ m.s     R14 = nC2C1  ;;
+ m.s     R15 = nC2C2  ;;
+ m.s     SVR0[0] = R0  ;; 
+ m.s     SVR0[1] = R1  ;; 
+ m.s     SVR0[2] = R2  ;; 
+ m.s     SVR0[3] = R3  ;; 
+ m.s     SVR0[4] = R4  ;; 
+ m.s     SVR0[5] = R5  ;; 
+ m.s     SVR0[6] = R6  ;; 
+ m.s     SVR0[7] = R7  ;; 
+ m.s     SVR0[8] = R8  ;; 
+ m.s     SVR0[9] = R9  ;; 
+ m.s     SVR0[10] = R10;; 
+ m.s     SVR0[11] = R11;; 
+ m.s     SVR0[12] = R12;; 
+ m.s     SVR0[13] = R13;; 
+ m.s     SVR0[14] = R14;; 
+ m.s     SVR0[15] = R15;; 
+ m.s     SHU1.T3 = SVR0        ;;  //SHU0.T3
     //////////////////////////////////////////////////////////////////
 
-    NOP ;;
+ m.s     NOP ;;
 
-    R0   = 0x0   ;;
-    R1   = 0xff  ;;
-    NOP;;
-    NOP;;
-    SHU0.T1  = VECT R0  ;;
-    SHU0.T2  = VECT R1  ;;
+ m.s     R0   = 0x0   ;;
+ m.s     R1   = 0xff  ;;
+ m.s     NOP;;
+ m.s     NOP;;
+ m.s     SHU0.T1  = VECT R0  ;;
+ m.s     SHU0.T2  = VECT R1  ;;
 
 // configure the MC
     // MC
-    R2 = W_MConfig        ;;
-    MC.w0 = R2            ;;
-    MC.r0 = R2            ;;
+ m.s     R2 = W_MConfig        ;;
+ m.s     MC.w0 = R2            ;;
+ m.s     MC.r0 = R2            ;;
 
 // configure the LOOP
-    R1 = AColNum   ;;
-    R2 = ARowPadBSNum ;;
-    NOP ;;
-    NOP ;;
-    KI12 = R1 ;;
-    KI13 = R2 ;;
-    NOP ;;
-    NOP ;;
-    NOP ;;
-    NOP ;;
+ m.s     R1 = AColNum   ;;
+ m.s     R2 = ARowPadBSNum ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     KI12 = R1 ;;
+ m.s     KI13 = R2 ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
     // BIU Configure   
     // for BIU0    
-    R1 =  SDA0DM0_START          ;; // KB for BIU0  
-    R2 =  DataSize               ;; // KS0  
-    R4 =  AColPadNum             ;; // KI0 
+ m.s     R1 =  SDA0DM0_START          ;; // KB for BIU0  
+ m.s     R2 =  DataSize               ;; // KS0  
+ m.s     R4 =  AColPadNum             ;; // KI0 
  
-    R5 =  DataSize * AColPadNum  ;; // KS1    
-    R7 =  ARowPadBSNum           ;; // KI1 
+ m.s     R5 =  DataSize * AColPadNum  ;; // KS1    
+ m.s     R7 =  ARowPadBSNum           ;; // KI1 
  
-    R14=  DataSizeGran           ;; // KG0
-    R15=  W_ACirNum              ;; // KL0 
+ m.s     R14=  DataSizeGran           ;; // KG0
+ m.s     R15=  W_ACirNum              ;; // KL0 
    
     
-    KB0 = R1  ;;
-    KS0 = R2  ;;   
-    KI0 = R4  ;; 
+ m.s     KB0 = R1  ;;
+ m.s     KS0 = R2  ;;   
+ m.s     KI0 = R4  ;; 
   
-    KB1 = R1  ;;
-    KS1 = R5  ;;   
-    KI1 = R7  ;; 
+ m.s     KB1 = R1  ;;
+ m.s     KS1 = R5  ;;   
+ m.s     KI1 = R7  ;; 
    
-    KG0 = R14 ;;
-    KL0 = R15 ;;    
+ m.s     KG0 = R14 ;;
+ m.s     KL0 = R15 ;;    
     
      // for BIU2    
-    R1 =  SDA2DM0_START      ;; // KB for BIU2  
-    R2 =  DataSize           ;; // KS8   
-    R4 =  outW               ;; // KI8 
+ m.s     R1 =  SDA2DM0_START      ;; // KB for BIU2  
+ m.s     R2 =  DataSize           ;; // KS8   
+ m.s     R4 =  outW               ;; // KI8 
  
-    R5 =  outW *  DataSize   ;; // KS9   
-    R7 =  Col_OutRowBSNum    ;; // KI9
+ m.s     R5 =  outW *  DataSize   ;; // KS9   
+ m.s     R7 =  Col_OutRowBSNum    ;; // KI9
     
-    R14=  DataSizeGran       ;; // KG0
-    R15=  W_CCirNum          ;; // KL0
-    R16=  MaskL0             ;; // MaskX
-    R17=  MaskH0             ;; // MaskY
+ m.s     R14=  DataSizeGran       ;; // KG0
+ m.s     R15=  W_CCirNum          ;; // KL0
+ m.s     R16=  MaskL0             ;; // MaskX
+ m.s     R17=  MaskH0             ;; // MaskY
 
     
-    KB8 = R1  ;;
-    KS8 = R2  ;;   
-    KI8 = R4  ;;
+ m.s     KB8 = R1  ;;
+ m.s     KS8 = R2  ;;   
+ m.s     KI8 = R4  ;;
    
-    KB9 = R1  ;;
-    KS9 = R5  ;;    
-    KI9 = R7  ;; 
+ m.s     KB9 = R1  ;;
+ m.s     KS9 = R5  ;;    
+ m.s     KI9 = R7  ;; 
    
-    KG2 = R14 ;;
-    KL2 = R15 ;; 
-    KM2 = R16 ;;
-    KM2 = R17(H);;
+ m.s     KG2 = R14 ;;
+ m.s     KL2 = R15 ;; 
+ m.s     KM2 = R16 ;;
+ m.s     KM2 = R17(H);;
    
     // End BIU Configrure   
 //////////////////////////////////////////////////////////////////
 
-    NOP  ;;
-    NOP  ;;
-    NOP  ;;
-    CallM BicubicColTest(B);;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     CallM BicubicColTest(B);;
 
-    NOP ;;
-    NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -354,101 +354,101 @@ _start:
 // Interpolation in height direction
     // configure the MC
     // MC
-    R2 = H_MConfig        ;;
-    MC.w2 = R2            ;;
-    MC.r0 = R2            ;;
+ m.s     R2 = H_MConfig        ;;
+ m.s     MC.w2 = R2            ;;
+ m.s     MC.r0 = R2            ;;
 
 // configure the LOOP
-    R1 = ARowNum / 4  ;;  // continuous ld 4 times every circle
-    R2 = OutColBSNum  ;;
-    NOP ;;
-    NOP ;;
-    KI12 = R1 ;;
-    KI13 = R2 ;;
-    NOP ;;
-    NOP ;;
-    NOP ;;
-    NOP ;;
+ m.s     R1 = ARowNum / 4  ;;  // continuous ld 4 times every circle
+ m.s     R2 = OutColBSNum  ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     KI12 = R1 ;;
+ m.s     KI13 = R2 ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
 
     // BIU Configure   
     // for BIU0    
-    R1 =  SDA0DM1_START          ;; // KB for BIU0  
-    R2 =  BankSize               ;; // KS0
-    R3 =  outH % BS          ;; // KE0
-    R4 =  BS                     ;; // KI0  
+ m.s     R1 =  SDA0DM1_START          ;; // KB for BIU0  
+ m.s     R2 =  BankSize               ;; // KS0
+ m.s     R3 =  outH % BS          ;; // KE0
+ m.s     R4 =  BS                     ;; // KI0  
 
-    R5 =  outW *  DataSize   ;; // KS1  
-    R7 =  outH / BS          ;; // KI1
+ m.s     R5 =  outW *  DataSize   ;; // KS1  
+ m.s     R7 =  outH / BS          ;; // KI1
  
-    R8 = BlockSize          ;; // KS2
-    R10= OutColBSNum        ;; // KI2
+ m.s     R8 = BlockSize          ;; // KS2
+ m.s     R10= OutColBSNum        ;; // KI2
  
-    R14=  BlockGran          ;; // KG0
-    R15=  H_CCirNum          ;; // KL0
-    R16=  MaskL1             ;; // MaskX
-    R17=  MaskH1             ;; // MaskY
+ m.s     R14=  BlockGran          ;; // KG0
+ m.s     R15=  H_CCirNum          ;; // KL0
+ m.s     R16=  MaskL1             ;; // MaskX
+ m.s     R17=  MaskH1             ;; // MaskY
     
     
-    KB0 = R1  ;;
-    KS0 = R2  ;;
-    KE0 = R3  ;;
-    KI0 = R4  ;; 
+ m.s     KB0 = R1  ;;
+ m.s     KS0 = R2  ;;
+ m.s     KE0 = R3  ;;
+ m.s     KI0 = R4  ;; 
   
-    KB1 = R1  ;;   
-    KS1 = R5  ;;
-    KI1 = R7  ;; 
+ m.s     KB1 = R1  ;;   
+ m.s     KS1 = R5  ;;
+ m.s     KI1 = R7  ;; 
 
-    KB2 = R1  ;;   
-    KS2 = R8  ;;
-    KI2 = R10 ;; 
+ m.s     KB2 = R1  ;;   
+ m.s     KS2 = R8  ;;
+ m.s     KI2 = R10 ;; 
    
-    KG0 = R14 ;;
-    KL0 = R15 ;;
-    KM0 = R16 ;;
-    KM0 = R17(H);; 
+ m.s     KG0 = R14 ;;
+ m.s     KL0 = R15 ;;
+ m.s     KM0 = R16 ;;
+ m.s     KM0 = R17(H);; 
     
   
      // for BIU2    
-    R1 =  SDA2DM0_START      ;; // KB for BIU0  
-    R2 =  BankSize           ;; // KS0
-    R3 =  ARowPadNum % BS        ;; // KE0 
-    R4 =  BS                 ;; // KI0 
+ m.s     R1 =  SDA2DM0_START      ;; // KB for BIU0  
+ m.s     R2 =  BankSize           ;; // KS0
+ m.s     R3 =  ARowPadNum % BS        ;; // KE0 
+ m.s     R4 =  BS                 ;; // KI0 
  
-    R5 =  DataSize * outW        ;; // KS1  
-    R7 =  ARowPadNum / BS        ;; // KI1
+ m.s     R5 =  DataSize * outW        ;; // KS1  
+ m.s     R7 =  ARowPadNum / BS        ;; // KI1
 
-    R8 =  BlockSize          ;; // KS2
-    R10=  outW        ;; // KI2
+ m.s     R8 =  BlockSize          ;; // KS2
+ m.s     R10=  outW        ;; // KI2
     
-    R14=  BlockGran          ;; // KG0
-    R15=  H_ACirNum              ;; // KL0 
+ m.s     R14=  BlockGran          ;; // KG0
+ m.s     R15=  H_ACirNum              ;; // KL0 
 
     
-    KB8 = R1  ;;
-    KS8 = R2  ;;
-    KE8 = R3  ;;
-    KI8 = R4  ;; 
+ m.s     KB8 = R1  ;;
+ m.s     KS8 = R2  ;;
+ m.s     KE8 = R3  ;;
+ m.s     KI8 = R4  ;; 
   
-    KB9 = R1  ;;
-    KS9 = R5  ;;   
-    KI9 = R7  ;; 
+ m.s     KB9 = R1  ;;
+ m.s     KS9 = R5  ;;   
+ m.s     KI9 = R7  ;; 
 
-    KB10= R1  ;;
-    KS10= R8  ;;
-    KI10= R10 ;;
+ m.s     KB10= R1  ;;
+ m.s     KS10= R8  ;;
+ m.s     KI10= R10 ;;
    
-    KG2 = R14 ;;
-    KL2 = R15 ;; 
+ m.s     KG2 = R14 ;;
+ m.s     KL2 = R15 ;; 
 
 
-    NOP  ;;
-    NOP  ;;
-    NOP  ;;
-    CallM BicubicRowTest(B);;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     NOP  ;;
+ m.s     CallM BicubicRowTest(B);;
 
-    NOP ;;
-    NOP ;;
-    SPU.Stop ;;
+ m.s     NOP ;;
+ m.s     NOP ;;
+ m.s     SPU.Stop ;;
 
 
   
