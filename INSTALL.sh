@@ -117,7 +117,6 @@ newlib_err=0
 openocd_err=0
 
 # Install Gem5
-gem5_opt_mode='.opt'
 if [ "$gem5_en" -eq 1 ]
 then
   cd $root
@@ -164,6 +163,7 @@ then
     install -v $source_path/MaPUSim/ARM/configs/example/* -t $install_path/simulator/arm/system
     install -v -d $install_path/simulator/arm/common
     install -v $source_path/MaPUSim/ARM/configs/common/* -t $install_path/simulator/arm/common
+    install -v $source_path/MaPUSim/mapu_sim.sh -t $install_path/simulator/
   fi
 fi
 
@@ -241,12 +241,17 @@ then
     mkdir build_gcc
     cd build_gcc
     ../gcc/configure --prefix=$install_path/gcc-4.8.3 --with-gmp=$install_path/gmp-4.3.2 --with-mpfr=$install_path/mpfr-2.4.2 --with-mpc=$install_path/mpc-0.8.1 --enable-languages=c,c++ --disable-multilib
-    #export LD_LIBRARY_PATH=$install_path/gmp-4.3.2/lib:$install_path/mpfr-2.4.2/lib:$install_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
     make $MCFLAG
     make install
     cd $root
   fi
 
+  if [ -e "/opt/updated-tools/python-2.7.5/bin/python" ]
+  then python_flag="--with-python=/opt/updated-tools/python-2.7.5/bin/python"
+  else python_flag=
+  fi
+
+  install_path=${install_path}/apc
   # Build ragel first
   cd $root
   if [ -e "build_ragel" ] && [ "$debug_mode" -eq 0 ]
@@ -284,9 +289,9 @@ then
   cd build_llvm
   # libstdc++ is required while compiling llvm not only by the linker but also by the execution of tblgen
   # export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
-  $source_path/llvm-3.4/configure --prefix=$install_path $llvm_cfg \
-    --enable-cxx11 --enable-targets=mspu,mmpu,mmpulite,x86 CC=gcc CXX=g++
-  make RAGEL=$root/ragel/bin/ragel $MCFLAG || llvm_err=1
+  $source_path/llvm-3.5/configure --prefix=$install_path $llvm_cfg $python_flag \
+    --enable-cxx11 --enable-targets=mspu,mmpulite,x86 CC=gcc CXX=g++
+  make RAGEL=$root/ragel/bin/ragel CXXFLAGS="-DARCH_MAPU" $MCFLAG || llvm_err=1
   #install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
   if [ "$debug_mode" -eq 0 ]
   then make install
