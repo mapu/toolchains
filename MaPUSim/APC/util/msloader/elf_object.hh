@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <stdint.h>

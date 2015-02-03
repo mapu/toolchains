@@ -35,6 +35,7 @@
 #include <vector>
 #include <cstdio>
 #include <string.h>
+#include <unistd.h>
 #include "../../ext/mapudrv/mapu.h"
 #include "../../src/base/types.hh"
 

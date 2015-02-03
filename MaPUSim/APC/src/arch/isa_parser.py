@@ -965,10 +965,10 @@ class DMemEAOperand(Operand):
         c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 1;' % \
              (self.src_reg_idx, self.src_reg_idx)
         self.src_reg_idx += 1
-        c += '\n\t_srcRegIdx[%d] = (SlotNum - 10) * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag;' % \
+        c += '\n\t_srcRegIdx[%d] = (SlotNum - 10) * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag + 1;' % \
              (self.src_reg_idx)
         self.src_reg_idx += 1
-        c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 2;' % \
+        c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 1;' % \
              (self.src_reg_idx, self.src_reg_idx)
         self.src_reg_idx += 1
         c += '\n\t_srcRegIdx[%d] = (SlotNum - 10) * 4 + MISCREG_KG_BASE + Ctrl_Base_DepTag;' % \
@@ -1206,10 +1206,10 @@ class DMemEADestOperand(Operand):
         c += '\n\t_destRegIdx[%d] = _destRegIdx[%d - 1] + 1;' % \
              (idx, idx)
         idx += 1
-        c += '\n\t_destRegIdx[%d] = %s * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag;' % \
+        c += '\n\t_destRegIdx[%d] = %s * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag + 1;' % \
              (idx, self.reg_spec)
         idx += 1
-        c += '\n\t_destRegIdx[%d] = _destRegIdx[%d - 1] + 2;' % \
+        c += '\n\t_destRegIdx[%d] = _destRegIdx[%d - 1] + 1;' % \
              (idx, idx)
         idx += 1
         c += '\n\t_destRegIdx[%d] = %s * 4 + MISCREG_KG_BASE + Ctrl_Base_DepTag;' % \
