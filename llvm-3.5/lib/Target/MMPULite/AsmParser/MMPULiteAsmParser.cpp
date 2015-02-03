@@ -711,6 +711,23 @@ void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
   if (!CurHMacro->Body->isPendingLabelsEmpty()) {
     // Found a matching one in pending labels
     CurHMacro->Body->PendingLabels.back().second = true;
+    // PendingLabels may have the same name, so all of them should
+    // be set to true here, and if any disorder happens, it will be detected
+    bool continuous = true;
+    for (int32_t i = CurHMacro->Body->PendingLabels.size() - 1;
+         i >= 0; i--) {
+      if (!continuous &&
+          CurHMacro->Body->PendingLabels[i].first->getSymName() ==
+          Symbol->getName())
+        TokError("Loop label \"" +
+                 CurHMacro->Body->PendingLabels[i].first->getSymName() +
+                 "\" used by several LPTOs is incorrect. " + Symbol->getName() +
+                 " is disordered.");
+      if (CurHMacro->Body->PendingLabels[i].first->getSymName() ==
+          Symbol->getName())
+        CurHMacro->Body->PendingLabels[i].second = true;
+      else continuous = false;
+    }
     while (!MatchedLabels.empty()) {
       CurHMacro->Body->PendingLabels.push_back(MatchedLabels.back());
       MatchedLabels.pop_back();
