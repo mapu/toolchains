@@ -904,7 +904,7 @@ const uint64_t MMPULiteScheduler::ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 
    2, 1, 2, 1, 2, 1, 2, 1,/*IMACT*/ 2, 1, 2, 1, 2, 1, 2, 1,/*FALUT*/
    2, 1, 2, 1, 2, 1, 2, 1,/*FMACT*/}, /// MR2ToMACC
   {3, 1/*BIU0W*/, 3, 1/*BIU1W*/, 3, 1/*BIU2W*/}, /// MR3ToBIU
-  {4, 1/*BIU0W*/, 4, 1/*BIU1W*/, 4, 1/*BIU2W*/}, /// MR3ToBIUKG
+  {3, 1/*BIU0W*/, 3, 1/*BIU1W*/, 3, 1/*BIU2W*/}, /// MR3ToBIUKG
   {},                            /// NOP
   {},                            /// REPEATIMM
   {},                            /// REPEATK
