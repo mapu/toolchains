@@ -43,6 +43,6 @@ read:
 
   # let simulator handle all the remaining jobs.
   # and it also set R0 for _read() to return.
-  syscall 3;; # '3' is syscall ID for read.
+  m.s syscall 3;; # '3' is syscall ID for read.
 
-  jump J30;;
+  m.s jump J30;;

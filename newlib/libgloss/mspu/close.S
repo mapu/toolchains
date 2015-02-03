@@ -39,6 +39,6 @@ close:
 
   # let simulator handle all the remaining jobs.
   # and it also set R0 for _close() to return.
-  syscall 6;; # '6' is syscall ID for close.
+  m.s syscall 6;; # '6' is syscall ID for close.
 
-  jump J30;;
+  m.s jump J30;;

@@ -4,5 +4,5 @@
 
 __mspu_get_sp:
 
-  R0 = SP;;
-  jump J30;;
+  m.s R0 = SP;;
+  m.s jump J30;;

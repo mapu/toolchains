@@ -25,4 +25,4 @@ _DEFUN (_exit, (rc),
   .text
 
 _exit:
-  spustop;;
+  m.s spustop;;

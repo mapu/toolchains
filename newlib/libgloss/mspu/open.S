@@ -44,6 +44,6 @@ open:
 
   # let simulator handle all the remaining jobs.
   # and it also set R0 for _open() to return.
-  syscall 5;; # '5' is syscall ID for open.
+  m.s syscall 5;; # '5' is syscall ID for open.
 
-  jump J30;;
+  m.s jump J30;;

@@ -12,12 +12,12 @@
 
 	.global	setjmp
 setjmp:              # frameless function
-	J2 = R2;;        # first arg
-	[J2 + 0] = J30;;
-	[J2 + 4] = SP ;;
-	[J2 + 8] = FP ;;
-	R2 = 0;;          # return 0 to caller to indicate env is saved.
-	jump J30;;
+	m.s J2 = R2;;        # first arg
+	m.s [J2 + 0] = J30;;
+	m.s [J2 + 4] = SP ;;
+	m.s [J2 + 8] = FP ;;
+	m.s R2 = 0;;          # return 0 to caller to indicate env is saved.
+	m.s jump J30;;
 
 
 
@@ -25,9 +25,9 @@ setjmp:              # frameless function
 
 	.global	longjmp
 longjmp:
-	J2  = R2;;
-	J30 = [J2 + 0];;
-	SP  = [J2 + 4];;
-	FP  = [J2 + 8];;
-	R2 = R3;;
-	jump J30;;
+	m.s J2  = R2;;
+	m.s J30 = [J2 + 0];;
+	m.s SP  = [J2 + 4];;
+	m.s FP  = [J2 + 8];;
+	m.s R2 = R3;;
+	m.s jump J30;;

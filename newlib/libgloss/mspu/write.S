@@ -44,6 +44,6 @@ write:
 
   # let simulator handle all the remaining jobs.
   # and it also set R0 for _write() to return.
-  syscall 4;; # '4' is syscall ID for write.
+  m.s syscall 4;; # '4' is syscall ID for write.
 
-  jump J30;;
+  m.s jump J30;;
