@@ -281,6 +281,9 @@ do
       vncport=`cat m5out/err.log | grep -o -e 'vncserver.*' | awk '{print $5}'`
       apcport=`cat m5out/err.log | grep -o -e 'realview\.apc.*' | awk '{print $5}'`
       gdbport=`cat m5out/err.log | grep -o -e 'remote gdb #0.*' | awk '{print $6}'`
+      if [ "$gdbport" == "" ]
+      then continue
+      fi
       shmport=`cat m5out/err.log | grep -o -e 'Share memory key is .*' | awk '{print $5}'`
       shmlist=`ipcs -m | grep '^0x' | awk '{print $1}' | tr [a-z] [A-Z]`
       for shm in $shmlist
@@ -313,6 +316,9 @@ do
     $term $titl_flag$title $geom_flag$1 $font_flag -e \
       "${apcsim} $trace_apc -e --stderr-file=err1.log ${apcsys} -c $apcport -k $shmport" &
     sleep 1
+    while [ ! -e m5out/err1.log ]
+    do :
+    done
     shift
   ;;
   "UART_Terminal" )

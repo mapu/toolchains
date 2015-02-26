@@ -142,6 +142,9 @@ then
     install -v $source_path/MaPUSim/APC/configs/example/* -t $install_path/simulator/apc/system
     install -v -d $install_path/simulator/apc/common
     install -v $source_path/MaPUSim/APC/configs/common/* -t $install_path/simulator/apc/common
+    install -v -d $install_path/simulator/apc/utils
+    install -v $source_path/MaPUSim/APC/util/pipeview.sh -t $install_path/simulator/apc/utils
+    install -v $source_path/MaPUSim/APC/util/mapu-pipeview.py -t $install_path/simulator/apc/utils
     install -v -d $install_path/simulator/libs
     #install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
     #install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
@@ -155,6 +158,8 @@ then
   fi
   cd build_gem5_arm
   scons -C $source_path/MaPUSim/ARM build/ARM/gem5$gem5_opt_mode CPU_MODELS=AtomicSimpleCPU $MCFLAG || gem5_err=1
+  make -C $source_path/MaPUSim/ARM/util/term default
+  cd $root
   if [ "$debug_mode" -eq 0 ]
   then
     install -v -d $install_path/simulator/arm
@@ -163,8 +168,11 @@ then
     install -v $source_path/MaPUSim/ARM/configs/example/* -t $install_path/simulator/arm/system
     install -v -d $install_path/simulator/arm/common
     install -v $source_path/MaPUSim/ARM/configs/common/* -t $install_path/simulator/arm/common
+    install -v -d $install_path/simulator/arm/utils
+    install -v $source_path/MaPUSim/ARM/util/term/m5term -t $install_path/simulator/arm/utils
     install -v $source_path/MaPUSim/mapu_sim.sh -t $install_path/simulator/
   fi
+  make -C $source_path/MaPUSim/ARM/util/term clean
 fi
 
 # Install llvm
