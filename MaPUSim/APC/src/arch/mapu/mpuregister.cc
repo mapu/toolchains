@@ -640,11 +640,7 @@ uint8_t *MPURegister::operator *(const uint8_t *rhs) {
       double temp0 = ((double)storage.vub[i])/256.0; 
       double temp1 = ((double)rhs[i])/256.0;
       double temp2 = (temp0 * temp1) >= 1 ? 255.0/256.0 : (temp0 * temp1);
-      sh = temp2 * 256.0;
-      if (!trunc )
-        res[i] = db[1];
-      else
-        res[i] = db[0];
+      res[i] = temp2 * 256.0;
     }
   }
 
@@ -668,11 +664,7 @@ uint16_t *MPURegister::operator *(const uint16_t *rhs) {
       double temp0 = ((double)storage.vuh[i])/65536.0; 
       double temp1 = ((double)rhs[i])/65536.0;
       double temp2 = (temp0 * temp1) >= 1 ? 65535.0/65536.0 : (temp0 * temp1);
-      sw = temp2 * 65536.0;
-      if (!trunc )
-        res[i] = dh[1];
-      else
-        res[i] = dh[0];
+      res[i] = temp2 * 65536.0;
     }
   }
 
@@ -692,14 +684,10 @@ uint32_t *MPURegister::operator *(const uint32_t *rhs) {
       else
         res[i] = dw[0];
     }else {
-      double temp0 = ((double)storage.vuw[i])/2147483648.0; 
-      double temp1 = ((double)rhs[i])/2147483648.0;
-      double temp2 = (temp0 * temp1) >= 1 ? 2147483647.0/2147483648.0 :(temp0 * temp1);
-      sd = temp2 * 2147483648.0;
-      if (!trunc )
-        res[i] = dw[1];
-      else
-        res[i] = dw[0];
+      double temp0 = ((double)storage.vuw[i])/4294967296.0;
+      double temp1 = ((double)rhs[i])/4294967296.0;
+      double temp2 = (temp0 * temp1) >= 1 ? 4294967295.0/4294967296.0 :(temp0 * temp1);
+      res[i] = temp2 * 4294967296.0;
     }
   }
   return res;
@@ -722,11 +710,7 @@ int8_t *MPURegister::operator *(const int8_t *rhs) {
       double temp1 = ((double)rhs[i])/128.0;
       double temp2 = (temp0 * temp1) >= 1 ? 127.0/128.0 :
                      (temp0 * temp1) < -1 ? -1 : (temp0 * temp1);
-      sh = temp2 * 128.0;
-      if (!trunc )
-        res[i] = db[1];
-      else
-        res[i] = db[0];
+      res[i] = temp2 * 128.0;
     }
   }
   return res;
@@ -749,11 +733,7 @@ int16_t *MPURegister::operator *(const int16_t *rhs) {
       double temp1 = ((double)rhs[i])/32768.0;
       double temp2 = (temp0 * temp1) >= 1 ? 32767.0/32768.0 :
                      (temp0 * temp1) < -1 ? -1 : (temp0 * temp1);
-      sw = temp2 * 32768.0;
-      if (!trunc )
-        res[i] = dh[1];
-      else
-        res[i] = dh[0];
+      res[i] = temp2 * 32768.0;
     }
   }
   return res;
@@ -772,15 +752,11 @@ int32_t *MPURegister::operator *(const int32_t *rhs) {
       else
         res[i] = dw[0];
     }else {
-      double temp0 = ((double)storage.vw[i])/65536.0; 
-      double temp1 = ((double)rhs[i])/65536.0;
-      double temp2 = (temp0 * temp1) >= 1 ? 65535.0/65536.0 :
+      double temp0 = ((double)storage.vw[i])/2147483648.0;
+      double temp1 = ((double)rhs[i])/2147483648.0;
+      double temp2 = (temp0 * temp1) >= 1 ? 2147483647.0/2147483648.0 :
                      (temp0 * temp1) < -1 ? -1 : (temp0 * temp1);
-      sd = temp2 * 65536.0;
-      if (!trunc )
-        res[i] = dw[1];
-      else
-        res[i] = dw[0];
+      res[i] = temp2 * 2147483647.0;
     }
   }
   return res;
