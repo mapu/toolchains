@@ -8398,10 +8398,12 @@ void msputools::Link::ConstructJob(Compilation &C, const JobAction &JA,
   // default linker script
   if(!Args.hasArg(options::OPT_T_Group))
   {
-    CmdArgs.push_back(Args.MakeArgString("-T" + D.Dir + "/mspu.c.ld"));
+    //    Modification start @xiesl
+    //CmdArgs.push_back(Args.MakeArgString("-T" + D.Dir + "/mspu.c.ld"));
+    CmdArgs.push_back(Args.MakeArgString("-T" + D.Dir + "/../lib/mspu/lib/c.ld"));
+    //    Modification end   @xiesl
   }
-
-  // the first input file
+ // the first input file
   CmdArgs.push_back(Args.MakeArgString(getToolChain().GetFilePath("crt0.o")));
 
   // input files

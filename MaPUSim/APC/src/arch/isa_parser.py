@@ -1003,7 +1003,7 @@ class DMemEAOperand(Operand):
         c += '\n\t_destRegIdx[%d] = _destRegIdx[%d - 1] + 1;' % \
              (self.dest_reg_idx, self.dest_reg_idx)
         self.dest_reg_idx += 1
-        c += '\n\t_destRegIdx[%d] = (SlotNum - 10) * 4 + MISCREG_KC_BASE + Ctrl_Base_DepTag;' % \
+        c += '\n\t_destRegIdx[%d] = (SlotNum - 10) * 4 + MISCREG_KI_BASE + Ctrl_Base_DepTag;' % \
              (self.dest_reg_idx)
         self.dest_reg_idx += 1
         c += '\n\t_destRegIdx[%d] = _destRegIdx[%d - 1] + 1;' % \
@@ -1113,16 +1113,16 @@ class DMemEAOperand(Operand):
               (self.dest_reg_idx + idx, self.base_name, idx - base)
         idx += 1
         base = idx
-        wb += 'xc->setMiscRegOperand(this, %s, %s.KC[%d]);\n' % \
+        wb += 'xc->setMiscRegOperand(this, %s, %s.KI[%d]);\n' % \
               (self.dest_reg_idx + idx, self.base_name, idx - base)
         idx += 1
-        wb += 'xc->setMiscRegOperand(this, %s, %s.KC[%d]);\n' % \
+        wb += 'xc->setMiscRegOperand(this, %s, %s.KI[%d]);\n' % \
               (self.dest_reg_idx + idx, self.base_name, idx - base)
         idx += 1
-        wb += 'xc->setMiscRegOperand(this, %s, %s.KC[%d]);\n' % \
+        wb += 'xc->setMiscRegOperand(this, %s, %s.KI[%d]);\n' % \
               (self.dest_reg_idx + idx, self.base_name, idx - base)
         idx += 1
-        wb += 'xc->setMiscRegOperand(this, %s, %s.KC[%d]);\n' % \
+        wb += 'xc->setMiscRegOperand(this, %s, %s.KI[%d]);\n' % \
               (self.dest_reg_idx + idx, self.base_name, idx - base)
         return wb
 

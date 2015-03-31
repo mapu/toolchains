@@ -567,6 +567,8 @@ class MaPU_Board(RealView):
     cddrctrl       = IsaFake(pio_addr=0x54800000, pio_size='1MB')
     ddr0ctrl       = IsaFake(pio_addr=0x54A00000, pio_size='1MB')
     ddr1ctrl       = IsaFake(pio_addr=0x54B00000, pio_size='1MB')
+    phy0           = IsaFake(pio_addr=0x50360000, pio_size='64kB')
+    phy1           = IsaFake(pio_addr=0x50370000, pio_size='64kB')
     rtc            = PL031(pio_addr=0x50480000, int_num=68)
 
     #l2x0_fake      = IsaFake(pio_addr=0x2C100000, pio_size=0xfff)
@@ -626,6 +628,8 @@ class MaPU_Board(RealView):
        self.cddrctrl.pio        = bus.master
        self.ddr0ctrl.pio        = bus.master
        self.ddr1ctrl.pio        = bus.master
+       self.phy0.pio            = bus.master
+       self.phy1.pio            = bus.master
        self.rtc.pio             = bus.master
        self.apc.pio             = bus.master
        self.sdc.pio             = bus.master

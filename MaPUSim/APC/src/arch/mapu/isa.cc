@@ -149,8 +149,6 @@ void ISA::setMiscReg(int misc_reg,
           misc_reg, miscRegNames[misc_reg], val);
 
   miscRegFile[misc_reg][reg_sel] = val;
-  if (misc_reg >= MISCREG_KI_BASE && misc_reg < MISCREG_KM_BASE)
-    miscRegFile[misc_reg + MISCREG_KC_BASE - MISCREG_KI_BASE][reg_sel] = val;
   if (misc_reg >= MISCREG_MC_BASE && misc_reg < MISCREG_MC_BASE + 5) {
     MRegCtrlCtx[misc_reg - MISCREG_MC_BASE].MStart = miscRegFile[misc_reg][reg_sel] & 0x7F;
     MRegCtrlCtx[misc_reg - MISCREG_MC_BASE].StepSize =
@@ -171,12 +169,8 @@ void ISA::setMiscReg(int misc_reg,
   }
 }
 
-void ISA::setMPUReg(int mpu_reg,
-                    const MPUReg &val,
-                    ThreadID tid) {
-
-  DPRINTF(MapuPRA, "[tid:%i]: Setting MPU Register:%u to ", tid,
-          mpu_reg);
+void ISA::setMPUReg(int mpu_reg, const MPUReg &val, ThreadID tid) {
+  DPRINTF(MapuPRA, "[tid:%i]: Setting MPU Register:%u to ", tid, mpu_reg);
   for (int i = 0; i < 64; i++)
     DPRINTFR(MapuPRA, "%#02x ", val[i]);
   DPRINTFR(MapuPRA, ".\n");
@@ -248,7 +242,7 @@ int ISA::flattenMPURegIndex(int reg) {
     else
       return (reg >> 4) + NumMRegs + NumShu0TRegs * uid;
   case 0x2:
-    if (idx != 0) return -1;
+    //if (idx != 0) return -1;
     return BIU0W + uid;
   case 0x3:
     return idx + NumMRegs + NumShu0TRegs + NumShu1TRegs + NumIaluTRegs * uid;

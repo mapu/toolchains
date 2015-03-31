@@ -36,11 +36,6 @@
 ENTRY( __mspu_init ) ;
 PROVIDE(__mspu_stack_top = 0x20000) ;
 
-SEARCH_DIR(/opt/mapu-newlib/mspu/lib);
-
-/* STARTUP( crt0.o ); */
-/* GROUP( libgloss_mspu.a ); */
-
 MEMORY {
   IM        : ORIGIN = 0x000000	, LENGTH = 0x20000
   SDA0.DM0  : ORIGIN = 0x400000	, LENGTH = 0x40000
@@ -62,10 +57,10 @@ MEMORY {
 SECTIONS {
   /* All .text & .data & .bss are located in IM */
   .text 	  :	{   *(.text)   } >IM = 0x00000080
-  .data	 	  :	{   *(.data*)  } >IM
   .rodata 	:	{   *(.rodata*)} >IM
-  .comm    	:	{   *(.comm)   } >IM
+  .sbss         :       {   *(.sbss*)} >IM
   .bss     	:	{   *(.bss)    } >IM
+  .data	 	  :	{   *(.data*)  } >IM
 
   /* tag start point for heap */
 	__mspu_heap_start = ALIGN(0x8);

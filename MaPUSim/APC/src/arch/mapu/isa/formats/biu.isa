@@ -47,6 +47,10 @@ void BiuOp::printFlags(std::ostream &os) const {
   std::string split = "";
   if (Flags) {
     os << "(";
+    if (BIU_IND) {
+      os << split << "I";
+      split = ",";
+    }
     if (BIU_M) {
       os << "M";
       split = ",";
@@ -180,7 +184,7 @@ def template BiuEACompExecute {{
 def format BiuOps(memacc_code, inst_flags = []) {{
   ea_code = '''
     class br {
-      uint16_t tab[1 << 8];
+      uint32_t tab[1 << 8];
     public:
       br() {
         for (unsigned i = 0; i < (1 << 8); i++) {
@@ -194,10 +198,10 @@ def format BiuOps(memacc_code, inst_flags = []) {{
       }
       Addr bitrev(Addr bits) {
         Addr res = bits & 0xFFFFFFFF00000000ULL;
-        res |= tab[bits & 0xFF];
-        res |= tab[(bits >> 8) & 0xFF] << 8;
-        res |= tab[(bits >> 16) & 0xFF] << 16;
-        res |= tab[(bits >> 24) & 0xFF] << 24;
+        res |= tab[bits & 0xFF] << 24;
+        res |= tab[(bits >> 8) & 0xFF] << 16;
+        res |= tab[(bits >> 16) & 0xFF] << 8;
+        res |= tab[(bits >> 24) & 0xFF];
         return res;
       } 
     }; 
@@ -259,11 +263,11 @@ def format BiuOps(memacc_code, inst_flags = []) {{
       if (BIU_A) {
         switch (KL) {
         case 1:
-          if (KC[0] != 1) KB[0] = KB[0] + KS[0];
+          if (KI[0] != 1) KB[0] = KB[0] + KS[0];
           break;
         case 2:
-          if (KC[0] == 1) {
-            if ((KC[1] != 1 || KE[0]) && KC[1]) {
+          if (KI[0] == 1) {
+            if ((KI[1] != 1 || KE[0]) && KI[1]) {
               KB[1] = KB[1] + KS[1];
               KB[0] = KB[1];
             }
@@ -272,13 +276,13 @@ def format BiuOps(memacc_code, inst_flags = []) {{
           }
           break;
         case 3:
-          if (KC[0] == 1) {
-            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] != 1 || KE[1]) && KC[2])) {
+          if (KI[0] == 1) {
+            if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+                ((KI[2] != 1 || KE[1]) && KI[2])) {
               KB[2] = KB[2] + KS[2];
               KB[1] = KB[2];
               KB[0] = KB[1];
-            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+            } else if ((KI[1] != 1 || KE[0]) && KI[1]) {
               KB[1] = KB[1] + KS[1];
               KB[0] = KB[1];
             }
@@ -287,20 +291,20 @@ def format BiuOps(memacc_code, inst_flags = []) {{
           }
           break;
         case 4:
-          if (KC[0] == 1) {
-            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
-              ((KC[3] != 1 || KE[2]) && KC[3])) {
+          if (KI[0] == 1) {
+            if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+              ((KI[2] == 1 && !KE[1]) || !KI[2]) &&
+              ((KI[3] != 1 || KE[2]) && KI[3])) {
               KB[3] = KB[3] + KS[3];
               KB[2] = KB[3];
               KB[1] = KB[2];
               KB[0] = KB[1];
-            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] != 1 || KE[1]) && KC[2])) {
+            } else if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+              ((KI[2] != 1 || KE[1]) && KI[2])) {
               KB[2] = KB[2] + KS[2];
               KB[1] = KB[2];
               KB[0] = KB[1];
-            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
+            } else if ((KI[1] != 1 || KE[0]) && KI[1]) {
               KB[1] = KB[1] + KS[1];
               KB[0] = KB[1];
             }
@@ -315,76 +319,76 @@ def format BiuOps(memacc_code, inst_flags = []) {{
       if (BIU_K) {
         switch (KL) {
         case 1:
-          KC[0]--;
+          KI[0]--;
           break;
         case 2:
-          if (KC[0] == 1) {
-            if ((KC[1] == 1 && !KE[0]) || !KC[1]) {
-              KC[0] = 0;
-              KC[1] = 0;
-            } else if (KC[1] == 1 && KE[0]) {
-              KC[0] = KE[0];
-              KC[1] = 0;
+          if (KI[0] == 1) {
+            if ((KI[1] == 1 && !KE[0]) || !KI[1]) {
+              KI[0] = 0;
+              KI[1] = 0;
+            } else if (KI[1] == 1 && KE[0]) {
+              KI[0] = KE[0];
+              KI[1] = 0;
             } else {
-              KC[0] = KI[0];
-              KC[1]--;
+              KI[0] = KC[0];
+              KI[1]--;
             }
           } else {
-            KC[0]--;
+            KI[0]--;
           }
           break;
         case 3:
-          if (KC[0] == 1) {
-            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] == 1 && !KE[1]) || !KC[2])) {
-              KC[0] = 0;
-              KC[1] = 0;
-              KC[2] = 0;
-            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] != 1 || KE[1]) && KC[2])) {
-              KC[0] = KI[0];
-              if (KC[2] == 1) KC[1] = KE[1];
-              else KC[1] = KI[1];
-              KC[2]--;
-            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
-              if (KC[1] == 1) KC[0] = KE[0];
-              else KC[0] = KI[0];
-              KC[1]--;
+          if (KI[0] == 1) {
+            if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+              ((KI[2] == 1 && !KE[1]) || !KI[2])) {
+              KI[0] = 0;
+              KI[1] = 0;
+              KI[2] = 0;
+            } else if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+              ((KI[2] != 1 || KE[1]) && KI[2])) {
+              KI[0] = KC[0];
+              if (KI[2] == 1) KI[1] = KE[1];
+              else KI[1] = KC[1];
+              KI[2]--;
+            } else if ((KI[1] != 1 || KE[0]) && KI[1]) {
+              if (KI[1] == 1) KI[0] = KE[0];
+              else KI[0] = KC[0];
+              KI[1]--;
             }
           } else {
-            KC[0]--;
+            KI[0]--;
           }
           break;
         case 4:
-          if (KC[0] == 1) {
-            if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
-              ((KC[3] == 1 && !KE[2]) || !KC[3])) {
-              KC[0] = 0;
-              KC[1] = 0;
-              KC[2] = 0;
-              KC[3] = 0;
-            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] == 1 && !KE[1]) || !KC[2]) &&
-              ((KC[3] != 1 || KE[2]) && KC[3])) {
-              KC[0] = KI[0];
-              KC[1] = KI[1];
-              if (KC[3] == 1) KC[2] = KE[2];
-              else KC[2] = KI[2];
-              KC[3]--;
-            } else if (((KC[1] == 1 && !KE[0]) || !KC[1]) &&
-              ((KC[2] != 1 || KE[1]) && KC[2])) {
-              KC[0] = KI[0];
-              if (KC[2] == 1) KC[1] = KE[1];
-              else KC[1] = KI[1];
-              KC[2]--;
-            } else if ((KC[1] != 1 || KE[0]) && KC[1]) {
-              if (KC[1] == 1) KC[0] = KE[0];
-              else KC[0] = KI[0];
-              KC[1]--;
+          if (KI[0] == 1) {
+            if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+                ((KI[2] == 1 && !KE[1]) || !KI[2]) &&
+                ((KI[3] == 1 && !KE[2]) || !KI[3])) {
+              KI[0] = 0;
+              KI[1] = 0;
+              KI[2] = 0;
+              KI[3] = 0;
+            } else if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+                       ((KI[2] == 1 && !KE[1]) || !KI[2]) &&
+                       ((KI[3] != 1 || KE[2]) && KI[3])) {
+              KI[0] = KC[0];
+              KI[1] = KC[1];
+              if (KI[3] == 1) KI[2] = KE[2];
+              else KI[2] = KC[2];
+              KI[3]--;
+            } else if (((KI[1] == 1 && !KE[0]) || !KI[1]) &&
+                       ((KI[2] != 1 || KE[1]) && KI[2])) {
+              KI[0] = KC[0];
+              if (KI[2] == 1) KI[1] = KE[1];
+              else KI[1] = KC[1];
+              KI[2]--;
+            } else if ((KI[1] != 1 || KE[0]) && KI[1]) {
+              if (KI[1] == 1) KI[0] = KE[0];
+              else KI[0] = KC[0];
+              KI[1]--;
             }
           } else {
-            KC[0]--;
+            KI[0]--;
           }
           break;
         default: break;

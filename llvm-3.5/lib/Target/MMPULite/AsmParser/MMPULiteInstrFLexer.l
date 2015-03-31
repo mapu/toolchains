@@ -54,7 +54,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
@@ -62,7 +62,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
@@ -70,7 +70,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
@@ -159,7 +159,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
@@ -167,7 +167,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }
@@ -175,7 +175,7 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
-  if (yylval->val<8) return IMM3;
+  if (yylval->val<=8) return IMM3;
   else if (yylval->val<32) return IMM5;
   else return IMM;
 }

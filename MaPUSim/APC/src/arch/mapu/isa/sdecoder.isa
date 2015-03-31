@@ -790,7 +790,7 @@ decode OPCODE_HI default Unknown::unknown() {
       0x4: decode KTYPE {                                                    // K Reg transfer
         0x3: r2ki ({{KIReg = Rm;}}, Is2cycle);
         0x7: r2stat ({{fatal("CStat cannot be modified from SPU side.\n");}}, Is2cycle);
-        default: r2k ({{KREGs = Rm;}}, Is1cycle);
+        default: r2k ({{KREGs = Rm;}}, Is2cycle);
       }
       0x5:  k2r({{ 
         if (KTYPE != 7)

@@ -21,7 +21,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
     }
     0x3: decode MR3_EN default Nop::Nop(mr3) {
       0x1: decode MRKG {
-        0x0: mr3   ({{ MPUd = Mr3s; }}, Mr0123Op);
+        0x0: mr3   ({{ MPUd4b = Mr3s; }}, Mr0123Op);
         0x1: mr3kg ({{ BiuCtxD = Mr3s; }}, Mr2WOp);
       }
     }
@@ -503,7 +503,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
         MPUReg result;
         ImacTm.settrunc(false);
         ImacTm.setInt(false);
-        result.cmul(ImacTm ,ImacTn,ImacTp);    
+        result.cmul(ImacTm, ImacTn, ImacTp);    
         MPUd = result;    
       }}, ImacMASOp);
       0x8: imacma ({{

@@ -47,8 +47,8 @@ void IaluOp::printDest(std::ostream &os, int dest) const {
 void IaluOp::printLeft(std::ostream &os) const {
   if (IALU_OP == 0x19 ) // division
     os << "DIVQ";
-  else if (IALU_OP == 0x1a) os << "MDIVR";
-  else if (IALU_OP == 0x1a) os << "MDIVQ";
+  else if (IALU_OP == 0x1A) os << "MDIVR";
+  else if (IALU_OP == 0x1A) os << "MDIVQ";
   else if (IALU_OP == 0x1C) os << "DIVR";
   else
     MpuStaticInst::printLeft(os);
@@ -113,14 +113,9 @@ void IaluOp::printExpTail(std::ostream &os) const {
     case 0x5:
     case 0x6:
     case 0xE: os << ")"; return;
+    case 0xC: if (IALU_IMM) os << "<<" << IALU_IMM5; return;
+    case 0xD: if (IALU_IMM) os << ">>" << IALU_IMM5; return;
     default: return;
-  }
-  if (IALU_IMM) {
-    switch (IALU_OP) {
-      case 0xC: os << "<<" << IALU_IMM5; return;
-      case 0xD: os << ">>" << IALU_IMM5; return;
-      default: return;
-    }
   }
 }
 

@@ -487,6 +487,7 @@ class InOrderCPU : public BaseCPU
     //static const uint8_t INST_NONSPEC                       = 22;
     //static const uint8_t INST_MPU_ST                        = 21;
     //static const uint8_t INST_MPU_LD                        = 20;
+    static const uint8_t INST_CSU_OP                        = 21;
     static const uint8_t INST_MPU_SN                        = 20;
     static const uint8_t INST_1CYCLE                        = 19;
     static const uint8_t INST_2CYCLE                        = 18;
@@ -511,8 +512,9 @@ class InOrderCPU : public BaseCPU
              (inst->numSrcRegs() << INST_SRC_REGS) |
              (inst->is2cycle() << INST_2CYCLE) |
              (inst->is3cycle() << INST_3CYCLE) |
-             (inst->is3cycle() << INST_4CYCLE) |
+             (inst->is4cycle() << INST_4CYCLE) |
              (inst->is5cycle() << INST_5CYCLE) |
+             (inst->isCSUOp() << INST_CSU_OP) |
              (inst->staticInst->dest() << INST_MPU_SN) |
              inst->isMCode();
         return id;

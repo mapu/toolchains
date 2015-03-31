@@ -975,7 +975,7 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
   uint32_t wb_stage = 0;
   switch (inst->mopClass()) {
   case Mr0123Op: wb_stage = 2; break;
-  case Mr2WOp: wb_stage = 3; break;
+  case Mr2WOp: wb_stage = 4; break;
   case ShuIndCombOp: wb_stage = 2; break;
   case IaluArithOp: wb_stage = 3; break;
   case IaluDivOp: wb_stage = 1; break;

@@ -89,6 +89,7 @@ def operands {{
     # MPU Operands
     'MPUd': ('MPUReg', 'v', 'DEST', 'IsVector', 4),
     'MPUd6b': ('MPUReg', 'v', 'DEST6B', 'IsVector', 4),
+    'MPUd4b': ('MPUReg', 'v', 'DEST4B', 'IsVector', 4),
     'MPUhd': ('MPURegHi', 'v', 'DEST', 'IsVector', 4),
     'BiuCtxD': ('DMemEADest', 'bc', 'BIUDEST', 'IsInteger', 5),
 

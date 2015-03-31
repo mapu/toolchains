@@ -224,7 +224,7 @@ void MpuRfsUnit::execute(int slot_idx) {
     InOrderCPU::RegType reg_type;
     RegIndex reg_idx = inst->_srcRegIdx[mr_idx];
     // Uniform the register index format into {index, unitid, groupid}.
-    // This will help isa flat the index
+    // This will help isa flatten the index
     if (reg_idx >= 128)
       reg_idx = (reg_idx >> 5) | (inst->pcState().sn() << 4);
       // This is M[I++] or M[S++], so record the slot num at <7:5>

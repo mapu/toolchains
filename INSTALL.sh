@@ -146,9 +146,9 @@ then
     install -v $source_path/MaPUSim/APC/util/pipeview.sh -t $install_path/simulator/apc/utils
     install -v $source_path/MaPUSim/APC/util/mapu-pipeview.py -t $install_path/simulator/apc/utils
     install -v -d $install_path/simulator/libs
-    #install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
-    #install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
-    #install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
+    install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
+    install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
+    install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
   fi
   if [ -e "build_gem5_arm" ] && [ "$debug_mode" -eq 0 ]
   then rm -rf build_gem5_arm
@@ -178,8 +178,14 @@ fi
 # Install llvm
 if [ "$llvm_en" -eq 1 ]
 then
-  CC=gcc
-  CXX=g++
+  if [ -e "/opt/updated-tools/gcc-4.8.2/bin/gcc" ]
+  then
+    CC=/opt/updated-tools/gcc-4.8.2/bin/gcc
+    CXX=/opt/updated-tools/gcc-4.8.2/bin/g++
+  else
+    CC=gcc
+    CXX=g++
+  fi
   version=`$CC --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
   ver_1st=`echo $version | awk -F '.' '{print $1}'`
   ver_2nd=`echo $version | awk -F '.' '{print $2}'`
@@ -296,11 +302,11 @@ then
   fi
   cd build_llvm
   # libstdc++ is required while compiling llvm not only by the linker but also by the execution of tblgen
-  # export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
   $source_path/llvm-3.5/configure --prefix=$install_path $llvm_cfg $python_flag \
-    --enable-cxx11 --enable-targets=mspu,mmpulite,x86 CC=gcc CXX=g++
+    --enable-cxx11 --enable-targets=mspu,mmpulite,x86 CC=$CC CXX=$CXX
   make RAGEL=$root/ragel/bin/ragel CXXFLAGS="-DARCH_MAPU" $MCFLAG || llvm_err=1
-  #install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
+  install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
   if [ "$debug_mode" -eq 0 ]
   then make install
   fi
@@ -341,11 +347,11 @@ then
   $source_path/newlib/configure --target=mspu \
     CC_FOR_TARGET="$install_path/bin/clang -target mspu" \
     DEBUG_PREFIX_CFLAGS_FOR_TARGET=" -nostdlibinc" \
-    AR_FOR_TARGET=ar AS_FOR_TARGET="$install_path/bin/llvm-mc  -arch=mspu" \
+    AR_FOR_TARGET=ar AS_FOR_TARGET="$install_path/bin/llvm-mc -arch=mspu" \
     LD_FOR_TARGET="$install_path/bin/ld.gold" \
     OBJDUMP_FOR_TARGET="$install_path/bin/llvm-objdump -arch=mspu -d" \
     READELF_FOR_TARGET=readelf RANLIB_FOR_TARGET=ranlib  STRIP_FOR_TARGET=strip \
-    --enable-multilib=no  --prefix="$install_path/lib"
+    --enable-multilib=no --prefix="$install_path/lib"
   make $MCFLAG || newlib_err=1
   if [ "$debug_mode" -eq 0 ]
   then make install

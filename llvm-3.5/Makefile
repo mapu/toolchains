@@ -91,7 +91,10 @@ endif
 # Use NO_INSTALL define of the Makefile of each directory for deciding
 # if the directory is installed or not
 ifeq ($(MAKECMDGOALS),install)
-  OPTIONAL_DIRS := $(filter bindings, $(OPTIONAL_DIRS))
+# ARCH_MAPU
+  # OPTIONAL_DIRS := $(filter bindings, $(OPTIONAL_DIRS))
+  OPTIONAL_DIRS := $(filter bindings projects, $(OPTIONAL_DIRS))
+# end of ARCH_MAPU
 endif
 
 # Don't build unittests when ONLY_TOOLS is set.
