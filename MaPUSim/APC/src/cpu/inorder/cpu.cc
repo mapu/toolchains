@@ -1014,6 +1014,7 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
         inst->mopClass() == FmacMAOp ||
         inst->mopClass() == FmacMacOp ||
         inst->mopClass() == IaluCondOp ||
+        init->mopClass() == Mr2WOp ||
         ((inst->mopClass() == Biu0MemOp ||
           inst->mopClass() == Biu1MemOp ||
           inst->mopClass() == Biu2MemOp) && !inst->isLoad()))) {
@@ -1037,7 +1038,6 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
     switch (inst->mopClass()) {
     /*
     case Mr0123Op:
-    case Mr2WOp:
     case IaluArithOp:
     case IaluDivOp:
     case IaluDivMovOp:
@@ -1073,8 +1073,8 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
       break;
     }
     break;
-  default: break;
-  }
+    default: break;
+    }
   }
 
   StageScheduler *pW = NULL;

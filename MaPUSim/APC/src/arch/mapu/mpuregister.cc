@@ -1419,7 +1419,6 @@ BiuContext &BiuContext::operator =(const MPURegister &rhs) {
     this->KI[i] = ((*(uint32_t *)&(((uint8_t *)temp)[11 + i * 12])) >> 2) & 0x3FFFF;
     this->KC[i] = ((*(uint32_t *)&(((uint8_t *)temp)[13 + i * 12])) >> 4) & 0x3FFFF;
     this->KS[i] = ((*(uint32_t *)&(((uint8_t *)temp)[15 + i * 12])) >> 6) & 0x3FFFF;
-    this->KS[i] = this->KS[i] & (1 << 17) ? this->KS[i] | 0xFFFE0000 : this->KS[i];
     this->KB[i] = (*(uint32_t *)&(((uint8_t *)temp)[18 + i * 12])) & 0xFFFFFF;
   }
   return *this;

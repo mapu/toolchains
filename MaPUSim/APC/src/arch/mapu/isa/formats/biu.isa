@@ -45,9 +45,9 @@ void BiuOp::printLeft(std::ostream &os) const {
 
 void BiuOp::printFlags(std::ostream &os) const {
   std::string split = "";
-  if (Flags) {
+  if (Flags || (BIU_IND && (BIU_OP == 5))) {
     os << "(";
-    if (BIU_IND) {
+    if (BIU_IND && (BIU_OP == 5)) {
       os << split << "I";
       split = ",";
     }
@@ -395,6 +395,11 @@ def format BiuOps(memacc_code, inst_flags = []) {{
         }
       }
     }
+    // KB must be rounded into DM address range
+    KB[0] &= 0xFFE3FFFF;
+    KB[1] &= 0xFFE3FFFF;
+    KB[2] &= 0xFFE3FFFF;
+    KB[3] &= 0xFFE3FFFF;
     if (BIU_BR) {
       KB[0] = br_tab.bitrev(KB[0]);
       KB[1] = br_tab.bitrev(KB[1]);
