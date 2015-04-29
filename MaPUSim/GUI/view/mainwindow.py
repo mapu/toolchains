@@ -42,13 +42,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('MaPU Simulator')
         self.statusBar().showMessage(self.tr("状态栏"))
         tab1=QDialog()
-        tab2=QDialog()
-        tab3=QDialog()
+        self.tab2=QDialog()
+        self.tab3=QDialog()
         tab4=QDialog()
         tabwidge=QTabWidget()
         tabwidge.addTab(tab1,self.tr("模拟器信息"))
-        tabwidge.addTab(tab2,self.tr("ARM视窗"))
-        tabwidge.addTab(tab3,self.tr("APC视窗"))
+        tabwidge.addTab(self.tab2,self.tr("ARM视窗"))
+        tabwidge.addTab(self.tab3,self.tr("APC视窗"))
         tabwidge.addTab(tab4,self.tr("配置与控制"))
         self.setCentralWidget(tabwidge)
         tab1.label1=QLabel("SoC")
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         self.connect(tab1.button2,SIGNAL("clicked()"),self.slotClear2)
         self.connect(tab1.button3,SIGNAL("clicked()"),self.slotClear3)
         
-       self.tab3.Ltabapc=QDialog()  # the detail of APC
+        self.tab3.Ltabapc=QDialog()  # the detail of APC
         self.tab3.Lape0=QDialog()
         self.tab3.Lape1=QDialog()
         self.tab3.Lape2=QDialog()
@@ -148,7 +148,27 @@ class MainWindow(QMainWindow):
         self.tab3.mainLayout.addLayout(self.tab3.hlayout)
         self.tab3.mainLayout.addWidget(self.tab3.slider)
         self.tab3.setLayout(self.tab3.mainLayout)    
-         
+        self.tab2.Uart0=QDialog()    #the detail of ARM
+        self.tab2.Uart1=QDialog()
+        self.tab2.Lcd=QDialog()
+        self.tab2.uptabwidget=QTabWidget() 
+        self.tab2.uptabwidget.addTab(self.tab2.Uart0,"UART0")
+        self.tab2.uptabwidget.addTab(self.tab2.Uart1,"UART1")
+        self.tab2.uptabwidget.addTab(self.tab2.Lcd,"LCD")        
+        self.tab2.text=QTextEdit()
+        self.tab2.text.setWordWrapMode(QTextOption.NoWrap)               
+        self.tab2.Gdbbutt=QPushButton("GDB")
+        self.tab2.Console=QPushButton("Console")
+        self.tab2.bottom=QHBoxLayout()                 
+        self.tab2.bottom.addWidget(self.tab2.Gdbbutt)
+        self.tab2.bottom.addWidget(self.tab2.Console)
+        self.tab2.bottom.addStretch()  
+        self.tab2.vlayout=QVBoxLayout()
+        self.tab2.vlayout.addWidget(self.tab2.uptabwidget)     
+        self.tab2.vlayout.addWidget(self.tab2.text)
+        self.tab2.vlayout.addLayout(self.tab2.bottom)
+        self.tab2.setLayout(self.tab2.vlayout)     
+ 
     def slotClear1(self):
         self.text1.clear()
 
