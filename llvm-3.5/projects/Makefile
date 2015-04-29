@@ -23,4 +23,7 @@ DIRS := $(filter-out libcxx,$(DIRS))
 # DragonEgg may be checked out here but doesn't (yet) build directly.
 DIRS := $(filter-out dragonegg,$(DIRS))
 
+# ARCH_MAPU
+DIRS := mmcc/apdlgen $(DIRS) 
+# end of ARCH_MAPU
 include $(PROJ_SRC_ROOT)/Makefile.rules

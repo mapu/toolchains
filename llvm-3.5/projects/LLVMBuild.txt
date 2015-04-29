@@ -15,6 +15,11 @@
 ;
 ;===------------------------------------------------------------------------===;
 
+; ARCH_MAPU
+[common]
+subdirectories = mmcc
+; end of ARCH_MAPU
+
 [component_0]
 type = Group
 name = Projects

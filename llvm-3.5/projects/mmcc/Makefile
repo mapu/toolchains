@@ -10,6 +10,7 @@ LEVEL = ../..
 TOOLNAME = mmcc
 
 LINK_COMPONENTS := native
+USEDLIBS := apdlgen.a
 
 BUILT_SOURCES += ../../lib/Target/MMPULite/AsmParser/MMPULiteScheduler.cpp
 BUILT_SOURCES += ../../lib/Target/MMPULite/AsmParser/MCFunction.cpp
@@ -17,7 +18,7 @@ BUILT_SOURCES += MMPUGenFrontEndLexer.flex
 BUILT_SOURCES += MMPUGenFrontEndParser.bison
 
 CPP.Flags += -I$(PROJ_OBJ_DIR)/../../lib/Target/MMPULite -I$(PROJ_SRC_DIR)/../../lib/Target/MMPULite
-CPP.Flags += -I$(PROJ_OBJ_DIR) -I$(PROJ_SRC_DIR)
+CPP.Flags += -I$(PROJ_OBJ_DIR) -I$(PROJ_SRC_DIR)/include
 
 include $(LEVEL)/Makefile.common
 
