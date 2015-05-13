@@ -1,14 +1,13 @@
-#! /usr/bin/python
+from PyQt4.QtGui import*
+from PyQt4.QtCore import*
 import sys
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from view.MainWindow import*
 
-from view.mainwindow import MainWindow
+app = QApplication(sys.argv)
 
-# This is GUI of MaPU simulator
+main = MainWindow()
+main.show()
 
-app = QApplication(sys.argv) 
-main = MainWindow()  
-main.show()  
 app.exec_()
+
 
