@@ -3,7 +3,7 @@ from PyQt4.QtGui import*
 from PyQt4.QtCore import*  
 import res.qrc_resources 
 from SimuInfoWidget import*
-from ARMViewWidget import*
+from ARMview.ARMViewWidget import*
 from APCview.APCViewWidget import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
