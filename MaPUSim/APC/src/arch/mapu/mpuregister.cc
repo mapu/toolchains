@@ -1119,8 +1119,8 @@ void MPURegister::cprs_uh(MPURegister &lhs, MPURegister &rhs) {
       lo[i] = lhs.storage.vub[2*i];
       hi[i] = rhs.storage.vub[2*i];
     } else {
-      uint16_t temp1 = lhs.storage.vuh[2*i];
-      uint16_t temp2 = rhs.storage.vuh[2*i];
+      uint16_t temp1 = lhs.storage.vuh[i];
+      uint16_t temp2 = rhs.storage.vuh[i];
       lo[i] = temp1 > MAX_UINT8 ? MAX_UINT8 : temp1;
       hi[i] = temp2 > MAX_UINT8 ? MAX_UINT8 : temp2;
     }
