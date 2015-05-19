@@ -1119,10 +1119,10 @@ void MPURegister::cprs_uh(MPURegister &lhs, MPURegister &rhs) {
       lo[i] = lhs.storage.vub[2*i];
       hi[i] = rhs.storage.vub[2*i];
     } else {
-      uint8_t temp1 = lhs.storage.vub[2*i];
-      uint8_t temp2 = rhs.storage.vub[2*i];
-      lo[i] = temp1 > MAX_UINT8 ? MAX_UINT8 : lhs.storage.vub[2*i];
-      hi[i] = temp2 > MAX_UINT8 ? MAX_UINT8 : rhs.storage.vub[2*i];
+      uint16_t temp1 = lhs.storage.vuh[2*i];
+      uint16_t temp2 = rhs.storage.vuh[2*i];
+      lo[i] = temp1 > MAX_UINT8 ? MAX_UINT8 : temp1;
+      hi[i] = temp2 > MAX_UINT8 ? MAX_UINT8 : temp2;
     }
   }
 
@@ -1143,10 +1143,10 @@ void MPURegister::cprs_uw(MPURegister &lhs, MPURegister &rhs) {
       lo[i] = lhs.storage.vuh[2*i];
       hi[i] = rhs.storage.vuh[2*i];
     } else {
-      uint16_t temp1 = lhs.storage.vuh[2*i];
-      uint16_t temp2 = rhs.storage.vuh[2*i];
-      lo[i] = temp1 > MAX_UINT16 ? MAX_UINT16 : lhs.storage.vuh[2*i];
-      hi[i] = temp2 > MAX_UINT16 ? MAX_UINT16 : rhs.storage.vuh[2*i];
+      uint32_t temp1 = lhs.storage.vuw[i];
+      uint32_t temp2 = rhs.storage.vuw[i];
+      lo[i] = temp1 > MAX_UINT16 ? MAX_UINT16 : temp1;
+      hi[i] = temp2 > MAX_UINT16 ? MAX_UINT16 : temp2;
     }
   }
 
@@ -1166,10 +1166,10 @@ void MPURegister::cprs_h(MPURegister &lhs, MPURegister &rhs) {
       lo[i] = lhs.storage.vb[2*i];
       hi[i] = rhs.storage.vb[2*i];
     } else {
-      uint8_t temp1 = lhs.storage.vb[2*i];
-      uint8_t temp2 = rhs.storage.vb[2*i];
-      lo[i] = temp1 > MAX_INT8 ? MAX_INT8 : lhs.storage.vb[2*i];
-      hi[i] = temp2 > MAX_INT8 ? MAX_INT8 : rhs.storage.vb[2*i];
+      int16_t temp1 = lhs.storage.vh[i];
+      int16_t temp2 = rhs.storage.vh[i];
+      lo[i] = temp1 > MAX_INT8 ? MAX_INT8 : (temp1 < MIN_INT8 ? MIN_INT8 : temp1);
+      hi[i] = temp2 > MAX_INT8 ? MAX_INT8 : (temp2 < MIN_INT8 ? MIN_INT8 : temp2);
     }
   }
 
@@ -1190,10 +1190,10 @@ void MPURegister::cprs_w(MPURegister &lhs, MPURegister &rhs) {
       lo[i] = lhs.storage.vh[2*i];
       hi[i] = rhs.storage.vh[2*i];
     } else {
-      uint16_t temp1 = lhs.storage.vh[i];
-      uint16_t temp2 = rhs.storage.vh[i];
-      lo[i] = temp1 > MAX_INT16 ? MAX_INT16 : lhs.storage.vh[2*i];
-      hi[i] = temp2 > MAX_INT16 ? MAX_INT16 : rhs.storage.vh[2*i];
+      int32_t temp1 = lhs.storage.vw[i];
+      int32_t temp2 = rhs.storage.vw[i];
+      lo[i] = temp1 > MAX_INT16 ? MAX_INT16 : (temp1 < MIN_INT16 ? MIN_INT16 : temp1);
+      hi[i] = temp2 > MAX_INT16 ? MAX_INT16 : (temp2 < MIN_INT16 ? MIN_INT16 : temp2);
     }
   }
 

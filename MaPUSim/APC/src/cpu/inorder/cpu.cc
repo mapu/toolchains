@@ -1014,7 +1014,7 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
         inst->mopClass() == FmacMAOp ||
         inst->mopClass() == FmacMacOp ||
         inst->mopClass() == IaluCondOp ||
-        init->mopClass() == Mr2WOp ||
+        inst->mopClass() == Mr2WOp ||
         ((inst->mopClass() == Biu0MemOp ||
           inst->mopClass() == Biu1MemOp ||
           inst->mopClass() == Biu2MemOp) && !inst->isLoad()))) {
