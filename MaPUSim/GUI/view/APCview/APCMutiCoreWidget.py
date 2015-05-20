@@ -25,7 +25,7 @@ class APCMutiCoreWidget(QWidget):
 	self.CDDRButton.setEnabled(False)
 
         self.leftLayout=QGridLayout() 
-        self.leftLayout.setSpacing(30)
+        self.leftLayout.setSpacing(40)
 	self.leftLayout.addWidget(self.DDR0Button,2,0)
         self.leftLayout.addWidget(self.APE0Button,1,1)          
         self.leftLayout.addWidget(self.APE1Button,3,1) 
@@ -46,6 +46,9 @@ class APCMutiCoreWidget(QWidget):
 	self.rightTab.addTab(self.outDMAWidget,self.tr("External DMA"))
 	self.rightTab.addTab(self.inDMAWidget,self.tr("Internal DMA"))
 	self.rightTab.addTab(self.statusWidget,self.tr("Status"))
+	self.outDMAWidget.horizontalHeader().setStretchLastSection(True)
+	self.inDMAWidget.horizontalHeader().setStretchLastSection(True)
+	self.statusWidget.horizontalHeader().setStretchLastSection(True)
 	  
 	#define outDMAWidget
 	self.outDMAWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -322,8 +325,8 @@ class APCMutiCoreWidget(QWidget):
 	mainLayout=QHBoxLayout()
 	mainLayout.addWidget(self.leftWidget)
 	mainLayout.addWidget(self.rightTab)
-	mainLayout.setStretchFactor(self.leftWidget,2)
-	mainLayout.setStretchFactor(self.rightTab,1)
+	mainLayout.setStretchFactor(self.leftWidget,5)
+	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
 
 

@@ -5,6 +5,7 @@ import res.qrc_resources
 from SimuInfoWidget import*
 from ARMview.ARMViewWidget import*
 from APCview.APCViewWidget import*
+from configview.ConfigViewWidget import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -18,18 +19,18 @@ class MainWindow(QMainWindow):
         self.createToolBars()
 	self.createStatusBar()
   
-	self.resize(750,500)
+	self.setMinimumSize(1024,600)
 
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  
         self.simuInfoWidget=SimuInfoWidget(self)
         self.armViewWidget=ARMViewWidget(self)
         self.apcViewWidget=APCViewWidget(self)
-        self.setControlWidget=QWidget()
+        self.configControlWidget=ConfigViewWidget()
         self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
-        self.tabWidget.addTab(self.armViewWidget,self.tr("ARM View"))
-        self.tabWidget.addTab(self.apcViewWidget,self.tr("APC View"))
-        self.tabWidget.addTab(self.setControlWidget,self.tr("configuration and Control"))       
+        self.tabWidget.addTab(self.armViewWidget,self.tr("ARM perspective"))
+        self.tabWidget.addTab(self.apcViewWidget,self.tr("APC perspective"))
+        self.tabWidget.addTab(self.configControlWidget,self.tr("configuration and Control"))       
      
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 

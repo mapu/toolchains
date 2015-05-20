@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 
@@ -19,6 +18,9 @@ class SPUViewWidget(QWidget):
 	self.rightTab.addTab(self.regFileWidget,self.tr("Register File"))
 	self.rightTab.addTab(self.specialRegWidget,self.tr("Special Register"))
 	self.rightTab.addTab(self.traceWidget,self.tr("Trace"))
+	self.regFileWidget.horizontalHeader().setStretchLastSection(True)
+	self.specialRegWidget.horizontalHeader().setStretchLastSection(True)
+	self.traceWidget.horizontalHeader().setStretchLastSection(True)
 
 	#define regFileWidget
 	self.regFileWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -126,8 +128,8 @@ class SPUViewWidget(QWidget):
 	mainLayout=QHBoxLayout()
 	mainLayout.addWidget(self.leftWidget)
 	mainLayout.addWidget(self.rightTab)
-	mainLayout.setStretchFactor(self.leftWidget,2)
-	mainLayout.setStretchFactor(self.rightTab,1)
+	mainLayout.setStretchFactor(self.leftWidget,5)
+	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
 
 

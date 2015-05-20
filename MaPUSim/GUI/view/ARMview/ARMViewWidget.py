@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-  
 from PyQt4.QtGui import*  
 from PyQt4.QtCore import* 
+from UARTWidget import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -8,8 +9,8 @@ class ARMViewWidget(QWidget):
     def __init__(self,parent=None):  
         super(ARMViewWidget,self).__init__(parent) 
 
-        self.UART0Widget=QWidget()    
-        self.UART1Widget=QWidget()
+        self.UART0Widget=UARTWidget()    
+        self.UART1Widget=UARTWidget()
         self.LCDWidget=QWidget()
         self.upTabWidget=QTabWidget() 
         self.upTabWidget.addTab(self.UART0Widget,"UART0")
