@@ -11,12 +11,12 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
       0x1: mr0 ({{ MPUd = Mr0s; }}, Mr0123Op);
     }
     0x1: decode MR1_EN default Nop::Nop(mr1) {
-      0x1: mr1 ({{ MPUd6b = Mr1s; }}, Mr0123Op);
+      0x1: mr1 ({{ MPUd8b = Mr1s; }}, Mr0123Op);
     }
     0x2: decode MR2_EN default Nop::Nop(mr2) {
       0x1: decode MR2_W {
-        0x0:     mr2  ({{ MPUd6b = Mr2s; }}, Mr0123Op);
-        default: mr2w ({{ MPUd6b = Mr2s.WShuffle(MR2_W); }}, Mr2WOp);
+        0x0:     mr2  ({{ MPUd8b = Mr2s; }}, Mr0123Op);
+        default: mr2w ({{ MPUd8b = Mr2s.WShuffle(MR2_W); }}, Mr2WOp);
       }
     }
     0x3: decode MR3_EN default Nop::Nop(mr3) {

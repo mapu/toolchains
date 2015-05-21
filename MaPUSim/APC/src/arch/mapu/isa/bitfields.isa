@@ -103,7 +103,7 @@ def bitfield SYN_SHU0    <1:0>;
 def bitfield SYN_SHU1    <1:0>;
 def bitfield SYN_SVR     <5>;
 def bitfield SYN_BHU     <22:20>;
-def bitfield SYN_DR      <19:19>;
+def bitfield SYN_DR      <19:19>;s
 def bitfield MCI         <2:0>;
 def bitfield RI          <18:14>;
 def bitfield SYN_IMM6    <19:14>;
@@ -120,7 +120,7 @@ def bitfield MR0_EN         <22:22>;
 def bitfield MR0_C          <21:21>;
 def bitfield MR0_CN         <20:20>;
 def bitfield MR0_MS         <19:11>;
-def bitfield DEST6B         <5:0>;
+def bitfield DEST8B         <7s:0>;
 def bitfield DEST4B         <3:0>;
 // MR1
 def bitfield MR1_EN         <19:19>;
