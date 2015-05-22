@@ -275,6 +275,7 @@ class MPUViewWidget(QWidget):
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))	
 	self.FMACButtonDialog.show()
+	self.paintLines()
 
     def paintLines(self):
 	#define the line between DMButton and BIU0Button
