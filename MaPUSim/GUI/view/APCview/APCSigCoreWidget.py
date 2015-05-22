@@ -20,3 +20,4 @@ class APCSigCoreWidget(QWidget):
 	lay=QHBoxLayout()
 	lay.addWidget(APETab)
 	self.setLayout(lay)
+

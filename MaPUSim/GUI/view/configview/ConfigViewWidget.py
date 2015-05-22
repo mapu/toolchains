@@ -34,7 +34,7 @@ class ConfigViewWidget(QWidget):
 	self.connect(self.stopButton,SIGNAL("clicked()"),self.stopProcess)
 
     def browseFile(self):
-	path=QFileDialog.getExistingDirectory(self,self.tr("select dir"),"/",QFileDialog.ShowDirsOnly)
+	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
 	self.pathEdit.setText(path)
 
     def startProcess(self):
