@@ -14,24 +14,29 @@ class MPUViewWidget(QWidget):
 
 	#define left Widget
 	self.leftWidget=QWidget()
-
+	self.widget=QWidget()
+	widgetLay=QGridLayout()
+	widgetLay.addWidget(self.widget,0,0)
+	self.leftWidget.setLayout(widgetLay)
+	self.widget.setFixedSize(700,370)
+	#self.widget.setStyleSheet("background-color: rgb(170, 0, 255);");
 	self.DMButton=QPushButton(self.tr("DM"))
-	self.DMButton.setFixedWidth(70)
+	self.DMButton.setFixedSize(70,25)
 	self.DMButton.setEnabled(False)
 	self.BIU0Button=QPushButton(self.tr("BIU0"))
-	self.BIU0Button.setFixedWidth(70)
+	self.BIU0Button.setFixedSize(70,25)
 	self.BIU1Button=QPushButton(self.tr("BIU1"))
-	self.BIU1Button.setFixedWidth(70)
+	self.BIU1Button.setFixedSize(70,25)
 	self.BIU2Button=QPushButton(self.tr("BIU2"))
-	self.BIU2Button.setFixedWidth(70)
+	self.BIU2Button.setFixedSize(70,25)
 	self.SHU0Button=QPushButton(self.tr("SHU0"))
-	self.SHU0Button.setFixedWidth(70)
+	self.SHU0Button.setFixedSize(70,25)
 	self.MRFButton=QPushButton(self.tr("M RF"))
-	self.MRFButton.setFixedWidth(70)
+	self.MRFButton.setFixedSize(70,25)
 	self.SHU1Button=QPushButton(self.tr("SHU1"))
-	self.SHU1Button.setFixedWidth(70)
+	self.SHU1Button.setFixedSize(70,25)
 	self.byteComboBox=QComboBox()
-	self.byteComboBox.setFixedWidth(80)
+	self.byteComboBox.setFixedSize(80,20)
 	self.byteComboBox.insertItem(0,"8 Bytes")
 	self.byteComboBox.insertItem(1,"7 Bytes")
 	self.byteComboBox.insertItem(2,"6 Bytes")
@@ -42,34 +47,34 @@ class MPUViewWidget(QWidget):
 	self.byteComboBox.insertItem(7,"1 Bytes")
 
 	self.laneComboBox=QComboBox()
-	self.laneComboBox.setFixedWidth(80)
+	self.laneComboBox.setFixedSize(67,20)
 	self.laneComboBox.insertItem(0,"Lane0")
 	self.laneComboBox.insertItem(1,"Lane1")
 	self.laneComboBox.insertItem(2,"Lane2")
 	self.laneComboBox.insertItem(3,"Lane3")	
 	self.IALUButton=QPushButton(self.tr("IALU"))
-	self.IALUButton.setFixedWidth(70)
+	self.IALUButton.setFixedSize(70,25)
 	self.IMACButton=QPushButton(self.tr("IMAC"))
-	self.IMACButton.setFixedWidth(70)
+	self.IMACButton.setFixedSize(70,25)
 	self.FALUButton=QPushButton(self.tr("FALU"))
-	self.FALUButton.setFixedWidth(70)
+	self.FALUButton.setFixedSize(70,25)
 	self.FMACButton=QPushButton(self.tr("FMAC"))
-	self.FMACButton.setFixedWidth(70)
+	self.FMACButton.setFixedSize(70,25)
 
 	self.blank0=QLabel()
-	self.blank0.setFixedWidth(70)
+	self.blank0.setFixedSize(70,25)
 	self.blank1=QLabel()
-	self.blank1.setFixedWidth(70)
+	self.blank1.setFixedSize(70,25)
 	self.blank2=QLabel()
-	self.blank2.setFixedWidth(70)
+	self.blank2.setFixedSize(70,25)
 	self.blank3=QLabel()
-	self.blank3.setFixedWidth(70)
+	self.blank3.setFixedSize(70,25)
 	self.blank4=QLabel()
-	self.blank4.setFixedWidth(70)
+	self.blank4.setFixedSize(70,25)
 	self.blank5=QLabel()
-	self.blank5.setFixedWidth(70)
+	self.blank5.setFixedSize(70,25)
 	self.blank6=QLabel()
-	self.blank6.setFixedWidth(70)
+	self.blank6.setFixedSize(70,25)
 
 	#layout left Widget
 	self.gridLay=QGridLayout()
@@ -82,7 +87,7 @@ class MPUViewWidget(QWidget):
 	self.gridLay.addWidget(self.blank2,5,4)
 	self.gridLay.addWidget(self.blank3,8,5)
 	self.gridLay.addWidget(self.SHU0Button,2,6)
-	self.gridLay.addWidget(self.MRFButton,9,6)
+
 	self.gridLay.addWidget(self.SHU1Button,15,6)
 	self.gridLay.addWidget(self.byteComboBox,0,7,1,2)
 	self.gridLay.addWidget(self.blank4,11,7)
@@ -94,8 +99,8 @@ class MPUViewWidget(QWidget):
 	self.gridLay.addWidget(self.FMACButton,13,9)
 	self.gridLay.addWidget(self.blank6,0,10)
 	self.gridLay.setAlignment(Qt.AlignCenter)
-	self.leftWidget.setLayout(self.gridLay)
-	
+	self.widget.setLayout(self.gridLay)
+
 	#define rightTab
 	self.rightTab=QTabWidget()
 	self.regFileWidget=QTableWidget()
@@ -218,7 +223,9 @@ class MPUViewWidget(QWidget):
 	self.connect(self.IMACButton,SIGNAL("clicked()"),self.IMACButtonSlot)
 	self.connect(self.FALUButton,SIGNAL("clicked()"),self.FALUButtonSlot)
 	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
-
+	
+	#paint lines
+	self.paintLines()
 
  	#define slot function
     def DMButtonSlot(self):
@@ -275,453 +282,350 @@ class MPUViewWidget(QWidget):
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))	
 	self.FMACButtonDialog.show()
-	self.paintLines()
 
     def paintLines(self):
-	#define the line between DMButton and BIU0Button
-	height=self.DMButton.geometry().y()-self.BIU0Button.geometry().y()-self.BIU0Button.height()
-	width=self.BIU0Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.DM_BIU0Line=LineWidget(length,width,height,180-angle*180,True)
-	self.gridLay.addWidget(self.DM_BIU0Line,6,1,3,2)
-	self.BIU0_DMLine=LineWidget(length,width,height,180-angle*180,False)
-	self.gridLay.addWidget(self.BIU0_DMLine,6,1,3,2)
-	self.DM_BIU0Edit=QLineEdit()
-	self.DM_BIU0Edit.setFixedWidth(70)
-	self.gridLay.addWidget(self.DM_BIU0Edit,6,1,1,2)
-	self.BIU0_DMEdit=QLineEdit()
-	self.BIU0_DMEdit.setFixedWidth(70)
-	self.gridLay.addWidget(self.BIU0_DMEdit,8,2,1,2)
-
-	#define the line between DMButton and BIU1Button
-	self.DM_BIU1Line=LineWidget(self.BIU1Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width(),self.BIU1Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width(),7,0,True)
+	#define the line between DMButton and BIU0Button,4rows,2columns
+	height=98
+	width=120
+	self.DM_BIU0Line=LineWidget(3,height-25,width,5,0,10,height-25-5+10)
+	self.gridLay.addWidget(self.DM_BIU0Line,6,1,4,2)
+	self.BIU0_DMLine=LineWidget(3,height-20,width,10,1,10,height-20-10+10)
+	self.gridLay.addWidget(self.BIU0_DMLine,6,1,4,2)
+	#define the line between DMButton and BIU1Button,0rows,2columns
+	height=25
+	width=120
+	self.DM_BIU1Line=LineWidget(3,height-15,width,height-15,0,0,0)
 	self.gridLay.addWidget(self.DM_BIU1Line,9,1,1,2)
-	self.BIU1_DMLine=LineWidget(self.BIU1Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width(),self.BIU1Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width(),7,0,False)
+	self.BIU1_DMLine=LineWidget(3,height-10,width,height-10,1,0,0)
 	self.gridLay.addWidget(self.BIU1_DMLine,9,1,1,2)
 	
-	#define the line between DMButton and BIU2Button
-	height=self.BIU2Button.geometry().y()-self.DMButton.geometry().y()-self.DMButton.height()
-	width=self.BIU2Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.DM_BIU2Line=LineWidget(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.DM_BIU2Line,10,1,3,2)
-	self.BIU2_DMLine=LineWidget(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.BIU2_DMLine,10,1,3,2)
+	#define the line between DMButton and BIU2Button,4rows,2columns
+	height=98
+	width=120
+	self.DM_BIU2Line=LineWidget(3,25,width,height-20,0,10,height-20-25+10)
+	self.gridLay.addWidget(self.DM_BIU2Line,9,1,4,2)
+	self.BIU2_DMLine=LineWidget(3,30,width,height-15,1,10,height-15-30+10)
+	self.gridLay.addWidget(self.BIU2_DMLine,9,1,4,2)
 
-	#define the line between BIU0Button and SHU0Button(borrow other line parameters to do)
-	height=self.DMButton.geometry().y()-self.BIU0Button.geometry().y()-self.BIU0Button.height()
-	width=self.BIU0Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.BIU0_SHU0Line=LineWidget(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.BIU0_SHU0Line,3,4,3,2)
-	self.SHU0_BIU0Line=LineWidget(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.SHU0_BIU0Line,3,4,3,2)
+	#define the line between BIU0Button and SHU0Button,5rows,2columns
+	height=125
+	width=120
+	self.BIU0_SHU0Line=LineWidget(3,height-30,width,5,0,10,height-30-5+10)
+	self.gridLay.addWidget(self.BIU0_SHU0Line,2,4,5,2)
+	self.SHU0_BIU0Line=LineWidget(3,height-25,width,10,1,10,height-25-10+10)
+	self.gridLay.addWidget(self.SHU0_BIU0Line,2,4,5,2)
 
-	#define the line between BIU0Button and MRFButton
-	height=self.MRFButton.geometry().y()-self.BIU0Button.geometry().y()-self.BIU0Button.height()
-	width=self.MRFButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU0_MRFLine=LineWidget(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.BIU0_MRFLine,7,4,3,2)
-	self.MRF_BIU0Line=LineWidget(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.MRF_BIU0Line,7,4,3,2)
+	#define the line between BIU0Button and MRFButton,4rows,2columns
+	height=98
+	width=120
+	self.BIU0_MRFLine=LineWidget(3,20,width,height-25,0,10,height-25-20+10)
+	self.gridLay.addWidget(self.BIU0_MRFLine,6,4,4,2)
+	self.MRF_BIU0Line=LineWidget(3,25,width,height-20,1,10,height-20-25+10)
+	self.gridLay.addWidget(self.MRF_BIU0Line,6,4,4,2)
 
-	#define the line between BIU1Button and MRFButton
-	self.BIU1_MRFLine=LineWidget(self.MRFButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width(),self.MRFButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width(),7,0,True)
+	#define the line between BIU1Button and MRFButton,4rows,2columns
+	height=25
+	width=120
+	self.BIU1_MRFLine=LineWidget(3,10,width,10,0,0,0)
 	self.gridLay.addWidget(self.BIU1_MRFLine,9,4,1,2)
-	self.MRF_BIU1Line=LineWidget(self.MRFButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width(),self.MRFButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width(),7,0,False)
+	self.MRF_BIU1Line=LineWidget(3,15,width,15,1,0,0)
 	self.gridLay.addWidget(self.MRF_BIU1Line,9,4,1,2)
 
-	#define the line between BIU2Button and MRFButton 
-	height=self.BIU2Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height()
-	width=self.MRFButton.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.MRF_BIU2Line=LineWidget(length,width,height,180-angle*180,True)
-	self.gridLay.addWidget(self.MRF_BIU2Line,10,4,3,2)
-	self.BIU2_MRFLine=LineWidget(length,width,height,180-angle*180,False)
-	self.gridLay.addWidget(self.BIU2_MRFLine,10,4,3,2)	 
+	#define the line between BIU2Button and MRFButton,4rows,2columns 
+	height=98
+	width=120
+	self.MRF_BIU2Line=LineWidget(3,height-25,width,20,0,10,height-25-20+10)
+	self.gridLay.addWidget(self.MRF_BIU2Line,9,4,4,2)
+	self.BIU2_MRFLine=LineWidget(3,height-20,width,25,1,10,height-20-25+10)
+	self.gridLay.addWidget(self.BIU2_MRFLine,9,4,4,2)	 
 
-	#define the line between BIU2Button and SHU1Button
-	height=self.BIU2Button.geometry().y()-self.DMButton.geometry().y()-self.DMButton.height()
-	width=self.BIU2Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU2_SHU1Line=LineWidget(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.BIU2_SHU1Line,13,4,3,2)
-	self.SHU1_BIU2Line=LineWidget(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.SHU1_BIU2Line,13,4,3,2)
+	#define the line between BIU2Button and SHU1Button,4rows,2columns 
+	height=98
+	width=120
+	self.BIU2_SHU1Line=LineWidget(3,20,width,height-10,0,10,height-10-20+10)
+	self.gridLay.addWidget(self.BIU2_SHU1Line,12,4,4,2)
+	self.SHU1_BIU2Line=LineWidget(3,25,width,height-5,1,10,height-5-25+10)
+	self.gridLay.addWidget(self.SHU1_BIU2Line,12,4,4,2)
 
-	#define the line between SHU0Button and MRFButton 
-	self.SHU0_MRFLine=LineWidget(self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height(),4,self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height(),90,True)
-	self.SHU0_MRFLine.setMaximumWidth(8)
-	self.SHU0_MRFLine.setMaximumHeight(self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height()+7)
+	#define the line between SHU0Button and MRFButton,6rows,1columns  
+	height=146
+	width=70
+	self.SHU0_MRFLine=LineWidget(30,0,30,height,2,0,0)
+	self.gridLay.addWidget(self.SHU0_MRFLine,3,6,6,1)
+	self.MRF_SHU0Line=LineWidget(35,0,35,height,3,0,0)
+	self.gridLay.addWidget(self.MRF_SHU0Line,3,6,6,1)
 
-	self.MRF_SHU0Line=LineWidget(self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height(),4,self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height(),90,False)
-	self.MRF_SHU0Line.setMaximumWidth(8)
-	self.MRF_SHU0Line.setMaximumHeight(self.MRFButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.geometry().height()+7)	
-
-	SHU0_MRFLayout=QHBoxLayout()
-	SHU0_MRFLayout.addWidget(self.SHU0_MRFLine)
-	SHU0_MRFLayout.addWidget(self.MRF_SHU0Line)
-	self.gridLay.addLayout(SHU0_MRFLayout,2,6,8,1)
-
-	#define the line between MRFButton and SHU1Button
-	self.MRF_SHU1Line=LineWidget(self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height(),4,self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height(),90,True)
-	self.MRF_SHU1Line.setMaximumWidth(8)
-	self.MRF_SHU1Line.setMaximumHeight(self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height()+7)
-	self.SHU1_MRFLine=LineWidget(self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height(),4,self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height(),90,False)
-	self.SHU1_MRFLine.setMaximumWidth(8)
-	self.SHU1_MRFLine.setMaximumHeight(self.SHU1Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height()+7)
-	SHU1_MRFLayout=QHBoxLayout()
-	SHU1_MRFLayout.addWidget(self.MRF_SHU1Line)
-	SHU1_MRFLayout.addWidget(self.SHU1_MRFLine)
-	self.gridLay.addLayout(SHU1_MRFLayout,9,6,7,1)
+	#define the line between MRFButton and SHU1Button,5rows,1columns  
+	height=122
+	width=70
+	self.MRF_SHU1Line=LineWidget(30,0,30,height,2,0,0)
+	self.gridLay.addWidget(self.MRF_SHU1Line,10,6,5,1)
+	self.SHU1_MRFLine=LineWidget(35,0,35,height,3,0,0)
+	self.gridLay.addWidget(self.SHU1_MRFLine,10,6,5,1)
 	
-	#define the line between SHU0Button and IALUButton(borrow other line parameters to do)
-	height=self.BIU2Button.geometry().y()-self.DMButton.geometry().y()-self.DMButton.height()
-	width=self.BIU2Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.SHU0_IALULine=LineWidget(length,width,height,angle*180,True)
+	#define the line between SHU0Button and IALUButton,3rows,2columns 
+	height=73
+	width=120
+	self.SHU0_IALULine=LineWidget(3,0,width,height-30,0,30,height-30+30)
 	self.gridLay.addWidget(self.SHU0_IALULine,2,7,3,2)
-	self.IALU_SHU0Line=LineWidget(length,width,height,angle*180,False)
+	self.IALU_SHU0Line=LineWidget(3,5,width,height-25,1,30,height-25-5+30)
 	self.gridLay.addWidget(self.IALU_SHU0Line,2,7,3,2)
 
-	#define the line between MRFButton and IMACButton(borrow other line parameters to do)
-	height=self.BIU2Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height()
-	width=self.MRFButton.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.IMAC_MRFLine=LineWidget(length,width,height,180-180*angle,True)
+	#define the line between MRFButton and IMACButton,3rows,2columns 
+	height=73
+	widht=120
+	self.IMAC_MRFLine=LineWidget(3,height-15,width,10,0,30,height-15-10+30)
 	self.gridLay.addWidget(self.IMAC_MRFLine,7,7,3,2)
-	self.MRF_IMACLine=LineWidget(length,self.IMACButton.geometry().x()-self.MRFButton.geometry().x()-self.MRFButton.width(),height,180-180*angle,False)
+	self.MRF_IMACLine=LineWidget(3,height-10,width,15,1,30,height-10-15+30)
 	self.gridLay.addWidget(self.MRF_IMACLine,7,7,3,2)
 
-	#define the line between MRFButton and FMACButton(borrow other line parameters to do)
-	height=self.BIU2Button.geometry().y()-self.DMButton.geometry().y()-self.DMButton.height()
-	width=self.BIU2Button.geometry().x()-self.DMButton.geometry().x()-self.DMButton.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.MRF_FMACLine=LineWidget(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.MRF_FMACLine,10,7,3,2)
-	self.FMAC_MRFLine=LineWidget(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.FMAC_MRFLine,10,7,3,2)	
+	#define the line between MRFButton and FMACButton,5rows,2columns
+	height=122
+	width=120
+	self.MRF_FMACLine=LineWidget(3,25,width,height-20,0,10,height-20-25+10)
+	self.gridLay.addWidget(self.MRF_FMACLine,9,7,5,2)
+	self.FMAC_MRFLine=LineWidget(3,30,width,height-15,1,10,height-15-30+10)
+	self.gridLay.addWidget(self.FMAC_MRFLine,9,7,5,2)	
 
-	#define the line between SHU1Button and FMACButton(borrow other line parameters to do)
-	height=self.BIU2Button.geometry().y()-self.MRFButton.geometry().y()-self.MRFButton.height()
-	width=self.MRFButton.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.FMAC_SHU1Line=LineWidget(length,width,height,180-180*angle,True)
+	#define the line between SHU1Button and FMACButton,3rows,2columns
+	height=73
+	width=120
+	self.FMAC_SHU1Line=LineWidget(3,height-13,width,25,0,30,height-13-25+30)
 	self.gridLay.addWidget(self.FMAC_SHU1Line,13,7,3,2)
-	self.SHU1_FMACLine=LineWidget(length,self.FMACButton.geometry().x()-self.SHU1Button.geometry().x()-self.SHU1Button.width(),height,180-180*angle,False)
+	self.SHU1_FMACLine=LineWidget(3,height-8,width,30,1,30,height-8-30+30)
 	self.gridLay.addWidget(self.SHU1_FMACLine,13,7,3,2)
 
-	#define the line between IALUButton and IMACButton
-	self.IALU_IMACLine=LineWidget(self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height(),4,self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height(),90,True)
-	self.IALU_IMACLine.setMaximumWidth(8)
-	self.IALU_IMACLine.setMaximumHeight(self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()+7)
-	self.IMAC_IALULine=LineWidget(self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height(),4,self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height(),90,False)
-	self.IMAC_IALULine.setMaximumWidth(8)
-	self.IMAC_IALULine.setMaximumHeight(self.IMACButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()+7)
-	IALU_IMACLayout=QHBoxLayout()
-	IALU_IMACLayout.addWidget(self.IALU_IMACLine)
-	IALU_IMACLayout.addWidget(self.IMAC_IALULine)
-	self.gridLay.addLayout(IALU_IMACLayout,4,9,4,1)
+	#define the line between IALUButton and IMACButton,2rows,1column
+	height=48
+	width=70
+	self.IALU_IMACLine=LineWidget(30,0,30,height,2,0,0)
+	self.gridLay.addWidget(self.IALU_IMACLine,5,9,2,1)
+	self.IMAC_IALULine=LineWidget(35,0,35,height,3,0,0)
+	self.gridLay.addWidget(self.IMAC_IALULine,5,9,2,1)
 
-	#define the line between IMACButton and FALUButton
-	self.IMAC_FALULine=LineWidget(self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height(),4,self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height(),90,True)
-	self.IMAC_FALULine.setMaximumWidth(8)
-	self.IMAC_FALULine.setMaximumHeight(self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height()+7)
-	self.FALU_IMACLine=LineWidget(self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height(),4,self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height(),90,False)
-	self.FALU_IMACLine.setMaximumWidth(8)
-	self.FALU_IMACLine.setMaximumHeight(self.FALUButton.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height()+7)
-	IMAC_FALULayout=QHBoxLayout()
-	IMAC_FALULayout.addWidget(self.IMAC_FALULine)
-	IMAC_FALULayout.addWidget(self.FALU_IMACLine)
-	self.gridLay.addLayout(IMAC_FALULayout,7,9,4,1)
+	#define the line between IMACButton and FALUButton,2rows,1column
+	height=48
+	width=70
+	self.IMAC_FALULine=LineWidget(30,0,30,height,2,0,0)
+	self.gridLay.addWidget(self.IMAC_FALULine,8,9,2,1)
+	self.FALU_IMACLine=LineWidget(35,0,35,height,3,0,0)
+	self.gridLay.addWidget(self.FALU_IMACLine,8,9,2,1)
 
-	#define the line between FALUButton and FMACButton
-	self.FALU_FMACLine=LineWidget(self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height(),4,self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height(),90,True)
-	self.FALU_FMACLine.setMaximumWidth(8)
-	self.FALU_FMACLine.setMaximumHeight(self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height()+7)
-	self.FMAC_FALULine=LineWidget(self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height(),4,self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height(),90,False)
-	self.FMAC_FALULine.setMaximumWidth(8)
-	self.FMAC_FALULine.setMaximumHeight(self.FMACButton.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height()+7)
-	FALU_FMACLayout=QHBoxLayout()
-	FALU_FMACLayout.addWidget(self.FALU_FMACLine)
-	FALU_FMACLayout.addWidget(self.FMAC_FALULine)
-	self.gridLay.addLayout(FALU_FMACLayout,10,9,4,1)
+	#define the line between FALUButton and FMACButton,2rows,1column
+	height=48
+	width=70
+	self.FALU_FMACLine=LineWidget(30,0,30,height,2,0,0)
+	self.gridLay.addWidget(self.FALU_FMACLine,11,9,2,1)
+	self.FMAC_FALULine=LineWidget(35,0,35,height,3,0,0)
+	self.gridLay.addWidget(self.FMAC_FALULine,11,9,2,1)
 
-	#define the line between MRFButton and FALUButton
-	height=self.FALUButton.geometry().y()-self.MRFButton.geometry().y()+self.FALUButton.height()/3
-	width=self.FALUButton.geometry().x()-self.MRFButton.geometry().x()-self.MRFButton.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.MRF_FALULine=LineWidget02(length,width,height,angle*180,True)
+	#define the line between MRFButton and FALUButton,2rows,2columns
+	height=48
+	width=120
+	self.MRF_FALULine=LineWidget(3,17,width,height-15,0,20,height-15-17+20)
 	self.gridLay.addWidget(self.MRF_FALULine,9,7,2,2)
-	self.FALU_MRFLine=LineWidget02(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.FALU_MRFLine,9,7,3,2)
+	self.FALU_MRFLine=LineWidget(3,22,width,height-10,1,20,height-10-22+20)
+	self.gridLay.addWidget(self.FALU_MRFLine,9,7,2,2)
 
-	#define the line between BIU0Button and SHU1Button (qi qiao)
-	height=self.SHU1Button.geometry().y()-self.BIU0Button.geometry().y()-self.BIU0Button.height()
-	width=self.SHU1Button.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	lenght=height/math.sin(angle)	
-	self.BIU0_SHU1Line=LineWidget82(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.BIU0_SHU1Line,6,4,9,2)
-	self.SHU1_BIU0Line=LineWidget82(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.SHU1_BIU0Line,6,4,9,2)
+	#define the line between BIU0Button and SHU1Button,10rows,2columns
+	height=244
+	width=120
+	self.BIU0_SHU1Line=LineWidget(3,10,width,height-20,4,30,height-5-10+30)
+	self.gridLay.addWidget(self.BIU0_SHU1Line,6,4,10,2)
+	self.SHU1_BIU0Line=LineWidget(3,15,width,height-15,5,30,height-15+30)
+	self.gridLay.addWidget(self.SHU1_BIU0Line,6,4,10,2)
 
-	#define the line between SHU0Button and IMACButton(qi qiao)
-	height=self.IMACButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.IMACButton.geometry().x()-self.SHU0Button.geometry().x()-self.SHU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.SHU0_IMACLine=LineWidget42(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.SHU0_IMACLine,3,7,5,2)
-	self.IMAC_SHU0Line=LineWidget42(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.IMAC_SHU0Line,3,7,5,2)
+	#define the line between SHU0Button and IMACButton,6rows,2columns
+	height=146
+	width=120
+	self.SHU0_IMACLine=LineWidget(3,10,width,height-20,4,10,height-20-10+10)
+	self.gridLay.addWidget(self.SHU0_IMACLine,2,7,6,2)
+	self.IMAC_SHU0Line=LineWidget(3,15,width,height-15,5,10,height-15-15+10)
+	self.gridLay.addWidget(self.IMAC_SHU0Line,2,7,6,2)
 
-	#define the line between MRFButton and IALUButton(qi qiao)
-	height=self.MRFButton.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.MRFButton.geometry().x()-self.MRFButton.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.IALU_MRFLine=LineWidget42(length,width,height,180*angle,True)
-	self.gridLay.addWidget(self.IALU_MRFLine,4,7,5,2)
-	self.MRF_IALULine=LineWidget42(length,width,height,180*angle,False)
-	self.gridLay.addWidget(self.MRF_IALULine,4,7,5,2)
+	#define the line between MRFButton and IALUButton,6rows,2columns
+	height=146
+	width=120
+	self.IALU_MRFLine=LineWidget(3,height-25,width,10,6,10,height-15-10+10)
+	self.gridLay.addWidget(self.IALU_MRFLine,4,7,6,2)
+	self.MRF_IALULine=LineWidget(3,height-20,width,15,7,10,height-10-15+10)
+	self.gridLay.addWidget(self.MRF_IALULine,4,7,6,2)
 
-	#define the line between SHU1Button and FALUButton(qi qiao)
-	height=self.SHU1Button.geometry().y()-self.FALUButton.geometry().y()-self.FALUButton.height()
-	width=self.FALUButton.geometry().x()-self.SHU1Button.geometry().x()-self.SHU1Button.width()
-	angle=math.atan(float(height)/float(width)) #h/w
-	length=height/math.sin(angle)  #h/sin(a)
-	self.FALU_SHU1Line=LineWidget42(length,width,height,180*angle,True)
-	self.gridLay.addWidget(self.FALU_SHU1Line,10,7,5,2)
-	self.SHU1_FALULine=LineWidget42(length,width,height,180*angle,False)
-	self.gridLay.addWidget(self.SHU1_FALULine,10,7,5,2)
+	#define the line between SHU1Button and FALUButton,6rows,2columns
+	height=146
+	width=120
+	self.FALU_SHU1Line=LineWidget(3,height-25,width,20,6,30,height-25-20+30)
+	self.gridLay.addWidget(self.FALU_SHU1Line,10,7,6,2)
+	self.SHU1_FALULine=LineWidget(3,height-20,width,25,7,30,height-20-25+30)
+	self.gridLay.addWidget(self.SHU1_FALULine,10,7,6,2)
 
-	#define the line between BIU1Button and SHU1Button(borrow other line parameters to do)
-	height=self.IMACButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.IMACButton.geometry().x()-self.SHU0Button.geometry().x()-self.SHU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU1_SHU1Line=LineWidget42(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.BIU1_SHU1Line,10,4,5,2)
-	self.SHU1_BIU1Line=LineWidget42(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.SHU1_BIU1Line,10,4,5,2)	
+	#define the line between BIU1Button and SHU1Button,7rows,2columns
+	height=171
+	width=120
+	self.BIU1_SHU1Line=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
+	self.gridLay.addWidget(self.BIU1_SHU1Line,9,4,7,2)
+	self.SHU1_BIU1Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
+	self.gridLay.addWidget(self.SHU1_BIU1Line,9,4,7,2)
 
-	#define the line between BIU1Button and SHU0Button(qi qiao)
-	height=self.BIU1Button.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.SHU0Button.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width()
-	angle=math.atan(float(height)/float(width))
-	lenght=height/math.sin(angle)
-	self.SHU0_BIU1Line=LineWidget62(lenght,width,height,angle*180,True)
-	self.gridLay.addWidget(self.SHU0_BIU1Line,3,4,7,2)
-	self.BIU1_SHU0Line=LineWidget62(lenght,width,height,angle*180,False)
-	self.gridLay.addWidget(self.BIU1_SHU0Line,3,4,7,2)
+	#define the line between BIU1Button and SHU0Button,8rows,2columns
+	height=196
+	width=120
+	self.SHU0_BIU1Line=LineWidget(3,height-25,width,25,6,30,height-25-25+30)
+	self.gridLay.addWidget(self.SHU0_BIU1Line,2,4,8,2)
+	self.BIU1_SHU0Line=LineWidget(3,height-20,width,30,7,30,height-20-30+30)
+	self.gridLay.addWidget(self.BIU1_SHU0Line,2,4,8,2)
 
-	#define the line between SHU1Button and IMACButton(qi qiao)
-	height=self.SHU1Button.geometry().y()-self.IMACButton.geometry().y()-self.IMACButton.height()
-	width=self.IMACButton.geometry().x()-self.SHU1Button.geometry().x()-self.SHU1Button.width()
-	angle=math.atan(float(height)/float(width))
-	lenght=height/math.sin(angle)
-	self.IMAC_SHU1Line=LineWidget72(lenght,width,height,angle*180,True)
-	self.gridLay.addWidget(self.IMAC_SHU1Line,7,7,8,2)
-	self.SHU1_IMACLine=LineWidget72(lenght,width,height,angle*180,False)
-	self.gridLay.addWidget(self.SHU1_IMACLine,7,7,8,2)	
+	#define the line between SHU1Button and IMACButton,9rows,2columns
+	height=219
+	width=120
+	self.IMAC_SHU1Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
+	self.gridLay.addWidget(self.IMAC_SHU1Line,7,7,9,2)
+	self.SHU1_IMACLine=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
+	self.gridLay.addWidget(self.SHU1_IMACLine,7,7,9,2)	
 
-	#define the line between SHU0Button and FALUButton(qi qiao)
-	height=self.FALUButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.FALUButton.geometry().x()-self.SHU0Button.geometry().x()-self.SHU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	lenght=height/math.sin(angle)
-	self.SHU0_FALULine=LineWidget72(lenght,width,height,180-angle*180,True)
-	self.gridLay.addWidget(self.SHU0_FALULine,3,7,8,2)
-	self.FALU_SHU0Line=LineWidget72(lenght,width,height,180-angle*180,False)
-	self.gridLay.addWidget(self.FALU_SHU0Line,3,7,8,2)
+	#define the line between SHU0Button and FALUButton,9rows,2columns
+	height=219
+	width=120
+	self.SHU0_FALULine=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
+	self.gridLay.addWidget(self.SHU0_FALULine,2,7,9,2)
+	self.FALU_SHU0Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
+	self.gridLay.addWidget(self.FALU_SHU0Line,2,7,9,2)
 
-	#define the line between BIU2Button and SHU0Button(qi qiao)
-	height=self.BIU2Button.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.SHU0Button.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.SHU0_BIU2Line=LineWidget92(length,width,height,180*angle,True)
-	self.gridLay.addWidget(self.SHU0_BIU2Line,2,4,10,2)
-	self.BIU2_SHU0Line=LineWidget92(length,width,height,180*angle,False)
-	self.gridLay.addWidget(self.BIU2_SHU0Line,2,4,10,2)
+	#define the line between BIU2Button and SHU0Button,11rows,2columns
+	height=269
+	width=120
+	self.SHU0_BIU2Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
+	self.gridLay.addWidget(self.SHU0_BIU2Line,2,4,11,2)
+	self.BIU2_SHU0Line=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
+	self.gridLay.addWidget(self.BIU2_SHU0Line,2,4,11,2)
 
-	#define the line between SHU0Button and FMACButton(qi qiao)
-	height=self.FMACButton.geometry().y()-self.SHU0Button.geometry().y()-self.SHU0Button.height()
-	width=self.FMACButton.geometry().x()-self.SHU0Button.geometry().x()-self.SHU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.SHU0_FMACLine=LineWidget102(length,width,height,70,True)
-	self.gridLay.addWidget(self.SHU0_FMACLine,3,7,11,2)
-	self.FMAC_SHU0Line=LineWidget102(lenght,width,height,70,False)
-	self.gridLay.addWidget(self.FMAC_SHU0Line,3,7,11,2)
+	#define the line between SHU0Button and FMACButton,12rows,2columns
+	height=292
+	width=120
+	self.SHU0_FMACLine=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
+	self.gridLay.addWidget(self.SHU0_FMACLine,2,7,12,2)
+	self.FMAC_SHU0Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
+	self.gridLay.addWidget(self.FMAC_SHU0Line,2,7,12,2)
 
-	#define the line between SHU1Button and IALUButton(qi qiao)
-	height=self.SHU1Button.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.SHU1Button.geometry().x()-self.SHU1Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.IALU_SHU1Line=LineWidget102(length,width,height,110,True)
-	self.gridLay.addWidget(self.IALU_SHU1Line,4,7,11,2)
-	self.SHU1_IALULine=LineWidget102(length,width,height,110,False)
-	self.gridLay.addWidget(self.SHU1_IALULine,5,7,11,2)
+	#define the line between SHU1Button and IALUButton,12rows,2column
+	height=292
+	width=120
+	self.IALU_SHU1Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
+	self.gridLay.addWidget(self.IALU_SHU1Line,4,7,12,2)
+	self.SHU1_IALULine=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
+	self.gridLay.addWidget(self.SHU1_IALULine,4,7,12,2)
 
-	#define the line between BIU0Button and IALUButton
-	height=self.BIU0Button.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.IALU_BIU0Line=LineWidget15(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.IALU_BIU0Line,4,4,2,5)
-	self.BIU0_IALULine=LineWidget15(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.BIU0_IALULine,4,4,2,5)	
+	#define the line between BIU0Button and IALUButton,3rows,5columns
+	height=73
+	width=310
+	self.IALU_BIU0Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.IALU_BIU0Line,4,4,3,5)
+	self.BIU0_IALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.BIU0_IALULine,4,4,3,5)	
 
-	#define the line between BIU1Button and IMACButton
-	height=self.BIU0Button.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.IMAC_BIU1Line=LineWidget15(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.IMAC_BIU1Line,7,4,2,5)
-	self.BIU1_IMACLine=LineWidget15(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.BIU1_IMACLine,7,4,2,5)
+	#define the line between BIU1Button and IMACButton,3rows,5columns
+	height=73
+	width=310
+	self.IMAC_BIU1Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.IMAC_BIU1Line,7,4,3,5)
+	self.BIU1_IMACLine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.BIU1_IMACLine,7,4,3,5)
 
-	#define the line between BIU2Button and FALUButton
-	height=self.BIU0Button.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.FALU_BIU2Line=LineWidget15(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.FALU_BIU2Line,10,4,2,5)
-	self.BIU2_FALULine=LineWidget15(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.BIU2_FALULine,10,4,2,5)
+	#define the line between BIU2Button and FALUButton,3rows,5columns
+	height=73
+	width=310
+	self.FALU_BIU2Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.FALU_BIU2Line,10,4,3,5)
+	self.BIU2_FALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.BIU2_FALULine,10,4,3,5)
 
-	#define the line between BIU0Button and IMACButton
-	height=self.IMACButton.geometry().y()-self.BIU0Button.geometry().y()
-	width=self.IMACButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU0_IMACLine=LineWidget05(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.BIU0_IMACLine,7,4,1,5)
-	self.IMAC_BIU0Line=LineWidget05(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.IMAC_BIU0Line,7,4,1,5)
+	#define the line between BIU0Button and IMACButton,2rows,5columns
+	height=48
+	width=310
+	self.BIU0_IMACLine=LineWidget(3,20,width,height-20,0,100,height-20-20+100)
+	self.gridLay.addWidget(self.BIU0_IMACLine,6,4,2,5)
+	self.IMAC_BIU0Line=LineWidget(3,25,width,height-15,1,100,height-15-25+100)
+	self.gridLay.addWidget(self.IMAC_BIU0Line,6,4,2,5)
 
-	#define the line between BIU1Button and FALUButton
-	height=self.IMACButton.geometry().y()-self.BIU0Button.geometry().y()
-	width=self.IMACButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU1_FALULine=LineWidget05(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.BIU1_FALULine,10,4,1,5)
-	self.FALU_BIU1Line=LineWidget05(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.FALU_BIU1Line,10,4,1,5)
+	#define the line between BIU1Button and FALUButton,2rows,5columns
+	height=48
+	width=310
+	self.BIU1_FALULine=LineWidget(3,20,width,height-10,0,100,height-10-20+100)
+	self.gridLay.addWidget(self.BIU1_FALULine,9,4,2,5)
+	self.FALU_BIU1Line=LineWidget(3,25,width,height-5,1,100,height-5-25+100)
+	self.gridLay.addWidget(self.FALU_BIU1Line,9,4,2,5)
 
-	#define the line between BIU2Button and FMACButton
-	height=self.IMACButton.geometry().y()-self.BIU0Button.geometry().y()
-	width=self.IMACButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU2_FMACLine=LineWidget05(length,width,height,angle*180,True)
-	self.gridLay.addWidget(self.BIU2_FMACLine,13,4,1,5)
-	self.FMAC_BIU2Line=LineWidget05(length,width,height,angle*180,False)
-	self.gridLay.addWidget(self.FMAC_BIU2Line,13,4,1,5)
+	#define the line between BIU2Button and FMACButton,2rows,5columns
+	height=48
+	width=310
+	self.BIU2_FMACLine=LineWidget(3,20,width,height-10,0,100,height-10-20+100)
+	self.gridLay.addWidget(self.BIU2_FMACLine,12,4,2,5)
+	self.FMAC_BIU2Line=LineWidget(3,25,width,height-5,1,100,height-5-25+100)
+	self.gridLay.addWidget(self.FMAC_BIU2Line,12,4,2,5)
 
-	#define the line between BIU1Button and FMACButton
-	height=self.FMACButton.geometry().y()-self.BIU1Button.geometry().y()-self.BIU1Button.height()
-	width=self.FMACButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.BIU1_FMACLine=LineWidget35(length,width,height,180*angle,True)
-	self.gridLay.addWidget(self.BIU1_FMACLine,10,4,4,5)
-	self.FMAC_BIU1Line=LineWidget35(length,width,height,180*angle,False)
-	self.gridLay.addWidget(self.FMAC_BIU1Line,10,4,4,5)
+	#define the line between BIU1Button and FMACButton,5rows,5columns
+	height=122
+	width=310
+	self.BIU1_FMACLine=LineWidget(3,10,width,height-20,0,100,height-20-10+100)
+	self.gridLay.addWidget(self.BIU1_FMACLine,9,4,5,5)
+	self.FMAC_BIU1Line=LineWidget(3,15,width,height-15,1,100,height-15-15+100)
+	self.gridLay.addWidget(self.FMAC_BIU1Line,9,4,5,5)
 
-	#define the line between BIU1Button and IALUButton
-	height=self.BIU1Button.geometry().y()-self.IALUButton.geometry().y()-self.IALUButton.height()
-	width=self.IALUButton.geometry().x()-self.BIU1Button.geometry().x()-self.BIU1Button.width()
-	angle=math.atan(float(height)/float(width))
-	length=height/math.sin(angle)
-	self.IALU_BIU1Line=LineWidget45(length,width,height,180-180*angle,True)
-	self.gridLay.addWidget(self.IALU_BIU1Line,4,4,5,5)
-	self.BIU1_IALULine=LineWidget45(length,width,height,180-180*angle,False)
-	self.gridLay.addWidget(self.BIU1_IALULine,4,4,5,5)	
+	#define the line between BIU1Button and IALUButton,6rows,5columns
+	height=146
+	width=310
+	self.IALU_BIU1Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.IALU_BIU1Line,4,4,6,5)
+	self.BIU1_IALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.BIU1_IALULine,4,4,6,5)	
 
-	#define the line between IALUButton and FALUButton
-	height=self.FALUButton.geometry().y()-self.IALUButton.geometry().y()+self.FALUButton.height()
-	width=self.FALUButton.width()
-	self.IALU_FALULine=LineWidgetB71(0,width,height,0,True)
+	#define the line between BIU0Button and FALUButton,5rows,5columns
+	height=122
+	width=310
+	self.BIU0_FALULine=LineWidget(3,10,width,height-20,0,150,height-20-10+150)
+	self.gridLay.addWidget(self.BIU0_FALULine,6,4,5,5)	
+	self.FALU_BIU0Line=LineWidget(3,15,width,height-15,1,150,height-15-15+150)
+	self.gridLay.addWidget(self.FALU_BIU0Line,6,4,5,5)	
+
+	#define the line between BIU0Button and FMACButton,8rows,5columns
+	height=196
+	width=310
+	self.BIU0_FMACLine=LineWidget(3,10,width,height-20,0,10,height-20-10+10)
+	self.gridLay.addWidget(self.BIU0_FMACLine,6,4,8,5)
+	self.FMAC_BIU0Line=LineWidget(3,15,width,height-15,1,10,height-15-15+10)
+	self.gridLay.addWidget(self.FMAC_BIU0Line,6,4,8,5)
+
+
+	#define the line between BIU2Button and IALUButton,9rows,5columns
+	height=219
+	width=310
+	self.BIU2_IALULine=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.BIU2_IALULine,4,4,9,5)
+	self.IALU_BIU2Line=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.IALU_BIU2Line,4,4,9,5)
+
+	#define the line between BIU2Button and IMACButton,6rows,5columns
+	height=146
+	width=310
+	self.BIU2_IMACLine=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
+	self.gridLay.addWidget(self.BIU2_IMACLine,7,4,6,5)
+	self.IMAC_BIU2Line=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
+	self.gridLay.addWidget(self.IMAC_BIU2Line,7,4,6,5)
+
+	#define the line between IALUButton and FALUButton,7rows,1column
+	height=171
+	width=70	
+	self.IALU_FALULine=LineWidget(3,20,3,height-20,8,0,0)
 	self.gridLay.addWidget(self.IALU_FALULine,4,10,7,1)
-	self.FALU_IALULine=LineWidgetB71(0,width,height,0,False)
+	self.FALU_IALULine=LineWidget(3,10,3,height-10,9,0,0)
 	self.gridLay.addWidget(self.FALU_IALULine,4,10,7,1)
 
-	#define the line between BIU0Button and FALUButton
-	#i
-	height=self.FALUButton.geometry().y()-self.BIU0Button.geometry().y()+self.FALUButton.height()
-	width=self.FALUButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	self.BIU0_FALULinei=LineWidgetBi55(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU0_FALULinei,6,4,1,5)
-	self.FALU_BIU0Linei=LineWidgetBi55(0,width,height,0,False)
-	self.gridLay.addWidget(self.FALU_BIU0Linei,6,4,1,5)
-	self.BIU0_FALULinej=LineWidgetBj55(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU0_FALULinej,6,8,5,1)
-	self.FALU_BIU0Linej=LineWidgetBj55(0,width,height,0,False)
-	self.gridLay.addWidget(self.FALU_BIU0Linej,6,8,5,1)	
-
-	#define the line between BIU0Button and FMACButton
-	height=self.FMACButton.geometry().y()-self.BIU0Button.geometry().y()+self.FMACButton.height()
-	width=self.FMACButton.geometry().x()-self.BIU0Button.geometry().x()-self.BIU0Button.width()
-	self.BIU0_FMACLinei=LineWidgetBi85(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU0_FMACLinei,6,4,1,5)
-	self.FMAC_BIU0Linei=LineWidgetBi85(0,width,height,0,False)
-	self.gridLay.addWidget(self.FMAC_BIU0Linei,6,4,1,5)
-	self.BIU0_FMACLinej=LineWidgetBj85(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU0_FMACLinej,6,8,8,1)
-	self.FMAC_BIU0Linej=LineWidgetBj85(0,width,height,0,False)
-	self.gridLay.addWidget(self.FMAC_BIU0Linej,6,8,8,1)
-
-	#define the line between BIU2Button and IALUButton
-	height=self.BIU2Button.geometry().y()-self.IALUButton.geometry().y()+self.BIU2Button.height()
-	width=self.IALUButton.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	self.BIU2_IALULinei=LineWidgetBi95(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU2_IALULinei,4,4,9,1)
-	self.IALU_BIU2Linei=LineWidgetBi95(0,width,height,0,False)
-	self.gridLay.addWidget(self.IALU_BIU2Linei,4,4,9,1)
-	self.BIU2_IALULinej=LineWidgetBj95(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU2_IALULinej,4,4,1,5)
-	self.IALU_BIU2Linej=LineWidgetBj95(0,width,height,0,False)
-	self.gridLay.addWidget(self.IALU_BIU2Linej,4,4,1,5)
-
-	#define the line between BIU2Button and IMACButton
-	height=self.BIU2Button.geometry().y()-self.IMACButton.geometry().y()+self.BIU2Button.height()
-	width=self.IMACButton.geometry().x()-self.BIU2Button.geometry().x()-self.BIU2Button.width()
-	self.BIU2_IMACLinei=LineWidgetBi65(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU2_IMACLinei,7,4,6,1)
-	self.IMAC_BIU2Linei=LineWidgetBi65(0,width,height,0,False)
-	self.gridLay.addWidget(self.IMAC_BIU2Linei,7,4,6,1)
-	self.BIU2_IMACLinej=LineWidgetBj65(0,width,height,0,True)
-	self.gridLay.addWidget(self.BIU2_IMACLinej,7,4,1,5)
-	self.IMAC_BIU2Linej=LineWidgetBj65(0,width,height,0,False)
-	self.gridLay.addWidget(self.IMAC_BIU2Linej,7,4,1,5)	
-
+	self.gridLay.addWidget(self.MRFButton,9,6)
 
     def linesShow(self):
 	#between DMButton and BIU0Button
 	self.DM_BIU0Line.setVisible(False)
 	self.BIU0_DMLine.setVisible(False)
-	self.DM_BIU0Edit.setVisible(False)
-	self.BIU0_DMEdit.setVisible(False)
 
 	#between DMButton and BIU1Button
 	self.DM_BIU1Line.setVisible(False)
