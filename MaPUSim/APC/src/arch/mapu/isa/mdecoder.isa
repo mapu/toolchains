@@ -498,7 +498,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
         else if (IMAC_H) MPUReg::swap(a, b, 2);
         MPUd  = a;
         MPUhd = b;
-      }}, ImacMulOp);
+      }}, ImacMulLOp);
       0x3: imacmas ({{
         MPUReg result;
         ImacTm.settrunc(false);
@@ -695,7 +695,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
           else if (IMAC_H) MPUReg::swap(a, b, 2);
           MPUd  = a;
           MPUhd = b;
-        }}, ImacMacMovOp);
+        }}, ImacMacMovLOp);
       }
               
       0xb: imacacc ({{

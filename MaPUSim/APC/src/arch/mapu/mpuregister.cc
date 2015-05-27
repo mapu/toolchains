@@ -889,7 +889,7 @@ void MPURegister::swap(MPURegister &lo, MPURegister &hi, unsigned size) {
     // hi: 4 5 6 7
     // 2->4 4->2 3->5 5->3
     for (unsigned i = 0; i < 16; i++) {
-      uint8_t tmp = lo[2 + i * 2];
+      uint8_t tmp = lo[2 + i * 4];
       lo[2 + i * 4] = hi[i * 4];
       hi[i * 4] = tmp;
       tmp = lo[3 + i * 4];

@@ -54,8 +54,8 @@ class OpClass(Enum):
 class MOpClass(Enum):
     vals = ['No_MOpClass', 'Mr0123Op', 'Mr2WOp', 'ShuIndCombOp', 
             'IaluArithOp', 'IaluDivOp', 'IaluDivMovOp', 'IaluCondOp',
-            'ImacMulOp', 'ImacMASOp', 'ImacMAOp', 'ImacMacOp',
-            'ImacMacMovOp', 'ImacAccOp', 'ImacAccMovOp', 'FaluArithOp', 'FmacMulOp', 
+            'ImacMulOp', 'ImacMulLOp', 'ImacMASOp', 'ImacMAOp', 'ImacMacOp',
+            'ImacMacMovOp', 'ImacMacMovLOp', 'ImacAccOp', 'ImacAccMovOp', 'FaluArithOp', 'FmacMulOp', 
             'FmacCmulOp', 'FmacMAOp', 'FmacMacOp', 'FmacMacMovOp', 
             'Biu0MemOp', 'Biu1MemOp', 'Biu2MemOp', 'MseqCtrlOp']
 

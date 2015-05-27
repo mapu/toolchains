@@ -982,10 +982,12 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
   case IaluDivMovOp: wb_stage = 2; break;
   case IaluCondOp: wb_stage = 3; break;
   case ImacMulOp: wb_stage = 5; break;
+  case ImacMulLOp: wb_stage = 6; break;
   case ImacMASOp: wb_stage = 7; break;
   case ImacMAOp: wb_stage = 6; break;
   case ImacMacOp: wb_stage = 6; break;
   case ImacMacMovOp: wb_stage = 8; break;
+  case ImacMacMovLOp: wb_stage = 9; break;
   case ImacAccOp: wb_stage = 1; break;
   case ImacAccMovOp: wb_stage = 4; break;
   case FaluArithOp: wb_stage = 5; break;
@@ -1043,10 +1045,12 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
     case IaluDivMovOp:
     case IaluCondOp:
     case ImacMulOp:
+    case ImacMulLOp:
     case ImacMASOp:
     case ImacMAOp:
     case ImacMacOp:
     case ImacMacMovOp:
+    case ImacMacMovLOp:
     case ImacAccOp:
     case ImacAccMovOp:
     case FaluArithOp:
@@ -1078,22 +1082,24 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
   }
 
   StageScheduler *pW = NULL;
+  StageScheduler *pSecW = NULL;
   switch (wb_stage) {
-  case 0: pW = &RR; break;
-  case 1: pW = &EX1; break;
-  case 2: pW = &EX2; break;
-  case 3: pW = &EX3; break;
-  case 4: pW = &EX4; break;
-  case 5: pW = &EX5; break;
-  case 6: pW = &EX6; break;
-  case 7: pW = &EX7; break;
-  case 8: pW = &EX8; break;
-  case 9: pW = &EX9; break;
-  case 10: pW = &EX10; break;
-  case 11: pW = &EX11; break;
-  case 12: pW = &EX12; break;
-  default: pW = &RR; break;
+  case 0: pW = &RR; pSecW = NULL; break;
+  case 1: pW = &EX1; pSecW = &RR; break;
+  case 2: pW = &EX2; pSecW = &EX1; break;
+  case 3: pW = &EX3; pSecW = &EX2; break;
+  case 4: pW = &EX4; pSecW = &EX3; break;
+  case 5: pW = &EX5; pSecW = &EX4; break;
+  case 6: pW = &EX6; pSecW = &EX5; break;
+  case 7: pW = &EX7; pSecW = &EX6; break;
+  case 8: pW = &EX8; pSecW = &EX7; break;
+  case 9: pW = &EX9; pSecW = &EX8; break;
+  case 10: pW = &EX10; pSecW = &EX9; break;
+  case 11: pW = &EX11; pSecW = &EX10; break;
+  case 12: pW = &EX12; pSecW = &EX11; break;
+  default: pW = &RR; pSecW = NULL; break;
   }
+
 #if 0
   if (inst->is1cycle())
     pW = &EX1;
@@ -1144,6 +1150,20 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
     case ImacMacMovOp:
       if (idx < 2)
         EX6.needs(MPURegManager, MpuRfsUnit::WriteMR, idx);
+      else
+        pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+      break;
+    case ImacMacMovLOp:
+      if (idx < 2)
+        EX6.needs(MPURegManager, MpuRfsUnit::WriteMR, idx);
+      else if (idx == 2)
+        pSecW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+      else
+        pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+      break;
+    case ImacMulLOp:
+      if (idx == 0)
+        pSecW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
       else
         pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
       break;
