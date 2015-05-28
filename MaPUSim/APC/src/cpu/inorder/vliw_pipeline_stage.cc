@@ -40,6 +40,7 @@
 #include "debug/InOrderStall.hh"
 #include "debug/Resource.hh"
 #include "debug/ThreadModel.hh"
+#include "debug/MapuPipeStage.hh"
 
 using namespace std;
 using namespace ThePipeline;
@@ -166,6 +167,8 @@ void VliwPipelineStage::processInsts(ThreadID tid) {
     DPRINTF(InOrderStage, "[tid:%u]: Processing instruction [sn:%lli] "
             "%s with PC %s\n", cpu_tid(tid), inst->seqNum, inst->instName(),
             inst->pcState());
+    // For MaPU GUI trace
+    DPRINTF(MapuPipeStage, "[sn:%u]\n", inst->seqNum);
 
     if (inst->isSquashed()) {
       DPRINTF(InOrderStage, "[tid:%u]: Instruction %i with PC %s is "

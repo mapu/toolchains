@@ -88,8 +88,9 @@ dprintf(Tick when, const std::string &name, const char *format,
     }
 
     if (when != (Tick)-1) {
-        fmt = "%7d[%7d]: " + fmt;
-        args.push_front(when/2000);
+        fmt = "%d[%d]: " + fmt;
+        volatile Tick cycles = when/2000;
+        args.push_front(cycles);
         args.push_front(when);
     }
 

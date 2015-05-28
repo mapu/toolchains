@@ -40,6 +40,7 @@
 #include "debug/InOrderStall.hh"
 #include "debug/Resource.hh"
 #include "debug/ThreadModel.hh"
+#include "debug/MapuPipeStage.hh"
 
 using namespace std;
 using namespace ThePipeline;
@@ -997,6 +998,9 @@ PipelineStage::processInsts(ThreadID tid)
 
         int reqs_processed = 0;
         last_req_completed = processInstSchedule(inst, reqs_processed);
+
+        // For MaPU GUI trace
+        DPRINTF(MapuPipeStage, "[sn:%lli]\n", inst->seqNum);
 
         // If the instruction isnt squashed & we've completed one request
         // Then we can officially count this instruction toward the stage's

@@ -62,12 +62,17 @@ if 'InOrderCPU' in env['CPU_MODELS']:
         DebugFlag('InOrderRepeat')
         DebugFlag('InOrderMpuRfs')
         DebugFlag('MapuCSU')
+        DebugFlag('MapuPipeStage')
+        DebugFlag('MapuDisasm')
+        DebugFlag('MapuReg')
 
         CompoundFlag('InOrderCPUAll', [ 'InOrderStage', 'InOrderStall', 'InOrderCPU',
                'InOrderMDU', 'InOrderAGEN', 'InOrderFetchSeq', 'InOrderTLB', 'InOrderBPred',
                'InOrderDecode', 'InOrderExecute', 'InOrderInstBuffer', 'InOrderUseDef',
                'InOrderGraduation', 'InOrderCachePort', 'RegDepMap', 'Resource',
                'InOrderStall','ThreadModel', 'AddrDep'])
+               
+        CompoundFlag('MapuGUI', ['MapuReg', 'MapuPipeStage', 'MapuDisasm'])
 
         Source('inorder_dyn_inst.cc')
         Source('inorder_cpu_builder.cc')

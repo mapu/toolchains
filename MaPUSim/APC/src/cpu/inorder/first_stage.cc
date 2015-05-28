@@ -35,6 +35,7 @@
 #include "cpu/inorder/first_stage.hh"
 #include "cpu/inorder/resource_pool.hh"
 #include "debug/InOrderStage.hh"
+#include "debug/MapuPipeStage.hh"
 #include "params/InOrderTrace.hh"
 
 using namespace std;
@@ -194,6 +195,9 @@ FirstStage::processInsts(ThreadID tid)
             	inst->setMCode();
             } else inst->setFrontSked(cpu->frontEndSked);
         }
+
+        // For MaPU GUI trace
+        DPRINTF(MapuPipeStage, "[sn:%lli]\n", inst->seqNum);
 
         int reqs_processed = 0;
         all_reqs_completed = processInstSchedule(inst, reqs_processed);

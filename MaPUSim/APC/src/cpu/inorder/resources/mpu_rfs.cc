@@ -39,6 +39,7 @@
 #include "cpu/inorder/pipeline_traits.hh"
 #include "debug/InOrderStall.hh"
 #include "debug/InOrderMpuRfs.hh"
+#include "debug/MapuReg.hh"
 
 using namespace std;
 using namespace TheISA;
@@ -247,6 +248,12 @@ void MpuRfsUnit::execute(int slot_idx) {
               " (%i) from Register File.\n", tid, seq_num,
               reg_idx, flat_idx);
       inst->setMPUSrc(mr_idx, cpu->readMPUReg(flat_idx, tid));
+
+      // For MaPU GUI trace
+      DPRINTF(MapuReg, "[sn:%lli] : R MPU Reg %i : ", inst->seqNum, flat_idx);
+      for (int i = 0; i < 64; i++)
+        DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(flat_idx, tid)[i]);
+      DPRINTFR(MapuReg, "\n");
 #if TRACING_ON
       if (inst->rr_tick == MaxTick)
         inst->rr_tick = curTick();
@@ -268,6 +275,12 @@ void MpuRfsUnit::execute(int slot_idx) {
     DPRINTF(InOrderMpuRfs, "[tid:%i]: [sn:%i]: Reading Vector Reg %i"
             " (%i) from Register File.\n", tid, seq_num, reg_idx, reg_idx);
     inst->setMPUSrc(mr_idx, cpu->readMPUReg(reg_idx, tid));
+
+    // For MaPU GUI trace
+    DPRINTF(MapuReg, "[sn:%lli] : R MPU Reg %i : ", inst->seqNum, reg_idx);
+    for (int i = 0; i < 64; i++)
+      DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(reg_idx, tid)[i]);
+    DPRINTFR(MapuReg, "\n");
     mr_req->done();
   }
     break;
@@ -294,6 +307,12 @@ void MpuRfsUnit::execute(int slot_idx) {
       DPRINTF(InOrderMpuRfs, "[tid:%i]: [sn:%i]: Writing Vector Result "
               "to register idx %i (%i).\n", tid, seq_num,
               reg_idx, flat_idx);
+
+      // For MaPU GUI trace
+      DPRINTF(MapuReg, "[sn:%lli] : W MPU Reg %i : ", inst->seqNum, flat_idx);
+      for (int i = 0; i < 64; i++)
+        DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
+      DPRINTFR(MapuReg, "\n");
 
       /*if ((reg_type == InOrderCPU::VectorType && flat_idx < NumMRegs) ||
           (inst->opClass() == IntMultOp && mr_idx == 3)) {
@@ -328,6 +347,9 @@ void MpuRfsUnit::execute(int slot_idx) {
       cpu->setMiscReg(flat_idx,
                       inst->readIntResult(mr_idx),
                       tid);
+
+      DPRINTF(MapuReg, "[sn:%lli] : W Misc Reg %i : %#llx",
+              inst->seqNum, reg_idx - Ctrl_Base_DepTag, inst->readIntResult(mr_idx));
       break;
 
     }
@@ -342,11 +364,16 @@ void MpuRfsUnit::execute(int slot_idx) {
   case WriteMR: {
     RegIndex reg_idx = inst->_destRegIdx[mr_idx];
 
-    DPRINTF(
-      InOrderMpuRfs,
-      "[tid:%i]: [sn:%i]: Writing Vector Result " "to register idx %i (%i).\n",
-      tid, seq_num, /*inst->readIntResult(ud_idx),*/
-      reg_idx, reg_idx);
+    DPRINTF(InOrderMpuRfs, "[tid:%i]: [sn:%i]: Writing Vector Result "
+            "to register idx %i (%i).\n", tid, seq_num, /*inst->readIntResult(ud_idx),*/
+            reg_idx, reg_idx);
+
+    // For MaPU GUI trace
+    DPRINTF(MapuReg, "[sn:%lli] : W MPU Reg %i : ", inst->seqNum, reg_idx);
+    for (int i = 0; i < 64; i++)
+      DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
+    DPRINTFR(MapuReg, "\n");
+
     cpu->setMPUReg(reg_idx, inst->readMPURegResult(mr_idx), tid);
     mr_req->done();
   }
