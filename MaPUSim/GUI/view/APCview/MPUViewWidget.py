@@ -19,7 +19,6 @@ class MPUViewWidget(QWidget):
 	widgetLay.addWidget(self.widget,0,0)
 	self.leftWidget.setLayout(widgetLay)
 	self.widget.setFixedSize(700,370)
-	#self.widget.setStyleSheet("background-color: rgb(170, 0, 255);");
 	self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(70,25)
 	self.DMButton.setEnabled(False)
@@ -224,64 +223,79 @@ class MPUViewWidget(QWidget):
 	self.connect(self.FALUButton,SIGNAL("clicked()"),self.FALUButtonSlot)
 	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
 	
+	#define float dialog
+	self.DMButtonDialog=FloatDialog()
+	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
+	self.BIU0ButtonDialog=FloatDialog()
+	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))
+	self.BIU1ButtonDialog=FloatDialog()
+	self.BIU1ButtonDialog.setWindowTitle(self.tr("BIU1 Stages"))	
+	self.BIU2ButtonDialog=FloatDialog()
+	self.BIU2ButtonDialog.setWindowTitle(self.tr("BIU2 Stages"))	
+	self.SHU0ButtonDialog=FloatDialog()
+	self.SHU0ButtonDialog.setWindowTitle(self.tr("SHU0 Stages"))	
+	self.SHU1ButtonDialog=FloatDialog()
+	self.SHU1ButtonDialog.setWindowTitle(self.tr("SHU1 Stages"))
+	self.MRFButtonDialog=FloatDialog()
+	self.MRFButtonDialog.setWindowTitle(self.tr("MRF Stages"))	
+	self.IALUButtonDialog=FloatDialog()
+	self.IALUButtonDialog.setWindowTitle(self.tr("IALU Stages"))	
+	self.IMACButtonDialog=FloatDialog()
+	self.IMACButtonDialog.setWindowTitle(self.tr("IMAC Stages"))
+	self.FALUButtonDialog=FloatDialog()
+	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
+	self.FMACButtonDialog=FloatDialog()
+	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))		
 	#paint lines
 	self.paintLines()
 
- 	#define slot function
+    #define slot function
     def DMButtonSlot(self):
-	self.DMButtonDialog=FloatDialog()
-	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
 	self.DMButtonDialog.show()
 
     def BIU0ButtonSlot(self):
-	self.BIU0ButtonDialog=FloatDialog()
-	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))	
 	self.BIU0ButtonDialog.show()
 
     def BIU1ButtonSlot(self):
-	self.BIU1ButtonDialog=FloatDialog()
-	self.BIU1ButtonDialog.setWindowTitle(self.tr("BIU1 Stages"))	
 	self.BIU1ButtonDialog.show()
 
     def BIU2ButtonSlot(self):
-	self.BIU2ButtonDialog=FloatDialog()
-	self.BIU2ButtonDialog.setWindowTitle(self.tr("BIU2 Stages"))	
 	self.BIU2ButtonDialog.show()
 
     def SHU0ButtonSlot(self):
-	self.SHU0ButtonDialog=FloatDialog()
-	self.SHU0ButtonDialog.setWindowTitle(self.tr("SHU0 Stages"))	
 	self.SHU0ButtonDialog.show()
 
-    def SHU1ButtonSlot(self):
-	self.SHU1ButtonDialog=FloatDialog()
-	self.SHU1ButtonDialog.setWindowTitle(self.tr("SHU1 Stages"))	
+    def SHU1ButtonSlot(self):	
 	self.SHU1ButtonDialog.show()
 
     def MRFButtonSlot(self):
-	self.MRFButtonDialog=FloatDialog()
-	self.MRFButtonDialog.setWindowTitle(self.tr("MRF Stages"))	
 	self.MRFButtonDialog.show()
 
     def IALUButtonSlot(self):
-	self.IALUButtonDialog=FloatDialog()
-	self.IALUButtonDialog.setWindowTitle(self.tr("IALU Stages"))	
 	self.IALUButtonDialog.show()
 
     def IMACButtonSlot(self):
-	self.IMACButtonDialog=FloatDialog()
-	self.IMACButtonDialog.setWindowTitle(self.tr("IMAC Stages"))	
 	self.IMACButtonDialog.show()
 
     def FALUButtonSlot(self):
-	self.FALUButtonDialog=FloatDialog()
-	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
 	self.FALUButtonDialog.show()
 
     def FMACButtonSlot(self):
-	self.FMACButtonDialog=FloatDialog()
-	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))	
 	self.FMACButtonDialog.show()
+
+    #define close all float dialogs
+    def closeFloatDialogs(self):
+	self.DMButtonDialog.close()
+	self.BIU0ButtonDialog.close()
+	self.BIU1ButtonDialog.close()
+	self.BIU2ButtonDialog.close()
+	self.SHU0ButtonDialog.close()
+	self.SHU1ButtonDialog.close()
+	self.MRFButtonDialog.close()
+	self.IALUButtonDialog.close()
+	self.IMACButtonDialog.close()
+	self.FALUButtonDialog.close()	
+	self.FMACButtonDialog.close()		
 
     def paintLines(self):
 	#define the line between DMButton and BIU0Button,4rows,2columns
@@ -619,184 +633,8 @@ class MPUViewWidget(QWidget):
 	self.gridLay.addWidget(self.IALU_FALULine,4,10,7,1)
 	self.FALU_IALULine=LineWidget(3,10,3,height-10,9,0,0)
 	self.gridLay.addWidget(self.FALU_IALULine,4,10,7,1)
-
+	
+	#make MRFButton show on the lineswidget
 	self.gridLay.addWidget(self.MRFButton,9,6)
 
-    def linesShow(self):
-	#between DMButton and BIU0Button
-	self.DM_BIU0Line.setVisible(False)
-	self.BIU0_DMLine.setVisible(False)
-
-	#between DMButton and BIU1Button
-	self.DM_BIU1Line.setVisible(False)
-	self.BIU1_DMLine.setVisible(False)
-	
-	#between DMButton and BIU2Button
-	self.DM_BIU2Line.setVisible(False)
-	self.BIU2_DMLine.setVisible(False)
-
-
-	#between BIU0Button and SHU0Button
-	self.BIU0_SHU0Line.setVisible(False)
-	self.SHU0_BIU0Line.setVisible(False)
-
-	#between BIU0Button and MRFButton
-	self.BIU0_MRFLine.setVisible(False)
-	self.MRF_BIU0Line.setVisible(False)
-
-	#between BIU1Button and MRFButton
-	self.BIU1_MRFLine.setVisible(False)
-	self.MRF_BIU1Line.setVisible(False)
-
-	#between BIU2Button and MRFButton 
-	self.MRF_BIU2Line.setVisible(False)
-	self.BIU2_MRFLine.setVisible(False) 
-
-	#between BIU2Button and SHU1Button
-	self.BIU2_SHU1Line.setVisible(False)
-	self.SHU1_BIU2Line.setVisible(False)
-
-	#between SHU0Button and MRFButton 
-	self.SHU0_MRFLine.setVisible(False)
-	self.MRF_SHU0Line.setVisible(False)
-
-	#between MRFButton and SHU1Button
-	self.MRF_SHU1Line.setVisible(False)
-	self.SHU1_MRFLine.setVisible(False)
-	
-	#SHU0Button and IALUButton
-	self.SHU0_IALULine.setVisible(False)
-	self.IALU_SHU0Line.setVisible(False)
-
-	#between MRFButton and IMACButton
-	self.IMAC_MRFLine.setVisible(False)
-	self.MRF_IMACLine.setVisible(False)
-
-	#between MRFButton and FMACButton
-	self.MRF_FMACLine.setVisible(False)
-	self.FMAC_MRFLine.setVisible(False)	
-
-	#between SHU1Button and FMACButton
-	self.FMAC_SHU1Line.setVisible(False)
-	self.SHU1_FMACLine.setVisible(False)
-
-	#between IALUButton and IMACButton
-	self.IALU_IMACLine.setVisible(False)
-	self.IMAC_IALULine.setVisible(False)
-
-	#between IMACButton and FALUButton
-	self.IMAC_FALULine.setVisible(False)
-	self.FALU_IMACLine.setVisible(False)
-
-	#between FALUButton and FMACButton
-	self.FALU_FMACLine.setVisible(False)
-	self.FMAC_FALULine.setVisible(False)
-
-	#between MRFButton and FALUButton
-	self.MRF_FALULine.setVisible(False)
-	self.FALU_MRFLine.setVisible(False)
-
-	#between BIU0Button and SHU1Button
-	self.BIU0_SHU1Line.setVisible(False)
-	self.SHU1_BIU0Line.setVisible(False)
-
-	#between SHU0Button and IMACButton
-	self.SHU0_IMACLine.setVisible(False)
-	self.IMAC_SHU0Line.setVisible(False)
-
-	#between MRFButton and IALUButton
-	self.IALU_MRFLine.setVisible(False)
-	self.MRF_IALULine.setVisible(False)
-
-	#between SHU1Button and FALUButton
-	self.FALU_SHU1Line.setVisible(False)
-	self.SHU1_FALULine.setVisible(False)
-
-	#between BIU1Button and SHU1Button
-	self.BIU1_SHU1Line.setVisible(False)
-	self.SHU1_BIU1Line.setVisible(False)	
-
-	#between BIU1Button and SHU0Button
-	self.SHU0_BIU1Line.setVisible(False)
-	self.BIU1_SHU0Line.setVisible(False)
-
-	#between SHU1Button and IMACButton
-	self.IMAC_SHU1Line.setVisible(False)
-	self.SHU1_IMACLine.setVisible(False)
-
-	#between SHU0Button and FALUButton
-	self.SHU0_FALULine.setVisible(False)
-	self.FALU_SHU0Line.setVisible(False)
-
-	#between BIU2Button and SHU0Button
-	self.SHU0_BIU2Line.setVisible(False)
-	self.BIU2_SHU0Line.setVisible(False)
-
-	#between SHU0Button and FMACButton
-	self.SHU0_FMACLine.setVisible(False)
-	self.FMAC_SHU0Line.setVisible(False)
-
-	#between SHU1Button and IALUButton
-	self.IALU_SHU1Line.setVisible(False)
-	self.SHU1_IALULine.setVisible(False)
-
-	#between BIU0Button and IALUButton
-	self.IALU_BIU0Line.setVisible(False)
-	self.BIU0_IALULine.setVisible(False)
-
-	#between BIU1Button and IMACButton
-	self.IMAC_BIU1Line.setVisible(False)
-	self.BIU1_IMACLine.setVisible(False)
-
-	#between BIU2Button and FALUButton
-	self.FALU_BIU2Line.setVisible(False)
-	self.BIU2_FALULine.setVisible(False)
-
-	#between BIU0Button and IMACButton
-	self.BIU0_IMACLine.setVisible(False)
-	self.IMAC_BIU0Line.setVisible(False)
-
-	#between BIU1Button and FALUButton
-	self.BIU1_FALULine.setVisible(False)
-	self.FALU_BIU1Line.setVisible(False)
-
-	#between BIU2Button and FMACButton
-	self.BIU2_FMACLine.setVisible(False)
-	self.FMAC_BIU2Line.setVisible(False)
-
-	#between BIU1Button and FMACButton
-	self.BIU1_FMACLine.setVisible(False)
-	self.FMAC_BIU1Line.setVisible(False)
-
-	#between BIU1Button and IALUButton
-	self.IALU_BIU1Line.setVisible(False)
-	self.BIU1_IALULine.setVisible(False)	
-
-	#between IALUButton and FALUButton
-	self.IALU_FALULine.setVisible(False)
-	self.FALU_IALULine.setVisible(False)
-
-	#between BIU0Button and FALUButton
-	self.BIU0_FALULinei.setVisible(False)
-	self.FALU_BIU0Linei.setVisible(False)
-	self.BIU0_FALULinej.setVisible(False)
-	self.FALU_BIU0Linej.setVisible(False)	
-
-	#between BIU0Button and FMACButton
-	self.BIU0_FMACLinei.setVisible(False)
-	self.FMAC_BIU0Linei.setVisible(False)
-	self.BIU0_FMACLinej.setVisible(False)
-	self.FMAC_BIU0Linej.setVisible(False)
-
-	#between BIU2Button and IALUButton
-	self.BIU2_IALULinei.setVisible(False)
-	self.IALU_BIU2Linei.setVisible(False)
-	self.BIU2_IALULinej.setVisible(False)
-	self.IALU_BIU2Linej.setVisible(False)
-
-	#between BIU2Button and IMACButton
-	self.BIU2_IMACLinei.setVisible(False)
-	self.IMAC_BIU2Linei.setVisible(False)
-	self.BIU2_IMACLinej.setVisible(False)
-	self.IMAC_BIU2Linej.setVisible(False)
 	

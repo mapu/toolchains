@@ -23,9 +23,9 @@ class MainWindow(QMainWindow):
 
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  
-        self.simuInfoWidget=SimuInfoWidget(self)
-        self.armViewWidget=ARMViewWidget(self)
-        self.apcViewWidget=APCViewWidget(self)
+        self.simuInfoWidget=SimuInfoWidget()
+        self.armViewWidget=ARMViewWidget()
+        self.apcViewWidget=APCViewWidget()
         self.configControlWidget=ConfigViewWidget()
         self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
         self.tabWidget.addTab(self.armViewWidget,self.tr("ARM Perspective"))
@@ -66,8 +66,9 @@ class MainWindow(QMainWindow):
     def createStatusBar(self):    
         self.statusBar().showMessage(self.tr("Statusbar"))    
         
-    
+    def closeEvent(self,event):
+	self.apcViewWidget.APE0Widget.MPUWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE1Widget.MPUWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE2Widget.MPUWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE3Widget.MPUWidget.closeFloatDialogs() 
         
-
-  
-
