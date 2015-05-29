@@ -46,6 +46,7 @@
 #include "debug/InOrderStall.hh"
 #include "debug/RefCount.hh"
 #include "debug/ThreadModel.hh"
+#include "debug/MapuDisasm.hh"
 #include "mem/request.hh"
 
 using namespace std;
@@ -362,6 +363,10 @@ void SFetchUnit::execute(int slot_num) {
 
       DPRINTF(InOrderLocalMemPort, "[tid:%i]: Instruction [sn:%i] is: %s\n",
               inst->readTid(), inst->seqNum,
+              inst->staticInst->disassemble(inst->instAddr()));
+      // For MaPU GUI trace
+      DPRINTF(MapuDisasm, "[sn:%lli] : [sln:%u] : %llx : %s\n",
+              inst->seqNum, inst->seqLineNum, inst->instAddr(),
               inst->staticInst->disassemble(inst->instAddr()));
 
       inst->unsetMemAddr();

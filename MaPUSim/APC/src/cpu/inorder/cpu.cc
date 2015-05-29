@@ -942,7 +942,8 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
   if (inst->isMemRef()) {
     RR.needs(AGEN, AGENUnit::GenerateAddr);
   } else if (inst->mopClass() == ImacMacOp ||
-             inst->mopClass() == ImacMacMovOp
+             inst->mopClass() == ImacMacMovOp ||
+             inst->mopClass() == ImacMacMovLOp
       /*inst->opClass() == IntMultOp && inst->pcState().sn() == 7 &&
              !inst->is2cycle() && !inst->is4cycle()*/) {
     EX6.needs(ExecUnit, ExecutionUnit::ExecuteInst);
@@ -2168,7 +2169,7 @@ void InOrderCPU::instDone(DynInstPtr inst, ThreadID tid) {
     //inst->traceData->setCycle(curTick());
     inst->traceData->setFetchSeq(inst->seqNum);
     //inst->traceData->setCPSeq(cpu->tcBase(tid)->numInst);
-    if (!inst->isNop())
+    if (!(inst->isNop() && inst->isMCode()))
       inst->traceData->dump();
     delete inst->traceData;
     inst->traceData = NULL;

@@ -399,6 +399,11 @@ void MFetchUnit::execute(int slot_num) {
       if (inst->id_tick == MaxTick)
         inst->id_tick = curTick();
 #endif
+      // For MaPU GUI trace
+      if (!inst->isNop())
+        DPRINTF(MapuDisasm, "[sn:%lli] : [sln:%u] : %llx : %s\n",
+                inst->seqNum, inst->seqLineNum, inst->instAddr(),
+                inst->staticInst->disassemble(inst->instAddr()));
       localmem_req->done();
       return;
     }
@@ -441,9 +446,10 @@ void MFetchUnit::execute(int slot_num) {
               inst->readTid(), inst->seqNum,
               inst->staticInst->disassemble(inst->instAddr()));
       // For MaPU GUI trace
-      DPRINTF(MapuDisasm, "[sn:%lli] : [sln:%u] : %s : %s\n",
-              inst->seqNum, inst->seqLineNum, inst->instAddr(),
-              inst->staticInst->disassemble(inst->instAddr()));
+      if (!inst->isNop())
+        DPRINTF(MapuDisasm, "[sn:%lli] : [sln:%u] : %llx : %s\n",
+                inst->seqNum, inst->seqLineNum, inst->instAddr(),
+                inst->staticInst->disassemble(inst->instAddr()));
 
       inst->unsetMemAddr();
 
