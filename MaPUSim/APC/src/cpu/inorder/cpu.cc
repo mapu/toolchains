@@ -881,6 +881,7 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
       break;
     case ImacMacOp:
     case ImacMacMovOp:
+    case ImacMacMovLOp:
       if (inst->srcRegIdx(idx) > 4)
         EX6.needs(MPURegManager, MpuRfsUnit::ReadMR, idx);
       else
