@@ -223,4 +223,8 @@ typedef void MMPUFn(void);
 void __mspu_callm (void*  mpu_fn);
 void __mspu_callmb(void*  mpu_fn);
 
+// Atomic memory access
+int __mspu_atomicld(const int *addr, const int offset);
+int __mspu_atomicst(const int *addr, const int offset, const int val);
+
 #endif // MSPU_INTRINSICS_H

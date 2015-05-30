@@ -171,6 +171,7 @@ def D14 : Reg64bit<28, "DR14", [R28, R29]>, DwarfRegNum<[110]>;
 def D15 : Reg64bit<30, "DR15", [R30, R31]>, DwarfRegNum<[111]>;
 
 //**************** synthetic register classes mainly for llc *************//
+def I1Reg : RegisterClass<"MSPUReg", [i1], 1, (sequence "R%u", 0, 31)>;
 def I32Reg : RegisterClass<"MSPUReg", [i32], 32, (sequence "R%u", 0, 31)>;
 def F32Reg : RegisterClass<"MSPUReg", [f32], 32, (sequence "R%u", 0, 31)>;
 def F64Reg : RegisterClass<"MSPUReg", [f64], 64, (sequence "D%u", 0, 15)>;

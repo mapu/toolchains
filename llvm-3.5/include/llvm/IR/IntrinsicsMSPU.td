@@ -138,4 +138,9 @@ let TargetPrefix = "mspu" in {  // All intrinsics start with "llvm.mspu.".
   def int_mspu_setSVRWithSHU: GCCBuiltin<"__mspu_setSVRWithSHU">,
   						Intrinsic <[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], []>;
 
+  def int_mspu_atomicld: GCCBuiltin<"__mspu_atomicld">,
+  						Intrinsic <[llvm_i32_ty], [LLVMPointerType<llvm_i32_ty>, llvm_i32_ty], []>;
+  
+  def int_mspu_atomicst: GCCBuiltin<"__mspu_atomicst">,
+  						Intrinsic <[llvm_i32_ty], [LLVMPointerType<llvm_i32_ty>, llvm_i32_ty, llvm_i32_ty], []>;
 }
