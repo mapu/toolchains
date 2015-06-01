@@ -1167,6 +1167,28 @@ def  AtomLoadAdd : PseudoInstr<(outs I32Reg:$r), (ins AddrJJ:$addr, I32Reg:$reg)
   let Itinerary = ItinAGU_5_1_1_1;
 }
 
+def __atomicld: LdStInstr<(outs I32Reg:$reg), (ins JReg:$base, JReg:$offset),
+                    "$reg = [$base + $offset] (AT)", 0b11010, 0b0001000,
+                    [( set I32Reg:$reg, (int_mspu_atomicld JReg:$base, JReg:$offset) )]>
+{
+   bits<5> offset;
+   bits<5> base;
+		let Inst{14-10} = offset; // offset
+		let Inst{9-5} = base; 	 // base
+  let Itinerary = ItinAGU_5_1_1;
+}
+
+def __atomicst: LdStInstr<(outs I32Reg:$ret), (ins JReg:$base, JReg:$offset, I32Reg:$reg),
+                    "[$base + $offset] = $reg (AT)", 0b11011, 0b0001000,
+                    [( set I32Reg:$ret, (int_mspu_atomicst JReg:$base, JReg:$offset, I32Reg:$reg))]>
+{
+   bits<5> offset;
+   bits<5> base;
+		let Inst{14-10} = offset; // offset
+		let Inst{9-5} = base; 	 // base
+  string Constraints = "$reg = $ret";
+  let Itinerary = ItinAGU_1_1_1;
+}
 /**********************************************************************/
 class LoadInstr< dag outs, dag ins, string asm,
 	  			 bits<7> flags,
@@ -2006,29 +2028,6 @@ def __GetChNumIndr : ChInstr<(outs I32Reg:$d), (ins I32Reg:$s), "$d = CH[$s] (N)
                        0b10101, [(set I32Reg:$d, (int_mspu_getChNumIndr I32Reg:$s))]>
 { let Itinerary = ItinAGU_2_1; }
 
-def __atomicld: LdStInstr<(outs I32Reg:$reg), (ins JReg:$base, JReg:$offset),
-                    "$reg = [$base + $offset] (AT)", 0b11010, 0b0001000,
-                    [( set I32Reg:$reg, (int_mspu_atomicld JReg:$base, JReg:$offset) )]>
-{
-   bits<5> offset;
-   bits<5> base;
-		let Inst{14-10} = offset; // offset
-		let Inst{9-5} = base; 	 // base
-  let Itinerary = ItinAGU_5_1_1;
-}
-
-def __atomicst: LdStInstr<(outs I32Reg:$ret), (ins JReg:$base, JReg:$offset, I32Reg:$reg),
-                    "[$base + $offset] = $reg (AT)", 0b11011, 0b0001000,
-                    [( set I32Reg:$ret, (int_mspu_atomicst JReg:$base, JReg:$offset, I32Reg:$reg) )]>
-{
-   bits<5> offset;
-   bits<5> base;
-   bits<5> ret;
-   let ret = reg;
-		let Inst{14-10} = offset; // offset
-		let Inst{9-5} = base; 	 // base
-  let Itinerary = ItinAGU_1_1_1;
-}
 
 
 /****************************************************************************************

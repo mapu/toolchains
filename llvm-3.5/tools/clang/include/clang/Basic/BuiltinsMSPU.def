@@ -88,8 +88,8 @@ BUILTIN(__mspu_setSHUWithSVR, "vIiCIiCIiC", "n")
 BUILTIN(__mspu_setSVRWithSHU, "vIiCIiCIiC", "n")
 
 // R = [J + J] (AT)
-BUILTIN(__mspu_atomicld, "iiC*IiC", "n")
+BUILTIN(__mspu_atomicld, "ii*Ii", "n")
 // [J + J] = R (AT)
-BUILTIN(__mspu_atomicst, "iiC*IiCIiC", "n")
+BUILTIN(__mspu_atomicst, "ii*Iii", "n")
 
 #undef BUILTIN
