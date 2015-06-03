@@ -32,10 +32,18 @@
 
 // Clang objects if you redefine a builtin.  This little hack allows us to
 // define a function with the same name as an intrinsic.
+#ifdef ARCH_MAPU
+#pragma redefine_extname __atomic_load_c __atomic_load
+#pragma redefine_extname __atomic_store_c __atomic_store
+#pragma redefine_extname __atomic_exchange_c __atomic_exchange
+#pragma redefine_extname __atomic_compare_exchange_c __atomic_compare_exchange
+#pragma redefine_extname __atomic_is_lock_free_c __atomic_is_lock_free
+#else
 #pragma redefine_extname __atomic_load_c SYMBOL_NAME(__atomic_load)
 #pragma redefine_extname __atomic_store_c SYMBOL_NAME(__atomic_store)
 #pragma redefine_extname __atomic_exchange_c SYMBOL_NAME(__atomic_exchange)
 #pragma redefine_extname __atomic_compare_exchange_c SYMBOL_NAME(__atomic_compare_exchange)
+#endif
 
 /// Number of locks.  This allocates one page on 32-bit platforms, two on
 /// 64-bit.  This can be specified externally if a different trade between
@@ -86,6 +94,27 @@ inline static void lock(Lock *l) {
 }
 static Lock locks[SPINLOCK_COUNT]; // initialized to OS_SPINLOCK_INIT which is 0
 
+#elif defined(ARCH_MAPU)
+#include <mspu-intrin.h>
+typedef _Atomic(int) Lock;
+/// Unlock a lock.  This is a release operation.
+inline static void unlock(Lock *l) {
+  __mspu_atomicst((int *)l, 0, 0);
+}
+/// Locks a lock.  In the current implementation, this is potentially
+/// unbounded in the contended case.
+inline static void lock(Lock *l) {
+  volatile int old = 0;
+  do {
+    old = __mspu_atomicld((int *)l, 0);
+  } while (old == 0 && !__mspu_atomicst((int *)l, 0, 1));
+}
+/// locks for atomic operations
+static Lock locks[SPINLOCK_COUNT] __attribute__((section(".SM")));
+
+int __atomic_is_lock_free_c(unsigned long size, const volatile void *ptr) {
+  return 0;
+}
 #else
 typedef _Atomic(uintptr_t) Lock;
 /// Unlock a lock.  This is a release operation.
