@@ -44,7 +44,9 @@ class MainWindow(QMainWindow):
         self.cutAction=QAction(QIcon(":/cut.png"),self.tr("Cut"),self)                  
         self.copyAction=QAction(QIcon(":/copy.png"),self.tr("Copy"),self)    
         self.pasteAction=QAction(QIcon(":/paste.png"),self.tr("Paste"),self)          
-        self.aboutAction=QAction(self.tr("&about"),self)   
+        self.aboutAction=QAction(self.tr("&about"),self) 
+	self.setAction=QAction(self.tr("&set"),self)  
+	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
        
     def createMenus(self):  
         fileMenu=self.menuBar().addMenu(self.tr("File"))    
@@ -54,7 +56,9 @@ class MainWindow(QMainWindow):
         editMenu=self.menuBar().addMenu(self.tr("Edit"))  
 	editMenu.addAction(self.copyAction)
 	editMenu.addAction(self.cutAction)
-	editMenu.addAction(self.pasteAction)       
+	editMenu.addAction(self.pasteAction)  
+        setMenu=self.menuBar().addMenu(self.tr("Set")) 
+	setMenu.addAction(self.setAction)       
         aboutMenu=self.menuBar().addMenu(self.tr("Help")) 
 	aboutMenu.addAction(self.aboutAction)  
         
@@ -70,6 +74,24 @@ class MainWindow(QMainWindow):
        
     def createStatusBar(self):    
         self.statusBar().showMessage(self.tr("Statusbar"))  
+
+    def setSimulatorPath(self):
+	self.setDialog=QDialog()
+	self.setDialog.setWindowTitle("Set Simulator Path")
+	self.setDialog.setFixedSize(400,200)
+	self.pathEdit=QLineEdit()
+	browserButton=QPushButton("Browser")
+	self.connect(browserButton,SIGNAL("clicked()"),self.pathSlot)
+	lay=QHBoxLayout()
+	lay.addWidget(self.pathEdit)
+	lay.addWidget(browserButton)
+	self.setDialog.setLayout(lay)
+	self.setDialog.show()
+
+    def pathSlot(self):
+	path=QFileDialog.getExistingDirectory(self,self.tr("select file"),"/")
+	self.pathEdit.setText(path)
+	self.configControlWidget.simulatorPath=path
         
     def closeEvent(self,event):
 	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 

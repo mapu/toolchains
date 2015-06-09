@@ -13,6 +13,8 @@ class ConfigViewWidget(QMainWindow):
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
         
+	self.simulatorPath=""	
+
         widget = QWidget()
         widget.setMinimumSize (1000,500)
 
@@ -156,7 +158,7 @@ class ConfigViewWidget(QMainWindow):
 	APE3MPULay.addWidget(self.startButton)
 	APE3MPULay.addWidget(self.stopButton)
 		
-	self.paraEdit=QLineEdit("--debug-flags=MapuGUI ../../../simulator/apc/system/se.py -c")
+	self.paraEdit=QLineEdit()
 	self.paraEdit.setFixedHeight(30)
 	self.paraEdit.setFixedWidth(900)
 
@@ -354,11 +356,13 @@ class ConfigViewWidget(QMainWindow):
     def startProcess(self):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
+	string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
+	self.paraEdit.setText(string)
 	self.process=QProcess()
         self.connect(self.process,SIGNAL("readyReadStandardOutput()"),self.startReadOutput)
         self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)
 	self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
-	self.command="../../../simulator/apc/gem5.opt"   
+	self.command=self.simulatorPath+"/apc/gem5.opt"   
 	self.command=self.command+" "+"--trace-file="+self.traceFileEdit.text()+" "+self.paraEdit.text()+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
 	num=1
 	if self.APE1Check.checkState()==Qt.Checked:
