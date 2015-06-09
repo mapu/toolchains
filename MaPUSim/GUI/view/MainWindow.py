@@ -10,6 +10,7 @@ from configview.ConfigViewWidget import*
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class MainWindow(QMainWindow):  
+    threadSignal=pyqtSignal()
     def __init__(self,parent=None):  
         super(MainWindow,self).__init__(parent)   
       
@@ -30,8 +31,12 @@ class MainWindow(QMainWindow):
         self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
         self.tabWidget.addTab(self.armViewWidget,self.tr("ARM Perspective"))
         self.tabWidget.addTab(self.apcViewWidget,self.tr("APC Perspective"))
-        self.tabWidget.addTab(self.configControlWidget,self.tr("configuration and Control"))       
-     
+        self.tabWidget.addTab(self.configControlWidget,self.tr("Configuration and Control")) 
+
+	self.configControlWidget.simulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
+	self.configControlWidget.simulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
+	 
+	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 
         self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("New"),self)                  
@@ -64,11 +69,11 @@ class MainWindow(QMainWindow):
         editTool.addAction(self.pasteAction)  
        
     def createStatusBar(self):    
-        self.statusBar().showMessage(self.tr("Statusbar"))    
+        self.statusBar().showMessage(self.tr("Statusbar"))  
         
     def closeEvent(self,event):
-	self.apcViewWidget.APE0Widget.MPUWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE1Widget.MPUWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE2Widget.MPUWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE3Widget.MPUWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE1Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE2Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE3Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
         

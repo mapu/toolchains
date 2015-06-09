@@ -3,8 +3,11 @@ from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 from FloatDialog import*
 from LineWidget import*
+from MPULeftWidget import*
 import sys
 import math
+sys.path.append("../..")
+from control.DataBase import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -12,30 +15,8 @@ class MPUViewWidget(QWidget):
     def __init__(self,parent=None):
 	super(MPUViewWidget,self).__init__(parent)
 
-	#define left Widget
-	self.leftWidget=QWidget()
-	self.widget=QWidget()
-	widgetLay=QGridLayout()
-	widgetLay.addWidget(self.widget,0,0)
-	self.leftWidget.setLayout(widgetLay)
-	self.widget.setFixedSize(700,370)
-	self.DMButton=QPushButton(self.tr("DM"))
-	self.DMButton.setFixedSize(70,25)
-	self.DMButton.setEnabled(False)
-	self.BIU0Button=QPushButton(self.tr("BIU0"))
-	self.BIU0Button.setFixedSize(70,25)
-	self.BIU1Button=QPushButton(self.tr("BIU1"))
-	self.BIU1Button.setFixedSize(70,25)
-	self.BIU2Button=QPushButton(self.tr("BIU2"))
-	self.BIU2Button.setFixedSize(70,25)
-	self.SHU0Button=QPushButton(self.tr("SHU0"))
-	self.SHU0Button.setFixedSize(70,25)
-	self.MRFButton=QPushButton(self.tr("M RF"))
-	self.MRFButton.setFixedSize(70,25)
-	self.SHU1Button=QPushButton(self.tr("SHU1"))
-	self.SHU1Button.setFixedSize(70,25)
 	self.byteComboBox=QComboBox()
-	self.byteComboBox.setFixedSize(80,20)
+	self.byteComboBox.setFixedSize(140,50)
 	self.byteComboBox.insertItem(0,"8 Bytes")
 	self.byteComboBox.insertItem(1,"7 Bytes")
 	self.byteComboBox.insertItem(2,"6 Bytes")
@@ -46,59 +27,27 @@ class MPUViewWidget(QWidget):
 	self.byteComboBox.insertItem(7,"1 Bytes")
 
 	self.laneComboBox=QComboBox()
-	self.laneComboBox.setFixedSize(67,20)
+	self.laneComboBox.setFixedSize(140,50)
 	self.laneComboBox.insertItem(0,"Lane0")
 	self.laneComboBox.insertItem(1,"Lane1")
 	self.laneComboBox.insertItem(2,"Lane2")
-	self.laneComboBox.insertItem(3,"Lane3")	
-	self.IALUButton=QPushButton(self.tr("IALU"))
-	self.IALUButton.setFixedSize(70,25)
-	self.IMACButton=QPushButton(self.tr("IMAC"))
-	self.IMACButton.setFixedSize(70,25)
-	self.FALUButton=QPushButton(self.tr("FALU"))
-	self.FALUButton.setFixedSize(70,25)
-	self.FMACButton=QPushButton(self.tr("FMAC"))
-	self.FMACButton.setFixedSize(70,25)
+	self.laneComboBox.insertItem(3,"Lane3")	  
 
-	self.blank0=QLabel()
-	self.blank0.setFixedSize(70,25)
-	self.blank1=QLabel()
-	self.blank1.setFixedSize(70,25)
-	self.blank2=QLabel()
-	self.blank2.setFixedSize(70,25)
-	self.blank3=QLabel()
-	self.blank3.setFixedSize(70,25)
-	self.blank4=QLabel()
-	self.blank4.setFixedSize(70,25)
-	self.blank5=QLabel()
-	self.blank5.setFixedSize(70,25)
-	self.blank6=QLabel()
-	self.blank6.setFixedSize(70,25)
+	self.buttonWidget=MPULeftWidget()
 
-	#layout left Widget
-	self.gridLay=QGridLayout()
-	self.gridLay.addWidget(self.DMButton,9,0)
-	self.gridLay.addWidget(self.blank0,0,1)
-	self.gridLay.addWidget(self.blank1,3,2)
-	self.gridLay.addWidget(self.BIU0Button,6,3)
-	self.gridLay.addWidget(self.BIU1Button,9,3)
-	self.gridLay.addWidget(self.BIU2Button,12,3)
-	self.gridLay.addWidget(self.blank2,5,4)
-	self.gridLay.addWidget(self.blank3,8,5)
-	self.gridLay.addWidget(self.SHU0Button,2,6)
-
-	self.gridLay.addWidget(self.SHU1Button,15,6)
-	self.gridLay.addWidget(self.byteComboBox,0,7,1,2)
-	self.gridLay.addWidget(self.blank4,11,7)
-	self.gridLay.addWidget(self.blank5,14,8)
-	self.gridLay.addWidget(self.laneComboBox,0,9,1,2)
-	self.gridLay.addWidget(self.IALUButton,4,9)
-	self.gridLay.addWidget(self.IMACButton,7,9)
-	self.gridLay.addWidget(self.FALUButton,10,9)
-	self.gridLay.addWidget(self.FMACButton,13,9)
-	self.gridLay.addWidget(self.blank6,0,10)
-	self.gridLay.setAlignment(Qt.AlignCenter)
-	self.widget.setLayout(self.gridLay)
+	#define left Widget
+	self.leftWidget=QWidget()
+	#layout left Widget    
+        self.leftupLay=QHBoxLayout()
+        self.leftupLay.addStretch()
+        self.leftupLay.setSpacing(120)
+        self.leftupLay.setMargin(30)  
+        self.leftupLay.addWidget(self.byteComboBox)
+        self.leftupLay.addWidget(self.laneComboBox)  
+        self.leftLay=QVBoxLayout()
+        self.leftLay.addLayout(self.leftupLay)
+        self.leftLay.addWidget(self.buttonWidget)
+	self.leftWidget.setLayout(self.leftLay)
 
 	#define rightTab
 	self.rightTab=QTabWidget()
@@ -119,7 +68,7 @@ class MPUViewWidget(QWidget):
 	self.regFileWidget.verticalHeader().setVisible(False)
 	self.regFileWidget.setShowGrid(False)
 	self.regFileWidget.setColumnCount(2)
-	self.regFileWidget.setRowCount(69)
+	self.regFileWidget.setRowCount(195)
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
 	#self.regFileWidget.setColumnWidth(0,122)
 	#define regFileWidget M
@@ -128,81 +77,442 @@ class MPUViewWidget(QWidget):
 	self.regFileWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
 	self.regFileWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
         self.regFileWidget.setItem(1,0,QTableWidgetItem(self.tr("M0")))
+        self.regFileWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(2,0,QTableWidgetItem(self.tr("M1")))
+        self.regFileWidget.setItem(2,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(3,0,QTableWidgetItem(self.tr("M2")))
+        self.regFileWidget.setItem(3,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(4,0,QTableWidgetItem(self.tr("M3")))
+        self.regFileWidget.setItem(4,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(5,0,QTableWidgetItem(self.tr("M4")))
+        self.regFileWidget.setItem(5,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(6,0,QTableWidgetItem(self.tr("M5")))
+        self.regFileWidget.setItem(6,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(7,0,QTableWidgetItem(self.tr("M6")))
+        self.regFileWidget.setItem(7,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(8,0,QTableWidgetItem(self.tr("M7")))
+        self.regFileWidget.setItem(8,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(9,0,QTableWidgetItem(self.tr("M8")))
+        self.regFileWidget.setItem(9,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(10,0,QTableWidgetItem(self.tr("M9")))
+        self.regFileWidget.setItem(10,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(11,0,QTableWidgetItem(self.tr("M10")))
+        self.regFileWidget.setItem(11,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(12,0,QTableWidgetItem(self.tr("M11")))
+        self.regFileWidget.setItem(12,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(13,0,QTableWidgetItem(self.tr("M12")))
+        self.regFileWidget.setItem(13,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(14,0,QTableWidgetItem(self.tr("M13")))
+        self.regFileWidget.setItem(14,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(15,0,QTableWidgetItem(self.tr("M14")))
+        self.regFileWidget.setItem(15,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(16,0,QTableWidgetItem(self.tr("M15")))
+        self.regFileWidget.setItem(16,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(17,0,QTableWidgetItem(self.tr("M16")))
+        self.regFileWidget.setItem(17,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(18,0,QTableWidgetItem(self.tr("M17")))
+        self.regFileWidget.setItem(18,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(19,0,QTableWidgetItem(self.tr("M18")))
+        self.regFileWidget.setItem(19,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(20,0,QTableWidgetItem(self.tr("M19")))
+        self.regFileWidget.setItem(20,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(21,0,QTableWidgetItem(self.tr("M20")))
+        self.regFileWidget.setItem(21,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(22,0,QTableWidgetItem(self.tr("M21")))
+        self.regFileWidget.setItem(22,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(23,0,QTableWidgetItem(self.tr("M22")))
+        self.regFileWidget.setItem(23,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(24,0,QTableWidgetItem(self.tr("M23")))
+        self.regFileWidget.setItem(24,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(25,0,QTableWidgetItem(self.tr("M24")))
+        self.regFileWidget.setItem(25,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(26,0,QTableWidgetItem(self.tr("M25")))
+        self.regFileWidget.setItem(26,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(27,0,QTableWidgetItem(self.tr("M26")))
+        self.regFileWidget.setItem(27,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(28,0,QTableWidgetItem(self.tr("M27")))
+        self.regFileWidget.setItem(28,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(29,0,QTableWidgetItem(self.tr("M28")))
+        self.regFileWidget.setItem(29,1,QTableWidgetItem(self.tr("0")))
         self.regFileWidget.setItem(30,0,QTableWidgetItem(self.tr("M29")))
+        self.regFileWidget.setItem(30,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(31,0,QTableWidgetItem(self.tr("M30")))
+        self.regFileWidget.setItem(31,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.setItem(32,0,QTableWidgetItem(self.tr("M31")))
+        self.regFileWidget.setItem(32,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(33,0,QTableWidgetItem(self.tr("M32")))
+        self.regFileWidget.setItem(33,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(34,0,QTableWidgetItem(self.tr("M33")))
+        self.regFileWidget.setItem(34,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(35,0,QTableWidgetItem(self.tr("M34")))
+        self.regFileWidget.setItem(35,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(36,0,QTableWidgetItem(self.tr("M35")))
+        self.regFileWidget.setItem(36,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(37,0,QTableWidgetItem(self.tr("M36")))
+        self.regFileWidget.setItem(37,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(38,0,QTableWidgetItem(self.tr("M37")))
+        self.regFileWidget.setItem(38,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(39,0,QTableWidgetItem(self.tr("M38")))
+        self.regFileWidget.setItem(39,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(40,0,QTableWidgetItem(self.tr("M39")))
+	self.regFileWidget.setItem(40,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(41,0,QTableWidgetItem(self.tr("M40")))
+        self.regFileWidget.setItem(41,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(42,0,QTableWidgetItem(self.tr("M41")))
+        self.regFileWidget.setItem(42,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(43,0,QTableWidgetItem(self.tr("M42")))
+        self.regFileWidget.setItem(43,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(44,0,QTableWidgetItem(self.tr("M43")))
+        self.regFileWidget.setItem(44,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(45,0,QTableWidgetItem(self.tr("M44")))
+        self.regFileWidget.setItem(45,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(46,0,QTableWidgetItem(self.tr("M45")))
+        self.regFileWidget.setItem(46,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(47,0,QTableWidgetItem(self.tr("M46")))
+        self.regFileWidget.setItem(47,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(48,0,QTableWidgetItem(self.tr("M47")))
+        self.regFileWidget.setItem(48,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(49,0,QTableWidgetItem(self.tr("M48")))
+        self.regFileWidget.setItem(49,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(50,0,QTableWidgetItem(self.tr("M49")))
+	self.regFileWidget.setItem(50,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(51,0,QTableWidgetItem(self.tr("M50")))
+        self.regFileWidget.setItem(51,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(52,0,QTableWidgetItem(self.tr("M51")))
+        self.regFileWidget.setItem(52,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(53,0,QTableWidgetItem(self.tr("M52")))
+        self.regFileWidget.setItem(53,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(54,0,QTableWidgetItem(self.tr("M53")))
+        self.regFileWidget.setItem(54,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(55,0,QTableWidgetItem(self.tr("M54")))
+        self.regFileWidget.setItem(55,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(56,0,QTableWidgetItem(self.tr("M55")))
+        self.regFileWidget.setItem(56,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(57,0,QTableWidgetItem(self.tr("M56")))
+        self.regFileWidget.setItem(57,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(58,0,QTableWidgetItem(self.tr("M57")))
+        self.regFileWidget.setItem(58,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(59,0,QTableWidgetItem(self.tr("M58")))
+        self.regFileWidget.setItem(59,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(60,0,QTableWidgetItem(self.tr("M59")))
+	self.regFileWidget.setItem(60,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(61,0,QTableWidgetItem(self.tr("M60")))
+        self.regFileWidget.setItem(61,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(62,0,QTableWidgetItem(self.tr("M61")))
+        self.regFileWidget.setItem(62,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(63,0,QTableWidgetItem(self.tr("M62")))
+        self.regFileWidget.setItem(63,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(64,0,QTableWidgetItem(self.tr("M63")))
+        self.regFileWidget.setItem(64,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(65,0,QTableWidgetItem(self.tr("M64")))
+        self.regFileWidget.setItem(65,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(66,0,QTableWidgetItem(self.tr("M65")))
+        self.regFileWidget.setItem(66,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(67,0,QTableWidgetItem(self.tr("M66")))
+        self.regFileWidget.setItem(67,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(68,0,QTableWidgetItem(self.tr("M67")))
+        self.regFileWidget.setItem(68,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(69,0,QTableWidgetItem(self.tr("M68")))
+        self.regFileWidget.setItem(69,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(70,0,QTableWidgetItem(self.tr("M69")))
+	self.regFileWidget.setItem(70,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(71,0,QTableWidgetItem(self.tr("M70")))
+        self.regFileWidget.setItem(71,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(72,0,QTableWidgetItem(self.tr("M71")))
+        self.regFileWidget.setItem(72,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(73,0,QTableWidgetItem(self.tr("M72")))
+        self.regFileWidget.setItem(73,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(74,0,QTableWidgetItem(self.tr("M73")))
+        self.regFileWidget.setItem(74,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(75,0,QTableWidgetItem(self.tr("M74")))
+        self.regFileWidget.setItem(75,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(76,0,QTableWidgetItem(self.tr("M75")))
+        self.regFileWidget.setItem(76,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(77,0,QTableWidgetItem(self.tr("M76")))
+        self.regFileWidget.setItem(77,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(78,0,QTableWidgetItem(self.tr("M77")))
+        self.regFileWidget.setItem(78,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(79,0,QTableWidgetItem(self.tr("M78")))
+        self.regFileWidget.setItem(79,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(80,0,QTableWidgetItem(self.tr("M79")))
+	self.regFileWidget.setItem(80,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(81,0,QTableWidgetItem(self.tr("M80")))
+        self.regFileWidget.setItem(81,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(82,0,QTableWidgetItem(self.tr("M81")))
+        self.regFileWidget.setItem(82,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(83,0,QTableWidgetItem(self.tr("M82")))
+        self.regFileWidget.setItem(83,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(84,0,QTableWidgetItem(self.tr("M83")))
+        self.regFileWidget.setItem(84,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(85,0,QTableWidgetItem(self.tr("M84")))
+        self.regFileWidget.setItem(85,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(86,0,QTableWidgetItem(self.tr("M85")))
+        self.regFileWidget.setItem(86,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(87,0,QTableWidgetItem(self.tr("M86")))
+        self.regFileWidget.setItem(87,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(88,0,QTableWidgetItem(self.tr("M87")))
+        self.regFileWidget.setItem(88,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(89,0,QTableWidgetItem(self.tr("M88")))
+        self.regFileWidget.setItem(89,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(90,0,QTableWidgetItem(self.tr("M89")))
+	self.regFileWidget.setItem(90,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(91,0,QTableWidgetItem(self.tr("M90")))
+        self.regFileWidget.setItem(91,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(92,0,QTableWidgetItem(self.tr("M91")))
+        self.regFileWidget.setItem(92,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(93,0,QTableWidgetItem(self.tr("M92")))
+        self.regFileWidget.setItem(93,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(94,0,QTableWidgetItem(self.tr("M93")))
+        self.regFileWidget.setItem(94,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(95,0,QTableWidgetItem(self.tr("M94")))
+        self.regFileWidget.setItem(95,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(96,0,QTableWidgetItem(self.tr("M95")))
+        self.regFileWidget.setItem(96,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(97,0,QTableWidgetItem(self.tr("M96")))
+        self.regFileWidget.setItem(97,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(98,0,QTableWidgetItem(self.tr("M97")))
+        self.regFileWidget.setItem(98,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(99,0,QTableWidgetItem(self.tr("M98")))
+        self.regFileWidget.setItem(99,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(100,0,QTableWidgetItem(self.tr("M99")))
+	self.regFileWidget.setItem(100,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(101,0,QTableWidgetItem(self.tr("M100")))
+        self.regFileWidget.setItem(101,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(102,0,QTableWidgetItem(self.tr("M101")))
+        self.regFileWidget.setItem(102,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(103,0,QTableWidgetItem(self.tr("M102")))
+        self.regFileWidget.setItem(103,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(104,0,QTableWidgetItem(self.tr("M103")))
+        self.regFileWidget.setItem(104,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(105,0,QTableWidgetItem(self.tr("M104")))
+        self.regFileWidget.setItem(105,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(106,0,QTableWidgetItem(self.tr("M105")))
+        self.regFileWidget.setItem(106,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(107,0,QTableWidgetItem(self.tr("M106")))
+        self.regFileWidget.setItem(107,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(108,0,QTableWidgetItem(self.tr("M107")))
+        self.regFileWidget.setItem(108,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(109,0,QTableWidgetItem(self.tr("M108")))
+        self.regFileWidget.setItem(109,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(110,0,QTableWidgetItem(self.tr("M109")))
+	self.regFileWidget.setItem(110,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(111,0,QTableWidgetItem(self.tr("M110")))
+        self.regFileWidget.setItem(111,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(112,0,QTableWidgetItem(self.tr("M111")))
+        self.regFileWidget.setItem(112,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(113,0,QTableWidgetItem(self.tr("M112")))
+        self.regFileWidget.setItem(113,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(114,0,QTableWidgetItem(self.tr("M113")))
+        self.regFileWidget.setItem(114,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(115,0,QTableWidgetItem(self.tr("M114")))
+        self.regFileWidget.setItem(115,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(116,0,QTableWidgetItem(self.tr("M115")))
+        self.regFileWidget.setItem(116,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(117,0,QTableWidgetItem(self.tr("M116")))
+        self.regFileWidget.setItem(117,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(118,0,QTableWidgetItem(self.tr("M117")))
+        self.regFileWidget.setItem(118,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(119,0,QTableWidgetItem(self.tr("M118")))
+        self.regFileWidget.setItem(119,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(120,0,QTableWidgetItem(self.tr("M119")))
+	self.regFileWidget.setItem(120,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(121,0,QTableWidgetItem(self.tr("M120")))
+        self.regFileWidget.setItem(121,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(122,0,QTableWidgetItem(self.tr("M121")))
+        self.regFileWidget.setItem(122,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(123,0,QTableWidgetItem(self.tr("M122")))
+        self.regFileWidget.setItem(123,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(124,0,QTableWidgetItem(self.tr("M123")))
+        self.regFileWidget.setItem(124,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(125,0,QTableWidgetItem(self.tr("M124")))
+        self.regFileWidget.setItem(125,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(126,0,QTableWidgetItem(self.tr("M125")))
+        self.regFileWidget.setItem(126,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(127,0,QTableWidgetItem(self.tr("M126")))
+        self.regFileWidget.setItem(127,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(128,0,QTableWidgetItem(self.tr("M127")))
+        self.regFileWidget.setItem(128,1,QTableWidgetItem(self.tr("0")))
+	
 	#define regFileWidget SHU0 T
-	self.regFileWidget.setItem(33,0,QTableWidgetItem(self.tr("SHU0 T")))
-	self.regFileWidget.setItem(33,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(33,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(33,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(34,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(35,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(36,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(37,0,QTableWidgetItem(self.tr("T3")))
-	self.regFileWidget.setItem(38,0,QTableWidgetItem(self.tr("T4")))
-        self.regFileWidget.setItem(39,0,QTableWidgetItem(self.tr("T5")))
-        self.regFileWidget.setItem(40,0,QTableWidgetItem(self.tr("T6")))
-        self.regFileWidget.setItem(41,0,QTableWidgetItem(self.tr("T7")))
-	self.regFileWidget.setItem(42,0,QTableWidgetItem(self.tr("T8")))
-        self.regFileWidget.setItem(43,0,QTableWidgetItem(self.tr("T9")))
-        self.regFileWidget.setItem(44,0,QTableWidgetItem(self.tr("T10")))
-        self.regFileWidget.setItem(45,0,QTableWidgetItem(self.tr("T11")))
-        self.regFileWidget.setItem(46,0,QTableWidgetItem(self.tr("T12")))
-        self.regFileWidget.setItem(47,0,QTableWidgetItem(self.tr("T13")))
-	self.regFileWidget.setItem(48,0,QTableWidgetItem(self.tr("T14")))
-        self.regFileWidget.setItem(49,0,QTableWidgetItem(self.tr("T15")))
-	self.regFileWidget.setItem(50,0,QTableWidgetItem(self.tr("T16")))
+	self.regFileWidget.setItem(129,0,QTableWidgetItem(self.tr("SHU0 T")))
+	self.regFileWidget.setItem(129,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(129,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(129,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(130,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(130,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(131,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(131,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(132,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(132,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(133,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(133,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(134,0,QTableWidgetItem(self.tr("T4")))
+        self.regFileWidget.setItem(134,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(135,0,QTableWidgetItem(self.tr("T5")))
+        self.regFileWidget.setItem(135,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(136,0,QTableWidgetItem(self.tr("T6")))
+        self.regFileWidget.setItem(136,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(137,0,QTableWidgetItem(self.tr("T7")))
+        self.regFileWidget.setItem(137,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(138,0,QTableWidgetItem(self.tr("T8")))
+        self.regFileWidget.setItem(138,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(139,0,QTableWidgetItem(self.tr("T9")))
+        self.regFileWidget.setItem(139,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(140,0,QTableWidgetItem(self.tr("T10")))
+        self.regFileWidget.setItem(140,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(141,0,QTableWidgetItem(self.tr("T11")))
+        self.regFileWidget.setItem(141,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(142,0,QTableWidgetItem(self.tr("T12")))
+        self.regFileWidget.setItem(142,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(143,0,QTableWidgetItem(self.tr("T13")))
+        self.regFileWidget.setItem(143,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(144,0,QTableWidgetItem(self.tr("T14")))
+        self.regFileWidget.setItem(144,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(145,0,QTableWidgetItem(self.tr("T15")))
+        self.regFileWidget.setItem(145,1,QTableWidgetItem(self.tr("0")))
 	#define regFileWidget SHU1 T
-	self.regFileWidget.setItem(51,0,QTableWidgetItem(self.tr("SHU1 T")))
-	self.regFileWidget.setItem(51,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(51,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(51,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(52,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(53,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(54,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(55,0,QTableWidgetItem(self.tr("T3")))
-	self.regFileWidget.setItem(56,0,QTableWidgetItem(self.tr("T4")))
-        self.regFileWidget.setItem(57,0,QTableWidgetItem(self.tr("T5")))
-        self.regFileWidget.setItem(58,0,QTableWidgetItem(self.tr("T6")))
-        self.regFileWidget.setItem(59,0,QTableWidgetItem(self.tr("T7")))
-	self.regFileWidget.setItem(60,0,QTableWidgetItem(self.tr("T8")))
-        self.regFileWidget.setItem(61,0,QTableWidgetItem(self.tr("T9")))
-        self.regFileWidget.setItem(62,0,QTableWidgetItem(self.tr("T10")))
-        self.regFileWidget.setItem(63,0,QTableWidgetItem(self.tr("T11")))
-        self.regFileWidget.setItem(64,0,QTableWidgetItem(self.tr("T12")))
-        self.regFileWidget.setItem(65,0,QTableWidgetItem(self.tr("T13")))
-	self.regFileWidget.setItem(66,0,QTableWidgetItem(self.tr("T14")))
-        self.regFileWidget.setItem(67,0,QTableWidgetItem(self.tr("T15")))
-	self.regFileWidget.setItem(68,0,QTableWidgetItem(self.tr("T16")))
+	self.regFileWidget.setItem(146,0,QTableWidgetItem(self.tr("SHU1 T")))
+	self.regFileWidget.setItem(146,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(146,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(146,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(147,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(147,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(148,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(148,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(149,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(149,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(150,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(150,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(151,0,QTableWidgetItem(self.tr("T4")))
+        self.regFileWidget.setItem(151,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(152,0,QTableWidgetItem(self.tr("T5")))
+        self.regFileWidget.setItem(152,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(153,0,QTableWidgetItem(self.tr("T6")))
+        self.regFileWidget.setItem(153,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(154,0,QTableWidgetItem(self.tr("T7")))
+        self.regFileWidget.setItem(154,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(155,0,QTableWidgetItem(self.tr("T8")))
+        self.regFileWidget.setItem(155,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(156,0,QTableWidgetItem(self.tr("T9")))
+        self.regFileWidget.setItem(156,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(157,0,QTableWidgetItem(self.tr("T10")))
+        self.regFileWidget.setItem(157,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(158,0,QTableWidgetItem(self.tr("T11")))
+        self.regFileWidget.setItem(158,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(159,0,QTableWidgetItem(self.tr("T12")))
+        self.regFileWidget.setItem(159,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(160,0,QTableWidgetItem(self.tr("T13")))
+        self.regFileWidget.setItem(160,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.setItem(161,0,QTableWidgetItem(self.tr("T14")))
+        self.regFileWidget.setItem(161,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(162,0,QTableWidgetItem(self.tr("T15")))
+        self.regFileWidget.setItem(162,1,QTableWidgetItem(self.tr("0")))
+	#define regFileWidget IALU T
+	self.regFileWidget.setItem(163,0,QTableWidgetItem(self.tr("IALU T")))
+	self.regFileWidget.setItem(163,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(163,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(163,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(164,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(164,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(165,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(165,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(166,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(166,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(167,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(167,1,QTableWidgetItem(self.tr("0")))
+	#define regFileWidget IMAC T
+	self.regFileWidget.setItem(168,0,QTableWidgetItem(self.tr("IMAC T")))
+	self.regFileWidget.setItem(168,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(168,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(168,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(169,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(169,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(170,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(170,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(171,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(171,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(172,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(172,1,QTableWidgetItem(self.tr("0")))
+	#define regFileWidget FALU T
+	self.regFileWidget.setItem(173,0,QTableWidgetItem(self.tr("FALU T")))
+	self.regFileWidget.setItem(173,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(173,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(173,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(174,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(174,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(175,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(175,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(176,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(176,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(177,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(177,1,QTableWidgetItem(self.tr("0")))
+	#define regFileWidget FMAC T
+	self.regFileWidget.setItem(178,0,QTableWidgetItem(self.tr("FMAC T")))
+	self.regFileWidget.setItem(178,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(178,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(178,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(179,0,QTableWidgetItem(self.tr("T0")))
+        self.regFileWidget.setItem(179,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(180,0,QTableWidgetItem(self.tr("T1")))
+        self.regFileWidget.setItem(180,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(181,0,QTableWidgetItem(self.tr("T2")))
+        self.regFileWidget.setItem(181,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(182,0,QTableWidgetItem(self.tr("T3")))
+        self.regFileWidget.setItem(182,1,QTableWidgetItem(self.tr("0")))
+	#define regFileWidget IMRL
+        self.regFileWidget.setItem(183,0,QTableWidgetItem(self.tr("IMRL")))
+        self.regFileWidget.setItem(183,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(183,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(183,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget IMRH
+        self.regFileWidget.setItem(184,0,QTableWidgetItem(self.tr("IMRH")))
+        self.regFileWidget.setItem(184,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(184,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(184,1).setBackgroundColor(QColor(192,192,192))		
+	#define regFileWidget FMR
+        self.regFileWidget.setItem(185,0,QTableWidgetItem(self.tr("FMR")))
+        self.regFileWidget.setItem(185,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(185,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(185,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget BIU0W
+        self.regFileWidget.setItem(186,0,QTableWidgetItem(self.tr("BIU0W")))
+        self.regFileWidget.setItem(186,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(186,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(186,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget BIU1W
+        self.regFileWidget.setItem(187,0,QTableWidgetItem(self.tr("BIU1W")))
+        self.regFileWidget.setItem(187,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(187,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(187,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget BIU2W
+        self.regFileWidget.setItem(188,0,QTableWidgetItem(self.tr("BIU2W")))
+        self.regFileWidget.setItem(188,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(188,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(188,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget DIVQU
+        self.regFileWidget.setItem(189,0,QTableWidgetItem(self.tr("DIVQU")))
+        self.regFileWidget.setItem(189,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(189,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(189,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget DIVRE
+        self.regFileWidget.setItem(190,0,QTableWidgetItem(self.tr("DIVRE")))
+        self.regFileWidget.setItem(190,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(190,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(190,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget DIV-CNT
+        self.regFileWidget.setItem(191,0,QTableWidgetItem(self.tr("DIV-CNT")))
+        self.regFileWidget.setItem(191,1,QTableWidgetItem(self.tr("0")))
+	self.regFileWidget.item(191,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(191,1).setBackgroundColor(QColor(192,192,192))	
+	#define regFileWidget SVR
+        self.regFileWidget.setItem(192,0,QTableWidgetItem(self.tr("SVR")))
+        self.regFileWidget.setItem(192,1,QTableWidgetItem(self.tr("")))
+	self.regFileWidget.item(192,0).setBackgroundColor(QColor(192,192,192))
+	self.regFileWidget.item(192,1).setBackgroundColor(QColor(192,192,192))
+        self.regFileWidget.setItem(193,0,QTableWidgetItem(self.tr("SVR0")))
+        self.regFileWidget.setItem(193,1,QTableWidgetItem(self.tr("0")))
+        self.regFileWidget.setItem(194,0,QTableWidgetItem(self.tr("SVR1")))
+        self.regFileWidget.setItem(194,1,QTableWidgetItem(self.tr("0")))	
 
 	mainLayout=QHBoxLayout()
 	mainLayout.addWidget(self.leftWidget)
@@ -211,430 +521,224 @@ class MPUViewWidget(QWidget):
 	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
 
-	self.connect(self.DMButton,SIGNAL("clicked()"),self.DMButtonSlot)
-	self.connect(self.BIU0Button,SIGNAL("clicked()"),self.BIU0ButtonSlot)
-	self.connect(self.BIU1Button,SIGNAL("clicked()"),self.BIU1ButtonSlot)
-	self.connect(self.BIU2Button,SIGNAL("clicked()"),self.BIU2ButtonSlot)
-	self.connect(self.SHU0Button,SIGNAL("clicked()"),self.SHU0ButtonSlot)
-	self.connect(self.SHU1Button,SIGNAL("clicked()"),self.SHU1ButtonSlot)
-	self.connect(self.MRFButton,SIGNAL("clicked()"),self.MRFButtonSlot)
-	self.connect(self.IALUButton,SIGNAL("clicked()"),self.IALUButtonSlot)
-	self.connect(self.IMACButton,SIGNAL("clicked()"),self.IMACButtonSlot)
-	self.connect(self.FALUButton,SIGNAL("clicked()"),self.FALUButtonSlot)
-	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
-	
-	#define float dialog
-	self.DMButtonDialog=FloatDialog()
-	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
-	self.BIU0ButtonDialog=FloatDialog()
-	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))
-	self.BIU1ButtonDialog=FloatDialog()
-	self.BIU1ButtonDialog.setWindowTitle(self.tr("BIU1 Stages"))	
-	self.BIU2ButtonDialog=FloatDialog()
-	self.BIU2ButtonDialog.setWindowTitle(self.tr("BIU2 Stages"))	
-	self.SHU0ButtonDialog=FloatDialog()
-	self.SHU0ButtonDialog.setWindowTitle(self.tr("SHU0 Stages"))	
-	self.SHU1ButtonDialog=FloatDialog()
-	self.SHU1ButtonDialog.setWindowTitle(self.tr("SHU1 Stages"))
-	self.MRFButtonDialog=FloatDialog()
-	self.MRFButtonDialog.setWindowTitle(self.tr("MRF Stages"))	
-	self.IALUButtonDialog=FloatDialog()
-	self.IALUButtonDialog.setWindowTitle(self.tr("IALU Stages"))	
-	self.IMACButtonDialog=FloatDialog()
-	self.IMACButtonDialog.setWindowTitle(self.tr("IMAC Stages"))
-	self.FALUButtonDialog=FloatDialog()
-	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
-	self.FMACButtonDialog=FloatDialog()
-	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))		
-	#paint lines
-	self.paintLines()
-
-    #define slot function
-    def DMButtonSlot(self):
-	self.DMButtonDialog.show()
-
-    def BIU0ButtonSlot(self):
-	self.BIU0ButtonDialog.show()
-
-    def BIU1ButtonSlot(self):
-	self.BIU1ButtonDialog.show()
-
-    def BIU2ButtonSlot(self):
-	self.BIU2ButtonDialog.show()
-
-    def SHU0ButtonSlot(self):
-	self.SHU0ButtonDialog.show()
-
-    def SHU1ButtonSlot(self):	
-	self.SHU1ButtonDialog.show()
-
-    def MRFButtonSlot(self):
-	self.MRFButtonDialog.show()
-
-    def IALUButtonSlot(self):
-	self.IALUButtonDialog.show()
-
-    def IMACButtonSlot(self):
-	self.IMACButtonDialog.show()
-
-    def FALUButtonSlot(self):
-	self.FALUButtonDialog.show()
-
-    def FMACButtonSlot(self):
-	self.FMACButtonDialog.show()
-
-    #define close all float dialogs
-    def closeFloatDialogs(self):
-	self.DMButtonDialog.close()
-	self.BIU0ButtonDialog.close()
-	self.BIU1ButtonDialog.close()
-	self.BIU2ButtonDialog.close()
-	self.SHU0ButtonDialog.close()
-	self.SHU1ButtonDialog.close()
-	self.MRFButtonDialog.close()
-	self.IALUButtonDialog.close()
-	self.IMACButtonDialog.close()
-	self.FALUButtonDialog.close()	
-	self.FMACButtonDialog.close()		
-
-    def paintLines(self):
-	#define the line between DMButton and BIU0Button,4rows,2columns
-	height=98
-	width=120
-	self.DM_BIU0Line=LineWidget(3,height-25,width,5,0,10,height-25-5+10)
-	self.gridLay.addWidget(self.DM_BIU0Line,6,1,4,2)
-	self.BIU0_DMLine=LineWidget(3,height-20,width,10,1,10,height-20-10+10)
-	self.gridLay.addWidget(self.BIU0_DMLine,6,1,4,2)
-	#define the line between DMButton and BIU1Button,0rows,2columns
-	height=25
-	width=120
-	self.DM_BIU1Line=LineWidget(3,height-15,width,height-15,0,0,0)
-	self.gridLay.addWidget(self.DM_BIU1Line,9,1,1,2)
-	self.BIU1_DMLine=LineWidget(3,height-10,width,height-10,1,0,0)
-	self.gridLay.addWidget(self.BIU1_DMLine,9,1,1,2)
-	
-	#define the line between DMButton and BIU2Button,4rows,2columns
-	height=98
-	width=120
-	self.DM_BIU2Line=LineWidget(3,25,width,height-20,0,10,height-20-25+10)
-	self.gridLay.addWidget(self.DM_BIU2Line,9,1,4,2)
-	self.BIU2_DMLine=LineWidget(3,30,width,height-15,1,10,height-15-30+10)
-	self.gridLay.addWidget(self.BIU2_DMLine,9,1,4,2)
-
-	#define the line between BIU0Button and SHU0Button,5rows,2columns
-	height=125
-	width=120
-	self.BIU0_SHU0Line=LineWidget(3,height-30,width,5,0,10,height-30-5+10)
-	self.gridLay.addWidget(self.BIU0_SHU0Line,2,4,5,2)
-	self.SHU0_BIU0Line=LineWidget(3,height-25,width,10,1,10,height-25-10+10)
-	self.gridLay.addWidget(self.SHU0_BIU0Line,2,4,5,2)
-
-	#define the line between BIU0Button and MRFButton,4rows,2columns
-	height=98
-	width=120
-	self.BIU0_MRFLine=LineWidget(3,20,width,height-25,0,10,height-25-20+10)
-	self.gridLay.addWidget(self.BIU0_MRFLine,6,4,4,2)
-	self.MRF_BIU0Line=LineWidget(3,25,width,height-20,1,10,height-20-25+10)
-	self.gridLay.addWidget(self.MRF_BIU0Line,6,4,4,2)
-
-	#define the line between BIU1Button and MRFButton,4rows,2columns
-	height=25
-	width=120
-	self.BIU1_MRFLine=LineWidget(3,10,width,10,0,0,0)
-	self.gridLay.addWidget(self.BIU1_MRFLine,9,4,1,2)
-	self.MRF_BIU1Line=LineWidget(3,15,width,15,1,0,0)
-	self.gridLay.addWidget(self.MRF_BIU1Line,9,4,1,2)
-
-	#define the line between BIU2Button and MRFButton,4rows,2columns 
-	height=98
-	width=120
-	self.MRF_BIU2Line=LineWidget(3,height-25,width,20,0,10,height-25-20+10)
-	self.gridLay.addWidget(self.MRF_BIU2Line,9,4,4,2)
-	self.BIU2_MRFLine=LineWidget(3,height-20,width,25,1,10,height-20-25+10)
-	self.gridLay.addWidget(self.BIU2_MRFLine,9,4,4,2)	 
-
-	#define the line between BIU2Button and SHU1Button,4rows,2columns 
-	height=98
-	width=120
-	self.BIU2_SHU1Line=LineWidget(3,20,width,height-10,0,10,height-10-20+10)
-	self.gridLay.addWidget(self.BIU2_SHU1Line,12,4,4,2)
-	self.SHU1_BIU2Line=LineWidget(3,25,width,height-5,1,10,height-5-25+10)
-	self.gridLay.addWidget(self.SHU1_BIU2Line,12,4,4,2)
-
-	#define the line between SHU0Button and MRFButton,6rows,1columns  
-	height=146
-	width=70
-	self.SHU0_MRFLine=LineWidget(30,0,30,height,2,0,0)
-	self.gridLay.addWidget(self.SHU0_MRFLine,3,6,6,1)
-	self.MRF_SHU0Line=LineWidget(35,0,35,height,3,0,0)
-	self.gridLay.addWidget(self.MRF_SHU0Line,3,6,6,1)
-
-	#define the line between MRFButton and SHU1Button,5rows,1columns  
-	height=122
-	width=70
-	self.MRF_SHU1Line=LineWidget(30,0,30,height,2,0,0)
-	self.gridLay.addWidget(self.MRF_SHU1Line,10,6,5,1)
-	self.SHU1_MRFLine=LineWidget(35,0,35,height,3,0,0)
-	self.gridLay.addWidget(self.SHU1_MRFLine,10,6,5,1)
-	
-	#define the line between SHU0Button and IALUButton,3rows,2columns 
-	height=73
-	width=120
-	self.SHU0_IALULine=LineWidget(3,0,width,height-30,0,30,height-30+30)
-	self.gridLay.addWidget(self.SHU0_IALULine,2,7,3,2)
-	self.IALU_SHU0Line=LineWidget(3,5,width,height-25,1,30,height-25-5+30)
-	self.gridLay.addWidget(self.IALU_SHU0Line,2,7,3,2)
-
-	#define the line between MRFButton and IMACButton,3rows,2columns 
-	height=73
-	widht=120
-	self.IMAC_MRFLine=LineWidget(3,height-15,width,10,0,30,height-15-10+30)
-	self.gridLay.addWidget(self.IMAC_MRFLine,7,7,3,2)
-	self.MRF_IMACLine=LineWidget(3,height-10,width,15,1,30,height-10-15+30)
-	self.gridLay.addWidget(self.MRF_IMACLine,7,7,3,2)
-
-	#define the line between MRFButton and FMACButton,5rows,2columns
-	height=122
-	width=120
-	self.MRF_FMACLine=LineWidget(3,25,width,height-20,0,10,height-20-25+10)
-	self.gridLay.addWidget(self.MRF_FMACLine,9,7,5,2)
-	self.FMAC_MRFLine=LineWidget(3,30,width,height-15,1,10,height-15-30+10)
-	self.gridLay.addWidget(self.FMAC_MRFLine,9,7,5,2)	
-
-	#define the line between SHU1Button and FMACButton,3rows,2columns
-	height=73
-	width=120
-	self.FMAC_SHU1Line=LineWidget(3,height-13,width,25,0,30,height-13-25+30)
-	self.gridLay.addWidget(self.FMAC_SHU1Line,13,7,3,2)
-	self.SHU1_FMACLine=LineWidget(3,height-8,width,30,1,30,height-8-30+30)
-	self.gridLay.addWidget(self.SHU1_FMACLine,13,7,3,2)
-
-	#define the line between IALUButton and IMACButton,2rows,1column
-	height=48
-	width=70
-	self.IALU_IMACLine=LineWidget(30,0,30,height,2,0,0)
-	self.gridLay.addWidget(self.IALU_IMACLine,5,9,2,1)
-	self.IMAC_IALULine=LineWidget(35,0,35,height,3,0,0)
-	self.gridLay.addWidget(self.IMAC_IALULine,5,9,2,1)
-
-	#define the line between IMACButton and FALUButton,2rows,1column
-	height=48
-	width=70
-	self.IMAC_FALULine=LineWidget(30,0,30,height,2,0,0)
-	self.gridLay.addWidget(self.IMAC_FALULine,8,9,2,1)
-	self.FALU_IMACLine=LineWidget(35,0,35,height,3,0,0)
-	self.gridLay.addWidget(self.FALU_IMACLine,8,9,2,1)
-
-	#define the line between FALUButton and FMACButton,2rows,1column
-	height=48
-	width=70
-	self.FALU_FMACLine=LineWidget(30,0,30,height,2,0,0)
-	self.gridLay.addWidget(self.FALU_FMACLine,11,9,2,1)
-	self.FMAC_FALULine=LineWidget(35,0,35,height,3,0,0)
-	self.gridLay.addWidget(self.FMAC_FALULine,11,9,2,1)
-
-	#define the line between MRFButton and FALUButton,2rows,2columns
-	height=48
-	width=120
-	self.MRF_FALULine=LineWidget(3,17,width,height-15,0,20,height-15-17+20)
-	self.gridLay.addWidget(self.MRF_FALULine,9,7,2,2)
-	self.FALU_MRFLine=LineWidget(3,22,width,height-10,1,20,height-10-22+20)
-	self.gridLay.addWidget(self.FALU_MRFLine,9,7,2,2)
-
-	#define the line between BIU0Button and SHU1Button,10rows,2columns
-	height=244
-	width=120
-	self.BIU0_SHU1Line=LineWidget(3,10,width,height-20,4,30,height-5-10+30)
-	self.gridLay.addWidget(self.BIU0_SHU1Line,6,4,10,2)
-	self.SHU1_BIU0Line=LineWidget(3,15,width,height-15,5,30,height-15+30)
-	self.gridLay.addWidget(self.SHU1_BIU0Line,6,4,10,2)
-
-	#define the line between SHU0Button and IMACButton,6rows,2columns
-	height=146
-	width=120
-	self.SHU0_IMACLine=LineWidget(3,10,width,height-20,4,10,height-20-10+10)
-	self.gridLay.addWidget(self.SHU0_IMACLine,2,7,6,2)
-	self.IMAC_SHU0Line=LineWidget(3,15,width,height-15,5,10,height-15-15+10)
-	self.gridLay.addWidget(self.IMAC_SHU0Line,2,7,6,2)
-
-	#define the line between MRFButton and IALUButton,6rows,2columns
-	height=146
-	width=120
-	self.IALU_MRFLine=LineWidget(3,height-25,width,10,6,10,height-15-10+10)
-	self.gridLay.addWidget(self.IALU_MRFLine,4,7,6,2)
-	self.MRF_IALULine=LineWidget(3,height-20,width,15,7,10,height-10-15+10)
-	self.gridLay.addWidget(self.MRF_IALULine,4,7,6,2)
-
-	#define the line between SHU1Button and FALUButton,6rows,2columns
-	height=146
-	width=120
-	self.FALU_SHU1Line=LineWidget(3,height-25,width,20,6,30,height-25-20+30)
-	self.gridLay.addWidget(self.FALU_SHU1Line,10,7,6,2)
-	self.SHU1_FALULine=LineWidget(3,height-20,width,25,7,30,height-20-25+30)
-	self.gridLay.addWidget(self.SHU1_FALULine,10,7,6,2)
-
-	#define the line between BIU1Button and SHU1Button,7rows,2columns
-	height=171
-	width=120
-	self.BIU1_SHU1Line=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
-	self.gridLay.addWidget(self.BIU1_SHU1Line,9,4,7,2)
-	self.SHU1_BIU1Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
-	self.gridLay.addWidget(self.SHU1_BIU1Line,9,4,7,2)
-
-	#define the line between BIU1Button and SHU0Button,8rows,2columns
-	height=196
-	width=120
-	self.SHU0_BIU1Line=LineWidget(3,height-25,width,25,6,30,height-25-25+30)
-	self.gridLay.addWidget(self.SHU0_BIU1Line,2,4,8,2)
-	self.BIU1_SHU0Line=LineWidget(3,height-20,width,30,7,30,height-20-30+30)
-	self.gridLay.addWidget(self.BIU1_SHU0Line,2,4,8,2)
-
-	#define the line between SHU1Button and IMACButton,9rows,2columns
-	height=219
-	width=120
-	self.IMAC_SHU1Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
-	self.gridLay.addWidget(self.IMAC_SHU1Line,7,7,9,2)
-	self.SHU1_IMACLine=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
-	self.gridLay.addWidget(self.SHU1_IMACLine,7,7,9,2)	
-
-	#define the line between SHU0Button and FALUButton,9rows,2columns
-	height=219
-	width=120
-	self.SHU0_FALULine=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
-	self.gridLay.addWidget(self.SHU0_FALULine,2,7,9,2)
-	self.FALU_SHU0Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
-	self.gridLay.addWidget(self.FALU_SHU0Line,2,7,9,2)
-
-	#define the line between BIU2Button and SHU0Button,11rows,2columns
-	height=269
-	width=120
-	self.SHU0_BIU2Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
-	self.gridLay.addWidget(self.SHU0_BIU2Line,2,4,11,2)
-	self.BIU2_SHU0Line=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
-	self.gridLay.addWidget(self.BIU2_SHU0Line,2,4,11,2)
-
-	#define the line between SHU0Button and FMACButton,12rows,2columns
-	height=292
-	width=120
-	self.SHU0_FMACLine=LineWidget(3,20,width,height-20,4,10,height-20-20+10)
-	self.gridLay.addWidget(self.SHU0_FMACLine,2,7,12,2)
-	self.FMAC_SHU0Line=LineWidget(3,25,width,height-15,5,10,height-15-25+10)
-	self.gridLay.addWidget(self.FMAC_SHU0Line,2,7,12,2)
-
-	#define the line between SHU1Button and IALUButton,12rows,2column
-	height=292
-	width=120
-	self.IALU_SHU1Line=LineWidget(3,height-35,width,25,6,10,height-35-25+10)
-	self.gridLay.addWidget(self.IALU_SHU1Line,4,7,12,2)
-	self.SHU1_IALULine=LineWidget(3,height-30,width,30,7,10,height-30-30+10)
-	self.gridLay.addWidget(self.SHU1_IALULine,4,7,12,2)
-
-	#define the line between BIU0Button and IALUButton,3rows,5columns
-	height=73
-	width=310
-	self.IALU_BIU0Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.IALU_BIU0Line,4,4,3,5)
-	self.BIU0_IALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.BIU0_IALULine,4,4,3,5)	
-
-	#define the line between BIU1Button and IMACButton,3rows,5columns
-	height=73
-	width=310
-	self.IMAC_BIU1Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.IMAC_BIU1Line,7,4,3,5)
-	self.BIU1_IMACLine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.BIU1_IMACLine,7,4,3,5)
-
-	#define the line between BIU2Button and FALUButton,3rows,5columns
-	height=73
-	width=310
-	self.FALU_BIU2Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.FALU_BIU2Line,10,4,3,5)
-	self.BIU2_FALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.BIU2_FALULine,10,4,3,5)
-
-	#define the line between BIU0Button and IMACButton,2rows,5columns
-	height=48
-	width=310
-	self.BIU0_IMACLine=LineWidget(3,20,width,height-20,0,100,height-20-20+100)
-	self.gridLay.addWidget(self.BIU0_IMACLine,6,4,2,5)
-	self.IMAC_BIU0Line=LineWidget(3,25,width,height-15,1,100,height-15-25+100)
-	self.gridLay.addWidget(self.IMAC_BIU0Line,6,4,2,5)
-
-	#define the line between BIU1Button and FALUButton,2rows,5columns
-	height=48
-	width=310
-	self.BIU1_FALULine=LineWidget(3,20,width,height-10,0,100,height-10-20+100)
-	self.gridLay.addWidget(self.BIU1_FALULine,9,4,2,5)
-	self.FALU_BIU1Line=LineWidget(3,25,width,height-5,1,100,height-5-25+100)
-	self.gridLay.addWidget(self.FALU_BIU1Line,9,4,2,5)
-
-	#define the line between BIU2Button and FMACButton,2rows,5columns
-	height=48
-	width=310
-	self.BIU2_FMACLine=LineWidget(3,20,width,height-10,0,100,height-10-20+100)
-	self.gridLay.addWidget(self.BIU2_FMACLine,12,4,2,5)
-	self.FMAC_BIU2Line=LineWidget(3,25,width,height-5,1,100,height-5-25+100)
-	self.gridLay.addWidget(self.FMAC_BIU2Line,12,4,2,5)
-
-	#define the line between BIU1Button and FMACButton,5rows,5columns
-	height=122
-	width=310
-	self.BIU1_FMACLine=LineWidget(3,10,width,height-20,0,100,height-20-10+100)
-	self.gridLay.addWidget(self.BIU1_FMACLine,9,4,5,5)
-	self.FMAC_BIU1Line=LineWidget(3,15,width,height-15,1,100,height-15-15+100)
-	self.gridLay.addWidget(self.FMAC_BIU1Line,9,4,5,5)
-
-	#define the line between BIU1Button and IALUButton,6rows,5columns
-	height=146
-	width=310
-	self.IALU_BIU1Line=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.IALU_BIU1Line,4,4,6,5)
-	self.BIU1_IALULine=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.BIU1_IALULine,4,4,6,5)	
-
-	#define the line between BIU0Button and FALUButton,5rows,5columns
-	height=122
-	width=310
-	self.BIU0_FALULine=LineWidget(3,10,width,height-20,0,150,height-20-10+150)
-	self.gridLay.addWidget(self.BIU0_FALULine,6,4,5,5)	
-	self.FALU_BIU0Line=LineWidget(3,15,width,height-15,1,150,height-15-15+150)
-	self.gridLay.addWidget(self.FALU_BIU0Line,6,4,5,5)	
-
-	#define the line between BIU0Button and FMACButton,8rows,5columns
-	height=196
-	width=310
-	self.BIU0_FMACLine=LineWidget(3,10,width,height-20,0,10,height-20-10+10)
-	self.gridLay.addWidget(self.BIU0_FMACLine,6,4,8,5)
-	self.FMAC_BIU0Line=LineWidget(3,15,width,height-15,1,10,height-15-15+10)
-	self.gridLay.addWidget(self.FMAC_BIU0Line,6,4,8,5)
+    def updateWidget(self,r):
+	#DM BIU0
+	if r[1]!=-1:
+	    print "dmbiu0"
+	#BIU0 DM
+	if r[3]!=-1:
+	    print "biu0dm"
+	#DM BIU1
+	if r[5]!=-1:
+	    print "dmbiu1"
+	#BIU1 DM
+	if r[7]!=-1:
+	    print "biu1dm"
+	#DM BIU2
+	if r[9]!=-1:
+	    print "dmbiu2"
+	#BIU2 DM
+	if r[11]!=-1:
+	    print "biu2dm"
+	#BIU0 SHU0
+	if r[13]!=-1:
+	    print "biu0shu0"
+	#SHU0 BIU0
+	if r[15]!=-1:
+	    print "shu0biu0"
+	#BIU1 SHU0
+	if r[17]!=-1:
+	    print "biu1shu0"
+	#SHU0 BIU1
+	if r[19]!=-1:
+	    print "shu0biu1"
+	#BIU2 SHU0
+	if r[21]!=-1:
+	    print "biu2shu0"
+	#SHU0BIU2
+	if r[23]!=-1:
+	    print "shu0biu2"
+	#BIU0 SHU1
+	if r[25]!=-1:
+	    print "biu0shu1"
+	#SHU1 BIU0
+	if r[27]!=-1:
+	    print "shu1biu0"
+	#BIU1 SHU1
+	if r[29]!=-1:
+	    print "biu1shu1"
+	#SHU1 BIU1
+	if r[31]!=-1:
+	    print "shu1biu1"
+	#BIU2 SHU1
+	if r[33]!=-1:
+	    print "biu2shu1"
+	#SHU1 BIU2
+	if r[35]!=-1:
+	    print "shu1biu2"
+	#BIU0 MRF
+	if r[37]!=-1:
+	    print "biu0mrf"
+	#MRF BIU0
+	if r[39]!=-1:
+	    print "mrfbiu0"
+	#BIU1 MRF
+	if r[41]!=-1:
+	    print "biu1mrf"
+	#MRF BIU1
+	if r[43]!=-1:
+	    print "mrfbiu1"
+	#BIU2 MRF
+	if r[45]!=-1:
+	    print "biu2mrf"
+	#MRF BIU2
+	if r[47]!=-1:
+	    print "mrfbiu2"
+	#SHU0 IALU
+	if r[49]!=-1:
+	   print "shu0ialu"
+	#IALU SHU0
+	if r[51]!=-1:
+	    print "ialushu0"
+	#SHU0 IMAC
+	if r[53]!=-1:
+	    print "shu0imac"
+	#IMAC SHU0
+	if r[55]!=-1:
+	    print "imacshu0"
+	#SHU0 FALU
+	if r[57]!=-1:
+	    print "shu0falu"
+	#FALU SHU0
+	if r[59]!=-1:
+	    print "falushu0"
+	#SHU0 FMAC
+	if r[61]!=-1:
+	    print "shu0fmac"
+	#FMAC SHU0
+	if r[63]!=-1:
+	    print "fmacshu0"
+	#MRF IALU
+	if r[65]!=-1:
+	    print "mrfialu"
+	#IALU MRF
+	if r[67]!=-1:
+	    print "ialu mrf"
+	#MRF IMAC
+	if r[69]!=-1:
+	    print "mrfimac"
+	#IMAC MRF
+	if r[71]!=-1:
+	    print "imacmrf"
+	#MRF FALU
+	if r[73]!=-1:
+	    print "mrffalu"
+	#FALU MRF
+	if r[75]!=-1:
+	    print "falumrf"
+	#MRF FMAC
+	if r[77]!=-1:
+	    print "mrffmac"
+	#FMAC MRF
+	if r[79]!=-1:
+	    print "fmacmrf"
+	#SHU1 IALU
+	if r[81]!=-1:
+	    print "shu1ialu"
+	#IALU SHU1
+	if r[83]!=-1:
+	    print "ialushu1"
+	#SHU1 IMAC
+	if r[85]!=-1:
+	    print "shu1imac"
+	#IMAC SHU1
+	if r[87]!=-1:
+	    print "imacshu1"
+	#SHU1 FALU
+	if r[89]!=-1:
+	    print "shu1falu"
+	#FALU SHU1
+	if r[91]!=-1:
+	    print "falushu1"
+	#SHU1 FMAC
+	if r[93]!=-1:
+	    print "shu1fmac"
+	#FMAC SHU1
+	if r[95]!=-1:
+	    print "fmacshu1"
+	#IALU FALU
+	if r[97]!=-1:
+	    print "ialufalu"
+	#FALU IALU
+	if r[99]!=-1:
+	    print "faluialu"
+	print "reg",r[101]
+	print "value",r[102]
+	print "dis",r[103]
+	if r[101]=="W":
+	    if r[102]!=-1:
+		num=r[102]
+		print num
+		if num>=0 and num<=127: #M ROW 1-128
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+1,1).setData(0,r[103])
+		elif num>=128 and num<=143: #SHU0 ROW 130-145
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+2,1).setData(0,r[103])
+		elif num>=144 and num<=159:  #SHU1 ROW 147-162
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+3,1).setData(0,r[103])
+		elif num>=160 and num<=163:  #IALU ROW 164-167
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+4,1).setData(0,r[103])
+		elif num>=164 and num<=167:  #IMAC ROW 169-172
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+5,1).setData(0,r[103])
+		elif num>=168 and num<=171:  #FALU ROW 174-177
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+6,1).setData(0,r[103])
+		elif num>=172 and num<=175:  #FMAC ROW 179-182
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==176:  #IMRL ROW 183
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==177:   #IMRH ROW 184
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==178:  #FMR ROW 185
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==179:  #BIU0W ROW 186
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==180:  #BIU1W ROW 187
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==181:  #BIU2W ROW 188
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==182:  #DIVQU ROW 189
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==183:  #DIVER ROW 190
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num==184:  #DIV-CNT ROW 191
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+7,1).setData(0,r[103])
+		elif num>=185 and num<=186:  #SVR ROW 193-194
+		    if r[103]!="nop":
+		    	self.regFileWidget.item(num+8,1).setData(0,r[103])
 
 
-	#define the line between BIU2Button and IALUButton,9rows,5columns
-	height=219
-	width=310
-	self.BIU2_IALULine=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.BIU2_IALULine,4,4,9,5)
-	self.IALU_BIU2Line=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.IALU_BIU2Line,4,4,9,5)
 
-	#define the line between BIU2Button and IMACButton,6rows,5columns
-	height=146
-	width=310
-	self.BIU2_IMACLine=LineWidget(3,height-20,width,15,0,100,height-20-15+100)
-	self.gridLay.addWidget(self.BIU2_IMACLine,7,4,6,5)
-	self.IMAC_BIU2Line=LineWidget(3,height-15,width,20,1,100,height-15-20+100)
-	self.gridLay.addWidget(self.IMAC_BIU2Line,7,4,6,5)
 
-	#define the line between IALUButton and FALUButton,7rows,1column
-	height=171
-	width=70	
-	self.IALU_FALULine=LineWidget(3,20,3,height-20,8,0,0)
-	self.gridLay.addWidget(self.IALU_FALULine,4,10,7,1)
-	self.FALU_IALULine=LineWidget(3,10,3,height-10,9,0,0)
-	self.gridLay.addWidget(self.FALU_IALULine,4,10,7,1)
-	
-	#make MRFButton show on the lineswidget
-	self.gridLay.addWidget(self.MRFButton,9,6)
 
-	
+
+
+
+
+
+
+

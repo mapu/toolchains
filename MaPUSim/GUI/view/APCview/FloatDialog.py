@@ -8,6 +8,7 @@ class FloatDialog(QDialog):
     def __init__(self,parent=None):
 	super(FloatDialog,self).__init__(parent)
 
+	self.flag=-1 #-1 close , 0 open
 	self.setMaximumWidth(150)
 	self.setMaximumHeight(120)
 	self.stages=QListWidget()
@@ -16,16 +17,32 @@ class FloatDialog(QDialog):
 	self.setAttribute(Qt.WA_DeleteOnClose)
 	#self.setModal(False)
 	self.setWindowFlags(Qt.WindowStaysOnTopHint)
-	self.stages.addItem(self.tr("sn:41,sln:3"))
-	self.stages.addItem(self.tr("sn:55,sln:4"))
-	self.stages.addItem(self.tr("sn:69,sln:5"))
-	self.stages.item(0).setToolTip("sn:41,sln:3")
-	self.stages.item(1).setToolTip("sn:55,sln:4")
-	self.stages.item(2).setToolTip("sn:69,sln:5")
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+	self.stages.addItem(self.tr(""))
+
 	stagesLay=QVBoxLayout()
 	stagesLay.addWidget(self.stages)
 	self.setLayout(stagesLay)
 	
-
+    def closeEvent(self,event):
+	self.flag=-1
 
 

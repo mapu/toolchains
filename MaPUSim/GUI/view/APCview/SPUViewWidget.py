@@ -5,7 +5,7 @@ from PyQt4.QtCore import*
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class SPUViewWidget(QWidget):
-   def __init__(self,parent=None):
+    def __init__(self,parent=None):
 	super(SPUViewWidget,self).__init__(parent)
 
 	self.leftWidget=QWidget()
@@ -131,5 +131,7 @@ class SPUViewWidget(QWidget):
 	mainLayout.setStretchFactor(self.leftWidget,5)
 	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
+
+
 
 

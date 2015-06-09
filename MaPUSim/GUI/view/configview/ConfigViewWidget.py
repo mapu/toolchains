@@ -1,22 +1,33 @@
 # -*- coding =utf-8 -*-
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
+import sys
 
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+class ConfigViewWidget(QMainWindow):
+    #define signal
+    simulatorDoneSignal=pyqtSignal()
+    simulatorShowSignal=pyqtSignal(int,str)
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
 
-class ConfigViewWidget(QWidget):
-    def __init__(self,parent=None):
-	super(ConfigViewWidget,self).__init__(parent)
-	
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+        
+        widget = QWidget()
+        widget.setMinimumSize (1000,500)
+
 	self.fullRadio=QRadioButton(self.tr("Full system"))
 	self.fullRadio.setFixedHeight(25)
+	self.fullRadio.setFixedWidth(900)
 	
 	self.APCRadio=QRadioButton(self.tr("APC standalone system"))
 	self.APCRadio.setFixedHeight(25)
+	self.APCRadio.setFixedWidth(900)
 	self.traceFlagsButton=QPushButton(self.tr("Trace flags..."))
 	self.traceFlagsButton.setFixedSize(150,25)
 	self.traceFileLabel=QLabel(self.tr("  Trace file"))
 	self.traceFileLabel.setFixedHeight(25)
+	self.traceFileLabel.setFixedWidth(900)
 	self.traceFileEdit=QLineEdit(self.tr("Trace file name"))
 	self.traceFileEdit.setFixedSize(400,25)	
 
@@ -36,7 +47,7 @@ class ConfigViewWidget(QWidget):
 	self.APE0SPUButton=QPushButton(self.tr("Browse"))
 	self.APE0SPUButton.setFixedSize(100,25)
 	blank0=QLabel()
-	blank0.setFixedSize(380,25)
+	blank0.setFixedSize(350,25)
 	APE0SPULay=QHBoxLayout()
 	APE0SPULay.addWidget(self.APE0SPULabel)
 	APE0SPULay.addWidget(self.APE0SPUEdit)
@@ -49,7 +60,7 @@ class ConfigViewWidget(QWidget):
 	self.APE0MPUButton=QPushButton(self.tr("Browse"))
 	self.APE0MPUButton.setFixedSize(100,25)
 	blank1=QLabel()
-	blank1.setFixedSize(380,25)
+	blank1.setFixedSize(350,25)
 	APE0MPULay=QHBoxLayout()
 	APE0MPULay.addWidget(self.APE0MPULabel)
 	APE0MPULay.addWidget(self.APE0MPUEdit)
@@ -65,7 +76,7 @@ class ConfigViewWidget(QWidget):
 	self.APE1SPUButton=QPushButton(self.tr("Browse"))
 	self.APE1SPUButton.setFixedSize(100,25)
 	blank2=QLabel()
-	blank2.setFixedSize(380,25)
+	blank2.setFixedSize(350,25)
 	APE1SPULay=QHBoxLayout()
 	APE1SPULay.addWidget(self.APE1SPULabel)
 	APE1SPULay.addWidget(self.APE1SPUEdit)
@@ -78,7 +89,7 @@ class ConfigViewWidget(QWidget):
 	self.APE1MPUButton=QPushButton(self.tr("Browse"))
 	self.APE1MPUButton.setFixedSize(100,25)
 	blank3=QLabel()
-	blank3.setFixedSize(380,25)
+	blank3.setFixedSize(350,25)
 	APE1MPULay=QHBoxLayout()
 	APE1MPULay.addWidget(self.APE1MPULabel)
 	APE1MPULay.addWidget(self.APE1MPUEdit)
@@ -94,7 +105,7 @@ class ConfigViewWidget(QWidget):
 	self.APE2SPUButton=QPushButton(self.tr("Browse"))
 	self.APE2SPUButton.setFixedSize(100,25)
 	blank4=QLabel()
-	blank4.setFixedSize(380,25)
+	blank4.setFixedSize(350,25)
 	APE2SPULay=QHBoxLayout()
 	APE2SPULay.addWidget(self.APE2SPULabel)
 	APE2SPULay.addWidget(self.APE2SPUEdit)
@@ -107,7 +118,7 @@ class ConfigViewWidget(QWidget):
 	self.APE2MPUButton=QPushButton(self.tr("Browse"))
 	self.APE2MPUButton.setFixedSize(100,25)
 	blank5=QLabel()
-	blank5.setFixedSize(380,25)
+	blank5.setFixedSize(350,25)
 	APE2MPULay=QHBoxLayout()
 	APE2MPULay.addWidget(self.APE2MPULabel)
 	APE2MPULay.addWidget(self.APE2MPUEdit)
@@ -123,7 +134,7 @@ class ConfigViewWidget(QWidget):
 	self.APE3SPUButton=QPushButton(self.tr("Browse"))
 	self.APE3SPUButton.setFixedSize(100,25)
 	blank6=QLabel()
-	blank6.setFixedSize(380,25)
+	blank6.setFixedSize(350,25)
 	APE3SPULay=QHBoxLayout()
 	APE3SPULay.addWidget(self.APE3SPULabel)
 	APE3SPULay.addWidget(self.APE3SPUEdit)
@@ -136,7 +147,7 @@ class ConfigViewWidget(QWidget):
 	self.APE3MPUButton=QPushButton(self.tr("Browse"))
 	self.APE3MPUButton.setFixedSize(100,25)
 	blank7=QLabel()
-	blank7.setFixedSize(380,25)
+	blank7.setFixedSize(350,25)
 	APE3MPULay=QHBoxLayout()
 	APE3MPULay.addWidget(self.APE3MPULabel)
 	APE3MPULay.addWidget(self.APE3MPUEdit)
@@ -145,10 +156,9 @@ class ConfigViewWidget(QWidget):
 	APE3MPULay.addWidget(self.startButton)
 	APE3MPULay.addWidget(self.stopButton)
 		
-	self.paraEdit=QLineEdit()
+	self.paraEdit=QLineEdit("--trace-file=aaa.out --debug-flags=Exec ../../../simulator/apc/system/se.py -c")
 	self.paraEdit.setFixedHeight(25)
-	self.fullText=QTextEdit()
-	self.fullText.setFixedHeight(100)
+	self.paraEdit.setFixedWidth(900)
 
 	APCGroupWidget=QWidget()
 	APCGroup=QGroupBox(APCGroupWidget)
@@ -169,7 +179,6 @@ class ConfigViewWidget(QWidget):
 	APCLay.addLayout(APE3SPULay)
 	APCLay.addLayout(APE3MPULay)
 	APCLay.addWidget(self.paraEdit)
-	APCLay.addWidget(self.fullText)
 	APCGroup.setLayout(APCLay)	
 
 	mainLay=QVBoxLayout()
@@ -177,7 +186,16 @@ class ConfigViewWidget(QWidget):
 	mainLay.addWidget(self.APCRadio)
 	mainLay.addWidget(APCGroup)
 	mainLay.addLayout(buttonLay)
-	self.setLayout(mainLay)
+	widget.setLayout(mainLay)
+     
+        scroll = QScrollArea()
+        scroll.setWidget(widget)
+        scroll.setAutoFillBackground(True)
+        scroll.setWidgetResizable(True)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(scroll)  
+        centralWidget.setLayout(vbox)
 
 	self.connect(self.fullRadio,SIGNAL("clicked(bool)"),self.fullRadioSlot)
 	self.connect(self.APCRadio,SIGNAL("clicked(bool)"),self.APCRadioSlot)
@@ -195,7 +213,6 @@ class ConfigViewWidget(QWidget):
 	self.connect(self.startButton,SIGNAL("clicked()"),self.startProcess)
 	self.connect(self.stopButton,SIGNAL("clicked()"),self.stopProcess)
 	
-
 	#set default status
 	self.APCRadio.setChecked(True)
 	self.APCRadioSlot()
@@ -207,7 +224,6 @@ class ConfigViewWidget(QWidget):
 	self.APE3CheckSlot()
 
     def fullRadioSlot(self):
-	self.fullText.setEnabled(False)
 	self.traceFlagsButton.setEnabled(False)
 	self.traceFileEdit.setEnabled(False)
 	self.APE0SPUEdit.setEnabled(False)
@@ -232,7 +248,6 @@ class ConfigViewWidget(QWidget):
 	self.paraEdit.setEnabled(False)
 
     def APCRadioSlot(self):
-	self.fullText.setEnabled(True)
 	self.traceFlagsButton.setEnabled(True)
 	self.traceFileEdit.setEnabled(True)
 	self.APE0SPUEdit.setEnabled(True)
@@ -344,7 +359,6 @@ class ConfigViewWidget(QWidget):
         self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)
 	self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
 	self.command="../../../simulator/apc/gem5.opt"
-	self.command=self.command+" "+self.paraEdit.text()
 	self.command=self.command+" "+self.paraEdit.text()+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
 	num=1
 	if self.APE1Check.checkState()==Qt.Checked:
@@ -359,44 +373,30 @@ class ConfigViewWidget(QWidget):
 	self.command=self.command+"\""
 	if num>1:
 	    self.command=self.command+" "+"-n"+" "+QString.number(num,10)
-	
         self.process.start(self.command)
         if False==self.process.waitForStarted():
-            self.fullText.append("this process can not be called.")
+	    self.simulatorShowSignal.emit(0,"this process can not be called.")
 
     def finishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
-            self.fullText.append("process exit normal")
-	    QMessageBox.about(self,"Exit","    0    ")
+	    self.simulatorShowSignal.emit(0,"process exit normal")
+	    #simulator exit normal,then emit signal to create data base
+	    self.simulatorDoneSignal.emit() 
         else:
-            self.fullText.append("process exit crash")
+	    self.simulatorShowSignal.emit(0,"process exit crash")
 	    QMessageBox.about(self,"Exit","    1    ")
-        self.fullText.append("process finished")
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 
     def startReadOutput(self):
         ba=self.process.readAllStandardOutput()
-        self.fullText.append(ba.data())
+	self.simulatorShowSignal.emit(0,ba.data())
 
     def startReadErrOutput(self):
         ba=self.process.readAllStandardError()
-	defaultColor=self.fullText.textColor()
-	str2=QString(ba.data())
-	num=str2.count("\n")
-	for i in range(0,num):
-	    pos=str2.indexOf("\n")
-	    str1=str2.left(pos)
-	    str2=str2.right(str2.size()-pos-1)
-	    if str1.contains("fatal")==True:
-	        self.fullText.setTextColor(QColor("red"))
-                self.fullText.append(str1)
-	        self.fullText.setTextColor(defaultColor)
-	    else:
-	        self.fullText.append(str1) 
+	self.simulatorShowSignal.emit(1,ba.data())
 
     def stopProcess(self):
-	self.fullText.append("process stop")
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
         self.process.write("quit")
@@ -404,3 +404,4 @@ class ConfigViewWidget(QWidget):
 
 	
 
+  

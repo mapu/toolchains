@@ -119,5 +119,6 @@ class LineWidget(QWidget):
 	    qp.drawLine(self.dx1+20+5,self.dy2-10-5,self.dx1+10,self.dy2)
 	    qp.drawLine(self.dx1+10,self.dy2,self.dx2,self.dy2)
 	    qp.drawText(self.dx1,self.dy1+5,"<")
-
+	
+	qp.end()
 
