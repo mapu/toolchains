@@ -9,7 +9,7 @@ sys.setdefaultencoding('utf-8')
 
 class DataBase():
     def __init__(self):
-	self.filePath="/home/litt/alu.out"
+	self.filePath="m5out/aaa.out"
 	self.dbFilePath="table.db"
 	self.snTableName="sn"
 	self.regTableName="reg"
@@ -211,8 +211,7 @@ class DataBase():
 	        pos=s.index("\n")
 	        s=s[0:pos]
 	    item.dis="'"+s+"'"
-	
-        else:
+	elif s.find("im_port")>=0:
 	    #326000[163]: system.cpu.mim_port: [sn:105] : [sln:105] : 181 : (memo:ialuadd   ) IALU.T1+T2->IMAC.T0
 	    if s.find("mim_port")>=0:
 	        pos=8
@@ -502,10 +501,19 @@ class DataBase():
     	    item.cpu=item.cpu[3:pos]
         s=s[(pos+1):]
 
-        if s.find("spurf_manager")>=0 or s.find("mpurf_manager")>=0:
-	    #326000[163]: system.cpu3.mpurf_manager: [sn:75] : W MPU Reg 143 : 0x0 0x0 0x0 0x0 0x0
+        if s.find("mpurf_manager")>=0:
+	    #324000[162]: system.cpu.mpurf_manager: [tid:1]: [sn:47] : R MPU Reg 129 : 0x1 0xff 0xff
 	    pos=13
     	    s=s[(pos+2):] 
+	    pos=s.index(":")
+	    s=s[(pos+1):]
+	    pos=s.index("]")
+	    item.spumpu=s[0:pos]
+	    if item.spumpu=="0":
+		item.spumpu="'s'"
+	    else:
+		item.spumpu="'m'"
+	    s=s[(pos+3):]
     	    #get sn
     	    pos=s.index(":")
     	    s=s[(pos+1):]
@@ -522,24 +530,59 @@ class DataBase():
 	    s=s[(pos+2):]
 	    pos=s.index("\n")
 	    item.dis="'"+s[:pos-1]+"'"	
+	elif s.find("regfile_manager")>=0:
+	    #16000[8]: system.cpu.regfile_manager: [tid:0]: [sn:2]: W R Reg 1 : 0xffffff01.
+	    #318000[159]: system.cpu.regfile_manager: [tid:0]: [sn:118]: W MPU Reg 131 : 0x0 0x0 0x0 0x0
+	    pos=15
+    	    s=s[(pos+2):] 
+	    pos=s.index(":")
+	    s=s[(pos+1):]
+	    pos=s.index("]")
+	    item.spumpu=s[0:pos]
+	    if item.spumpu=="0":
+		item.spumpu="'s'"
+	    else:
+		item.spumpu="'m'"
+	    s=s[(pos+3):]
+    	    #get sn
+    	    pos=s.index(":")
+    	    s=s[(pos+1):]
+    	    pos=s.index("]")
+    	    item.sn=s[0:pos]
+    	    s=s[(pos+1):] 
+    	    s=s[2:]
+	    item.op="'"+s[:1]+"'" #W MPU Reg 131 : 0x0 0x0 0x0 0x0
+	    s=s[2:]   #MPU Reg 131 : 0x0 0x0 0x0 0x0 //  R Reg 1 : 0xffffff01.
+	    temp=s
+	    pos=temp.index(" ")
+	    temp=temp[(pos+1):]
+	    pos1=temp.index(" ")
+	    pos=pos+pos1+1
+	    item.type="'"+s[:pos]+"'"
+	    s=s[(pos+1):]
+	    pos=s.index(":")
+	    item.reg=s[:(pos-1)]
+	    s=s[(pos+2):]
+	    pos=s.index("\n")
+	    item.dis="'"+s[:pos-1]+"'"	
         return item
 
     def regTableInit(self):
         #drop table
         self.drop_table(self.dbConn,self.regTableName)
 	#create table
-        create_table_sql="create table "+self.regTableName+"(id integer primary key autoincrement,time integer,cpu integer,sn integer,op varchar(8),type varchar(8),reg integer,dis varchar(256))"
+        create_table_sql="create table "+self.regTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(4),sn integer,op varchar(8),type varchar(8),reg integer,dis varchar(256))"
         self.create_table(self.dbConn, create_table_sql)
 
-        save_sql = "INSERT INTO "+self.regTableName+" (time,cpu,sn,op,type,reg,dis) "
+        save_sql = "INSERT INTO "+self.regTableName+" (time,cpu,spumpu,sn,op,type,reg,dis) "
 
         #open out file and read 
         f=open(self.filePath,"r")
         lines=f.readlines()
         for line in lines:
-	    if line.find("mpurf_manager")>=0:
+	    if line.find("mpurf_manager")>=0 or line.find("regfile_manager")>=0:
 	        item=self.regSplit(line)
-	        data="values ("+item.time+","+item.cpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
+	        data="values ("+item.time+","+item.cpu+","+item.spumpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
 	        self.save(self.dbConn, save_sql, data)
 	f.close()
         #show table
@@ -801,15 +844,15 @@ class DataBase():
 	    if r!=0:
                 if len(r) > 0:	
 	            for e in range(len(r)):
-			item.reg="'"+r[e][4]+"'"
-			item.regValue=str(r[e][6])
-			item.dis="'"+r[e][7]+"'"
+			item.reg="'"+r[e][5]+"'"
+			item.regValue=str(r[e][7])
+			item.dis="'"+r[e][8]+"'"
 	    #if dis!="nop" or item.reg!="'nop'":	
 	    data="values ("+item.time+","+item.DMBIU0+","+item.DMBIU0Value+","+item.BIU0DM+","+item.BIU0DMValue+","+item.DMBIU1+","+item.DMBIU1Value+","+item.BIU1DM+","+item.BIU1DMValue+","+item.DMBIU2+","+item.DMBIU2Value+","+item.BIU2DM+","+item.BIU2DMValue+","+item.BIU0SHU0+","+item.BIU0SHU0Value+","+item.SHU0BIU0+","+item.SHU0BIU0Value+","+item.BIU1SHU0+","+item.BIU1SHU0Value+","+item.SHU0BIU1+","+item.SHU0BIU1Value+","+item.BIU2SHU0+","+item.BIU2SHU0Value+","+item.SHU0BIU2+","+item.SHU0BIU2Value+","+item.BIU0SHU1+","+item.BIU0SHU1Value+","+item.SHU1BIU0+","+item.SHU1BIU0Value+","+item.BIU1SHU1+","+item.BIU1SHU1Value+","+item.SHU1BIU1+","+item.SHU1BIU1Value+","+item.BIU2SHU1+","+item.BIU2SHU1Value+","+item.SHU1BIU2+","+item.SHU1BIU2Value+","+ item.BIU0MRF+","+item.BIU0MRFValue+","+item.MRFBIU0+","+item.MRFBIU0Value+","+item.BIU1MRF+","+item.BIU1MRFValue+","+item.MRFBIU1+","+item.MRFBIU1Value+","+item.BIU2MRF+","+item.BIU2MRFValue+","+item.MRFBIU2+","+item.MRFBIU2Value+","+item.SHU0IALU+","+item.SHU0IALUValue+","+item.IALUSHU0+","+item.IALUSHU0Value+","+item.SHU0IMAC+","+item.SHU0IMACValue+","+item.IMACSHU0+","+item.IMACSHU0Value+","+item.SHU0FALU+","+item.SHU0FALUValue+","+item.FALUSHU0+","+item.FALUSHU0Value+","+item.SHU0FMAC+","+item.SHU0FMACValue+","+item.FMACSHU0+","+item.FMACSHU0Value+","+item.MRFIALU+","+item.MRFIALUValue+","+item.IALUMRF+","+item.IALUMRFValue+","+item.MRFIMAC+","+item.MRFIMACValue+","+item.IMACMRF+","+item.IMACMRFValue+","+item.MRFFALU+","+item.MRFFALUValue+","+item.FALUMRF+","+item.FALUMRFValue+","+item.MRFFMAC+","+item.MRFFMACValue+","+item.FMACMRF+","+item.FMACMRFValue+","+item.SHU1IALU+","+item.SHU1IALUValue+","+item.IALUSHU1+","+item.IALUSHU1Value+","+item.SHU1IMAC+","+item.SHU1IMACValue+","+item.IMACSHU1+","+item.IMACSHU1Value+","+item.SHU1FALU+","+item.SHU1FALUValue+","+item.FALUSHU1+","+item.FALUSHU1Value+","+item.SHU1FMAC+","+item.SHU1FMACValue+","+item.FMACSHU1+","+item.FMACSHU1Value+","+item.IALUFALU+","+item.IALUFALUValue+","+item.FALUIALU+","+item.FALUIALUValue+","+item.reg+","+item.regValue+","+item.dis+")"
 	    self.save(self.dbConn, save_sql, data)
 
         #show table
-	if 1:
+	if 0:
             fetchall_sql = "SELECT * FROM "+self.timeTableName
             cu = self.get_cursor(self.dbConn)
             cu.execute(fetchall_sql)

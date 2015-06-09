@@ -34,6 +34,7 @@ class RegItem:
     def __init__(self):
 	self.time="-1"
 	self.cpu="-1"
+	self.spumpu="'nop'"
 	self.sn="-1"
 	self.op="'nop'" #R/W
 	self.type="'nop'" #mpu reg

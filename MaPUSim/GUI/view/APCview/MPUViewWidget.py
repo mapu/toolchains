@@ -16,7 +16,7 @@ class MPUViewWidget(QWidget):
 	super(MPUViewWidget,self).__init__(parent)
 
 	self.byteComboBox=QComboBox()
-	self.byteComboBox.setFixedSize(140,50)
+	self.byteComboBox.setFixedSize(140,40)
 	self.byteComboBox.insertItem(0,"8 Bytes")
 	self.byteComboBox.insertItem(1,"7 Bytes")
 	self.byteComboBox.insertItem(2,"6 Bytes")
@@ -27,7 +27,7 @@ class MPUViewWidget(QWidget):
 	self.byteComboBox.insertItem(7,"1 Bytes")
 
 	self.laneComboBox=QComboBox()
-	self.laneComboBox.setFixedSize(140,50)
+	self.laneComboBox.setFixedSize(140,40)
 	self.laneComboBox.insertItem(0,"Lane0")
 	self.laneComboBox.insertItem(1,"Lane1")
 	self.laneComboBox.insertItem(2,"Lane2")
@@ -672,9 +672,7 @@ class MPUViewWidget(QWidget):
 	#FALU IALU
 	if r[99]!=-1:
 	    print "faluialu"
-	print "reg",r[101]
-	print "value",r[102]
-	print "dis",r[103]
+
 	if r[101]=="W":
 	    if r[102]!=-1:
 		num=r[102]

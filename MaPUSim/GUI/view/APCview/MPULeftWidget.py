@@ -16,7 +16,7 @@ class MPULeftWidget(QWidget):
 	self.dataBase=0
 	self.curTime=0
 
-	initValue=1
+	initValue=0
 	self.lineListLength=61
         self.List=[initValue]*self.lineListLength
 
