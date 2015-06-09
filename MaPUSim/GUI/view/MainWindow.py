@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.createToolBars()
 	self.createStatusBar()
   
-	self.setMinimumSize(1024,700)
+	self.setMinimumSize(1024,900)
 
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  

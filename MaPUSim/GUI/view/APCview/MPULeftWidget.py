@@ -411,11 +411,10 @@ class MPULeftWidget(QWidget):
            self.paintstaen(-2,L2B2MRF)            
          #SHU0 to MRF                                                                                                                             
                                                
-           X1SHU=590
-           Y1SHU=110
-           SHUtoMRFlength=100
+        X1SHU=590
+        Y1SHU=110
+        SHUtoMRFlength=100
         if self.List[6]==1:     
-
            S0MRF1=[X1SHU,Y1SHU,X1SHU,Y1SHU+SHUtoMRFlength] 
            self.paintLine(2,S0MRF1) 
            self.paintstaen(2,S0MRF1)   
