@@ -153,6 +153,7 @@ class APCMutiCoreWidget(QWidget):
 	self.inDMAWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
 	self.inDMAWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
         self.inDMAWidget.setItem(1,0,QTableWidgetItem(self.tr("DMALSAddress")))
+	self.inDMAWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
         self.inDMAWidget.setItem(2,0,QTableWidgetItem(self.tr("DMALSXNum")))
         self.inDMAWidget.setItem(3,0,QTableWidgetItem(self.tr("DMALSYStep")))
         self.inDMAWidget.setItem(4,0,QTableWidgetItem(self.tr("DMALSYNum")))

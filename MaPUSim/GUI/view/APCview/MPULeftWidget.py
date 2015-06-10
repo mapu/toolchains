@@ -121,67 +121,56 @@ class MPULeftWidget(QWidget):
     #define slot function
     def DMButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("dm",self.DMButtonDialog)
 	    self.DMButtonDialog.flag=1
 	    self.DMButtonDialog.show()
 
     def BIU0ButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("biu0",self.BIU0ButtonDialog)
 	    self.BIU0ButtonDialog.flag=1
 	    self.BIU0ButtonDialog.show()
 
     def BIU1ButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("biu1",self.BIU1ButtonDialog)
 	    self.BIU1ButtonDialog.flag=1
 	    self.BIU1ButtonDialog.show()
 
     def BIU2ButtonSlot(self):	
 	if self.dataBase!=0:
-	    self.selectAllStages("biu2",self.BIU2ButtonDialog)
 	    self.BIU2ButtonDialog.flag=1
 	    self.BIU2ButtonDialog.show()
 
     def SHU0ButtonSlot(self):	
 	if self.dataBase!=0:
-	    self.selectAllStages("shu0",self.SHU0ButtonDialog)
 	    self.SHU0ButtonDialog.flag=1
 	    self.SHU0ButtonDialog.show()
 
     def SHU1ButtonSlot(self):	
 	if self.dataBase!=0:
-	    self.selectAllStages("shu1",self.SHU1ButtonDialog)
 	    self.SHU1ButtonDialog.flag=1
 	    self.SHU1ButtonDialog.show()
 
     def MRFButtonSlot(self):	
 	if self.dataBase!=0:
-	    self.selectAllStages("mrf",self.MRFButtonDialog)
 	    self.MRFButtonDialog.flag=1
 	    self.MRFButtonDialog.show()
 
     def IALUButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("ialu",self.IALUButtonDialog)
 	    self.IALUButtonDialog.flag=1
 	    self.IALUButtonDialog.show()
 
     def IMACButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("imac",self.IMACButtonDialog)
 	    self.IMACButtonDialog.flag=1
 	    self.IMACButtonDialog.show()
 
     def FALUButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("falu",self.FALUButtonDialog)
 	    self.FALUButtonDialog.flag=1
 	    self.FALUButtonDialog.show()
 
     def FMACButtonSlot(self):
 	if self.dataBase!=0:
-	    self.selectAllStages("fmac",self.FMACButtonDialog)
 	    self.FMACButtonDialog.flag=1
 	    self.FMACButtonDialog.show()
 
@@ -209,81 +198,6 @@ class MPULeftWidget(QWidget):
 	    self.FALUButtonDialog.close()
 	if self.FMACButtonDialog.flag!=-1:
 	    self.FMACButtonDialog.close()
-
-    def selectAllStages(self,string,dialog):
-    	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(self.curTime)+" or "+"stage1 = "+str(self.curTime)+" or "+"stage2 = "+str(self.curTime)+" or "+"stage3 = "+str(self.curTime)+" or "+"stage4 = "+str(self.curTime)+" or "+"stage5 = "+str(self.curTime)+" or "+"stage6 = "+str(self.curTime)+" or "+"stage7 = "+str(self.curTime)+" or "+"stage8 = "+str(self.curTime)+" or "+"stage9 = "+str(self.curTime)+" or "+"stage10 = "+str(self.curTime)+" or "+"stage11 = "+str(self.curTime)+" or "+"stage12 = "+str(self.curTime)+" or "+"stage13 = "+str(self.curTime)+" or "+"stage14 = "+str(self.curTime)+" or "+"stage15 = "+str(self.curTime)+" or "+"stage16 = "+str(self.curTime)+" or "+"stage17 = "+str(self.curTime)+" or "+"stage18 = "+str(self.curTime)+" or "+"stage19 = "+str(self.curTime)
-	r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)
-	if r!=0:
-            for e in range(len(r)):
-	        if r[e][6]!="nop":
-		    s=r[e][6]
-		    pos=s.index(":")
-		    s=s[(pos+1):]
-		    a=s[:4]
-		    stage="sn:"+str(r[e][3])
-		    if r[e][4]!=-1:
-			stage=stage+",sln:"+str(r[e][4])
-		    if a==string:
-			if r[e][7]==self.curTime:
-			     dialog.stages.item(0).setData(0,stage)
-			     dialog.stages.item(0).setToolTip(r[e][5])
-			elif r[e][8]==self.curTime:
-			     dialog.stages.item(1).setData(0,stage)
-			     dialog.stages.item(1).setToolTip(r[e][5])
-			elif r[e][9]==self.curTime:
-			     dialog.stages.item(2).setData(0,stage)
-			     dialog.stages.item(2).setToolTip(r[e][5])
-			elif r[e][10]==self.curTime:
-			     dialog.stages.item(3).setData(0,stage)
-			     dialog.stages.item(3).setToolTip(r[e][5])
-			elif r[e][11]==self.curTime:
-			     dialog.stages.item(4).setData(0,stage)
-			     dialog.stages.item(4).setToolTip(r[e][5])
-			elif r[e][12]==self.curTime:
-			     dialog.stages.item(5).setData(0,stage)
-			     dialog.stages.item(5).setToolTip(r[e][5])
-			elif r[e][13]==self.curTime:
-			     dialog.stages.item(6).setData(0,stage)
-			     dialog.stages.item(6).setToolTip(r[e][5])
-			elif r[e][14]==self.curTime:
-			     dialog.stages.item(7).setData(0,stage)
-			     dialog.stages.item(7).setToolTip(r[e][5])
-			elif r[e][15]==self.curTime:
-			     dialog.stages.item(8).setData(0,stage)
-			     dialog.stages.item(8).setToolTip(r[e][5])
-			elif r[e][16]==self.curTime:
-			     dialog.stages.item(9).setData(0,stage)
-			     dialog.stages.item(9).setToolTip(r[e][5])
-			elif r[e][17]==self.curTime:
-			     dialog.stages.item(10).setData(0,stage)
-			     dialog.stages.item(10).setToolTip(r[e][5])
-			elif r[e][18]==self.curTime:
-			     dialog.stages.item(11).setData(0,stage)
-			     dialog.stages.item(11).setToolTip(r[e][5])
-			elif r[e][19]==self.curTime:
-			     dialog.stages.item(12).setData(0,stage)
-			     dialog.stages.item(12).setToolTip(r[e][5])
-			elif r[e][20]==self.curTime:
-			     dialog.stages.item(13).setData(0,stage)
-			     dialog.stages.item(13).setToolTip(r[e][5])
-			elif r[e][21]==self.curTime:
-			     dialog.stages.item(14).setData(0,stage)
-			     dialog.stages.item(14).setToolTip(r[e][5])
-			elif r[e][22]==self.curTime:
-			     dialog.stages.item(15).setData(0,stage)
-			     dialog.stages.item(15).setToolTip(r[e][5])
-			elif r[e][23]==self.curTime:
-			     dialog.stages.item(16).setData(0,stage)
-			     dialog.stages.item(16).setToolTip(r[e][5])
-			elif r[e][24]==self.curTime:
-			     dialog.stages.item(17).setData(0,stage)
-			     dialog.stages.item(17).setToolTip(r[e][5])
-			elif r[e][25]==self.curTime:
-			     dialog.stages.item(18).setData(0,stage)
-			     dialog.stages.item(18).setToolTip(r[e][5])
-			elif r[e][26]==self.curTime:
-			     dialog.stages.item(19).setData(0,stage)  
-			     dialog.stages.item(19).setToolTip(r[e][5])  
 		 
     def paintLine(self,n,Llist):
         self.dn=n

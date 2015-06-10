@@ -169,10 +169,31 @@ class TimeItem:
 	self.IALUFALUValue="'nop'"
 	self.FALUIALU="-1"
 	self.FALUIALUValue="'nop'"
-	
-	self.reg="'nop'"
-	self.regValue="-1"
-	self.dis="'nop'"
+	#SHU0 MRF
+	self.SHU0MRF="-1"
+	self.SHU0MRFValue="'nop'"
+	self.MRFSHU0="-1"
+	self.MRFSHU0Value="'nop'"
+	#MRF SHU1
+	self.MRFSHU1="-1"
+	self.MRFSHU1Value="'nop'"
+	self.SHU1MRF="-1"
+	self.SHU1MRFValue="'nop'"
+	#IALU IMAC
+	self.IALUIMAC="-1"
+	self.IALUIMACValue="'nop'"
+	self.IMACIALU="-1"
+	self.IMACIALUValue="'nop'"
+	#IMAC FALU
+	self.IMACFALU="-1"
+	self.IMACFALUValue="'nop'"
+	self.FALUIMAC="-1"
+	self.FALUIMACValue="'nop'"
+	#FALU FMAC
+	self.FALUFMAC="-1"
+	self.FALUFMACValue="'nop'"
+	self.FMACFALU="-1"
+	self.FMACFALUValue="'nop'"
 
 
 

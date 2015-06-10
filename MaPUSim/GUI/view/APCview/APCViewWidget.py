@@ -111,10 +111,13 @@ class APCViewWidget(QWidget):
 	r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)
 	if r!=0:
 	    for e in range(len(r)):
-		print r[e]
-		self.APE0Widget.MPUWidget.updateWidget(r[e])
-		self.APE1Widget.MPUWidget.updateWidget(r[e])
-		self.APE2Widget.MPUWidget.updateWidget(r[e])
-		self.APE3Widget.MPUWidget.updateWidget(r[e])
+		self.APE0Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE1Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE2Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE3Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE0Widget.SPUWidget.updateSPUWidget(r[e])
+		self.APE1Widget.SPUWidget.updateSPUWidget(r[e])
+		self.APE2Widget.SPUWidget.updateSPUWidget(r[e])
+		self.APE3Widget.SPUWidget.updateSPUWidget(r[e])
 	
     
