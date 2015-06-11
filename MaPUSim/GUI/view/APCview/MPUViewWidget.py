@@ -742,7 +742,7 @@ class MPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
 		else:
 		    self.regFileWidget.item(i+7,1).setData(0,"0")
-	    elif i>=176 and i<=184:
+	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])	
 		else:
@@ -754,6 +754,7 @@ class MPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+8,1).setData(0,"0")
 
 	#update float dialog
+	#clear stage list
 	self.buttonWidget.DMButtonDialog.stages.clear()
 	self.buttonWidget.BIU0ButtonDialog.stages.clear()
 	self.buttonWidget.BIU1ButtonDialog.stages.clear()
@@ -765,6 +766,7 @@ class MPUViewWidget(QWidget):
 	self.buttonWidget.IMACButtonDialog.stages.clear()
 	self.buttonWidget.FALUButtonDialog.stages.clear()
 	self.buttonWidget.FMACButtonDialog.stages.clear()
+	#init float dialog
 	self.buttonWidget.DMButtonDialog.initDialog()
 	self.buttonWidget.BIU0ButtonDialog.initDialog()
 	self.buttonWidget.BIU1ButtonDialog.initDialog()

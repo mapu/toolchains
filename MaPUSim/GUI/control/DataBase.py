@@ -237,9 +237,10 @@ class DataBase():
 		pos=s.index("\n")
 		s=s[:pos]
 	    	item.dis="'"+s+"'" #(memo:ialuadd   ) IALU.T1+T2->IMAC.T0
-		pos=s.index("->")
-		s=s[(pos+2):]
-		item.dest="'"+s+"'" #IMAC.T0
+		pos=s.find("->")
+		if pos>=0:
+		    s=s[(pos+2):]
+		    item.dest="'"+s+"'" #IMAC.T0
 	    else:
 	        #4000[2]: system.cpu.im_port: [sn:2] : [sln:2] : 4 : immtransr  r1, -255
 	        pos=7
