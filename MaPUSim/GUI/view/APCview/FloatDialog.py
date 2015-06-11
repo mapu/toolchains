@@ -14,12 +14,8 @@ class FloatDialog(QDialog):
 	self.stages=QListWidget()
 	self.stages.setMaximumWidth(145)
 	self.stages.setMaximumHeight(145)
-	self.setAttribute(Qt.WA_DeleteOnClose)
-	#self.setModal(False)
 	self.setWindowFlags(Qt.WindowStaysOnTopHint)
-	
 	self.initDialog()
-
 	stagesLay=QVBoxLayout()
 	stagesLay.addWidget(self.stages)
 	self.setLayout(stagesLay)

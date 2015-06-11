@@ -754,7 +754,28 @@ class MPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+8,1).setData(0,"0")
 
 	#update float dialog
-
+	self.buttonWidget.DMButtonDialog.stages.clear()
+	self.buttonWidget.BIU0ButtonDialog.stages.clear()
+	self.buttonWidget.BIU1ButtonDialog.stages.clear()
+	self.buttonWidget.BIU2ButtonDialog.stages.clear()
+	self.buttonWidget.SHU0ButtonDialog.stages.clear()
+	self.buttonWidget.MRFButtonDialog.stages.clear()
+	self.buttonWidget.SHU1ButtonDialog.stages.clear()
+	self.buttonWidget.IALUButtonDialog.stages.clear()
+	self.buttonWidget.IMACButtonDialog.stages.clear()
+	self.buttonWidget.FALUButtonDialog.stages.clear()
+	self.buttonWidget.FMACButtonDialog.stages.clear()
+	self.buttonWidget.DMButtonDialog.initDialog()
+	self.buttonWidget.BIU0ButtonDialog.initDialog()
+	self.buttonWidget.BIU1ButtonDialog.initDialog()
+	self.buttonWidget.BIU2ButtonDialog.initDialog()
+	self.buttonWidget.SHU0ButtonDialog.initDialog()
+	self.buttonWidget.MRFButtonDialog.initDialog()
+	self.buttonWidget.SHU1ButtonDialog.initDialog()
+	self.buttonWidget.IALUButtonDialog.initDialog()
+	self.buttonWidget.IMACButtonDialog.initDialog()
+	self.buttonWidget.FALUButtonDialog.initDialog()
+	self.buttonWidget.FMACButtonDialog.initDialog()
 	#DM
 	for i in range(0,40,2):
 	    if r[372+i]!="nop":

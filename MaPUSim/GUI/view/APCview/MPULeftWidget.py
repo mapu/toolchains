@@ -92,7 +92,8 @@ class MPULeftWidget(QWidget):
 	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
 
         #define float dialog
-
+	self.DMButtonDialog=FloatDialog()
+	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
 	self.BIU0ButtonDialog=FloatDialog()
 	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))
 	self.BIU1ButtonDialog=FloatDialog()
