@@ -95,17 +95,8 @@ class APCViewWidget(QWidget):
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.spinBox.setValue)
 	self.connect(self.spinBox,SIGNAL("valueChanged(int)"),self.slider.setValue)
 
-	self.APE0Widget.MPUWidget.buttonWidget.dataBase=self.dataBase
-	self.APE1Widget.MPUWidget.buttonWidget.dataBase=self.dataBase
-	self.APE2Widget.MPUWidget.buttonWidget.dataBase=self.dataBase
-	self.APE3Widget.MPUWidget.buttonWidget.dataBase=self.dataBase
-
     def currentValueSlot(self,time):
 	curTime=self.slider.value()
-	self.APE0Widget.MPUWidget.buttonWidget.curTime=curTime
-	self.APE1Widget.MPUWidget.buttonWidget.curTime=curTime
-	self.APE2Widget.MPUWidget.buttonWidget.curTime=curTime
-	self.APE3Widget.MPUWidget.buttonWidget.curTime=curTime
 
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
 	r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)

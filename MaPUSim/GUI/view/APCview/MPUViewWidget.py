@@ -70,7 +70,8 @@ class MPUViewWidget(QWidget):
 	self.regFileWidget.setColumnCount(2)
 	self.regFileWidget.setRowCount(195)
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
-
+	self.regFileWidget.resizeColumnToContents(1)
+	self.regFileWidget.setColumnWidth(1,2000)
 	#define regFileWidget M
 	self.regFileWidget.setItem(0,0,QTableWidgetItem(self.tr("M")))
 	self.regFileWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
@@ -704,39 +705,56 @@ class MPUViewWidget(QWidget):
 	if r[119]!=-1:
 	    print "FMAC FALU"
 
-
-
 	#update mpu reg
 	for i in range(0,187):
 	    if i>=0 and i<=127:  #m0-127
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+1,1).setData(0,r[121+i])
+		else:
+	            self.regFileWidget.item(i+1,1).setData(0,"0")
 	    elif i>=128 and i<=143: #shu0
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+2,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+2,1).setData(0,"0")
 	    elif i>=144 and i<=159: #shu1
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+3,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+3,1).setData(0,"0")
 	    elif i>=160 and i<=163: #ialu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+4,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+4,1).setData(0,"0")
 	    elif i>=164 and i<=167:  #imac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+5,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+5,1).setData(0,"0")
 	    elif i>=168 and i<=171: #falu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+6,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+6,1).setData(0,"0")
 	    elif i>=172 and i<=175: #fmac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+7,1).setData(0,"0")
 	    elif i>=176 and i<=184:
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])	
+		else:
+		    self.regFileWidget.item(i+7,1).setData(0,"0")	
 	    elif i>=185 and i<=186: #svr
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+8,1).setData(0,r[121+i])
+		else:
+		    self.regFileWidget.item(i+8,1).setData(0,"0")
 
 	#update float dialog
+
 	#DM
 	for i in range(0,40,2):
 	    if r[372+i]!="nop":
@@ -792,5 +810,6 @@ class MPUViewWidget(QWidget):
 	    if r[772+i]!="nop":
 		self.buttonWidget.FMACButtonDialog.stages.item(i).setData(0,r[772+i])
 		self.buttonWidget.FMACButtonDialog.stages.item(i).setToolTip(r[772+i+1])
+
 
 

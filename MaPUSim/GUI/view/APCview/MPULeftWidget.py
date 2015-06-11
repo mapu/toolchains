@@ -12,9 +12,6 @@ class MPULeftWidget(QWidget):
     def __init__(self,parent=None):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(980,500)
-        
-	self.dataBase=0
-	self.curTime=0
 
 	initValue=0
 	self.lineListLength=61
@@ -95,8 +92,7 @@ class MPULeftWidget(QWidget):
 	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
 
         #define float dialog
-	self.DMButtonDialog=FloatDialog()
-	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
+
 	self.BIU0ButtonDialog=FloatDialog()
 	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))
 	self.BIU1ButtonDialog=FloatDialog()
@@ -120,59 +116,48 @@ class MPULeftWidget(QWidget):
 
     #define slot function
     def DMButtonSlot(self):
-	if self.dataBase!=0:
-	    self.DMButtonDialog.flag=1
-	    self.DMButtonDialog.show()
+	self.DMButtonDialog.flag=1
+	self.DMButtonDialog.show()
 
     def BIU0ButtonSlot(self):
-	if self.dataBase!=0:
-	    self.BIU0ButtonDialog.flag=1
-	    self.BIU0ButtonDialog.show()
+	self.BIU0ButtonDialog.flag=1
+	self.BIU0ButtonDialog.show()
 
     def BIU1ButtonSlot(self):
-	if self.dataBase!=0:
-	    self.BIU1ButtonDialog.flag=1
-	    self.BIU1ButtonDialog.show()
+	self.BIU1ButtonDialog.flag=1
+	self.BIU1ButtonDialog.show()
 
     def BIU2ButtonSlot(self):	
-	if self.dataBase!=0:
-	    self.BIU2ButtonDialog.flag=1
-	    self.BIU2ButtonDialog.show()
+	self.BIU2ButtonDialog.flag=1
+	self.BIU2ButtonDialog.show()
 
     def SHU0ButtonSlot(self):	
-	if self.dataBase!=0:
-	    self.SHU0ButtonDialog.flag=1
-	    self.SHU0ButtonDialog.show()
+	self.SHU0ButtonDialog.flag=1
+	self.SHU0ButtonDialog.show()
 
     def SHU1ButtonSlot(self):	
-	if self.dataBase!=0:
-	    self.SHU1ButtonDialog.flag=1
-	    self.SHU1ButtonDialog.show()
+	self.SHU1ButtonDialog.flag=1
+	self.SHU1ButtonDialog.show()
 
     def MRFButtonSlot(self):	
-	if self.dataBase!=0:
-	    self.MRFButtonDialog.flag=1
-	    self.MRFButtonDialog.show()
+	self.MRFButtonDialog.flag=1
+	self.MRFButtonDialog.show()
 
     def IALUButtonSlot(self):
-	if self.dataBase!=0:
-	    self.IALUButtonDialog.flag=1
-	    self.IALUButtonDialog.show()
+	self.IALUButtonDialog.flag=1
+	self.IALUButtonDialog.show()
 
     def IMACButtonSlot(self):
-	if self.dataBase!=0:
-	    self.IMACButtonDialog.flag=1
-	    self.IMACButtonDialog.show()
+	self.IMACButtonDialog.flag=1
+	self.IMACButtonDialog.show()
 
     def FALUButtonSlot(self):
-	if self.dataBase!=0:
-	    self.FALUButtonDialog.flag=1
-	    self.FALUButtonDialog.show()
+	self.FALUButtonDialog.flag=1
+	self.FALUButtonDialog.show()
 
     def FMACButtonSlot(self):
-	if self.dataBase!=0:
-	    self.FMACButtonDialog.flag=1
-	    self.FMACButtonDialog.show()
+	self.FMACButtonDialog.flag=1
+	self.FMACButtonDialog.show()
 
     #define close all float dialogs
     def closeFloatDialogs(self):

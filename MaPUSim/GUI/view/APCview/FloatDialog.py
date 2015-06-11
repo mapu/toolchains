@@ -17,6 +17,14 @@ class FloatDialog(QDialog):
 	self.setAttribute(Qt.WA_DeleteOnClose)
 	#self.setModal(False)
 	self.setWindowFlags(Qt.WindowStaysOnTopHint)
+	
+	self.initDialog()
+
+	stagesLay=QVBoxLayout()
+	stagesLay.addWidget(self.stages)
+	self.setLayout(stagesLay)
+	
+    def initDialog(self):
 	self.stages.addItem(self.tr(""))
 	self.stages.addItem(self.tr(""))
 	self.stages.addItem(self.tr(""))
@@ -38,10 +46,6 @@ class FloatDialog(QDialog):
 	self.stages.addItem(self.tr(""))
 	self.stages.addItem(self.tr(""))
 
-	stagesLay=QVBoxLayout()
-	stagesLay.addWidget(self.stages)
-	self.setLayout(stagesLay)
-	
     def closeEvent(self,event):
 	self.flag=-1
 

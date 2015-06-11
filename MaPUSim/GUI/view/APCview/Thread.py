@@ -10,6 +10,6 @@ class Thread(QThread):
 	
     def run(self):
 	self.dataBase=DataBase()
-	self.dataBase.snTableInit()
-	self.dataBase.regTableInit()
-	self.dataBase.timeTableInit()
+	#self.dataBase.snTableInit()
+	#self.dataBase.regTableInit()
+	#self.dataBase.timeTableInit()

@@ -180,7 +180,7 @@ class SPUViewWidget(QWidget):
 	self.specialRegWidget.setColumnCount(2)
 	self.specialRegWidget.setRowCount(3)
 	self.specialRegWidget.verticalHeader().setDefaultSectionSize(25)
-	self.specialRegWidget.setColumnWidth(0,122)
+	self.specialRegWidget.setColumnWidth(1,2000)
 	#define specialRegWidget SVR 
 	self.specialRegWidget.setItem(0,0,QTableWidgetItem(self.tr("SVR")))
 	self.specialRegWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
@@ -197,12 +197,17 @@ class SPUViewWidget(QWidget):
 	self.setLayout(mainLayout)
 
     def updateSPUWidget(self,r):
-	for i in range (0,32):
-	    if r[308+i]!="nop":
-	    	if i>=0 and i<=31:
+	for i in range (0,64):
+	    if i>=0 and i<=31:
+	        if r[308+i]!="nop":
 		    self.regFileWidget.item(i+1,1).setData(0,r[308+i])
-	    	else:
+		else:
+		    self.regFileWidget.item(i+1,1).setData(0,"0")
+	    else:
+	        if r[308+i]!="nop":
 		    self.regFileWidget.item(i+2,1).setData(0,r[308+i])
+		else:
+		    self.regFileWidget.item(i+2,1).setData(0,"0")
 
 
 

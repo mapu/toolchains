@@ -8,6 +8,7 @@ class SnItem:
 	self.sln="-1"
 	self.pc="'nop'"
 	self.dis="'nop'"
+	self.dest="'nop'"
 	self.stage0="-1"
 	self.stage1="-1"
 	self.stage2="-1"

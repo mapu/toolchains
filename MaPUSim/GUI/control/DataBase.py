@@ -1,6 +1,7 @@
 import sys
 import os
 import sqlite3
+import copy
 sys.path.append("..")
 from data.TableType import*
 
@@ -236,6 +237,9 @@ class DataBase():
 		pos=s.index("\n")
 		s=s[:pos]
 	    	item.dis="'"+s+"'" #(memo:ialuadd   ) IALU.T1+T2->IMAC.T0
+		pos=s.index("->")
+		s=s[(pos+2):]
+		item.dest="'"+s+"'" #IMAC.T0
 	    else:
 	        #4000[2]: system.cpu.im_port: [sn:2] : [sln:2] : 4 : immtransr  r1, -255
 	        pos=7
@@ -263,10 +267,10 @@ class DataBase():
         #drop table
         self.drop_table(self.dbConn,self.snTableName)
 	#create table
-        create_table_sql="create table "+self.snTableName+"(id integer primary key autoincrement,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
+        create_table_sql="create table "+self.snTableName+"(id integer primary key autoincrement,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
         self.create_table(self.dbConn, create_table_sql)
 
-        save_sql = "INSERT INTO "+self.snTableName+" (cpu,spumpu,sn,sln,pc,dis,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
+        save_sql = "INSERT INTO "+self.snTableName+" (cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
 
         #open out file and read 
         f=open(self.filePath,"r")
@@ -283,192 +287,192 @@ class DataBase():
 		    if line.find("stage")>=0:
 		        if item.stage0!="-1":
 			    stage="stage0"
-			    if r[0][7]!=-1:
-			        if r[0][7]>=int(item.stage0):
+			    if r[0][8]!=-1:
+			        if r[0][8]>=int(item.stage0):
 				    time=item.stage0
 			        else:
-				    time=str(r[0][7])
+				    time=str(r[0][8])
 			    else:
 			        time=item.stage0
 		        elif item.stage1!="-1":
 			    stage="stage1"
-			    if r[0][8]!=-1:
-			        if r[0][8]>=int(item.stage1):
+			    if r[0][9]!=-1:
+			        if r[0][9]>=int(item.stage1):
 				    time=item.stage1
 			        else:
-				    time=str(r[0][8])
+				    time=str(r[0][9])
 			    else:
 			        time=item.stage1
 		        elif item.stage2!="-1":
 			    stage="stage2"
-			    if r[0][9]!=-1:
-			        if r[0][9]>=int(item.stage2):
+			    if r[0][10]!=-1:
+			        if r[0][10]>=int(item.stage2):
 				    time=item.stage2
 			        else:
-				    time=str(r[0][9])
+				    time=str(r[0][10])
 			    else:
 			        time=item.stage2	
 		        elif item.stage3!="-1":
 			    stage="stage3"
-			    if r[0][10]!=-1:
-			        if r[0][10]>=int(item.stage3):
+			    if r[0][11]!=-1:
+			        if r[0][11]>=int(item.stage3):
 				    time=item.stage3
 			        else:
-				    time=str(r[0][10])
+				    time=str(r[0][11])
 			    else:
 			        time=item.stage3
 		        elif item.stage4!="-1":
 			    stage="stage4"
-			    if r[0][11]!=-1:
-			        if r[0][11]>=int(item.stage4):
+			    if r[0][12]!=-1:
+			        if r[0][12]>=int(item.stage4):
 				    time=item.stage4
 			        else:
-				    time=str(r[0][11])
+				    time=str(r[0][12])
 			    else:
 		                time=item.stage4
 		        elif item.stage5!="-1":
 			    stage="stage5"
-			    if r[0][12]!=-1:
-			        if r[0][12]>=int(item.stage5):
+			    if r[0][13]!=-1:
+			        if r[0][13]>=int(item.stage5):
 				    time=item.stage5
 			        else:
-				    time=str(r[0][12])
+				    time=str(r[0][13])
 			    else:
 			        time=item.stage5
 		        elif item.stage6!="-1":
 			    stage="stage6"
-			    if r[0][13]!=-1:
-			        if r[0][13]>=int(item.stage6):
+			    if r[0][14]!=-1:
+			        if r[0][14]>=int(item.stage6):
 				    time=item.stage6
 			        else:
-				    time=str(r[0][13])
+				    time=str(r[0][14])
 			    else:
 			        time=item.stage6
 		        elif item.stage7!="-1":
 			    stage="stage7"
-			    if r[0][14]!=-1:
-			        if r[0][14]>=int(item.stage7):
+			    if r[0][15]!=-1:
+			        if r[0][15]>=int(item.stage7):
 				    time=item.stage7
 			        else:
-				    time=str(r[0][14])
+				    time=str(r[0][15])
 			    else:
 			        time=item.stage7
 		        elif item.stage8!="-1":
 			    stage="stage8"
-			    if r[0][15]!=-1:
-			        if r[0][15]>=int(item.stage8):
+			    if r[0][16]!=-1:
+			        if r[0][16]>=int(item.stage8):
 				    time=item.stage8
 			        else:
-				    time=str(r[0][15])
+				    time=str(r[0][16])
 			    else:
 			        time=item.stage8
 		        elif item.stage9!="-1":
 			    stage="stage9"
-			    if r[0][16]!=-1:
-			        if r[0][16]>=int(item.stage9):
+			    if r[0][17]!=-1:
+			        if r[0][17]>=int(item.stage9):
 				    time=item.stage9
 			        else:
-				    time=str(r[0][16])
+				    time=str(r[0][17])
 			    else:
 			        time=item.stage9
 		        elif item.stage10!="-1":
 			    stage="stage10"
-			    if r[0][17]!=-1:
-			        if r[0][17]>=int(item.stage10):
+			    if r[0][18]!=-1:
+			        if r[0][18]>=int(item.stage10):
 				    time=item.stage10
 			        else:
-				    time=str(r[0][17])
+				    time=str(r[0][18])
 			    else:
 			        time=item.stage10
 		        elif item.stage11!="-1":
 			    stage="stage11"
-			    if r[0][18]!=-1:
-			        if r[0][18]>=int(item.stage11):
+			    if r[0][19]!=-1:
+			        if r[0][19]>=int(item.stage11):
 				    time=item.stage11
 			        else:
-				    time=str(r[0][18])
+				    time=str(r[0][19])
 			    else:
 			        time=item.stage11
 		        elif item.stage12!="-1":
 			    stage="stage12"
-			    if r[0][19]!=-1:
-			        if r[0][19]>=int(item.stage12):
+			    if r[0][20]!=-1:
+			        if r[0][20]>=int(item.stage12):
 				    time=item.stage12
 			        else:
-				    time=str(r[0][19])
+				    time=str(r[0][20])
 			    else:
 			        time=item.stage12
 		        elif item.stage13!="-1":
 			    stage="stage13"
-			    if r[0][20]!=-1:
-			        if r[0][20]>=int(item.stage13):
+			    if r[0][21]!=-1:
+			        if r[0][21]>=int(item.stage13):
 				    time=item.stage13
 			        else:
-				    time=str(r[0][20])
+				    time=str(r[0][21])
 			    else:
 			        time=item.stage13
 		        elif item.stage14!="-1":
 			    stage="stage14"
-			    if r[0][21]!=-1:
-			        if r[0][21]>=int(item.stage14):
+			    if r[0][22]!=-1:
+			        if r[0][22]>=int(item.stage14):
 				    time=item.stage14
 			        else:
-				    time=str(r[0][21])
+				    time=str(r[0][22])
 			    else:
 			        time=item.stage14
 		        elif item.stage15!="-1":
 			    stage="stage15"
-			    if r[0][22]!=-1:
-			        if r[0][22]>=int(item.stage15):
+			    if r[0][23]!=-1:
+			        if r[0][23]>=int(item.stage15):
 				    time=item.stage15
 			        else:
-				    time=str(r[0][22])
+				    time=str(r[0][23])
 			    else:
 			        time=item.stage15
 		        elif item.stage16!="-1":
 			    stage="stage16"
-			    if r[0][23]!=-1:
-			        if r[0][23]>=int(item.stage16):
+			    if r[0][24]!=-1:
+			        if r[0][24]>=int(item.stage16):
 				    time=item.stage16
 			        else:
-				    time=str(r[0][23])
+				    time=str(r[0][24])
 			    else:
 			        time=item.stage16
 		        elif item.stage17!="-1":
 			    stage="stage17"
-			    if r[0][24]!=-1:
-			        if r[0][24]>=int(item.stage17):
+			    if r[0][25]!=-1:
+			        if r[0][25]>=int(item.stage17):
 				    time=item.stage17
 			        else:
-				    time=str(r[0][24])
+				    time=str(r[0][25])
 			    else:
 			        time=item.stage17
 		        elif item.stage18!="-1":
 			    stage="stage18"
-			    if r[0][25]!=-1:
-			        if r[0][25]>=int(item.stage18):
+			    if r[0][26]!=-1:
+			        if r[0][26]>=int(item.stage18):
 				    time=item.stage18
 			        else:
-				    time=str(r[0][25])
+				    time=str(r[0][26])
 			    else:
 			        time=item.stage18
 		        elif item.stage19!="-1":
 			    stage="stage19"
-			    if r[0][26]!=-1:
-			        if r[0][26]>=int(item.stage19):
+			    if r[0][27]!=-1:
+			        if r[0][27]>=int(item.stage19):
 				    time=item.stage19
 			        else:
-				    time=str(r[0][26])
+				    time=str(r[0][27])
 			    else:
 			        time=item.stage19
 
 		        update_sql = "UPDATE "+self.snTableName+" SET "+stage+" = "+time+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
 	    	        self.update(self.dbConn, update_sql)
 		    else:
-		        update_sql = "UPDATE "+self.snTableName+" SET sln = "+item.sln+" , pc = "+item.pc+" , dis = "+item.dis+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
+		        update_sql = "UPDATE "+self.snTableName+" SET sln = "+item.sln+" , pc = "+item.pc+" , dis = "+item.dis+" , dest = "+item.dest+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
 	    	        self.update(self.dbConn, update_sql)		    	
 	        else:
-	            data="values ("+item.cpu+","+item.spumpu+","+item.sn+","+item.sln+","+item.pc+","+item.dis+","+item.stage0+","+item.stage1+","+item.stage2+","+item.stage3+","+item.stage4+","+item.stage5+","+item.stage6+","+item.stage7+","+item.stage8+","+item.stage9+","+item.stage10+","+item.stage11+","+item.stage12+","+item.stage13+","+item.stage14+","+item.stage15+","+item.stage16+","+item.stage17+","+item.stage18+","+item.stage19+")"
+	            data="values ("+item.cpu+","+item.spumpu+","+item.sn+","+item.sln+","+item.pc+","+item.dis+","+item.dest+","+item.stage0+","+item.stage1+","+item.stage2+","+item.stage3+","+item.stage4+","+item.stage5+","+item.stage6+","+item.stage7+","+item.stage8+","+item.stage9+","+item.stage10+","+item.stage11+","+item.stage12+","+item.stage13+","+item.stage14+","+item.stage15+","+item.stage16+","+item.stage17+","+item.stage18+","+item.stage19+")"
 	            self.save(self.dbConn, save_sql, data)
 	f.close()
 
@@ -617,6 +621,7 @@ class DataBase():
 	self.maxTime=int(line[:pos])/1000
 	f.close()
 	
+	forwardRegList=["'nop'"]*251
 	for i in range(self.minTime,self.maxTime):
 	    item=TimeItem()
             regList=["'nop'"]*251
@@ -899,674 +904,674 @@ class DataBase():
 			    if r[e][4]!=-1:
 				stage="'"+stage+",sln:"+str(r[e][4])+"'"
 			    if a=="dm":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     DMList[0]=stage
 				     DMList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     DMList[2]=stage
 				     DMList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     DMList[4]=stage
 				     DMList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     DMList[6]=stage
 				     DMList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     DMList[8]=stage
 				     DMList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     DMList[10]=stage
 				     DMList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     DMList[12]=stage
 				     DMList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     DMList[14]=stage
 				     DMList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     DMList[16]=stage
 				     DMList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     DMList[18]=stage
 				     DMList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     DMList[20]=stage
 				     DMList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     DMList[22]=stage
 				     DMList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     DMList[24]=stage
 				     DMList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     DMList[26]=stage
 				     DMList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     DMList[28]=stage
 				     DMList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     DMList[30]=stage
 				     DMList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     DMList[32]=stage
 				     DMList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     DMList[34]=stage
 				     DMList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     DMList[36]=stage
 				     DMList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     DMList[38]=stage
 				     DMList[39]="'"+r[e][5]+"'"
 			    elif a=="biu0":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     BIU0List[0]=stage
 				     BIU0List[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     BIU0List[2]=stage
 				     BIU0List[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     BIU0List[4]=stage
 				     BIU0List[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     BIU0List[6]=stage
 				     BIU0List[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     BIU0List[8]=stage
 				     BIU0List[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     BIU0List[10]=stage
 				     BIU0List[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     BIU0List[12]=stage
 				     BIU0List[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     BIU0List[14]=stage
 				     BIU0List[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     BIU0List[16]=stage
 				     BIU0List[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     BIU0List[18]=stage
 				     BIU0List[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     BIU0List[20]=stage
 				     BIU0List[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     BIU0List[22]=stage
 				     BIU0List[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     BIU0List[24]=stage
 				     BIU0List[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     BIU0List[26]=stage
 				     BIU0List[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     BIU0List[28]=stage
 				     BIU0List[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     BIU0List[30]=stage
 				     BIU0List[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     BIU0List[32]=stage
 				     BIU0List[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     BIU0List[34]=stage
 				     BIU0List[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     BIU0List[36]=stage
 				     BIU0List[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     BIU0List[38]=stage
 				     BIU0List[39]="'"+r[e][5]+"'"
 			    elif a=="biu1":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     BIU1List[0]=stage
 				     BIU1List[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     BIU1List[2]=stage
 				     BIU1List[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     BIU1List[4]=stage
 				     BIU1List[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     BIU1List[6]=stage
 				     BIU1List[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     BIU1List[8]=stage
 				     BIU1List[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     BIU1List[10]=stage
 				     BIU1List[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     BIU1List[12]=stage
 				     BIU1List[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     BIU1List[14]=stage
 				     BIU1List[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     BIU1List[16]=stage
 				     BIU1List[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     BIU1List[18]=stage
 				     BIU1List[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     BIU1List[20]=stage
 				     BIU1List[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     BIU1List[22]=stage
 				     BIU1List[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     BIU1List[24]=stage
 				     BIU1List[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     BIU1List[26]=stage
 				     BIU1List[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     BIU1List[28]=stage
 				     BIU1List[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     BIU1List[30]=stage
 				     BIU1List[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     BIU1List[32]=stage
 				     BIU1List[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     BIU1List[34]=stage
 				     BIU1List[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     BIU1List[36]=stage
 				     BIU1List[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     BIU1List[38]=stage
 				     BIU1List[39]="'"+r[e][5]+"'"
 			    elif a=="biu2":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     BIU2List[0]=stage
 				     BIU2List[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     BIU2List[2]=stage
 				     BIU2List[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     BIU2List[4]=stage
 				     BIU2List[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     BIU2List[6]=stage
 				     BIU2List[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     BIU2List[8]=stage
 				     BIU2List[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     BIU2List[10]=stage
 				     BIU2List[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     BIU2List[12]=stage
 				     BIU2List[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     BIU2List[14]=stage
 				     BIU2List[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     BIU2List[16]=stage
 				     BIU2List[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     BIU2List[18]=stage
 				     BIU2List[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     BIU2List[20]=stage
 				     BIU2List[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     BIU2List[22]=stage
 				     BIU2List[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     BIU2List[24]=stage
 				     BIU2List[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     BIU2List[26]=stage
 				     BIU2List[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     BIU2List[28]=stage
 				     BIU2List[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     BIU2List[30]=stage
 				     BIU2List[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     BIU2List[32]=stage
 				     BIU2List[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     BIU2List[34]=stage
 				     BIU2List[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     BIU2List[36]=stage
 				     BIU2List[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     BIU2List[38]=stage
 				     BIU2List[39]="'"+r[e][5]+"'"
 			    elif a=="shu0":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     SHU0List[0]=stage
 				     SHU0List[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     SHU0List[2]=stage
 				     SHU0List[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     SHU0List[4]=stage
 				     SHU0List[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     SHU0List[6]=stage
 				     SHU0List[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     SHU0List[8]=stage
 				     SHU0List[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     SHU0List[10]=stage
 				     SHU0List[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     SHU0List[12]=stage
 				     SHU0List[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     SHU0List[14]=stage
 				     SHU0List[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     SHU0List[16]=stage
 				     SHU0List[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     SHU0List[18]=stage
 				     SHU0List[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     SHU0List[20]=stage
 				     SHU0List[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     SHU0List[22]=stage
 				     SHU0List[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     SHU0List[24]=stage
 				     SHU0List[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     SHU0List[26]=stage
 				     SHU0List[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     SHU0List[28]=stage
 				     SHU0List[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     SHU0List[30]=stage
 				     SHU0List[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     SHU0List[32]=stage
 				     SHU0List[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     SHU0List[34]=stage
 				     SHU0List[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     SHU0List[36]=stage
 				     SHU0List[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     SHU0List[38]=stage
 				     SHU0List[39]="'"+r[e][5]+"'"
 			    elif a=="mrf":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     MRFList[0]=stage
 				     MRFList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     MRFList[2]=stage
 				     MRFList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     MRFList[4]=stage
 				     MRFList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     MRFList[6]=stage
 				     MRFList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     MRFList[8]=stage
 				     MRFList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     MRFList[10]=stage
 				     MRFList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     MRFList[12]=stage
 				     MRFList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     MRFList[14]=stage
 				     MRFList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     MRFList[16]=stage
 				     MRFList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     MRFList[18]=stage
 				     MRFList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     MRFList[20]=stage
 				     MRFList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     MRFList[22]=stage
 				     MRFList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     MRFList[24]=stage
 				     MRFList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     MRFList[26]=stage
 				     MRFList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     MRFList[28]=stage
 				     MRFList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     MRFList[30]=stage
 				     MRFList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     MRFList[32]=stage
 				     MRFList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     MRFList[34]=stage
 				     MRFList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     MRFList[36]=stage
 				     MRFList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     MRFList[38]=stage
 				     MRFList[39]="'"+r[e][5]+"'"
 			    elif a=="shu1":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     SHU1List[0]=stage
 				     SHU1List[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     SHU1List[2]=stage
 				     SHU1List[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     SHU1List[4]=stage
 				     SHU1List[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     SHU1List[6]=stage
 				     SHU1List[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     SHU1List[8]=stage
 				     SHU1List[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     SHU1List[10]=stage
 				     SHU1List[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     SHU1List[12]=stage
 				     SHU1List[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     SHU1List[14]=stage
 				     SHU1List[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     SHU1List[16]=stage
 				     SHU1List[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     SHU1List[18]=stage
 				     SHU1List[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     SHU1List[20]=stage
 				     SHU1List[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     SHU1List[22]=stage
 				     SHU1List[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     SHU1List[24]=stage
 				     SHU1List[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     SHU1List[26]=stage
 				     SHU1List[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     SHU1List[28]=stage
 				     SHU1List[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     SHU1List[30]=stage
 				     SHU1List[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     SHU1List[32]=stage
 				     SHU1List[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     SHU1List[34]=stage
 				     SHU1List[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     SHU1List[36]=stage
 				     SHU1List[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     SHU1List[38]=stage
 				     SHU1List[39]="'"+r[e][5]+"'"
 			    elif a=="ialu":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     IALUList[0]=stage
 				     IALUList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     IALUList[2]=stage
 				     IALUList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     IALUList[4]=stage
 				     IALUList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     IALUList[6]=stage
 				     IALUList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     IALUList[8]=stage
 				     IALUList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     IALUList[10]=stage
 				     IALUList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     IALUList[12]=stage
 				     IALUList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     IALUList[14]=stage
 				     IALUList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     IALUList[16]=stage
 				     IALUList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     IALUList[18]=stage
 				     IALUList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     IALUList[20]=stage
 				     IALUList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     IALUList[22]=stage
 				     IALUList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     IALUList[24]=stage
 				     IALUList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     IALUList[26]=stage
 				     IALUList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     IALUList[28]=stage
 				     IALUList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     IALUList[30]=stage
 				     IALUList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     IALUList[32]=stage
 				     IALUList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     IALUList[34]=stage
 				     IALUList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     IALUList[36]=stage
 				     IALUList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     IALUList[38]=stage
 				     IALUList[39]="'"+r[e][5]+"'"
 			    elif a=="imac":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     IMACList[0]=stage
 				     IMACList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     IMACList[2]=stage
 				     IMACList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     IMACList[4]=stage
 				     IMACList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     IMACList[6]=stage
 				     IMACList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     IMACList[8]=stage
 				     IMACList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     IMACList[10]=stage
 				     IMACList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     IMACList[12]=stage
 				     IMACList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     IMACList[14]=stage
 				     IMACList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     IMACList[16]=stage
 				     IMACList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     IMACList[18]=stage
 				     IMACList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     IMACList[20]=stage
 				     IMACList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     IMACList[22]=stage
 				     IMACList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     IMACList[24]=stage
 				     IMACList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     IMACList[26]=stage
 				     IMACList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     IMACList[28]=stage
 				     IMACList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     IMACList[30]=stage
 				     IMACList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     IMACList[32]=stage
 				     IMACList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     IMACList[34]=stage
 				     IMACList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     IMACList[36]=stage
 				     IMACList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     IMACList[38]=stage
 				     IMACList[39]="'"+r[e][5]+"'"
 			    elif a=="falu":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     FALUList[0]=stage
 				     FALUList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     FALUList[2]=stage
 				     FALUList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     FALUList[4]=stage
 				     FALUList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     FALUList[6]=stage
 				     FALUList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     FALUList[8]=stage
 				     FALUList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     FALUList[10]=stage
 				     FALUList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     FALUList[12]=stage
 				     FALUList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     FALUList[14]=stage
 				     FALUList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     FALUList[16]=stage
 				     FALUList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     FALUList[18]=stage
 				     FALUList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     FALUList[20]=stage
 				     FALUList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     FALUList[22]=stage
 				     FALUList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     FALUList[24]=stage
 				     FALUList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     FALUList[26]=stage
 				     FALUList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     FALUList[28]=stage
 				     FALUList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     FALUList[30]=stage
 				     FALUList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     FALUList[32]=stage
 				     FALUList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     FALUList[34]=stage
 				     FALUList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     FALUList[36]=stage
 				     FALUList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     FALUList[38]=stage
 				     FALUList[39]="'"+r[e][5]+"'"
 			    elif a=="fmac":
-				if r[e][7]==i:
+				if r[e][8]==i:
 				     FMACList[0]=stage
 				     FMACList[1]="'"+r[e][5]+"'"
-				elif r[e][8]==i:
+				elif r[e][9]==i:
 				     FMACList[2]=stage
 				     FMACList[3]="'"+r[e][5]+"'"
-				elif r[e][9]==i:
+				elif r[e][10]==i:
 				     FMACList[4]=stage
 				     FMACList[5]="'"+r[e][5]+"'"
-				elif r[e][10]==i:
+				elif r[e][11]==i:
 				     FMACList[6]=stage
 				     FMACList[7]="'"+r[e][5]+"'"
-				elif r[e][11]==i:
+				elif r[e][12]==i:
 				     FMACList[8]=stage
 				     FMACList[9]="'"+r[e][5]+"'"
-				elif r[e][12]==i:
+				elif r[e][13]==i:
 				     FMACList[10]=stage
 				     FMACList[11]="'"+r[e][5]+"'"
-				elif r[e][13]==i:
+				elif r[e][14]==i:
 				     FMACList[12]=stage
 				     FMACList[13]="'"+r[e][5]+"'"
-				elif r[e][14]==i:
+				elif r[e][15]==i:
 				     FMACList[14]=stage
 				     FMACList[15]="'"+r[e][5]+"'"
-				elif r[e][15]==i:
+				elif r[e][16]==i:
 				     FMACList[16]=stage
 				     FMACList[17]="'"+r[e][5]+"'"
-				elif r[e][16]==i:
+				elif r[e][17]==i:
 				     FMACList[18]=stage
 				     FMACList[19]="'"+r[e][5]+"'"
-				elif r[e][17]==i:
+				elif r[e][18]==i:
 				     FMACList[20]=stage
 				     FMACList[21]="'"+r[e][5]+"'"
-				elif r[e][18]==i:
+				elif r[e][19]==i:
 				     FMACList[22]=stage
 				     FMACList[23]="'"+r[e][5]+"'"
-				elif r[e][19]==i:
+				elif r[e][20]==i:
 				     FMACList[24]=stage
 				     FMACList[25]="'"+r[e][5]+"'"
-				elif r[e][20]==i:
+				elif r[e][21]==i:
 				     FMACList[26]=stage
 				     FMACList[27]="'"+r[e][5]+"'"
-				elif r[e][21]==i:
+				elif r[e][22]==i:
 				     FMACList[28]=stage
 				     FMACList[29]="'"+r[e][5]+"'"
-				elif r[e][22]==i:
+				elif r[e][23]==i:
 				     FMACList[30]=stage
 				     FMACList[31]="'"+r[e][5]+"'"
-				elif r[e][23]==i:
+				elif r[e][24]==i:
 				     FMACList[32]=stage
 				     FMACList[33]="'"+r[e][5]+"'"
-				elif r[e][24]==i:
+				elif r[e][25]==i:
 				     FMACList[34]=stage
 				     FMACList[35]="'"+r[e][5]+"'"
-				elif r[e][25]==i:
+				elif r[e][26]==i:
 				     FMACList[36]=stage
 				     FMACList[37]="'"+r[e][5]+"'"
-				elif r[e][26]==i:
+				elif r[e][27]==i:
 				     FMACList[38]=stage
 				     FMACList[39]="'"+r[e][5]+"'"
 
@@ -1581,7 +1586,14 @@ class DataBase():
 			    regList[187+r[e][7]]="'"+r[e][8]+"'"
 			elif r[e][6]=="J Reg":
 			    regList[187+r[e][7]]="'"+r[e][8]+"'"
-	
+
+	    for i in range(0,251):
+		if regList[i]=="'nop'":
+		    if forwardRegList[i]!="'nop'":
+			regList[i]=forwardRegList[i]
+
+	    forwardRegList=copy.deepcopy(regList)
+
 	    data="values ("+item.time+","+item.DMBIU0+","+item.DMBIU0Value+","+item.BIU0DM+","+item.BIU0DMValue+","+item.DMBIU1+","+item.DMBIU1Value+","+item.BIU1DM+","+item.BIU1DMValue+","+item.DMBIU2+","+item.DMBIU2Value+","+item.BIU2DM+","+item.BIU2DMValue+","+item.BIU0SHU0+","+item.BIU0SHU0Value+","+item.SHU0BIU0+","+item.SHU0BIU0Value+","+item.BIU1SHU0+","+item.BIU1SHU0Value+","+item.SHU0BIU1+","+item.SHU0BIU1Value+","+item.BIU2SHU0+","+item.BIU2SHU0Value+","+item.SHU0BIU2+","+item.SHU0BIU2Value+","+item.BIU0SHU1+","+item.BIU0SHU1Value+","+item.SHU1BIU0+","+item.SHU1BIU0Value+","+item.BIU1SHU1+","+item.BIU1SHU1Value+","+item.SHU1BIU1+","+item.SHU1BIU1Value+","+item.BIU2SHU1+","+item.BIU2SHU1Value+","+item.SHU1BIU2+","+item.SHU1BIU2Value+","+ item.BIU0MRF+","+item.BIU0MRFValue+","+item.MRFBIU0+","+item.MRFBIU0Value+","+item.BIU1MRF+","+item.BIU1MRFValue+","+item.MRFBIU1+","+item.MRFBIU1Value+","+item.BIU2MRF+","+item.BIU2MRFValue+","+item.MRFBIU2+","+item.MRFBIU2Value+","+item.SHU0IALU+","+item.SHU0IALUValue+","+item.IALUSHU0+","+item.IALUSHU0Value+","+item.SHU0IMAC+","+item.SHU0IMACValue+","+item.IMACSHU0+","+item.IMACSHU0Value+","+item.SHU0FALU+","+item.SHU0FALUValue+","+item.FALUSHU0+","+item.FALUSHU0Value+","+item.SHU0FMAC+","+item.SHU0FMACValue+","+item.FMACSHU0+","+item.FMACSHU0Value+","+item.MRFIALU+","+item.MRFIALUValue+","+item.IALUMRF+","+item.IALUMRFValue+","+item.MRFIMAC+","+item.MRFIMACValue+","+item.IMACMRF+","+item.IMACMRFValue+","+item.MRFFALU+","+item.MRFFALUValue+","+item.FALUMRF+","+item.FALUMRFValue+","+item.MRFFMAC+","+item.MRFFMACValue+","+item.FMACMRF+","+item.FMACMRFValue+","+item.SHU1IALU+","+item.SHU1IALUValue+","+item.IALUSHU1+","+item.IALUSHU1Value+","+item.SHU1IMAC+","+item.SHU1IMACValue+","+item.IMACSHU1+","+item.IMACSHU1Value+","+item.SHU1FALU+","+item.SHU1FALUValue+","+item.FALUSHU1+","+item.FALUSHU1Value+","+item.SHU1FMAC+","+item.SHU1FMACValue+","+item.FMACSHU1+","+item.FMACSHU1Value+","+item.IALUFALU+","+item.IALUFALUValue+","+item.FALUIALU+","+item.FALUIALUValue+","+item.SHU0MRF+","+item.SHU0MRFValue+","+item.MRFSHU0+","+item.MRFSHU0Value+","+item.MRFSHU1+","+item.MRFSHU1Value+","+item.SHU1MRF+","+item.SHU1MRFValue+","+item.IALUIMAC+","+item.IALUIMACValue+","+item.IMACIALU+","+item.IMACIALUValue+","+item.IMACFALU+","+item.IMACFALUValue+","+item.FALUIMAC+","+item.FALUIMACValue+","+item.FALUFMAC+","+item.FALUFMACValue+","+item.FMACFALU+","+item.FMACFALUValue+","+regList[0]+","+regList[1]+","+regList[2]+","+regList[3]+","+regList[4]+","+regList[5]+","+regList[6]+","+regList[7]+","+regList[8]+","+regList[9]+","+regList[10]+","+regList[11]+","+regList[12]+","+regList[13]+","+regList[14]+","+regList[15]+","+regList[16]+","+regList[17]+","+regList[18]+","+regList[19]+","+regList[20]+","+regList[21]+","+regList[22]+","+regList[23]+","+regList[24]+","+regList[25]+","+ regList[26]+","+regList[27]+","+regList[28]+","+regList[29]+","+regList[30]+","+regList[31]+","+regList[32]+","+regList[33]+","+regList[34]+","+regList[35]+","+regList[36]+","+regList[37]+","+regList[38]+","+regList[39]+","+regList[40]+","+regList[41]+","+regList[42]+","+regList[43]+","+regList[44]+","+regList[45]+","+regList[46]+","+regList[47]+","+regList[48]+","+regList[49]+","+regList[50]+","+regList[51]+","+regList[52]+","+regList[53]+","+regList[54]+","+regList[55]+","+regList[56]+","+regList[57]+","+regList[58]+","+regList[59]+","+regList[60]+","+regList[61]+","+regList[62]+","+regList[63]+","+regList[64]+","+regList[65]+","+regList[66]+","+regList[67]+","+regList[68]+","+regList[69]+","+regList[70]+","+regList[71]+","+regList[72]+","+regList[73]+","+regList[74]+","+regList[75]+","+regList[76]+","+ regList[77]+","+regList[78]+","+regList[79]+","+regList[80]+","+regList[81]+","+regList[82]+","+regList[83]+","+regList[84]+","+regList[85]+","+regList[86]+","+regList[87]+","+regList[88]+","+regList[89]+","+regList[90]+","+regList[91]+","+regList[92]+","+regList[93]+","+regList[94]+","+regList[95]+","+regList[96]+","+regList[97]+","+regList[98]+","+regList[99]+","+regList[100]+","+regList[101]+","+regList[102]+","+regList[103]+","+regList[104]+","+regList[105]+","+regList[106]+","+regList[107]+","+regList[108]+","+regList[109]+","+regList[110]+","+regList[111]+","+regList[112]+","+regList[113]+","+regList[114]+","+regList[115]+","+regList[116]+","+regList[117]+","+regList[118]+","+regList[119]+","+regList[120]+","+regList[121]+","+regList[122]+","+regList[123]+","+regList[124]+","+regList[125]+","+regList[126]+","+regList[127]+","+regList[128]+","+regList[129]+","+regList[130]+","+regList[131]+","+regList[132]+","+regList[133]+","+regList[134]+","+regList[135]+","+regList[136]+","+regList[137]+","+regList[138]+","+regList[139]+","+regList[140]+","+regList[141]+","+regList[142]+","+regList[143]+","+regList[144]+","+regList[145]+","+regList[146]+","+regList[147]+","+regList[148]+","+regList[149]+","+regList[150]+","+regList[151]+","+regList[152]+","+regList[153]+","+regList[154]+","+regList[155]+","+regList[156]+","+regList[157]+","+regList[158]+","+regList[159]+","+regList[160]+","+regList[161]+","+regList[162]+","+regList[163]+","+regList[164]+","+regList[165]+","+regList[166]+","+regList[167]+","+regList[168]+","+regList[169]+","+regList[170]+","+regList[171]+","+regList[172]+","+regList[173]+","+regList[174]+","+regList[175]+","+regList[176]+","+regList[177]+","+regList[178]+","+regList[179]+","+regList[180]+","+regList[181]+","+regList[182]+","+regList[183]+","+regList[184]+","+regList[185]+","+regList[186]+","+regList[187]+","+regList[188]+","+regList[189]+","+regList[190]+","+regList[191]+","+regList[192]+","+regList[193]+","+regList[194]+","+regList[195]+","+regList[196]+","+regList[197]+","+regList[198]+","+regList[199]+","+regList[200]+","+regList[201]+","+regList[202]+","+regList[203]+","+regList[204]+","+regList[205]+","+regList[206]+","+regList[207]+","+regList[208]+","+regList[209]+","+regList[210]+","+regList[211]+","+regList[212]+","+regList[213]+","+regList[214]+","+regList[215]+","+regList[216]+","+regList[217]+","+regList[218]+","+regList[219]+","+regList[220]+","+regList[221]+","+regList[222]+","+regList[223]+","+regList[224]+","+regList[225]+","+regList[226]+","+regList[227]+","+regList[228]+","+regList[229]+","+regList[230]+","+regList[231]+","+regList[232]+","+regList[233]+","+regList[234]+","+regList[235]+","+regList[236]+","+regList[237]+","+regList[238]+","+ regList[239]+","+regList[240]+","+regList[241]+","+regList[242]+","+regList[243]+","+regList[244]+","+regList[245]+","+regList[246]+","+regList[247]+","+regList[248]+","+regList[249]+","+regList[250]+","+DMList[0]+","+DMList[1]+","+DMList[2]+","+DMList[3]+","+DMList[4]+","+DMList[5]+","+DMList[6]+","+DMList[7]+","+DMList[8]+","+DMList[9]+","+DMList[10]+","+DMList[11]+","+DMList[12]+","+DMList[13]+","+DMList[14]+","+DMList[15]+","+DMList[16]+","+DMList[17]+","+DMList[18]+","+DMList[19]+","+DMList[20]+","+DMList[21]+","+DMList[22]+","+DMList[23]+","+DMList[24]+","+DMList[25]+","+DMList[26]+","+DMList[27]+","+DMList[28]+","+DMList[29]+","+DMList[30]+","+DMList[31]+","+DMList[32]+","+DMList[33]+","+DMList[34]+","+DMList[35]+","+DMList[36]+","+DMList[37]+","+DMList[38]+","+DMList[39]+","+BIU0List[0]+","+BIU0List[1]+","+BIU0List[2]+","+BIU0List[3]+","+BIU0List[4]+","+BIU0List[5]+","+BIU0List[6]+","+BIU0List[7]+","+BIU0List[8]+","+BIU0List[9]+","+BIU0List[10]+","+BIU0List[11]+","+BIU0List[12]+","+BIU0List[13]+","+BIU0List[14]+","+BIU0List[15]+","+BIU0List[16]+","+BIU0List[17]+","+BIU0List[18]+","+BIU0List[19]+","+BIU0List[20]+","+BIU0List[21]+","+BIU0List[22]+","+BIU0List[23]+","+BIU0List[24]+","+BIU0List[25]+","+BIU0List[26]+","+BIU0List[27]+","+BIU0List[28]+","+BIU0List[29]+","+BIU0List[30]+","+BIU0List[31]+","+BIU0List[32]+","+BIU0List[33]+","+BIU0List[34]+","+BIU0List[35]+","+BIU0List[36]+","+BIU0List[37]+","+BIU0List[38]+","+BIU0List[39]+","+BIU1List[0]+","+BIU1List[1]+","+BIU1List[2]+","+BIU1List[3]+","+BIU1List[4]+","+BIU1List[5]+","+BIU1List[6]+","+BIU1List[7]+","+BIU1List[8]+","+BIU1List[9]+","+BIU1List[10]+","+BIU1List[11]+","+BIU1List[12]+","+BIU1List[13]+","+BIU1List[14]+","+BIU1List[15]+","+BIU1List[16]+","+BIU1List[17]+","+BIU1List[18]+","+BIU1List[19]+","+BIU1List[20]+","+BIU1List[21]+","+BIU1List[22]+","+BIU1List[23]+","+BIU1List[24]+","+BIU1List[25]+","+BIU1List[26]+","+BIU1List[27]+","+BIU1List[28]+","+BIU1List[29]+","+BIU1List[30]+","+BIU1List[31]+","+BIU1List[32]+","+BIU1List[33]+","+BIU1List[34]+","+BIU1List[35]+","+BIU1List[36]+","+BIU1List[37]+","+BIU1List[38]+","+BIU1List[39]+","+BIU2List[0]+","+BIU2List[1]+","+BIU2List[2]+","+BIU2List[3]+","+BIU2List[4]+","+BIU2List[5]+","+BIU2List[6]+","+BIU2List[7]+","+BIU2List[8]+","+BIU2List[9]+","+BIU2List[10]+","+BIU2List[11]+","+BIU2List[12]+","+BIU2List[13]+","+BIU2List[14]+","+BIU2List[15]+","+BIU2List[16]+","+BIU2List[17]+","+BIU2List[18]+","+BIU2List[19]+","+BIU2List[20]+","+BIU2List[21]+","+BIU2List[22]+","+BIU2List[23]+","+BIU2List[24]+","+BIU2List[25]+","+BIU2List[26]+","+BIU2List[27]+","+BIU2List[28]+","+BIU2List[29]+","+BIU2List[30]+","+BIU2List[31]+","+BIU2List[32]+","+BIU2List[33]+","+BIU2List[34]+","+BIU2List[35]+","+BIU2List[36]+","+BIU2List[37]+","+BIU2List[38]+","+BIU2List[39]+","+SHU0List[0]+","+SHU0List[1]+","+SHU0List[2]+","+SHU0List[3]+","+SHU0List[4]+","+SHU0List[5]+","+SHU0List[6]+","+SHU0List[7]+","+SHU0List[8]+","+SHU0List[9]+","+SHU0List[10]+","+SHU0List[11]+","+SHU0List[12]+","+SHU0List[13]+","+SHU0List[14]+","+SHU0List[15]+","+SHU0List[16]+","+SHU0List[17]+","+SHU0List[18]+","+SHU0List[19]+","+SHU0List[20]+","+SHU0List[21]+","+SHU0List[22]+","+SHU0List[23]+","+SHU0List[24]+","+SHU0List[25]+","+SHU0List[26]+","+SHU0List[27]+","+SHU0List[28]+","+SHU0List[29]+","+SHU0List[30]+","+SHU0List[31]+","+SHU0List[32]+","+SHU0List[33]+","+SHU0List[34]+","+SHU0List[35]+","+SHU0List[36]+","+SHU0List[37]+","+SHU0List[38]+","+SHU0List[39]+","+MRFList[0]+","+MRFList[1]+","+MRFList[2]+","+MRFList[3]+","+MRFList[4]+","+MRFList[5]+","+MRFList[6]+","+MRFList[7]+","+MRFList[8]+","+MRFList[9]+","+MRFList[10]+","+MRFList[11]+","+MRFList[12]+","+MRFList[13]+","+MRFList[14]+","+MRFList[15]+","+MRFList[16]+","+MRFList[17]+","+MRFList[18]+","+MRFList[19]+","+MRFList[20]+","+MRFList[21]+","+MRFList[22]+","+MRFList[23]+","+MRFList[24]+","+MRFList[25]+","+MRFList[26]+","+MRFList[27]+","+MRFList[28]+","+MRFList[29]+","+MRFList[30]+","+MRFList[31]+","+MRFList[32]+","+MRFList[33]+","+MRFList[34]+","+MRFList[35]+","+MRFList[36]+","+MRFList[37]+","+MRFList[38]+","+MRFList[39]+","+SHU1List[0]+","+SHU1List[1]+","+SHU1List[2]+","+SHU1List[3]+","+SHU1List[4]+","+SHU1List[5]+","+SHU1List[6]+","+SHU1List[7]+","+SHU1List[8]+","+SHU1List[9]+","+SHU1List[10]+","+SHU1List[11]+","+SHU1List[12]+","+SHU1List[13]+","+SHU1List[14]+","+SHU1List[15]+","+SHU1List[16]+","+SHU1List[17]+","+SHU1List[18]+","+SHU1List[19]+","+SHU1List[20]+","+SHU1List[21]+","+SHU1List[22]+","+SHU1List[23]+","+SHU1List[24]+","+SHU1List[25]+","+SHU1List[26]+","+SHU1List[27]+","+SHU1List[28]+","+SHU1List[29]+","+SHU1List[30]+","+SHU1List[31]+","+SHU1List[32]+","+SHU1List[33]+","+SHU1List[34]+","+SHU1List[35]+","+SHU1List[36]+","+SHU1List[37]+","+SHU1List[38]+","+SHU1List[39]+","+IALUList[0]+","+IALUList[1]+","+IALUList[2]+","+IALUList[3]+","+IALUList[4]+","+IALUList[5]+","+IALUList[6]+","+IALUList[7]+","+IALUList[8]+","+IALUList[9]+","+IALUList[10]+","+IALUList[11]+","+IALUList[12]+","+IALUList[13]+","+IALUList[14]+","+IALUList[15]+","+IALUList[16]+","+IALUList[17]+","+IALUList[18]+","+IALUList[19]+","+IALUList[20]+","+IALUList[21]+","+IALUList[22]+","+IALUList[23]+","+IALUList[24]+","+IALUList[25]+","+IALUList[26]+","+IALUList[27]+","+IALUList[28]+","+IALUList[29]+","+IALUList[30]+","+IALUList[31]+","+IALUList[32]+","+IALUList[33]+","+IALUList[34]+","+IALUList[35]+","+IALUList[36]+","+IALUList[37]+","+IALUList[38]+","+IALUList[39]+","+IMACList[0]+","+IMACList[1]+","+IMACList[2]+","+IMACList[3]+","+IMACList[4]+","+IMACList[5]+","+IMACList[6]+","+IMACList[7]+","+IMACList[8]+","+IMACList[9]+","+IMACList[10]+","+IMACList[11]+","+IMACList[12]+","+IMACList[13]+","+IMACList[14]+","+IMACList[15]+","+IMACList[16]+","+IMACList[17]+","+IMACList[18]+","+IMACList[19]+","+IMACList[20]+","+IMACList[21]+","+IMACList[22]+","+IMACList[23]+","+IMACList[24]+","+IMACList[25]+","+IMACList[26]+","+IMACList[27]+","+IMACList[28]+","+IMACList[29]+","+IMACList[30]+","+IMACList[31]+","+IMACList[32]+","+IMACList[33]+","+IMACList[34]+","+IMACList[35]+","+IMACList[36]+","+IMACList[37]+","+IMACList[38]+","+IMACList[39]+","+FALUList[0]+","+FALUList[1]+","+FALUList[2]+","+FALUList[3]+","+FALUList[4]+","+FALUList[5]+","+FALUList[6]+","+FALUList[7]+","+FALUList[8]+","+FALUList[9]+","+FALUList[10]+","+FALUList[11]+","+FALUList[12]+","+FALUList[13]+","+FALUList[14]+","+FALUList[15]+","+FALUList[16]+","+FALUList[17]+","+FALUList[18]+","+FALUList[19]+","+FALUList[20]+","+FALUList[21]+","+FALUList[22]+","+FALUList[23]+","+FALUList[24]+","+FALUList[25]+","+FALUList[26]+","+FALUList[27]+","+FALUList[28]+","+FALUList[29]+","+FALUList[30]+","+FALUList[31]+","+FALUList[32]+","+FALUList[33]+","+FALUList[34]+","+FALUList[35]+","+FALUList[36]+","+FALUList[37]+","+FALUList[38]+","+FALUList[39]+","+FMACList[0]+","+FMACList[1]+","+FMACList[2]+","+FMACList[3]+","+FMACList[4]+","+FMACList[5]+","+FMACList[6]+","+FMACList[7]+","+FMACList[8]+","+FMACList[9]+","+FMACList[10]+","+FMACList[11]+","+FMACList[12]+","+FMACList[13]+","+FMACList[14]+","+FMACList[15]+","+FMACList[16]+","+FMACList[17]+","+FMACList[18]+","+FMACList[19]+","+FMACList[20]+","+FMACList[21]+","+FMACList[22]+","+FMACList[23]+","+FMACList[24]+","+FMACList[25]+","+FMACList[26]+","+FMACList[27]+","+FMACList[28]+","+FMACList[29]+","+FMACList[30]+","+FMACList[31]+","+FMACList[32]+","+FMACList[33]+","+FMACList[34]+","+FMACList[35]+","+FMACList[36]+","+FMACList[37]+","+FMACList[38]+","+FMACList[39]+")"
 
 	    self.save(self.dbConn,save_sql,data)
