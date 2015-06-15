@@ -623,7 +623,7 @@ class DataBase():
 	f.close()
 	
 	forwardRegList=["'nop'"]*251
-	for i in range(self.minTime,self.maxTime):
+	for i in range(self.minTime,self.maxTime+1):
 	    item=TimeItem()
             regList=["'nop'"]*251
 	    DMList=["'nop'"]*40

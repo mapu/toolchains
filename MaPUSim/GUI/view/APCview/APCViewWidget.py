@@ -72,7 +72,7 @@ class APCViewWidget(QWidget):
 	#show dialog and show data base is building
 	self.dataBaseDialog=DataBaseDialog()
 	self.dataBaseDialog.show()
-	self.dataBase=self.dataBaseDialog.createDataBase()   
+	self.dataBase=self.dataBaseDialog.createDataBase()
 	#set the range
 	self.slider.setEnabled(True)
 	self.spinBox.setEnabled(True)
@@ -87,6 +87,11 @@ class APCViewWidget(QWidget):
 	pos=line.index("[")
 	self.maxTime=int(line[:pos])/1000
 	f.close()
+	#update MPU stage dialog
+	self.APE0Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
+	self.APE1Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
+	self.APE2Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
+	self.APE3Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime) 
 	#set slider min and max value
 	self.slider.setRange(self.minTime,self.maxTime)
 	self.spinBox.setRange(self.minTime,self.maxTime)

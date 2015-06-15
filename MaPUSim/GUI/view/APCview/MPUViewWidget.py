@@ -4,6 +4,7 @@ from PyQt4.QtCore import*
 from FloatDialog import*
 from LineWidget import*
 from MPULeftWidget import*
+from StageDialog import*
 import sys
 import math
 sys.path.append("../..")
@@ -16,7 +17,7 @@ class MPUViewWidget(QWidget):
 	super(MPUViewWidget,self).__init__(parent)
 
 	self.byteComboBox=QComboBox()
-	self.byteComboBox.setFixedSize(140,40)
+	self.byteComboBox.setFixedSize(100,40)
 	self.byteComboBox.insertItem(0,"8 Bytes")
 	self.byteComboBox.insertItem(1,"7 Bytes")
 	self.byteComboBox.insertItem(2,"6 Bytes")
@@ -27,12 +28,15 @@ class MPUViewWidget(QWidget):
 	self.byteComboBox.insertItem(7,"1 Bytes")
 
 	self.laneComboBox=QComboBox()
-	self.laneComboBox.setFixedSize(140,40)
+	self.laneComboBox.setFixedSize(100,40)
 	self.laneComboBox.insertItem(0,"Lane0")
 	self.laneComboBox.insertItem(1,"Lane1")
 	self.laneComboBox.insertItem(2,"Lane2")
 	self.laneComboBox.insertItem(3,"Lane3")	  
 
+	self.stageButton=QPushButton("Stage")
+	self.stageButton.setFixedSize(100,40)
+	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	self.buttonWidget=MPULeftWidget()
 
 	#define left Widget
@@ -40,10 +44,11 @@ class MPUViewWidget(QWidget):
 	#layout left Widget    
         self.leftupLay=QHBoxLayout()
         self.leftupLay.addStretch()
-        self.leftupLay.setSpacing(120)
-        self.leftupLay.setMargin(30)  
+        self.leftupLay.setSpacing(50)
+        self.leftupLay.setMargin(10)  
         self.leftupLay.addWidget(self.byteComboBox)
-        self.leftupLay.addWidget(self.laneComboBox)  
+        self.leftupLay.addWidget(self.laneComboBox) 
+	self.leftupLay.addWidget(self.stageButton) 
         self.leftLay=QVBoxLayout()
         self.leftLay.addLayout(self.leftupLay)
         self.leftLay.addWidget(self.buttonWidget)
@@ -71,7 +76,7 @@ class MPUViewWidget(QWidget):
 	self.regFileWidget.setRowCount(195)
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
 	self.regFileWidget.resizeColumnToContents(1)
-	self.regFileWidget.setColumnWidth(1,2000)
+	self.regFileWidget.setColumnWidth(1,2500)
 	#define regFileWidget M
 	self.regFileWidget.setItem(0,0,QTableWidgetItem(self.tr("M")))
 	self.regFileWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
@@ -522,164 +527,169 @@ class MPUViewWidget(QWidget):
 	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
 
+	self.stageDialog=StageDialog()
+
+    def stageButtonSlot(self):
+	self.stageDialog.show()
+
     def updateMPUWidget(self,r):
 	#update lines
 	#DM BIU0
 	if r[1]!=-1:
-	    print "dm biu0"
+	    print "DM BIU0"
 	#BIU0 DM
 	if r[3]!=-1:
-	    print "biu0 dm"
+	    print "BIU0 DM"
 	#DM BIU1
 	if r[5]!=-1:
-	    print "dm biu1"
+	    print "DM BIU1"
 	#BIU1 DM
 	if r[7]!=-1:
-	    print "biu1 dm"
+	    print "BIU1 DM"
 	#DM BIU2
 	if r[9]!=-1:
-	    print "dm biu2"
+	    print "DM BIU2"
 	#BIU2 DM
 	if r[11]!=-1:
-	    print "biu2 dm"
+	    print "BIU2 DM"
 	#BIU0 SHU0
 	if r[13]!=-1:
-	    print "biu0 shu0"
+	    print "BIU0 SHU0"
 	#SHU0 BIU0
 	if r[15]!=-1:
-	    print "shu0 biu0"
+	    print "SHU0 BIU0"
 	#BIU1 SHU0
 	if r[17]!=-1:
-	    print "biu1 shu0"
+	    print "BIU1 SHU0"
 	#SHU0 BIU1
 	if r[19]!=-1:
-	    print "shu0 biu1"
+	    print "SHU0 BIU1"
 	#BIU2 SHU0
 	if r[21]!=-1:
-	    print "biu2 shu0"
-	#SHU0BIU2
+	    print "BIU2 SHU0"
+	#SHU0 BIU2
 	if r[23]!=-1:
-	    print "shu0 biu2"
+	    print "SHU0 BIU2"
 	#BIU0 SHU1
 	if r[25]!=-1:
-	    print "biu0 shu1"
+	    print "BIU0 SHU1"
 	#SHU1 BIU0
 	if r[27]!=-1:
-	    print "shu1 biu0"
+	    print "SHU1 BIU0"
 	#BIU1 SHU1
 	if r[29]!=-1:
-	    print "biu1 shu1"
+	    print "BIU1 SHU1"
 	#SHU1 BIU1
 	if r[31]!=-1:
-	    print "shu1 biu1"
+	    print "SHU1 BIU1"
 	#BIU2 SHU1
 	if r[33]!=-1:
-	    print "biu2 shu1"
+	    print "BIU2 SHU1"
 	#SHU1 BIU2
 	if r[35]!=-1:
-	    print "shu1 biu2"
+	    print "SHU1 BIU2"
 	#BIU0 MRF
 	if r[37]!=-1:
-	    print "biu0 mrf"
+	    print "BIU0 MRF"
 	#MRF BIU0
 	if r[39]!=-1:
-	    print "mrf biu0"
+	    print "MRF BIU0"
 	#BIU1 MRF
 	if r[41]!=-1:
-	    print "biu1 mrf"
+	    print "BIU1 MRF"
 	#MRF BIU1
 	if r[43]!=-1:
-	    print "mrf biu1"
+	    print "MRF BIU1"
 	#BIU2 MRF
 	if r[45]!=-1:
-	    print "biu2 mrf"
+	    print "BIU2 MRF"
 	#MRF BIU2
 	if r[47]!=-1:
-	    print "mrf biu2"
+	    print "MRF BIU2"
 	#SHU0 IALU
 	if r[49]!=-1:
-	   print "shu0 ialu"
+	   print "SHU0 IALU"
 	#IALU SHU0
 	if r[51]!=-1:
-	    print "ialu shu0"
+	    print "IALU SHU0"
 	#SHU0 IMAC
 	if r[53]!=-1:
-	    print "shu0 imac"
+	    print "SHU0 IMAC"
 	#IMAC SHU0
 	if r[55]!=-1:
-	    print "imac shu0"
+	    print "IMAC SHU0"
 	#SHU0 FALU
 	if r[57]!=-1:
-	    print "shu0 falu"
+	    print "SHU0 FALU"
 	#FALU SHU0
 	if r[59]!=-1:
-	    print "falu shu0"
+	    print "FALU SHU0"
 	#SHU0 FMAC
 	if r[61]!=-1:
-	    print "shu0 fmac"
+	    print "SHU0 FMAC"
 	#FMAC SHU0
 	if r[63]!=-1:
-	    print "fmac shu0"
+	    print "FMAC SHU0"
 	#MRF IALU
 	if r[65]!=-1:
-	    print "mrf ialu"
+	    print "MRF IALU"
 	#IALU MRF
 	if r[67]!=-1:
-	    print "ialu mrf"
+	    print "IALU MRF"
 	#MRF IMAC
 	if r[69]!=-1:
-	    print "mrf imac"
+	    print "MRF IMAC"
 	#IMAC MRF
 	if r[71]!=-1:
-	    print "imac mrf"
+	    print "IMAC MRF"
 	#MRF FALU
 	if r[73]!=-1:
-	    print "mrffalu"
+	    print "MRF FALU"
 	#FALU MRF
 	if r[75]!=-1:
-	    print "falu mrf"
+	    print "FALU MRF"
 	#MRF FMAC
 	if r[77]!=-1:
-	    print "mrf fmac"
+	    print "MRF FMAC"
 	#FMAC MRF
 	if r[79]!=-1:
-	    print "fmac mrf"
+	    print "FMAC MRF"
 	#SHU1 IALU
 	if r[81]!=-1:
-	    print "shu1 ialu"
+	    print "SHU1 IALU"
 	#IALU SHU1
 	if r[83]!=-1:
-	    print "ialu shu1"
+	    print "IALU SHU1"
 	#SHU1 IMAC
 	if r[85]!=-1:
-	    print "shu1 imac"
+	    print "SHU1 IMAC"
 	#IMAC SHU1
 	if r[87]!=-1:
-	    print "imac shu1"
+	    print "IMAC SHU1"
 	#SHU1 FALU
 	if r[89]!=-1:
-	    print "shu1 falu"
+	    print "SHU1 FALU"
 	#FALU SHU1
 	if r[91]!=-1:
-	    print "falu shu1"
+	    print "FALU SHU1"
 	#SHU1 FMAC
 	if r[93]!=-1:
-	    print "shu1 fmac"
+	    print "SHU1 FMAC"
 	#FMAC SHU1
 	if r[95]!=-1:
-	    print "fmac shu1"
+	    print "FMAC SHU1"
 	#IALU FALU
 	if r[97]!=-1:
-	    print "ialu falu"
+	    print "IALU FALU"
 	#FALU IALU
 	if r[99]!=-1:
-	    print "falu ialu"
+	    print "FALU IALU"
 	#SHU0 MRF
 	if r[101]!=-1:
-	    print "shu0 mrf"
+	    print "SHU0 MRF"
 	#MRF SHU0
 	if r[103]!=-1:
-	    print "mrf shu0"
+	    print "MRF SHU0"
 	#MRF SHU1
 	if r[105]!=-1:
 	    print "MRF SHU1"
@@ -710,48 +720,66 @@ class MPUViewWidget(QWidget):
 	    if i>=0 and i<=127:  #m0-127
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+1,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+1,1).setToolTip(r[121+i])
 		else:
 	            self.regFileWidget.item(i+1,1).setData(0,"0")
+		    self.regFileWidget.item(i+1,1).setToolTip("")
 	    elif i>=128 and i<=143: #shu0
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+2,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+2,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
+		    self.regFileWidget.item(i+2,1).setToolTip("")
 	    elif i>=144 and i<=159: #shu1
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+3,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+3,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+3,1).setData(0,"0")
+		    self.regFileWidget.item(i+3,1).setToolTip("")
 	    elif i>=160 and i<=163: #ialu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+4,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+4,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+4,1).setData(0,"0")
+		    self.regFileWidget.item(i+4,1).setToolTip("")
 	    elif i>=164 and i<=167:  #imac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+5,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+5,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+5,1).setData(0,"0")
+		    self.regFileWidget.item(i+5,1).setToolTip("")
 	    elif i>=168 and i<=171: #falu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+6,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+6,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+6,1).setData(0,"0")
+		    self.regFileWidget.item(i+6,1).setToolTip("")
 	    elif i>=172 and i<=175: #fmac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+7,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+7,1).setData(0,"0")
+		    self.regFileWidget.item(i+7,1).setToolTip("")
 	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	if r[121+i]!="nop":
-		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])	
+		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+7,1).setToolTip(r[121+i])	
 		else:
-		    self.regFileWidget.item(i+7,1).setData(0,"0")	
+		    self.regFileWidget.item(i+7,1).setData(0,"0")
+		    self.regFileWidget.item(i+7,1).setToolTip("")	
 	    elif i>=185 and i<=186: #svr
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+8,1).setData(0,r[121+i])
+		    self.regFileWidget.item(i+8,1).setToolTip(r[121+i])
 		else:
 		    self.regFileWidget.item(i+8,1).setData(0,"0")
+		    self.regFileWidget.item(i+8,1).setToolTip("")
 
 	#update float dialog
 	#clear stage list
@@ -781,58 +809,58 @@ class MPUViewWidget(QWidget):
 	#DM
 	for i in range(0,40,2):
 	    if r[372+i]!="nop":
-		self.buttonWidget.DMButtonDialog.stages.item(i).setData(0,r[372+i])
-		self.buttonWidget.DMButtonDialog.stages.item(i).setToolTip(r[372+i+1])
+		self.buttonWidget.DMButtonDialog.stages.item(i,1).setData(0,r[372+i])
+		self.buttonWidget.DMButtonDialog.stages.item(i,1).setToolTip(r[372+i+1])
 	#BIU0
 	for i in range(0,40,2):
 	    if r[412+i]!="nop":
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i).setData(0,r[412+i])
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i).setToolTip(r[412+i+1])
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i,1).setData(0,r[412+i])
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i,1).setToolTip(r[412+i+1])
 	#BIU1
 	for i in range(0,40,2):
 	    if r[452+i]!="nop":
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i).setData(0,r[452+i])
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i).setToolTip(r[452+i+1])
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i,1).setData(0,r[452+i])
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i,1).setToolTip(r[452+i+1])
 	#BIU2
 	for i in range(0,40,2):
 	    if r[492+i]!="nop":
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i).setData(0,r[492+i])
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i).setToolTip(r[492+i+1])
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i,1).setData(0,r[492+i])
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i,1).setToolTip(r[492+i+1])
 	#SHU0
 	for i in range(0,40,2):
 	    if r[532+i]!="nop":
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i).setData(0,r[532+i])
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i).setToolTip(r[532+i+1])
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i,1).setData(0,r[532+i])
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i,1).setToolTip(r[532+i+1])
 	#MRF
 	for i in range(0,40,2):
 	    if r[572+i]!="nop":
-		self.buttonWidget.MRFButtonDialog.stages.item(i).setData(0,r[572+i])
-		self.buttonWidget.MRFButtonDialog.stages.item(i).setToolTip(r[572+i+1])
+		self.buttonWidget.MRFButtonDialog.stages.item(i,1).setData(0,r[572+i])
+		self.buttonWidget.MRFButtonDialog.stages.item(i,1).setToolTip(r[572+i+1])
 	#SHU1
 	for i in range(0,40,2):
 	    if r[612+i]!="nop":
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i).setData(0,r[612+i])
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i).setToolTip(r[612+i+1])
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i,1).setData(0,r[612+i])
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i,1).setToolTip(r[612+i+1])
 	#IALU
 	for i in range(0,40,2):
 	    if r[652+i]!="nop":
-		self.buttonWidget.IALUButtonDialog.stages.item(i).setData(0,r[652+i])
-		self.buttonWidget.IALUButtonDialog.stages.item(i).setToolTip(r[652+i+1])
+		self.buttonWidget.IALUButtonDialog.stages.item(i,1).setData(0,r[652+i])
+		self.buttonWidget.IALUButtonDialog.stages.item(i,1).setToolTip(r[652+i+1])
 	#IMAC
 	for i in range(0,40,2):
 	    if r[692+i]!="nop":
-		self.buttonWidget.IMACButtonDialog.stages.item(i).setData(0,r[692+i])
-		self.buttonWidget.IMACButtonDialog.stages.item(i).setToolTip(r[692+i+1])
+		self.buttonWidget.IMACButtonDialog.stages.item(i,1).setData(0,r[692+i])
+		self.buttonWidget.IMACButtonDialog.stages.item(i,1).setToolTip(r[692+i+1])
 	#FALU
 	for i in range(0,40,2):
 	    if r[732+i]!="nop":
-		self.buttonWidget.FALUButtonDialog.stages.item(i).setData(0,r[732+i])
-		self.buttonWidget.FALUButtonDialog.stages.item(i).setToolTip(r[732+i+1])
+		self.buttonWidget.FALUButtonDialog.stages.item(i,1).setData(0,r[732+i])
+		self.buttonWidget.FALUButtonDialog.stages.item(i,1).setToolTip(r[732+i+1])
 	#FMAC
 	for i in range(0,40,2):
 	    if r[772+i]!="nop":
-		self.buttonWidget.FMACButtonDialog.stages.item(i).setData(0,r[772+i])
-		self.buttonWidget.FMACButtonDialog.stages.item(i).setToolTip(r[772+i+1])
+		self.buttonWidget.FMACButtonDialog.stages.item(i,1).setData(0,r[772+i])
+		self.buttonWidget.FMACButtonDialog.stages.item(i,1).setToolTip(r[772+i+1])
 
 
 
