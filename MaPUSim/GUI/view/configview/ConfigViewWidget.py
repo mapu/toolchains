@@ -44,7 +44,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE0Label.setFixedHeight(30)
 	self.APE0SPULabel=QLabel(self.tr("     SPU"))
 	self.APE0SPULabel.setFixedSize(60,30)
-	self.APE0SPUEdit=QLineEdit(self.tr("/home/litt/app.s.out"))
+	self.APE0SPUEdit=QLineEdit(self.tr("/home/litt/tlb.s.out"))
 	self.APE0SPUEdit.setFixedSize(400,30)
 	self.APE0SPUButton=QPushButton(self.tr("Browse"))
 	self.APE0SPUButton.setFixedSize(100,30)
@@ -57,7 +57,7 @@ class ConfigViewWidget(QMainWindow):
 	APE0SPULay.addWidget(blank0)
 	self.APE0MPULabel=QLabel(self.tr("     MPU"))
 	self.APE0MPULabel.setFixedSize(60,30)
-	self.APE0MPUEdit=QLineEdit(self.tr("/home/litt/app.m.out"))
+	self.APE0MPUEdit=QLineEdit(self.tr("/home/litt/tlb.m.out"))
 	self.APE0MPUEdit.setFixedSize(400,30)
 	self.APE0MPUButton=QPushButton(self.tr("Browse"))
 	self.APE0MPUButton.setFixedSize(100,30)
@@ -157,10 +157,6 @@ class ConfigViewWidget(QMainWindow):
 	APE3MPULay.addWidget(blank7)
 	APE3MPULay.addWidget(self.startButton)
 	APE3MPULay.addWidget(self.stopButton)
-		
-	#self.paraEdit=QLineEdit()
-	#self.paraEdit.setFixedHeight(30)
-	#self.paraEdit.setFixedWidth(900)
 
 	APCGroupWidget=QWidget()
 	APCGroup=QGroupBox(APCGroupWidget)
@@ -180,7 +176,6 @@ class ConfigViewWidget(QMainWindow):
 	APCLay.addWidget(self.APE3Check)
 	APCLay.addLayout(APE3SPULay)
 	APCLay.addLayout(APE3MPULay)
-	#APCLay.addWidget(self.paraEdit)
 	APCGroup.setLayout(APCLay)	
 
 	mainLay=QVBoxLayout()
@@ -247,7 +242,6 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3SPUButton.setEnabled(False)
 	self.APE3MPUEdit.setEnabled(False)
 	self.APE3MPUButton.setEnabled(False)
-	#self.paraEdit.setEnabled(False)
 
     def APCRadioSlot(self):
 	self.traceFlagsButton.setEnabled(True)
@@ -271,7 +265,6 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3SPUButton.setEnabled(True)
 	self.APE3MPUEdit.setEnabled(True)
 	self.APE3MPUButton.setEnabled(True)
-	#self.paraEdit.setEnabled(True)
 
     def APE1CheckSlot(self):
 	if self.APE1Check.checkState()==Qt.Checked:
@@ -357,7 +350,6 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
 	string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
-	#self.paraEdit.setText(string)
 	self.process=QProcess()
         self.connect(self.process,SIGNAL("readyReadStandardOutput()"),self.startReadOutput)
         self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)

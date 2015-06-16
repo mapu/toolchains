@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
+from StageDialog import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -9,6 +10,13 @@ class SPUViewWidget(QWidget):
 	super(SPUViewWidget,self).__init__(parent)
 
 	self.leftWidget=QWidget()
+	self.stageButton=QPushButton("SPU Stage")
+	self.stageButton.setFixedSize(100,40)
+	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
+	leftLay=QVBoxLayout()
+	leftLay.addWidget(self.stageButton)
+	self.leftWidget.setLayout(leftLay)
+
 	self.rightTab=QTabWidget()
 
 	#define rightTab
@@ -195,6 +203,12 @@ class SPUViewWidget(QWidget):
 	mainLayout.setStretchFactor(self.leftWidget,5)
 	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
+
+	self.stageDialog=StageDialog()
+
+    def stageButtonSlot(self):
+	self.stageDialog.setWindowTitle("SPU Stage Dialog")
+	self.stageDialog.show()
 
     def updateSPUWidget(self,r):
 	for i in range (0,64):

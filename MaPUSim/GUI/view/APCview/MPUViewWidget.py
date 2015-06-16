@@ -34,7 +34,7 @@ class MPUViewWidget(QWidget):
 	self.laneComboBox.insertItem(2,"Lane2")
 	self.laneComboBox.insertItem(3,"Lane3")	  
 
-	self.stageButton=QPushButton("Stage")
+	self.stageButton=QPushButton("MPU Stage")
 	self.stageButton.setFixedSize(100,40)
 	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	self.buttonWidget=MPULeftWidget()
@@ -530,6 +530,7 @@ class MPUViewWidget(QWidget):
 	self.stageDialog=StageDialog()
 
     def stageButtonSlot(self):
+	self.stageDialog.setWindowTitle("MPU Stage Dialog")
 	self.stageDialog.show()
 
     def updateMPUWidget(self,r):
@@ -809,58 +810,58 @@ class MPUViewWidget(QWidget):
 	#DM
 	for i in range(0,40,2):
 	    if r[372+i]!="nop":
-		self.buttonWidget.DMButtonDialog.stages.item(i,1).setData(0,r[372+i])
-		self.buttonWidget.DMButtonDialog.stages.item(i,1).setToolTip(r[372+i+1])
+		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setData(0,r[372+i])
+		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setToolTip(r[372+i+1])
 	#BIU0
 	for i in range(0,40,2):
 	    if r[412+i]!="nop":
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i,1).setData(0,r[412+i])
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i,1).setToolTip(r[412+i+1])
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setData(0,r[412+i])
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setToolTip(r[412+i+1])
 	#BIU1
 	for i in range(0,40,2):
 	    if r[452+i]!="nop":
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i,1).setData(0,r[452+i])
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i,1).setToolTip(r[452+i+1])
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setData(0,r[452+i])
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setToolTip(r[452+i+1])
 	#BIU2
 	for i in range(0,40,2):
 	    if r[492+i]!="nop":
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i,1).setData(0,r[492+i])
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i,1).setToolTip(r[492+i+1])
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setData(0,r[492+i])
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setToolTip(r[492+i+1])
 	#SHU0
 	for i in range(0,40,2):
 	    if r[532+i]!="nop":
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i,1).setData(0,r[532+i])
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i,1).setToolTip(r[532+i+1])
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setData(0,r[532+i])
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setToolTip(r[532+i+1])
 	#MRF
 	for i in range(0,40,2):
 	    if r[572+i]!="nop":
-		self.buttonWidget.MRFButtonDialog.stages.item(i,1).setData(0,r[572+i])
-		self.buttonWidget.MRFButtonDialog.stages.item(i,1).setToolTip(r[572+i+1])
+		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setData(0,r[572+i])
+		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setToolTip(r[572+i+1])
 	#SHU1
 	for i in range(0,40,2):
 	    if r[612+i]!="nop":
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i,1).setData(0,r[612+i])
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i,1).setToolTip(r[612+i+1])
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setData(0,r[612+i])
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setToolTip(r[612+i+1])
 	#IALU
 	for i in range(0,40,2):
 	    if r[652+i]!="nop":
-		self.buttonWidget.IALUButtonDialog.stages.item(i,1).setData(0,r[652+i])
-		self.buttonWidget.IALUButtonDialog.stages.item(i,1).setToolTip(r[652+i+1])
+		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setData(0,r[652+i])
+		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setToolTip(r[652+i+1])
 	#IMAC
 	for i in range(0,40,2):
 	    if r[692+i]!="nop":
-		self.buttonWidget.IMACButtonDialog.stages.item(i,1).setData(0,r[692+i])
-		self.buttonWidget.IMACButtonDialog.stages.item(i,1).setToolTip(r[692+i+1])
+		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setData(0,r[692+i])
+		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setToolTip(r[692+i+1])
 	#FALU
 	for i in range(0,40,2):
 	    if r[732+i]!="nop":
-		self.buttonWidget.FALUButtonDialog.stages.item(i,1).setData(0,r[732+i])
-		self.buttonWidget.FALUButtonDialog.stages.item(i,1).setToolTip(r[732+i+1])
+		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setData(0,r[732+i])
+		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setToolTip(r[732+i+1])
 	#FMAC
 	for i in range(0,40,2):
 	    if r[772+i]!="nop":
-		self.buttonWidget.FMACButtonDialog.stages.item(i,1).setData(0,r[772+i])
-		self.buttonWidget.FMACButtonDialog.stages.item(i,1).setToolTip(r[772+i+1])
+		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setData(0,r[772+i])
+		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setToolTip(r[772+i+1])
 
 
 

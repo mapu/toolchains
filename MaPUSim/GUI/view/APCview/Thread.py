@@ -1,5 +1,6 @@
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
+import time
 import sys
 sys.path.append("../..")
 from control.DataBase import*

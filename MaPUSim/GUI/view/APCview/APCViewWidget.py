@@ -88,10 +88,15 @@ class APCViewWidget(QWidget):
 	self.maxTime=int(line[:pos])/1000
 	f.close()
 	#update MPU stage dialog
-	self.APE0Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
-	self.APE1Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
-	self.APE2Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime)  
-	self.APE3Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime) 
+	self.APE0Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	self.APE1Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	self.APE2Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	self.APE3Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	#update SPU stage dialog
+	self.APE0Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	self.APE1Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	self.APE2Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	self.APE3Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s") 
 	#set slider min and max value
 	self.slider.setRange(self.minTime,self.maxTime)
 	self.spinBox.setRange(self.minTime,self.maxTime)
@@ -104,7 +109,7 @@ class APCViewWidget(QWidget):
 	curTime=self.slider.value()
 
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
-	r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)
+	r=self.dataBase.fetchall(self.dataBase.timeFilePath,fetchall_sql)
 	if r!=0:
 	    for e in range(len(r)):
 		self.APE0Widget.MPUWidget.updateMPUWidget(r[e])
