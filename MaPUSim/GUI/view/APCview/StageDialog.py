@@ -39,7 +39,10 @@ class StageDialog(QDialog):
 	    for e in range(len(r)):	
 		stringList=r[e]
 		if stringList[2]==flag:
-		    self.model.setVerticalHeaderItem(j,QStandardItem(str(stringList[3])+":"+stringList[5]))
+		    if stringList[5]!="nop":
+		        self.model.setVerticalHeaderItem(j,QStandardItem(str(stringList[3])+":"+stringList[5]))
+		    else:
+		        self.model.setVerticalHeaderItem(j,QStandardItem(str(stringList[3])))	
 		    for i in range(0,20):
 		        if stringList[8+i]!=-1:
 			    column=stringList[8+i]-minTime
