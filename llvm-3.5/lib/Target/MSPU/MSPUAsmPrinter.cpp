@@ -131,19 +131,23 @@ MSPUAsmPrinter::EmitInstruction(const MachineInstr *MI)
 		unsigned Size = BundleMIs.size();
 		assert((Size+IgnoreCount) == MI->getBundleSize() && "Corrupt Bundle!");
 		// tag each machine instr if it is inside bundle.
+    MSPUMCInst MCI[4];
+    MSPUMCInst *Prev = NULL;
 		for(unsigned Index = 0; Index < Size; Index++) {
-		  MSPUMCInst MCI;
-			MSPULowerToMC(BundleMIs[Index], MCI, *this);
-      MCI.setStart(Index == 0);
-      MCI.setEnd(Index == (Size - 1));
-      EmitToStreamer(OutStreamer, MCI);
+		  //MSPUMCInst MCI;
+			MSPULowerToMC(BundleMIs[Index], MCI[Index], *this);
+      //MCI.setStart(Index == 0);
+      //MCI.setEnd(Index == (Size - 1));
+			if (Prev) Prev->addOperand(MCOperand::CreateInst(&MCI[Index]));
+			Prev = &MCI[Index];
 		}
+    EmitToStreamer(OutStreamer, MCI[0]);
 	}
 	else { // a solo instruction
 	  MSPUMCInst MCI;
 		MSPULowerToMC(MI, MCI, *this);
-		MCI.setStart(true);
-		MCI.setEnd(true);
+		//MCI.setStart(true);
+		//MCI.setEnd(true);
     EmitToStreamer(OutStreamer, MCI);
 	}
 

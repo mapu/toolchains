@@ -22,7 +22,6 @@ add_llvm_tool(mmcc
   MMPUSymbol.cpp
   MMPUAST.cpp
   MMPUIRGen.cpp
-  MMPUAPDLGen.cpp
   MMPUCompiler.cpp
   main.cpp
   )

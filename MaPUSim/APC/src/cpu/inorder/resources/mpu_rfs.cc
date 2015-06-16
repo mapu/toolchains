@@ -250,7 +250,7 @@ void MpuRfsUnit::execute(int slot_idx) {
       inst->setMPUSrc(mr_idx, cpu->readMPUReg(flat_idx, tid));
 
       // For MaPU GUI trace
-      DPRINTF(MapuReg, "[sn:%lli] : R MPU Reg %i : ", inst->seqNum, flat_idx);
+      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, flat_idx);
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(flat_idx, tid)[i]);
       DPRINTFR(MapuReg, "\n");
@@ -277,7 +277,7 @@ void MpuRfsUnit::execute(int slot_idx) {
     inst->setMPUSrc(mr_idx, cpu->readMPUReg(reg_idx, tid));
 
     // For MaPU GUI trace
-    DPRINTF(MapuReg, "[sn:%lli] : R MPU Reg %i : ", inst->seqNum, reg_idx);
+    DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, reg_idx);
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(reg_idx, tid)[i]);
     DPRINTFR(MapuReg, "\n");
@@ -309,7 +309,7 @@ void MpuRfsUnit::execute(int slot_idx) {
               reg_idx, flat_idx);
 
       // For MaPU GUI trace
-      DPRINTF(MapuReg, "[sn:%lli] : W MPU Reg %i : ", inst->seqNum, flat_idx);
+      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, flat_idx);
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
       DPRINTFR(MapuReg, "\n");
@@ -348,7 +348,7 @@ void MpuRfsUnit::execute(int slot_idx) {
                       inst->readIntResult(mr_idx),
                       tid);
 
-      DPRINTF(MapuReg, "[sn:%lli] : W Misc Reg %i : %#llx",
+      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx", tid,
               inst->seqNum, reg_idx - Ctrl_Base_DepTag, inst->readIntResult(mr_idx));
       break;
 
@@ -369,7 +369,7 @@ void MpuRfsUnit::execute(int slot_idx) {
             reg_idx, reg_idx);
 
     // For MaPU GUI trace
-    DPRINTF(MapuReg, "[sn:%lli] : W MPU Reg %i : ", inst->seqNum, reg_idx);
+    DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, reg_idx);
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
     DPRINTFR(MapuReg, "\n");

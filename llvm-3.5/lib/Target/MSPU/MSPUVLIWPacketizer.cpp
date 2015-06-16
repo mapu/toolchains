@@ -16,7 +16,6 @@
 // prune the dependence.
 //
 //===----------------------------------------------------------------------===//
-#define DEBUG_TYPE "packets"
 #include "llvm/CodeGen/DFAPacketizer.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/CodeGen/MachineDominators.h"
@@ -47,172 +46,155 @@
 #include "MSPURegisterInfo.h"
 #include "MSPUSubtarget.h"
 #include "MSPUMachineFunctionInfo.h"
-
 #include <map>
 #include <vector>
 
 using namespace llvm;
 
-static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag)
-{
+#define DEBUG_TYPE "packets"
+
+static cl::opt<bool>
+PacketizeVolatiles("mspu-packetize-volatiles", cl::ZeroOrMore, cl::Hidden,
+                   cl::init(true), cl::desc("Allow non-solo packetization "
+                                            "of volatile memory references"));
+
+static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag) {
   #define AGUIMM 1
   #define SEQIMM 2
-  switch(MI->getDesc().getOpcode()) {
-    case MSPUInst::LoadSI8JI:
-    case MSPUInst::LoadUI8JI:
-    case MSPUInst::LoadSI16JI:
-    case MSPUInst::LoadUI16JI:
-    case MSPUInst::LoadI32JI:
-    case MSPUInst::LoadF32JI:
-    case MSPUInst::LoadF64JI:
-    case MSPUInst::LoadPtrJI:
-    case MSPUInst::LoadPtrOffsetJI:
+  switch (MI->getDesc().getOpcode()) {
+  case MSPUInst::LoadSI8JI:
+  case MSPUInst::LoadUI8JI:
+  case MSPUInst::LoadSI16JI:
+  case MSPUInst::LoadUI16JI:
+  case MSPUInst::LoadI32JI:
+  case MSPUInst::LoadF32JI:
+  case MSPUInst::LoadF64JI:
+  case MSPUInst::LoadPtrJI:
+  case MSPUInst::LoadPtrOffsetJI:
 
-    case MSPUInst::StoreI8JI:
-    case MSPUInst::StoreI16JI:
-    case MSPUInst::StoreI32JI:
-    case MSPUInst::StoreF32JI:
-    case MSPUInst::StoreF64JI:
-    case MSPUInst::StorePtrJI:
+  case MSPUInst::StoreI8JI:
+  case MSPUInst::StoreI16JI:
+  case MSPUInst::StoreI32JI:
+  case MSPUInst::StoreF32JI:
+  case MSPUInst::StoreF64JI:
+  case MSPUInst::StorePtrJI:
 
-    case MSPUInst::AssignRRegImm11:
-    case MSPUInst::AssignJRegImm11:
+  case MSPUInst::AssignRRegImm11:
+  case MSPUInst::AssignJRegImm11:
 
-    case MSPUInst::AssignI32:
-    case MSPUInst::AssignPtr:
-    case MSPUInst::AssignF32:
-      flag |= AGUIMM;
-      return;
+  case MSPUInst::AssignI32:
+  case MSPUInst::AssignPtr:
+  case MSPUInst::AssignF32:
+    flag |= AGUIMM;
+    return;
 
-    case MSPUInst::JumpImm:
-    case MSPUInst::JumpBasicBlock:
-    case MSPUInst::JumpImmCond:
-    case MSPUInst::JumpBasicBlockCond:
+  case MSPUInst::JumpImm:
+  case MSPUInst::JumpBasicBlock:
+  case MSPUInst::JumpImmCond:
+  case MSPUInst::JumpBasicBlockCond:
 
-    case MSPUInst::CallImm:
-    case MSPUInst::CallImmCond:
+  case MSPUInst::CallImm:
+  case MSPUInst::CallImmCond:
 
-    case MSPUInst::LoopL0:
-    case MSPUInst::LoopL1:
-      flag |= SEQIMM;
-      return;
+  case MSPUInst::LoopL0:
+  case MSPUInst::LoopL1:
+    flag |= SEQIMM;
+    return;
 
-    default:
-      return;
+  default:
+    return;
   }
 }
 
-static cl::opt<bool> PacketizeVolatiles(
-      "mspu-packetize-volatiles",
-      cl::ZeroOrMore,
-      cl::Hidden, cl::init(true),
-      cl::desc("Allow non-solo packetization of volatile memory references"));
-
-namespace llvm
-{
-  void
-  initializeMSPUPacketizerPass(PassRegistry&);
+namespace llvm {
+  void initializeMSPUPacketizerPass(PassRegistry&);
 }
 
-namespace
-{
-  class MSPUPacketizer: public MachineFunctionPass
-  {
+namespace {
+class MSPUPacketizer: public MachineFunctionPass {
+public:
+  static char ID;
 
-    public:
-      static char ID;
+  MSPUPacketizer() : MachineFunctionPass(ID) {
+    initializeMSPUPacketizerPass(*PassRegistry::getPassRegistry());
+  }
 
-      MSPUPacketizer() : MachineFunctionPass(ID)
-      {
-        initializeMSPUPacketizerPass(*PassRegistry::getPassRegistry());
-      }
+  void getAnalysisUsage(AnalysisUsage &AU) const override {
+    AU.setPreservesCFG();
+    AU.addRequired<MachineDominatorTree>();
+    AU.addRequired<MachineBranchProbabilityInfo>();
+    AU.addPreserved<MachineDominatorTree>();
+    AU.addRequired<MachineLoopInfo>();
+    AU.addPreserved<MachineLoopInfo>();
+    MachineFunctionPass::getAnalysisUsage(AU);
+  }
 
-      void
-      getAnalysisUsage(AnalysisUsage &AU) const
-      {
-        AU.setPreservesCFG();
-        AU.addRequired<MachineDominatorTree>();
-        AU.addRequired<MachineBranchProbabilityInfo>();
-        AU.addPreserved<MachineDominatorTree>();
-        AU.addRequired<MachineLoopInfo>();
-        AU.addPreserved<MachineLoopInfo>();
-        MachineFunctionPass::getAnalysisUsage(AU);
-      }
+  const char *getPassName() const override {
+    return "MSPU Packetizer";
+  }
 
-      const char *
-      getPassName() const
-      {
-        return "MSPU Packetizer";
-      }
+  bool runOnMachineFunction(MachineFunction &Fn) override;
+};
 
-      bool
-      runOnMachineFunction(MachineFunction &Fn);
-  };
+char MSPUPacketizer::ID = 0;
 
-  char MSPUPacketizer::ID = 0;
+class MSPUPacketizerList : public VLIWPacketizerList {
+private:
+  // Has the instruction been promoted to a dot-new instruction.
+  bool PromotedToDotNew;
 
-  class MSPUPacketizerList: public VLIWPacketizerList
-  {
+  // Has the instruction been glued to allocframe.
+  bool GlueAllocframeStore;
 
-    private:
+  // Has the feeder instruction been glued to new value jump.
+  bool GlueToNewValueJump;
 
-      // Has the instruction been promoted to a dot-new instruction.
-      bool PromotedToDotNew;
+  // Check if there is a dependence between some instruction already in this
+  // packet and this instruction.
+  bool Dependence;
 
-      // Has the instruction been glued to allocframe.
-      bool GlueAllocframeStore;
+  // Only check for dependence if there are resources available to
+  // schedule this instruction.
+  bool FoundSequentialDependence;
 
-      // Has the feeder instruction been glued to new value jump.
-      bool GlueToNewValueJump;
+  /// \brief A handle to the branch probability pass.
+  const MachineBranchProbabilityInfo *MBPI;
 
-      // Check if there is a dependence between some instruction already in this
-      // packet and this instruction.
-      bool Dependence;
+  // Track MIs with ignored dependece.
+  std::vector<MachineInstr*> IgnoreDepMIs;
 
-      // Only check for dependence if there are resources available to
-      // schedule this instruction.
-      bool FoundSequentialDependence;
+public:
+  // Ctor.
+  MSPUPacketizerList(MachineFunction &MF, MachineLoopInfo &MLI,
+                     const MachineBranchProbabilityInfo *MBPI);
 
-      /// \brief A handle to the branch probability pass.
-      const MachineBranchProbabilityInfo *MBPI;
+  // initPacketizerState - initialize some internal flags.
+  void initPacketizerState() override;
 
-      // Track MIs with ignored dependece.
-      std::vector<MachineInstr*> IgnoreDepMIs;
+  // ignorePseudoInstruction - Ignore bundling of pseudo instructions.
+  bool ignorePseudoInstruction(MachineInstr *MI,
+                               MachineBasicBlock *MBB) override;
 
-    public:
-      // Ctor.
-      MSPUPacketizerList(MachineFunction &MF, MachineLoopInfo &MLI,
-                         const MachineBranchProbabilityInfo *MBPI);
+  // isSoloInstruction - return true if instruction MI can not be packetized
+  // with any other instruction, which means that MI itself is a packet.
+  bool isSoloInstruction(MachineInstr *MI) override;
 
-      // initPacketizerState - initialize some internal flags.
-      void
-      initPacketizerState();
+  // isLegalToPacketizeTogether - Is it legal to packetize SUI and SUJ
+  // together.
+  bool isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) override;
 
-      // ignorePseudoInstruction - Ignore bundling of pseudo instructions.
-      bool
-      ignorePseudoInstruction(MachineInstr *MI, MachineBasicBlock *MBB);
+  // isLegalToPruneDependencies - Is it legal to prune dependece between SUI
+  // and SUJ.
+  //bool isLegalToPruneDependencies(SUnit *SUI, SUnit *SUJ) override;
 
-      // isSoloInstruction - return true if instruction MI can not be packetized
-      // with any other instruction, which means that MI itself is a packet.
-      bool
-      isSoloInstruction(MachineInstr *MI);
+  //MachineBasicBlock::iterator addToPacket(MachineInstr *MI) override;
 
-      // isLegalToPacketizeTogether - Is it legal to packetize SUI and SUJ
-      // together.
-      bool
-      isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ);
-
-    private:
-      bool
-      IsCallDependent(MachineInstr* MI, SDep::Kind DepType, unsigned DepReg);
-      bool
-      tryAllocateResourcesForConstExt(MachineInstr* MI);
-      bool
-      canReserveResourcesForConstExt(MachineInstr *MI);
-      void
-      reserveResourcesForConstExt(MachineInstr* MI);
-
-  };
+private:
+  /*bool IsCallDependent(MachineInstr* MI, SDep::Kind DepType, unsigned DepReg);
+  bool tryAllocateResourcesForConstExt(MachineInstr* MI);
+  bool canReserveResourcesForConstExt(MachineInstr *MI);
+  void reserveResourcesForConstExt(MachineInstr* MI);*/
+};
 }
 
 INITIALIZE_PASS_BEGIN(MSPUPacketizer, "packets", "MSPU Packetizer", false, false)
@@ -226,22 +208,20 @@ INITIALIZE_PASS_END(MSPUPacketizer, "packets", "MSPU Packetizer", false, false)
 MSPUPacketizerList::MSPUPacketizerList(MachineFunction &MF,
                                        MachineLoopInfo &MLI,
                                        const MachineBranchProbabilityInfo *MBPI)
-      : VLIWPacketizerList(MF, MLI, true)
-{
+  : VLIWPacketizerList(MF, MLI, true) {
   this->MBPI = MBPI;
 }
 
-bool
-MSPUPacketizer::runOnMachineFunction(MachineFunction &Fn)
-{
+bool MSPUPacketizer::runOnMachineFunction(MachineFunction &Fn) {
   const TargetInstrInfo *TII = Fn.getSubtarget().getInstrInfo();
   MachineLoopInfo &MLI = getAnalysis<MachineLoopInfo>();
-  const MachineBranchProbabilityInfo *MBPI = &getAnalysis<MachineBranchProbabilityInfo>();
+  const MachineBranchProbabilityInfo *MBPI =
+    &getAnalysis<MachineBranchProbabilityInfo>();
   // Instantiate the packetizer.
-  MSPUPacketizerList PacketizerList(Fn, MLI, MBPI);
+  MSPUPacketizerList Packetizer(Fn, MLI, MBPI);
 
   // DFA state table should not be empty.
-  assert(PacketizerList.getResourceTracker() && "Empty DFA table!");
+  assert(Packetizer.getResourceTracker() && "Empty DFA table!");
 
   //
   // Loop over all basic blocks and remove KILL pseudo-instructions
@@ -297,7 +277,7 @@ MSPUPacketizer::runOnMachineFunction(MachineFunction &Fn)
         continue;
       }
 
-      PacketizerList.PacketizeMIs(MBB, I, RegionEnd);
+      Packetizer.PacketizeMIs(MBB, I, RegionEnd);
       RegionEnd = I;
     }
   }
@@ -305,38 +285,29 @@ MSPUPacketizer::runOnMachineFunction(MachineFunction &Fn)
   return true;
 }
 
-static bool
-IsRegDependence(const SDep::Kind DepType)
-{
+static bool IsRegDependence(const SDep::Kind DepType) {
   return (DepType == SDep::Data || DepType == SDep::Anti ||
-        DepType == SDep::Output);
+          DepType == SDep::Output);
 }
 
-static bool
-IsControlFlow(MachineInstr* MI)
-{
+static bool IsControlFlow(MachineInstr* MI) {
   return (MI->getDesc().isTerminator() || MI->getDesc().isCall());
 }
 
 /// DoesModifyCalleeSavedReg - Returns true if the instruction modifies a
 /// callee-saved register.
-static bool
-DoesModifyCalleeSavedReg(MachineInstr *MI,
-                         const TargetRegisterInfo *TRI)
-{
-  for(const uint16_t *CSR = TRI->getCalleeSavedRegs(); *CSR; ++CSR) {
+static bool DoesModifyCalleeSavedReg(MachineInstr *MI,
+                                     const TargetRegisterInfo *TRI) {
+  for (const uint16_t *CSR = TRI->getCalleeSavedRegs(); *CSR; ++CSR) {
     unsigned CalleeSavedReg = *CSR;
-    if(MI->modifiesRegister(CalleeSavedReg, TRI))
+    if (MI->modifiesRegister(CalleeSavedReg, TRI))
       return true;
   }
   return false;
 }
 
 // initPacketizerState - Initialize packetizer flags
-void
-MSPUPacketizerList::initPacketizerState()
-{
-
+void MSPUPacketizerList::initPacketizerState() {
   Dependence = false;
   PromotedToDotNew = false;
   GlueToNewValueJump = false;
@@ -347,10 +318,8 @@ MSPUPacketizerList::initPacketizerState()
 }
 
 // ignorePseudoInstruction - Ignore bundling of pseudo instructions.
-bool
-MSPUPacketizerList::ignorePseudoInstruction(MachineInstr *MI,
-                                            MachineBasicBlock *MBB)
-{
+bool MSPUPacketizerList::ignorePseudoInstruction(MachineInstr *MI,
+                                                 MachineBasicBlock *MBB) {
   if(MI->isDebugValue())
     return true;
 
@@ -362,26 +331,22 @@ MSPUPacketizerList::ignorePseudoInstruction(MachineInstr *MI,
   // If it doesn't, we ignore the instruction.
   const MCInstrDesc& TID = MI->getDesc();
   unsigned SchedClass = TID.getSchedClass();
-  const InstrStage* IS = ResourceTracker->getInstrItins()->beginStage(SchedClass);
+  const InstrStage* IS =
+    ResourceTracker->getInstrItins()->beginStage(SchedClass);
   unsigned FuncUnits = IS->getUnits();
   return !FuncUnits;
 }
 
 // isSoloInstruction: - Returns true for instructions that must be
 // scheduled in their own packet.
-bool
-MSPUPacketizerList::isSoloInstruction(MachineInstr *MI)
-{
-
+bool MSPUPacketizerList::isSoloInstruction(MachineInstr *MI) {
   if(MI->isInlineAsm())
     return true;
 
   if(MI->isEHLabel())
     return true;
 
-  // From MSPU V4 Programmer's Reference Manual 3.4.4 Grouping constraints:
-  // trap, pause, barrier, icinva, isync, and syncht are solo instructions.
-  // They must not be grouped with other instructions in a packet.
+  //
   /*if(IsSchedBarrier(MI))
     return true;*/
 
@@ -392,9 +357,7 @@ MSPUPacketizerList::isSoloInstruction(MachineInstr *MI)
 // SUI is the current instruction that is out side of the current packet.
 // SUJ is the current instruction inside the current packet against which that
 // SUI will be packetized.
-bool
-MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ)
-{
+bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
   MachineInstr *I = SUI->getInstr();
   MachineInstr *J = SUJ->getInstr();
   assert(I && J && "Unable to packetize null instruction!");
