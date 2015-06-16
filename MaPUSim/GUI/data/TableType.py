@@ -9,27 +9,8 @@ class SnItem:
 	self.pc="'nop'"
 	self.dis="'nop'"
 	self.dest="'nop'"
-	self.stage0="-1"
-	self.stage1="-1"
-	self.stage2="-1"
-	self.stage3="-1"
-	self.stage4="-1"
-	self.stage5="-1"
-	self.stage6="-1"
-	self.stage7="-1"
-	self.stage8="-1"
-	self.stage9="-1"
-	self.stage10="-1"
-	self.stage11="-1"
-	self.stage12="-1"
-	self.stage13="-1"
-	self.stage14="-1"
-	self.stage15="-1"
-	self.stage16="-1"
-	self.stage17="-1"
-	self.stage18="-1"
-	self.stage19="-1"
-
+	self.num="-1"
+	self.stageList=["-1"]*20
 
 class RegItem:
     def __init__(self):

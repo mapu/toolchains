@@ -158,9 +158,9 @@ class ConfigViewWidget(QMainWindow):
 	APE3MPULay.addWidget(self.startButton)
 	APE3MPULay.addWidget(self.stopButton)
 		
-	self.paraEdit=QLineEdit()
-	self.paraEdit.setFixedHeight(30)
-	self.paraEdit.setFixedWidth(900)
+	#self.paraEdit=QLineEdit()
+	#self.paraEdit.setFixedHeight(30)
+	#self.paraEdit.setFixedWidth(900)
 
 	APCGroupWidget=QWidget()
 	APCGroup=QGroupBox(APCGroupWidget)
@@ -180,7 +180,7 @@ class ConfigViewWidget(QMainWindow):
 	APCLay.addWidget(self.APE3Check)
 	APCLay.addLayout(APE3SPULay)
 	APCLay.addLayout(APE3MPULay)
-	APCLay.addWidget(self.paraEdit)
+	#APCLay.addWidget(self.paraEdit)
 	APCGroup.setLayout(APCLay)	
 
 	mainLay=QVBoxLayout()
@@ -247,7 +247,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3SPUButton.setEnabled(False)
 	self.APE3MPUEdit.setEnabled(False)
 	self.APE3MPUButton.setEnabled(False)
-	self.paraEdit.setEnabled(False)
+	#self.paraEdit.setEnabled(False)
 
     def APCRadioSlot(self):
 	self.traceFlagsButton.setEnabled(True)
@@ -271,7 +271,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3SPUButton.setEnabled(True)
 	self.APE3MPUEdit.setEnabled(True)
 	self.APE3MPUButton.setEnabled(True)
-	self.paraEdit.setEnabled(True)
+	#self.paraEdit.setEnabled(True)
 
     def APE1CheckSlot(self):
 	if self.APE1Check.checkState()==Qt.Checked:
@@ -357,13 +357,13 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
 	string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
-	self.paraEdit.setText(string)
+	#self.paraEdit.setText(string)
 	self.process=QProcess()
         self.connect(self.process,SIGNAL("readyReadStandardOutput()"),self.startReadOutput)
         self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)
 	self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
 	self.command=self.simulatorPath+"/apc/gem5.opt"   
-	self.command=self.command+" "+"--trace-file="+self.traceFileEdit.text()+" "+self.paraEdit.text()+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
+	self.command=self.command+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
 	num=1
 	if self.APE1Check.checkState()==Qt.Checked:
 	    self.command=self.command+";"+self.APE1SPUEdit.text()+","+self.APE1MPUEdit.text()

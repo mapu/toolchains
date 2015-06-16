@@ -13,7 +13,7 @@ class DataBaseDialog(QDialog):
 	lay=QGridLayout()
 	lay.addWidget(self.label,0,0)
 	self.setLayout(lay) 
-	#self.setModal(True)
+	self.setModal(True)
 
     def createDataBase(self):
 	thread=Thread()

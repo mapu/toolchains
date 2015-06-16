@@ -109,9 +109,8 @@ class DataBase():
                     conn.commit()
                 self.close_all(conn, cu)
 
-    def snSplit(self,string):
+    def snSplit(self,string,item):
         s=string
-        item=SnItem()
         #get time
         pos=s.index("[")
         item.time=s[0:pos]
@@ -140,48 +139,8 @@ class DataBase():
 	    #get stage
 	    s=s[(pos+1):]
 	    pos=s.index(":")
-	    stage=s[0:pos]
-	    if stage=="stage0":
-	        item.stage0=item.time
-	    elif stage=="stage1":
-	        item.stage1=item.time
-	    elif stage=="stage2":
-	        item.stage2=item.time
-	    elif stage=="stage3":
-	        item.stage3=item.time
-	    elif stage=="stage4":
-	        item.stage4=item.time
-	    elif stage=="stage5":
-	        item.stage5=item.time
-	    elif stage=="stage6":
-	        item.stage6=item.time
-	    elif stage=="stage7":
-	        item.stage7=item.time
-	    elif stage=="stage8":
-	        item.stage8=item.time
-	    elif stage=="stage9":
-	        item.stage9=item.time
-	    elif stage=="stage10":
-	        item.stage10=item.time
-	    elif stage=="stage11":
-	        item.stage11=item.time
-	    elif stage=="stage12":
-	        item.stage12=item.time
-	    elif stage=="stage13":
-	        item.stage13=item.time
-	    elif stage=="stage14":
-	        item.stage14=item.time
-	    elif stage=="stage15":
-	        item.stage15=item.time
-	    elif stage=="stage16":
-	        item.stage16=item.time
-	    elif stage=="stage17":
-	        item.stage17=item.time
-	    elif stage=="stage18":
-	        item.stage18=item.time
-	    elif stage=="stage19":
-	        item.stage19=item.time
-
+	    item.num=s[5:pos]
+	    item.stageList[int(item.num)]=item.time
 	    s=s[(pos+2):]
     	    #get sn
     	    pos=s.index(":")
@@ -190,29 +149,6 @@ class DataBase():
     	    item.sn=s[0:pos]
     	    s=s[(pos+1):] 
 
-        elif s.find("spurf_manager")>=0 or s.find("mpurf_manager")>=0:
-	    #326000[163]: system.cpu3.mpurf_manager: [sn:75] : W MPU Reg 143 : 0x0 0x0 0x0 0x0 0x0
-	    pos=13
-     	    item.spumpu=s[0:pos] 
-    	    if item.spumpu=="spurf_manager":
-	        item.spumpu="'s'"
-    	    else:
- 	        item.spumpu="'m'"
-    	    s=s[(pos+2):] 
-    	    #get sn
-    	    pos=s.index(":")
-    	    s=s[(pos+1):]
-    	    pos=s.index("]")
-    	    item.sn=s[0:pos]
-    	    s=s[(pos+1):] 
-    	    s=s[3:]
-	    pos=s.index(":")
-	    temp=s[0:pos-1]
-	    s=s[(pos+2):]
-	    if s.index("\n"):
-	        pos=s.index("\n")
-	        s=s[0:pos]
-	    item.dis="'"+s+"'"
 	elif s.find("im_port")>=0:
 	    #326000[163]: system.cpu.mim_port: [sn:105] : [sln:105] : 181 : (memo:ialuadd   ) IALU.T1+T2->IMAC.T0
 	    if s.find("mim_port")>=0:
@@ -273,12 +209,14 @@ class DataBase():
 
         save_sql = "INSERT INTO "+self.snTableName+" (cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
 
+	item=SnItem()
         #open out file and read 
         f=open(self.filePath,"r")
         lines=f.readlines()
         for line in lines:
 	    if line.find("mpurf_manager")<0:
-	        item=self.snSplit(line)
+		item.__init__()
+	        item=self.snSplit(line,item)
     	        fetchone_sql = "SELECT * FROM "+self.snTableName+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
                 cu = self.get_cursor(self.dbConn)
                 cu.execute(fetchone_sql)
@@ -286,194 +224,21 @@ class DataBase():
                 if len(r) > 0:
 		    #update 
 		    if line.find("stage")>=0:
-		        if item.stage0!="-1":
-			    stage="stage0"
-			    if r[0][8]!=-1:
-			        if r[0][8]>=int(item.stage0):
-				    time=item.stage0
-			        else:
-				    time=str(r[0][8])
+		        stage="stage"+item.num
+			if r[0][8+int(item.num)]!=-1:
+			    if r[0][8+int(item.num)]>int(item.stageList[int(item.num)]):
+			        time=item.stageList[int(item.num)]
 			    else:
-			        time=item.stage0
-		        elif item.stage1!="-1":
-			    stage="stage1"
-			    if r[0][9]!=-1:
-			        if r[0][9]>=int(item.stage1):
-				    time=item.stage1
-			        else:
-				    time=str(r[0][9])
-			    else:
-			        time=item.stage1
-		        elif item.stage2!="-1":
-			    stage="stage2"
-			    if r[0][10]!=-1:
-			        if r[0][10]>=int(item.stage2):
-				    time=item.stage2
-			        else:
-				    time=str(r[0][10])
-			    else:
-			        time=item.stage2	
-		        elif item.stage3!="-1":
-			    stage="stage3"
-			    if r[0][11]!=-1:
-			        if r[0][11]>=int(item.stage3):
-				    time=item.stage3
-			        else:
-				    time=str(r[0][11])
-			    else:
-			        time=item.stage3
-		        elif item.stage4!="-1":
-			    stage="stage4"
-			    if r[0][12]!=-1:
-			        if r[0][12]>=int(item.stage4):
-				    time=item.stage4
-			        else:
-				    time=str(r[0][12])
-			    else:
-		                time=item.stage4
-		        elif item.stage5!="-1":
-			    stage="stage5"
-			    if r[0][13]!=-1:
-			        if r[0][13]>=int(item.stage5):
-				    time=item.stage5
-			        else:
-				    time=str(r[0][13])
-			    else:
-			        time=item.stage5
-		        elif item.stage6!="-1":
-			    stage="stage6"
-			    if r[0][14]!=-1:
-			        if r[0][14]>=int(item.stage6):
-				    time=item.stage6
-			        else:
-				    time=str(r[0][14])
-			    else:
-			        time=item.stage6
-		        elif item.stage7!="-1":
-			    stage="stage7"
-			    if r[0][15]!=-1:
-			        if r[0][15]>=int(item.stage7):
-				    time=item.stage7
-			        else:
-				    time=str(r[0][15])
-			    else:
-			        time=item.stage7
-		        elif item.stage8!="-1":
-			    stage="stage8"
-			    if r[0][16]!=-1:
-			        if r[0][16]>=int(item.stage8):
-				    time=item.stage8
-			        else:
-				    time=str(r[0][16])
-			    else:
-			        time=item.stage8
-		        elif item.stage9!="-1":
-			    stage="stage9"
-			    if r[0][17]!=-1:
-			        if r[0][17]>=int(item.stage9):
-				    time=item.stage9
-			        else:
-				    time=str(r[0][17])
-			    else:
-			        time=item.stage9
-		        elif item.stage10!="-1":
-			    stage="stage10"
-			    if r[0][18]!=-1:
-			        if r[0][18]>=int(item.stage10):
-				    time=item.stage10
-			        else:
-				    time=str(r[0][18])
-			    else:
-			        time=item.stage10
-		        elif item.stage11!="-1":
-			    stage="stage11"
-			    if r[0][19]!=-1:
-			        if r[0][19]>=int(item.stage11):
-				    time=item.stage11
-			        else:
-				    time=str(r[0][19])
-			    else:
-			        time=item.stage11
-		        elif item.stage12!="-1":
-			    stage="stage12"
-			    if r[0][20]!=-1:
-			        if r[0][20]>=int(item.stage12):
-				    time=item.stage12
-			        else:
-				    time=str(r[0][20])
-			    else:
-			        time=item.stage12
-		        elif item.stage13!="-1":
-			    stage="stage13"
-			    if r[0][21]!=-1:
-			        if r[0][21]>=int(item.stage13):
-				    time=item.stage13
-			        else:
-				    time=str(r[0][21])
-			    else:
-			        time=item.stage13
-		        elif item.stage14!="-1":
-			    stage="stage14"
-			    if r[0][22]!=-1:
-			        if r[0][22]>=int(item.stage14):
-				    time=item.stage14
-			        else:
-				    time=str(r[0][22])
-			    else:
-			        time=item.stage14
-		        elif item.stage15!="-1":
-			    stage="stage15"
-			    if r[0][23]!=-1:
-			        if r[0][23]>=int(item.stage15):
-				    time=item.stage15
-			        else:
-				    time=str(r[0][23])
-			    else:
-			        time=item.stage15
-		        elif item.stage16!="-1":
-			    stage="stage16"
-			    if r[0][24]!=-1:
-			        if r[0][24]>=int(item.stage16):
-				    time=item.stage16
-			        else:
-				    time=str(r[0][24])
-			    else:
-			        time=item.stage16
-		        elif item.stage17!="-1":
-			    stage="stage17"
-			    if r[0][25]!=-1:
-			        if r[0][25]>=int(item.stage17):
-				    time=item.stage17
-			        else:
-				    time=str(r[0][25])
-			    else:
-			        time=item.stage17
-		        elif item.stage18!="-1":
-			    stage="stage18"
-			    if r[0][26]!=-1:
-			        if r[0][26]>=int(item.stage18):
-				    time=item.stage18
-			        else:
-				    time=str(r[0][26])
-			    else:
-			        time=item.stage18
-		        elif item.stage19!="-1":
-			    stage="stage19"
-			    if r[0][27]!=-1:
-			        if r[0][27]>=int(item.stage19):
-				    time=item.stage19
-			        else:
-				    time=str(r[0][27])
-			    else:
-			        time=item.stage19
-
+			        time=str(r[0][8+int(item.num)])
+			else:
+			    time=item.stageList[int(item.num)]
 		        update_sql = "UPDATE "+self.snTableName+" SET "+stage+" = "+time+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
 	    	        self.update(self.dbConn, update_sql)
 		    else:
 		        update_sql = "UPDATE "+self.snTableName+" SET sln = "+item.sln+" , pc = "+item.pc+" , dis = "+item.dis+" , dest = "+item.dest+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
 	    	        self.update(self.dbConn, update_sql)		    	
 	        else:
-	            data="values ("+item.cpu+","+item.spumpu+","+item.sn+","+item.sln+","+item.pc+","+item.dis+","+item.dest+","+item.stage0+","+item.stage1+","+item.stage2+","+item.stage3+","+item.stage4+","+item.stage5+","+item.stage6+","+item.stage7+","+item.stage8+","+item.stage9+","+item.stage10+","+item.stage11+","+item.stage12+","+item.stage13+","+item.stage14+","+item.stage15+","+item.stage16+","+item.stage17+","+item.stage18+","+item.stage19+")"
+	            data="values ("+item.cpu+","+item.spumpu+","+item.sn+","+item.sln+","+item.pc+","+item.dis+","+item.dest+","+item.stageList[0]+","+item.stageList[1]+","+item.stageList[2]+","+item.stageList[3]+","+item.stageList[4]+","+item.stageList[5]+","+item.stageList[6]+","+item.stageList[7]+","+item.stageList[8]+","+item.stageList[9]+","+item.stageList[10]+","+item.stageList[11]+","+item.stageList[12]+","+item.stageList[13]+","+item.stageList[14]+","+item.stageList[15]+","+item.stageList[16]+","+item.stageList[17]+","+item.stageList[18]+","+item.stageList[19]+")"
 	            self.save(self.dbConn, save_sql, data)
 	f.close()
 
@@ -487,9 +252,8 @@ class DataBase():
                 for e in range(len(r)):
 		    print (r[e])
 
-    def regSplit(self,string):
+    def regSplit(self,string,item):
         s=string
-        item=RegItem()
         #get time
         pos=s.index("[")
         item.time=s[0:pos]
@@ -585,9 +349,11 @@ class DataBase():
         #open out file and read 
         f=open(self.filePath,"r")
         lines=f.readlines()
+        item=RegItem()
+	item.__init__()
         for line in lines:
 	    if line.find("mpurf_manager")>=0 or line.find("regfile_manager")>=0:
-	        item=self.regSplit(line)
+	        item=self.regSplit(line,item)
 		if item.op!="'R'":
 	            data="values ("+item.time+","+item.cpu+","+item.spumpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
 	            self.save(self.dbConn, save_sql, data)
@@ -623,8 +389,9 @@ class DataBase():
 	f.close()
 	
 	forwardRegList=["'nop'"]*251
+	item=TimeItem()
 	for i in range(self.minTime,self.maxTime+1):
-	    item=TimeItem()
+	    item.__init__()
             regList=["'nop'"]*251
 	    DMList=["'nop'"]*40
 	    BIU0List=["'nop'"]*40
