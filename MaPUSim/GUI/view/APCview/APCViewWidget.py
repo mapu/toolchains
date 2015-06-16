@@ -104,6 +104,7 @@ class APCViewWidget(QWidget):
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.currentValueSlot)
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.spinBox.setValue)
 	self.connect(self.spinBox,SIGNAL("valueChanged(int)"),self.slider.setValue)
+	self.dataBaseDialog.close()
 
     def currentValueSlot(self,time):
 	curTime=self.slider.value()

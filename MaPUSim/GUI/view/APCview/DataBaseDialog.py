@@ -21,7 +21,6 @@ class DataBaseDialog(QDialog):
 	eventLoop=QEventLoop()
 	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)
 	eventLoop.exec_()
-	self.close()
 	self.dataBase=thread.dataBase
 	return self.dataBase
   

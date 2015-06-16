@@ -19,6 +19,7 @@ class StageDialog(QDialog):
 	self.tableView.verticalHeader().setDefaultSectionSize(25)
 	self.model=QStandardItemModel(self.tableView)
 	self.tableView.setModel(self.model)
+	self.tableView.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents )
 	self.setModal(True)
 	gridLay=QGridLayout()
 	gridLay.addWidget(self.tableView,0,0)
@@ -27,8 +28,7 @@ class StageDialog(QDialog):
     def updateDialog(self,dataBase,minTime,maxTime,flag):
 	self.dataBase=dataBase
 	self.model.clear()
-	self.model.setHorizontalHeaderItem(0,QStandardItem("sn"))
-	j=1
+	j=0
 	for i in range(minTime,maxTime+1):
 	    self.model.setHorizontalHeaderItem(j,QStandardItem(str(i)))
 	    j+=1
@@ -39,13 +39,12 @@ class StageDialog(QDialog):
 	    for e in range(len(r)):	
 		stringList=r[e]
 		if stringList[2]==flag:
-		    if 1:
-		        self.model.setItem(j,0,QStandardItem(str(stringList[3])))
-		        for i in range(0,20):
-		            if stringList[8+i]!=-1:
-			        column=stringList[8+i]-minTime+1
-			        self.model.setItem(j,column,QStandardItem(str(i)))
-		        j+=1
+		    self.model.setVerticalHeaderItem(j,QStandardItem(str(stringList[3])+":"+stringList[5]))
+		    for i in range(0,20):
+		        if stringList[8+i]!=-1:
+			    column=stringList[8+i]-minTime
+			    self.model.setItem(j,column,QStandardItem(str(i)))
+		    j+=1
 		    
 
 
