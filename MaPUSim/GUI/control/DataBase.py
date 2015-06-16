@@ -194,6 +194,8 @@ class DataBase():
 	    	pos=s.index("]")
 	    	item.sln=s[0:pos]
 	    	s=s[(pos+4):]#4 : immtransr  r1, -255
+		pos=s.index(":")
+		item.pc="'"+s[:(pos-1)]+"'"
 	    	#pos=s.index("\n")
 	    	#s=s[:pos]
 	    	#item.dis="'"+s+"'"
