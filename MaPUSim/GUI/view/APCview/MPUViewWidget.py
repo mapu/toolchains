@@ -725,6 +725,7 @@ class MPUViewWidget(QWidget):
 		else:
 	            self.regFileWidget.item(i+1,1).setData(0,"0")
 		    self.regFileWidget.item(i+1,1).setToolTip("")
+	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
 	    elif i>=128 and i<=143: #shu0
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+2,1).setData(0,r[121+i])
@@ -732,6 +733,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
 		    self.regFileWidget.item(i+2,1).setToolTip("")
+	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
 	    elif i>=144 and i<=159: #shu1
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+3,1).setData(0,r[121+i])
@@ -739,6 +741,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+3,1).setData(0,"0")
 		    self.regFileWidget.item(i+3,1).setToolTip("")
+	        self.regFileWidget.item(i+3,1).setTextColor(QColor(0,0,0))
 	    elif i>=160 and i<=163: #ialu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+4,1).setData(0,r[121+i])
@@ -746,6 +749,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+4,1).setData(0,"0")
 		    self.regFileWidget.item(i+4,1).setToolTip("")
+	        self.regFileWidget.item(i+4,1).setTextColor(QColor(0,0,0))
 	    elif i>=164 and i<=167:  #imac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+5,1).setData(0,r[121+i])
@@ -753,6 +757,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+5,1).setData(0,"0")
 		    self.regFileWidget.item(i+5,1).setToolTip("")
+	        self.regFileWidget.item(i+5,1).setTextColor(QColor(0,0,0))
 	    elif i>=168 and i<=171: #falu
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+6,1).setData(0,r[121+i])
@@ -760,6 +765,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+6,1).setData(0,"0")
 		    self.regFileWidget.item(i+6,1).setToolTip("")
+	        self.regFileWidget.item(i+6,1).setTextColor(QColor(0,0,0))
 	    elif i>=172 and i<=175: #fmac
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
@@ -767,13 +773,15 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+7,1).setData(0,"0")
 		    self.regFileWidget.item(i+7,1).setToolTip("")
+	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))
 	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+7,1).setData(0,r[121+i])
 		    self.regFileWidget.item(i+7,1).setToolTip(r[121+i])	
 		else:
 		    self.regFileWidget.item(i+7,1).setData(0,"0")
-		    self.regFileWidget.item(i+7,1).setToolTip("")	
+		    self.regFileWidget.item(i+7,1).setToolTip("")
+	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))	
 	    elif i>=185 and i<=186: #svr
 	    	if r[121+i]!="nop":
 		    self.regFileWidget.item(i+8,1).setData(0,r[121+i])
@@ -781,6 +789,7 @@ class MPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+8,1).setData(0,"0")
 		    self.regFileWidget.item(i+8,1).setToolTip("")
+	        self.regFileWidget.item(i+8,1).setTextColor(QColor(0,0,0))
 
 	#update float dialog
 	#clear stage list

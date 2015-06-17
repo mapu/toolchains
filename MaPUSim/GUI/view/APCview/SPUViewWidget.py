@@ -219,6 +219,7 @@ class SPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+1,1).setData(0,"0")
 		    self.regFileWidget.item(i+1,1).setToolTip("")
+	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
 	    else:
 	        if r[308+i]!="nop":
 		    self.regFileWidget.item(i+2,1).setData(0,r[308+i])
@@ -226,6 +227,7 @@ class SPUViewWidget(QWidget):
 		else:
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
 		    self.regFileWidget.item(i+2,1).setToolTip("")
+	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
 
     def updateMPURegFlag(self,r):
 	i=r[7]
