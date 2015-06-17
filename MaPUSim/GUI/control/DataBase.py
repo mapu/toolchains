@@ -129,7 +129,7 @@ class DataBase():
         s=s[(pos+1):]
         #get spumpu
         if s.find(".")==3:
-	    #0[0]: system.cpu.spu.stage0: [sn:1]
+	    #0[0]: system.cpu.spu.stage0: [sn:1]  
 	    pos=3
      	    item.spumpu=s[0:pos] 
     	    if item.spumpu=="spu":
@@ -178,7 +178,7 @@ class DataBase():
 		    s=s[(pos+2):]
 		    item.dest="'"+s+"'" #IMAC.T0
 	    else:
-	        #4000[2]: system.cpu.im_port: [sn:2] : [sln:2] : 4 : immtransr  r1, -255
+	        #4000[2]: system.cpu.im_port: [sn:2] : [sln:2] : 4 : immtransr  r1, -255 // 8000[4]: system.cpu.im_port: [sn:10] : [sln:8] : 24 : 
 	        pos=7
 	    	item.spumpu="'s'"
      	    	a=s[0:pos] #im_port
@@ -196,9 +196,13 @@ class DataBase():
 	    	s=s[(pos+4):]#4 : immtransr  r1, -255
 		pos=s.index(":")
 		item.pc="'"+s[:(pos-1)]+"'"
-	    	#pos=s.index("\n")
-	    	#s=s[:pos]
-	    	#item.dis="'"+s+"'"
+		s=s[(pos+2):]
+		if len(s)!=1:
+	    	    pos=s.index("\n")
+	    	    s=s[:pos]
+	    	    item.dis="'"+s+"'"
+		else:
+		    item.dis="'nop'"
 
         return item
 
@@ -419,7 +423,9 @@ class DataBase():
 	            for e in range(len(r)):
 		        if r[e][6]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0
 			    s=r[e][6]
-			    pos=s.index(")")
+			    pos=s.find(")")
+			    if pos<0:
+				continue
 			    s=s[(pos+2):]
 			    pos=s.index(".")
 			    temp=s[:pos]
