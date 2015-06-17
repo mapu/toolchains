@@ -863,5 +863,24 @@ class MPUViewWidget(QWidget):
 		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setData(0,r[772+i])
 		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setToolTip(r[772+i+1])
 
-
+    def updateMPURegFlag(self,r):
+	i=r[7]
+	if i>=0 and i<=127:
+	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,0,0))
+	elif i>=128 and i<=143: #shu0
+	    self.regFileWidget.item(i+2,1).setTextColor(QColor(255,0,0))
+	elif i>=144 and i<=159: #shu1
+	    self.regFileWidget.item(i+3,1).setTextColor(QColor(255,0,0))
+	elif i>=160 and i<=163: #ialu
+	    self.regFileWidget.item(i+4,1).setTextColor(QColor(255,0,0))
+	elif i>=164 and i<=167:  #imac
+	    self.regFileWidget.item(i+5,1).setTextColor(QColor(255,0,0))
+	elif i>=168 and i<=171: #falu
+	    self.regFileWidget.item(i+6,1).setTextColor(QColor(255,0,0))
+	elif i>=172 and i<=175: #fmac
+	    self.regFileWidget.item(i+7,1).setTextColor(QColor(255,0,0))
+	elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    self.regFileWidget.item(i+7,1).setTextColor(QColor(255,0,0))	
+	elif i>=185 and i<=186:
+	    self.regFileWidget.item(i+8,1).setTextColor(QColor(255,0,0))
 

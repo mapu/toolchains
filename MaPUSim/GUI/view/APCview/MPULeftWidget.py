@@ -26,8 +26,8 @@ class MPULeftWidget(QWidget):
 	self.BIU2Button.setFixedSize(140,50)
 	self.SHU0Button=QPushButton(self.tr("SHU0"))
 	self.SHU0Button.setFixedSize(140,50)
-	self.MRFButton=QPushButton(self.tr("M RF"))
-	self.MRFButton.setFixedSize(140,50)
+	self.MRFButton=QPushButton(self.tr("MRF"))
+	self.MRFButton.setFixedSize(140,150)
 	self.SHU1Button=QPushButton(self.tr("SHU1"))
 	self.SHU1Button.setFixedSize(140,50)
 	self.IALUButton=QPushButton(self.tr("IALU"))
@@ -73,7 +73,7 @@ class MPULeftWidget(QWidget):
 	self.gridLay.addWidget(self.FALUButton,9,9,2,1)
 	self.gridLay.addWidget(self.FMACButton,13,9,2,1)
 	self.gridLay.addWidget(self.blank6,0,10,2,1)
-        self.gridLay.addWidget(self.MRFButton,7,6,2,1)
+        self.gridLay.addWidget(self.MRFButton,5,6,6,1)
 	self.gridLay.setAlignment(Qt.AlignCenter)
 	self.setLayout(self.gridLay)
 
@@ -316,8 +316,8 @@ class MPULeftWidget(QWidget):
         #SHU0 to MRF                                                                                                                             
                                                
         X1SHU=590
-        Y1SHU=110
-        SHUtoMRFlength=100
+        Y1SHU=100
+        SHUtoMRFlength=50
         if self.List[12]==1:     
 
            S0MRF1=[X1SHU,Y1SHU,X1SHU,Y1SHU+SHUtoMRFlength] 
@@ -328,7 +328,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,S0MRF2) 
            self.paintstaen(-2,S0MRF2)         
         #MRF to SHU1
-        Y1MRFtoSHU1=299
+        Y1MRFtoSHU1=340
         if self.List[14]==1:
            MRFS1=[X1SHU,Y1MRFtoSHU1,X1SHU,Y1MRFtoSHU1+SHUtoMRFlength]
            self.paintLine(2,MRFS1) 
@@ -341,6 +341,10 @@ class MPULeftWidget(QWidget):
         #Point
         x1=736
         y1=138        
+        #Point(x1,y1)
+        #Point(x1,y1+108)
+        #Point(x1,y1+2*108)        
+        #point to SHU0
         Xbendso1=720
         ybendso1=84   
         X1MRF=690
@@ -490,19 +494,20 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,FAFM2)
            self.paintstaen(-2,FAFM2)     
         #IA to FA
-        Lefx=955
-        Lefy=90
+        Lefx=955+5
+        Lefy=80
         if self.List[49]==1:
            IAFA1=[Lefx,Lefy,Lefx+15,Lefy+15,Lefx+15,Lefy+15+158,Lefx,Lefy+15+158+15]
            self.paintLine(4,IAFA1)
            self.paintstaen(-2,IAFA1)
         if self.List[50]==1:
-           IAFA2=[Lefx+5,Lefy,Lefx+15+5,Lefy+15,Lefx+15+5,Lefy+15+158,Lefx+5,Lefy+15+158+15]
+           IAFA2=[Lefx+10,Lefy,Lefx+15+10,Lefy+15,Lefx+15+10,Lefy+15+158,Lefx+10,Lefy+15+158+15]
            self.paintLine(4,IAFA2)
            self.paintstaen(2,IAFA2)
         #left point 
         LePx=Lefx+40
         LePy=252
+        #self.qp.drawPoint(LePx,LePy)
         XIA=945
         YIA=94
         if self.List[51]==1:
@@ -526,7 +531,7 @@ class MPULeftWidget(QWidget):
            LEPB1=[LePx,LePy,LePx,Y1MRF+184+20+20,x1BIU+50-20-10,Y1MRF+184+20+20,x1BIU+50-20-10,Y1MRF+184+20-155,x1BIU+50-20-10-20,Y1MRF+184+20-160]
            self.paintLine(5,LEPB1)
         if self.List[57]==1:
-           LEPB0=[LePx,LePy,LePx,Y1MRF-184-20-30,x1BIU+50-20-10,Y1MRF-184-20-30,x1BIU+50-20-10,Y1MRF-154,x1BIU+50-20-10-20,Y1MRF-154+15]
+           LEPB0=[LePx,LePy,LePx,Y1MRF-184-20-40,x1BIU+50-20-10,Y1MRF-184-20-40,x1BIU+50-20-10,Y1MRF-154,x1BIU+50-20-10-20,Y1MRF-154+15]
            self.paintLine(5,LEPB0)
         if self.List[58]==1:
         #right point to shu1
@@ -534,12 +539,12 @@ class MPULeftWidget(QWidget):
            self.paintLine(4,LEPS1)    
         #right point to MRF
         if self.List[59]==1:
-           LEPMR=[LePx,LePy,LePx,Y1MRF-184-20-30,x1BIU+50+10,Y1MRF-184-20-30,x1BIU+50+10,Y1MRF-80,B0S0X,Y1MRF-60]
+           LEPMR=[LePx,LePy,LePx,Y1MRF-184-20-40,x1BIU+50+10,Y1MRF-184-20-40,x1BIU+50+10,Y1MRF-80,B0S0X,Y1MRF-60]
            self.paintLine(5,LEPMR)        
         #right point to shu0
         if self.List[60]==1:
-            LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-30,x1BIU+170,Y1MRF-184-20-30,x1BIU+170,Y1MRF-184-20-20]
-            self.paintLine(4,LEPS0)     
+           LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-40,x1BIU+170,Y1MRF-184-20-40,x1BIU+170,Y1MRF-184-20-20]
+           self.paintLine(4,LEPS0)     
                        
         #DM to BIU0
         DMX=154
@@ -547,71 +552,70 @@ class MPULeftWidget(QWidget):
         DtoBX=255
         DtoBY=155
         if self.List[61]==1:
-             DMBIU01=[DMX,DMY,DtoBX,DtoBY]
-             self.paintLine(2,DMBIU01)
-             self.paintstaen(2,DMBIU01)
+           DMBIU01=[DMX,DMY,DtoBX,DtoBY]
+           self.paintLine(2,DMBIU01)
+           self.paintstaen(2,DMBIU01)
         if self.List[62]==1:
-             DMBIU02=[DMX,DMY-10,DtoBX,DtoBY-10]
-             self.paintLine(2,DMBIU02)
-             self.paintstaen(-2,DMBIU02)
+           DMBIU02=[DMX,DMY-10,DtoBX,DtoBY-10]
+           self.paintLine(2,DMBIU02)
+           self.paintstaen(-2,DMBIU02)
         if self.List[63]==1:  
              #DM to BIU1
-             DMBIU11=[DMX,DMY+25,DtoBX,DMY+25] 
-             self.paintLine(2,DMBIU11)
-             self.paintstaen(2,DMBIU11)
+           DMBIU11=[DMX,DMY+25,DtoBX,DMY+25] 
+           self.paintLine(2,DMBIU11)
+           self.paintstaen(2,DMBIU11)
         if self.List[64]==1: 
-             DMBIU12=[DMX,DMY+35,DtoBX,DMY+35] 
-             self.paintLine(2,DMBIU12)
-             self.paintstaen(-2,DMBIU12) 
+           DMBIU12=[DMX,DMY+35,DtoBX,DMY+35] 
+           self.paintLine(2,DMBIU12)
+           self.paintstaen(-2,DMBIU12) 
         if self.List[65]==1:
              #DM to BIU2
-             DMBIU21=[DMX,DMY+60,DtoBX,DtoBY+182]
-             self.paintLine(2,DMBIU21)
-             self.paintstaen(2,DMBIU21)  
+           DMBIU21=[DMX,DMY+60,DtoBX,DtoBY+182]
+           self.paintLine(2,DMBIU21)
+           self.paintstaen(2,DMBIU21)  
         if self.List[66]==1: 
-             DMBIU22=[DMX,DMY+70,DtoBX,DtoBY+192]
-             self.paintLine(2,DMBIU22)
-             self.paintstaen(-2,DMBIU22) 
+           DMBIU22=[DMX,DMY+70,DtoBX,DtoBY+192]
+           self.paintLine(2,DMBIU22)
+           self.paintstaen(-2,DMBIU22) 
         if self.List[67]==1:
              #BIU0 to Point1
-             BIU0P1=[x1BIU,y1-10,Xbendso1,y1-10,x1,y1]
-             self.paintLine(3,BIU0P1)
-             self.paintstaen(-2,BIU0P1) 
+           BIU0P1=[x1BIU,y1-10,Xbendso1,y1-10,x1,y1]
+           self.paintLine(3,BIU0P1)
+           self.paintstaen(-2,BIU0P1) 
         if self.List[68]==1:
              #BIU0 to Point2
-             BIU0P2=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+108-10,x1,y1+108]
-             self.paintLine(4,BIU0P2)
-             self.paintLine(2,BIU0P2)
+           BIU0P2=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+108-10,x1,y1+108]
+           self.paintLine(4,BIU0P2)
+           self.paintLine(2,BIU0P2)
         if self.List[69]==1:
              #BIU0 to Point3
-             BIU0P3=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+2*108-10,x1,y1+2*108]
-             self.paintLine(4,BIU0P3)
-             self.paintLine(2,BIU0P3)
+           BIU0P3=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+2*108-10,x1,y1+2*108]
+           self.paintLine(4,BIU0P3)
+           self.paintLine(2,BIU0P3)
         if self.List[70]==1:
              #BIU1 to Point3
-             BIU1P3=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+40,X1MRF+15,240+width+40,x1,y1+2*108] 
-             self.paintLine(5,BIU1P3)
+           BIU1P3=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,x1,y1+2*108] 
+           self.paintLine(5,BIU1P3)
         if self.List[71]==1:
              #BIU1 to Point2
-             BIU1P2=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+40,X1MRF+15,240+width+40,X1MRF+15,y1+108+20,x1,y1+108]
-             self.paintLine(6,BIU1P2)
+           BIU1P2=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,X1MRF+15,y1+108+20,x1,y1+108]
+           self.paintLine(6,BIU1P2)
         if self.List[72]==1:
              #BIU1 to Point1
-             BIU1P1=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+40,X1MRF+15,240+width+40,X1MRF+15,y1+108+20,X1MRF+15,y1+20,x1,y1]
-             self.paintLine(6,BIU1P1)
+           BIU1P1=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,X1MRF+15,y1+108+20,X1MRF+15,y1+20,x1,y1]
+           self.paintLine(6,BIU1P1)
         if self.List[73]==1:
              #BIU2 to Point3
-             BIU2P3=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,x1,y1+2*108]
-             self.paintLine(3,BIU2P3)
+           BIU2P3=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,x1,y1+2*108]
+           self.paintLine(3,BIU2P3)
         if self.List[74]==1:
-             #BIU2 to Point2
-             BIU2P2=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+108+20,x1,y1+108]
-             self.paintLine(4,BIU2P2)
+           #BIU2 to Point2
+           BIU2P2=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+108+20,x1,y1+108]
+           self.paintLine(4,BIU2P2)
         if self.List[75]==1:
-             #BIU2 to Point1
-             BIU2P1=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+20,x1,y1]
-             self.paintLine(4,BIU2P1)
-  
+           #BIU2 to Point1
+           BIU2P1=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+20,x1,y1]
+           self.paintLine(4,BIU2P1)
        
 
    

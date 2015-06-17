@@ -121,5 +121,19 @@ class APCViewWidget(QWidget):
 		self.APE1Widget.SPUWidget.updateSPUWidget(r[e])
 		self.APE2Widget.SPUWidget.updateSPUWidget(r[e])
 		self.APE3Widget.SPUWidget.updateSPUWidget(r[e])
-	
+
+	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		if r[e][6]=="MPU Reg":
+		    self.APE0Widget.MPUWidget.updateMPURegFlag(r[e])
+		    self.APE1Widget.MPUWidget.updateMPURegFlag(r[e])
+		    self.APE2Widget.MPUWidget.updateMPURegFlag(r[e])
+		    self.APE3Widget.MPUWidget.updateMPURegFlag(r[e])
+		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
+		    self.APE0Widget.SPUWidget.updateSPURegFlag(r[e])
+		    self.APE1Widget.SPUWidget.updateSPURegFlag(r[e])
+		    self.APE2Widget.SPUWidget.updateSPURegFlag(r[e])
+		    self.APE3Widget.SPUWidget.updateSPURegFlag(r[e])
     

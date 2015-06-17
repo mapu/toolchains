@@ -401,7 +401,7 @@ class DataBase():
 	item=TimeItem()
 	for i in range(self.minTime,self.maxTime+1):
 	    item.__init__()
-            regList=["'nop'"]*251
+            regList=["'nop'"]*252
 	    DMList=["'nop'"]*40
 	    BIU0List=["'nop'"]*40
 	    BIU1List=["'nop'"]*40

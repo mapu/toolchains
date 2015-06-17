@@ -227,5 +227,13 @@ class SPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
 		    self.regFileWidget.item(i+2,1).setToolTip("")
 
+    def updateMPURegFlag(self,r):
+	i=r[7]
+	if i>=0 and i<=31:
+	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,0,0))
+	else:
+	    self.regFileWidget.item(i+2,1).setTextColor(QColor(255,0,0))
+
+
 
 

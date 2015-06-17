@@ -13,4 +13,4 @@ class Thread(QThread):
 	self.dataBase=DataBase()
 	#self.dataBase.snTableInit()
 	#self.dataBase.regTableInit()
-	#self.dataBase.timeTableInit()
+	self.dataBase.timeTableInit()
