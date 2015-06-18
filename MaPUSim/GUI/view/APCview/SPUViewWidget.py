@@ -213,17 +213,17 @@ class SPUViewWidget(QWidget):
     def updateSPUWidget(self,r):
 	for i in range (0,64):
 	    if i>=0 and i<=31:
-	        if r[308+i]!="nop":
-		    self.regFileWidget.item(i+1,1).setData(0,r[308+i])
-		    self.regFileWidget.item(i+1,1).setToolTip(r[308+i])
+	        if r[248+i]!="nop":
+		    self.regFileWidget.item(i+1,1).setData(0,r[248+i])
+		    self.regFileWidget.item(i+1,1).setToolTip(r[248+i])
 		else:
 		    self.regFileWidget.item(i+1,1).setData(0,"0")
 		    self.regFileWidget.item(i+1,1).setToolTip("")
 	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
 	    else:
-	        if r[308+i]!="nop":
-		    self.regFileWidget.item(i+2,1).setData(0,r[308+i])
-		    self.regFileWidget.item(i+2,1).setToolTip(r[308+i])
+	        if r[248+i]!="nop":
+		    self.regFileWidget.item(i+2,1).setData(0,r[248+i])
+		    self.regFileWidget.item(i+2,1).setToolTip(r[248+i])
 		else:
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
 		    self.regFileWidget.item(i+2,1).setToolTip("")

@@ -5,7 +5,7 @@ import sys
 
 class ConfigViewWidget(QMainWindow):
     #define signal
-    simulatorDoneSignal=pyqtSignal()
+    simulatorDoneSignal=pyqtSignal(int)
     simulatorShowSignal=pyqtSignal(int,str)
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
@@ -356,19 +356,19 @@ class ConfigViewWidget(QMainWindow):
 	self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
 	self.command=self.simulatorPath+"/apc/gem5.opt"   
 	self.command=self.command+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
-	num=1
+	self.num=1
 	if self.APE1Check.checkState()==Qt.Checked:
 	    self.command=self.command+";"+self.APE1SPUEdit.text()+","+self.APE1MPUEdit.text()
-	    num=num+1
+	    self.num=self.num+1
 	    if self.APE2Check.checkState()==Qt.Checked:
-		num=num+1
+		self.num=self.num+1
 		self.command=self.command+";"+self.APE2SPUEdit.text()+","+self.APE2MPUEdit.text()
 	        if self.APE3Check.checkState()==Qt.Checked:
-		    num=num+1
+		    self.num=self.num+1
 		    self.command=self.command+";"+self.APE3SPUEdit.text()+","+self.APE3MPUEdit.text()
 	self.command=self.command+"\""
-	if num>1:
-	    self.command=self.command+" "+"-n"+" "+QString.number(num,10)
+	if self.num>1:
+	    self.command=self.command+" "+"-n"+" "+QString.number(self.num,10)
         self.process.start(self.command)
         if False==self.process.waitForStarted():
 	    self.simulatorShowSignal.emit(0,"this process can not be called.")
@@ -377,7 +377,7 @@ class ConfigViewWidget(QMainWindow):
         if exitStatus==QProcess.NormalExit:
 	    self.simulatorShowSignal.emit(0,"process exit normal")
 	    #simulator exit normal,then emit signal to create data base
-	    self.simulatorDoneSignal.emit() 
+	    self.simulatorDoneSignal.emit(self.num) 
         else:
 	    self.simulatorShowSignal.emit(0,"process exit crash")
 	    QMessageBox.about(self,"Exit","    1    ")

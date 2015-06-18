@@ -10,7 +10,6 @@ from configview.ConfigViewWidget import*
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class MainWindow(QMainWindow):  
-    threadSignal=pyqtSignal()
     def __init__(self,parent=None):  
         super(MainWindow,self).__init__(parent)   
       

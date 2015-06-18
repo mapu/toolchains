@@ -67,12 +67,13 @@ class APCViewWidget(QWidget):
     def slotAPE3Widget(self):
         self.leftTab.setCurrentWidget(self.APE3Widget)
 
-    def simulatorDoneSlot(self):
+    def simulatorDoneSlot(self,num): #num APE count
+	self.num=num
 	#simulator exit normal,create data base
 	#show dialog and show data base is building
 	self.dataBaseDialog=DataBaseDialog()
 	self.dataBaseDialog.show()
-	self.dataBase=self.dataBaseDialog.createDataBase()
+	self.dataBase=self.dataBaseDialog.createDataBase(num)
 	#set the range
 	self.slider.setEnabled(True)
 	self.spinBox.setEnabled(True)
@@ -87,16 +88,25 @@ class APCViewWidget(QWidget):
 	pos=line.index("[")
 	self.maxTime=int(line[:pos])/1000
 	f.close()
-	#update MPU stage dialog
-	self.APE0Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	self.APE1Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	self.APE2Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	self.APE3Widget.MPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"m") 
-	#update SPU stage dialog
-	self.APE0Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	self.APE1Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	self.APE2Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	self.APE3Widget.SPUWidget.stageDialog.updateDialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	#update MPU and SPU stage dialog
+	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	if self.num==2:
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	elif self.num==3:
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	elif self.num==4:
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	    self.APE3Widget.MPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	    self.APE3Widget.SPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+
 	#set slider min and max value
 	self.slider.setRange(self.minTime,self.maxTime)
 	self.spinBox.setRange(self.minTime,self.maxTime)
@@ -108,23 +118,28 @@ class APCViewWidget(QWidget):
 
     def currentValueSlot(self,time):
 	curTime=self.slider.value()
+	self.updateAPE0Widget(curTime)
+	if self.num==2:
+	    self.updateAPE1Widget(curTime)
+	if self.num==3:
+	    self.updateAPE1Widget(curTime)
+	    self.updateAPE2Widget(curTime)
+	if self.num==4:
+	    self.updateAPE1Widget(curTime)
+	    self.updateAPE2Widget(curTime)
+	    self.updateAPE3Widget(curTime)
+
+    def updateAPE0Widget(self,curTime):
 	MPURList=[]
 	SPURList=[]
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
-	r=self.dataBase.fetchall(self.dataBase.timeFilePath,fetchall_sql)
+	r=self.dataBase.fetchall(self.dataBase.APE0timeFilePath,fetchall_sql)
 	if r!=0:
 	    for e in range(len(r)):
 		self.APE0Widget.MPUWidget.updateMPUWidget(r[e])
-		self.APE1Widget.MPUWidget.updateMPUWidget(r[e])
-		self.APE2Widget.MPUWidget.updateMPUWidget(r[e])
-		self.APE3Widget.MPUWidget.updateMPUWidget(r[e])
 		self.APE0Widget.SPUWidget.updateSPUWidget(r[e])
-		self.APE1Widget.SPUWidget.updateSPUWidget(r[e])
-		self.APE2Widget.SPUWidget.updateSPUWidget(r[e])
-		self.APE3Widget.SPUWidget.updateSPUWidget(r[e])
-
 	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
-        r=self.dataBase.fetchall(self.dataBase.dbFilePath,fetchall_sql)
+        r=self.dataBase.fetchall(self.dataBase.APE0dbFilePath,fetchall_sql)
 	if r!=0:
 	    for e in range(len(r)):
 		if r[e][6]=="MPU Reg":
@@ -132,25 +147,98 @@ class APCViewWidget(QWidget):
 			MPURList.append(r[e][7])
 		    else:
 		        self.APE0Widget.MPUWidget.updateMPURegWFlag(r[e])
-		        self.APE1Widget.MPUWidget.updateMPURegWFlag(r[e])
-		        self.APE2Widget.MPUWidget.updateMPURegWFlag(r[e])
-		        self.APE3Widget.MPUWidget.updateMPURegWFlag(r[e])
 		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
 		    if r[e][5]=="R":
 			SPURList.append(r[e][7])
 		    else:
 		    	self.APE0Widget.SPUWidget.updateSPURegWFlag(r[e])
-		    	self.APE1Widget.SPUWidget.updateSPURegWFlag(r[e])
-		    	self.APE2Widget.SPUWidget.updateSPURegWFlag(r[e])
-		    	self.APE3Widget.SPUWidget.updateSPURegWFlag(r[e])
 	    for i in range(0,len(MPURList)):
 		self.APE0Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
-		self.APE1Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
-		self.APE2Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
-		self.APE3Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
 	    for i in range(0,len(SPURList)):
 		self.APE0Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
+    def updateAPE1Widget(self,curTime):
+	MPURList=[]
+	SPURList=[]
+	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
+	r=self.dataBase.fetchall(self.dataBase.APE1timeFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		self.APE1Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE1Widget.SPUWidget.updateSPUWidget(r[e])
+	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		if r[e][6]=="MPU Reg":
+		    if r[e][5]=="R":
+			MPURList.append(r[e][7])
+		    else:
+		        self.APE1Widget.MPUWidget.updateMPURegWFlag(r[e])
+		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
+		    if r[e][5]=="R":
+			SPURList.append(r[e][7])
+		    else:
+		    	self.APE1Widget.SPUWidget.updateSPURegWFlag(r[e])
+	    for i in range(0,len(MPURList)):
+		self.APE1Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+	    for i in range(0,len(SPURList)):
 		self.APE1Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
+    def updateAPE2Widget(self,curTime):
+	MPURList=[]
+	SPURList=[]
+	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
+	r=self.dataBase.fetchall(self.dataBase.APE2timeFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		self.APE2Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE2Widget.SPUWidget.updateSPUWidget(r[e])
+	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		if r[e][6]=="MPU Reg":
+		    if r[e][5]=="R":
+			MPURList.append(r[e][7])
+		    else:
+		        self.APE2Widget.MPUWidget.updateMPURegWFlag(r[e])
+		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
+		    if r[e][5]=="R":
+			SPURList.append(r[e][7])
+		    else:
+		    	self.APE2Widget.SPUWidget.updateSPURegWFlag(r[e])
+	    for i in range(0,len(MPURList)):
+		self.APE2Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+	    for i in range(0,len(SPURList)):
 		self.APE2Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
+    def updateAPE3Widget(self,curTime):
+	MPURList=[]
+	SPURList=[]
+	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
+	r=self.dataBase.fetchall(self.dataBase.APE3timeFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		self.APE3Widget.MPUWidget.updateMPUWidget(r[e])
+		self.APE3Widget.SPUWidget.updateSPUWidget(r[e])
+	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE3dbFilePath,fetchall_sql)
+	if r!=0:
+	    for e in range(len(r)):
+		if r[e][6]=="MPU Reg":
+		    if r[e][5]=="R":
+			MPURList.append(r[e][7])
+		    else:
+		        self.APE3Widget.MPUWidget.updateMPURegWFlag(r[e])
+		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
+		    if r[e][5]=="R":
+			SPURList.append(r[e][7])
+		    else:
+		    	self.APE3Widget.SPUWidget.updateSPURegWFlag(r[e])
+	    for i in range(0,len(MPURList)):
+		self.APE3Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+	    for i in range(0,len(SPURList)):
 		self.APE3Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
     
