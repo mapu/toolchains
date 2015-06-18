@@ -10,8 +10,8 @@ sys.setdefaultencoding('utf-8')
 
 class DataBase():
     def __init__(self):
-	#self.filePath="m5out/aaa.out"
-	self.filePath="/home/litt/aaa.out"
+	self.filePath="m5out/aaa.out"
+	#self.filePath="/home/litt/aaa.out"
 	self.dbFilePath="table.db"
 	self.timeFilePath="time.db"
 	self.snTableName="sn"
