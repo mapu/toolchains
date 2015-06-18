@@ -188,14 +188,13 @@ class MPULeftWidget(QWidget):
         self.dlist=Llist
         self.qp=QPainter()
         self.qp.begin(self)
-        self.pen=QPen(Qt.black,2,Qt.SolidLine)     
+        self.pen=QPen(Qt.black,1.5,Qt.SolidLine)     
         self.qp.setPen(self.pen)      
         self.qp.translate(0,0)
         for i in range(0,2*n-3):
             if i%2==0:
                self.qp.drawLine(Llist[i],Llist[i+1],Llist[i+2],Llist[i+3])
-
-        self. qp.end()
+        self.qp.end()
             
     def paintstaen(self,flag,Llist):
         self.Flag=flag
@@ -242,10 +241,11 @@ class MPULeftWidget(QWidget):
             self.pen2=QPen(Qt.black,1,Qt.SolidLine)
             self.qp2.setPen(self.pen)
             self.qp2.drawEllipse(Llist[0],Llist[1],5,5)
-        self. qp.end()
                                          	
         
-    def paintEvent(self,event):             
+    def paintEvent(self,event):     
+       
+            
         #SHUO to BIU0
         x1BIU=430
         y1BIU=150
@@ -616,6 +616,3 @@ class MPULeftWidget(QWidget):
            #BIU2 to Point1
            BIU2P1=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+20,x1,y1]
            self.paintLine(4,BIU2P1)
-       
-
-   

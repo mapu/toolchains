@@ -108,7 +108,8 @@ class APCViewWidget(QWidget):
 
     def currentValueSlot(self,time):
 	curTime=self.slider.value()
-
+	MPURList=[]
+	SPURList=[]
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
 	r=self.dataBase.fetchall(self.dataBase.timeFilePath,fetchall_sql)
 	if r!=0:
@@ -127,13 +128,29 @@ class APCViewWidget(QWidget):
 	if r!=0:
 	    for e in range(len(r)):
 		if r[e][6]=="MPU Reg":
-		    self.APE0Widget.MPUWidget.updateMPURegFlag(r[e])
-		    self.APE1Widget.MPUWidget.updateMPURegFlag(r[e])
-		    self.APE2Widget.MPUWidget.updateMPURegFlag(r[e])
-		    self.APE3Widget.MPUWidget.updateMPURegFlag(r[e])
+		    if r[e][5]=="R":
+			MPURList.append(r[e][7])
+		    else:
+		        self.APE0Widget.MPUWidget.updateMPURegWFlag(r[e])
+		        self.APE1Widget.MPUWidget.updateMPURegWFlag(r[e])
+		        self.APE2Widget.MPUWidget.updateMPURegWFlag(r[e])
+		        self.APE3Widget.MPUWidget.updateMPURegWFlag(r[e])
 		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
-		    self.APE0Widget.SPUWidget.updateSPURegFlag(r[e])
-		    self.APE1Widget.SPUWidget.updateSPURegFlag(r[e])
-		    self.APE2Widget.SPUWidget.updateSPURegFlag(r[e])
-		    self.APE3Widget.SPUWidget.updateSPURegFlag(r[e])
+		    if r[e][5]=="R":
+			SPURList.append(r[e][7])
+		    else:
+		    	self.APE0Widget.SPUWidget.updateSPURegWFlag(r[e])
+		    	self.APE1Widget.SPUWidget.updateSPURegWFlag(r[e])
+		    	self.APE2Widget.SPUWidget.updateSPURegWFlag(r[e])
+		    	self.APE3Widget.SPUWidget.updateSPURegWFlag(r[e])
+	    for i in range(0,len(MPURList)):
+		self.APE0Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+		self.APE1Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+		self.APE2Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+		self.APE3Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
+	    for i in range(0,len(SPURList)):
+		self.APE0Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+		self.APE1Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+		self.APE2Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+		self.APE3Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
     

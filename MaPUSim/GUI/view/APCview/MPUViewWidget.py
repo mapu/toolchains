@@ -469,47 +469,47 @@ class MPUViewWidget(QWidget):
         self.regFileWidget.setItem(183,0,QTableWidgetItem(self.tr("IMRL")))
         self.regFileWidget.setItem(183,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(183,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(183,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(183,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget IMRH
         self.regFileWidget.setItem(184,0,QTableWidgetItem(self.tr("IMRH")))
         self.regFileWidget.setItem(184,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(184,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(184,1).setBackgroundColor(QColor(192,192,192))		
+	self.regFileWidget.item(184,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget FMR
         self.regFileWidget.setItem(185,0,QTableWidgetItem(self.tr("FMR")))
         self.regFileWidget.setItem(185,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(185,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(185,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(185,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget BIU0W
         self.regFileWidget.setItem(186,0,QTableWidgetItem(self.tr("BIU0W")))
         self.regFileWidget.setItem(186,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(186,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(186,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(186,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget BIU1W
         self.regFileWidget.setItem(187,0,QTableWidgetItem(self.tr("BIU1W")))
         self.regFileWidget.setItem(187,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(187,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(187,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(187,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget BIU2W
         self.regFileWidget.setItem(188,0,QTableWidgetItem(self.tr("BIU2W")))
         self.regFileWidget.setItem(188,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(188,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(188,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(188,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget DIVQU
         self.regFileWidget.setItem(189,0,QTableWidgetItem(self.tr("DIVQU")))
         self.regFileWidget.setItem(189,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(189,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(189,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(189,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget DIVRE
         self.regFileWidget.setItem(190,0,QTableWidgetItem(self.tr("DIVRE")))
         self.regFileWidget.setItem(190,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(190,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(190,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(190,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget DIV-CNT
         self.regFileWidget.setItem(191,0,QTableWidgetItem(self.tr("DIV-CNT")))
         self.regFileWidget.setItem(191,1,QTableWidgetItem(self.tr("0")))
 	self.regFileWidget.item(191,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(191,1).setBackgroundColor(QColor(192,192,192))	
+	self.regFileWidget.item(191,1).setBackgroundColor(QColor(192,192,192))
 	#define regFileWidget SVR
         self.regFileWidget.setItem(192,0,QTableWidgetItem(self.tr("SVR")))
         self.regFileWidget.setItem(192,1,QTableWidgetItem(self.tr("")))
@@ -872,7 +872,7 @@ class MPUViewWidget(QWidget):
 		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setData(0,r[772+i])
 		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setToolTip(r[772+i+1])
 
-    def updateMPURegFlag(self,r):
+    def updateMPURegWFlag(self,r):
 	i=r[7]
 	if i>=0 and i<=127:
 	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,0,0))
@@ -892,4 +892,35 @@ class MPUViewWidget(QWidget):
 	    self.regFileWidget.item(i+7,1).setTextColor(QColor(255,0,0))	
 	elif i>=185 and i<=186:
 	    self.regFileWidget.item(i+8,1).setTextColor(QColor(255,0,0))
+
+    def updateMPURegRFlag(self,i):
+	if i>=0 and i<=127:	
+	    if self.regFileWidget.item(i+1,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+1,1).setTextColor(QColor(255,153,18))
+	elif i>=128 and i<=143: #shu0
+	    if self.regFileWidget.item(i+2,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+2,1).setTextColor(QColor(255,153,18))
+	elif i>=144 and i<=159: #shu1
+	    if self.regFileWidget.item(i+3,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+3,1).setTextColor(QColor(255,153,18))
+	elif i>=160 and i<=163: #ialu
+	    if self.regFileWidget.item(i+4,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+4,1).setTextColor(QColor(255,153,18))
+	elif i>=164 and i<=167:  #imac
+	    if self.regFileWidget.item(i+5,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+5,1).setTextColor(QColor(255,153,18))
+	elif i>=168 and i<=171: #falu
+	    if self.regFileWidget.item(i+6,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+6,1).setTextColor(QColor(255,153,18))
+	elif i>=172 and i<=175: #fmac
+	    if self.regFileWidget.item(i+7,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+7,1).setTextColor(QColor(255,153,18))
+	elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    if self.regFileWidget.item(i+7,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+7,1).setTextColor(QColor(255,153,18))	
+	elif i>=185 and i<=186:
+	    if self.regFileWidget.item(i+8,1).textColor()==QColor(255,0,0):
+	    	self.regFileWidget.item(i+8,1).setTextColor(QColor(255,153,18))
+
+
 

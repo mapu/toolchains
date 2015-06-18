@@ -10,8 +10,8 @@ sys.setdefaultencoding('utf-8')
 
 class DataBase():
     def __init__(self):
-	self.filePath="m5out/aaa.out"
-	#self.filePath="/home/litt/aaa.out"
+	#self.filePath="m5out/aaa.out"
+	self.filePath="/home/litt/aaa.out"
 	self.dbFilePath="table.db"
 	self.timeFilePath="time.db"
 	self.snTableName="sn"
@@ -361,9 +361,8 @@ class DataBase():
         for line in lines:
 	    if line.find("mpurf_manager")>=0 or line.find("regfile_manager")>=0:
 	        item=self.regSplit(line,item)
-		if item.op!="'R'":
-	            data="values ("+item.time+","+item.cpu+","+item.spumpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
-	            self.save(self.dbConn, save_sql, data)
+	        data="values ("+item.time+","+item.cpu+","+item.spumpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
+	        self.save(self.dbConn, save_sql, data)
 	f.close()
 	self.dbConn.commit()
 
@@ -1356,15 +1355,15 @@ class DataBase():
 
 	    fetchall_sql = "SELECT * FROM "+self.regTableName+" WHERE time = "+str(i)
             r=self.fetchall(self.dbFilePath,fetchall_sql)
-	    if r!=0:
-                if len(r) > 0:	
+	    if r!=0:	
 	            for e in range(len(r)):
-			if r[e][6]=="MPU Reg":
-			    regList[r[e][7]]="'"+r[e][8]+"'"
-			elif r[e][6]=="R Reg":
-			    regList[187+r[e][7]]="'"+r[e][8]+"'"
-			elif r[e][6]=="J Reg":
-			    regList[187+r[e][7]]="'"+r[e][8]+"'"
+                	if r[e][5]=="W":
+			    if r[e][6]=="MPU Reg":
+			        regList[r[e][7]]="'"+r[e][8]+"'"
+			    elif r[e][6]=="R Reg":
+			        regList[187+r[e][7]]="'"+r[e][8]+"'"
+			    elif r[e][6]=="J Reg":
+			        regList[187+r[e][7]]="'"+r[e][8]+"'"
 
 	    for i in range(0,251):
 		if regList[i]=="'nop'":
