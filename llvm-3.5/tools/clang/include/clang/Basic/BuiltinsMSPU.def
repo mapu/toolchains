@@ -92,4 +92,10 @@ BUILTIN(__mspu_atomicld, "ii*Ii", "n")
 // [J + J] = R (AT)
 BUILTIN(__mspu_atomicst, "ii*Iii", "n")
 
+// Lpto imm BY J (L0)
+BUILTIN(__mspu_loop, "vv*IiC", "n")
+
+// Nop
+BUILTIN(__mspu_delay, "v", "n")
+
 #undef BUILTIN

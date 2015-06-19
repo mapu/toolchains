@@ -124,6 +124,8 @@ public:
   SDValue
   LowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const;
 
+  SDValue LowerBlockAddress(SDValue Op, SelectionDAG &DAG) const;
+
   SDValue
   LowerConstantPool(SDValue Op, SelectionDAG &DAG) const;
 

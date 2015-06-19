@@ -34,7 +34,7 @@ namespace llvm
 	FunctionPass *
 	createMSPUISelDag(MSPUTargetMachine &TM);
 	void
-	MSPULowerToMC(const MachineInstr *MI, MCInst &MCI,
+	MSPULowerToMC(const MachineInstr *MI, MCInst &MCI, MCInst *Head,
 						MSPUAsmPrinter &AP);
 
 	FunctionPass *

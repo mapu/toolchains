@@ -368,7 +368,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
         CurInst = NewInst;
         CurInst->setOpcode(op->getOpc());
         CurInst->setLoc(op->getStartLoc());
-        Inst->addOperand(MO); //There is a redundant MCOperand for the first MCInst.
+        Inst->addOperand(MO); //There is a redundant MCOperand in the first MCInst.
         break;
 
       case AsmRegister:

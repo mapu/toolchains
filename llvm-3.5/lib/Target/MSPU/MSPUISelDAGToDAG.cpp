@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "MSPUISelLowering.h"
 #include "MSPUTargetMachine.h"
 #include "MCTargetDesc/MSPUMCTargetDesc.h"
 #include "MSPUMachineFunctionInfo.h"
@@ -158,80 +159,133 @@ namespace
 			}
 	};
 } // end anonymous namespace
+#include <iostream>
+SDNode *MSPUDAGToDAGISel::Select(SDNode *N) {
+  if (N->isMachineOpcode())
+    return NULL; // Already selected.
 
-SDNode *
-MSPUDAGToDAGISel::Select(SDNode *N)
-{
+  int Opcode;
+  switch (N->getOpcode()) {
+  default:
+    break;
 
-	if(N->isMachineOpcode())
-		return NULL; // Already selected.
+  case MSPU_ISD::GLOBAL_BASE_REG:
+    return getGlobalBaseReg();
 
-	switch(N->getOpcode()) {
-		default:
-		  break;
+  case ISD::INTRINSIC_VOID:
+  case ISD::INTRINSIC_W_CHAIN: {
+    unsigned IntNo = cast<ConstantSDNode>(N->getOperand(1))->getZExtValue();
+    switch (IntNo) {
+    default:
+      break;
 
-		case MSPU_ISD::GLOBAL_BASE_REG:
-			return getGlobalBaseReg();
+    case Intrinsic::mspu_callm:
+    case Intrinsic::mspu_callmb:
+      // DAG fix-up for CallM imm
+      // The default DAG for intrinsic CallM is as follow:
+      // (int_mspu_callm (XferAddr tglobaladdr))
+      // which has to be change into:
+      // (int_mspu_callm tglobaladdr)
+      Opcode = N->getOpcode() == Intrinsic::mspu_callm ?
+                   MSPUInst::__CallM : MSPUInst::__CallMB;
+      if (N->getNumOperands() == 3
+          && N->getOperand(2).getNode()->getOpcode() == MSPU_ISD::XferAddr) {
+        SDNode *Xfer = N->getOperand(2).getNode();
+        if (isa<GlobalAddressSDNode>(Xfer->getOperand(0).getNode())) {
+          GlobalAddressSDNode *OldCallMAddr = cast<GlobalAddressSDNode>(
+              Xfer->getOperand(0).getNode());
+          SDValue CallMAddr = CurDAG->getGlobalAddress(
+              OldCallMAddr->getGlobal(), SDLoc(OldCallMAddr),
+              OldCallMAddr->getValueType(0), OldCallMAddr->getOffset(), true,
+              OldCallMAddr->getTargetFlags());
+          SDValue Chain = N->getOperand(0);
+          SDValue Ops[] = { CallMAddr, Chain };
+          return CurDAG->getMachineNode(Opcode, SDLoc(N), N->getValueType(0),
+                                        Ops);
+        }
+      }
+      break;
 
-		/*case ISD::FrameIndex:
-		  return getFrameIndex(N);*/
+    case Intrinsic::mspu_loop:
+      if (N->getNumOperands() == 4
+          && N->getOperand(2).getNode()->getOpcode() == MSPU_ISD::XferAddr) {
+        SDNode *Xfer = N->getOperand(2).getNode();
+        if (isa<BlockAddressSDNode>(Xfer->getOperand(0).getNode())) {
+          BlockAddressSDNode *OldLoopAddr = cast<BlockAddressSDNode>(
+              Xfer->getOperand(0).getNode());
+          SDValue LoopAddr =
+            CurDAG->getBlockAddress(OldLoopAddr->getBlockAddress(),
+                                    OldLoopAddr->getValueType(0),
+                                    OldLoopAddr->getOffset(), true,
+                                    OldLoopAddr->getTargetFlags());
+          SDValue Chain = N->getOperand(0);
+          SDValue Ops[] = { LoopAddr, N->getOperand(3), Chain };
+          return CurDAG->getMachineNode(MSPUInst::LoopL0, SDLoc(N),
+                                        N->getValueType(0), Ops);
+        }
+      }
+      break;
+    }
+  }
+    break;
 
+    /*case ISD::FrameIndex:
+     return getFrameIndex(N);*/
 
-		  //  DebugLoc dl = N->getDebugLoc();
+    //  DebugLoc dl = N->getDebugLoc();
+    /*		case ISD::SDIV:
+     case ISD::UDIV: {
+     // FIXME: should use a custom expander to expose the SRA to the dag.
+     SDValue DivLHS = N->getOperand(0);
+     SDValue DivRHS = N->getOperand(1);
 
-/*		case ISD::SDIV:
-		case ISD::UDIV: {
-			// FIXME: should use a custom expander to expose the SRA to the dag.
-			SDValue DivLHS = N->getOperand(0);
-			SDValue DivRHS = N->getOperand(1);
+     // Set the Y register with the high-part.
+     SDValue TopPart;
+     if(N->getOpcode() == ISD::SDIV) {
+     TopPart = SDValue(CurDAG->getMachineNode(MSPU::SRAri, dl, MVT::i32, DivLHS,
+     CurDAG->getTargetConstant(31, MVT::i32)), 0);
+     }
+     else {
+     TopPart = CurDAG->getRegister(MSPU::R21, MVT::i32);
+     }
 
-			// Set the Y register with the high-part.
-			SDValue TopPart;
-			if(N->getOpcode() == ISD::SDIV) {
-				TopPart = SDValue(CurDAG->getMachineNode(MSPU::SRAri, dl, MVT::i32, DivLHS,
-														CurDAG->getTargetConstant(31, MVT::i32)), 0);
-			}
-			else {
-				TopPart = CurDAG->getRegister(MSPU::R21, MVT::i32);
-			}
+     /// getMachineNode - These are used for target selectors to create a new node
+     /// with specified return type(s), MachineInstr opcode (not ISD opcode, important!!!),
+     /// and operands.
+     ///
+     /// Note that getMachineNode returns the resultant node. If there is already
+     /// a node of the specified opcode and operands, it returns that node instead
+     /// of the current one (the newly created one is thus abandoned).
+     /// to create a MachineNode, ...
+     TopPart = SDValue(CurDAG->getMachineNode(MSPU::WRYrr, dl, MVT::Glue, TopPart,
+     CurDAG->getRegister(MSPU::R21, MVT::i32)), 0);
 
-			/// getMachineNode - These are used for target selectors to create a new node
-			/// with specified return type(s), MachineInstr opcode (not ISD opcode, important!!!),
-			/// and operands.
-			///
-			/// Note that getMachineNode returns the resultant node. If there is already
-			/// a node of the specified opcode and operands, it returns that node instead
-			/// of the current one (the newly created one is thus abandoned).
-			/// to create a MachineNode, ...
-			TopPart = SDValue(CurDAG->getMachineNode(MSPU::WRYrr, dl, MVT::Glue, TopPart,
-			                                         CurDAG->getRegister(MSPU::R21, MVT::i32)), 0);
+     // FIXME: Handle div by immediate.
+     unsigned Opcode = N->getOpcode() == ISD::SDIV? MSPU::SDIVrr : MSPU::UDIVrr;
 
-			// FIXME: Handle div by immediate.
-			unsigned Opcode = N->getOpcode() == ISD::SDIV? MSPU::SDIVrr : MSPU::UDIVrr;
+     /// SelectNodeTo - These are used for target selectors to *mutate* the
+     /// specified node to have the specified (1) return type, (2) target opcode, and
+     /// (3) operands. Note that target opcodes are stored as
+     /// ~TargetOpcode in the node opcode field. The resultant node is returned.
+     // when a DAG node already exists, ...
+     return CurDAG->SelectNodeTo(N, Opcode, MVT::i32, DivLHS, DivRHS, TopPart);
+     }
 
-			/// SelectNodeTo - These are used for target selectors to *mutate* the
-			/// specified node to have the specified (1) return type, (2) target opcode, and
-			/// (3) operands. Note that target opcodes are stored as
-			/// ~TargetOpcode in the node opcode field. The resultant node is returned.
-			// when a DAG node already exists, ...
-			return CurDAG->SelectNodeTo(N, Opcode, MVT::i32, DivLHS, DivRHS, TopPart);
-		}
+     // MULHU/MULHS - Multiply high - Multiply two integers of type iN, producing
+     // an unsigned/signed value of type i[2*N], then return the top part.
+     case ISD::MULHU:
+     case ISD::MULHS: {
+     // FIXME: Handle mul by immediate.
+     SDValue MulLHS = N->getOperand(0);
+     SDValue MulRHS = N->getOperand(1);
+     unsigned Opcode = N->getOpcode() == ISD::MULHU? MSPU::UMULrr : MSPU::SMULrr;
+     SDNode *Mul = CurDAG->getMachineNode(Opcode, dl, MVT::i32, MVT::Glue, MulLHS, MulRHS);
+     // The high part is in the Y register.
+     return CurDAG->SelectNodeTo(N, MSPU::RDY, MVT::i32, SDValue(Mul, 1));
+     }*/
+  }
 
-	    // MULHU/MULHS - Multiply high - Multiply two integers of type iN, producing
-	    // an unsigned/signed value of type i[2*N], then return the top part.
-		case ISD::MULHU:
-		case ISD::MULHS: {
-			// FIXME: Handle mul by immediate.
-			SDValue MulLHS = N->getOperand(0);
-			SDValue MulRHS = N->getOperand(1);
-			unsigned Opcode = N->getOpcode() == ISD::MULHU? MSPU::UMULrr : MSPU::SMULrr;
-			SDNode *Mul = CurDAG->getMachineNode(Opcode, dl, MVT::i32, MVT::Glue, MulLHS, MulRHS);
-			// The high part is in the Y register.
-			return CurDAG->SelectNodeTo(N, MSPU::RDY, MVT::i32, SDValue(Mul, 1));
-		}*/
-	}
-
-	return SelectCode(N);
+  return SelectCode(N);
 
 }
 

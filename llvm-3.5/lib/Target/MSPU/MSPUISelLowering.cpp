@@ -756,6 +756,7 @@ MSPUTargetLowering::MSPUTargetLowering(TargetMachine &TM)
   //setOperationAction(ISD::SELECT, MVT::f64, Custom);
 
   setOperationAction(ISD::GlobalAddress, MVT::i32, Custom);
+  setOperationAction(ISD::BlockAddress, MVT::i32, Custom);
 
   // constantfp  ->  ConstantPool  ->  TargetConstantPool
   setOperationAction(ISD::ConstantFP, MVT::f32, Custom);
@@ -873,8 +874,21 @@ MSPUTargetLowering::LowerGlobalAddress(SDValue Op, SelectionDAG &DAG) const
 	  int64_t Offset = node  ->getOffset();
 	  SDLoc DL(node);
 	  SDValue v= DAG.getTargetGlobalAddress(GV, DL, getPointerTy(), Offset);
-	  //return v;
 	  return DAG.getNode(MSPU_ISD::XferAddr, DL, getPointerTy(), v);
+}
+
+SDValue MSPUTargetLowering::LowerBlockAddress(SDValue Op,
+                                             SelectionDAG &DAG) const {
+  MachineFunction &MF = DAG.getMachineFunction();
+  SDLoc DL(Op);
+  EVT PtrVT = getPointerTy();
+  const BlockAddress *BA = cast<BlockAddressSDNode>(Op)->getBlockAddress();
+  int64_t Offset = cast<BlockAddressSDNode>(Op)->getOffset();
+  Reloc::Model RelocM = getTargetMachine().getRelocationModel();
+  SDValue CPAddr;
+  CPAddr = DAG.getTargetBlockAddress(BA, PtrVT, 4, Offset);
+  SDValue Result = DAG.getNode(MSPU_ISD::XferAddr, DL, PtrVT, CPAddr);
+  return Result;
 }
 
 SDValue
@@ -1346,6 +1360,8 @@ MSPUTargetLowering::LowerOperation(SDValue Op, SelectionDAG &DAG) const
 			llvm_unreachable("TLS not implemented for MSPU.");
 		case ISD::GlobalAddress:
 			return LowerGlobalAddress(Op, DAG);
+    case ISD::BlockAddress:
+      return LowerBlockAddress(Op, DAG);
 		case ISD::ConstantPool:
 			return LowerConstantPool(Op, DAG);
     case ISD::ConstantFP:

@@ -32,7 +32,7 @@ static MCOperand LowerSymbolOperand(const MachineOperand& MO, const MCSymbol* Sy
 }
 
 // Create an MCInst from a MachineInstr
-void llvm::MSPULowerToMC(const MachineInstr* MI, MCInst& MCI,
+void llvm::MSPULowerToMC(const MachineInstr* MI, MCInst& MCI, MCInst *Head,
                             MSPUAsmPrinter& Printer) {
   MCI.setOpcode(MI->getOpcode());
 
@@ -96,10 +96,11 @@ void llvm::MSPULowerToMC(const MachineInstr* MI, MCInst& MCI,
       break;
 
     case MachineOperand::MO_RegisterMask:
-      continue;
+      break;
     }
 
     MCI.addOperand(MCO);
+    if (Head && (&MCI != Head)) Head->addOperand(MCO);
   }
 
 }

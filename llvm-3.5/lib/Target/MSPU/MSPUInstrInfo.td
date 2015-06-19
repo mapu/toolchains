@@ -1486,15 +1486,14 @@ def SysCallImm : CallInstr<
 }
 
 /*************** Loop ************/
-def LoopL0 : SeqInstr< 
-	    (outs),
- 		(ins SImm17Ptr:$t, PtrReg:$j),
-		"LpTo $t BY $j (L0)", 0b110001>
+def LoopL0 : SeqInstr<(outs), (ins SImm17Ptr:$t, JReg:$j),
+		"LpTo $t BY $j (L0)", 0b110001, [(int_mspu_loop tblockaddress:$t, JReg:$j)]>
 {
 	bits<17> t;
 	bits<5> j;
 	let Inst{21-5} = t;
 	let Inst{4-0} = j;
+  let Itinerary = ItinSEQ_1;
 }
 
 def LoopL1 : SeqInstr< 
@@ -1510,9 +1509,10 @@ def LoopL1 : SeqInstr<
 
 def NOP : SeqInstr< 
 	    (outs),	(ins),
-		"NOP", 0b000000>
+		"NOP", 0b000000, [(int_mspu_delay)]>
 {
 	let Inst{21-0} = 0;
+  let Itinerary = ItinSEQNoReg;
 }
 
 def Stop : SeqInstr< 
@@ -1815,7 +1815,7 @@ def __GetMC : SynInstr<(outs I32Reg:$r), (ins IntrinMC:$i),
 }
 
 //////////////////// callm ////////////////////////////
-def __CallM : SynInstr<(outs), (ins i32imm:$d),
+def __CallM : SynInstr<(outs), (ins SImm17Ptr:$d),
                     "CallM $d", 0b00001,
                     [(int_mspu_callm GlobalAddrLeaf:$d)]>
 {

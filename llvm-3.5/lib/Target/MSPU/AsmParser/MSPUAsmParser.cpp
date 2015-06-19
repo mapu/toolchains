@@ -387,11 +387,12 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
                                                   uint64_t &ErrorInfo,
                                                   bool MatchingInlineAsm) {
   const MCExpr * expr;
-  MSPUMCInst *InstHead = new MSPUMCInst(), *prevInst = NULL, *curInst = InstHead;
+  MSPUMCInst *InstHead = new MSPUMCInst(), *prevInst = NULL, *curInst = InstHead, *secInst = NULL;
   MSPUAsmOperand * op;
   bool isTail;
   bool isHead = true;
   unsigned n = Operands.size();
+  MCOperand MO;
 
   for (unsigned i = 0; i < n; ++i) {
     op = static_cast<MSPUAsmOperand *>(Operands[i].get());
@@ -409,9 +410,15 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
 
       curInst->setOpcode(op->getOpc());
       curInst->setLoc(IDLoc);
-      if (prevInst) prevInst->addOperand(MCOperand::CreateInst(curInst));
+      if (prevInst && prevInst != InstHead)
+    	prevInst->addOperand(MCOperand::CreateInst(curInst));
       prevInst = curInst;
-      if (!isTail) curInst = new MSPUMCInst();
+      if (!isTail) {
+    	  if (curInst == InstHead) {
+    	    secInst = new MSPUMCInst();
+    	    curInst = secInst;
+    	  } else curInst = new MSPUMCInst();
+      }
       break;
     case AsmReg:
       curInst->addOperand(MCOperand::CreateReg(op->getReg()));
@@ -436,13 +443,16 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
 
        expr = MCSymbolRefExpr::Create(symbNew, MCSymbolRefExpr::VK_None, Parser->getContext());
        */
-      curInst->addOperand(MCOperand::CreateExpr(expr));
+      MO = MCOperand::CreateExpr(expr);
+      curInst->addOperand(MO);
+      if (curInst != InstHead) InstHead->addOperand(MO);
       break;
 
     default:
       llvm_unreachable("unknown operand");
     }
   }
+  if (secInst) InstHead->addOperand(MCOperand::CreateInst(secInst));
   Out.EmitInstruction(*InstHead, STI);
 
   return false;    // any error?

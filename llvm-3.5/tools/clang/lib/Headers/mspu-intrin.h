@@ -227,4 +227,10 @@ void __mspu_callmb(void*  mpu_fn);
 int __mspu_atomicld(int *addr, const int offset);
 int __mspu_atomicst(int *addr, const int offset, int val);
 
+// Hardware loop
+void __mspu_loop(void *label, const int cnt);
+void __mspu_delay(void);
+
+// Lpto
+
 #endif // MSPU_INTRINSICS_H
