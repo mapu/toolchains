@@ -2,11 +2,13 @@
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 import sys
+import time
 
 class ConfigViewWidget(QMainWindow):
     #define signal
-    simulatorDoneSignal=pyqtSignal(int)
-    simulatorShowSignal=pyqtSignal(int,str)
+    APCSimulatorDoneSignal=pyqtSignal(int)
+    APCSimulatorShowSignal=pyqtSignal(int,str)
+    ARMSimulatorShowSignal=pyqtSignal(int,str)
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
@@ -25,13 +27,15 @@ class ConfigViewWidget(QMainWindow):
 	self.APCRadio=QRadioButton(self.tr("APC standalone system"))
 	self.APCRadio.setFixedHeight(30)
 	self.APCRadio.setFixedWidth(900)
+
+	#APC GROUP
 	self.traceFlagsButton=QPushButton(self.tr("Trace flags..."))
 	self.traceFlagsButton.setFixedSize(150,30)
 	self.traceFileLabel=QLabel(self.tr("  Trace file"))
 	self.traceFileLabel.setFixedHeight(30)
 	self.traceFileLabel.setFixedWidth(900)
 	self.traceFileEdit=QLineEdit(self.tr("aaa.out"))
-	self.traceFileEdit.setFixedSize(400,30)	
+	self.traceFileEdit.setFixedSize(500,30)	
 
 	self.startButton=QPushButton("Start")
 	self.startButton.setFixedSize(100,30)
@@ -45,11 +49,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE0SPULabel=QLabel(self.tr("     SPU"))
 	self.APE0SPULabel.setFixedSize(60,30)
 	self.APE0SPUEdit=QLineEdit(self.tr("/home/litt/tlb.s.out"))
-	self.APE0SPUEdit.setFixedSize(400,30)
+	self.APE0SPUEdit.setFixedSize(500,30)
 	self.APE0SPUButton=QPushButton(self.tr("Browse"))
 	self.APE0SPUButton.setFixedSize(100,30)
 	blank0=QLabel()
-	blank0.setFixedSize(550,30)
+	blank0.setFixedSize(600,30)
 	APE0SPULay=QHBoxLayout()
 	APE0SPULay.addWidget(self.APE0SPULabel)
 	APE0SPULay.addWidget(self.APE0SPUEdit)
@@ -58,11 +62,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE0MPULabel=QLabel(self.tr("     MPU"))
 	self.APE0MPULabel.setFixedSize(60,30)
 	self.APE0MPUEdit=QLineEdit(self.tr("/home/litt/tlb.m.out"))
-	self.APE0MPUEdit.setFixedSize(400,30)
+	self.APE0MPUEdit.setFixedSize(500,30)
 	self.APE0MPUButton=QPushButton(self.tr("Browse"))
 	self.APE0MPUButton.setFixedSize(100,30)
 	blank1=QLabel()
-	blank1.setFixedSize(550,30)
+	blank1.setFixedSize(600,30)
 	APE0MPULay=QHBoxLayout()
 	APE0MPULay.addWidget(self.APE0MPULabel)
 	APE0MPULay.addWidget(self.APE0MPUEdit)
@@ -74,11 +78,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE1SPULabel=QLabel(self.tr("     SPU"))
 	self.APE1SPULabel.setFixedSize(60,30)
 	self.APE1SPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE1SPUEdit.setFixedSize(400,30)
+	self.APE1SPUEdit.setFixedSize(500,30)
 	self.APE1SPUButton=QPushButton(self.tr("Browse"))
 	self.APE1SPUButton.setFixedSize(100,30)
 	blank2=QLabel()
-	blank2.setFixedSize(550,30)
+	blank2.setFixedSize(600,30)
 	APE1SPULay=QHBoxLayout()
 	APE1SPULay.addWidget(self.APE1SPULabel)
 	APE1SPULay.addWidget(self.APE1SPUEdit)
@@ -87,11 +91,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE1MPULabel=QLabel(self.tr("     MPU"))
 	self.APE1MPULabel.setFixedSize(60,30)
 	self.APE1MPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE1MPUEdit.setFixedSize(400,30)
+	self.APE1MPUEdit.setFixedSize(500,30)
 	self.APE1MPUButton=QPushButton(self.tr("Browse"))
 	self.APE1MPUButton.setFixedSize(100,30)
 	blank3=QLabel()
-	blank3.setFixedSize(550,30)
+	blank3.setFixedSize(600,30)
 	APE1MPULay=QHBoxLayout()
 	APE1MPULay.addWidget(self.APE1MPULabel)
 	APE1MPULay.addWidget(self.APE1MPUEdit)
@@ -103,11 +107,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE2SPULabel=QLabel(self.tr("     SPU"))
 	self.APE2SPULabel.setFixedSize(60,30)
 	self.APE2SPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE2SPUEdit.setFixedSize(400,30)
+	self.APE2SPUEdit.setFixedSize(500,30)
 	self.APE2SPUButton=QPushButton(self.tr("Browse"))
 	self.APE2SPUButton.setFixedSize(100,30)
 	blank4=QLabel()
-	blank4.setFixedSize(550,30)
+	blank4.setFixedSize(600,30)
 	APE2SPULay=QHBoxLayout()
 	APE2SPULay.addWidget(self.APE2SPULabel)
 	APE2SPULay.addWidget(self.APE2SPUEdit)
@@ -116,11 +120,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE2MPULabel=QLabel(self.tr("     MPU"))
 	self.APE2MPULabel.setFixedSize(60,30)
 	self.APE2MPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE2MPUEdit.setFixedSize(400,30)
+	self.APE2MPUEdit.setFixedSize(500,30)
 	self.APE2MPUButton=QPushButton(self.tr("Browse"))
 	self.APE2MPUButton.setFixedSize(100,30)
 	blank5=QLabel()
-	blank5.setFixedSize(550,30)
+	blank5.setFixedSize(600,30)
 	APE2MPULay=QHBoxLayout()
 	APE2MPULay.addWidget(self.APE2MPULabel)
 	APE2MPULay.addWidget(self.APE2MPUEdit)
@@ -132,11 +136,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3SPULabel=QLabel(self.tr("     SPU"))
 	self.APE3SPULabel.setFixedSize(60,30)
 	self.APE3SPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE3SPUEdit.setFixedSize(400,30)
+	self.APE3SPUEdit.setFixedSize(500,30)
 	self.APE3SPUButton=QPushButton(self.tr("Browse"))
 	self.APE3SPUButton.setFixedSize(100,30)
 	blank6=QLabel()
-	blank6.setFixedSize(550,30)
+	blank6.setFixedSize(600,30)
 	APE3SPULay=QHBoxLayout()
 	APE3SPULay.addWidget(self.APE3SPULabel)
 	APE3SPULay.addWidget(self.APE3SPUEdit)
@@ -145,11 +149,11 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3MPULabel=QLabel(self.tr("     MPU"))
 	self.APE3MPULabel.setFixedSize(60,30)
 	self.APE3MPUEdit=QLineEdit(self.tr("Trace file name"))
-	self.APE3MPUEdit.setFixedSize(400,30)
+	self.APE3MPUEdit.setFixedSize(500,30)
 	self.APE3MPUButton=QPushButton(self.tr("Browse"))
 	self.APE3MPUButton.setFixedSize(100,30)
 	blank7=QLabel()
-	blank7.setFixedSize(550,30)
+	blank7.setFixedSize(600,30)
 	APE3MPULay=QHBoxLayout()
 	APE3MPULay.addWidget(self.APE3MPULabel)
 	APE3MPULay.addWidget(self.APE3MPUEdit)
@@ -158,8 +162,8 @@ class ConfigViewWidget(QMainWindow):
 	APE3MPULay.addWidget(self.startButton)
 	APE3MPULay.addWidget(self.stopButton)
 
-	APCGroupWidget=QWidget()
-	APCGroup=QGroupBox(APCGroupWidget)
+	#APC Layout
+	APCGroup=QGroupBox()
 	APCLay=QVBoxLayout()
 	APCLay.addWidget(self.traceFlagsButton)	
 	APCLay.addWidget(self.traceFileLabel)
@@ -178,13 +182,31 @@ class ConfigViewWidget(QMainWindow):
 	APCLay.addLayout(APE3MPULay)
 	APCGroup.setLayout(APCLay)	
 
+	#full group
+	self.fullBrowserButton=QPushButton("Browser")
+	self.fullBrowserButton.setFixedSize(100,30)
+	self.fullEdit=QLineEdit()
+	self.fullEdit.setFixedSize(500,30)
+	blank8=QLabel()
+	blank8.setFixedSize(700,30)
+	#full Layout
+	fullGroup=QGroupBox()
+	fullLay=QHBoxLayout()
+	fullLay.addWidget(self.fullEdit)
+	fullLay.addWidget(self.fullBrowserButton)
+	fullLay.addWidget(blank8)
+	fullGroup.setLayout(fullLay)
+	
+	#main layout
 	mainLay=QVBoxLayout()
 	mainLay.addWidget(self.fullRadio)
+	mainLay.addWidget(fullGroup)
 	mainLay.addWidget(self.APCRadio)
 	mainLay.addWidget(APCGroup)
 	mainLay.addLayout(buttonLay)
 	widget.setLayout(mainLay)
      
+	#scroll
         scroll = QScrollArea()
         scroll.setWidget(widget)
         scroll.setAutoFillBackground(True)
@@ -207,20 +229,27 @@ class ConfigViewWidget(QMainWindow):
 	self.connect(self.APE2MPUButton,SIGNAL("clicked()"),self.APE2MPUBrowse)
 	self.connect(self.APE3SPUButton,SIGNAL("clicked()"),self.APE3SPUBrowse)
 	self.connect(self.APE3MPUButton,SIGNAL("clicked()"),self.APE3MPUBrowse)
+	self.connect(self.fullBrowserButton,SIGNAL("clicked()"),self.fullBrowser)
 	self.connect(self.startButton,SIGNAL("clicked()"),self.startProcess)
 	self.connect(self.stopButton,SIGNAL("clicked()"),self.stopProcess)
 	
 	#set default status
-	self.APCRadio.setChecked(True)
-	self.APCRadioSlot()
-	self.APE1Check.setCheckState(Qt.Unchecked)
-	self.APE2Check.setCheckState(Qt.Unchecked)
-	self.APE3Check.setCheckState(Qt.Unchecked)
-	self.APE1CheckSlot()
-	self.APE2CheckSlot()
-	self.APE3CheckSlot()
+	if 0:
+	    self.APCRadio.setChecked(True)
+	    self.APCRadioSlot()
+	    self.APE1Check.setCheckState(Qt.Unchecked)
+	    self.APE2Check.setCheckState(Qt.Unchecked)
+	    self.APE3Check.setCheckState(Qt.Unchecked)
+	    self.APE1CheckSlot()
+	    self.APE2CheckSlot()
+	    self.APE3CheckSlot()
+	else:
+	    self.fullRadio.setChecked(True)
+	    self.fullRadioSlot()
 
     def fullRadioSlot(self):
+	self.fullBrowserButton.setEnabled(True)
+	self.fullEdit.setEnabled(True)
 	self.traceFlagsButton.setEnabled(False)
 	self.traceFileEdit.setEnabled(False)
 	self.APE0SPUEdit.setEnabled(False)
@@ -251,20 +280,25 @@ class ConfigViewWidget(QMainWindow):
 	self.APE0MPUEdit.setEnabled(True)
 	self.APE0MPUButton.setEnabled(True)
 	self.APE1Check.setEnabled(True)
-	self.APE1SPUEdit.setEnabled(True)
-	self.APE1SPUButton.setEnabled(True)
-	self.APE1MPUEdit.setEnabled(True)
-	self.APE1MPUButton.setEnabled(True)
+	if self.APE1Check.isChecked()==True:
+	    self.APE1SPUEdit.setEnabled(True)
+	    self.APE1SPUButton.setEnabled(True)
+	    self.APE1MPUEdit.setEnabled(True)
+	    self.APE1MPUButton.setEnabled(True)
 	self.APE2Check.setEnabled(True)
-	self.APE2SPUEdit.setEnabled(True)
-	self.APE2SPUButton.setEnabled(True)
-	self.APE2MPUEdit.setEnabled(True)
-	self.APE2MPUButton.setEnabled(True)
+	if self.APE2Check.isChecked()==True:
+	    self.APE2SPUEdit.setEnabled(True)
+	    self.APE2SPUButton.setEnabled(True)
+	    self.APE2MPUEdit.setEnabled(True)
+	    self.APE2MPUButton.setEnabled(True)
 	self.APE3Check.setEnabled(True)
-	self.APE3SPUEdit.setEnabled(True)
-	self.APE3SPUButton.setEnabled(True)
-	self.APE3MPUEdit.setEnabled(True)
-	self.APE3MPUButton.setEnabled(True)
+	if self.APE3Check.isChecked()==True:
+	    self.APE3SPUEdit.setEnabled(True)
+	    self.APE3SPUButton.setEnabled(True)
+	    self.APE3MPUEdit.setEnabled(True)
+	    self.APE3MPUButton.setEnabled(True)
+	self.fullBrowserButton.setEnabled(False)
+	self.fullEdit.setEnabled(False)
 
     def APE1CheckSlot(self):
 	if self.APE1Check.checkState()==Qt.Checked:
@@ -346,58 +380,91 @@ class ConfigViewWidget(QMainWindow):
 	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
 	self.APE3MPUEdit.setText(path)
 
+    def fullBrowser(self):
+	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
+	self.fullEdit.setText(path)	
+
     def startProcess(self):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
-	string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
-	self.process=QProcess()
-        self.connect(self.process,SIGNAL("readyReadStandardOutput()"),self.startReadOutput)
-        self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)
-	self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
-	self.command=self.simulatorPath+"/apc/gem5.opt"   
-	self.command=self.command+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
-	self.num=1
-	if self.APE1Check.checkState()==Qt.Checked:
-	    self.command=self.command+";"+self.APE1SPUEdit.text()+","+self.APE1MPUEdit.text()
-	    self.num=self.num+1
-	    if self.APE2Check.checkState()==Qt.Checked:
-		self.num=self.num+1
-		self.command=self.command+";"+self.APE2SPUEdit.text()+","+self.APE2MPUEdit.text()
-	        if self.APE3Check.checkState()==Qt.Checked:
-		    self.num=self.num+1
-		    self.command=self.command+";"+self.APE3SPUEdit.text()+","+self.APE3MPUEdit.text()
-	self.command=self.command+"\""
-	if self.num>1:
-	    self.command=self.command+" "+"-n"+" "+QString.number(self.num,10)
-        self.process.start(self.command)
-        if False==self.process.waitForStarted():
-	    self.simulatorShowSignal.emit(0,"this process can not be called.")
+	if 1:#self.fullRadio.isChecked()==True:
+	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
+	    self.ARMProcess=QProcess()
+            self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
+            self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput)
+	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
+            self.ARMProcess.start(self.ARMCommand)
+            if False==self.ARMProcess.waitForStarted():
+	        self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
+	#else:
+	    time.sleep(3)  #sleep 3 seconds
 
-    def finishProcess(self,exitCode,exitStatus):
+	    string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
+	    self.APCCommand=self.simulatorPath+"/apc/gem5.opt"   
+	    self.APCCommand=self.APCCommand+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
+	    self.num=1
+	    if self.APE1Check.checkState()==Qt.Checked:
+	        self.APCCommand=self.APCCommand+";"+self.APE1SPUEdit.text()+","+self.APE1MPUEdit.text()
+	        self.num=self.num+1
+	        if self.APE2Check.checkState()==Qt.Checked:
+		    self.num=self.num+1
+		    self.APCCommand=self.APCCommand+";"+self.APE2SPUEdit.text()+","+self.APE2MPUEdit.text()
+	            if self.APE3Check.checkState()==Qt.Checked:
+		        self.num=self.num+1
+		        self.APCCommand=self.APCCommand+";"+self.APE3SPUEdit.text()+","+self.APE3MPUEdit.text()
+	    self.APCCommand=self.APCCommand+"\""
+	    if self.num>1:
+	        self.APCCommand=self.APCCommand+" "+"-n"+" "+QString.number(self.num,10)
+	    self.APCProcess=QProcess()
+            self.connect(self.APCProcess,SIGNAL("readyReadStandardOutput()"),self.APCStartReadOutput)
+            self.connect(self.APCProcess,SIGNAL("readyReadStandardError()"),self.APCStartReadErrOutput)
+	    self.connect(self.APCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.APCFinishProcess)
+            self.APCProcess.start(self.APCCommand)
+            if False==self.APCProcess.waitForStarted():
+	        self.APCSimulatorShowSignal.emit(0,"this process can not be called.")
+
+    def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
-	    self.simulatorShowSignal.emit(0,"process exit normal")
+	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
 	    #simulator exit normal,then emit signal to create data base
-	    self.simulatorDoneSignal.emit(self.num) 
+	    self.APCSimulatorDoneSignal.emit(self.num) 
         else:
-	    self.simulatorShowSignal.emit(0,"process exit crash")
-	    QMessageBox.about(self,"Exit","    1    ")
+	    self.APCSimulatorShowSignal.emit(0,"process exit crash")
+	    QMessageBox.about(self,"APC Exit","    1    ")
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 
-    def startReadOutput(self):
-        ba=self.process.readAllStandardOutput()
-	self.simulatorShowSignal.emit(0,ba.data())
+    def APCStartReadOutput(self):
+        ba=self.APCProcess.readAllStandardOutput()
+	self.APCSimulatorShowSignal.emit(0,ba.data())
 
-    def startReadErrOutput(self):
-        ba=self.process.readAllStandardError()
-	self.simulatorShowSignal.emit(1,ba.data())
+    def APCStartReadErrOutput(self):
+        ba=self.APCProcess.readAllStandardError()
+	self.APCSimulatorShowSignal.emit(1,ba.data())
 
     def stopProcess(self):
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
-        self.process.write("quit")
-        self.process.kill()
+        self.APCProcess.write("quit")
+        self.APCProcess.kill()
+        self.ARMProcess.write("quit")
+        self.ARMProcess.kill()	
 
-	
+    def ARMFinishProcess(self,exitCode,exitStatus):
+        if exitStatus==QProcess.NormalExit:
+	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
+        else:
+	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
+	    QMessageBox.about(self,"ARM Exit","    1    ")
+	self.startButton.setEnabled(True)
+	self.stopButton.setEnabled(False)
+
+    def ARMStartReadOutput(self):
+        ba=self.ARMProcess.readAllStandardOutput()
+	self.ARMSimulatorShowSignal.emit(0,ba.data())
+
+    def ARMStartReadErrOutput(self):
+        ba=self.ARMProcess.readAllStandardError()
+	self.ARMSimulatorShowSignal.emit(1,ba.data())
 
   

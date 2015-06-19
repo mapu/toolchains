@@ -7,7 +7,7 @@ from control.DataBase import*
 from APCMutiCoreWidget import*
 from APCSigCoreWidget import*
 from DataBaseDialog import*
-from StatusWidget import*
+from APCStatusWidget import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -20,7 +20,7 @@ class APCViewWidget(QWidget):
         self.APE1Widget=APCSigCoreWidget()
         self.APE2Widget=APCSigCoreWidget()
         self.APE3Widget=APCSigCoreWidget() 
-	self.statusWidget=StatusWidget()
+	self.statusWidget=APCStatusWidget()
      
 	#define left tab
         self.leftTab=QTabWidget()

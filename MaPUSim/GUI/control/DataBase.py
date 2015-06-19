@@ -25,23 +25,28 @@ class DataBase():
 	self.regTableName="reg"
 	self.timeTableName="time"
 
+    def createDatabase(self,num):
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
-        self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
-        self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
-        self.APE2dbConn = self.get_conn(self.APE2dbFilePath)
-        self.APE2timeConn = self.get_conn(self.APE2timeFilePath)
-        self.APE3dbConn = self.get_conn(self.APE3dbFilePath)
-        self.APE3timeConn = self.get_conn(self.APE3timeFilePath)
-
-    def createDatabase(self,num):
 	self.createAPE0Database()
 	if num==2:
+            self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
+            self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
 	    self.createAPE1Database()	
 	elif num==3:
+            self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
+            self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
+            self.APE2dbConn = self.get_conn(self.APE2dbFilePath)
+            self.APE2timeConn = self.get_conn(self.APE2timeFilePath)
 	    self.createAPE1Database()	 
 	    self.createAPE2Database()
 	elif num==4:
+            self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
+            self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
+            self.APE2dbConn = self.get_conn(self.APE2dbFilePath)
+            self.APE2timeConn = self.get_conn(self.APE2timeFilePath)
+            self.APE3dbConn = self.get_conn(self.APE3dbFilePath)
+            self.APE3timeConn = self.get_conn(self.APE3timeFilePath)
 	    self.createAPE1Database()	 
 	    self.createAPE2Database()
 	    self.createAPE3Database()

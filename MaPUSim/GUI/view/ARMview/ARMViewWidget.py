@@ -2,6 +2,7 @@
 from PyQt4.QtGui import*  
 from PyQt4.QtCore import* 
 from UARTWidget import*
+from ARMStatusWidget import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -12,10 +13,13 @@ class ARMViewWidget(QWidget):
         self.UART0Widget=UARTWidget()    
         self.UART1Widget=UARTWidget()
         self.LCDWidget=QWidget()
+	self.statusWidget=ARMStatusWidget()
+
         self.upTabWidget=QTabWidget() 
         self.upTabWidget.addTab(self.UART0Widget,"UART0")
         self.upTabWidget.addTab(self.UART1Widget,"UART1")
-        self.upTabWidget.addTab(self.LCDWidget,"LCD")        
+        self.upTabWidget.addTab(self.LCDWidget,"LCD")  
+	self.upTabWidget.addTab(self.statusWidget,"Status")      
             
         self.GDBWidget=QWidget()
 	self.ConsoleWidget=QWidget()

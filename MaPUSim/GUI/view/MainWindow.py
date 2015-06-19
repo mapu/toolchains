@@ -32,9 +32,9 @@ class MainWindow(QMainWindow):
         self.tabWidget.addTab(self.apcViewWidget,self.tr("APC Perspective"))
         self.tabWidget.addTab(self.configControlWidget,self.tr("Configuration and Control")) 
 
-	self.configControlWidget.simulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
-	self.configControlWidget.simulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
-	 
+	self.configControlWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
+	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
+	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 	 
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 

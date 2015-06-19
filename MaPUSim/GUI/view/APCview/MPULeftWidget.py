@@ -13,7 +13,7 @@ class MPULeftWidget(QWidget):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(1000,500)
 
-        self.List=[1]*76
+        self.List=[0]*76
 
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
