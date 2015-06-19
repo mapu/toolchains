@@ -528,7 +528,7 @@ class MPUViewWidget(QWidget):
 	self.setLayout(mainLayout)
 
 	self.stageDialog=StageDialog()
-
+	
     def stageButtonSlot(self):
 	self.stageDialog.setWindowTitle("MPU Stage Dialog")
 	self.stageDialog.show()

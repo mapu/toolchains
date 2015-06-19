@@ -243,8 +243,7 @@ class MPULeftWidget(QWidget):
             self.qp2.drawEllipse(Llist[0],Llist[1],5,5)
                                          	
         
-    def paintEvent(self,event):     
-       
+    def paintEvent(self,event):          
             
         #SHUO to BIU0
         x1BIU=430
@@ -505,7 +504,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(4,IAFA2)
            self.paintstaen(2,IAFA2)
         #left point 
-        LePx=Lefx+40
+        LePx=Lefx+35
         LePy=252
         #self.qp.drawPoint(LePx,LePy)
         XIA=945
@@ -560,7 +559,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,DMBIU02)
            self.paintstaen(-2,DMBIU02)
         if self.List[63]==1:  
-             #DM to BIU1
+           #DM to BIU1
            DMBIU11=[DMX,DMY+25,DtoBX,DMY+25] 
            self.paintLine(2,DMBIU11)
            self.paintstaen(2,DMBIU11)
@@ -569,7 +568,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,DMBIU12)
            self.paintstaen(-2,DMBIU12) 
         if self.List[65]==1:
-             #DM to BIU2
+           #DM to BIU2
            DMBIU21=[DMX,DMY+60,DtoBX,DtoBY+182]
            self.paintLine(2,DMBIU21)
            self.paintstaen(2,DMBIU21)  
@@ -578,34 +577,34 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,DMBIU22)
            self.paintstaen(-2,DMBIU22) 
         if self.List[67]==1:
-             #BIU0 to Point1
+           #BIU0 to Point1
            BIU0P1=[x1BIU,y1-10,Xbendso1,y1-10,x1,y1]
            self.paintLine(3,BIU0P1)
            self.paintstaen(-2,BIU0P1) 
         if self.List[68]==1:
-             #BIU0 to Point2
+           #BIU0 to Point2
            BIU0P2=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+108-10,x1,y1+108]
            self.paintLine(4,BIU0P2)
            self.paintLine(2,BIU0P2)
         if self.List[69]==1:
-             #BIU0 to Point3
+           #BIU0 to Point3
            BIU0P3=[x1BIU,y1-10,Xbendso1,y1-10,Xbendso1,y1+2*108-10,x1,y1+2*108]
            self.paintLine(4,BIU0P3)
            self.paintLine(2,BIU0P3)
         if self.List[70]==1:
-             #BIU1 to Point3
+           #BIU1 to Point3
            BIU1P3=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,x1,y1+2*108] 
            self.paintLine(5,BIU1P3)
         if self.List[71]==1:
-             #BIU1 to Point2
+           #BIU1 to Point2
            BIU1P2=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,X1MRF+15,y1+108+20,x1,y1+108]
            self.paintLine(6,BIU1P2)
         if self.List[72]==1:
-             #BIU1 to Point1
+           #BIU1 to Point1
            BIU1P1=[x1BIU,240+width,X2BIU-10,240+width,X2BIU-10,240+width+80,X1MRF+15,240+width+80,X1MRF+15,y1+108+20,X1MRF+15,y1+20,x1,y1]
            self.paintLine(6,BIU1P1)
         if self.List[73]==1:
-             #BIU2 to Point3
+           #BIU2 to Point3
            BIU2P3=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,x1,y1+2*108]
            self.paintLine(3,BIU2P3)
         if self.List[74]==1:
@@ -616,3 +615,5 @@ class MPULeftWidget(QWidget):
            #BIU2 to Point1
            BIU2P1=[x1BIU,y1+2*108+20,X1MRF+15,y1+2*108+20,X1MRF+15,y1+20,x1,y1]
            self.paintLine(4,BIU2P1)
+
+
