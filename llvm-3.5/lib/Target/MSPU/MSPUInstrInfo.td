@@ -1815,7 +1815,7 @@ def __GetMC : SynInstr<(outs I32Reg:$r), (ins IntrinMC:$i),
 }
 
 //////////////////// callm ////////////////////////////
-def __CallM : SynInstr<(outs), (ins SImm17Ptr:$d),
+def __CallM : SynInstr<(outs), (ins UImm17Ptr:$d),
                     "CallM $d", 0b00001,
                     [(int_mspu_callm GlobalAddrLeaf:$d)]>
 {
@@ -1826,7 +1826,7 @@ def __CallM : SynInstr<(outs), (ins SImm17Ptr:$d),
 	let Itinerary = ItinSYNNoReg;
 }
 
-def __CallMB : SynInstr<(outs), (ins i32imm:$d),
+def __CallMB : SynInstr<(outs), (ins UImm17Ptr:$d),
                     "CallM $d (B)", 0b00001,
                     [(int_mspu_callmb GlobalAddrLeaf:$d)]>
 {
