@@ -4,6 +4,7 @@ import sqlite3
 import copy
 sys.path.append("..")
 from data.TableType import*
+import datetime
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -23,6 +24,7 @@ class DataBase():
 	self.APE3timeFilePath="APE3time.db"
 	self.snTableName="sn"
 	self.regTableName="reg"
+	self.memTableName="mem"
 	self.timeTableName="time"
 
     def createDatabase(self,num):
@@ -52,6 +54,7 @@ class DataBase():
 	    self.createAPE3Database()
 
     def createAPE0Database(self):
+	self.memTableInit()
 	self.APE0snTableInit()
 	self.APE0regTableInit()
 	self.APE0timeTableInit()
@@ -113,7 +116,7 @@ class DataBase():
             if data is not None:
                 cu = self.get_cursor(conn)
                 cu.execute(sql+data)
-                self.close_all(conn, cu)
+                #self.close_all(conn, cu)
 
     def fetchall(self,table,sql):
 	conn=self.get_conn(table)
@@ -157,7 +160,7 @@ class DataBase():
                 for d in data:
                     cu.execute(sql, d)
                     conn.commit()
-                self.close_all(conn, cu)
+                #self.close_all(conn, cu)
 
     def snSplit(self,string,item):
         s=string
@@ -340,23 +343,85 @@ class DataBase():
 	    item.dis="'"+s[:pos-1]+"'"	
         return item
 
+    def memSplit(self,string,item):
+	#186001[93]: system.physmem: Mem W 0x00000w : 0x77
+        s=string
+        #get time
+        pos=s.index("[")
+        item.time=s[0:pos]
+	item.time=str(int(item.time)/1000)
+        s=s[pos:]
+	pos=s.index(":")
+	s=s[(pos+1):]
+	pos=s.index(":")
+	s=s[(pos+6):]	
+	item.type="'"+s[:1]+"'"
+	s=s[2:]
+	pos=s.find(":")
+	item.addr=s[:(pos-1)]
+	item.addr="'"+item.addr+"'"
+	s=s[(pos+2):]
+	pos=s.index("\n")
+	s=s[:pos]
+	item.dis="'"+s+"'"
+
+        return item	
+
+    def memTableInit(self):
+        #drop table
+        self.drop_table(self.APE0dbConn,self.memTableName)
+	#create table
+        create_table_sql="create table "+self.memTableName+"(id integer primary key autoincrement,time integer,type varchar(8),addr varchar(16),dis varchar(16))"
+        self.create_table(self.APE0dbConn, create_table_sql)
+        save_sql = "INSERT INTO "+self.memTableName+" (time,type,addr,dis) "
+        #open out file and read 
+        f=open(self.filePath,"r")
+        lines=f.readlines()
+        item=MemItem()
+	item.__init__()
+        for line in lines:
+	    if line.find("physmem")>=0:
+	        item=self.memSplit(line,item)
+	        data="values ("+item.time+","+item.type+","+item.addr+","+item.dis+")"
+	        self.save(self.APE0dbConn, save_sql, data)
+	f.close()
+	self.APE0dbConn.commit()
+
+        #show table
+	if 0:
+            fetchall_sql = "SELECT * FROM "+self.memTableName
+            cu = self.get_cursor(self.APE0dbConn)
+            cu.execute(fetchall_sql)
+            r = cu.fetchall()
+            if len(r) > 0:
+                for e in range(len(r)):
+		    print (r[e])
+
     def APE0snTableInit(self):
+	i=datetime.datetime.now()
+        print ("start create ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))	 
         #drop table
         self.drop_table(self.APE0dbConn,self.snTableName)
 	#create table
         create_table_sql="create table "+self.snTableName+"(id integer primary key autoincrement,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
         self.create_table(self.APE0dbConn, create_table_sql)
-
+	i=datetime.datetime.now()
+        print ("end create ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         save_sql = "INSERT INTO "+self.snTableName+" (cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
 
 	item=SnItem()
         #open out file and read 
+	i=datetime.datetime.now()
+        print ("start open ape0 sn file %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         f=open(self.filePath,"r")
         lines=f.readlines()
-	i=0
+	i=datetime.datetime.now()
+        print ("end open ape0 sn file %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	i=datetime.datetime.now()
+        print ("start insert ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         for line in lines:
 	    if line.find("cpu.")>=0 or line.find("cpu0")>=0:
-	        if line.find("mpurf_manager")<0:
+	        if line.find("mpurf_manager")<0 or line.find("physmem")<0:
 		    item.__init__()
 	            item=self.snSplit(line,item)
     	            fetchone_sql = "SELECT * FROM "+self.snTableName+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
@@ -382,8 +447,14 @@ class DataBase():
 	            else:
 	                data="values ("+item.cpu+","+item.spumpu+","+item.sn+","+item.sln+","+item.pc+","+item.dis+","+item.dest+","+item.stageList[0]+","+item.stageList[1]+","+item.stageList[2]+","+item.stageList[3]+","+item.stageList[4]+","+item.stageList[5]+","+item.stageList[6]+","+item.stageList[7]+","+item.stageList[8]+","+item.stageList[9]+","+item.stageList[10]+","+item.stageList[11]+","+item.stageList[12]+","+item.stageList[13]+","+item.stageList[14]+","+item.stageList[15]+","+item.stageList[16]+","+item.stageList[17]+","+item.stageList[18]+","+item.stageList[19]+")"
 	                self.save(self.APE0dbConn, save_sql, data)
+	i=datetime.datetime.now()
+        print ("end insert ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	f.close()
+	i=datetime.datetime.now()
+        print ("start commit ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.APE0dbConn.commit()
+	i=datetime.datetime.now()
+        print ("end commit ape0 sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         #show table
 	if 0:
             fetchall_sql = "SELECT * FROM "+self.snTableName
@@ -408,14 +479,22 @@ class DataBase():
         lines=f.readlines()
         item=RegItem()
 	item.__init__()
+	i=datetime.datetime.now()
+        print ("start insert ape0 reg table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         for line in lines:
 	    if line.find("cpu.")>=0 or line.find("cpu0")>=0:
 	        if line.find("mpurf_manager")>=0 or line.find("regfile_manager")>=0:
 	            item=self.regSplit(line,item)
 	            data="values ("+item.time+","+item.cpu+","+item.spumpu+","+item.sn+","+item.op+","+item.type+","+item.reg+","+item.dis+")"
 	            self.save(self.APE0dbConn, save_sql, data)
+	i=datetime.datetime.now()
+        print ("end insert ape0 reg table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	f.close()
+	i=datetime.datetime.now()
+        print ("start commit ape0 reg table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.APE0dbConn.commit()
+	i=datetime.datetime.now()
+        print ("end commit ape0 reg table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
         #show table
 	if 0:
@@ -449,6 +528,8 @@ class DataBase():
 	
 	forwardRegList=["'nop'"]*251
 	item=TimeItem()
+	i=datetime.datetime.now()
+        print ("start insert ape0 time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	for i in range(self.minTime,self.maxTime+1):
 	    item.__init__()
             regList=["'nop'"]*252
@@ -1366,7 +1447,13 @@ class DataBase():
 	    data="values ("+item.time+","+item.DMBIU0Value+","+item.BIU0DMValue+","+item.DMBIU1Value+","+item.BIU1DMValue+","+item.DMBIU2Value+","+item.BIU2DMValue+","+item.BIU0SHU0Value+","+item.SHU0BIU0Value+","+item.BIU1SHU0Value+","+item.SHU0BIU1Value+","+item.BIU2SHU0Value+","+item.SHU0BIU2Value+","+item.BIU0SHU1Value+","+item.SHU1BIU0Value+","+item.BIU1SHU1Value+","+item.SHU1BIU1Value+","+item.BIU2SHU1Value+","+item.SHU1BIU2Value+","+item.BIU0MRFValue+","+item.MRFBIU0Value+","+item.BIU1MRFValue+","+item.MRFBIU1Value+","+item.BIU2MRFValue+","+item.MRFBIU2Value+","+item.SHU0IALUValue+","+item.IALUSHU0Value+","+item.SHU0IMACValue+","+item.IMACSHU0Value+","+item.SHU0FALUValue+","+item.FALUSHU0Value+","+item.SHU0FMACValue+","+item.FMACSHU0Value+","+item.MRFIALUValue+","+item.IALUMRFValue+","+item.MRFIMACValue+","+item.IMACMRFValue+","+item.MRFFALUValue+","+item.FALUMRFValue+","+item.MRFFMACValue+","+item.FMACMRFValue+","+item.SHU1IALUValue+","+item.IALUSHU1Value+","+item.SHU1IMACValue+","+item.IMACSHU1Value+","+item.SHU1FALUValue+","+item.FALUSHU1Value+","+item.SHU1FMACValue+","+item.FMACSHU1Value+","+item.IALUFALUValue+","+item.FALUIALUValue+","+item.SHU0MRFValue+","+item.MRFSHU0Value+","+item.MRFSHU1Value+","+item.SHU1MRFValue+","+item.IALUIMACValue+","+item.IMACIALUValue+","+item.IMACFALUValue+","+item.FALUIMACValue+","+item.FALUFMACValue+","+item.FMACFALUValue+","+regList[0]+","+regList[1]+","+regList[2]+","+regList[3]+","+regList[4]+","+regList[5]+","+regList[6]+","+regList[7]+","+regList[8]+","+regList[9]+","+regList[10]+","+regList[11]+","+regList[12]+","+regList[13]+","+regList[14]+","+regList[15]+","+regList[16]+","+regList[17]+","+regList[18]+","+regList[19]+","+regList[20]+","+regList[21]+","+regList[22]+","+regList[23]+","+regList[24]+","+regList[25]+","+ regList[26]+","+regList[27]+","+regList[28]+","+regList[29]+","+regList[30]+","+regList[31]+","+regList[32]+","+regList[33]+","+regList[34]+","+regList[35]+","+regList[36]+","+regList[37]+","+regList[38]+","+regList[39]+","+regList[40]+","+regList[41]+","+regList[42]+","+regList[43]+","+regList[44]+","+regList[45]+","+regList[46]+","+regList[47]+","+regList[48]+","+regList[49]+","+regList[50]+","+regList[51]+","+regList[52]+","+regList[53]+","+regList[54]+","+regList[55]+","+regList[56]+","+regList[57]+","+regList[58]+","+regList[59]+","+regList[60]+","+regList[61]+","+regList[62]+","+regList[63]+","+regList[64]+","+regList[65]+","+regList[66]+","+regList[67]+","+regList[68]+","+regList[69]+","+regList[70]+","+regList[71]+","+regList[72]+","+regList[73]+","+regList[74]+","+regList[75]+","+regList[76]+","+ regList[77]+","+regList[78]+","+regList[79]+","+regList[80]+","+regList[81]+","+regList[82]+","+regList[83]+","+regList[84]+","+regList[85]+","+regList[86]+","+regList[87]+","+regList[88]+","+regList[89]+","+regList[90]+","+regList[91]+","+regList[92]+","+regList[93]+","+regList[94]+","+regList[95]+","+regList[96]+","+regList[97]+","+regList[98]+","+regList[99]+","+regList[100]+","+regList[101]+","+regList[102]+","+regList[103]+","+regList[104]+","+regList[105]+","+regList[106]+","+regList[107]+","+regList[108]+","+regList[109]+","+regList[110]+","+regList[111]+","+regList[112]+","+regList[113]+","+regList[114]+","+regList[115]+","+regList[116]+","+regList[117]+","+regList[118]+","+regList[119]+","+regList[120]+","+regList[121]+","+regList[122]+","+regList[123]+","+regList[124]+","+regList[125]+","+regList[126]+","+regList[127]+","+regList[128]+","+regList[129]+","+regList[130]+","+regList[131]+","+regList[132]+","+regList[133]+","+regList[134]+","+regList[135]+","+regList[136]+","+regList[137]+","+regList[138]+","+regList[139]+","+regList[140]+","+regList[141]+","+regList[142]+","+regList[143]+","+regList[144]+","+regList[145]+","+regList[146]+","+regList[147]+","+regList[148]+","+regList[149]+","+regList[150]+","+regList[151]+","+regList[152]+","+regList[153]+","+regList[154]+","+regList[155]+","+regList[156]+","+regList[157]+","+regList[158]+","+regList[159]+","+regList[160]+","+regList[161]+","+regList[162]+","+regList[163]+","+regList[164]+","+regList[165]+","+regList[166]+","+regList[167]+","+regList[168]+","+regList[169]+","+regList[170]+","+regList[171]+","+regList[172]+","+regList[173]+","+regList[174]+","+regList[175]+","+regList[176]+","+regList[177]+","+regList[178]+","+regList[179]+","+regList[180]+","+regList[181]+","+regList[182]+","+regList[183]+","+regList[184]+","+regList[185]+","+regList[186]+","+regList[187]+","+regList[188]+","+regList[189]+","+regList[190]+","+regList[191]+","+regList[192]+","+regList[193]+","+regList[194]+","+regList[195]+","+regList[196]+","+regList[197]+","+regList[198]+","+regList[199]+","+regList[200]+","+regList[201]+","+regList[202]+","+regList[203]+","+regList[204]+","+regList[205]+","+regList[206]+","+regList[207]+","+regList[208]+","+regList[209]+","+regList[210]+","+regList[211]+","+regList[212]+","+regList[213]+","+regList[214]+","+regList[215]+","+regList[216]+","+regList[217]+","+regList[218]+","+regList[219]+","+regList[220]+","+regList[221]+","+regList[222]+","+regList[223]+","+regList[224]+","+regList[225]+","+regList[226]+","+regList[227]+","+regList[228]+","+regList[229]+","+regList[230]+","+regList[231]+","+regList[232]+","+regList[233]+","+regList[234]+","+regList[235]+","+regList[236]+","+regList[237]+","+regList[238]+","+ regList[239]+","+regList[240]+","+regList[241]+","+regList[242]+","+regList[243]+","+regList[244]+","+regList[245]+","+regList[246]+","+regList[247]+","+regList[248]+","+regList[249]+","+regList[250]+","+DMList[0]+","+DMList[1]+","+DMList[2]+","+DMList[3]+","+DMList[4]+","+DMList[5]+","+DMList[6]+","+DMList[7]+","+DMList[8]+","+DMList[9]+","+DMList[10]+","+DMList[11]+","+DMList[12]+","+DMList[13]+","+DMList[14]+","+DMList[15]+","+DMList[16]+","+DMList[17]+","+DMList[18]+","+DMList[19]+","+DMList[20]+","+DMList[21]+","+DMList[22]+","+DMList[23]+","+DMList[24]+","+DMList[25]+","+DMList[26]+","+DMList[27]+","+DMList[28]+","+DMList[29]+","+DMList[30]+","+DMList[31]+","+DMList[32]+","+DMList[33]+","+DMList[34]+","+DMList[35]+","+DMList[36]+","+DMList[37]+","+DMList[38]+","+DMList[39]+","+BIU0List[0]+","+BIU0List[1]+","+BIU0List[2]+","+BIU0List[3]+","+BIU0List[4]+","+BIU0List[5]+","+BIU0List[6]+","+BIU0List[7]+","+BIU0List[8]+","+BIU0List[9]+","+BIU0List[10]+","+BIU0List[11]+","+BIU0List[12]+","+BIU0List[13]+","+BIU0List[14]+","+BIU0List[15]+","+BIU0List[16]+","+BIU0List[17]+","+BIU0List[18]+","+BIU0List[19]+","+BIU0List[20]+","+BIU0List[21]+","+BIU0List[22]+","+BIU0List[23]+","+BIU0List[24]+","+BIU0List[25]+","+BIU0List[26]+","+BIU0List[27]+","+BIU0List[28]+","+BIU0List[29]+","+BIU0List[30]+","+BIU0List[31]+","+BIU0List[32]+","+BIU0List[33]+","+BIU0List[34]+","+BIU0List[35]+","+BIU0List[36]+","+BIU0List[37]+","+BIU0List[38]+","+BIU0List[39]+","+BIU1List[0]+","+BIU1List[1]+","+BIU1List[2]+","+BIU1List[3]+","+BIU1List[4]+","+BIU1List[5]+","+BIU1List[6]+","+BIU1List[7]+","+BIU1List[8]+","+BIU1List[9]+","+BIU1List[10]+","+BIU1List[11]+","+BIU1List[12]+","+BIU1List[13]+","+BIU1List[14]+","+BIU1List[15]+","+BIU1List[16]+","+BIU1List[17]+","+BIU1List[18]+","+BIU1List[19]+","+BIU1List[20]+","+BIU1List[21]+","+BIU1List[22]+","+BIU1List[23]+","+BIU1List[24]+","+BIU1List[25]+","+BIU1List[26]+","+BIU1List[27]+","+BIU1List[28]+","+BIU1List[29]+","+BIU1List[30]+","+BIU1List[31]+","+BIU1List[32]+","+BIU1List[33]+","+BIU1List[34]+","+BIU1List[35]+","+BIU1List[36]+","+BIU1List[37]+","+BIU1List[38]+","+BIU1List[39]+","+BIU2List[0]+","+BIU2List[1]+","+BIU2List[2]+","+BIU2List[3]+","+BIU2List[4]+","+BIU2List[5]+","+BIU2List[6]+","+BIU2List[7]+","+BIU2List[8]+","+BIU2List[9]+","+BIU2List[10]+","+BIU2List[11]+","+BIU2List[12]+","+BIU2List[13]+","+BIU2List[14]+","+BIU2List[15]+","+BIU2List[16]+","+BIU2List[17]+","+BIU2List[18]+","+BIU2List[19]+","+BIU2List[20]+","+BIU2List[21]+","+BIU2List[22]+","+BIU2List[23]+","+BIU2List[24]+","+BIU2List[25]+","+BIU2List[26]+","+BIU2List[27]+","+BIU2List[28]+","+BIU2List[29]+","+BIU2List[30]+","+BIU2List[31]+","+BIU2List[32]+","+BIU2List[33]+","+BIU2List[34]+","+BIU2List[35]+","+BIU2List[36]+","+BIU2List[37]+","+BIU2List[38]+","+BIU2List[39]+","+SHU0List[0]+","+SHU0List[1]+","+SHU0List[2]+","+SHU0List[3]+","+SHU0List[4]+","+SHU0List[5]+","+SHU0List[6]+","+SHU0List[7]+","+SHU0List[8]+","+SHU0List[9]+","+SHU0List[10]+","+SHU0List[11]+","+SHU0List[12]+","+SHU0List[13]+","+SHU0List[14]+","+SHU0List[15]+","+SHU0List[16]+","+SHU0List[17]+","+SHU0List[18]+","+SHU0List[19]+","+SHU0List[20]+","+SHU0List[21]+","+SHU0List[22]+","+SHU0List[23]+","+SHU0List[24]+","+SHU0List[25]+","+SHU0List[26]+","+SHU0List[27]+","+SHU0List[28]+","+SHU0List[29]+","+SHU0List[30]+","+SHU0List[31]+","+SHU0List[32]+","+SHU0List[33]+","+SHU0List[34]+","+SHU0List[35]+","+SHU0List[36]+","+SHU0List[37]+","+SHU0List[38]+","+SHU0List[39]+","+MRFList[0]+","+MRFList[1]+","+MRFList[2]+","+MRFList[3]+","+MRFList[4]+","+MRFList[5]+","+MRFList[6]+","+MRFList[7]+","+MRFList[8]+","+MRFList[9]+","+MRFList[10]+","+MRFList[11]+","+MRFList[12]+","+MRFList[13]+","+MRFList[14]+","+MRFList[15]+","+MRFList[16]+","+MRFList[17]+","+MRFList[18]+","+MRFList[19]+","+MRFList[20]+","+MRFList[21]+","+MRFList[22]+","+MRFList[23]+","+MRFList[24]+","+MRFList[25]+","+MRFList[26]+","+MRFList[27]+","+MRFList[28]+","+MRFList[29]+","+MRFList[30]+","+MRFList[31]+","+MRFList[32]+","+MRFList[33]+","+MRFList[34]+","+MRFList[35]+","+MRFList[36]+","+MRFList[37]+","+MRFList[38]+","+MRFList[39]+","+SHU1List[0]+","+SHU1List[1]+","+SHU1List[2]+","+SHU1List[3]+","+SHU1List[4]+","+SHU1List[5]+","+SHU1List[6]+","+SHU1List[7]+","+SHU1List[8]+","+SHU1List[9]+","+SHU1List[10]+","+SHU1List[11]+","+SHU1List[12]+","+SHU1List[13]+","+SHU1List[14]+","+SHU1List[15]+","+SHU1List[16]+","+SHU1List[17]+","+SHU1List[18]+","+SHU1List[19]+","+SHU1List[20]+","+SHU1List[21]+","+SHU1List[22]+","+SHU1List[23]+","+SHU1List[24]+","+SHU1List[25]+","+SHU1List[26]+","+SHU1List[27]+","+SHU1List[28]+","+SHU1List[29]+","+SHU1List[30]+","+SHU1List[31]+","+SHU1List[32]+","+SHU1List[33]+","+SHU1List[34]+","+SHU1List[35]+","+SHU1List[36]+","+SHU1List[37]+","+SHU1List[38]+","+SHU1List[39]+","+IALUList[0]+","+IALUList[1]+","+IALUList[2]+","+IALUList[3]+","+IALUList[4]+","+IALUList[5]+","+IALUList[6]+","+IALUList[7]+","+IALUList[8]+","+IALUList[9]+","+IALUList[10]+","+IALUList[11]+","+IALUList[12]+","+IALUList[13]+","+IALUList[14]+","+IALUList[15]+","+IALUList[16]+","+IALUList[17]+","+IALUList[18]+","+IALUList[19]+","+IALUList[20]+","+IALUList[21]+","+IALUList[22]+","+IALUList[23]+","+IALUList[24]+","+IALUList[25]+","+IALUList[26]+","+IALUList[27]+","+IALUList[28]+","+IALUList[29]+","+IALUList[30]+","+IALUList[31]+","+IALUList[32]+","+IALUList[33]+","+IALUList[34]+","+IALUList[35]+","+IALUList[36]+","+IALUList[37]+","+IALUList[38]+","+IALUList[39]+","+IMACList[0]+","+IMACList[1]+","+IMACList[2]+","+IMACList[3]+","+IMACList[4]+","+IMACList[5]+","+IMACList[6]+","+IMACList[7]+","+IMACList[8]+","+IMACList[9]+","+IMACList[10]+","+IMACList[11]+","+IMACList[12]+","+IMACList[13]+","+IMACList[14]+","+IMACList[15]+","+IMACList[16]+","+IMACList[17]+","+IMACList[18]+","+IMACList[19]+","+IMACList[20]+","+IMACList[21]+","+IMACList[22]+","+IMACList[23]+","+IMACList[24]+","+IMACList[25]+","+IMACList[26]+","+IMACList[27]+","+IMACList[28]+","+IMACList[29]+","+IMACList[30]+","+IMACList[31]+","+IMACList[32]+","+IMACList[33]+","+IMACList[34]+","+IMACList[35]+","+IMACList[36]+","+IMACList[37]+","+IMACList[38]+","+IMACList[39]+","+FALUList[0]+","+FALUList[1]+","+FALUList[2]+","+FALUList[3]+","+FALUList[4]+","+FALUList[5]+","+FALUList[6]+","+FALUList[7]+","+FALUList[8]+","+FALUList[9]+","+FALUList[10]+","+FALUList[11]+","+FALUList[12]+","+FALUList[13]+","+FALUList[14]+","+FALUList[15]+","+FALUList[16]+","+FALUList[17]+","+FALUList[18]+","+FALUList[19]+","+FALUList[20]+","+FALUList[21]+","+FALUList[22]+","+FALUList[23]+","+FALUList[24]+","+FALUList[25]+","+FALUList[26]+","+FALUList[27]+","+FALUList[28]+","+FALUList[29]+","+FALUList[30]+","+FALUList[31]+","+FALUList[32]+","+FALUList[33]+","+FALUList[34]+","+FALUList[35]+","+FALUList[36]+","+FALUList[37]+","+FALUList[38]+","+FALUList[39]+","+FMACList[0]+","+FMACList[1]+","+FMACList[2]+","+FMACList[3]+","+FMACList[4]+","+FMACList[5]+","+FMACList[6]+","+FMACList[7]+","+FMACList[8]+","+FMACList[9]+","+FMACList[10]+","+FMACList[11]+","+FMACList[12]+","+FMACList[13]+","+FMACList[14]+","+FMACList[15]+","+FMACList[16]+","+FMACList[17]+","+FMACList[18]+","+FMACList[19]+","+FMACList[20]+","+FMACList[21]+","+FMACList[22]+","+FMACList[23]+","+FMACList[24]+","+FMACList[25]+","+FMACList[26]+","+FMACList[27]+","+FMACList[28]+","+FMACList[29]+","+FMACList[30]+","+FMACList[31]+","+FMACList[32]+","+FMACList[33]+","+FMACList[34]+","+FMACList[35]+","+FMACList[36]+","+FMACList[37]+","+FMACList[38]+","+FMACList[39]+")"
 
 	    self.save(self.APE0timeConn,save_sql,data)
+	i=datetime.datetime.now()
+        print ("end insert ape0 time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	i=datetime.datetime.now()
+        print ("start commit ape0 time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.APE0timeConn.commit()
+	i=datetime.datetime.now()
+        print ("end commit ape0 time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
         #show table
 	if 0:
             fetchall_sql = "SELECT * FROM "+self.timeTableName
@@ -1394,7 +1481,7 @@ class DataBase():
 	i=0
         for line in lines:
 	    if line.find("cpu1")>=0:
-	        if line.find("mpurf_manager")<0:
+	        if line.find("mpurf_manager")<0 or line.find("cpu0")>=0:
 		    item.__init__()
 	            item=self.snSplit(line,item)
     	            fetchone_sql = "SELECT * FROM "+self.snTableName+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn
@@ -2431,7 +2518,7 @@ class DataBase():
 	i=0
         for line in lines:
 	    if line.find("cpu2")>=0:
-	        if line.find("mpurf_manager")<0:
+	        if line.find("mpurf_manager")<0 or line.find("cpu0")>=0:
 		    item.__init__()
 	            item=self.snSplit(line,item)
     	            fetchone_sql = "SELECT * FROM "+self.snTableName+" WHERE spumpu = "+item.spumpu+" and "+"sn = "+item.sn

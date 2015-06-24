@@ -9,6 +9,7 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorDoneSignal=pyqtSignal(int)
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
+    ARMUart0ShowSignal=pyqtSignal(int,str)
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
@@ -387,19 +388,17 @@ class ConfigViewWidget(QMainWindow):
     def startProcess(self):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
-	if 1:#self.fullRadio.isChecked()==True:
+	if self.fullRadio.isChecked()==True:
 	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
 	    self.ARMProcess=QProcess()
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
-            self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput)
+            self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
 	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
             self.ARMProcess.start(self.ARMCommand)
             if False==self.ARMProcess.waitForStarted():
 	        self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
-	#else:
-	    time.sleep(3)  #sleep 3 seconds
-
-	    string="--debug-flags=MapuGUI "+self.simulatorPath+"/apc/system/se.py -c"
+	else:
+	    string="--debug-flags=MapuGUI,MapuMem "+self.simulatorPath+"/apc/system/se.py -c" #
 	    self.APCCommand=self.simulatorPath+"/apc/gem5.opt"   
 	    self.APCCommand=self.APCCommand+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
 	    self.num=1
@@ -422,6 +421,29 @@ class ConfigViewWidget(QMainWindow):
             self.APCProcess.start(self.APCCommand)
             if False==self.APCProcess.waitForStarted():
 	        self.APCSimulatorShowSignal.emit(0,"this process can not be called.")
+
+    def ARMAPCSimulator(self,key,port):
+	string="--debug-flags=MapuGUI "+"--trace-file="+self.traceFileEdit.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
+	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
+	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key
+	self.ARMAPCProcess=QProcess()
+        self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardOutput()"),self.ARMAPCStartReadOutput)
+        self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardError()"),self.ARMAPCStartReadErrOutput)
+	self.connect(self.ARMAPCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMAPCFinishProcess)
+        self.ARMAPCProcess.start(self.ARMAPCCommand)
+        if False==self.ARMAPCProcess.waitForStarted():
+	    self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
+
+    def m5termSimulator(self,uart0port):
+	self.m5termCommand=self.simulatorPath+"/arm/utils/m5term localhost "+uart0port 
+	print self.m5termCommand
+	self.m5termProcess=QProcess()
+        self.connect(self.m5termProcess,SIGNAL("readyReadStandardOutput()"),self.m5termStartReadOutput)
+        self.connect(self.m5termProcess,SIGNAL("readyReadStandardError()"),self.m5termStartReadErrOutput)
+	self.connect(self.m5termProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.m5termFinishProcess)
+        self.m5termProcess.start(self.m5termCommand)
+        if False==self.m5termProcess.waitForStarted():
+	    self.ARMUart0ShowSignal.emit(0,"this process can not be called.")
 
     def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
@@ -449,6 +471,8 @@ class ConfigViewWidget(QMainWindow):
         self.APCProcess.kill()
         self.ARMProcess.write("quit")
         self.ARMProcess.kill()	
+        self.ARMAPCProcess.write("quit")
+        self.ARMAPCProcess.kill()	
 
     def ARMFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
@@ -456,8 +480,6 @@ class ConfigViewWidget(QMainWindow):
         else:
 	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
 	    QMessageBox.about(self,"ARM Exit","    1    ")
-	self.startButton.setEnabled(True)
-	self.stopButton.setEnabled(False)
 
     def ARMStartReadOutput(self):
         ba=self.ARMProcess.readAllStandardOutput()
@@ -465,6 +487,68 @@ class ConfigViewWidget(QMainWindow):
 
     def ARMStartReadErrOutput(self):
         ba=self.ARMProcess.readAllStandardError()
+	string=QString(ba.data())
+	if string.indexOf("Share memory key")>=0:
+	    num=string.count("\n")
+	    key=""
+	    apcport=""
+	    for i in range(0,num):
+	        pos=string.indexOf("\n")
+	        str1=string.left(pos)
+	        string=string.right(string.size()-pos-1)
+	        if str1.indexOf("Share memory key")>=0:
+		    pos=str1.indexOf("is")
+		    key=str1.right(str1.length()-pos-3)
+	        elif str1.indexOf("vncserver")>=0:
+		    pos=str1.indexOf("port")
+		    port=str1.right(str1.length()-pos-5)
+	        elif str1.indexOf("terminal")>=0:
+		    pos=str1.indexOf("port")
+		    uart0port=str1.right(str1.length()-pos-5)
+	        elif str1.indexOf("realview.apc")>=0:
+		    pos=str1.indexOf("port")
+		    apcport=str1.right(str1.length()-pos-5)
+	        elif str1.indexOf("remote gdb")>=0:
+		    pos=str1.indexOf("port")
+		    port=str1.right(str1.length()-pos-5)
+	        str1=str1+"\n"
+	        self.ARMSimulatorShowSignal.emit(1,str1)
+	    self.ARMAPCSimulator(key,apcport)
+	    self.m5termSimulator(uart0port)
+	else:
+	    self.ARMSimulatorShowSignal.emit(1,string)
+
+    def ARMAPCFinishProcess(self,exitCode,exitStatus):
+        if exitStatus==QProcess.NormalExit:
+	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
+        else:
+	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
+	    QMessageBox.about(self,"ARM APC Exit","    1    ")
+	self.startButton.setEnabled(True)
+	self.stopButton.setEnabled(False)
+
+    def ARMAPCStartReadOutput(self):
+        ba=self.ARMAPCProcess.readAllStandardOutput()
+	self.ARMSimulatorShowSignal.emit(0,ba.data())
+
+    def ARMAPCStartReadErrOutput(self):
+        ba=self.ARMAPCProcess.readAllStandardError()
 	self.ARMSimulatorShowSignal.emit(1,ba.data())
 
+    def m5termFinishProcess(self,exitCode,exitStatus):
+        if exitStatus==QProcess.NormalExit:
+	    self.ARMUart0ShowSignal.emit(0,"process exit normal")
+        else:
+	    self.ARMUart0ShowSignal.emit(0,"process exit crash")
+	    QMessageBox.about(self,"ARM APC Exit","    1    ")
+
+    def m5termStartReadOutput(self):
+        ba=self.m5termProcess.readAllStandardOutput()
+	self.ARMUart0ShowSignal.emit(0,ba.data())
+	print ba.data()
+
+    def m5termStartReadErrOutput(self):
+        ba=self.m5termProcess.readAllStandardError()
+	self.ARMUart0ShowSignal.emit(1,ba.data())
+	print ba.data()
   

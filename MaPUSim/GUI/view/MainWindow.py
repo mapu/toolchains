@@ -34,7 +34,8 @@ class MainWindow(QMainWindow):
 
 	self.configControlWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
-	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 	 
+	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
+	self.configControlWidget.ARMUart0ShowSignal.connect(self.armViewWidget.UART0Widget.simulatorShowText)
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 

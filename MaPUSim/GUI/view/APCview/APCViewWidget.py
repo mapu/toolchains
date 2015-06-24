@@ -8,6 +8,7 @@ from APCMutiCoreWidget import*
 from APCSigCoreWidget import*
 from DataBaseDialog import*
 from APCStatusWidget import*
+import datetime
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -71,9 +72,15 @@ class APCViewWidget(QWidget):
 	self.num=num
 	#simulator exit normal,create data base
 	#show dialog and show data base is building
+	i=datetime.datetime.now()
+        print ("start create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.dataBaseDialog=DataBaseDialog()
 	self.dataBaseDialog.show()
 	self.dataBase=self.dataBaseDialog.createDataBase(num)
+	i=datetime.datetime.now()
+        print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	i=datetime.datetime.now()
+        print ("start update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#set the range
 	self.slider.setEnabled(True)
 	self.spinBox.setEnabled(True)
@@ -115,6 +122,8 @@ class APCViewWidget(QWidget):
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.spinBox.setValue)
 	self.connect(self.spinBox,SIGNAL("valueChanged(int)"),self.slider.setValue)
 	self.dataBaseDialog.close()
+	i=datetime.datetime.now()
+        print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def currentValueSlot(self,time):
 	curTime=self.slider.value()

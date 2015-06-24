@@ -23,6 +23,13 @@ class RegItem:
 	self.reg="-1"
 	self.dis="'nop'"
 
+class MemItem:
+    def __init__(self):
+	self.time="-1"
+	self.type="'nop'" #mpu reg
+	self.addr="'nop'"
+	self.dis="'nop'"
+
 class TimeItem:
     def __init__(self):
 	self.time="-1"
