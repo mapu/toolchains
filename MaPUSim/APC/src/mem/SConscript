@@ -75,6 +75,7 @@ DebugFlag('LLSC')
 DebugFlag('MMU')
 DebugFlag('MemoryAccess')
 DebugFlag('PacketQueue')
+DebugFlag('MapuMem')
 
 DebugFlag('ProtocolTrace')
 DebugFlag('RubyCache')

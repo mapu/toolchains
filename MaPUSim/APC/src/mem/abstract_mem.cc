@@ -61,6 +61,7 @@
 #include "config/the_isa.hh"
 #include "debug/LLSC.hh"
 #include "debug/MemoryAccess.hh"
+#include "debug/MapuMem.hh"
 #include "mem/abstract_mem.hh"
 #include "mem/packet_access.hh"
 #include "sim/system.hh"
@@ -470,10 +471,19 @@ AbstractMemory::access(PacketPtr pkt)
                   if (index != 0) {
                     hostAddr = pmemAddr + index - range.start;
                     *hostAddr = pkt->getPtr<uint8_t>()[i - 1];
+                    DPRINTF(MapuMem, "Mem W %#08x : %#02x\n", index, *hostAddr);
                   }
                 }
-              else
+              else {
                 memcpy(hostAddr, pkt->getPtr<uint8_t>(), pkt->getSize());
+                DPRINTF(MapuMem, "Mem W %#08x : ", pkt->getAddr());
+#if TRACING_ON
+                for (unsigned i = 0; i < pkt->getSize(); i++) {
+                  DPRINTFR(MapuMem, "%#02x ", hostAddr[i]);
+                }
+#endif
+                DPRINTFR(MapuMem, "\n");
+              }
             }
             DPRINTF(MemoryAccess, "mem write on 0x%x, len is %d\n",
                     pkt->getAddr(), pkt->getSize());

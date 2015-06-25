@@ -251,8 +251,10 @@ void MpuRfsUnit::execute(int slot_idx) {
 
       // For MaPU GUI trace
       DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, flat_idx);
+#if TRACING_ON
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(flat_idx, tid)[i]);
+#endif
       DPRINTFR(MapuReg, "\n");
 #if TRACING_ON
       if (inst->rr_tick == MaxTick)
@@ -278,8 +280,10 @@ void MpuRfsUnit::execute(int slot_idx) {
 
     // For MaPU GUI trace
     DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, reg_idx);
+#if TRACING_ON
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(reg_idx, tid)[i]);
+#endif
     DPRINTFR(MapuReg, "\n");
     mr_req->done();
   }
@@ -310,8 +314,10 @@ void MpuRfsUnit::execute(int slot_idx) {
 
       // For MaPU GUI trace
       DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, flat_idx);
+#if TRACING_ON
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
+#endif
       DPRINTFR(MapuReg, "\n");
 
       /*if ((reg_type == InOrderCPU::VectorType && flat_idx < NumMRegs) ||
@@ -348,7 +354,7 @@ void MpuRfsUnit::execute(int slot_idx) {
                       inst->readIntResult(mr_idx),
                       tid);
 
-      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx", tid,
+      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx\n", tid,
               inst->seqNum, reg_idx - Ctrl_Base_DepTag, inst->readIntResult(mr_idx));
       break;
 
@@ -370,8 +376,10 @@ void MpuRfsUnit::execute(int slot_idx) {
 
     // For MaPU GUI trace
     DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, reg_idx);
+#if TRACING_ON
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
+#endif
     DPRINTFR(MapuReg, "\n");
 
     cpu->setMPUReg(reg_idx, inst->readMPURegResult(mr_idx), tid);
