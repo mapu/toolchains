@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
-	self.configControlWidget.ARMUart0ShowSignal.connect(self.armViewWidget.UART0Widget.simulatorShowText)
+	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 
@@ -92,6 +92,7 @@ class MainWindow(QMainWindow):
 	path=QFileDialog.getExistingDirectory(self,self.tr("select file"),"/")
 	self.pathEdit.setText(path)
 	self.configControlWidget.simulatorPath=path
+	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=path+self.armViewWidget.UART0Widget.embTerminal.simulatorPath
         
     def closeEvent(self,event):
 	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 

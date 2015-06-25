@@ -9,7 +9,7 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorDoneSignal=pyqtSignal(int)
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
-    ARMUart0ShowSignal=pyqtSignal(int,str)
+    ARMUart0StartProcess=pyqtSignal(str)
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
@@ -434,17 +434,6 @@ class ConfigViewWidget(QMainWindow):
         if False==self.ARMAPCProcess.waitForStarted():
 	    self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
 
-    def m5termSimulator(self,uart0port):
-	self.m5termCommand=self.simulatorPath+"/arm/utils/m5term localhost "+uart0port 
-	print self.m5termCommand
-	self.m5termProcess=QProcess()
-        self.connect(self.m5termProcess,SIGNAL("readyReadStandardOutput()"),self.m5termStartReadOutput)
-        self.connect(self.m5termProcess,SIGNAL("readyReadStandardError()"),self.m5termStartReadErrOutput)
-	self.connect(self.m5termProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.m5termFinishProcess)
-        self.m5termProcess.start(self.m5termCommand)
-        if False==self.m5termProcess.waitForStarted():
-	    self.ARMUart0ShowSignal.emit(0,"this process can not be called.")
-
     def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
 	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
@@ -514,7 +503,7 @@ class ConfigViewWidget(QMainWindow):
 	        str1=str1+"\n"
 	        self.ARMSimulatorShowSignal.emit(1,str1)
 	    self.ARMAPCSimulator(key,apcport)
-	    self.m5termSimulator(uart0port)
+	    self.ARMUart0StartProcess.emit(uart0port)
 	else:
 	    self.ARMSimulatorShowSignal.emit(1,string)
 
@@ -535,20 +524,29 @@ class ConfigViewWidget(QMainWindow):
         ba=self.ARMAPCProcess.readAllStandardError()
 	self.ARMSimulatorShowSignal.emit(1,ba.data())
 
+    def m5termSimulator(self,uart0port):
+	self.m5termCommand=self.simulatorPath+"/arm/utils/m5term localhost "+uart0port 
+	print self.m5termCommand
+	self.m5termProcess=QProcess()
+        self.connect(self.m5termProcess,SIGNAL("readyReadStandardOutput()"),self.m5termStartReadOutput)
+        self.connect(self.m5termProcess,SIGNAL("readyReadStandardError()"),self.m5termStartReadErrOutput)
+	self.connect(self.m5termProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.m5termFinishProcess)
+        self.m5termProcess.start(self.m5termCommand)
+        if False==self.m5termProcess.waitForStarted():
+	    print "this process can not be called."
+
     def m5termFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
-	    self.ARMUart0ShowSignal.emit(0,"process exit normal")
+	    print "process exit normal"
         else:
-	    self.ARMUart0ShowSignal.emit(0,"process exit crash")
+	    print "process exit crash"
 	    QMessageBox.about(self,"ARM APC Exit","    1    ")
 
     def m5termStartReadOutput(self):
         ba=self.m5termProcess.readAllStandardOutput()
-	self.ARMUart0ShowSignal.emit(0,ba.data())
-	print ba.data()
+	print "output",ba.data()
 
     def m5termStartReadErrOutput(self):
         ba=self.m5termProcess.readAllStandardError()
-	self.ARMUart0ShowSignal.emit(1,ba.data())
-	print ba.data()
+	print "error",ba.data()
   

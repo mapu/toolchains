@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
+from EmbTerminal import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -10,27 +11,13 @@ class UARTWidget(QWidget):
 
 	self.text=QTextEdit()
 	self.text.setReadOnly(True)
-	self.edit=QLineEdit()
+	self.embTerminal=EmbTerminal()
 	
 	layout=QVBoxLayout()
-	layout.addWidget(self.text)
-	layout.addWidget(self.edit)
+	layout.addWidget(self.embTerminal)
 	self.setLayout(layout)
 
-    def simulatorShowText(self,code,string):
-	if code==0:
-	    self.text.append(string)
-	else:
-	    defaultColor=self.text.textColor() 
-	    num=string.count("\n")
-	    for i in range(0,num):
-		pos=string.indexOf("\n")
-		str1=string.left(pos)
-		string=string.right(string.size()-pos-1)
-		if str1.contains("fatal")==True:
-		    self.text.setTextColor(QColor("red"))
-		    self.text.append(str1)
-		    self.text.setTextColor(defaultColor)
-		else:
-		    self.text.append(str1)
+    def m5termProcessStart(self,string):
+	self.embTerminal.startProcess(string)
+
 
