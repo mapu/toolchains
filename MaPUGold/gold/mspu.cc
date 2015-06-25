@@ -240,8 +240,8 @@ Target::Target_info Target_mspu<32, false>::mspu_info =
   '\0',			// wrap_char
   "",	// dynamic_linker
   0x0,		// default_text_segment_address
-  8,		// abi_pagesize: 8-byte alignment (overridable by -z max-page-size)
-  8,		// common_pagesize: 8-byte alignment (overridable by -z common-page-size)
+  16,		// abi_pagesize: 4-byte alignment (overridable by -z max-page-size)
+  4,		// common_pagesize: 4-byte alignment (overridable by -z common-page-size)
   elfcpp::SHN_UNDEF,	// small_common_shndx
   elfcpp::SHN_UNDEF,	// large_common_shndx
   0,			// small_common_section_flags
