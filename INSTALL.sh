@@ -173,6 +173,8 @@ then
     install -v $source_path/MaPUSim/mapu_sim.sh -t $install_path/simulator/
   fi
   make -C $source_path/MaPUSim/ARM/util/term clean
+  #cp GUI directory
+  svn export $source_path/MaPUSim/GUI $install_path/simulator/GUI
 fi
 
 # Install llvm
