@@ -15,7 +15,6 @@
 #include "../MSPU.h"
 #include "MSPUFixupKinds.h"
 #include "MSPUMCTargetDesc.h"
-#include "MSPUMCInst.h"
 #include "llvm/MC/MCAsmBackend.h"
 #include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCDirectives.h"
@@ -32,7 +31,6 @@ using namespace llvm;
 namespace {
 	class MSPUAsmBackend: public MCAsmBackend {
 	  private:
-	    mutable MSPUMCInst ImmExtInst;
 			uint8_t OSABI;
 
 		public:
@@ -48,9 +46,9 @@ namespace {
 
       bool immNeedsRelaxation(const MCInst & Inst,  int64_t Imm) const
       {
-        if (static_cast<const MSPUMCInst *>(&Inst)->getNext() != 0) return false;
+        if (!Inst.getOperand(Inst.getNumOperands() - 1).isInst()) return false;
 
-        switch(Inst.getOpcode()) {
+        switch (Inst.getOpcode()) {
 
           case MSPUInst::LoadSI8JI:
           case MSPUInst::LoadUI8JI:
@@ -79,6 +77,7 @@ namespace {
           case MSPUInst::AssignPtr:
           case MSPUInst::AssignF32:
             if(! isInt<11> (Imm) ) return true;
+            else return false;
 
           case MSPUInst::JumpImm:
           case MSPUInst::JumpBasicBlock:
@@ -90,7 +89,8 @@ namespace {
 
           case MSPUInst::LoopL0:
           case MSPUInst::LoopL1:
-            if(! isInt<17> (Imm) ) return true;
+            if(!isInt<17>(Imm)) return true;
+            else return false;
 
           default:
             return false;
@@ -103,7 +103,7 @@ namespace {
 			/// Data: the start byte of encoding section
 			/// DataSize : encoding section size in bytes
 			void applyFixup(const MCFixup &Fixup, char *Data, unsigned DataSize,
-					uint64_t Value, bool IsPCRel) const override
+					            uint64_t Value, bool IsPCRel) const override
 			{
 				int64_t sval = (int64_t)(Value);
 
@@ -111,13 +111,6 @@ namespace {
 				int64_t offset = Fixup.getOffset();
 
 				MCFixupKind Kind = Fixup.getKind();
-        switch(Kind) {
-          case MSPU::fixup_MSPU_PC28:
-          case MSPU::fixup_MSPU_PC17:
-            break;
-
-          default: break;
-        }
 
 				switch(Kind) {
 					case MSPU::fixup_MSPU_PC28:
@@ -129,9 +122,6 @@ namespace {
 
 					default: break;
 				}
-
-				// Number of bytes we need to fixup
-				//unsigned NumBytes = ( getFixupKindInfo(Kind).TargetSize + 7 ) / 8;
 
 				// Grab current value from 'Data'
 				uint64_t insnCodes = 0;
@@ -249,10 +239,10 @@ namespace {
           if (MIP->getOpcode() == MSPUInst::ImmExt) return false;
         }
 
-				int indx = getImmIndx(Inst);
-        if(indx < 0) return false;
+				int index = getImmIndx(Inst);
+        if(index < 0) return false;
         else {
-          const MCOperand & op = Inst.getOperand(indx);
+          const MCOperand & op = Inst.getOperand(index);
 
           // note: we do not generate fixups for imm or constant expression,
           // so they will not be relaxed.
@@ -296,23 +286,30 @@ namespace {
 			void relaxInstruction(const MCInst &Inst, MCInst &Res) const override
 			{
 			  Res = Inst;
-        int indx = getImmIndx(Inst);
+        int index = getImmIndx(Inst);
 
-        ImmExtInst.clear();
-        ImmExtInst.setOpcode(MSPUInst::ImmExt);
-        ImmExtInst.addOperand(Res.getOperand(indx));
-        ImmExtInst.setStart(false);
+        if (index == -1) return;
+
+        MCInst *ImmExtInst = new MCInst();
+        ImmExtInst->setOpcode(MSPUInst::ImmExt);
+        ImmExtInst->addOperand(Res.getOperand(index));
 
         if (Res.getNumOperands() &&
             Res.getOperand(Res.getNumOperands() - 1).isInst()) {
-          ImmExtInst.addOperand(Res.getOperand(Res.getNumOperands() - 1));
+          ImmExtInst->addOperand(Res.getOperand(Res.getNumOperands() - 1));
         }
-        Res.addOperand(MCOperand::CreateInst(&ImmExtInst));
+        Res.addOperand(MCOperand::CreateInst(ImmExtInst));
 
         return;
 			}
 			/// @}
 
+		  /// getMinimumNopSize - Returns the minimum size of a nop in bytes on this
+		  /// target. The assembler will use this to emit excess padding in situations
+		  /// where the padding required for simple alignment would be less than the
+		  /// minimum nop size.
+		  ///
+		  virtual unsigned getMinimumNopSize() const { return 4; }
 
 			/// WriteNopData - Write an (optimal) nop sequence of Count bytes
 			/// to the given output. If the target cannot generate such a sequence,

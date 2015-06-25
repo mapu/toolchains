@@ -15,7 +15,7 @@ CPP.Flags += -I$(PROJ_OBJ_DIR)/.. -I$(PROJ_SRC_DIR)/..
 
 include $(LEVEL)/Makefile.common
 
-MSPUHEADERS = MSPUMCInst.h  MSPUMCTargetDesc.h
+MSPUHEADERS = MSPUMCTargetDesc.h
 MSPUSUBDIR  = $(DESTDIR)$(PROJ_includedir)/MSPU/MCTargetDesc
 
 install-local::

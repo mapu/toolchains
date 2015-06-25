@@ -356,47 +356,32 @@ DecodeStatus MSPUDisassembler::getInstruction(MCInst &Inst, uint64_t &Size,
 {
   // we pass *Region*
   MemObj = Bytes;
-
+  MCInst *ITR = &Inst;
+  MCInst *prev = NULL;
   Size = 0; // initialize Size.
-
   uint64_t codes, numBytes;  // template<typename InsnType>
-  DecodeStatus result = readInstruction(Bytes, 0, numBytes, codes, true/*little endian*/);
-  if(result != MCDisassembler::Success) return result;
 
-  MSPUMCInst * ITR = static_cast<MSPUMCInst *>(&Inst);
-  MSPUMCInst *prev = NULL;
-  ITR->setStart(isStart);
-  if (codes & (1 << 31)) {// expect for a next instruction.
-    ITR->setEnd(true);
-    isStart = true;
-  } else {
-    ITR->setEnd(false);
-    isStart = false;
-  }
-  // generated decode function
-  result = decodeInstruction(DecoderTableMSPUDecode32, *ITR, codes & (~(1 << 31)), Address+Size, this, STI);
-  if (result != MCDisassembler::Success) return result;
-  Size += 4;
-  while (isStart == false) {
-    prev = ITR;
+  DecodeStatus result;
+  do {
     result = readInstruction(Bytes, Size, numBytes, codes, true/*little endian*/);
     if (result != MCDisassembler::Success) return MCDisassembler::Success;
-    ITR = new MSPUMCInst();
     result = decodeInstruction(DecoderTableMSPUDecode32, *ITR, codes & (~(1 << 31)), Address+Size, this, STI);
     if (result != MCDisassembler::Success) {
       delete ITR;
       return MCDisassembler::Success;
     }
     if (codes & (1 << 31)) {// expect for a next instruction.
-      ITR->setEnd(true);
-      isStart = true;
+      //ITR->setEnd(true);
+      isPacketEnd = true;
     } else {
-      ITR->setEnd(false);
-      isStart = false;
+      //ITR->setEnd(false);
+      isPacketEnd = false;
     }
-    prev->addOperand(MCOperand::CreateInst(ITR));
     Size += 4;
-  }
+    if (prev) prev->addOperand(MCOperand::CreateInst(ITR));
+    prev = ITR;
+    ITR = new MCInst();
+  } while (isPacketEnd == false);
 
 	return result;
 }

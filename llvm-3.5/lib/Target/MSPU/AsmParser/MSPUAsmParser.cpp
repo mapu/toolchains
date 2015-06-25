@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "../MCTargetDesc/MSPUMCTargetDesc.h"
-#include "../MCTargetDesc/MSPUMCInst.h"
 
 #include "llvm/MC/MCParser/MCAsmLexer.h"
 #include "llvm/MC/MCParser/MCAsmParser.h"
@@ -387,10 +386,11 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
                                                   uint64_t &ErrorInfo,
                                                   bool MatchingInlineAsm) {
   const MCExpr * expr;
-  MSPUMCInst *InstHead = new MSPUMCInst(), *prevInst = NULL, *curInst = InstHead, *secInst = NULL;
+  MCInst *InstHead = new MCInst(), *prevInst = NULL, *curInst = InstHead,
+    *secInst = NULL;
   MSPUAsmOperand * op;
   bool isTail;
-  bool isHead = true;
+  //bool isHead = true;
   unsigned n = Operands.size();
   MCOperand MO;
 
@@ -400,13 +400,13 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
     // this is the last push-backed operand for an instruction.
     case AsmOpc:
       isTail = i == n - 1;
-      if (isTail) curInst->setEnd(true);
+      /*if (isTail) curInst->setEnd(true);
       else curInst->setEnd(false);
 
       if (isHead) {
         curInst->setStart(true);
         isHead = false;
-      } else curInst->setStart(false);
+      } else curInst->setStart(false);*/
 
       curInst->setOpcode(op->getOpc());
       curInst->setLoc(IDLoc);
@@ -415,9 +415,9 @@ bool MSPU::MSPUAsmParser::MatchAndEmitInstruction(SMLoc IDLoc,
       prevInst = curInst;
       if (!isTail) {
     	  if (curInst == InstHead) {
-    	    secInst = new MSPUMCInst();
+    	    secInst = new MCInst();
     	    curInst = secInst;
-    	  } else curInst = new MSPUMCInst();
+    	  } else curInst = new MCInst();
       }
       break;
     case AsmReg:

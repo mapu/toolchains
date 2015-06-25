@@ -140,6 +140,8 @@ char MSPUPacketizer::ID = 0;
 
 class MSPUPacketizerList : public VLIWPacketizerList {
 private:
+  static const unsigned MaxMINumber = 4;
+
   // Has the instruction been promoted to a dot-new instruction.
   bool PromotedToDotNew;
 
@@ -187,7 +189,7 @@ public:
   // and SUJ.
   //bool isLegalToPruneDependencies(SUnit *SUI, SUnit *SUJ) override;
 
-  //MachineBasicBlock::iterator addToPacket(MachineInstr *MI) override;
+  MachineBasicBlock::iterator addToPacket(MachineInstr *MI) override;
 
 private:
   /*bool IsCallDependent(MachineInstr* MI, SDep::Kind DepType, unsigned DepReg);
@@ -362,6 +364,9 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
   MachineInstr *J = SUJ->getInstr();
   assert(I && J && "Unable to packetize null instruction!");
 
+  if (I->getOpcode() == MSPUInst::NOP || J->getOpcode() == MSPUInst::NOP)
+    return true;
+
   unsigned flag = 0;
   MSPUCheckImmFlag(I,flag);
   MSPUCheckImmFlag(J,flag);
@@ -472,6 +477,18 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
   }
 
   return true;
+}
+
+// addToPacket - Add MI to the current packet.
+MachineBasicBlock::iterator
+MSPUPacketizerList::addToPacket(MachineInstr *MI) {
+  MachineBasicBlock::iterator MII = MI;
+  if (CurrentPacketMIs.size() == MaxMINumber)
+    endPacket(MI->getParent(), MI);
+  CurrentPacketMIs.push_back(MI);
+  if (MI->getOpcode() != MSPUInst::NOP)
+    ResourceTracker->reserveResources(MI);
+  return MII;
 }
 
 //===----------------------------------------------------------------------===//

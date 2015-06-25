@@ -15,7 +15,6 @@
 #define DEBUG_TYPE "mccodeemitter"
 #include "MSPUFixupKinds.h"
 #include "MSPUMCTargetDesc.h"
-#include "MSPUMCInst.h"
 #include "../InstPrinter/MSPUInstPrinter.h"
 #include "../MSPU.h"
 #include "llvm/MC/MCCodeEmitter.h"
@@ -396,7 +395,7 @@ class MSPUMCCodeEmitter: public MCCodeEmitter {
 private:
   // *mutable* to ignore *const*
   mutable unsigned LineOffset;
-  mutable MSPUMCInst ImmExtInst;
+  mutable MCInst ImmExtInst;
   mutable const MCInst *prevInst;
 
 public:
@@ -488,9 +487,6 @@ public:
     else {
       ImmExtInst.setOpcode(MSPUInst::ImmExt);
       ImmExtInst.addOperand(MCOperand::CreateImm(val));
-      ImmExtInst.setPrev(const_cast<MCInst*>(&MI));
-      ImmExtInst.setStart(false);
-      ImmExtInst.setEnd(static_cast<const MSPUMCInst *>(&MI)->isEnd());
       val &= 0xF;
     }
 
@@ -548,9 +544,6 @@ public:
     else {
       ImmExtInst.setOpcode(MSPUInst::ImmExt);
       ImmExtInst.addOperand(MCOperand::CreateImm(val));
-      ImmExtInst.setPrev(const_cast<MCInst*>(&MI));
-      ImmExtInst.setStart(false);
-      ImmExtInst.setEnd(static_cast<const MSPUMCInst *>(&MI)->isEnd());
       val &= 0xF;
     }
 

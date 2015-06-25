@@ -26,41 +26,45 @@ namespace llvm
 	// This class plays mixed roles: it converts MachineInstr into MCInst if backend
 	// supoorts MC layer. Or it will directly write out asm to iostream from MachineInstr
 	// like Sparc backend does.
-	class MSPUAsmPrinter: public AsmPrinter
-	{
-			const MSPUSubtarget *Subtarget;
-//		MachineModuleInfoELF MMIelf;
-		public:
-			explicit
-			MSPUAsmPrinter(TargetMachine &TM, MCStreamer &Streamer)
-							: AsmPrinter(TM, Streamer)
-			{
-				Subtarget = &TM.getSubtarget<MSPUSubtarget>();
-			}
+class MSPUAsmPrinter: public AsmPrinter {
+  const MSPUSubtarget *Subtarget;
 
-			virtual const char *
-			getPassName() const
-			{
-				return "MSPU Assembly Printer";
-			}
+  MCOperand LowerSymbolOperand(const MachineOperand& MO, const MCSymbol* Symbol) {
+    const MCExpr *ME;
+    ME = MCSymbolRefExpr::Create(Symbol, MCSymbolRefExpr::VK_None, OutContext);
+    return (MCOperand::CreateExpr(ME));
+  }
 
-			virtual bool
-			isBlockOnlyReachableByFallthrough(const MachineBasicBlock *MBB) const;
+  void LowerToMC(const MachineInstr *MI, MCInst &MCI, MCInst *Head);
 
-			virtual void
-			EmitInstruction(const MachineInstr *MI);
+public:
+  explicit MSPUAsmPrinter(TargetMachine &TM, MCStreamer &Streamer) :
+      AsmPrinter(TM, Streamer) {
+    Subtarget = &TM.getSubtarget<MSPUSubtarget>();
+  }
 
-		    // Targets can, or in the case of EmitInstruction, must implement these to
-		    // customize output.
+  virtual const char *
+  getPassName() const {
+    return "MSPU Assembly Printer";
+  }
 
-		    /// EmitStartOfAsmFile - This virtual method can be overridden by targets
-		    /// that want to emit something at the start of their file.
-		    void EmitStartOfAsmFile(Module &);
+  virtual bool
+  isBlockOnlyReachableByFallthrough(const MachineBasicBlock *MBB) const;
 
-		    /// EmitEndOfAsmFile - This virtual method can be overridden by targets that
-		    /// want to emit something at the end of their file.
-		    void EmitEndOfAsmFile(Module &);
-	};
+  virtual void
+  EmitInstruction(const MachineInstr *MI);
+
+  // Targets can, or in the case of EmitInstruction, must implement these to
+  // customize output.
+
+  /// EmitStartOfAsmFile - This virtual method can be overridden by targets
+  /// that want to emit something at the start of their file.
+  void EmitStartOfAsmFile(Module &);
+
+  /// EmitEndOfAsmFile - This virtual method can be overridden by targets that
+  /// want to emit something at the end of their file.
+  void EmitEndOfAsmFile(Module &);
+};
 
 }  // end of llvm namespace
 

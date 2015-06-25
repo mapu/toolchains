@@ -17,7 +17,6 @@ add_llvm_target(MSPUCodeGen
 		MSPUAsmPrinter.cpp
 		MSPUInstrInfo.cpp
 		MSPUISelLowering.cpp
-		MSPUMCInstLower.cpp
 		MSPUSelectionDAGInfo.cpp
 		MSPUTargetMachine.cpp
 		MSPUVLIWPacketizer.cpp
@@ -28,6 +27,7 @@ add_llvm_target(MSPUCodeGen
 		MSPURegisterInfo.cpp
 		MSPUSubtarget.cpp
 		MSPUTargetObjectFile.cpp
+    MSPUFixupHwLoop.cpp
 )
 
 add_dependencies(LLVMMSPUCodeGen intrinsics_gen)

@@ -21,24 +21,22 @@
 
 #define  MMPUEncodingBytes  41
 
-namespace llvm
-{
-	class MSPUAsmPrinter;
-	class MSPUTargetMachine;
+namespace llvm {
+class MSPUAsmPrinter;
+class MSPUTargetMachine;
 
-	class FunctionPass;
-	class formatted_raw_ostream;
-	class MachineInstr;
-	class MCInst;
+class FunctionPass;
+class formatted_raw_ostream;
+class MachineInstr;
+class MCInst;
 
-	FunctionPass *
-	createMSPUISelDag(MSPUTargetMachine &TM);
-	void
-	MSPULowerToMC(const MachineInstr *MI, MCInst &MCI, MCInst *Head,
-						MSPUAsmPrinter &AP);
+FunctionPass *createMSPUISelDag(MSPUTargetMachine &TM);
 
-	FunctionPass *
-	createMSPUPacketizer();
+FunctionPass *createMSPUPacketizer();
+
+FunctionPass *createMSPUISelDag(MSPUTargetMachine &TM);
+
+FunctionPass *createMSPUFixupHwLoop();
 }  // end namespace llvm;
 
 namespace llvm

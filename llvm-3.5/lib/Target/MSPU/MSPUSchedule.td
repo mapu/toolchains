@@ -26,6 +26,7 @@ def FU_SCU: FuncUnit;
 def FU_AGU: FuncUnit;
 def FU_SEQ: FuncUnit;
 def FU_SYN: FuncUnit;
+def FU_NOP: FuncUnit;
 
 //===----------------------------------------------------------------------===//
 /* Itinerary classes.
@@ -69,6 +70,8 @@ def ItinSEQNoReg		:	InstrItinClass;
 def ItinSYNNoReg		:	InstrItinClass;
 
 def ItinPseudo  		:	InstrItinClass;
+
+def ItinNop      : InstrItinClass;
 
 //===----------------------------------------------------------------------===//
 // Instruction stage - This value represents a non-pipelined step in
@@ -123,7 +126,7 @@ class ProcessorItineraries<list<FuncUnit> fu, list<Bypass> bp,
 }
 */
 def MSPUItineraries : ProcessorItineraries<
-  [FU_SCU, FU_AGU, FU_SEQ, FU_SYN], [],
+  [FU_SCU, FU_AGU, FU_SEQ, FU_SYN, FU_NOP], [],
   [
     InstrItinData<ItinSCU_2_1_1, 	[ InstrStage<1,  [FU_SCU]> ], [2,1,1]>,
     InstrItinData<ItinSCU_4_1_1, 	[ InstrStage<1,  [FU_SCU]> ], [4,1,1]>,
@@ -147,7 +150,8 @@ def MSPUItineraries : ProcessorItineraries<
     InstrItinData<ItinPseudo, 	    [ InstrStage<1,  [FU_SCU,FU_AGU,FU_SEQ,FU_SYN]>], []>,
 
     InstrItinData<ItinSEQNoReg, 	[ InstrStage<1,  [FU_SEQ]> ], []>,
-    InstrItinData<ItinSYNNoReg, 	[ InstrStage<1,  [FU_SYN]> ], []>
+    InstrItinData<ItinSYNNoReg, 	[ InstrStage<1,  [FU_SYN]> ], []>,
+    InstrItinData<ItinNop,   [ InstrStage<1,  [FU_NOP]> ], []>
   ]  >;
 
 def MSPUSchedModel : SchedMachineModel {

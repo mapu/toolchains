@@ -88,12 +88,12 @@ BUILTIN(__mspu_setSHUWithSVR, "vIiCIiCIiC", "n")
 BUILTIN(__mspu_setSVRWithSHU, "vIiCIiCIiC", "n")
 
 // R = [J + J] (AT)
-BUILTIN(__mspu_atomicld, "ii*Ii", "n")
+BUILTIN(__mspu_atomicld, "ii*iC", "n")
 // [J + J] = R (AT)
-BUILTIN(__mspu_atomicst, "ii*Iii", "n")
+BUILTIN(__mspu_atomicst, "ii*iCi", "n")
 
 // Lpto imm BY J (L0)
-BUILTIN(__mspu_loop, "vv*IiC", "n")
+BUILTIN(__mspu_loop, "vv*iC", "n")
 
 // Nop
 BUILTIN(__mspu_delay, "v", "n")

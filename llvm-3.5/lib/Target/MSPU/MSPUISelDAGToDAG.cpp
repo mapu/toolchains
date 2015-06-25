@@ -207,12 +207,12 @@ SDNode *MSPUDAGToDAGISel::Select(SDNode *N) {
       break;
 
     case Intrinsic::mspu_loop:
-      if (N->getNumOperands() == 4
-          && N->getOperand(2).getNode()->getOpcode() == MSPU_ISD::XferAddr) {
+      if (N->getNumOperands() == 4 &&
+          N->getOperand(2).getNode()->getOpcode() == MSPU_ISD::XferAddr) {
         SDNode *Xfer = N->getOperand(2).getNode();
         if (isa<BlockAddressSDNode>(Xfer->getOperand(0).getNode())) {
-          BlockAddressSDNode *OldLoopAddr = cast<BlockAddressSDNode>(
-              Xfer->getOperand(0).getNode());
+          BlockAddressSDNode *OldLoopAddr =
+            cast<BlockAddressSDNode>(Xfer->getOperand(0).getNode());
           SDValue LoopAddr =
             CurDAG->getBlockAddress(OldLoopAddr->getBlockAddress(),
                                     OldLoopAddr->getValueType(0),

@@ -4,7 +4,6 @@ add_llvm_library(LLVMMSPUDesc
   MSPUMCAsmInfo.cpp
   MSPUMCCodeEmitter.cpp  
   MSPUMCTargetDesc.cpp
-  MSPUMCInst.cpp
 )
 
 add_dependencies(LLVMMSPUDesc MSPUCommonTableGen)

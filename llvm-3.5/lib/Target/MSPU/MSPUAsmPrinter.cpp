@@ -20,7 +20,6 @@
 #include "MSPUTargetMachine.h"
 #include "MSPUSubtarget.h"
 #include "InstPrinter/MSPUInstPrinter.h"
-#include "MCTargetDesc/MSPUMCInst.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Module.h"
@@ -100,87 +99,149 @@ MSPUAsmPrinter::isBlockOnlyReachableByFallthrough(const MachineBasicBlock *MBB) 
 	return AsmPrinter::isBlockOnlyReachableByFallthrough(MBB);
 }
 
+// Create an MCInst from a MachineInstr
+void MSPUAsmPrinter::LowerToMC(const MachineInstr* MI, MCInst& MCI, MCInst *Head) {
+  MCI.setOpcode(MI->getOpcode());
+
+  for (unsigned i = 0, e = MI->getNumOperands(); i < e; i++) {
+
+    const MachineOperand &MO = MI->getOperand(i);
+    MCOperand MCO;
+    MCSymbol* Sym;
+
+    switch (MO.getType()) {
+    default:
+      MI->dump();
+      assert(0 && "unknown operand type");
+      break;
+
+    case MachineOperand::MO_Register:
+      // Ignore all implicit register operands.
+      if (MO.isImplicit()) continue;
+      MCO = MCOperand::CreateReg(MO.getReg());
+      break;
+
+    case MachineOperand::MO_FPImmediate: {
+      const APFloat& Val = MO.getFPImm()->getValueAPF();
+      // FP immediates are used only when setting GPRs, so they may be dealt
+      // with like regular immediates from this point on.
+      MCO = MCOperand::CreateImm( *( Val.bitcastToAPInt().getRawData() ) );
+      break;
+    }
+
+    case MachineOperand::MO_Immediate:
+      MCO = MCOperand::CreateImm(MO.getImm());
+      break;
+
+    case MachineOperand::MO_MachineBasicBlock:
+      MCO = MCOperand::
+      CreateExpr(MCSymbolRefExpr::Create(MO.getMBB()->getSymbol(), OutContext));
+      break;
+
+    case MachineOperand::MO_GlobalAddress:
+      Sym = getSymbol(MO.getGlobal());
+      MCO = LowerSymbolOperand(MO, Sym);
+      //Printer.OutStreamer.EmitSymbolAttribute(Sym, MCSA_Global);
+      break;
+
+    case MachineOperand::MO_ExternalSymbol:
+      Sym = GetExternalSymbolSymbol(MO.getSymbolName());
+      MCO = LowerSymbolOperand(MO, Sym);
+      //Printer.OutStreamer.EmitSymbolAttribute(Sym, MCSA_Global);
+      break;
+
+    case MachineOperand::MO_JumpTableIndex:
+      MCO = LowerSymbolOperand(MO, GetJTISymbol(MO.getIndex()));
+      break;
+
+    case MachineOperand::MO_ConstantPoolIndex:
+      MCO = LowerSymbolOperand(MO, GetCPISymbol(MO.getIndex()));
+      break;
+
+    case MachineOperand::MO_BlockAddress:
+      MCO = LowerSymbolOperand(MO, GetBlockAddressSymbol(MO.getBlockAddress()));
+      break;
+
+    case MachineOperand::MO_RegisterMask:
+      break;
+    }
+
+    MCI.addOperand(MCO);
+    if (Head && (&MCI != Head)) Head->addOperand(MCO);
+  }
+
+}
+
 /// printMachineInstruction -- Print out a single MSPU MI to
 /// the current output stream.
 /// Note: Caller of this function uses bundle iterator.
-void
-MSPUAsmPrinter::EmitInstruction(const MachineInstr *MI)
-{
-	if(MI->isBundle()) {
-		std::vector<const MachineInstr*> BundleMIs;
+void MSPUAsmPrinter::EmitInstruction(const MachineInstr *MI) {
+  if (MI->isBundle()) {
+    std::vector<const MachineInstr*> BundleMIs;
 
-		const MachineBasicBlock *MBB = MI->getParent();
-		MachineBasicBlock::const_instr_iterator MII = MI;
-		++MII;
-		unsigned int IgnoreCount = 0;
+    const MachineBasicBlock *MBB = MI->getParent();
+    MachineBasicBlock::const_instr_iterator MII = MI;
+    ++MII;
+    unsigned int IgnoreCount = 0;
 
-		// scan MachineInstr list and collect all the machine instructions into a vector.
-		while(MII != MBB->end() && MII->isInsideBundle()) {
-			const MachineInstr *MInst = MII;
-			if(MInst->getOpcode() == TargetOpcode::DBG_VALUE ||
-					MInst->getOpcode() == TargetOpcode::IMPLICIT_DEF) {
-				IgnoreCount++;
-				++MII;
-				continue;
-			}
+    // scan MachineInstr list and collect all the machine instructions into a vector.
+    while (MII != MBB->end() && MII->isInsideBundle()) {
+      const MachineInstr *MInst = MII;
+      if (MInst->getOpcode() == TargetOpcode::DBG_VALUE ||
+          MInst->getOpcode() == TargetOpcode::IMPLICIT_DEF) {
+        IgnoreCount++;
+        ++MII;
+        continue;
+      }
 
-			BundleMIs.push_back(MInst);
-			++MII;
-		}
+      BundleMIs.push_back(MInst);
+      ++MII;
+    }
 
-		unsigned Size = BundleMIs.size();
-		assert((Size+IgnoreCount) == MI->getBundleSize() && "Corrupt Bundle!");
-		// tag each machine instr if it is inside bundle.
-    MSPUMCInst MCI;
-    MSPUMCInst *Cur = &MCI;
-    MSPUMCInst *Prev = NULL;
-    MSPUMCInst *Sec = NULL;
-		for(unsigned Index = 0; Index < Size; Index++) {
-		  //MSPUMCInst MCI;
-			MSPULowerToMC(BundleMIs[Index], *Cur, &MCI, *this);
+    unsigned Size = BundleMIs.size();
+    assert((Size + IgnoreCount) == MI->getBundleSize() && "Corrupt Bundle!");
+    // tag each machine instr if it is inside bundle.
+    MCInst MCI;
+    MCInst *Cur = &MCI;
+    MCInst *Prev = NULL;
+    MCInst *Sec = NULL;
+    for (unsigned Index = 0; Index < Size; Index++) {
+      //MSPUMCInst MCI;
+      LowerToMC(BundleMIs[Index], *Cur, &MCI);
       //MCI.setStart(Index == 0);
       //MCI.setEnd(Index == (Size - 1));
-			if (Prev && Prev != &MCI) Prev->addOperand(MCOperand::CreateInst(Cur));
-			Prev = Cur;
-			if (Index != Size - 1) {
-				if (Cur == &MCI) {
-					Sec = new MSPUMCInst();
-					Cur = Sec;
-				} else Cur = new MSPUMCInst();
-			}
-		}
-		if (Sec) MCI.addOperand(MCOperand::CreateInst(Sec));
+      if (Prev && Prev != &MCI) Prev->addOperand(MCOperand::CreateInst(Cur));
+      Prev = Cur;
+      if (Index != Size - 1) {
+        if (Cur == &MCI) {
+          Sec = new MCInst();
+          Cur = Sec;
+        } else Cur = new MCInst();
+      }
+    }
+    if (Sec) MCI.addOperand(MCOperand::CreateInst(Sec));
     EmitToStreamer(OutStreamer, MCI);
-	}
-	else { // a solo instruction
-	  MSPUMCInst MCI;
-		MSPULowerToMC(MI, MCI, NULL, *this);
-		//MCI.setStart(true);
-		//MCI.setEnd(true);
+  } else { // a solo instruction
+    MCInst MCI;
+    LowerToMC(MI, MCI, NULL);
+    //MCI.setStart(true);
+    //MCI.setEnd(true);
     EmitToStreamer(OutStreamer, MCI);
-	}
+  }
 
-	return;
+  return;
 }
 
 static MCInstPrinter *
-createMSPUMCInstPrinter(const Target &T,
-						unsigned SyntaxVariant,
-						const MCAsmInfo &MAI,
-						const MCInstrInfo &MII,
-						const MCRegisterInfo &MRI,
-						const MCSubtargetInfo &STI)
-{
-	if(SyntaxVariant == 0)
-		return (new MSPUInstPrinter(MAI, MII, MRI));
-	else
-		return NULL;
+createMSPUMCInstPrinter(const Target &T, unsigned SyntaxVariant,
+                        const MCAsmInfo &MAI, const MCInstrInfo &MII,
+                        const MCRegisterInfo &MRI, const MCSubtargetInfo &STI) {
+  if (SyntaxVariant == 0) return (new MSPUInstPrinter(MAI, MII, MRI));
+  else return NULL;
 }
 
-extern "C" void LLVMInitializeMSPUAsmPrinter()
-{
-	RegisterAsmPrinter<MSPUAsmPrinter> X(TheMSPUTarget);
+extern "C" void LLVMInitializeMSPUAsmPrinter() {
+  RegisterAsmPrinter<MSPUAsmPrinter> X(TheMSPUTarget);
 
-	TargetRegistry::RegisterMCInstPrinter(TheMSPUTarget,
-											createMSPUMCInstPrinter);
+  TargetRegistry::RegisterMCInstPrinter(TheMSPUTarget, createMSPUMCInstPrinter);
 }

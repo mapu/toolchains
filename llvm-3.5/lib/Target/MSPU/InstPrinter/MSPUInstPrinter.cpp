@@ -15,7 +15,6 @@
 #include "../MSPU.h"
 #include "../MSPUAsmPrinter.h"
 #include "../MSPUInstFlags.h"
-#include "../MCTargetDesc/MSPUMCInst.h"
 #include "MSPUInstPrinter.h"
 #include "llvm/MC/MCInst.h"
 #include "../MCTargetDesc/MSPUMCTargetDesc.h"
@@ -34,7 +33,7 @@ MSPUInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
 							StringRef Annot)
 {
   assert(MI->getOpcode() != MSPUInst::ImmExt && "should not print out imm-ext instructions");
-  const MSPUMCInst *MSMI = static_cast<const MSPUMCInst *>(MI);
+  const MCInst *MSMI = MI;
 
   O << "\tm.s ";
   do {
@@ -50,13 +49,11 @@ MSPUInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
     // ...; insn; imm ;;
     if (MSMI->getNumOperands() &&
         MSMI->getOperand(MSMI->getNumOperands() - 1).isInst()) {
-      MSMI = static_cast<const MSPUMCInst *>(
-        MSMI->getOperand(MSMI->getNumOperands() - 1).getInst());
+      MSMI = MSMI->getOperand(MSMI->getNumOperands() - 1).getInst();
       if (MSMI && (MSMI->getOpcode() == MSPUInst::ImmExt)) {
         if (MSMI->getNumOperands() &&
             MSMI->getOperand(MSMI->getNumOperands() - 1).isInst()) {
-          MSMI = static_cast<const MSPUMCInst *>(
-            MSMI->getOperand(MSMI->getNumOperands() - 1).getInst());
+          MSMI = MSMI->getOperand(MSMI->getNumOperands() - 1).getInst();
           O << ";";
         } else {
           O << ";;";
@@ -129,8 +126,7 @@ MSPUInstPrinter::printImmExt(const MCInst *MI, unsigned OpNo, raw_ostream &O) co
 
   if (MI->getNumOperands() &&
       MI->getOperand(MI->getNumOperands() - 1).isInst()) {
-    const MSPUMCInst *sub = static_cast<const MSPUMCInst *>(
-      MI->getOperand(MI->getNumOperands() - 1).getInst());
+    const MCInst *sub = MI->getOperand(MI->getNumOperands() - 1).getInst();
 		if(sub->getOpcode() == MSPUInst::ImmExt) {
 			assert(sub->getOperand(0).isImm() && "expect imm operand");
 			hi = sub->getOperand(0).getImm();

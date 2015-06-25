@@ -1493,6 +1493,7 @@ def LoopL0 : SeqInstr<(outs), (ins SImm17Ptr:$t, JReg:$j),
 	bits<5> j;
 	let Inst{21-5} = t;
 	let Inst{4-0} = j;
+	let isTerminator = 1;
   let Itinerary = ItinSEQ_1;
 }
 
@@ -1507,12 +1508,21 @@ def LoopL1 : SeqInstr<
 	let Inst{4-0} = j;
 }
 
-def NOP : SeqInstr< 
-	    (outs),	(ins),
-		"NOP", 0b000000, [(int_mspu_delay)]>
+def Delay : SeqInstr< 
+      (outs), (ins),
+    "NOP", 0b000000, [(int_mspu_delay)]>
 {
-	let Inst{21-0} = 0;
-  let Itinerary = ItinSEQNoReg;
+  let Inst{21-0} = 0;
+  let isCodeGenOnly = 1;
+  let Itinerary = ItinNop;
+}
+
+def NOP : SeqInstr< 
+      (outs), (ins),
+    "NOP", 0b000000, [(int_mspu_delay)]>
+{
+  let Inst{21-0} = 0;
+  let Itinerary = ItinNop;
 }
 
 def Stop : SeqInstr< 

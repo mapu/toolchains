@@ -4,7 +4,6 @@
 #include "../MSPU.h"
 #include "../MSPUSubtarget.h"
 #include "../MSPURegisterInfo.h"
-#include "../MCTargetDesc/MSPUMCInst.h"
 
 #include "llvm-c/Disassembler.h"
 #include "llvm/ADT/SmallString.h"
@@ -30,13 +29,13 @@ namespace {
     private:
       const MCRegisterInfo *RegInfo;
       mutable ArrayRef<uint8_t> MemObj;
-      mutable bool isStart;
+      mutable bool isPacketEnd;
 
     public:
       /// Constructor     - Initializes the disassembler.
       MSPUDisassembler(const MCSubtargetInfo &STI, MCContext &Ctx,
           const MCRegisterInfo *Info, bool bigEndian)
-          : MCDisassembler(STI, Ctx), RegInfo(Info), MemObj(), isStart(true)
+          : MCDisassembler(STI, Ctx), RegInfo(Info), MemObj(), isPacketEnd(true)
       { }
 
       virtual ~MSPUDisassembler() { }
