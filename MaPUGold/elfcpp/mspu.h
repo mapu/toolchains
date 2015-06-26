@@ -1,4 +1,4 @@
-// mpu.h -- ELF definitions specific to EM_MPU  -*- C++ -*-
+// mspu.h -- ELF definitions specific to EM_MSPU  -*- C++ -*-
 
 // Copyright 2012 CASIA.
 // Written by Shawn.Xie <shaolin.xie@ia.ac.cn>.

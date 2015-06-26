@@ -307,7 +307,7 @@ then
   export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
   $source_path/llvm-3.5/configure --prefix=$install_path $llvm_cfg $python_flag \
     --enable-cxx11 --enable-targets=mspu,mmpulite,x86 CC=$CC CXX=$CXX
-  make RAGEL=$root/ragel/bin/ragel CXXFLAGS="-DARCH_MAPU" $MCFLAG || llvm_err=1
+  make RAGEL=$root/ragel/bin/ragel CXXFLAGS="-DARCH_MAPU" CFLAGS="-DARCH_MAPU" $MCFLAG || llvm_err=1
   install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
   if [ "$debug_mode" -eq 0 ]
   then make install
@@ -326,12 +326,13 @@ then
   fi
   cd build_gold
   # Build libiberty first
-  $source_path/MaPUGold/libiberty/configure --prefix=$root/build_gold
-  make $MCFLAG || gold_err=1
-  $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all --disable-werror
+  # $source_path/MaPUGold/libiberty/configure --prefix=$root/build_gold
+  # make $MCFLAG || gold_err=1
+  # $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all --disable-werror
+  $source_path/gold-2.25/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" 
   make $MCFLAG || gold_err=1
   if [ "$debug_mode" -eq 0 ]
-  then make install DATADIRNAME=abc
+  then make install #DATADIRNAME=abc
   fi
 fi
 
