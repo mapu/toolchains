@@ -46,7 +46,7 @@ class MainWindow(QMainWindow):
         self.copyAction=QAction(QIcon(":/copy.png"),self.tr("Copy"),self)    
         self.pasteAction=QAction(QIcon(":/paste.png"),self.tr("Paste"),self)          
         self.aboutAction=QAction(self.tr("&about"),self) 
-	self.setAction=QAction(self.tr("&set"),self)  
+	self.setAction=QAction(self.tr("&Simulator path setting..."),self)  
 	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
        
     def createMenus(self):  
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
 
     def setSimulatorPath(self):
 	self.setDialog=QDialog()
-	self.setDialog.setWindowTitle("Simulator path setting...")
+	self.setDialog.setWindowTitle("Simulator path setting")
 	self.setDialog.setFixedSize(400,200)
 	self.pathEdit=QLineEdit()
 	browserButton=QPushButton("Browser")

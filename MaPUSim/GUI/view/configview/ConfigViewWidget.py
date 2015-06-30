@@ -236,8 +236,11 @@ class ConfigViewWidget(QMainWindow):
 	self.connect(self.startButton,SIGNAL("clicked()"),self.startProcess)
 	self.connect(self.stopButton,SIGNAL("clicked()"),self.stopProcess)
 	
+	self.ARMAPCProcess=QProcess()
+	self.ARMProcess=QProcess()
 	#set default status
 	if 0:
+	    self.flag=0
 	    self.APCRadio.setChecked(True)
 	    self.APCRadioSlot()
 	    self.APE1Check.setCheckState(Qt.Unchecked)
@@ -247,11 +250,11 @@ class ConfigViewWidget(QMainWindow):
 	    self.APE2CheckSlot()
 	    self.APE3CheckSlot()
 	else:
+	    self.flag=1
 	    self.fullRadio.setChecked(True)
 	    self.fullRadioSlot()
 
     def fullRadioSlot(self):
-	self.flag=1
 	self.fullBrowserButton.setEnabled(True)
 	self.fullEdit.setEnabled(True)
 	self.traceFlagsButton.setEnabled(False)
@@ -277,7 +280,6 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3MPUButton.setEnabled(False)
 
     def APCRadioSlot(self):
-	self.flag=0
 	self.traceFlagsButton.setEnabled(True)
 	self.traceFileEdit.setEnabled(True)
 	self.APE0SPUEdit.setEnabled(True)
@@ -403,7 +405,6 @@ class ConfigViewWidget(QMainWindow):
 	    if os.path.exists(srcPath) and os.path.exists(destPath):
 		shutil.copy(srcPath,destPath)
 	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
-	    self.ARMProcess=QProcess()
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
 	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
@@ -439,7 +440,6 @@ class ConfigViewWidget(QMainWindow):
 	string="--debug-flags=MapuGUI "+"--trace-file="+self.traceFileEdit.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
 	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
 	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key
-	self.ARMAPCProcess=QProcess()
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardOutput()"),self.ARMAPCStartReadOutput)
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardError()"),self.ARMAPCStartReadErrOutput)
 	self.connect(self.ARMAPCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMAPCFinishProcess)
