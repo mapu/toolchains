@@ -207,7 +207,7 @@ class SPUViewWidget(QWidget):
 	self.stageDialog=StageDialog()
 
     def stageButtonSlot(self):
-	self.stageDialog.setWindowTitle("SPU Stage Dialog")
+	self.stageDialog.setWindowTitle("SPU Instruction Pipeline Diagram")
 	self.stageDialog.show()
 
     def updateSPUWidget(self,r):

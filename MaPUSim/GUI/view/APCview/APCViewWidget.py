@@ -96,23 +96,37 @@ class APCViewWidget(QWidget):
 	self.maxTime=int(line[:pos])/1000
 	f.close()
 	#update MPU and SPU stage dialog
-	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Color(self.dataBase,self.minTime,self.maxTime,"m") 
+	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"s")
+	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Color(self.dataBase,self.minTime,self.maxTime,"s")  
 	if self.num==2:
 	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
 	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")  
 	elif self.num==3:
 	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
 	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")   
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s")
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"s")  
 	elif self.num==4:
 	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
 	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")   
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s")
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"s")  
 	    self.APE3Widget.MPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
+	    self.APE3Widget.MPUWidget.stageDialog.updateAPE3Color(self.dataBase,self.minTime,self.maxTime,"m") 
 	    self.APE3Widget.SPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
+	    self.APE3Widget.SPUWidget.stageDialog.updateAPE3Color(self.dataBase,self.minTime,self.maxTime,"s") 
 
 	#set slider min and max value
 	self.slider.setRange(self.minTime,self.maxTime)

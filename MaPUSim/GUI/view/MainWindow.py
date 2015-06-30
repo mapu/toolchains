@@ -6,6 +6,7 @@ from SimuInfoWidget import*
 from ARMview.ARMViewWidget import*
 from APCview.APCViewWidget import*
 from configview.ConfigViewWidget import*
+import time
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -57,7 +58,7 @@ class MainWindow(QMainWindow):
 	editMenu.addAction(self.copyAction)
 	editMenu.addAction(self.cutAction)
 	editMenu.addAction(self.pasteAction)  
-        setMenu=self.menuBar().addMenu(self.tr("Set")) 
+        setMenu=self.menuBar().addMenu(self.tr("Settings")) 
 	setMenu.addAction(self.setAction)       
         aboutMenu=self.menuBar().addMenu(self.tr("Help")) 
 	aboutMenu.addAction(self.aboutAction)  
@@ -77,7 +78,7 @@ class MainWindow(QMainWindow):
 
     def setSimulatorPath(self):
 	self.setDialog=QDialog()
-	self.setDialog.setWindowTitle("Set Simulator Path")
+	self.setDialog.setWindowTitle("Simulator path setting...")
 	self.setDialog.setFixedSize(400,200)
 	self.pathEdit=QLineEdit()
 	browserButton=QPushButton("Browser")
@@ -95,6 +96,7 @@ class MainWindow(QMainWindow):
 	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=path+self.armViewWidget.UART0Widget.embTerminal.simulatorPath
         
     def closeEvent(self,event):
+	self.configControlWidget.stopProcess()
 	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE1Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE2Widget.MPUWidget.buttonWidget.closeFloatDialogs() 

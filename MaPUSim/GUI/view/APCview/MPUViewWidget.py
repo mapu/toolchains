@@ -530,7 +530,7 @@ class MPUViewWidget(QWidget):
 	self.stageDialog=StageDialog()
 	
     def stageButtonSlot(self):
-	self.stageDialog.setWindowTitle("MPU Stage Dialog")
+	self.stageDialog.setWindowTitle("MPU Instruction Pipeline Diagram")
 	self.stageDialog.show()
 
     def updateMPUWidget(self,r):

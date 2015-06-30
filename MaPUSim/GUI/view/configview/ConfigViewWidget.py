@@ -3,6 +3,8 @@ from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 import sys
 import time
+import shutil
+import os
 
 class ConfigViewWidget(QMainWindow):
     #define signal
@@ -249,6 +251,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.fullRadioSlot()
 
     def fullRadioSlot(self):
+	self.flag=1
 	self.fullBrowserButton.setEnabled(True)
 	self.fullEdit.setEnabled(True)
 	self.traceFlagsButton.setEnabled(False)
@@ -274,6 +277,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3MPUButton.setEnabled(False)
 
     def APCRadioSlot(self):
+	self.flag=0
 	self.traceFlagsButton.setEnabled(True)
 	self.traceFileEdit.setEnabled(True)
 	self.APE0SPUEdit.setEnabled(True)
@@ -389,6 +393,15 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
 	if self.fullRadio.isChecked()==True:
+	    #copy image.bin file
+	    path=os.path.realpath(sys.path[0])
+	    if os.path.isfile(path):
+	        path=os.path.dirname(path)
+	    self.mainPath=os.path.abspath(path)
+	    srcPath=str(self.fullEdit.text())
+	    destPath=self.mainPath+"/images"
+	    if os.path.exists(srcPath) and os.path.exists(destPath):
+		shutil.copy(srcPath,destPath)
 	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
 	    self.ARMProcess=QProcess()
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
@@ -453,22 +466,11 @@ class ConfigViewWidget(QMainWindow):
         ba=self.APCProcess.readAllStandardError()
 	self.APCSimulatorShowSignal.emit(1,ba.data())
 
-    def stopProcess(self):
-	self.startButton.setEnabled(True)
-	self.stopButton.setEnabled(False)
-        self.APCProcess.write("quit")
-        self.APCProcess.kill()
-        self.ARMProcess.write("quit")
-        self.ARMProcess.kill()	
-        self.ARMAPCProcess.write("quit")
-        self.ARMAPCProcess.kill()	
-
     def ARMFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
 	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
         else:
 	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
-	    QMessageBox.about(self,"ARM Exit","    1    ")
 
     def ARMStartReadOutput(self):
         ba=self.ARMProcess.readAllStandardOutput()
@@ -512,9 +514,6 @@ class ConfigViewWidget(QMainWindow):
 	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
         else:
 	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
-	    QMessageBox.about(self,"ARM APC Exit","    1    ")
-	self.startButton.setEnabled(True)
-	self.stopButton.setEnabled(False)
 
     def ARMAPCStartReadOutput(self):
         ba=self.ARMAPCProcess.readAllStandardOutput()
@@ -523,30 +522,12 @@ class ConfigViewWidget(QMainWindow):
     def ARMAPCStartReadErrOutput(self):
         ba=self.ARMAPCProcess.readAllStandardError()
 	self.ARMSimulatorShowSignal.emit(1,ba.data())
-
-    def m5termSimulator(self,uart0port):
-	self.m5termCommand=self.simulatorPath+"/arm/utils/m5term localhost "+uart0port 
-	print self.m5termCommand
-	self.m5termProcess=QProcess()
-        self.connect(self.m5termProcess,SIGNAL("readyReadStandardOutput()"),self.m5termStartReadOutput)
-        self.connect(self.m5termProcess,SIGNAL("readyReadStandardError()"),self.m5termStartReadErrOutput)
-	self.connect(self.m5termProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.m5termFinishProcess)
-        self.m5termProcess.start(self.m5termCommand)
-        if False==self.m5termProcess.waitForStarted():
-	    print "this process can not be called."
-
-    def m5termFinishProcess(self,exitCode,exitStatus):
-        if exitStatus==QProcess.NormalExit:
-	    print "process exit normal"
-        else:
-	    print "process exit crash"
-	    QMessageBox.about(self,"ARM APC Exit","    1    ")
-
-    def m5termStartReadOutput(self):
-        ba=self.m5termProcess.readAllStandardOutput()
-	print "output",ba.data()
-
-    def m5termStartReadErrOutput(self):
-        ba=self.m5termProcess.readAllStandardError()
-	print "error",ba.data()
   
+    def stopProcess(self):
+	self.startButton.setEnabled(True)
+	self.stopButton.setEnabled(False)
+	if self.flag==1:
+	    self.ARMProcess.close()	
+ 	    self.ARMAPCProcess.close()	
+	
+
