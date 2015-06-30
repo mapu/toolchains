@@ -29,7 +29,6 @@ class StageDialog(QDialog):
     def updateDialog(self,index):
 	column=index.column()
 
-
     def updateAPE0Dialog(self,dataBase,minTime,maxTime,flag):
 	self.dataBase=dataBase
 	self.flag=flag
