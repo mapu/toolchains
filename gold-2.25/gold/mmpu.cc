@@ -193,7 +193,7 @@ Target::Target_info Target_mmpu<32, false>::mmpu_info = { 32,			// size
     0,      // large_common_section_flags
     ".MMPU.attributes",  // attributes_section
     "mmpuabi",    // attributes_vendor
-    NULL    // entry_symbol_name
+    "_start"    // entry_symbol_name
     };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ public:
           "elf32mmpu") {
   }
 
-  Target* do_recognize(int machine, int, int) {
+  Target* do_recognize(Input_file*, off_t, int machine, int, int) {
     if (machine == elfcpp::EM_MMPU)
       return this->instantiate_target();
     else

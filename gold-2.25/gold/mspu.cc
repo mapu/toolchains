@@ -206,7 +206,7 @@ public:
           "elf32mspu") {
   }
 
-  Target* do_recognize(int machine, int, int) {
+  Target* do_recognize(Input_file*, off_t, int machine, int, int) {
     if (machine == elfcpp::EM_MSPU)
       return this->instantiate_target();
     else

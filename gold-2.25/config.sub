@@ -357,6 +357,14 @@ case $basic_machine in
 	i*86 | x86_64)
 	  basic_machine=$basic_machine-pc
 	  ;;
+        mspu | mspu-*)
+          basic_machine=mspu-unknown
+          os=-elf
+          ;;
+        mmpu | mmpu-*)
+          basic_machine=mspu-unknown
+          os=-elf
+          ;;
 	# Object if more than one company name word.
 	*-*-*)
 		echo Invalid configuration \`$1\': machine \`$basic_machine\' not recognized 1>&2

@@ -177,6 +177,9 @@ then
   svn export $source_path/MaPUSim/GUI $install_path/simulator/GUI
 fi
 
+install_tool_path=${install_path}
+install_path=${install_path}/apc
+
 # Install llvm
 if [ "$llvm_en" -eq 1 ]
 then
@@ -194,7 +197,7 @@ then
   gcc_en=0
   if (( ver_1st != 4 || ver_2nd < 6 ))
   then
-    CC=$install_path/gcc-4.8.3/bin/gcc
+    CC=$install_tool_path/gcc-4.8.3/bin/gcc
     if [ -e "$CC" ]
     then
       version=`$CC --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
@@ -205,7 +208,7 @@ then
         gcc_en=1
       else
         # gcc is built, so assume the dependent libraries are deployed at where they used to be
-        export LD_LIBRARY_PATH=$install_path/gmp-4.3.2/lib:$install_path/mpfr-2.4.2/lib:$install_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=$install_tool_path/gmp-4.3.2/lib:$install_tool_path/mpfr-2.4.2/lib:$install_tool_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
       fi
     else
         gcc_en=1
@@ -216,7 +219,7 @@ then
   ver_2nd=`echo $version | awk -F '.' '{print $2}'`
   if (( ver_1st != 4 || ver_2nd < 6 ))
   then
-    CXX=$install_path/gcc-4.8.3/bin/g++
+    CXX=$install_tool_path/gcc-4.8.3/bin/g++
     if [ -e "$CC" ]
     then
       version=`$CXX --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
@@ -235,28 +238,28 @@ then
     tar -xjvf $source_path/gmp-4.3.2.tar.bz2
     mkdir build_gmp
     cd build_gmp
-    ../gmp-4.3.2/configure --prefix=$install_path/gmp-4.3.2
+    ../gmp-4.3.2/configure --prefix=$install_tool_path/gmp-4.3.2
     make $MCFLAG
     make install
     cd $root
     tar -xjvf $source_path/mpfr-2.4.2.tar.bz2
     mkdir build_mpfr
     cd build_mpfr
-    ../mpfr-2.4.2/configure --prefix=$install_path/mpfr-2.4.2 --with-gmp=$install_path/gmp-4.3.2
+    ../mpfr-2.4.2/configure --prefix=$install_tool_path/mpfr-2.4.2 --with-gmp=$install_tool_path/gmp-4.3.2
     make $MCFLAG
     make install
     cd $root
     tar -xzvf $source_path/mpc-0.8.1.tar.gz
     mkdir build_mpc
     cd build_mpc
-    ../mpc-0.8.1/configure --prefix=$install_path/mpc-0.8.1 --with-gmp=$install_path/gmp-4.3.2 --with-mpfr=$install_path/mpfr-2.4.2
+    ../mpc-0.8.1/configure --prefix=$install_tool_path/mpc-0.8.1 --with-gmp=$install_tool_path/gmp-4.3.2 --with-mpfr=$install_tool_path/mpfr-2.4.2
     make $MCFLAG
     make install
     cd $root
     tar -xjvf $source_path/gcc-4.8.3.tar.bz2
     mkdir build_gcc
     cd build_gcc
-    ../gcc/configure --prefix=$install_path/gcc-4.8.3 --with-gmp=$install_path/gmp-4.3.2 --with-mpfr=$install_path/mpfr-2.4.2 --with-mpc=$install_path/mpc-0.8.1 --enable-languages=c,c++ --disable-multilib
+    ../gcc/configure --prefix=$install_tool_path/gcc-4.8.3 --with-gmp=$install_tool_path/gmp-4.3.2 --with-mpfr=$install_tool_path/mpfr-2.4.2 --with-mpc=$install_tool_path/mpc-0.8.1 --enable-languages=c,c++ --disable-multilib
     make $MCFLAG
     make install
     cd $root
@@ -267,7 +270,6 @@ then
   else python_flag=
   fi
 
-  install_path=${install_path}/apc
   # Build ragel first
   cd $root
   if [ -e "build_ragel" ] && [ "$debug_mode" -eq 0 ]
@@ -329,7 +331,7 @@ then
   # $source_path/MaPUGold/libiberty/configure --prefix=$root/build_gold
   # make $MCFLAG || gold_err=1
   # $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all --disable-werror
-  $source_path/gold-2.25/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" 
+  $source_path/gold-2.25/configure --disable-optimize --enable-gold --enable-targets=all --prefix=$install_path #--program-transform-name="s/ld.gold/llvm-ld/" 
   make $MCFLAG || gold_err=1
   if [ "$debug_mode" -eq 0 ]
   then make install #DATADIRNAME=abc

@@ -3076,7 +3076,7 @@ make_elf_sized_object(const std::string& name, Input_file* input_file,
 
   if (!parameters->target_valid())
     set_parameters_target(target);
-  else if (target != &parameters->target())
+  else if (target != &parameters->target() && target->machine_code() != elfcpp::EM_MMPU)
     {
       if (punconfigured != NULL)
 	*punconfigured = true;
