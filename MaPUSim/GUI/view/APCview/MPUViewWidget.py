@@ -34,8 +34,8 @@ class MPUViewWidget(QWidget):
 	self.laneComboBox.insertItem(2,"Lane2")
 	self.laneComboBox.insertItem(3,"Lane3")	  
 
-	self.stageButton=QPushButton("MPU Stage")
-	self.stageButton.setFixedSize(100,40)
+	self.stageButton=QPushButton("Instruction Pipeline Diagram")
+	self.stageButton.setFixedSize(200,40)
 	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	self.buttonWidget=MPULeftWidget()
 
@@ -43,9 +43,9 @@ class MPUViewWidget(QWidget):
 	self.leftWidget=QWidget()
 	#layout left Widget    
         self.leftupLay=QHBoxLayout()
-        self.leftupLay.addStretch()
-        self.leftupLay.setSpacing(50)
-        self.leftupLay.setMargin(10)  
+        blank=QLabel()
+	blank.setFixedSize(500,30) 
+	self.leftupLay.addWidget(blank)
         self.leftupLay.addWidget(self.byteComboBox)
         self.leftupLay.addWidget(self.laneComboBox) 
 	self.leftupLay.addWidget(self.stageButton) 

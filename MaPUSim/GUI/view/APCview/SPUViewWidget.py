@@ -10,8 +10,8 @@ class SPUViewWidget(QWidget):
 	super(SPUViewWidget,self).__init__(parent)
 
 	self.leftWidget=QWidget()
-	self.stageButton=QPushButton("SPU Stage")
-	self.stageButton.setFixedSize(100,40)
+	self.stageButton=QPushButton("Instruction Pipeline Diagram")
+	self.stageButton.setFixedSize(200,40)
 	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	leftLay=QVBoxLayout()
 	leftLay.addWidget(self.stageButton)

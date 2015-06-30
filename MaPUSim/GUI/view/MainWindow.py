@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         self.armViewWidget=ARMViewWidget()
         self.apcViewWidget=APCViewWidget()
         self.configControlWidget=ConfigViewWidget()
-        self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
+        #self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
         self.tabWidget.addTab(self.armViewWidget,self.tr("ARM Perspective"))
         self.tabWidget.addTab(self.apcViewWidget,self.tr("APC Perspective"))
         self.tabWidget.addTab(self.configControlWidget,self.tr("Configuration and Control")) 
