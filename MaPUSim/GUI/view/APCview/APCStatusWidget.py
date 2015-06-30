@@ -1,9 +1,9 @@
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 
-class StatusWidget(QWidget):
+class APCStatusWidget(QWidget):
     def __init__(self,parent=None):
-	super(StatusWidget,self).__init__(parent)
+	super(APCStatusWidget,self).__init__(parent)
 
 	self.fullText=QTextEdit()
 	gridLay=QGridLayout()
