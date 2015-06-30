@@ -34,10 +34,10 @@ class ConfigViewWidget(QMainWindow):
 	#APC GROUP
 	self.traceFlagsButton=QPushButton(self.tr("Trace flags..."))
 	self.traceFlagsButton.setFixedSize(150,30)
-	self.traceFileLabel=QLabel(self.tr("  Trace file"))
+	self.traceFileLabel=QLabel(self.tr("  Trace file name"))
 	self.traceFileLabel.setFixedHeight(30)
 	self.traceFileLabel.setFixedWidth(900)
-	self.traceFileEdit=QLineEdit(self.tr("aaa.out"))
+	self.traceFileEdit=QLineEdit(self.tr(""))
 	self.traceFileEdit.setFixedSize(500,30)	
 
 	self.startButton=QPushButton("Start")
@@ -51,7 +51,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE0Label.setFixedHeight(30)
 	self.APE0SPULabel=QLabel(self.tr("     SPU"))
 	self.APE0SPULabel.setFixedSize(60,30)
-	self.APE0SPUEdit=QLineEdit(self.tr("/home/litt/tlb.s.out"))
+	self.APE0SPUEdit=QLineEdit(self.tr(""))
 	self.APE0SPUEdit.setFixedSize(500,30)
 	self.APE0SPUButton=QPushButton(self.tr("Browse"))
 	self.APE0SPUButton.setFixedSize(100,30)
@@ -64,7 +64,7 @@ class ConfigViewWidget(QMainWindow):
 	APE0SPULay.addWidget(blank0)
 	self.APE0MPULabel=QLabel(self.tr("     MPU"))
 	self.APE0MPULabel.setFixedSize(60,30)
-	self.APE0MPUEdit=QLineEdit(self.tr("/home/litt/tlb.m.out"))
+	self.APE0MPUEdit=QLineEdit(self.tr(""))
 	self.APE0MPUEdit.setFixedSize(500,30)
 	self.APE0MPUButton=QPushButton(self.tr("Browse"))
 	self.APE0MPUButton.setFixedSize(100,30)
@@ -80,7 +80,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE1Check.setFixedHeight(30)
 	self.APE1SPULabel=QLabel(self.tr("     SPU"))
 	self.APE1SPULabel.setFixedSize(60,30)
-	self.APE1SPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE1SPUEdit=QLineEdit(self.tr(""))
 	self.APE1SPUEdit.setFixedSize(500,30)
 	self.APE1SPUButton=QPushButton(self.tr("Browse"))
 	self.APE1SPUButton.setFixedSize(100,30)
@@ -93,7 +93,7 @@ class ConfigViewWidget(QMainWindow):
 	APE1SPULay.addWidget(blank2)
 	self.APE1MPULabel=QLabel(self.tr("     MPU"))
 	self.APE1MPULabel.setFixedSize(60,30)
-	self.APE1MPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE1MPUEdit=QLineEdit(self.tr(""))
 	self.APE1MPUEdit.setFixedSize(500,30)
 	self.APE1MPUButton=QPushButton(self.tr("Browse"))
 	self.APE1MPUButton.setFixedSize(100,30)
@@ -109,7 +109,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE2Check.setFixedHeight(30)
 	self.APE2SPULabel=QLabel(self.tr("     SPU"))
 	self.APE2SPULabel.setFixedSize(60,30)
-	self.APE2SPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE2SPUEdit=QLineEdit(self.tr(""))
 	self.APE2SPUEdit.setFixedSize(500,30)
 	self.APE2SPUButton=QPushButton(self.tr("Browse"))
 	self.APE2SPUButton.setFixedSize(100,30)
@@ -122,7 +122,7 @@ class ConfigViewWidget(QMainWindow):
 	APE2SPULay.addWidget(blank4)
 	self.APE2MPULabel=QLabel(self.tr("     MPU"))
 	self.APE2MPULabel.setFixedSize(60,30)
-	self.APE2MPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE2MPUEdit=QLineEdit(self.tr(""))
 	self.APE2MPUEdit.setFixedSize(500,30)
 	self.APE2MPUButton=QPushButton(self.tr("Browse"))
 	self.APE2MPUButton.setFixedSize(100,30)
@@ -138,7 +138,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APE3Check.setFixedHeight(30)
 	self.APE3SPULabel=QLabel(self.tr("     SPU"))
 	self.APE3SPULabel.setFixedSize(60,30)
-	self.APE3SPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE3SPUEdit=QLineEdit(self.tr(""))
 	self.APE3SPUEdit.setFixedSize(500,30)
 	self.APE3SPUButton=QPushButton(self.tr("Browse"))
 	self.APE3SPUButton.setFixedSize(100,30)
@@ -151,7 +151,7 @@ class ConfigViewWidget(QMainWindow):
 	APE3SPULay.addWidget(blank6)
 	self.APE3MPULabel=QLabel(self.tr("     MPU"))
 	self.APE3MPULabel.setFixedSize(60,30)
-	self.APE3MPUEdit=QLineEdit(self.tr("Trace file name"))
+	self.APE3MPUEdit=QLineEdit(self.tr(""))
 	self.APE3MPUEdit.setFixedSize(500,30)
 	self.APE3MPUButton=QPushButton(self.tr("Browse"))
 	self.APE3MPUButton.setFixedSize(100,30)
@@ -192,12 +192,25 @@ class ConfigViewWidget(QMainWindow):
 	self.fullEdit.setFixedSize(500,30)
 	blank8=QLabel()
 	blank8.setFixedSize(700,30)
+	fullLabel=QLabel("Trace file name:")
+	fullLabel.setFixedSize(100,30)
+	self.fullTracefile=QLineEdit()
+	self.fullTracefile.setFixedSize(500,30)
+	blank9=QLabel()
+	blank9.setFixedSize(920,30)	
 	#full Layout
 	fullGroup=QGroupBox()
-	fullLay=QHBoxLayout()
-	fullLay.addWidget(self.fullEdit)
-	fullLay.addWidget(self.fullBrowserButton)
-	fullLay.addWidget(blank8)
+	fullLay1=QHBoxLayout()
+	fullLay1.addWidget(self.fullEdit)
+	fullLay1.addWidget(self.fullBrowserButton)
+	fullLay1.addWidget(blank8)
+	fullLay2=QHBoxLayout()
+	fullLay2.addWidget(fullLabel)
+	fullLay2.addWidget(self.fullTracefile)
+	fullLay2.addWidget(blank9)
+	fullLay=QVBoxLayout()
+	fullLay.addLayout(fullLay1)
+	fullLay.addLayout(fullLay2)
 	fullGroup.setLayout(fullLay)
 	
 	#main layout
@@ -257,6 +270,7 @@ class ConfigViewWidget(QMainWindow):
     def fullRadioSlot(self):
 	self.fullBrowserButton.setEnabled(True)
 	self.fullEdit.setEnabled(True)
+	self.fullTracefile.setEnabled(True)
 	self.traceFlagsButton.setEnabled(False)
 	self.traceFileEdit.setEnabled(False)
 	self.APE0SPUEdit.setEnabled(False)
@@ -306,6 +320,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.APE3MPUButton.setEnabled(True)
 	self.fullBrowserButton.setEnabled(False)
 	self.fullEdit.setEnabled(False)
+	self.fullTracefile.setEnabled(False)
 
     def APE1CheckSlot(self):
 	if self.APE1Check.checkState()==Qt.Checked:
@@ -410,7 +425,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
             self.ARMProcess.start(self.ARMCommand)
             if False==self.ARMProcess.waitForStarted():
-	        self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
+	        self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
 	else:
 	    string="--debug-flags=MapuGUI,MapuMem "+self.simulatorPath+"/apc/system/se.py -c" #
 	    self.APCCommand=self.simulatorPath+"/apc/gem5.opt"   
@@ -434,10 +449,10 @@ class ConfigViewWidget(QMainWindow):
 	    self.connect(self.APCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.APCFinishProcess)
             self.APCProcess.start(self.APCCommand)
             if False==self.APCProcess.waitForStarted():
-	        self.APCSimulatorShowSignal.emit(0,"this process can not be called.")
+	        self.APCSimulatorShowSignal.emit(0,"APC process can not be called.")
 
     def ARMAPCSimulator(self,key,port):
-	string="--debug-flags=MapuGUI "+"--trace-file="+self.traceFileEdit.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
+	string="--debug-flags=MapuGUI "+"--trace-file="+self.fullTracefile.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
 	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
 	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardOutput()"),self.ARMAPCStartReadOutput)
@@ -445,7 +460,7 @@ class ConfigViewWidget(QMainWindow):
 	self.connect(self.ARMAPCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMAPCFinishProcess)
         self.ARMAPCProcess.start(self.ARMAPCCommand)
         if False==self.ARMAPCProcess.waitForStarted():
-	    self.ARMSimulatorShowSignal.emit(0,"this process can not be called.")
+	    self.ARMSimulatorShowSignal.emit(0,"ARM APC process can not be called.")
 
     def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:

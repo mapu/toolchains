@@ -82,19 +82,28 @@ class MainWindow(QMainWindow):
 	self.setDialog.setFixedSize(400,200)
 	self.pathEdit=QLineEdit()
 	browserButton=QPushButton("Browser")
+	self.okButton=QPushButton("OK")
+	self.okButton.setFixedSize(100,30)
+	self.connect(self.okButton,SIGNAL("clicked()"),self.okButtonSlot)
 	self.connect(browserButton,SIGNAL("clicked()"),self.pathSlot)
 	lay=QHBoxLayout()
 	lay.addWidget(self.pathEdit)
 	lay.addWidget(browserButton)
-	self.setDialog.setLayout(lay)
+	setLay=QGridLayout()
+	setLay.addLayout(lay,0,0,1,3)
+	setLay.addWidget(self.okButton,1,1)
+	self.setDialog.setLayout(setLay)
 	self.setDialog.show()
 
     def pathSlot(self):
 	path=QFileDialog.getExistingDirectory(self,self.tr("select file"),"/")
 	self.pathEdit.setText(path)
-	self.configControlWidget.simulatorPath=path
-	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=path+self.armViewWidget.UART0Widget.embTerminal.simulatorPath
-        
+  
+    def okButtonSlot(self):
+	self.configControlWidget.simulatorPath=str(self.pathEdit.text())
+	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	self.setDialog.close()
+      
     def closeEvent(self,event):
 	self.configControlWidget.stopProcess()
 	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
