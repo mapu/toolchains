@@ -410,7 +410,7 @@ void UseDefUnit::execute(int slot_idx) {
                 "0x%x to register idx %i (%i).\n", tid, seq_num,
                 inst->readIntResult(ud_idx), reg_idx, flat_idx);
         DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
-                seq_num, reg_idx, inst->readIntResult(ud_idx));
+                seq_num, flat_idx, inst->readIntResult(ud_idx));
 
         // Remove Dependencies
         regDepMap[tid]->removeFront(reg_type, flat_idx, inst);
@@ -427,7 +427,7 @@ void UseDefUnit::execute(int slot_idx) {
                 "0x%x to J register idx %i (%i).\n", tid, seq_num,
                 inst->readIntResult(ud_idx), reg_idx, flat_idx);
         DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W J Reg %i : 0x%x.\n", tid,
-                seq_num, reg_idx, inst->readIntResult(ud_idx));
+                seq_num, flat_idx, inst->readIntResult(ud_idx));
 
         // Remove Dependencies
         regDepMap[tid]->removeFront(reg_type, flat_idx, inst);
@@ -449,8 +449,12 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readDoubleResult(ud_idx),
                   inst->readDoubleBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W D Reg %i : 0x%llx.\n", tid,
-                  seq_num, reg_idx, inst->readDoubleBitsResult(ud_idx));
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+                  seq_num, flat_idx * 2,
+                  inst->readDoubleBitsResult(ud_idx) & 0xFFFFFFFFF);
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+                  seq_num, flat_idx * 2 + 1,
+                  (inst->readDoubleBitsResult(ud_idx) >> 32) & 0xFFFFFFFFF);
 
           // Check for FloatRegBits Here
           cpu->setDoubleRegBits(flat_idx, inst->readDoubleBitsResult(ud_idx),
@@ -461,8 +465,12 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readDoubleResult(ud_idx),
                   inst->readDoubleBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W D Reg %i : 0x%llx.\n", tid,
-                  seq_num, reg_idx, inst->readDoubleBitsResult(ud_idx));
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+                  seq_num, flat_idx * 2,
+                  inst->readDoubleBitsResult(ud_idx) & 0xFFFFFFFFF);
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+                  seq_num, flat_idx * 2 + 1,
+                  (inst->readDoubleBitsResult(ud_idx) >> 32) & 0xFFFFFFFFF);
 
           cpu->setDoubleReg(flat_idx, inst->readDoubleResult(ud_idx),
                             inst->readTid());
@@ -488,8 +496,8 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readFloatResult(ud_idx),
                   inst->readFloatBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W F Reg %i : 0x%x.\n", tid,
-                  seq_num, reg_idx, inst->readFloatBitsResult(ud_idx));
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
+                  seq_num, flat_idx, inst->readFloatBitsResult(ud_idx));
 
           // Check for FloatRegBits Here
           cpu->setFloatRegBits(flat_idx, inst->readFloatBitsResult(ud_idx),
@@ -500,8 +508,8 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readFloatResult(ud_idx),
                   inst->readIntResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W F Reg %i : 0x%x.\n", tid,
-                  seq_num, reg_idx, inst->readFloatBitsResult(ud_idx));
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
+                  seq_num, flat_idx, inst->readFloatBitsResult(ud_idx));
 
           cpu->setFloatReg(flat_idx, inst->readFloatResult(ud_idx),
                            inst->readTid());
