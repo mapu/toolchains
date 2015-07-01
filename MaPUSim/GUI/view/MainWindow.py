@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
 	self.setDialog.close()
       
     def closeEvent(self,event):
-	self.configControlWidget.stopProcess()
+	self.configControlWidget.stopProcessExit(1)
 	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE1Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE2Widget.MPUWidget.buttonWidget.closeFloatDialogs() 

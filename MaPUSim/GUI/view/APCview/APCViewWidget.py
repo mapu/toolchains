@@ -87,6 +87,8 @@ class APCViewWidget(QWidget):
 	#read file content, get min and max time
 	f=open(self.dataBase.filePath,"r")
         lines=f.readlines()
+	if len(lines)==0:
+	    return
 	line=lines[0]
 	pos=line.index("[")
 	self.minTime=int(line[:pos])/1000

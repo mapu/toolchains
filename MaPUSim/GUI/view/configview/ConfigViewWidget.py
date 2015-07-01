@@ -264,7 +264,10 @@ class ConfigViewWidget(QMainWindow):
 	
 	self.ARMAPCProcess=QProcess()
 	self.ARMProcess=QProcess()
-
+	self.key=""
+	self.apcport=""
+	self.uart0port=""
+	self.exitFlag=0
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 
@@ -423,7 +426,7 @@ class ConfigViewWidget(QMainWindow):
     def startProcess(self):
 	self.startButton.setEnabled(False)
 	self.stopButton.setEnabled(True)
-	if self.fullRadio.isChecked()==True:
+	if self.fullGroup.isChecked()==True:
 	    #copy image.bin file
 	    path=os.path.realpath(sys.path[0])
 	    if os.path.isfile(path):
@@ -468,13 +471,13 @@ class ConfigViewWidget(QMainWindow):
     def ARMAPCSimulator(self,key,port):
 	string="--debug-flags=MapuGUI "+"--trace-file="+self.fullTracefile.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
 	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
-	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key
+	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key+" -n 4"
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardOutput()"),self.ARMAPCStartReadOutput)
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardError()"),self.ARMAPCStartReadErrOutput)
 	self.connect(self.ARMAPCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMAPCFinishProcess)
         self.ARMAPCProcess.start(self.ARMAPCCommand)
         if False==self.ARMAPCProcess.waitForStarted():
-	    self.ARMSimulatorShowSignal.emit(0,"ARM APC process can not be called.")
+	    self.APCSimulatorShowSignal.emit(0,"ARM APC process can not be called.")
 
     def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
@@ -508,53 +511,59 @@ class ConfigViewWidget(QMainWindow):
     def ARMStartReadErrOutput(self):
         ba=self.ARMProcess.readAllStandardError()
 	string=QString(ba.data())
-	if string.indexOf("Share memory key")>=0:
-	    num=string.count("\n")
-	    key=""
-	    apcport=""
-	    for i in range(0,num):
-	        pos=string.indexOf("\n")
-	        str1=string.left(pos)
-	        string=string.right(string.size()-pos-1)
-	        if str1.indexOf("Share memory key")>=0:
-		    pos=str1.indexOf("is")
-		    key=str1.right(str1.length()-pos-3)
-	        elif str1.indexOf("vncserver")>=0:
-		    pos=str1.indexOf("port")
-		    port=str1.right(str1.length()-pos-5)
-	        elif str1.indexOf("terminal")>=0:
-		    pos=str1.indexOf("port")
-		    uart0port=str1.right(str1.length()-pos-5)
-	        elif str1.indexOf("realview.apc")>=0:
-		    pos=str1.indexOf("port")
-		    apcport=str1.right(str1.length()-pos-5)
-	        elif str1.indexOf("remote gdb")>=0:
-		    pos=str1.indexOf("port")
-		    port=str1.right(str1.length()-pos-5)
-	        str1=str1+"\n"
-	        self.ARMSimulatorShowSignal.emit(1,str1)
-	    self.ARMAPCSimulator(key,apcport)
-	    self.ARMUart0StartProcess.emit(uart0port)
-	else:
-	    self.ARMSimulatorShowSignal.emit(1,string)
+	num=string.count("\n")
+	for i in range(0,num):
+	    pos=string.indexOf("\n")
+	    str1=string.left(pos)
+	    string=string.right(string.size()-pos-1)
+	    if str1.indexOf("Share memory key")>=0:
+		pos=str1.indexOf("is")
+		self.key=str1.right(str1.length()-pos-3)
+	    elif str1.indexOf("vncserver")>=0:
+		pos=str1.indexOf("port")
+		port=str1.right(str1.length()-pos-5)
+	    elif str1.indexOf("terminal")>=0:
+		pos=str1.indexOf("port")
+		self.uart0port=str1.right(str1.length()-pos-5)
+	    elif str1.indexOf("realview.apc")>=0:
+		pos=str1.indexOf("port")
+		self.apcport=str1.right(str1.length()-pos-5)
+	    elif str1.indexOf("remote gdb")>=0:
+		pos=str1.indexOf("port")
+		port=str1.right(str1.length()-pos-5)
+	    str1=str1+"\n"
+	    self.ARMSimulatorShowSignal.emit(1,str1)
+
+	if self.key!="" and self.apcport!="" and self.uart0port!="":
+	    self.ARMAPCSimulator(self.key,self.apcport)
+	    self.ARMUart0StartProcess.emit(self.uart0port)
 
     def ARMAPCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
+	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
         else:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
-
+	    self.APCSimulatorShowSignal.emit(0,"process exit crash")
+	#simulator exit normal,then emit signal to create data base
+	if self.exitFlag==0:
+	    self.APCSimulatorDoneSignal.emit(4)
+ 
     def ARMAPCStartReadOutput(self):
         ba=self.ARMAPCProcess.readAllStandardOutput()
-	self.ARMSimulatorShowSignal.emit(0,ba.data())
+	self.APCSimulatorShowSignal.emit(0,ba.data())
 
     def ARMAPCStartReadErrOutput(self):
         ba=self.ARMAPCProcess.readAllStandardError()
-	self.ARMSimulatorShowSignal.emit(1,ba.data())
+	self.APCSimulatorShowSignal.emit(1,ba.data())
   
     def stopProcess(self):
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
+	if self.flag==1:
+	    self.ARMProcess.close()	
+ 	    self.ARMAPCProcess.close()	
+
+    def stopProcessExit(self,exitFlag):
+	self.exitFlag=exitFlag
 	if self.flag==1:
 	    self.ARMProcess.close()	
  	    self.ARMAPCProcess.close()	
