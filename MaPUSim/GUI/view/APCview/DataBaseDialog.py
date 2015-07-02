@@ -15,9 +15,10 @@ class DataBaseDialog(QDialog):
 	self.setLayout(lay) 
 	self.setModal(True)
 
-    def createDataBase(self,num):
+    def createDataBase(self,num,path):
 	thread=Thread()
 	thread.num=num
+	thread.path="m5out/"+path
 	thread.start()
 	eventLoop=QEventLoop()
 	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)

@@ -9,7 +9,8 @@ class Thread(QThread):
     def __init__(self,parent=None):
 	super(Thread,self).__init__(parent)
 	self.num=0
+	self.path="m5out/aaa.out"
 	
     def run(self):
 	self.dataBase=DataBase()
-	self.dataBase.createDatabase(self.num)
+	self.dataBase.createDatabase(self.num,self.path)

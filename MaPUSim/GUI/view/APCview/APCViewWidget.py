@@ -68,7 +68,7 @@ class APCViewWidget(QWidget):
     def slotAPE3Widget(self):
         self.leftTab.setCurrentWidget(self.APE3Widget)
 
-    def simulatorDoneSlot(self,num): #num APE count
+    def simulatorDoneSlot(self,num,path): #num APE count
 	self.num=num
 	#simulator exit normal,create data base
 	#show dialog and show data base is building
@@ -76,7 +76,7 @@ class APCViewWidget(QWidget):
         print ("start create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.dataBaseDialog=DataBaseDialog()
 	self.dataBaseDialog.show()
-	self.dataBase=self.dataBaseDialog.createDataBase(num)
+	self.dataBase=self.dataBaseDialog.createDataBase(num,path)
 	i=datetime.datetime.now()
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	i=datetime.datetime.now()

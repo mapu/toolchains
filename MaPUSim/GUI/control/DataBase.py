@@ -13,7 +13,6 @@ class DataBase():
     def __init__(self):
 
 	self.filePath="m5out/aaa.out"
-	#self.filePath="/home/litt/aaa.out"
 	self.APE0dbFilePath="APE0table.db"
 	self.APE0timeFilePath="APE0time.db"
 	self.APE1dbFilePath="APE1table.db"
@@ -27,7 +26,8 @@ class DataBase():
 	self.memTableName="mem"
 	self.timeTableName="time"
 
-    def createDatabase(self,num):
+    def createDatabase(self,num,path):
+	self.filePath=path
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
 	self.createAPE0Database()
