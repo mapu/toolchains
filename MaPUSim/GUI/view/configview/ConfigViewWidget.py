@@ -434,6 +434,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.mainPath=os.path.abspath(path)
 	    srcPath=str(self.fullEdit.text())
 	    destPath=self.mainPath+"/images"
+	    os.mkdir(destPath)
 	    if os.path.exists(srcPath) and os.path.exists(destPath):
 		shutil.copy(srcPath,destPath)
 	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
