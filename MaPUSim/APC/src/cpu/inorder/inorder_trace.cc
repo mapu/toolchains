@@ -68,8 +68,8 @@ InOrderTraceRecord *
 InOrderTrace::getInstRecord(unsigned num_stages, bool stage_tracing,
         ThreadContext *tc)
 {
-    if (!Debug::ExecEnable)
-        return NULL;
+    //if (!Debug::ExecEnable)
+    //    return NULL;
 
     if (!Trace::enabled)
         return NULL;
