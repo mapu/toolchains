@@ -129,8 +129,8 @@ GraduationUnit::execute(int slot_num)
             if (inst->ex_tick > inst->grad_tick)
               inst->ex_tick = inst->grad_tick;
             if (inst->traceData) {
-            DPRINTF(MapuPipeStages, "[tid:%u]: [sn:%i]: [sln:%i]: %#08x: %s :", tid,
-                    inst->seqNum, inst->seqLineNum, inst->traceData->getAddr(),
+            DPRINTF(MapuPipeStages, "[tid:%u]: [sn:%i]: [sln:%i]: 0x%08x: %s :", tid,
+                    inst->seqNum, inst->seqLineNum, inst->pcState().instAddr(),
                     inst->staticInst->disassemble(inst->instAddr()));
             for (int i = 0; i < inst->traceData->stageCycle.size(); i++)
               DPRINTFR(MapuPipeStages, " %lld", inst->traceData->stageCycle[i]);
