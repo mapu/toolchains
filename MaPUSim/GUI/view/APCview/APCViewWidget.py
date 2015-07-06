@@ -16,6 +16,14 @@ class APCViewWidget(QWidget):
     def __init__(self,parent=None):
 	super(APCViewWidget,self).__init__(parent)
 
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setTickPosition(QSlider.TicksBothSides)
+	self.slider.setMaximumHeight(30)
+	self.slider.setEnabled(False)    
+	self.spinBox=QSpinBox()
+	self.spinBox.setMaximumHeight(40)
+	self.spinBox.setEnabled(False) 
+
         self.APCWidget=APCMutiCoreWidget(self)  #APC mutiple core view
         self.APE0Widget=APCSigCoreWidget()
         self.APE1Widget=APCSigCoreWidget()
@@ -38,13 +46,6 @@ class APCViewWidget(QWidget):
         self.connect(self.APCWidget.APE3Button,SIGNAL("clicked()"),self.slotAPE3Widget) 
 
 	#lay out all widget  
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setTickPosition(QSlider.TicksBothSides)
-	self.slider.setMaximumHeight(30)
-	self.slider.setEnabled(False)    
-	self.spinBox=QSpinBox()
-	self.spinBox.setMaximumHeight(40)
-	self.spinBox.setEnabled(False)  
 	bottomLay=QHBoxLayout()
 	bottomLay.addWidget(self.slider)
 	bottomLay.addWidget(self.spinBox)
@@ -91,45 +92,65 @@ class APCViewWidget(QWidget):
 	    return
 	line=lines[0]
 	pos=line.index("[")
-	self.minTime=int(line[:pos])/1000
+	#self.minTime=int(line[:pos])/1000
+	self.minTime=0
 	count=len(lines)
 	line=lines[count-1]
 	pos=line.index("[")
 	self.maxTime=int(line[:pos])/1000
 	f.close()
+	i=datetime.datetime.now()
+        print ("start update MPU stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#update MPU and SPU stage dialog
-	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
-	self.APE0Widget.MPUWidget.stageDialog.updateAPE0Color(self.dataBase,self.minTime,self.maxTime,"m") 
-	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Dialog(self.dataBase,self.minTime,self.maxTime,"s")
-	self.APE0Widget.SPUWidget.stageDialog.updateAPE0Color(self.dataBase,self.minTime,self.maxTime,"s")  
+	self.APE0Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"m") 
+	self.APE0Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"m") 
+	self.APE0Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s")
+	self.APE0Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s") 
+	self.APE0Widget.MPUWidget.stageDialog.slider=self.slider 
+	self.APE0Widget.SPUWidget.stageDialog.slider=self.slider 
+	i=datetime.datetime.now()
+        print ("end update mpu stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if self.num==2:
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider 
 	elif self.num==3:
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")   
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s")
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
+	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider   
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s")
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s") 
+	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider  
 	elif self.num==4:
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.MPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Dialog(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE1Widget.SPUWidget.stageDialog.updateAPE1Color(self.dataBase,self.minTime,self.maxTime,"s")   
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
-	    self.APE2Widget.MPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"m")  
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Dialog(self.dataBase,self.minTime,self.maxTime,"s")
-	    self.APE2Widget.SPUWidget.stageDialog.updateAPE2Color(self.dataBase,self.minTime,self.maxTime,"s")  
-	    self.APE3Widget.MPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"m") 
-	    self.APE3Widget.MPUWidget.stageDialog.updateAPE3Color(self.dataBase,self.minTime,self.maxTime,"m") 
-	    self.APE3Widget.SPUWidget.stageDialog.updateAPE3Dialog(self.dataBase,self.minTime,self.maxTime,"s") 
-	    self.APE3Widget.SPUWidget.stageDialog.updateAPE3Color(self.dataBase,self.minTime,self.maxTime,"s") 
-
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")  
+	    self.APE1Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
+	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider   
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
+	    self.APE2Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m")  
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s")
+	    self.APE2Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s")  
+	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
+	    self.APE3Widget.MPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m") 
+	    self.APE3Widget.MPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m") 
+	    self.APE3Widget.SPUWidget.stageDialog.updateAPEDialog(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s") 
+	    self.APE3Widget.SPUWidget.stageDialog.updateAPEColor(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s")
+	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider 
+	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  
+	i=datetime.datetime.now()
+        print ("end update stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#set slider min and max value
 	self.slider.setRange(self.minTime,self.maxTime)
 	self.spinBox.setRange(self.minTime,self.maxTime)
@@ -182,6 +203,233 @@ class APCViewWidget(QWidget):
 	    for i in range(0,len(SPURList)):
 		self.APE0Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
 
+	floatDialogList=["nop"]*440
+	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE0dbFilePath,fetchall_sql)
+	if r!=0:
+            if len(r) > 0:	
+		for e in range(len(r)):
+		    s=r[e][7]
+		    pos=s.find(":")
+		    s=s[(pos+1):]
+		    a=s[:4]
+		    stage="sn:"+str(r[e][4])
+		    if r[e][4]!=-1:
+			stage=stage+",sln:"+str(r[e][5])
+		    if a=="dm":
+			j=0
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2				
+		    elif a=="biu0":
+			j=40
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu1":
+			j=80
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu2":
+			j=120
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="shu0":
+			j=160
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="mrf":
+			j=200
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="shu1":
+			j=240
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="ialu":
+			j=280
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="imac":
+			j=320
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="falu":
+			j=360
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="fmac":
+			j=400
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		
+		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]  (memo:biu0ld    ) BIU0.DM(A++,K++)->M[I++]
+			s=r[e][7]
+			pos=s.find(")")
+			if pos==-1:
+			    continue
+			s=s[(pos+2):]
+			pos=s.find(".")
+			temp=s[:pos]
+			s=s[(pos+1):]  
+			pos=s.find("->")
+			if pos!=-1:
+			    s=s[(pos+2):]
+			    pos=s.find(".")
+			    temp=temp+s[:pos]
+			    if temp=="DMBIU0":
+				print "dmbiu0"
+			    elif temp=="BIU0DM":
+				print "biu0dm"
+			    elif temp=="DMBIU1":
+				print "dmbiu1"
+			    elif temp=="BIU1DM":
+				print "biu1dm"
+			    elif temp=="DMBIU2":
+				print "dmbiu2"
+			    elif temp=="BIU2DM":
+				print "biu2dm"
+			    elif temp=="BIU0SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU0":
+				print "shu0biu0"
+			    elif temp=="BIU1SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU1":
+				print "shu0biu1"
+			    elif temp=="BIU2SHU0":
+				print "biu2shu0"
+			    elif temp=="SHU0BIU2":
+				print "shu0biu2"
+			    elif temp=="BIU0SHU1":
+				print "biu0shu1"
+			    elif temp=="SHU1BIU0":
+				print "shu1biu0"
+			    elif temp=="BIU1SHU1":
+				print "biu1shu1"
+			    elif temp=="SHU1BIU1":
+				print "shu1biu1"
+			    elif temp=="BIU2SHU1":
+				print "biu2shu1"
+			    elif temp=="SHU1BIU2":
+				print "shu1biu2"
+			    elif temp=="BIU0MRF":
+				print "biu0mrf"
+			    elif temp=="MRFBIU0":
+				print "mrfbiu0"
+			    elif temp=="BIU1MRF":
+				print "biu1mrf"
+			    elif temp=="MRFBIU1":
+				print "mrfbiu1"
+			    elif temp=="BIU2MRF":
+				print "biu2mrf"
+			    elif temp=="MRFBIU2":
+				print "mrfbiu2"
+			    elif temp=="SHU0IALU":
+				print "shu0ialu"
+			    elif temp=="IALUSHU0":
+				print "ialushu0"
+			    elif temp=="SHU0IMAC":
+				print "shu0imac"
+			    elif temp=="IMACSHU0":
+				print "imacshu0"
+			    elif temp=="SHU0FALU":
+				print "shu0falu"
+			    elif temp=="FALUSHU0":
+				print "falushu0"
+			    elif temp=="SHU0FMAC":
+				print "shu0fmac"
+			    elif temp=="FMACSHU0":
+				print "fmacshu0"
+			    elif temp=="MRFIALU":
+				print "mrfialu"
+			    elif temp=="IALUMRF":
+				print "ialumrf"
+			    elif temp=="MRFIMAC":
+				print "mrfimac"
+			    elif temp=="IMACMRF":
+				print "imacmrf"
+			    elif temp=="MRFFALU":
+				print "mrffalu"
+			    elif temp=="FALUMRF":
+				print "falumrf"
+			    elif temp=="MRFFMAC":
+				print "mrffmac"
+			    elif temp=="FMACMRF":
+				print "fmacmrf"
+			    elif temp=="SHU1IALU":
+				print "shu1ialu"
+			    elif temp=="IALUSHU1":
+				print "ialushu1"
+			    elif temp=="SHU1IMAC":
+				print "shu1imac"
+			    elif temp=="IMACSHU1":
+				print "imacshu1"
+			    elif temp=="SHU1FALU":
+				print "shu1falu"
+			    elif temp=="FALUSHU1":
+				print "falushu1"
+			    elif temp=="SHU1FMAC":
+				print "shu1fmac"
+			    elif temp=="FMACSHU1":
+				print "fmacshu1"
+			    elif temp=="IALUFALU":
+				print "ialufalu"
+			    elif temp=="FALUIALU":
+				print "faluialu"
+			    elif temp=="SHU0MRF":
+				print "shu0mrf"
+			    elif temp=="MRFSHU0":
+				print "mrfshu0"
+			    elif temp=="MRFSHU1":
+				print "mrfshu1"
+			    elif temp=="SHU1MRF":
+				print "shu1mrf"
+			    elif temp=="IALUIMAC":
+				print "ialuimac"
+			    elif temp=="IMACIALU":
+				print "imacialu"
+			    elif temp=="IMACFALU":
+				print "imacfalu"
+			    elif temp=="FALUIMAC":
+				print "faluimac"
+			    elif temp=="FALUFMAC":
+				print "falufmac"
+			    elif temp=="FMACFALU":
+				print "fmacfalu"
+	self.APE0Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
+
     def updateAPE1Widget(self,curTime):
 	MPURList=[]
 	SPURList=[]
@@ -209,6 +457,233 @@ class APCViewWidget(QWidget):
 		self.APE1Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
 	    for i in range(0,len(SPURList)):
 		self.APE1Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
+	floatDialogList=["nop"]*440
+	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchall_sql)
+	if r!=0:
+            if len(r) > 0:	
+		for e in range(len(r)):
+		    s=r[e][7]
+		    pos=s.find(":")
+		    s=s[(pos+1):]
+		    a=s[:4]
+		    stage="sn:"+str(r[e][4])
+		    if r[e][4]!=-1:
+			stage=stage+",sln:"+str(r[e][5])
+		    if a=="dm":
+			j=0
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2				
+		    elif a=="biu0":
+			j=40
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu1":
+			j=80
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu2":
+			j=120
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="shu0":
+			j=160
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="mrf":
+			j=200
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="shu1":
+			j=240
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="ialu":
+			j=280
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="imac":
+			j=320
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="falu":
+			j=360
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="fmac":
+			j=400
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		
+		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]
+			s=r[e][7]
+			pos=s.find(")")
+			if pos==-1:
+			    continue
+			s=s[(pos+2):]
+			pos=s.find(".")
+			temp=s[:pos]
+			s=s[(pos+1):]  
+			pos=s.find("->")
+			if pos!=-1:
+			    s=s[(pos+2):]
+			    pos=s.find(".")
+			    temp=temp+s[:pos]
+			    if temp=="DMBIU0":
+				print "dmbiu0"
+			    elif temp=="BIU0DM":
+				print "biu0dm"
+			    elif temp=="DMBIU1":
+				print "dmbiu1"
+			    elif temp=="BIU1DM":
+				print "biu1dm"
+			    elif temp=="DMBIU2":
+				print "dmbiu2"
+			    elif temp=="BIU2DM":
+				print "biu2dm"
+			    elif temp=="BIU0SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU0":
+				print "shu0biu0"
+			    elif temp=="BIU1SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU1":
+				print "shu0biu1"
+			    elif temp=="BIU2SHU0":
+				print "biu2shu0"
+			    elif temp=="SHU0BIU2":
+				print "shu0biu2"
+			    elif temp=="BIU0SHU1":
+				print "biu0shu1"
+			    elif temp=="SHU1BIU0":
+				print "shu1biu0"
+			    elif temp=="BIU1SHU1":
+				print "biu1shu1"
+			    elif temp=="SHU1BIU1":
+				print "shu1biu1"
+			    elif temp=="BIU2SHU1":
+				print "biu2shu1"
+			    elif temp=="SHU1BIU2":
+				print "shu1biu2"
+			    elif temp=="BIU0MRF":
+				print "biu0mrf"
+			    elif temp=="MRFBIU0":
+				print "mrfbiu0"
+			    elif temp=="BIU1MRF":
+				print "biu1mrf"
+			    elif temp=="MRFBIU1":
+				print "mrfbiu1"
+			    elif temp=="BIU2MRF":
+				print "biu2mrf"
+			    elif temp=="MRFBIU2":
+				print "mrfbiu2"
+			    elif temp=="SHU0IALU":
+				print "shu0ialu"
+			    elif temp=="IALUSHU0":
+				print "ialushu0"
+			    elif temp=="SHU0IMAC":
+				print "shu0imac"
+			    elif temp=="IMACSHU0":
+				print "imacshu0"
+			    elif temp=="SHU0FALU":
+				print "shu0falu"
+			    elif temp=="FALUSHU0":
+				print "falushu0"
+			    elif temp=="SHU0FMAC":
+				print "shu0fmac"
+			    elif temp=="FMACSHU0":
+				print "fmacshu0"
+			    elif temp=="MRFIALU":
+				print "mrfialu"
+			    elif temp=="IALUMRF":
+				print "ialumrf"
+			    elif temp=="MRFIMAC":
+				print "mrfimac"
+			    elif temp=="IMACMRF":
+				print "imacmrf"
+			    elif temp=="MRFFALU":
+				print "mrffalu"
+			    elif temp=="FALUMRF":
+				print "falumrf"
+			    elif temp=="MRFFMAC":
+				print "mrffmac"
+			    elif temp=="FMACMRF":
+				print "fmacmrf"
+			    elif temp=="SHU1IALU":
+				print "shu1ialu"
+			    elif temp=="IALUSHU1":
+				print "ialushu1"
+			    elif temp=="SHU1IMAC":
+				print "shu1imac"
+			    elif temp=="IMACSHU1":
+				print "imacshu1"
+			    elif temp=="SHU1FALU":
+				print "shu1falu"
+			    elif temp=="FALUSHU1":
+				print "falushu1"
+			    elif temp=="SHU1FMAC":
+				print "shu1fmac"
+			    elif temp=="FMACSHU1":
+				print "fmacshu1"
+			    elif temp=="IALUFALU":
+				print "ialufalu"
+			    elif temp=="FALUIALU":
+				print "faluialu"
+			    elif temp=="SHU0MRF":
+				print "shu0mrf"
+			    elif temp=="MRFSHU0":
+				print "mrfshu0"
+			    elif temp=="MRFSHU1":
+				print "mrfshu1"
+			    elif temp=="SHU1MRF":
+				print "shu1mrf"
+			    elif temp=="IALUIMAC":
+				print "ialuimac"
+			    elif temp=="IMACIALU":
+				print "imacialu"
+			    elif temp=="IMACFALU":
+				print "imacfalu"
+			    elif temp=="FALUIMAC":
+				print "faluimac"
+			    elif temp=="FALUFMAC":
+				print "falufmac"
+			    elif temp=="FMACFALU":
+				print "fmacfalu"
+	self.APE1Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
 
     def updateAPE2Widget(self,curTime):
 	MPURList=[]
@@ -238,6 +713,233 @@ class APCViewWidget(QWidget):
 	    for i in range(0,len(SPURList)):
 		self.APE2Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
 
+	floatDialogList=["nop"]*440
+	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchall_sql)
+	if r!=0:
+            if len(r) > 0:	
+		for e in range(len(r)):
+		    s=r[e][7]
+		    pos=s.find(":")
+		    s=s[(pos+1):]
+		    a=s[:4]
+		    stage="sn:"+str(r[e][4])
+		    if r[e][4]!=-1:
+			stage=stage+",sln:"+str(r[e][5])
+		    if a=="dm":
+			j=0
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2				
+		    elif a=="biu0":
+			j=40
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu1":
+			j=80
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu2":
+			j=120
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="shu0":
+			j=160
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="mrf":
+			j=200
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="shu1":
+			j=240
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="ialu":
+			j=280
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="imac":
+			j=320
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="falu":
+			j=360
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="fmac":
+			j=400
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		
+		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]
+			s=r[e][7]
+			pos=s.find(")")
+			if pos==-1:
+			    continue
+			s=s[(pos+2):]
+			pos=s.find(".")
+			temp=s[:pos]
+			s=s[(pos+1):]  
+			pos=s.find("->")
+			if pos!=-1:
+			    s=s[(pos+2):]
+			    pos=s.find(".")
+			    temp=temp+s[:pos]
+			    if temp=="DMBIU0":
+				print "dmbiu0"
+			    elif temp=="BIU0DM":
+				print "biu0dm"
+			    elif temp=="DMBIU1":
+				print "dmbiu1"
+			    elif temp=="BIU1DM":
+				print "biu1dm"
+			    elif temp=="DMBIU2":
+				print "dmbiu2"
+			    elif temp=="BIU2DM":
+				print "biu2dm"
+			    elif temp=="BIU0SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU0":
+				print "shu0biu0"
+			    elif temp=="BIU1SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU1":
+				print "shu0biu1"
+			    elif temp=="BIU2SHU0":
+				print "biu2shu0"
+			    elif temp=="SHU0BIU2":
+				print "shu0biu2"
+			    elif temp=="BIU0SHU1":
+				print "biu0shu1"
+			    elif temp=="SHU1BIU0":
+				print "shu1biu0"
+			    elif temp=="BIU1SHU1":
+				print "biu1shu1"
+			    elif temp=="SHU1BIU1":
+				print "shu1biu1"
+			    elif temp=="BIU2SHU1":
+				print "biu2shu1"
+			    elif temp=="SHU1BIU2":
+				print "shu1biu2"
+			    elif temp=="BIU0MRF":
+				print "biu0mrf"
+			    elif temp=="MRFBIU0":
+				print "mrfbiu0"
+			    elif temp=="BIU1MRF":
+				print "biu1mrf"
+			    elif temp=="MRFBIU1":
+				print "mrfbiu1"
+			    elif temp=="BIU2MRF":
+				print "biu2mrf"
+			    elif temp=="MRFBIU2":
+				print "mrfbiu2"
+			    elif temp=="SHU0IALU":
+				print "shu0ialu"
+			    elif temp=="IALUSHU0":
+				print "ialushu0"
+			    elif temp=="SHU0IMAC":
+				print "shu0imac"
+			    elif temp=="IMACSHU0":
+				print "imacshu0"
+			    elif temp=="SHU0FALU":
+				print "shu0falu"
+			    elif temp=="FALUSHU0":
+				print "falushu0"
+			    elif temp=="SHU0FMAC":
+				print "shu0fmac"
+			    elif temp=="FMACSHU0":
+				print "fmacshu0"
+			    elif temp=="MRFIALU":
+				print "mrfialu"
+			    elif temp=="IALUMRF":
+				print "ialumrf"
+			    elif temp=="MRFIMAC":
+				print "mrfimac"
+			    elif temp=="IMACMRF":
+				print "imacmrf"
+			    elif temp=="MRFFALU":
+				print "mrffalu"
+			    elif temp=="FALUMRF":
+				print "falumrf"
+			    elif temp=="MRFFMAC":
+				print "mrffmac"
+			    elif temp=="FMACMRF":
+				print "fmacmrf"
+			    elif temp=="SHU1IALU":
+				print "shu1ialu"
+			    elif temp=="IALUSHU1":
+				print "ialushu1"
+			    elif temp=="SHU1IMAC":
+				print "shu1imac"
+			    elif temp=="IMACSHU1":
+				print "imacshu1"
+			    elif temp=="SHU1FALU":
+				print "shu1falu"
+			    elif temp=="FALUSHU1":
+				print "falushu1"
+			    elif temp=="SHU1FMAC":
+				print "shu1fmac"
+			    elif temp=="FMACSHU1":
+				print "fmacshu1"
+			    elif temp=="IALUFALU":
+				print "ialufalu"
+			    elif temp=="FALUIALU":
+				print "faluialu"
+			    elif temp=="SHU0MRF":
+				print "shu0mrf"
+			    elif temp=="MRFSHU0":
+				print "mrfshu0"
+			    elif temp=="MRFSHU1":
+				print "mrfshu1"
+			    elif temp=="SHU1MRF":
+				print "shu1mrf"
+			    elif temp=="IALUIMAC":
+				print "ialuimac"
+			    elif temp=="IMACIALU":
+				print "imacialu"
+			    elif temp=="IMACFALU":
+				print "imacfalu"
+			    elif temp=="FALUIMAC":
+				print "faluimac"
+			    elif temp=="FALUFMAC":
+				print "falufmac"
+			    elif temp=="FMACFALU":
+				print "fmacfalu"
+	self.APE2Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
+
     def updateAPE3Widget(self,curTime):
 	MPURList=[]
 	SPURList=[]
@@ -265,5 +967,232 @@ class APCViewWidget(QWidget):
 		self.APE3Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
 	    for i in range(0,len(SPURList)):
 		self.APE3Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+
+	floatDialogList=["nop"]*440
+	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)
+        r=self.dataBase.fetchall(self.dataBase.APE3dbFilePath,fetchall_sql)
+	if r!=0:
+            if len(r) > 0:	
+		for e in range(len(r)):
+		    s=r[e][7]
+		    pos=s.find(":")
+		    s=s[(pos+1):]
+		    a=s[:4]
+		    stage="sn:"+str(r[e][4])
+		    if r[e][4]!=-1:
+			stage=stage+",sln:"+str(r[e][5])
+		    if a=="dm":
+			j=0
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2				
+		    elif a=="biu0":
+			j=40
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu1":
+			j=80
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="biu2":
+			j=120
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="shu0":
+			j=160
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2
+		    elif a=="mrf":
+			j=200
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="shu1":
+			j=240
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="ialu":
+			j=280
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="imac":
+			j=320
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="falu":
+			j=360
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		    elif a=="fmac":
+			j=400
+			for i in range(0,20):
+			    if r[e][9+i]==curTime:
+			        floatDialogList[j]=stage
+			        floatDialogList[j+1]=r[e][6]
+			    j=j+2	
+		
+		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]
+			s=r[e][7]
+			pos=s.find(")")
+			if pos==-1:
+			    continue
+			s=s[(pos+2):]
+			pos=s.find(".")
+			temp=s[:pos]
+			s=s[(pos+1):]  
+			pos=s.find("->")
+			if pos!=-1:
+			    s=s[(pos+2):]
+			    pos=s.find(".")
+			    temp=temp+s[:pos]
+			    if temp=="DMBIU0":
+				print "dmbiu0"
+			    elif temp=="BIU0DM":
+				print "biu0dm"
+			    elif temp=="DMBIU1":
+				print "dmbiu1"
+			    elif temp=="BIU1DM":
+				print "biu1dm"
+			    elif temp=="DMBIU2":
+				print "dmbiu2"
+			    elif temp=="BIU2DM":
+				print "biu2dm"
+			    elif temp=="BIU0SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU0":
+				print "shu0biu0"
+			    elif temp=="BIU1SHU0":
+				print "biu0shu0"
+			    elif temp=="SHU0BIU1":
+				print "shu0biu1"
+			    elif temp=="BIU2SHU0":
+				print "biu2shu0"
+			    elif temp=="SHU0BIU2":
+				print "shu0biu2"
+			    elif temp=="BIU0SHU1":
+				print "biu0shu1"
+			    elif temp=="SHU1BIU0":
+				print "shu1biu0"
+			    elif temp=="BIU1SHU1":
+				print "biu1shu1"
+			    elif temp=="SHU1BIU1":
+				print "shu1biu1"
+			    elif temp=="BIU2SHU1":
+				print "biu2shu1"
+			    elif temp=="SHU1BIU2":
+				print "shu1biu2"
+			    elif temp=="BIU0MRF":
+				print "biu0mrf"
+			    elif temp=="MRFBIU0":
+				print "mrfbiu0"
+			    elif temp=="BIU1MRF":
+				print "biu1mrf"
+			    elif temp=="MRFBIU1":
+				print "mrfbiu1"
+			    elif temp=="BIU2MRF":
+				print "biu2mrf"
+			    elif temp=="MRFBIU2":
+				print "mrfbiu2"
+			    elif temp=="SHU0IALU":
+				print "shu0ialu"
+			    elif temp=="IALUSHU0":
+				print "ialushu0"
+			    elif temp=="SHU0IMAC":
+				print "shu0imac"
+			    elif temp=="IMACSHU0":
+				print "imacshu0"
+			    elif temp=="SHU0FALU":
+				print "shu0falu"
+			    elif temp=="FALUSHU0":
+				print "falushu0"
+			    elif temp=="SHU0FMAC":
+				print "shu0fmac"
+			    elif temp=="FMACSHU0":
+				print "fmacshu0"
+			    elif temp=="MRFIALU":
+				print "mrfialu"
+			    elif temp=="IALUMRF":
+				print "ialumrf"
+			    elif temp=="MRFIMAC":
+				print "mrfimac"
+			    elif temp=="IMACMRF":
+				print "imacmrf"
+			    elif temp=="MRFFALU":
+				print "mrffalu"
+			    elif temp=="FALUMRF":
+				print "falumrf"
+			    elif temp=="MRFFMAC":
+				print "mrffmac"
+			    elif temp=="FMACMRF":
+				print "fmacmrf"
+			    elif temp=="SHU1IALU":
+				print "shu1ialu"
+			    elif temp=="IALUSHU1":
+				print "ialushu1"
+			    elif temp=="SHU1IMAC":
+				print "shu1imac"
+			    elif temp=="IMACSHU1":
+				print "imacshu1"
+			    elif temp=="SHU1FALU":
+				print "shu1falu"
+			    elif temp=="FALUSHU1":
+				print "falushu1"
+			    elif temp=="SHU1FMAC":
+				print "shu1fmac"
+			    elif temp=="FMACSHU1":
+				print "fmacshu1"
+			    elif temp=="IALUFALU":
+				print "ialufalu"
+			    elif temp=="FALUIALU":
+				print "faluialu"
+			    elif temp=="SHU0MRF":
+				print "shu0mrf"
+			    elif temp=="MRFSHU0":
+				print "mrfshu0"
+			    elif temp=="MRFSHU1":
+				print "mrfshu1"
+			    elif temp=="SHU1MRF":
+				print "shu1mrf"
+			    elif temp=="IALUIMAC":
+				print "ialuimac"
+			    elif temp=="IMACIALU":
+				print "imacialu"
+			    elif temp=="IMACFALU":
+				print "imacfalu"
+			    elif temp=="FALUIMAC":
+				print "faluimac"
+			    elif temp=="FALUFMAC":
+				print "falufmac"
+			    elif temp=="FMACFALU":
+				print "fmacfalu"
+	self.APE3Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
 
     

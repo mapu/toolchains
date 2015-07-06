@@ -574,264 +574,7 @@ class MPUViewWidget(QWidget):
 	self.stageDialog.setWindowTitle("MPU Instruction Pipeline Diagram")
 	self.stageDialog.show()
 
-    def updateMPUWidget(self,r):
-	#update lines
-	#DM BIU0
-	if r[1]!="nop":
-	    print "DM BIU0"
-	#BIU0 DM
-	if r[2]!="nop":
-	    print "BIU0 DM"
-	#DM BIU1
-	if r[3]!="nop":
-	    print "DM BIU1"
-	#BIU1 DM
-	if r[4]!="nop":
-	    print "BIU1 DM"
-	#DM BIU2
-	if r[5]!="nop":
-	    print "DM BIU2"
-	#BIU2 DM
-	if r[6]!="nop":
-	    print "BIU2 DM"
-	#BIU0 SHU0
-	if r[7]!="nop":
-	    print "BIU0 SHU0"
-	#SHU0 BIU0
-	if r[8]!="nop":
-	    print "SHU0 BIU0"
-	#BIU1 SHU0
-	if r[9]!="nop":
-	    print "BIU1 SHU0"
-	#SHU0 BIU1
-	if r[10]!="nop":
-	    print "SHU0 BIU1"
-	#BIU2 SHU0
-	if r[11]!="nop":
-	    print "BIU2 SHU0"
-	#SHU0 BIU2
-	if r[12]!="nop":
-	    print "SHU0 BIU2"
-	#BIU0 SHU1
-	if r[13]!="nop":
-	    print "BIU0 SHU1"
-	#SHU1 BIU0
-	if r[14]!="nop":
-	    print "SHU1 BIU0"
-	#BIU1 SHU1
-	if r[15]!="nop":
-	    print "BIU1 SHU1"
-	#SHU1 BIU1
-	if r[16]!="nop":
-	    print "SHU1 BIU1"
-	#BIU2 SHU1
-	if r[17]!="nop":
-	    print "BIU2 SHU1"
-	#SHU1 BIU2
-	if r[18]!="nop":
-	    print "SHU1 BIU2"
-	#BIU0 MRF
-	if r[19]!="nop":
-	    print "BIU0 MRF"
-	#MRF BIU0
-	if r[20]!="nop":
-	    print "MRF BIU0"
-	#BIU1 MRF
-	if r[21]!="nop":
-	    print "BIU1 MRF"
-	#MRF BIU1
-	if r[22]!="nop":
-	    print "MRF BIU1"
-	#BIU2 MRF
-	if r[23]!="nop":
-	    print "BIU2 MRF"
-	#MRF BIU2
-	if r[24]!="nop":
-	    print "MRF BIU2"
-	#SHU0 IALU
-	if r[25]!="nop":
-	   print "SHU0 IALU"
-	#IALU SHU0
-	if r[26]!="nop":
-	    print "IALU SHU0"
-	#SHU0 IMAC
-	if r[27]!="nop":
-	    print "SHU0 IMAC"
-	#IMAC SHU0
-	if r[28]!="nop":
-	    print "IMAC SHU0"
-	#SHU0 FALU
-	if r[29]!="nop":
-	    print "SHU0 FALU"
-	#FALU SHU0
-	if r[30]!="nop":
-	    print "FALU SHU0"
-	#SHU0 FMAC
-	if r[31]!="nop":
-	    print "SHU0 FMAC"
-	#FMAC SHU0
-	if r[32]!="nop":
-	    print "FMAC SHU0"
-	#MRF IALU
-	if r[33]!="nop":
-	    print "MRF IALU"
-	#IALU MRF
-	if r[34]!="nop":
-	    print "IALU MRF"
-	#MRF IMAC
-	if r[35]!="nop":
-	    print "MRF IMAC"
-	#IMAC MRF
-	if r[36]!="nop":
-	    print "IMAC MRF"
-	#MRF FALU
-	if r[37]!="nop":
-	    print "MRF FALU"
-	#FALU MRF
-	if r[38]!="nop":
-	    print "FALU MRF"
-	#MRF FMAC
-	if r[39]!="nop":
-	    print "MRF FMAC"
-	#FMAC MRF
-	if r[40]!="nop":
-	    print "FMAC MRF"
-	#SHU1 IALU
-	if r[41]!="nop":
-	    print "SHU1 IALU"
-	#IALU SHU1
-	if r[42]!="nop":
-	    print "IALU SHU1"
-	#SHU1 IMAC
-	if r[43]!="nop":
-	    print "SHU1 IMAC"
-	#IMAC SHU1
-	if r[44]!="nop":
-	    print "IMAC SHU1"
-	#SHU1 FALU
-	if r[45]!="nop":
-	    print "SHU1 FALU"
-	#FALU SHU1
-	if r[46]!="nop":
-	    print "FALU SHU1"
-	#SHU1 FMAC
-	if r[47]!="nop":
-	    print "SHU1 FMAC"
-	#FMAC SHU1
-	if r[48]!="nop":
-	    print "FMAC SHU1"
-	#IALU FALU
-	if r[49]!="nop":
-	    print "IALU FALU"
-	#FALU IALU
-	if r[50]!="nop":
-	    print "FALU IALU"
-	#SHU0 MRF
-	if r[51]!="nop":
-	    print "SHU0 MRF"
-	#MRF SHU0
-	if r[52]!="nop":
-	    print "MRF SHU0"
-	#MRF SHU1
-	if r[53]!="nop":
-	    print "MRF SHU1"
-	#SHU1 MRF
-	if r[54]!="nop":
-	    print "SHU1 MRF"
-	#IALU IMAC
-	if r[55]!="nop":
-	    print "IALU IMAC"
-	#IMAC IALU
-	if r[56]!="nop":
-	    print "IMAC IALU"
-	#IMAC FALU
-	if r[57]!="nop":
-	    print "IMAC FALU"
-	#FALU IMAC
-	if r[58]!="nop":
-	    print "FALU IMAC"
-	#FALU FMAC
-	if r[59]!="nop":
-	    print "FALU FMAC"
-	#FMAC FALU
-	if r[60]!="nop":
-	    print "FMAC FALU"
-
-	#update mpu reg
-	for i in range(0,187):
-	    if i>=0 and i<=127:  #m0-127
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+1,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+1,1).setToolTip(r[61+i])
-		else:
-	            self.regFileWidget.item(i+1,1).setData(0,"0")
-		    self.regFileWidget.item(i+1,1).setToolTip("")
-	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
-	    elif i>=128 and i<=143: #shu0
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+2,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+2,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+2,1).setData(0,"0")
-		    self.regFileWidget.item(i+2,1).setToolTip("")
-	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
-	    elif i>=144 and i<=159: #shu1
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+3,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+3,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+3,1).setData(0,"0")
-		    self.regFileWidget.item(i+3,1).setToolTip("")
-	        self.regFileWidget.item(i+3,1).setTextColor(QColor(0,0,0))
-	    elif i>=160 and i<=163: #ialu
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+4,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+4,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+4,1).setData(0,"0")
-		    self.regFileWidget.item(i+4,1).setToolTip("")
-	        self.regFileWidget.item(i+4,1).setTextColor(QColor(0,0,0))
-	    elif i>=164 and i<=167:  #imac
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+5,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+5,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+5,1).setData(0,"0")
-		    self.regFileWidget.item(i+5,1).setToolTip("")
-	        self.regFileWidget.item(i+5,1).setTextColor(QColor(0,0,0))
-	    elif i>=168 and i<=171: #falu
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+6,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+6,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+6,1).setData(0,"0")
-		    self.regFileWidget.item(i+6,1).setToolTip("")
-	        self.regFileWidget.item(i+6,1).setTextColor(QColor(0,0,0))
-	    elif i>=172 and i<=175: #fmac
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+7,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+7,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+7,1).setData(0,"0")
-		    self.regFileWidget.item(i+7,1).setToolTip("")
-	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))
-	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+7,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+7,1).setToolTip(r[61+i])	
-		else:
-		    self.regFileWidget.item(i+7,1).setData(0,"0")
-		    self.regFileWidget.item(i+7,1).setToolTip("")
-	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))	
-	    elif i>=185 and i<=186: #svr
-	    	if r[61+i]!="nop":
-		    self.regFileWidget.item(i+8,1).setData(0,r[61+i])
-		    self.regFileWidget.item(i+8,1).setToolTip(r[61+i])
-		else:
-		    self.regFileWidget.item(i+8,1).setData(0,"0")
-		    self.regFileWidget.item(i+8,1).setToolTip("")
-	        self.regFileWidget.item(i+8,1).setTextColor(QColor(0,0,0))
-
+    def updateMPUFloatDialog(self,r):
 	#update float dialog
 	#clear stage list
 	self.buttonWidget.DMButtonDialog.stages.clear()
@@ -859,59 +602,135 @@ class MPUViewWidget(QWidget):
 	self.buttonWidget.FMACButtonDialog.initDialog()
 	#DM
 	for i in range(0,40,2):
-	    if r[312+i]!="nop":
-		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setData(0,r[312+i])
-		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setToolTip(r[312+i+1])
+	    if r[i]!="nop":
+		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setData(0,r[i])
+		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setToolTip(r[i+1])
 	#BIU0
 	for i in range(0,40,2):
-	    if r[352+i]!="nop":
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setData(0,r[352+i])
-		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setToolTip(r[352+i+1])
+	    if r[40+i]!="nop":
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setData(0,r[40+i])
+		self.buttonWidget.BIU0ButtonDialog.stages.item(i/2,1).setToolTip(r[40+i+1])
 	#BIU1
 	for i in range(0,40,2):
-	    if r[392+i]!="nop":
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setData(0,r[392+i])
-		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setToolTip(r[392+i+1])
+	    if r[80+i]!="nop":
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setData(0,r[80+i])
+		self.buttonWidget.BIU1ButtonDialog.stages.item(i/2,1).setToolTip(r[80+i+1])
 	#BIU2
 	for i in range(0,40,2):
-	    if r[432+i]!="nop":
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setData(0,r[432+i])
-		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setToolTip(r[432+i+1])
+	    if r[120+i]!="nop":
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setData(0,r[120+i])
+		self.buttonWidget.BIU2ButtonDialog.stages.item(i/2,1).setToolTip(r[120+i+1])
 	#SHU0
 	for i in range(0,40,2):
-	    if r[472+i]!="nop":
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setData(0,r[472+i])
-		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setToolTip(r[472+i+1])
+	    if r[160+i]!="nop":
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setData(0,r[160+i])
+		self.buttonWidget.SHU0ButtonDialog.stages.item(i/2,1).setToolTip(r[160+i+1])
 	#MRF
 	for i in range(0,40,2):
-	    if r[512+i]!="nop":
-		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setData(0,r[512+i])
-		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setToolTip(r[512+i+1])
+	    if r[200+i]!="nop":
+		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setData(0,r[200+i])
+		self.buttonWidget.MRFButtonDialog.stages.item(i/2,1).setToolTip(r[200+i+1])
 	#SHU1
 	for i in range(0,40,2):
-	    if r[552+i]!="nop":
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setData(0,r[552+i])
-		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setToolTip(r[552+i+1])
+	    if r[240+i]!="nop":
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setData(0,r[240+i])
+		self.buttonWidget.SHU1ButtonDialog.stages.item(i/2,1).setToolTip(r[240+i+1])
 	#IALU
 	for i in range(0,40,2):
-	    if r[592+i]!="nop":
-		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setData(0,r[592+i])
-		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setToolTip(r[592+i+1])
+	    if r[280+i]!="nop":
+		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setData(0,r[280+i])
+		self.buttonWidget.IALUButtonDialog.stages.item(i/2,1).setToolTip(r[280+i+1])
 	#IMAC
 	for i in range(0,40,2):
-	    if r[632+i]!="nop":
-		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setData(0,r[632+i])
-		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setToolTip(r[632+i+1])
+	    if r[320+i]!="nop":
+		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setData(0,r[320+i])
+		self.buttonWidget.IMACButtonDialog.stages.item(i/2,1).setToolTip(r[320+i+1])
 	#FALU
 	for i in range(0,40,2):
-	    if r[672+i]!="nop":
-		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setData(0,r[672+i])
-		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setToolTip(r[672+i+1])
+	    if r[360+i]!="nop":
+		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setData(0,r[360+i])
+		self.buttonWidget.FALUButtonDialog.stages.item(i/2,1).setToolTip(r[360+i+1])
 	#FMAC
 	for i in range(0,40,2):
-	    if r[712+i]!="nop":
-		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setData(0,r[712+i])
-		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setToolTip(r[712+i+1])
+	    if r[400+i]!="nop":
+		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setData(0,r[400+i])
+		self.buttonWidget.FMACButtonDialog.stages.item(i/2,1).setToolTip(r[400+i+1])
+
+    def updateMPUWidget(self,r):
+	#update mpu reg
+	for i in range(0,187):
+	    if i>=0 and i<=127:  #m0-127
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+1,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+1,1).setToolTip(r[1+i])
+		else:
+	            self.regFileWidget.item(i+1,1).setData(0,"0")
+		    self.regFileWidget.item(i+1,1).setToolTip("")
+	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
+	    elif i>=128 and i<=143: #shu0
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+2,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+2,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+2,1).setData(0,"0")
+		    self.regFileWidget.item(i+2,1).setToolTip("")
+	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
+	    elif i>=144 and i<=159: #shu1
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+3,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+3,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+3,1).setData(0,"0")
+		    self.regFileWidget.item(i+3,1).setToolTip("")
+	        self.regFileWidget.item(i+3,1).setTextColor(QColor(0,0,0))
+	    elif i>=160 and i<=163: #ialu
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+4,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+4,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+4,1).setData(0,"0")
+		    self.regFileWidget.item(i+4,1).setToolTip("")
+	        self.regFileWidget.item(i+4,1).setTextColor(QColor(0,0,0))
+	    elif i>=164 and i<=167:  #imac
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+5,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+5,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+5,1).setData(0,"0")
+		    self.regFileWidget.item(i+5,1).setToolTip("")
+	        self.regFileWidget.item(i+5,1).setTextColor(QColor(0,0,0))
+	    elif i>=168 and i<=171: #falu
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+6,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+6,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+6,1).setData(0,"0")
+		    self.regFileWidget.item(i+6,1).setToolTip("")
+	        self.regFileWidget.item(i+6,1).setTextColor(QColor(0,0,0))
+	    elif i>=172 and i<=175: #fmac
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+7,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+7,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+7,1).setData(0,"0")
+		    self.regFileWidget.item(i+7,1).setToolTip("")
+	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))
+	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+7,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+7,1).setToolTip(r[1+i])	
+		else:
+		    self.regFileWidget.item(i+7,1).setData(0,"0")
+		    self.regFileWidget.item(i+7,1).setToolTip("")
+	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))	
+	    elif i>=185 and i<=186: #svr
+	    	if r[1+i]!="nop":
+		    self.regFileWidget.item(i+8,1).setData(0,r[1+i])
+		    self.regFileWidget.item(i+8,1).setToolTip(r[1+i])
+		else:
+		    self.regFileWidget.item(i+8,1).setData(0,"0")
+		    self.regFileWidget.item(i+8,1).setToolTip("")
+	        self.regFileWidget.item(i+8,1).setTextColor(QColor(0,0,0))
 
     def updateMPURegWFlag(self,r):
 	i=r[7]
