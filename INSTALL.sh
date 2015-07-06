@@ -174,7 +174,11 @@ then
   fi
   make -C $source_path/MaPUSim/ARM/util/term clean
   #cp GUI directory
-  svn export $source_path/MaPUSim/GUI $install_path/simulator/GUI
+  if [ -e "$install_path/simulator/gui" ]
+  then
+    rm -rf $install_path/simulator/gui
+  fi
+  svn export $source_path/MaPUSim/GUI $install_path/simulator/gui
 fi
 
 install_tool_path=${install_path}
