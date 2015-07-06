@@ -255,6 +255,8 @@ class AbstractMemory : public MemObject
      */
     void access(PacketPtr pkt);
 
+    void save();
+
     /**
      * Perform an untimed memory read or write without changing
      * anything but the memory itself. No stats are affected by this

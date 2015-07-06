@@ -50,13 +50,17 @@
 #include <zlib.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/uio.h>
+#include <time.h>
 
 #include <cerrno>
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "arch/registers.hh"
+#include "base/callback.hh"
 #include "base/loader/csu_object.hh"
 #include "config/the_isa.hh"
 #include "debug/LLSC.hh"
@@ -66,8 +70,19 @@
 #include "mem/packet_access.hh"
 #include "sim/system.hh"
 #include "sim/full_system.hh"
+#include "sim/sim_exit.hh"
 
 using namespace std;
+
+class AbsMemCallback : public Callback
+{
+  private:
+    AbstractMemory *image;
+
+  public:
+    AbsMemCallback(AbstractMemory *i) : image(i) {}
+    void process() { image->save(); delete this; }
+};
 
 AbstractMemory::AbstractMemory(const Params *p) :
     MemObject(p), range(params()->range), pmemAddr(NULL),
@@ -112,6 +127,8 @@ AbstractMemory::AbstractMemory(const Params *p) :
     //If requested, initialize all the memory to 0
     if (p->zero)
         memset(pmemAddr, 0, size());
+
+    registerExitCallback(new AbsMemCallback(this));
 }
 
 
@@ -499,6 +516,23 @@ AbstractMemory::access(PacketPtr pkt)
     if (pkt->needsResponse()) {
         pkt->makeResponse();
     }
+}
+
+void
+AbstractMemory::save()
+{
+  time_t t = time(0);   // get time now
+  struct tm *now = localtime(&t);
+
+  char filename[80];
+  strftime(filename, 80, "mem%Y%m%d-%H%M%S.bin", now);
+
+  ofstream stream(filename);
+  if (!stream.is_open() || stream.fail() || stream.bad())
+      panic("Error opening %s", filename);
+
+  stream.write((const char *)pmemAddr, size());
+  stream.close();
 }
 
 void
