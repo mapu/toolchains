@@ -856,7 +856,7 @@ const uint64_t MMPULiteScheduler::ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 
    7, 1, 7, 1, 7, 1, 7, 1,/*FMACT*/}, /// IMAToMACC //Yanglei:unchanged
   {7, 1/*IMACW*/, 7, 1/*MACCO*/, 7, 1, 7, 1, 7, 1, 7, 1,/*SHU0T*/
    7, 1, 7, 1, 7, 1, 7, 1/*SHU1T*/}, /// IMAToSHU //Yanglei:unchanged
-  {1, 1/*IMRW*/},               /// IMAcc
+  {2, 1/*IMRW*/},               /// IMAcc
   {4, 1/*IMACW*/, 2, 1/*IMRW*/, 4, 1/*MACCO*/, 5, 1/*BIU0W*/, 5, 1/*BIU1W*/, 5, 1/*BIU2W*/}, /// IMAccToBIU
   {5, 1/*MW3*/, 4, 1/*IMACW*/, 2, 1/*IMRW*/, 4, 1/*MACCO*/}, /// IMAccToM
   {4, 1/*IMACW*/, 2, 1/*IMRW*/, 4, 1, 4, 1, 4, 1, 4, 1,/*IALUT*/

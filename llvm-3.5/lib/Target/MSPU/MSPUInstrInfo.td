@@ -831,55 +831,55 @@ def LoadSI8JI : LdImmInstr<
     		  (outs I32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr] (B)", 0b100000,
                   [(set I32Reg:$reg, (sextloadi8 AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadSI16JI : LdImmInstr<
     		  (outs I32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr] (H)", 0b010000,
                   [(set I32Reg:$reg, (sextloadi16 AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadUI8JI : LdImmInstr<
     		  (outs I32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr] (B)(U)", 0b101000,
                   [(set I32Reg:$reg, (zextloadi8 AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadUI16JI : LdImmInstr<
     		  (outs I32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr] (H)(U)", 0b011000,
                   [(set I32Reg:$reg, (zextloadi16 AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadI32JI  : LdImmInstr<
     		  (outs I32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr]", 0b000000,
                   [(set I32Reg:$reg, (load AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadF32JI   : LdImmInstr<
     		  (outs F32Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr]", 0b000000,
                   [(set F32Reg:$reg, (load AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadF64JI   : LdImmInstr<
     		  (outs F64Reg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr]", 0b000100,
                   [(set F64Reg:$reg, (load AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadPtrJI   : LdImmInstr<
     		  (outs JReg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr]", 0b000010,
                   [(set JReg:$reg, (load AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 def LoadPtrOffsetJI   : LdImmInstr<
     		  (outs JReg:$reg), (ins AddrJImm:$addr),
                   "$reg = [$addr]", 0b000010,
                   [(set JReg:$reg, (sextloadi32 AddressingJImm:$addr))]>
-{ let Itinerary = ItinAGU_5_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_5_1_1; }
 
 /*--------------------- store: with imm's as offset -----------------------*/
 class StImmInstr< dag outs, dag ins, string asm, bits<6> flags,
@@ -890,53 +890,52 @@ def StoreI8JI : StImmInstr<
     		  (outs), (ins I32Reg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg (B)", 0b100000,
 		  [(truncstorei8 I32Reg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 def StoreI16JI : StImmInstr<
     		  (outs), (ins I32Reg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg (H)", 0b010000,
 		  [(truncstorei16 I32Reg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 def StoreI32JI   : StImmInstr<
     		  (outs), (ins I32Reg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg", 0b000000,
 		  [(store I32Reg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 def StoreF32JI   : StImmInstr<
     		  (outs), (ins F32Reg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg", 0b000000,
 		  [(store F32Reg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 def StoreF64JI   : StImmInstr<
     		  (outs), (ins F64Reg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg", 0b000100,
 		  [(store F64Reg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 def StorePtrJI   : StImmInstr<
     		  (outs), (ins JReg:$reg, AddrJImm:$addr),
                   "[$addr] = $reg", 0b000010,
 		  [(store JReg:$reg, AddressingJImm:$addr)]>
-{ let Itinerary = ItinAGU_1_1_1; }
+{ let Itinerary = ItinAGU_ImmExt_1_1_1; }
 
 /*-------------------- All other AGU instructions ----------------------*/
 // assign immediate value to registers
 class AssignImmInstr< dag outs, dag ins, string asm,
 				   bits<6> flags,
 	  		   	   list<dag> pattern = [] > :
-				   AGUInstr< outs, ins, asm, 0b00001, pattern >
-{
+				   AGUInstr< outs, ins, asm, 0b00001, pattern > {
 		bits<5> d;
 		bits<11> s;
 
 		let Inst{22} = 0b1; // allow imm-ext
-  		let Inst{21-16} = flags;
+  	let Inst{21-16} = flags;
 		let Inst{15-5} = s;
 		let Inst{4-0} = d;
-  		let isCodeGenOnly = 1;
+  	let isCodeGenOnly = 1;
 }
 
 def AssignI32 : AssignImmInstr< 
@@ -944,14 +943,14 @@ def AssignI32 : AssignImmInstr<
 		 (ins SImm11Int:$s),
        	 "$d = $s", 0b000000,
          [(set I32Reg:$d, SImm32IntLeaf:$s)]>
-{ let Itinerary = ItinAGU_2_1; }
+{ let Itinerary = ItinAGU_ImmExt_2_1; }
 
 def AssignPtr : AssignImmInstr< 
 	     (outs JReg:$d),
 		 (ins  SImm11Ptr:$s),
        	 "$d = $s", 0b000010,
          [(set JReg:$d, SImm32PtrLeaf:$s)]>
-{ let Itinerary = ItinAGU_2_1; }
+{ let Itinerary = ItinAGU_ImmExt_2_1; }
 
 /* // to be deleted.
 def AssignPtrGlobalAddr : AssignImmInstr< 
@@ -959,7 +958,7 @@ def AssignPtrGlobalAddr : AssignImmInstr<
 		 (ins  SImm11Ptr:$s),
        	 "$d = $s", 0b000010,
          [(set JReg:$d, GlobalAddrLeaf:$s)]>
-{ let Itinerary = ItinAGU_2_1; }
+{ let Itinerary = ItinAGU_ImmExt_2_1; }
 */
 
 /* Semantic Patterns for Instruction Selection */
@@ -978,7 +977,7 @@ def AssignF32 : AssignImmInstr<
 		 (ins f32imm:$s),
        	 "$d = $s", 0b000000,
          [(set F32Reg:$d, fpimm:$s)]>
-{ let Itinerary = ItinAGU_2_1; }
+{ let Itinerary = ItinAGU_ImmExt_2_1; }
 
 // addr computation.
 class PtrBinaryInstr< dag outs, dag ins, string asm,
@@ -1314,7 +1313,7 @@ def JumpImm : JumpInstr<
 	let Inst{21-5}	= t;
 	let isBranch = 1;
 	let isBarrier = 1;
-	let Itinerary = ItinSEQNoReg;
+	let Itinerary = ItinSEQNoReg_ImmExt;
 }
 
 def JumpBasicBlock : JumpInstr<
@@ -1327,7 +1326,7 @@ def JumpBasicBlock : JumpInstr<
 	let isBarrier = 1;
 	let isBranch = 1;
 	let isCodeGenOnly = 1;// jump imm
-	let Itinerary = ItinSEQNoReg;
+	let Itinerary = ItinSEQNoReg_ImmExt;
 }
 
 // branch to a pointer address which is PC-irrelative.
@@ -1367,7 +1366,7 @@ def JumpImmCond : JumpInstr<
 	let Inst{4-0} = c;
 
 	let isBranch = 1;
-	let Itinerary = ItinSEQ_1;
+	let Itinerary = ItinSEQ_ImmExt_1;
 }
 
 def JumpBasicBlockCond : JumpInstr<
@@ -1381,7 +1380,7 @@ def JumpBasicBlockCond : JumpInstr<
 
 	let isBranch = 1;
 	let isCodeGenOnly = 1; // if rx, jump imm
-	let Itinerary = ItinSEQ_1;
+	let Itinerary = ItinSEQ_ImmExt_1;
 }
 
 // conditionally branch to a pointer address which is PC-irrelative.
@@ -1425,7 +1424,7 @@ def CallImm : CallInstr<
 {
 	bits<17> t;
 	let Inst{21-5}	= t;
-	let Itinerary = ItinSEQNoReg;
+	let Itinerary = ItinSEQNoReg_ImmExt;
 }
 
 def : Pat<(MSPU_Call  tglobaladdr:$t), (CallImm  tglobaladdr:$t)>;
@@ -1451,7 +1450,7 @@ def CallImmCond : CallInstr<
 	bits<17> t;
 	let Inst{21-5}	= t;
 	let Inst{4-0} = c;
-	let Itinerary = ItinSEQ_1;
+	let Itinerary = ItinSEQ_ImmExt_1;
 }
 
 // conditionally call via a pointer address which is PC-irrelative.
@@ -1494,7 +1493,7 @@ def LoopL0 : SeqInstr<(outs), (ins SImm17Ptr:$t, JReg:$j),
 	let Inst{21-5} = t;
 	let Inst{4-0} = j;
 	let isTerminator = 1;
-  let Itinerary = ItinSEQ_1;
+  let Itinerary = ItinSEQ_ImmExt_1;
 }
 
 def LoopL1 : SeqInstr< 
