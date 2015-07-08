@@ -247,6 +247,7 @@ class DataBase():
 
         if s.find("mpurf_manager")>=0:
 	    #324000[162]: system.cpu.mpurf_manager: [tid:1]: [sn:47] : R MPU Reg 129 : 0x1 0xff 0xff
+	    #114000[57]: system.cpu.mpurf_manager: [tid:1]: [sn:25] : W Misc Reg 35 : 0
 	    pos=13
     	    s=s[(pos+2):] 
 	    pos=s.index(":")
@@ -263,14 +264,13 @@ class DataBase():
     	    s=s[(pos+1):]
     	    pos=s.index("]")
     	    item.sn=s[0:pos]
-    	    s=s[(pos+1):] 
-    	    s=s[3:]
-	    item.op="'"+s[:1]+"'"
-	    s=s[2:]
-	    item.type="'"+s[:7]+"'"
-	    s=s[8:]
-	    pos=s.index(":")
-	    item.reg=s[:(pos-1)]
+    	    s=s[(pos+4):] 
+	    pos=s.find(":")
+	    temp=s[:(pos-1)]
+	    slist=temp.split(" ")
+	    item.op="'"+slist[0]+"'"
+	    item.type="'"+slist[1]+" "+slist[2]+"'"
+	    item.reg=slist[3]
 	    s=s[(pos+2):]
 	    pos=s.index("\n")
 	    item.dis="'"+s[:pos-1]+"'"	
@@ -293,19 +293,13 @@ class DataBase():
     	    s=s[(pos+1):]
     	    pos=s.index("]")
     	    item.sn=s[0:pos]
-    	    s=s[(pos+1):] 
-    	    s=s[2:]
-	    item.op="'"+s[:1]+"'" #W MPU Reg 131 : 0x0 0x0 0x0 0x0
-	    s=s[2:]   #MPU Reg 131 : 0x0 0x0 0x0 0x0 //  R Reg 1 : 0xffffff01.
-	    temp=s
-	    pos=temp.index(" ")
-	    temp=temp[(pos+1):]
-	    pos1=temp.index(" ")
-	    pos=pos+pos1+1
-	    item.type="'"+s[:pos]+"'"
-	    s=s[(pos+1):]
-	    pos=s.index(":")
-	    item.reg=s[:(pos-1)]
+    	    s=s[(pos+4):] 
+	    pos=s.find(":")
+	    temp=s[:(pos-1)]
+	    slist=temp.split(" ")
+	    item.op="'"+slist[0]+"'"
+	    item.type="'"+slist[1]+" "+slist[2]+"'"
+	    item.reg=slist[3]
 	    s=s[(pos+2):]
 	    pos=s.index("\n")
 	    item.dis="'"+s[:pos-1]+"'"	

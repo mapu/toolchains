@@ -109,4 +109,3 @@ class MainWindow(QMainWindow):
 	self.apcViewWidget.APE1Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE2Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
 	self.apcViewWidget.APE3Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
-        
