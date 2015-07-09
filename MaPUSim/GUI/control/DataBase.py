@@ -276,7 +276,7 @@ class DataBase():
 	    item.dis="'"+s[:pos-1]+"'"	
 	elif s.find("regfile_manager")>=0:
 	    #16000[8]: system.cpu.regfile_manager: [tid:0]: [sn:2]: W R Reg 1 : 0xffffff01.
-	    #318000[159]: system.cpu.regfile_manager: [tid:0]: [sn:118]: W MPU Reg 131 : 0x0 0x0 0x0 0x0
+	    #318000[159]: system.cpu.regfile_manager: [tid:0]: [sn:118] : W MPU Reg 131 : 0x0 0x0 0x0 0x0
 	    pos=15
     	    s=s[(pos+2):] 
 	    pos=s.index(":")
@@ -293,7 +293,10 @@ class DataBase():
     	    s=s[(pos+1):]
     	    pos=s.index("]")
     	    item.sn=s[0:pos]
-    	    s=s[(pos+4):] 
+	    if s.find("MPU")>=0:
+    	        s=s[(pos+4):] 
+	    else:
+		s=s[(pos+3):] 
 	    pos=s.find(":")
 	    temp=s[:(pos-1)]
 	    slist=temp.split(" ")

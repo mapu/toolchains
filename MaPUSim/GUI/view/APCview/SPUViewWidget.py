@@ -12,6 +12,7 @@ class SPUViewWidget(QWidget):
 	self.leftWidget=QWidget()
 	self.stageButton=QPushButton("Instruction Pipeline Diagram")
 	self.stageButton.setFixedSize(200,40)
+	self.stageButton.setEnabled(False)
 	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	leftLay=QVBoxLayout()
 	leftLay.addWidget(self.stageButton)
@@ -40,6 +41,7 @@ class SPUViewWidget(QWidget):
 	self.regFileWidget.setRowCount(66)
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
 	self.regFileWidget.setColumnWidth(0,122)
+	self.regFileWidget.horizontalScrollBar().setSingleStep(1)
 	#define regFileWidget R 
 	self.regFileWidget.setItem(0,0,QTableWidgetItem(self.tr("R")))
 	self.regFileWidget.setItem(0,1,QTableWidgetItem(self.tr("")))

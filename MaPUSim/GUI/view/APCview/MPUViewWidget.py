@@ -36,6 +36,7 @@ class MPUViewWidget(QWidget):
 
 	self.stageButton=QPushButton("Instruction Pipeline Diagram")
 	self.stageButton.setFixedSize(200,40)
+	self.stageButton.setEnabled(False)
 	self.connect(self.stageButton,SIGNAL("clicked()"),self.stageButtonSlot)
 	self.buttonWidget=MPULeftWidget()
 
