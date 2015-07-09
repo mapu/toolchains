@@ -65,3 +65,6 @@ class AbstractMemory(MemObject):
 
     # Share memory key
     shmkey = Param.Int(0, "Use share memory as storage")
+
+    # Memory dump
+    needdump = Param.Bool(False, "Need to dump memory contents after simulation")

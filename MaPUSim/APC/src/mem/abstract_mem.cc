@@ -87,7 +87,7 @@ class AbsMemCallback : public Callback
 AbstractMemory::AbstractMemory(const Params *p) :
     MemObject(p), range(params()->range), pmemAddr(NULL),
     confTableReported(p->conf_table_reported), inAddrMap(p->in_addr_map),
-    _system(NULL), key(p->shmkey), isShared(p->shared)
+    _system(NULL), key(p->shmkey), isShared(p->shared), needDump(p->needdump)
 {
     if (size() % TheISA::PageBytes != 0)
         panic("Memory Size not divisible by page size\n");
@@ -125,10 +125,9 @@ AbstractMemory::AbstractMemory(const Params *p) :
     }
 
     //If requested, initialize all the memory to 0
-    if (p->zero)
-        memset(pmemAddr, 0, size());
+    if (p->zero) memset(pmemAddr, 0, size());
 
-    registerExitCallback(new AbsMemCallback(this));
+    if (needDump) registerExitCallback(new AbsMemCallback(this));
 }
 
 
@@ -524,8 +523,10 @@ AbstractMemory::save()
   time_t t = time(0);   // get time now
   struct tm *now = localtime(&t);
 
-  char filename[80];
-  strftime(filename, 80, "mem%Y%m%d-%H%M%S.bin", now);
+  char data[80];
+  strftime(data, 80, "-%Y%m%d-%H%M%S.bin", now);
+
+  string filename = name() + data;
 
   ofstream stream(filename);
   if (!stream.is_open() || stream.fail() || stream.bad())

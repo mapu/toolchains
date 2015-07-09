@@ -167,9 +167,24 @@ if options.turbo_type == "fix":
 else:
     class TurboClass(TurboDecoder): pass
 
+dumplocal = False
+dumpddr = False
+dumpshare = False
+memdump = options.mem_dump.split(',');
+if len(memdump) >= 1:
+    for memtype in memdump:
+        if memtype == 'local':
+            dumplocal = True
+        elif memtype == 'ddr':
+            dumpddr = True
+        elif memtype == 'share':
+            dumpshare = True
+        else:
+            print "Unknown memory type %s!" % memtype
+
 system = System(cpu = [CPUClass(cpu_id=i, numThreads = numThreads[i],
                                 dtb = MapuTLB(cpuid = i), itb = MapuTLB(cpuid = i), turbodec = TurboClass(cop_addr = 0x80000000, cop_size = 0x1000, cop_latency = '2ns')) for i in xrange(np)],
-                physmem = SimpleMemory(range=AddrRange("128MB")),
+                physmem = SimpleMemory(range=AddrRange("128MB"), needdump = dumplocal),
                 membus = NoncoherentBus(), 
                 sbus = NoncoherentBus(), 
                 cbus = NoncoherentBus(),
@@ -184,11 +199,11 @@ system = System(cpu = [CPUClass(cpu_id=i, numThreads = numThreads[i],
                 ddr22sys_bridge = Bridge(),
                 ddr32sys_bridge = Bridge(),
                 mem_mode = test_mem_mode,
-                ddrmem0 = SimpleMemory(range=AddrRange(0x60000000, 0x6FFFFFFF)),
-                ddrmem1 = SimpleMemory(range=AddrRange(0x70000000, 0x7FFFFFFF)),
-                ddrmem2 = SimpleMemory(range=AddrRange(0x80000000, 0x9FFFFFFF)),
-                ddrmem3 = SimpleMemory(range=AddrRange(0xA0000000, 0xBFFFFFFF)),
-                shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF)))
+                ddrmem0 = SimpleMemory(range=AddrRange(0x60000000, 0x6FFFFFFF), needdump = dumpddr),
+                ddrmem1 = SimpleMemory(range=AddrRange(0x70000000, 0x7FFFFFFF), needdump = dumpddr),
+                ddrmem2 = SimpleMemory(range=AddrRange(0x80000000, 0x9FFFFFFF), needdump = dumpddr),
+                ddrmem3 = SimpleMemory(range=AddrRange(0xA0000000, 0xBFFFFFFF), needdump = dumpddr),
+                shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF), needdump = dumpshare))
 
 print "Waiting for GDB connection to thread %s" % m5.options.debug_tid
 system.gdb_wait = m5.options.debug_tid;

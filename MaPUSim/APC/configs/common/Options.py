@@ -136,6 +136,10 @@ def addCommonOptions(parser):
                       choices = ["fix", "float"],
                       help = "type of Turbo decoder")
 
+    # Memory dump
+    parser.add_option("--mem-dump", default="local",
+                      help = "Dump memory contents, e.g. local, ddr, share")
+
 
 def addSEOptions(parser):
     # Benchmark options

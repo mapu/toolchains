@@ -173,6 +173,8 @@ class AbstractMemory : public MemObject
 
     bool isShared;
 
+    bool needDump;
+
   private:
 
     // Prevent copying

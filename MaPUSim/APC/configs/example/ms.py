@@ -122,7 +122,24 @@ if options.turbo_type == "fix":
 else:
     class TurboClass(TurboDecoder): pass
 
-system = MapuSystem(cpu = [CPUClass(cpu_id=i, dtb = MapuTLB(cpuid = i), itb = MapuTLB(cpuid = i), turbodec = TurboClass(cop_addr = 0x80000000, cop_size = 0x1000, cop_latency = '2ns')) for i in xrange(np)],
+dumplocal = False
+dumpddr = False
+dumpshare = False
+if len(options.mem_dump) >= 1:
+    for memtype in options.mem_dump:
+        if memtype == 'local':
+            dumplocal = True
+        elif memtype == 'ddr':
+            dumpddr = True
+        elif memtype == 'share':
+            dumpshare = True
+        else:
+            print "Unknown memory type %s!" % memtype
+
+system = MapuSystem(cpu = [CPUClass(cpu_id = i, 
+                    dtb = MapuTLB(cpuid = i), 
+                    itb = MapuTLB(cpuid = i),
+                    turbodec = TurboClass(cop_addr = 0x80000000, cop_size = 0x1000, cop_latency = '2ns')) for i in xrange(np)],
                 physmem = SimpleMemory(range=AddrRange("128MB")),
                 membus = NoncoherentBus(), 
                 sbus = NoncoherentBus(), 
