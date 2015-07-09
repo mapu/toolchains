@@ -78,6 +78,9 @@ class MPUViewWidget(QWidget):
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
 	self.regFileWidget.resizeColumnToContents(1)
 	self.regFileWidget.setColumnWidth(1,2500)
+	self.regFileWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+	self.regFileWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+	
 	#define regFileWidget M
 	self.regFileWidget.setItem(0,0,QTableWidgetItem(self.tr("M")))
 	self.regFileWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
@@ -531,6 +534,8 @@ class MPUViewWidget(QWidget):
 	self.specialRegWidget.setRowCount(14)
 	self.specialRegWidget.verticalHeader().setDefaultSectionSize(25)
 	self.specialRegWidget.setColumnWidth(0,150)
+	self.specialRegWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+	self.specialRegWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
 
 	self.specialRegWidget.setItem(0,0,QTableWidgetItem(self.tr("MPU condition")))
 	self.specialRegWidget.setItem(0,1,QTableWidgetItem(self.tr("0")))
