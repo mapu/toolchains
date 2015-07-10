@@ -31,7 +31,7 @@ class DataBase():
 	self.filePath="/home/litt/new02.out"
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
-	self.createAPE0Database()
+	#self.createAPE0Database()
 	if num==2:
             self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
             self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
