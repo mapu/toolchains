@@ -495,18 +495,18 @@ class SPUViewWidget(QWidget):
 
     def updateSPURegWFlag(self,r):
 	i=r[7]
-	if i>=0 and i<=31:
+	if r[6]=="R Reg":
 	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,0,0))
-	else:
-	    self.regFileWidget.item(i+2,1).setTextColor(QColor(255,0,0))
+	elif r[6]=="J Reg":
+	    self.regFileWidget.item(i+34,1).setTextColor(QColor(255,0,0))
 
-    def updateSPURegRFlag(self,i):
-	if i>=0 and i<=31:
-	    if self.regFileWidget.item(i+1,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+1,1).setTextColor(QColor(255,153,18))
-	else:
-	    if self.regFileWidget.item(i+2,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+2,1).setTextColor(QColor(255,153,18))
+    def updateSPURegRRFlag(self,i):
+	if self.regFileWidget.item(i+1,1).textColor()==QColor(255,0,0):
+	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,153,18))
+
+    def updateSPURegRJFlag(self,i):
+	if self.regFileWidget.item(i+34,1).textColor()==QColor(255,0,0):
+	    self.regFileWidget.item(i+34,1).setTextColor(QColor(255,153,18))
 
 
 

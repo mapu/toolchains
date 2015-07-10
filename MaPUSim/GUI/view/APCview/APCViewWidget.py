@@ -106,15 +106,17 @@ class APCViewWidget(QWidget):
 	#APE0 MPU STAGE
 	fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	r=self.dataBase.fetchall(self.dataBase.APE0dbFilePath,fetchmax_sql)
-	maxValue=int(r[0][0])
-	minValue=0
-	self.APE0Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	if r!=0:
+	    maxValue=int(r[0][0])
+	    minValue=0
+	    self.APE0Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	#APE0 SPU STAGE
 	fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	r=self.dataBase.fetchall(self.dataBase.APE0dbFilePath,fetchmax_sql)
-	maxValue=int(r[0][0])
-	minValue=0
-	self.APE0Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
+	if r!=0:
+	    maxValue=int(r[0][0])
+	    minValue=0
+	    self.APE0Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
 	self.APE0Widget.MPUWidget.stageDialog.slider=self.slider 
 	self.APE0Widget.SPUWidget.stageDialog.slider=self.slider 
 	self.APE0Widget.MPUWidget.stageButton.setEnabled(True)
@@ -125,15 +127,17 @@ class APCViewWidget(QWidget):
 	    #APE1 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE1 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue)
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue)
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
@@ -142,15 +146,17 @@ class APCViewWidget(QWidget):
 	    #APE1 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE1 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider  
 	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
@@ -158,15 +164,17 @@ class APCViewWidget(QWidget):
 	    #APE2 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE2 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.MPUWidget.stageButton.setEnabled(True)
@@ -175,15 +183,17 @@ class APCViewWidget(QWidget):
 	    #APE1 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE1 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE1dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider   
 	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
@@ -191,15 +201,17 @@ class APCViewWidget(QWidget):
 	    #APE2 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE2 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE2dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
+	    if r!=0:  
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue) 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.MPUWidget.stageButton.setEnabled(True)
@@ -207,15 +219,17 @@ class APCViewWidget(QWidget):
 	    #APE3 MPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 'm'"
 	    r=self.dataBase.fetchall(self.dataBase.APE3dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE3Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE3Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m",minValue,maxValue) 
 	    #APE3 SPU STAGE
 	    fetchmax_sql="SELECT max(sn) FROM "+self.dataBase.snTableName+" WHERE spumpu = 's'"
 	    r=self.dataBase.fetchall(self.dataBase.APE3dbFilePath,fetchmax_sql)
-	    maxValue=int(r[0][0])
-	    minValue=0
-	    self.APE3Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue)
+	    if r!=0:
+	        maxValue=int(r[0][0])
+	        minValue=0
+	        self.APE3Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s",minValue,maxValue)
 	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  
 	    self.APE3Widget.MPUWidget.stageButton.setEnabled(True)
@@ -248,7 +262,8 @@ class APCViewWidget(QWidget):
 
     def updateAPE0Widget(self,curTime):
 	MPURList=[]
-	SPURList=[]
+	SPURRList=[]
+	SPURJList=[]
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
 	r=self.dataBase.fetchall(self.dataBase.APE0timeFilePath,fetchall_sql)
 	if r!=0:
@@ -264,15 +279,22 @@ class APCViewWidget(QWidget):
 			MPURList.append(r[e][7])
 		    else:
 		        self.APE0Widget.MPUWidget.updateMPURegWFlag(r[e])
-		elif r[e][6]=="R Reg" or r[e][6]=="J Reg":
+		elif r[e][6]=="R Reg":
 		    if r[e][5]=="R":
-			SPURList.append(r[e][7])
+			SPURRList.append(r[e][7])
+		    else:
+		    	self.APE0Widget.SPUWidget.updateSPURegWFlag(r[e])
+		elif r[e][6]=="J Reg":
+		    if r[e][5]=="R":
+			SPURJList.append(r[e][7])
 		    else:
 		    	self.APE0Widget.SPUWidget.updateSPURegWFlag(r[e])
 	    for i in range(0,len(MPURList)):
 		self.APE0Widget.MPUWidget.updateMPURegRFlag(MPURList[i])
-	    for i in range(0,len(SPURList)):
-		self.APE0Widget.SPUWidget.updateSPURegRFlag(SPURList[i])
+	    for i in range(0,len(SPURRList)):
+		self.APE0Widget.SPUWidget.updateSPURegRRFlag(SPURRList[i])
+	    for i in range(0,len(SPURJList)):
+		self.APE0Widget.SPUWidget.updateSPURegRJFlag(SPURJList[i])
 
 	floatDialogList=["nop"]*440
 	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)

@@ -7,6 +7,7 @@ from ARMview.ARMViewWidget import*
 from APCview.APCViewWidget import*
 from configview.ConfigViewWidget import*
 import time
+import os
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -79,7 +80,7 @@ class MainWindow(QMainWindow):
 	self.setDialog=QDialog()
 	self.setDialog.setWindowTitle("Simulator path setting")
 	self.setDialog.setFixedSize(400,200)
-	self.pathEdit=QLineEdit()
+	self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
 	browserButton=QPushButton("Browser")
 	self.okButton=QPushButton("OK")
 	self.okButton.setFixedSize(100,30)

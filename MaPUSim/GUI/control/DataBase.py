@@ -28,6 +28,7 @@ class DataBase():
 
     def createDatabase(self,num,path):
 	self.filePath=path
+	self.filePath="/home/litt/aaa1.out"
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
 	self.createAPE0Database()
@@ -431,63 +432,71 @@ class DataBase():
 	self.create_table(APEtimeConn,create_table_sql)
 	save_sql = "INSERT INTO "+self.timeTableName+" (time,M0,M1,M2,M3,M4,M5,M6,M7,M8,M9,M10,M11,M12,M13,M14,M15,M16,M17,M18,M19,M20,M21,M22,M23,M24,M25, M26,M27,M28,M29,M30,M31,M32,M33,M34,M35,M36,M37,M38,M39,M40,M41,M42,M43,M44,M45,M46,M47,M48,M49,M50,M51,M52,M53,M54,M55,M56,M57,M58,M59,M60,M61,M62,M63,M64,M65,M66,M67,M68,M69,M70,M71,M72,M73,M74,M75,M76, M77,M78,M79,M80,M81,M82,M83,M84,M85,M86,M87,M88,M89,M90,M91,M92,M93,M94,M95,M96,M97,M98,M99,M100,M101,M102,M103,M104,M105,M106,M107,M108,M109,M110,M111,M112,M113,M114,M115,M116,M117,M118,M119,M120,M121,M122, M123,M124,M125,M126,M127,SHU0T0,SHU0T1,SHU0T2,SHU0T3,SHU0T4,SHU0T5,SHU0T6,SHU0T7,SHU0T8,SHU0T9,SHU0T10,SHU0T11,SHU0T12,SHU0T13,SHU0T14,SHU0T15,SHU1T0,SHU1T1,SHU1T2,SHU1T3,SHU1T4,SHU1T5,SHU1T6,SHU1T7,SHU1T8, SHU1T9,SHU1T10,SHU1T11,SHU1T12,SHU1T13,SHU1T14,SHU1T15,IALUT0,IALUT1,IALUT2,IALUT3,IMACT0,IMACT1,IMACT2,IMACT3,FALUT0,FALUT1,FALUT2,FALUT3,FMACT0,FMACT1,FMACT2,FMACT3,IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU, DIVER,DIVCNT,SVR0,SVR1,R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R14,R15,R16,R17,R18,R19,R20,R21,R22,R23,R24,R25,R26,R27,R28,R29,R30,R31,J0,J1,J2,J3,J4,J5,J6,J7,J8,J9,J10,J11,J12,J13,J14,J15,J16,J17,J18, J19,J20,J21,J22,J23,J24,J25,J26,J27,J28,J29,J30,J31)"
 #,Carryflag,Loopenable,Loop0start,Loop0end,Loop0number,Loop1start,Loop1end, Loop1number,MC.r0,MC.r1,MC.w0,MC.w1,MC.w2,MI.r0,MI.r1,MI.w0,MI.w1,MI.w2,MS.r0,MS.r1,MS.w0,MS.w1,MS.w2,KB0,KB1,KB2,KB3,KB4,KB5,KB6,KB7,KB8,KB9,KB10,KB11,KB12,KB13,KB14,KB15,KE0,KE1,KE2,KE3,KE4,KE5,KE6,KE7, KE8,KE9,KE10,KE11,KE12,KE13,KE14,KE15,KS0,KS1,KS2,KS3,KS4,KS5,KS6,KS7,KS8,KS9,KS10,KS11,KS12,KS13,KS14,KS15,KI0,KI1,KI2,KI3,KI4,KI5,KI6,KI7,KI8,KI9,KI10,KI11,KI12,KI13,KI14,KI15,KM0L0,KM0L1,KM0H0,KM0H1,KM1L0, KM1L1,KM1H0,KM1H1,KM2L0,KM2L1,KM2H0,KM2H1,KG0,KG1,KG2,KL0,KL1,KL2,KL3,KL4,KL5,KL6,KL7,KL8,KL9,KL10,KL11,KL12,KL13,KL14,KL15,KC0,KC1,KC2,KC3,KC4,KC5,KC6,KC7,KC8,KC9,KC10,KC11,KC12,KC13,KC14,KC15,MPUcondition, MPULoopenable,MPULoop0start,MPULoop1start,MPULoop2start,MPULoop3start,MPULoop0end,MPULoop1end,MPULoop2end,MPULoop3end,MPULoop0number,MPULoop1number,MPULoop2number,MPULoop3number)"
-	
-	#read file content, get min and max time
-	f=open(self.filePath,"r")
-        lines=f.readlines()
-	line=lines[0]
-	pos=line.index("[")
-	#self.minTime=int(line[:pos])/1000
-	self.minTime=0
-	count=len(lines)
-	line=lines[count-1]
-	pos=line.index("[")
-	self.maxTime=int(line[:pos])/1000
-	f.close()
-	
-	forwardRegList=["'nop'"]*251
-	for i in range(self.minTime,self.maxTime+1):
-            regList=["'nop'"]*252
-	    #specialRegList=["'nop'"]*148
-	    time=str(i)
-	    fetchall_sql = "SELECT * FROM "+self.regTableName+" WHERE time = "+str(i)
-            r=self.fetchall(APEdbFilePath,fetchall_sql)
-	    if r!=0:	
-	            for e in range(len(r)):
-                	if r[e][5]=="W":
-			    if r[e][6]=="MPU Reg":
-			        regList[r[e][7]]="'"+r[e][8]+"'"
-			    elif r[e][6]=="R Reg":
-			        regList[187+r[e][7]]="'"+r[e][8]+"'"
-			    elif r[e][6]=="J Reg":
-			        regList[187+r[e][7]]="'"+r[e][8]+"'"
-			    elif 0: #r[e][6]=="Misc Reg":
-				if r[e][7]<=7:
-				    specialRegList[r[e][7]]="'"+r[e][8]+"'"	
-				elif r[e][7]>=16 and r[e][7]<=30:
-				    specialRegList[r[e][7]-8]="'"+r[e][8]+"'"
-				elif r[e][7]>=32 and r[e][7]<=107:
-				    specialRegList[r[e][7]-9]="'"+r[e][8]+"'"
-				elif r[e][7]==112:
-				    specialRegList[r[e][7]-13]="'"+r[e][8]+"'"
-				elif r[e][7]==116:
-				    specialRegList[r[e][7]-16]="'"+r[e][8]+"'"
-				elif r[e][7]==120:
-				    specialRegList[r[e][7]-19]="'"+r[e][8]+"'"
-				elif r[e][7]>=128 and r[e][7]<=173:
-				    specialRegList[r[e][7]-26]="'"+r[e][8]+"'"
 
-	    for i in range(0,251):
-		if regList[i]=="'nop'":
-		    if forwardRegList[i]!="'nop'":
-			regList[i]=forwardRegList[i]
-	    forwardRegList=copy.deepcopy(regList)
+	timeList=[]
+	typeList=[]
+	regList=[]
+	disList=[]
+	#get timeList
+	fetchall_sql = "SELECT time FROM "+self.regTableName+" WHERE op = 'W'"
+        r=self.fetchall(APEdbFilePath,fetchall_sql)
+	if r!=0:	
+	    for e in range(len(r)):
+		timeList.append(r[e][0])
+	#get typeList
+	fetchall_sql = "SELECT type FROM "+self.regTableName+" WHERE op = 'W'"
+        r=self.fetchall(APEdbFilePath,fetchall_sql)
+	if r!=0:	
+	    for e in range(len(r)):
+		typeList.append(r[e][0])
+	#get regList
+	fetchall_sql = "SELECT reg FROM "+self.regTableName+" WHERE op = 'W'"
+        r=self.fetchall(APEdbFilePath,fetchall_sql)
+	if r!=0:	
+	    for e in range(len(r)):
+		regList.append(r[e][0])
+	#get disList
+	fetchall_sql = "SELECT dis FROM "+self.regTableName+" WHERE op = 'W'"
+        r=self.fetchall(APEdbFilePath,fetchall_sql)
+	if r!=0:	
+	    for e in range(len(r)):
+		disList.append(r[e][0])
 
-	    data="values ("+time+","+regList[0]+","+regList[1]+","+regList[2]+","+regList[3]+","+regList[4]+","+regList[5]+","+regList[6]+","+regList[7]+","+regList[8]+","+regList[9]+","+regList[10]+","+regList[11]+","+regList[12]+","+regList[13]+","+regList[14]+","+regList[15]+","+regList[16]+","+regList[17]+","+regList[18]+","+regList[19]+","+regList[20]+","+regList[21]+","+regList[22]+","+regList[23]+","+regList[24]+","+regList[25]+","+ regList[26]+","+regList[27]+","+regList[28]+","+regList[29]+","+regList[30]+","+regList[31]+","+regList[32]+","+regList[33]+","+regList[34]+","+regList[35]+","+regList[36]+","+regList[37]+","+regList[38]+","+regList[39]+","+regList[40]+","+regList[41]+","+regList[42]+","+regList[43]+","+regList[44]+","+regList[45]+","+regList[46]+","+regList[47]+","+regList[48]+","+regList[49]+","+regList[50]+","+regList[51]+","+regList[52]+","+regList[53]+","+regList[54]+","+regList[55]+","+regList[56]+","+regList[57]+","+regList[58]+","+regList[59]+","+regList[60]+","+regList[61]+","+regList[62]+","+regList[63]+","+regList[64]+","+regList[65]+","+regList[66]+","+regList[67]+","+regList[68]+","+regList[69]+","+regList[70]+","+regList[71]+","+regList[72]+","+regList[73]+","+regList[74]+","+regList[75]+","+regList[76]+","+ regList[77]+","+regList[78]+","+regList[79]+","+regList[80]+","+regList[81]+","+regList[82]+","+regList[83]+","+regList[84]+","+regList[85]+","+regList[86]+","+regList[87]+","+regList[88]+","+regList[89]+","+regList[90]+","+regList[91]+","+regList[92]+","+regList[93]+","+regList[94]+","+regList[95]+","+regList[96]+","+regList[97]+","+regList[98]+","+regList[99]+","+regList[100]+","+regList[101]+","+regList[102]+","+regList[103]+","+regList[104]+","+regList[105]+","+regList[106]+","+regList[107]+","+regList[108]+","+regList[109]+","+regList[110]+","+regList[111]+","+regList[112]+","+regList[113]+","+regList[114]+","+regList[115]+","+regList[116]+","+regList[117]+","+regList[118]+","+regList[119]+","+regList[120]+","+regList[121]+","+regList[122]+","+regList[123]+","+regList[124]+","+regList[125]+","+regList[126]+","+regList[127]+","+regList[128]+","+regList[129]+","+regList[130]+","+regList[131]+","+regList[132]+","+regList[133]+","+regList[134]+","+regList[135]+","+regList[136]+","+regList[137]+","+regList[138]+","+regList[139]+","+regList[140]+","+regList[141]+","+regList[142]+","+regList[143]+","+regList[144]+","+regList[145]+","+regList[146]+","+regList[147]+","+regList[148]+","+regList[149]+","+regList[150]+","+regList[151]+","+regList[152]+","+regList[153]+","+regList[154]+","+regList[155]+","+regList[156]+","+regList[157]+","+regList[158]+","+regList[159]+","+regList[160]+","+regList[161]+","+regList[162]+","+regList[163]+","+regList[164]+","+regList[165]+","+regList[166]+","+regList[167]+","+regList[168]+","+regList[169]+","+regList[170]+","+regList[171]+","+regList[172]+","+regList[173]+","+regList[174]+","+regList[175]+","+regList[176]+","+regList[177]+","+regList[178]+","+regList[179]+","+regList[180]+","+regList[181]+","+regList[182]+","+regList[183]+","+regList[184]+","+regList[185]+","+regList[186]+","+regList[187]+","+regList[188]+","+regList[189]+","+regList[190]+","+regList[191]+","+regList[192]+","+regList[193]+","+regList[194]+","+regList[195]+","+regList[196]+","+regList[197]+","+regList[198]+","+regList[199]+","+regList[200]+","+regList[201]+","+regList[202]+","+regList[203]+","+regList[204]+","+regList[205]+","+regList[206]+","+regList[207]+","+regList[208]+","+regList[209]+","+regList[210]+","+regList[211]+","+regList[212]+","+regList[213]+","+regList[214]+","+regList[215]+","+regList[216]+","+regList[217]+","+regList[218]+","+regList[219]+","+regList[220]+","+regList[221]+","+regList[222]+","+regList[223]+","+regList[224]+","+regList[225]+","+regList[226]+","+regList[227]+","+regList[228]+","+regList[229]+","+regList[230]+","+regList[231]+","+regList[232]+","+regList[233]+","+regList[234]+","+regList[235]+","+regList[236]+","+regList[237]+","+regList[238]+","+ regList[239]+","+regList[240]+","+regList[241]+","+regList[242]+","+regList[243]+","+regList[244]+","+regList[245]+","+regList[246]+","+regList[247]+","+regList[248]+","+regList[249]+","+regList[250]+")"
-#+","+specialRegList[0]+","+specialRegList[1]+","+specialRegList[2]+","+specialRegList[3]+","+specialRegList[4]+","+specialRegList[5]+","+specialRegList[6]+","+specialRegList[7]+","+specialRegList[8]+","+specialRegList[9]+","+specialRegList[10]+","+specialRegList[11]+","+specialRegList[12]+","+specialRegList[13]+","+specialRegList[14]+","+specialRegList[15]+","+specialRegList[16]+","+specialRegList[17]+","+specialRegList[18]+","+specialRegList[19]+","+specialRegList[20]+","+specialRegList[21]+","+specialRegList[22]+","+specialRegList[23]+","+specialRegList[24]+","+specialRegList[25]+","+specialRegList[26]+","+specialRegList[27]+","+specialRegList[28]+","+specialRegList[29]+","+specialRegList[30]+","+specialRegList[31]+","+specialRegList[32]+","+specialRegList[33]+","+specialRegList[34]+","+specialRegList[35]+","+specialRegList[36]+","+specialRegList[37]+","+specialRegList[38]+","+specialRegList[39]+","+specialRegList[40]+","+specialRegList[41]+","+specialRegList[42]+","+specialRegList[43]+","+specialRegList[44]+","+specialRegList[45]+","+specialRegList[46]+","+specialRegList[47]+","+specialRegList[48]+","+specialRegList[49]+","+specialRegList[50]+","+specialRegList[51]+","+specialRegList[52]+","+specialRegList[53]+","+specialRegList[54]+","+specialRegList[55]+","+specialRegList[56]+","+specialRegList[57]+","+specialRegList[58]+","+specialRegList[59]+","+specialRegList[60]+","+specialRegList[61]+","+specialRegList[62]+","+specialRegList[63]+","+specialRegList[64]+","+specialRegList[65]+","+specialRegList[66]+","+specialRegList[67]+","+specialRegList[68]+","+specialRegList[69]+","+specialRegList[70]+","+specialRegList[71]+","+specialRegList[72]+","+specialRegList[73]+","+specialRegList[74]+","+specialRegList[75]+","+specialRegList[76]+","+specialRegList[77]+","+specialRegList[78]+","+specialRegList[79]+","+specialRegList[80]+","+specialRegList[81]+","+specialRegList[82]+","+specialRegList[83]+","+specialRegList[84]+","+specialRegList[85]+","+specialRegList[86]+","+specialRegList[87]+","+specialRegList[88]+","+specialRegList[89]+","+specialRegList[90]+","+specialRegList[91]+","+specialRegList[92]+","+specialRegList[93]+","+specialRegList[94]+","+specialRegList[95]+","+specialRegList[96]+","+specialRegList[97]+","+specialRegList[98]+","+specialRegList[99]+","+specialRegList[100]+","+specialRegList[101]+","+specialRegList[102]+","+specialRegList[103]+","+specialRegList[104]+","+specialRegList[105]+","+specialRegList[106]+","+specialRegList[107]+","+specialRegList[108]+","+specialRegList[109]+","+specialRegList[110]+","+specialRegList[111]+","+specialRegList[112]+","+specialRegList[113]+","+specialRegList[114]+","+specialRegList[115]+","+specialRegList[116]+","+specialRegList[117]+","+specialRegList[118]+","+specialRegList[119]+","+specialRegList[120]+","+specialRegList[121]+","+specialRegList[122]+","+specialRegList[123]+","+specialRegList[124]+","+specialRegList[125]+","+specialRegList[126]+","+specialRegList[127]+","+specialRegList[128]+","+specialRegList[129]+","+specialRegList[130]+","+specialRegList[131]+","+specialRegList[132]+","+specialRegList[133]+","+specialRegList[134]+","+specialRegList[135]+","+specialRegList[136]+","+specialRegList[137]+","+specialRegList[138]+","+specialRegList[139]+","+specialRegList[140]+","+specialRegList[141]+","+specialRegList[142]+","+specialRegList[143]+","+specialRegList[144]+","+specialRegList[145]+","+specialRegList[146]+","+specialRegList[147]+")"
-
-	    self.save(APEtimeConn,save_sql,data)
-
+	dataList=["'nop'"]*252
+	dataList[0]=str(timeList[0])
+	if typeList[0]=="MPU Reg":
+	    dataList[regList[0]+1]="'"+disList[0]+"'"
+	elif typeList[0]=="R Reg":
+	    dataList[187+regList[0]+1]="'"+disList[0]+"'"
+	elif typeList[0]=="J Reg":
+	    dataList[219+regList[0]+1]="'"+disList[0]+"'"
+	#elif typeList[0]=="Misc Reg":
+	    #print "Misc"
+	for i in range(1,len(timeList)):
+	    if timeList[i-1]!=timeList[i]:
+		data="values ("+dataList[0]+","+dataList[1]+","+dataList[2]+","+dataList[3]+","+dataList[4]+","+dataList[5]+","+dataList[6]+","+dataList[7]+","+dataList[8]+","+dataList[9]+","+dataList[10]+","+dataList[11]+","+dataList[12]+","+dataList[13]+","+dataList[14]+","+dataList[15]+","+dataList[16]+","+dataList[17]+","+dataList[18]+","+dataList[19]+","+dataList[20]+","+dataList[21]+","+dataList[22]+","+dataList[23]+","+dataList[24]+","+dataList[25]+","+dataList[26]+","+dataList[27]+","+dataList[28]+","+dataList[29]+","+dataList[30]+","+dataList[31]+","+dataList[32]+","+dataList[33]+","+dataList[34]+","+dataList[35]+","+dataList[36]+","+dataList[37]+","+dataList[38]+","+dataList[39]+","+dataList[40]+","+dataList[41]+","+dataList[42]+","+dataList[43]+","+dataList[44]+","+dataList[45]+","+dataList[46]+","+dataList[47]+","+dataList[48]+","+dataList[49]+","+dataList[50]+","+dataList[51]+","+dataList[52]+","+dataList[53]+","+dataList[54]+","+dataList[55]+","+dataList[56]+","+dataList[57]+","+dataList[58]+","+dataList[59]+","+dataList[60]+","+dataList[61]+","+dataList[62]+","+dataList[63]+","+dataList[64]+","+dataList[65]+","+dataList[66]+","+dataList[67]+","+dataList[68]+","+dataList[69]+","+dataList[70]+","+dataList[71]+","+dataList[72]+","+dataList[73]+","+dataList[74]+","+dataList[75]+","+dataList[76]+","+dataList[77]+","+dataList[78]+","+dataList[79]+","+dataList[80]+","+dataList[81]+","+dataList[82]+","+dataList[83]+","+dataList[84]+","+dataList[85]+","+dataList[86]+","+dataList[87]+","+dataList[88]+","+dataList[89]+","+dataList[90]+","+dataList[91]+","+dataList[92]+","+dataList[93]+","+dataList[94]+","+dataList[95]+","+dataList[96]+","+dataList[97]+","+dataList[98]+","+dataList[99]+","+dataList[100]+","+dataList[101]+","+dataList[102]+","+dataList[103]+","+dataList[104]+","+dataList[105]+","+dataList[106]+","+dataList[107]+","+dataList[108]+","+dataList[109]+","+dataList[110]+","+dataList[111]+","+dataList[112]+","+dataList[113]+","+dataList[114]+","+dataList[115]+","+dataList[116]+","+dataList[117]+","+dataList[118]+","+dataList[119]+","+dataList[120]+","+dataList[121]+","+dataList[122]+","+dataList[123]+","+dataList[124]+","+dataList[125]+","+dataList[126]+","+dataList[127]+","+dataList[128]+","+dataList[129]+","+dataList[130]+","+dataList[131]+","+dataList[132]+","+dataList[133]+","+dataList[134]+","+dataList[135]+","+dataList[136]+","+dataList[137]+","+dataList[138]+","+dataList[139]+","+dataList[140]+","+dataList[141]+","+dataList[142]+","+dataList[143]+","+dataList[144]+","+dataList[145]+","+dataList[146]+","+dataList[147]+","+dataList[148]+","+dataList[149]+","+dataList[150]+","+dataList[151]+","+dataList[152]+","+dataList[153]+","+dataList[154]+","+dataList[155]+","+dataList[156]+","+dataList[157]+","+dataList[158]+","+dataList[159]+","+dataList[160]+","+dataList[161]+","+dataList[162]+","+dataList[163]+","+dataList[164]+","+dataList[165]+","+dataList[166]+","+dataList[167]+","+dataList[168]+","+dataList[169]+","+dataList[170]+","+dataList[171]+","+dataList[172]+","+dataList[173]+","+dataList[174]+","+dataList[175]+","+dataList[176]+","+dataList[177]+","+dataList[178]+","+dataList[179]+","+dataList[180]+","+dataList[181]+","+dataList[182]+","+dataList[183]+","+dataList[184]+","+dataList[185]+","+dataList[186]+","+dataList[187]+","+dataList[188]+","+dataList[189]+","+dataList[190]+","+dataList[191]+","+dataList[192]+","+dataList[193]+","+dataList[194]+","+dataList[195]+","+dataList[196]+","+dataList[197]+","+dataList[198]+","+dataList[199]+","+dataList[200]+","+dataList[201]+","+dataList[202]+","+dataList[203]+","+dataList[204]+","+dataList[205]+","+dataList[206]+","+dataList[207]+","+dataList[208]+","+dataList[209]+","+dataList[210]+","+dataList[211]+","+dataList[212]+","+dataList[213]+","+dataList[214]+","+dataList[215]+","+dataList[216]+","+dataList[217]+","+dataList[218]+","+dataList[219]+","+dataList[220]+","+dataList[221]+","+dataList[222]+","+dataList[223]+","+dataList[224]+","+dataList[225]+","+dataList[226]+","+dataList[227]+","+dataList[228]+","+dataList[229]+","+dataList[230]+","+dataList[231]+","+dataList[232]+","+dataList[233]+","+dataList[234]+","+dataList[235]+","+dataList[236]+","+dataList[237]+","+dataList[238]+","+dataList[239]+","+dataList[240]+","+dataList[241]+","+dataList[242]+","+dataList[243]+","+dataList[244]+","+dataList[245]+","+dataList[246]+","+dataList[247]+","+dataList[248]+","+dataList[249]+","+dataList[250]+","+dataList[251]+")"
+		self.save(APEtimeConn,save_sql,data)
+	        dataList=["'nop'"]*252
+		dataList[0]=str(timeList[i])
+		if typeList[i]=="MPU Reg":
+	            dataList[regList[i]+1]="'"+disList[i]+"'"
+		elif typeList[i]=="R Reg":
+	    	    dataList[187+regList[i]+1]="'"+disList[i]+"'"
+		elif typeList[i]=="J Reg":
+	    	    dataList[219+regList[i]+1]="'"+disList[i]+"'"
+		#elif typeList[i]=="Misc Reg":
+	    	    #print "Misc"
+	    else:
+		if typeList[i]=="MPU Reg":
+	            dataList[regList[i]+1]="'"+disList[i]+"'"
+		elif typeList[i]=="R Reg":
+	    	    dataList[187+regList[i]+1]="'"+disList[i]+"'"
+		elif typeList[i]=="J Reg":
+	    	    dataList[219+regList[i]+1]="'"+disList[i]+"'"
+		#elif typeList[i]=="Misc Reg":
+	    	    #print "Misc"
+	data="values ("+dataList[0]+","+dataList[1]+","+dataList[2]+","+dataList[3]+","+dataList[4]+","+dataList[5]+","+dataList[6]+","+dataList[7]+","+dataList[8]+","+dataList[9]+","+dataList[10]+","+dataList[11]+","+dataList[12]+","+dataList[13]+","+dataList[14]+","+dataList[15]+","+dataList[16]+","+dataList[17]+","+dataList[18]+","+dataList[19]+","+dataList[20]+","+dataList[21]+","+dataList[22]+","+dataList[23]+","+dataList[24]+","+dataList[25]+","+dataList[26]+","+dataList[27]+","+dataList[28]+","+dataList[29]+","+dataList[30]+","+dataList[31]+","+dataList[32]+","+dataList[33]+","+dataList[34]+","+dataList[35]+","+dataList[36]+","+dataList[37]+","+dataList[38]+","+dataList[39]+","+dataList[40]+","+dataList[41]+","+dataList[42]+","+dataList[43]+","+dataList[44]+","+dataList[45]+","+dataList[46]+","+dataList[47]+","+dataList[48]+","+dataList[49]+","+dataList[50]+","+dataList[51]+","+dataList[52]+","+dataList[53]+","+dataList[54]+","+dataList[55]+","+dataList[56]+","+dataList[57]+","+dataList[58]+","+dataList[59]+","+dataList[60]+","+dataList[61]+","+dataList[62]+","+dataList[63]+","+dataList[64]+","+dataList[65]+","+dataList[66]+","+dataList[67]+","+dataList[68]+","+dataList[69]+","+dataList[70]+","+dataList[71]+","+dataList[72]+","+dataList[73]+","+dataList[74]+","+dataList[75]+","+dataList[76]+","+dataList[77]+","+dataList[78]+","+dataList[79]+","+dataList[80]+","+dataList[81]+","+dataList[82]+","+dataList[83]+","+dataList[84]+","+dataList[85]+","+dataList[86]+","+dataList[87]+","+dataList[88]+","+dataList[89]+","+dataList[90]+","+dataList[91]+","+dataList[92]+","+dataList[93]+","+dataList[94]+","+dataList[95]+","+dataList[96]+","+dataList[97]+","+dataList[98]+","+dataList[99]+","+dataList[100]+","+dataList[101]+","+dataList[102]+","+dataList[103]+","+dataList[104]+","+dataList[105]+","+dataList[106]+","+dataList[107]+","+dataList[108]+","+dataList[109]+","+dataList[110]+","+dataList[111]+","+dataList[112]+","+dataList[113]+","+dataList[114]+","+dataList[115]+","+dataList[116]+","+dataList[117]+","+dataList[118]+","+dataList[119]+","+dataList[120]+","+dataList[121]+","+dataList[122]+","+dataList[123]+","+dataList[124]+","+dataList[125]+","+dataList[126]+","+dataList[127]+","+dataList[128]+","+dataList[129]+","+dataList[130]+","+dataList[131]+","+dataList[132]+","+dataList[133]+","+dataList[134]+","+dataList[135]+","+dataList[136]+","+dataList[137]+","+dataList[138]+","+dataList[139]+","+dataList[140]+","+dataList[141]+","+dataList[142]+","+dataList[143]+","+dataList[144]+","+dataList[145]+","+dataList[146]+","+dataList[147]+","+dataList[148]+","+dataList[149]+","+dataList[150]+","+dataList[151]+","+dataList[152]+","+dataList[153]+","+dataList[154]+","+dataList[155]+","+dataList[156]+","+dataList[157]+","+dataList[158]+","+dataList[159]+","+dataList[160]+","+dataList[161]+","+dataList[162]+","+dataList[163]+","+dataList[164]+","+dataList[165]+","+dataList[166]+","+dataList[167]+","+dataList[168]+","+dataList[169]+","+dataList[170]+","+dataList[171]+","+dataList[172]+","+dataList[173]+","+dataList[174]+","+dataList[175]+","+dataList[176]+","+dataList[177]+","+dataList[178]+","+dataList[179]+","+dataList[180]+","+dataList[181]+","+dataList[182]+","+dataList[183]+","+dataList[184]+","+dataList[185]+","+dataList[186]+","+dataList[187]+","+dataList[188]+","+dataList[189]+","+dataList[190]+","+dataList[191]+","+dataList[192]+","+dataList[193]+","+dataList[194]+","+dataList[195]+","+dataList[196]+","+dataList[197]+","+dataList[198]+","+dataList[199]+","+dataList[200]+","+dataList[201]+","+dataList[202]+","+dataList[203]+","+dataList[204]+","+dataList[205]+","+dataList[206]+","+dataList[207]+","+dataList[208]+","+dataList[209]+","+dataList[210]+","+dataList[211]+","+dataList[212]+","+dataList[213]+","+dataList[214]+","+dataList[215]+","+dataList[216]+","+dataList[217]+","+dataList[218]+","+dataList[219]+","+dataList[220]+","+dataList[221]+","+dataList[222]+","+dataList[223]+","+dataList[224]+","+dataList[225]+","+dataList[226]+","+dataList[227]+","+dataList[228]+","+dataList[229]+","+dataList[230]+","+dataList[231]+","+dataList[232]+","+dataList[233]+","+dataList[234]+","+dataList[235]+","+dataList[236]+","+dataList[237]+","+dataList[238]+","+dataList[239]+","+dataList[240]+","+dataList[241]+","+dataList[242]+","+dataList[243]+","+dataList[244]+","+dataList[245]+","+dataList[246]+","+dataList[247]+","+dataList[248]+","+dataList[249]+","+dataList[250]+","+dataList[251]+")"
+	self.save(APEtimeConn,save_sql,data)		    
 	APEtimeConn.commit()
         #show table
 	if 0:
