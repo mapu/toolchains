@@ -574,7 +574,7 @@ class MPULeftWidget(QWidget):
            self.paintstaen(1,LEPMR)         
         #right point to shu0
         if self.List[66]==1:
-           LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-40,517,Y1MRF-184-20-40,517,Y1MRF-184-20-30]
+           LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-40,517,Y1MRF-184-20-40,517,Y1MRF-184-20-20]
            self.paintLine(4,LEPS0)  
            self.paintstaen(1,LEPS0)                          
         #DM to BIU0
@@ -653,336 +653,338 @@ class MPULeftWidget(QWidget):
            BIU2P1=[x1BIU,YB2S0,X1MRF+15,YB2S0,X1MRF+15,y1+20,x1,y1]
            self.paintLine(4,BIU2P1)
            self.paintLine(0,BIU2P1)
-
+           
 #Dm=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
     def ButLine(self):
-        if ButLi[0][1]==1:
-           List[68]=1
-        if ButLi[1][0]==1:
-           List[67]=1
-        if ButLi[0][2]==1:
-           List[69]=1
-        if ButLi[2][0]==1:
-           List[70]=1
-        if ButLi[0][3]==1:
-           List[71]=1 
-        if ButLi[3][0]==1:
-           List[72]=1                   
-        if ButLi[1][4]==1:
-           List[1]=1
-        if ButLi[4][1]==1:
-           List[0]=1
-        if ButLi[1][13]==1:
-           List[6]=1 
-        if ButLi[13][1]==1:
-           List[7]=1
-        if ButLi[1][8]==1:
-           List[35]=1
-        if ButLi[8][1]==1:
-           List[36]=1        
-        if ButLi[2][4]==1:
-           List[3]=1
-        if ButLi[4][2]==1:
-           List[3]=1     
-        if ButLi[2][13]==1:
-           List[8]=1
-        if ButLi[13][2]==1:
-           List[9]=1
-        if ButLi[2][8]==1:
-           List[33]=1
-        if ButLi[8][2]==1:
-           List[34]=1
-        if ButLi[3][4]==1:
-           List[5]=1       
-        if ButLi[4][3]==1:
-           List[4]=1
-        if ButLi[3][13]==1:
-           List[10]=1
-        if ButLi[13][3]==1:
-           List[11]=1
-        if ButLi[3][8]==1:
-           List[31]=1
-        if ButLi[8][3]==1:
-           List[32]=1
-        if ButLi[4][13]==1:
-           List[12]=1 
-        if ButLi[13][4]==1:
-           List[13]=1 
-        if ButLi[13][8]==1:
-           List[14]=1
-        if ButLi[8][13]==1:
-           List[15]=1
+        if self.ButLi[0][1]==1:
+           self.List[68]=1
+        if self.ButLi[1][0]==1:
+           self.List[67]=1
+        if self.ButLi[0][2]==1:
+           self.List[69]=1
+        if self.ButLi[2][0]==1:
+           self.List[70]=1
+        if self.ButLi[0][3]==1:
+           self.List[71]=1 
+        if self.ButLi[3][0]==1:
+           self.List[72]=1                   
+        if self.ButLi[1][4]==1:
+           self.List[1]=1
+        if self.ButLi[4][1]==1:
+           self.List[0]=1
+        if self.ButLi[1][13]==1:
+           self.List[6]=1 
+        if self.ButLi[13][1]==1:
+           self.List[7]=1
+        if self.ButLi[1][8]==1:
+           self.List[35]=1
+        if self.ButLi[8][1]==1:
+           self.List[36]=1        
+        if self.ButLi[2][4]==1:
+           self.List[3]=1
+        if self.ButLi[4][2]==1:
+           self.List[3]=1     
+        if self.ButLi[2][13]==1:
+           self.List[8]=1
+        if self.ButLi[13][2]==1:
+           self.List[9]=1
+        if self.ButLi[2][8]==1:
+           self.List[33]=1
+        if self.ButLi[8][2]==1:
+           self.List[34]=1
+        if self.ButLi[3][4]==1:
+           self.List[5]=1       
+        if self.ButLi[4][3]==1:
+           self.List[4]=1
+        if self.ButLi[3][13]==1:
+           self.List[10]=1
+        if self.ButLi[13][3]==1:
+           self.List[11]=1
+        if self.ButLi[3][8]==1:
+           self.List[31]=1
+        if self.ButLi[8][3]==1:
+           self.List[32]=1
+        if self.ButLi[4][13]==1:
+           self.List[12]=1 
+        if self.ButLi[13][4]==1:
+           self.List[13]=1 
+        if self.ButLi[13][8]==1:
+           self.List[14]=1
+        if self.ButLi[8][13]==1:
+           self.List[15]=1
  #value=1:cross P1;  value=2:cross P2; value=3:cross P3     
-        if ButLi[4][9]==1:
-           List[16]=1
-           List[37]=1
-        if ButLi[4][9]==2:
-           List[17]=1
-           List[38]=1
-        if ButLi[4][9]==3:
-           List[18]=1
-           List[39]=1
-        if ButLi[4][10]==1:
-           List[16]=1
-           List[40]=1
-        if ButLi[4][10]==2:
-           List[17]=1
-           List[41]=1
-        if ButLi[4][10]==3:
-           List[18]=1
-           List[42]=1
-        if ButLi[4][11]==1:
-           List[16]=1
-           List[43]=1
-        if ButLi[4][11]==2:
-           List[17]=1
-           List[44]=1
-        if ButLi[4][11]==3:
-           List[18]=1
-           List[45]=1
-        if ButLi[4][12]==1:
-           List[16]=1
-           List[46]=1
-        if ButLi[4][12]==2:
-           List[17]=1
-           List[47]=1
-        if ButLi[4][12]==3:
-           List[18]=1
-           List[48]=1
-        if ButLi[5][9]==1:
-           List[22]=1 
-           LIst[37]=1
-        if ButLi[5][9]==2:
-           List[23]=1 
-           LIst[38]=1
-        if ButLi[5][9]==3:
-           List[24]=1 
-           LIst[39]=1
-        if ButLi[5][10]==1:
-           List[22]=1
-           List[40]=1
-        if ButLi[5][10]==2:
-           List[23]=1
-           List[41]=1
-        if ButLi[5][10]==3:
-           List[24]=1
-           List[42]=1
-        if ButLi[5][11]==1:
-           List[22]=1
-           List[43]=1
-        if ButLi[5][11]==2:
-           List[23]=1
-           List[44]=1
-        if ButLi[5][11]==3:
-           List[24]=1
-           List[45]=1
-        if ButLi[5][12]==1:
-           List[22]=1
-           List[46]=1
-        if ButLi[5][12]==2:
-           List[23]=1
-           List[47]=1
-        if ButLi[5][12]==3:
-           List[24]=1
-           List[48]=1     
-        if ButLi[6][9]==1:
-           List[19]=1
-           List[37]=1   
-        if ButLi[6][9]==2:
-           List[20]=1
-           List[38]=1   
-        if ButLi[6][9]==3:
-           List[21]=1
-           List[39]=1  
-        if ButLi[6][10]==1:
-           List[19]=1
-           List[40]=1   
-        if ButLi[6][10]==2:
-           List[20]=1
-           List[41]=1   
-        if ButLi[6][10]==3:
-           List[21]=1
-           List[42]=1 
-        if ButLi[6][11]==1:
-           List[19]=1
-           List[43]=1   
-        if ButLi[6][11]==2:
-           List[20]=1
-           List[44]=1   
-        if ButLi[6][11]==3:
-           List[21]=1
-           List[45]=1
-        if ButLi[6][12]==1:
-           List[19]=1
-           List[46]=1   
-        if ButLi[6][12]==2:
-           List[20]=1
-           List[47]=1   
-        if ButLi[6][12]==3:
-           List[21]=1
-           List[48]=1      
-        if ButLi[7][9]==1:
-           List[25]=1
-           List[37]=1   
-        if ButLi[7][9]==2:
-           List[26]=1
-           List[38]=1   
-        if ButLi[7][9]==3:
-           List[27]=1
-           List[39]=1  
-        if ButLi[7][10]==1:
-           List[15]=1
-           List[40]=1   
-        if ButLi[7][10]==2:
-           List[26]=1
-           List[41]=1   
-        if ButLi[7][10]==3:
-           List[27]=1
-           List[42]=1 
-        if ButLi[7][11]==1:
-           List[25]=1
-           List[43]=1   
-        if ButLi[7][11]==2:
-           List[26]=1
-           List[44]=1   
-        if ButLi[7][11]==3:
-           List[27]=1
-           List[45]=1
-        if ButLi[7][12]==1:
-           List[25]=1
-           List[46]=1   
-        if ButLi[7][12]==2:
-           List[26]=1
-           List[47]=1   
-        if ButLi[7][12]==3:
-           List[27]=1
-           List[48]=1      
-        if ButLi[8][9]==1:
-           List[28]=1
-           List[37]=1
-        if ButLi[8][9]==2:
-           List[29]=1
-           List[38]=1
-        if ButLi[4][9]==3:
-           List[30]=1
-           List[39]=1
-        if ButLi[8][10]==1:
-           List[28]=1
-           List[40]=1
-        if ButLi[8][10]==2:
-           List[29]=1
-           List[41]=1
-        if ButLi[8][10]==3:
-           List[30]=1
-           List[42]=1
-        if ButLi[8][11]==1:
-           List[28]=1
-           List[43]=1
-        if ButLi[8][11]==2:
-           List[29]=1
-           List[44]=1
-        if ButLi[8][11]==3:
-           List[30]=1
-           List[45]=1
-        if ButLi[8][12]==1:
-           List[28]=1
-           List[46]=1
-        if ButLi[8][12]==2:
-           List[29]=1
-           List[47]=1
-        if ButLi[8][12]==3:
-           List[30]=1
-           List[48]=1              
-        if ButLi[9][10]==1:
+        if self.ButLi[4][9]==1:
+           self.List[16]=1
+           self.List[37]=1
+        if self.ButLi[4][9]==2:
+           self.List[17]=1
+           self.List[38]=1
+        if self.ButLi[4][9]==3:
+           self.List[18]=1
+           self.List[39]=1
+        if self.ButLi[4][10]==1:
+           self.List[16]=1
+           self.List[40]=1
+        if self.ButLi[4][10]==2:
+           self.List[17]=1
+           self.List[41]=1
+        if self.ButLi[4][10]==3:
+           self.List[18]=1
+           self.List[42]=1
+        if self.ButLi[4][11]==1:
+           self.List[16]=1
+           self.List[43]=1
+        if self.ButLi[4][11]==2:
+           self.List[17]=1
+           self.List[44]=1
+        if self.ButLi[4][11]==3:
+           self.List[18]=1
+           self.List[45]=1
+        if self.ButLi[4][12]==1:
+           self.List[16]=1
+           self.List[46]=1
+        if self.ButLi[4][12]==2:
+           self.List[17]=1
+           self.List[47]=1
+        if self.ButLi[4][12]==3:
+           self.List[18]=1
+           self.List[48]=1
+        if self.ButLi[5][9]==1:
+           self.List[22]=1 
+           self.LIst[37]=1
+        if self.ButLi[5][9]==2:
+           self.List[23]=1 
+           self.LIst[38]=1
+        if self.ButLi[5][9]==3:
+           self.List[24]=1 
+           self.LIst[39]=1
+        if self.ButLi[5][10]==1:
+           self.List[22]=1
+           self.List[40]=1
+        if self.ButLi[5][10]==2:
+           self.List[23]=1
+           self.List[41]=1
+        if self.ButLi[5][10]==3:
+           self.List[24]=1
+           self.List[42]=1
+        if self.ButLi[5][11]==1:
+           self.List[22]=1
+           self.List[43]=1
+        if self.ButLi[5][11]==2:
+           self.List[23]=1
+           self.List[44]=1
+        if self.ButLi[5][11]==3:
+           self.List[24]=1
+           self.List[45]=1
+        if self.ButLi[5][12]==1:
+           self.List[22]=1
+           self.List[46]=1
+        if self.ButLi[5][12]==2:
+           self.List[23]=1
+           self.List[47]=1
+        if self.ButLi[5][12]==3:
+           self.List[24]=1
+           self.List[48]=1     
+        if self.ButLi[6][9]==1:
+           self.List[19]=1
+           self.List[37]=1   
+        if self.ButLi[6][9]==2:
+           self.List[20]=1
+           self.List[38]=1   
+        if self.ButLi[6][9]==3:
+           self.List[21]=1
+           self.List[39]=1  
+        if self.ButLi[6][10]==1:
+           self.List[19]=1
+           self.List[40]=1   
+        if self.ButLi[6][10]==2:
+           self.List[20]=1
+           self.List[41]=1   
+        if self.ButLi[6][10]==3:
+           self.List[21]=1
+           self.List[42]=1 
+        if self.ButLi[6][11]==1:
+           self.List[19]=1
+           self.List[43]=1   
+        if self.ButLi[6][11]==2:
+           self.List[20]=1
+           self.List[44]=1   
+        if self.ButLi[6][11]==3:
+           self.List[21]=1
+           self.List[45]=1
+        if self.ButLi[6][12]==1:
+           self.List[19]=1
+           self.List[46]=1   
+        if self.ButLi[6][12]==2:
+           self.List[20]=1
+           self.List[47]=1   
+        if self.ButLi[6][12]==3:
+           self.List[21]=1
+           self.List[48]=1      
+        if self.ButLi[7][9]==1:
+           self.List[25]=1
+           self.List[37]=1   
+        if self.ButLi[7][9]==2:
+           self.List[26]=1
+           self.List[38]=1   
+        if self.ButLi[7][9]==3:
+           self.List[27]=1
+           self.List[39]=1  
+        if self.ButLi[7][10]==1:
+           self.List[15]=1
+           self.List[40]=1   
+        if self.ButLi[7][10]==2:
+           self.List[26]=1
+           self.List[41]=1   
+        if self.ButLi[7][10]==3:
+           self.List[27]=1
+           self.List[42]=1 
+        if self.ButLi[7][11]==1:
+           self.List[25]=1
+           self.List[43]=1   
+        if self.ButLi[7][11]==2:
+           self.List[26]=1
+           self.List[44]=1   
+        if self.ButLi[7][11]==3:
+           self.List[27]=1
+           self.List[45]=1
+        if self.ButLi[7][12]==1:
+           self.List[25]=1
+           self.List[46]=1   
+        if self.ButLi[7][12]==2:
+           self.List[26]=1
+           self.List[47]=1   
+        if self.ButLi[7][12]==3:
+           self.List[27]=1
+           self.List[48]=1      
+        if self.ButLi[8][9]==1:
+           self.List[28]=1
+           self.List[37]=1
+        if self.ButLi[8][9]==2:
+           self.List[29]=1
+           self.List[38]=1
+        if self.ButLi[4][9]==3:
+           self.List[30]=1
+           self.List[39]=1
+        if self.ButLi[8][10]==1:
+           self.List[28]=1
+           self.List[40]=1
+        if self.ButLi[8][10]==2:
+           self.List[29]=1
+           self.List[41]=1
+        if self.ButLi[8][10]==3:
+           self.List[30]=1
+           self.List[42]=1
+        if self.ButLi[8][11]==1:
+           self.List[28]=1
+           self.List[43]=1
+        if self.ButLi[8][11]==2:
+           self.List[29]=1
+           self.List[44]=1
+        if self.ButLi[8][11]==3:
+           self.List[30]=1
+           self.List[45]=1
+        if self.ButLi[8][12]==1:
+           self.List[28]=1
+           self.List[46]=1
+        if self.ButLi[8][12]==2:
+           self.List[29]=1
+           self.List[47]=1
+        if self.ButLi[8][12]==3:
+           self.List[30]=1
+           self.List[48]=1              
+        if self.ButLi[9][10]==1:
            List[49]=1
-        if ButLi[10][9]==1:
-           List[50]=1        
-        if ButLi[10][11]==1:
-           List[51]=1
-        if ButLi[11][10]==1:
-           List[52]=1
-        if ButLi[11][12]==1:
-           List[53]=1
-        if ButLi[12][11]==1:
-           List[54]=1
-        if ButLi[9][11]==1:
-           List[56]=1
-        if ButLi[11][9]==1:
-           List[55]=1 
-        if ButLi[9][1]==1:
-           List[57]=1
-           List[63]=1
-        if ButLi[9][2]==1:
-           List[57]=1
-           List[62]=1
-        if ButLi[9][3]==1:
-           List[57]=1
-           List[61]=1
-        if ButLi[9][4]==1:
-           List[57]=1
-           List[66]=1
-        if ButLi[9][8]==1:
-           List[57]=1
-           List[64]=1
-        if ButLi[9][13]==1:
-           List[57]=1
-           List[65]=1
-        if ButLi[10][1]==1:
-           List[58]=1
-           List[63]=1
-        if ButLi[10][2]==1:
-           List[58]=1
-           List[62]=1
-        if ButLi[10][3]==1:
-           List[58]=1
-           List[61]=1
-        if ButLi[10][4]==1:
-           List[58]=1
-           List[66]=1
-        if ButLi[10][8]==1:
-           List[58]=1
-           List[64]=1
-        if ButLi[10][13]==1:
-           List[58]=1
-           List[65]=1           
-        if ButLi[11][1]==1:
-           List[59]=1
-           List[63]=1
-        if ButLi[11][2]==1:
-           List[59]=1
-           List[62]=1
-        if ButLi[11][3]==1:
-           List[59]=1
-           List[61]=1
-        if ButLi[11][4]==1:
-           List[59]=1
-           List[66]=1
-        if ButLi[11][8]==1:
-           List[59]=1
-           List[64]=1
-        if ButLi[11][13]==1:
-           List[59]=1
-           List[65]=1             
-        if ButLi[12][1]==1:
-           List[60]=1
-           List[63]=1
-        if ButLi[12][2]==1:
-           List[60]=1
-           List[62]=1
-        if ButLi[12][3]==1:
-           List[60]=1
-           List[61]=1
-        if ButLi[12][4]==1:
-           List[60]=1
-           List[66]=1
-        if ButLi[12][8]==1:
-           List[60]=1
-           List[64]=1
-        if ButLi[12][13]==1:
-           List[60]=1
-           List[65]=1   
+        if self.ButLi[10][9]==1:
+           self.List[50]=1        
+        if self.ButLi[10][11]==1:
+           self.List[51]=1
+        if self.ButLi[11][10]==1:
+           self.List[52]=1
+        if self.ButLi[11][12]==1:
+           self.List[53]=1
+        if self.ButLi[12][11]==1:
+           self.List[54]=1
+        if self.ButLi[9][11]==1:
+           self.List[56]=1
+        if self.ButLi[11][9]==1:
+           self.List[55]=1 
+        if self.ButLi[9][1]==1:
+           self.List[57]=1
+           self.List[63]=1
+        if self.ButLi[9][2]==1:
+           self.List[57]=1
+           self.List[62]=1
+        if self.ButLi[9][3]==1:
+           self.List[57]=1
+           self.List[61]=1
+        if self.ButLi[9][4]==1:
+           self.List[57]=1
+           self.List[66]=1
+        if self.ButLi[9][8]==1:
+           self.List[57]=1
+           self.List[64]=1
+        if self.ButLi[9][13]==1:
+           self.List[57]=1
+           self.List[65]=1
+        if self.ButLi[10][1]==1:
+           self.List[58]=1
+           self.List[63]=1
+        if self.ButLi[10][2]==1:
+           self.List[58]=1
+           self.List[62]=1
+        if self.ButLi[10][3]==1:
+           self.List[58]=1
+           self.List[61]=1
+        if self.ButLi[10][4]==1:
+           self.List[58]=1
+           self.List[66]=1
+        if self.ButLi[10][8]==1:
+           self.List[58]=1
+           self.List[64]=1
+        if self.ButLi[10][13]==1:
+           self.List[58]=1
+           self.List[65]=1           
+        if self.ButLi[11][1]==1:
+           self.List[59]=1
+           self.List[63]=1
+        if self.ButLi[11][2]==1:
+           self.List[59]=1
+           self.List[62]=1
+        if self.ButLi[11][3]==1:
+           self.List[59]=1
+           self.List[61]=1
+        if self.ButLi[11][4]==1:
+           self.List[59]=1
+           self.List[66]=1
+        if self.ButLi[11][8]==1:
+           self.List[59]=1
+           self.List[64]=1
+        if self.ButLi[11][13]==1:
+           self.List[59]=1
+           self.List[65]=1             
+        if self.ButLi[12][1]==1:
+           self.List[60]=1
+           self.List[63]=1
+        if self.ButLi[12][2]==1:
+           self.List[60]=1
+           self.List[62]=1
+        if self.ButLi[12][3]==1:
+           self.List[60]=1
+           self.List[61]=1
+        if self.ButLi[12][4]==1:
+           self.List[60]=1
+           self.List[66]=1
+        if self.ButLi[12][8]==1:
+           self.List[60]=1
+           self.List[64]=1
+        if self.ButLi[12][13]==1:
+           self.List[60]=1
+           self.List[65]=1   
 
-           BIU2P1=[x1BIU,YB2S0,X1MRF+15,YB2S0,X1MRF+15,y1+20,x1,y1]
-           self.paintLine(4,BIU2P1)
-           self.paintLine(0,BIU2P1)
+
+
+
+
+
         
