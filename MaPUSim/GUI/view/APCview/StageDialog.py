@@ -60,6 +60,9 @@ class StageDialog(QDialog):
 
     def currentValueSlot(self,value):
 	self.curValue=value
+	text=str(self.tableView.verticalHeaderItem(self.pageValue/2+3).text())
+	pos=text.find(":")
+	keyValue=int(text[:pos])
 	self.tableView.clear()
 	self.tableView.setRowCount(self.pageValue+1)
 	self.tableView.hideRow(self.pageValue)
@@ -73,10 +76,8 @@ class StageDialog(QDialog):
 	    r1=self.maxValue-self.pageValue
 	    r2=self.maxValue
 	else:
-	    #text=self.tableView.verticalHeaderItem(self.pageValue/2+3).text()
-	    #print text
-	    r1=value-self.pageValue/2
-	    r2=value+self.pageValue/2
+	    r1=keyValue-self.pageValue/2
+	    r2=keyValue+self.pageValue/2
 	    if self.pageValue%2==1:
 		r2=r2+1
 

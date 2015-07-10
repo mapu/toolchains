@@ -654,7 +654,6 @@ class MPULeftWidget(QWidget):
            self.paintLine(4,BIU2P1)
            self.paintLine(0,BIU2P1)
 
-
 #Dm=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
     def ButLine(self):
         if ButLi[0][1]==1:
