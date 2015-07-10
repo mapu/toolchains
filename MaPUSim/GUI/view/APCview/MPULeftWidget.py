@@ -13,6 +13,7 @@ class MPULeftWidget(QWidget):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(1000,500)
         self.List=[1]*82
+        self.ButLi = [([1] * 14) for i in range(14)]  
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
 	self.DMButton.setEnabled(False)
@@ -197,50 +198,49 @@ class MPULeftWidget(QWidget):
     def paintstaen(self,flag,Llist):
         self.Flag=flag
         self.dlist=Llist
-        n=len(Llist)           
+        n=len(Llist)    
+        a=2.5/math.sqrt(2)       
         if flag==0: 
             self.qp=QPainter()
             self.qp.begin(self)          
             self.brush=QBrush(Qt.black) 
             self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[0],Llist[1],5,5)
+            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
         elif flag==1:
             self.qp=QPainter()
             self.qp.begin(self) 
             self.pen=QPen(Qt.black,1,Qt.SolidLine)
             self.qp.setPen(self.pen)
-            self.qp.drawEllipse(Llist[n-2],Llist[n-1],5,5)
+            self.qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
         elif flag==-1:
             self.qp=QPainter()
             self.qp.begin(self) 
             self.pen=QPen(Qt.black,1,Qt.SolidLine)
             self.qp.setPen(self.pen)
-            self.qp.drawEllipse(Llist[0],Llist[1],5,5)
+            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
         elif flag==2:
             self.qp=QPainter()
             self.qp.begin(self) 
             self.brush=QBrush(Qt.black) 
             self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[0],Llist[1],5,5)
+            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
             self.qp2=QPainter()
             self.qp2.begin(self) 
             self.pen2=QPen(Qt.black,1,Qt.SolidLine)
             self.qp2.setPen(self.pen)
-            self.qp2.drawEllipse(Llist[n-2],Llist[n-1],5,5)     
-
+            self.qp2.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)     
         elif flag==-2:
             self.qp=QPainter()
             self.qp.begin(self) 
             self.brush=QBrush(Qt.black) 
             self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[n-2],Llist[n-1],5,5)
+            self.qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
             self.qp2=QPainter()
             self.qp2.begin(self) 
             self.pen2=QPen(Qt.black,1,Qt.SolidLine)
             self.qp2.setPen(self.pen)
-            self.qp2.drawEllipse(Llist[0],Llist[1],5,5)
-                                         	
-        
+            self.qp2.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+                                         	            
     def paintEvent(self,event):                        
         #SHUO to BIU0
         x1BIU=370
@@ -309,7 +309,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,L2B2MRF) 
            self.paintstaen(-2,L2B2MRF)            
         #SHU0 to MRF                                                                                                                                                                            
-        X1SHU=490
+        X1SHU=493
         Y1SHU=100
         SHUtoMRFlength=50
         if self.List[12]==1:     
@@ -317,7 +317,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,S0MRF1) 
            self.paintstaen(2,S0MRF1)   
         if self.List[13]==1:           
-           S0MRF2=[X1SHU+width,Y1SHU,X1SHU+width,Y1SHU+SHUtoMRFlength] 
+           S0MRF2=[X1SHU+47,Y1SHU,X1SHU+47,Y1SHU+SHUtoMRFlength] 
            self.paintLine(2,S0MRF2) 
            self.paintstaen(-2,S0MRF2)         
         #MRF to SHU1
@@ -327,7 +327,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,MRFS1) 
            self.paintstaen(2,MRFS1)
         if self.List[15]==1:  
-           MRFS12=[X1SHU+width,Y1MRFtoSHU1,X1SHU+width,Y1MRFtoSHU1+SHUtoMRFlength]
+           MRFS12=[X1SHU+47,Y1MRFtoSHU1,X1SHU+47,Y1MRFtoSHU1+SHUtoMRFlength]
            self.paintLine(2,MRFS12) 
            self.paintstaen(-2,MRFS12)  
         #Point
@@ -487,7 +487,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,P3FM)
            self.paintstaen(-2,P3FM)    
         #LALU to IMAC
-        XLAtoIM=850-20
+        XLAtoIM=825
         YLAtoIM=124
         LatoIMlen=30  
         if self.List[49]==1: 
@@ -495,7 +495,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,LAIM1)
            self.paintstaen(2,LAIM1)
         if self.List[50]==1:
-           LAIM2=[XLAtoIM+20,YLAtoIM,XLAtoIM+20,YLAtoIM+LatoIMlen]
+           LAIM2=[XLAtoIM+47,YLAtoIM,XLAtoIM+47,YLAtoIM+LatoIMlen]
            self.paintLine(2,LAIM2)
            self.paintstaen(-2,LAIM2)         
         #IMAC to FALU
@@ -504,7 +504,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,IMFA1)
            self.paintstaen(2,IMFA1)
         if self.List[52]==1:
-           IMFA2=[XLAtoIM+20,YLAtoIM+108,XLAtoIM+20,YLAtoIM+108+30]
+           IMFA2=[XLAtoIM+47,YLAtoIM+108,XLAtoIM+47,YLAtoIM+108+30]
            self.paintLine(2,IMFA2)
            self.paintstaen(-2,IMFA2)
         #FALU to FMAC
@@ -513,7 +513,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,FAFM1)
            self.paintstaen(2,FAFM1)
         if self.List[54]==1:
-           FAFM2=[XLAtoIM+20,YLAtoIM+2*108,XLAtoIM+20,YLAtoIM+2*108+30]
+           FAFM2=[XLAtoIM+47,YLAtoIM+2*108,XLAtoIM+47,YLAtoIM+2*108+30]
            self.paintLine(2,FAFM2)
            self.paintstaen(-2,FAFM2)     
         #IA to FA
@@ -574,14 +574,14 @@ class MPULeftWidget(QWidget):
            self.paintstaen(1,LEPMR)         
         #right point to shu0
         if self.List[66]==1:
-           LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-40,517,Y1MRF-184-20-40,517,Y1MRF-184-20-20]
+           LEPS0=[LePx,LePy,LePx,Y1MRF-184-20-40,517,Y1MRF-184-20-40,517,Y1MRF-184-20-30]
            self.paintLine(4,LEPS0)  
            self.paintstaen(1,LEPS0)                          
         #DM to BIU0
-        DMX=150
-        DMY=242
-        DtoBX=210
-        DtoBY=134        
+           DMX=150
+           DMY=242
+           DtoBX=210
+           DtoBY=134        
         if self.List[67]==1:
            DMBIU01=[DMX,DMY+width,DtoBX,DtoBY+width]
            self.paintLine(2,DMBIU01)
@@ -650,6 +650,339 @@ class MPULeftWidget(QWidget):
            self.paintLine(0,BIU2P2)
         if self.List[81]==1:
            #BIU2 to Point1
+           BIU2P1=[x1BIU,YB2S0,X1MRF+15,YB2S0,X1MRF+15,y1+20,x1,y1]
+           self.paintLine(4,BIU2P1)
+           self.paintLine(0,BIU2P1)
+
+
+#Dm=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
+    def ButLine(self):
+        if ButLi[0][1]==1:
+           List[68]=1
+        if ButLi[1][0]==1:
+           List[67]=1
+        if ButLi[0][2]==1:
+           List[69]=1
+        if ButLi[2][0]==1:
+           List[70]=1
+        if ButLi[0][3]==1:
+           List[71]=1 
+        if ButLi[3][0]==1:
+           List[72]=1                   
+        if ButLi[1][4]==1:
+           List[1]=1
+        if ButLi[4][1]==1:
+           List[0]=1
+        if ButLi[1][13]==1:
+           List[6]=1 
+        if ButLi[13][1]==1:
+           List[7]=1
+        if ButLi[1][8]==1:
+           List[35]=1
+        if ButLi[8][1]==1:
+           List[36]=1        
+        if ButLi[2][4]==1:
+           List[3]=1
+        if ButLi[4][2]==1:
+           List[3]=1     
+        if ButLi[2][13]==1:
+           List[8]=1
+        if ButLi[13][2]==1:
+           List[9]=1
+        if ButLi[2][8]==1:
+           List[33]=1
+        if ButLi[8][2]==1:
+           List[34]=1
+        if ButLi[3][4]==1:
+           List[5]=1       
+        if ButLi[4][3]==1:
+           List[4]=1
+        if ButLi[3][13]==1:
+           List[10]=1
+        if ButLi[13][3]==1:
+           List[11]=1
+        if ButLi[3][8]==1:
+           List[31]=1
+        if ButLi[8][3]==1:
+           List[32]=1
+        if ButLi[4][13]==1:
+           List[12]=1 
+        if ButLi[13][4]==1:
+           List[13]=1 
+        if ButLi[13][8]==1:
+           List[14]=1
+        if ButLi[8][13]==1:
+           List[15]=1
+ #value=1:cross P1;  value=2:cross P2; value=3:cross P3     
+        if ButLi[4][9]==1:
+           List[16]=1
+           List[37]=1
+        if ButLi[4][9]==2:
+           List[17]=1
+           List[38]=1
+        if ButLi[4][9]==3:
+           List[18]=1
+           List[39]=1
+        if ButLi[4][10]==1:
+           List[16]=1
+           List[40]=1
+        if ButLi[4][10]==2:
+           List[17]=1
+           List[41]=1
+        if ButLi[4][10]==3:
+           List[18]=1
+           List[42]=1
+        if ButLi[4][11]==1:
+           List[16]=1
+           List[43]=1
+        if ButLi[4][11]==2:
+           List[17]=1
+           List[44]=1
+        if ButLi[4][11]==3:
+           List[18]=1
+           List[45]=1
+        if ButLi[4][12]==1:
+           List[16]=1
+           List[46]=1
+        if ButLi[4][12]==2:
+           List[17]=1
+           List[47]=1
+        if ButLi[4][12]==3:
+           List[18]=1
+           List[48]=1
+        if ButLi[5][9]==1:
+           List[22]=1 
+           LIst[37]=1
+        if ButLi[5][9]==2:
+           List[23]=1 
+           LIst[38]=1
+        if ButLi[5][9]==3:
+           List[24]=1 
+           LIst[39]=1
+        if ButLi[5][10]==1:
+           List[22]=1
+           List[40]=1
+        if ButLi[5][10]==2:
+           List[23]=1
+           List[41]=1
+        if ButLi[5][10]==3:
+           List[24]=1
+           List[42]=1
+        if ButLi[5][11]==1:
+           List[22]=1
+           List[43]=1
+        if ButLi[5][11]==2:
+           List[23]=1
+           List[44]=1
+        if ButLi[5][11]==3:
+           List[24]=1
+           List[45]=1
+        if ButLi[5][12]==1:
+           List[22]=1
+           List[46]=1
+        if ButLi[5][12]==2:
+           List[23]=1
+           List[47]=1
+        if ButLi[5][12]==3:
+           List[24]=1
+           List[48]=1     
+        if ButLi[6][9]==1:
+           List[19]=1
+           List[37]=1   
+        if ButLi[6][9]==2:
+           List[20]=1
+           List[38]=1   
+        if ButLi[6][9]==3:
+           List[21]=1
+           List[39]=1  
+        if ButLi[6][10]==1:
+           List[19]=1
+           List[40]=1   
+        if ButLi[6][10]==2:
+           List[20]=1
+           List[41]=1   
+        if ButLi[6][10]==3:
+           List[21]=1
+           List[42]=1 
+        if ButLi[6][11]==1:
+           List[19]=1
+           List[43]=1   
+        if ButLi[6][11]==2:
+           List[20]=1
+           List[44]=1   
+        if ButLi[6][11]==3:
+           List[21]=1
+           List[45]=1
+        if ButLi[6][12]==1:
+           List[19]=1
+           List[46]=1   
+        if ButLi[6][12]==2:
+           List[20]=1
+           List[47]=1   
+        if ButLi[6][12]==3:
+           List[21]=1
+           List[48]=1      
+        if ButLi[7][9]==1:
+           List[25]=1
+           List[37]=1   
+        if ButLi[7][9]==2:
+           List[26]=1
+           List[38]=1   
+        if ButLi[7][9]==3:
+           List[27]=1
+           List[39]=1  
+        if ButLi[7][10]==1:
+           List[15]=1
+           List[40]=1   
+        if ButLi[7][10]==2:
+           List[26]=1
+           List[41]=1   
+        if ButLi[7][10]==3:
+           List[27]=1
+           List[42]=1 
+        if ButLi[7][11]==1:
+           List[25]=1
+           List[43]=1   
+        if ButLi[7][11]==2:
+           List[26]=1
+           List[44]=1   
+        if ButLi[7][11]==3:
+           List[27]=1
+           List[45]=1
+        if ButLi[7][12]==1:
+           List[25]=1
+           List[46]=1   
+        if ButLi[7][12]==2:
+           List[26]=1
+           List[47]=1   
+        if ButLi[7][12]==3:
+           List[27]=1
+           List[48]=1      
+        if ButLi[8][9]==1:
+           List[28]=1
+           List[37]=1
+        if ButLi[8][9]==2:
+           List[29]=1
+           List[38]=1
+        if ButLi[4][9]==3:
+           List[30]=1
+           List[39]=1
+        if ButLi[8][10]==1:
+           List[28]=1
+           List[40]=1
+        if ButLi[8][10]==2:
+           List[29]=1
+           List[41]=1
+        if ButLi[8][10]==3:
+           List[30]=1
+           List[42]=1
+        if ButLi[8][11]==1:
+           List[28]=1
+           List[43]=1
+        if ButLi[8][11]==2:
+           List[29]=1
+           List[44]=1
+        if ButLi[8][11]==3:
+           List[30]=1
+           List[45]=1
+        if ButLi[8][12]==1:
+           List[28]=1
+           List[46]=1
+        if ButLi[8][12]==2:
+           List[29]=1
+           List[47]=1
+        if ButLi[8][12]==3:
+           List[30]=1
+           List[48]=1              
+        if ButLi[9][10]==1:
+           List[49]=1
+        if ButLi[10][9]==1:
+           List[50]=1        
+        if ButLi[10][11]==1:
+           List[51]=1
+        if ButLi[11][10]==1:
+           List[52]=1
+        if ButLi[11][12]==1:
+           List[53]=1
+        if ButLi[12][11]==1:
+           List[54]=1
+        if ButLi[9][11]==1:
+           List[56]=1
+        if ButLi[11][9]==1:
+           List[55]=1 
+        if ButLi[9][1]==1:
+           List[57]=1
+           List[63]=1
+        if ButLi[9][2]==1:
+           List[57]=1
+           List[62]=1
+        if ButLi[9][3]==1:
+           List[57]=1
+           List[61]=1
+        if ButLi[9][4]==1:
+           List[57]=1
+           List[66]=1
+        if ButLi[9][8]==1:
+           List[57]=1
+           List[64]=1
+        if ButLi[9][13]==1:
+           List[57]=1
+           List[65]=1
+        if ButLi[10][1]==1:
+           List[58]=1
+           List[63]=1
+        if ButLi[10][2]==1:
+           List[58]=1
+           List[62]=1
+        if ButLi[10][3]==1:
+           List[58]=1
+           List[61]=1
+        if ButLi[10][4]==1:
+           List[58]=1
+           List[66]=1
+        if ButLi[10][8]==1:
+           List[58]=1
+           List[64]=1
+        if ButLi[10][13]==1:
+           List[58]=1
+           List[65]=1           
+        if ButLi[11][1]==1:
+           List[59]=1
+           List[63]=1
+        if ButLi[11][2]==1:
+           List[59]=1
+           List[62]=1
+        if ButLi[11][3]==1:
+           List[59]=1
+           List[61]=1
+        if ButLi[11][4]==1:
+           List[59]=1
+           List[66]=1
+        if ButLi[11][8]==1:
+           List[59]=1
+           List[64]=1
+        if ButLi[11][13]==1:
+           List[59]=1
+           List[65]=1             
+        if ButLi[12][1]==1:
+           List[60]=1
+           List[63]=1
+        if ButLi[12][2]==1:
+           List[60]=1
+           List[62]=1
+        if ButLi[12][3]==1:
+           List[60]=1
+           List[61]=1
+        if ButLi[12][4]==1:
+           List[60]=1
+           List[66]=1
+        if ButLi[12][8]==1:
+           List[60]=1
+           List[64]=1
+        if ButLi[12][13]==1:
+           List[60]=1
+           List[65]=1   
+
            BIU2P1=[x1BIU,YB2S0,X1MRF+15,YB2S0,X1MRF+15,y1+20,x1,y1]
            self.paintLine(4,BIU2P1)
            self.paintLine(0,BIU2P1)

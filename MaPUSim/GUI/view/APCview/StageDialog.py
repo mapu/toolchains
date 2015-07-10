@@ -69,17 +69,17 @@ class StageDialog(QDialog):
 	for i in range(self.minTime,self.maxTime+1):
 	    stringList.append(str(i))
 	self.tableView.setHorizontalHeaderLabels(stringList)
-	if value>self.pageValue/2:
+	if value>self.maxValue-self.pageValue/2:
+	    r1=self.maxValue-self.pageValue
+	    r2=self.maxValue
+	else:
+	    #text=self.tableView.verticalHeaderItem(self.pageValue/2+3).text()
+	    #print text
 	    r1=value-self.pageValue/2
 	    r2=value+self.pageValue/2
 	    if self.pageValue%2==1:
 		r2=r2+1
-	else:
-	    r1=0
-	    r2=self.pageValue
-	if value>self.maxValue-self.pageValue/2:
-	    r1=self.maxValue-self.pageValue
-	    r2=self.maxValue
+
 	self.updateAPEDialog(r1,r2)
 
     def updateAPEDialog(self,r1,r2):
@@ -131,16 +131,20 @@ class StageDialog(QDialog):
 			    		item.setBackground(QBrush(QColor(0,255,0)))
 	    else:
 	 	blankList.append(k-r1)	
+	self.time=0
 	if len(blankList)>0:
+	    for i in range(len(blankList),0,-1):
+		self.tableView.removeRow(blankList[i-1])
 	    for i in range(0,len(blankList)):
-		self.tableView.removeRow(blankList[i])
-		self.insertAPEDialog(r1-i-self.time)
+		if r1<=30:
+		    self.insertAPEDialog(r2+i+1+self.time,self.pageValue-len(blankList)+i,True)
+		else:
+		    self.insertAPEDialog(r1-i-self.time,0,False)
 
-    def insertAPEDialog(self,k):
+    def insertAPEDialog(self,k,j,flag):
 	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(k)
 	r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
 	if r!=0:
-	    j=0
 	    for e in range(len(r)):	
 		stringList=r[e]
 		if stringList[7]!="nop":
@@ -184,7 +188,10 @@ class StageDialog(QDialog):
 			    	    item.setBackground(QBrush(QColor(0,255,0)))
 	else:
 	    self.time=self.time+1
-	    self.insertAPEDialog(k-1)
+	    if flag==True:
+	        self.insertAPEDialog(k+1,j,flag)
+	    else:
+	        self.insertAPEDialog(k-1,j,flag)	
 	    
     def wheelEvent(self,event):
      	if event.orientation()==Qt.Vertical:    
