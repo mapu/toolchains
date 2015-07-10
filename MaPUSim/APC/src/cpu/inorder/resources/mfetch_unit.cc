@@ -302,10 +302,17 @@ void MFetchUnit::execute(int slot_num) {
           getInstRecord(ThePipeline::NumMStages,
                         cpu->stageTracing,
                         cpu->thread[cached_inst->readTid()]->getTC());
+      // Copy note of trace data for this inst & stage
 
 #else
       reinst->traceData = NULL;
 #endif      // TRACING_ON
+
+      if (reinst->traceData) {
+          //@todo: exec traces are broke. fix them
+        for (unsigned i = 0; i < nextStage; i++)
+          reinst->traceData->setStageCycle(i, curTick());
+      }
       // Add instruction to the CPU's list of instructions.
       reinst->setInstListIt(cpu->addInst(reinst));
       reinst->setFrontSked(cpu->mfrontEndSked);
