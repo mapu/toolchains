@@ -53,7 +53,7 @@ class StageDialog(QDialog):
 	self.minTime=minTime
 	self.maxTime=maxTime
 	self.flag=flag
-	self.minValue=1
+	self.minValue=0
 	if self.flag=="m":
 	    order_sql = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
 	else:
@@ -62,7 +62,7 @@ class StageDialog(QDialog):
 	if self.snAll!=0:
 	    self.maxValue=len(self.snAll)
 	else:
-	    self.maxValue=1
+	    self.maxValue=0
 	self.scroll.setRange(self.minValue,self.maxValue)
 		
     def currentValueSlot(self,value):
@@ -73,7 +73,7 @@ class StageDialog(QDialog):
 	self.tableView.setColumnCount(self.maxTime-self.minTime+1)
 	stringList=QStringList()
 	stringList.clear()
-	if self.maxValue!=1:
+	if self.maxValue!=0:
 	    for i in range(self.minTime,self.maxTime+1):
 	        stringList.append(str(i))
 	    self.tableView.setHorizontalHeaderLabels(stringList)
