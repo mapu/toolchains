@@ -11,7 +11,6 @@ sys.setdefaultencoding('utf-8')
 
 class DataBase():
     def __init__(self):
-
 	self.filePath="m5out/aaa.out"
 	self.APE0dbFilePath="APE0table.db"
 	self.APE0timeFilePath="APE0time.db"
@@ -21,14 +20,15 @@ class DataBase():
 	self.APE2timeFilePath="APE2time.db"
 	self.APE3dbFilePath="APE3table.db"
 	self.APE3timeFilePath="APE3time.db"
-	self.snTableName="sn"
+	self.snMTableName="snMPU"
+	self.snSTableName="snSPU"
 	self.regTableName="reg"
 	self.memTableName="mem"
 	self.timeTableName="time"
 
     def createDatabase(self,num,path):
 	self.filePath=path
-	#self.filePath="/home/litt/new02.out"
+	self.filePath="/home/litt/new01.out"
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
 	self.createAPE0Database()
@@ -55,7 +55,11 @@ class DataBase():
 	    self.createAPE3Database()
 
     def createAPE0Database(self):
+	i=datetime.datetime.now()
+        print ("start ape0 mem %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.memTableInit()
+	i=datetime.datetime.now()
+        print ("start ape0 sn reg %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.APESnRegTableInit(self.APE0dbConn)
 	i=datetime.datetime.now()
         print ("start ape0 time %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
@@ -368,19 +372,27 @@ class DataBase():
 		    print (r[e])
 
     def APESnRegTableInit(self,APEdbConn): 
-        #drop table
-        self.drop_table(APEdbConn,self.snTableName)
-	#create table
-        create_table_sql_sn="create table "+self.snTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
-        self.create_table(APEdbConn, create_table_sql_sn)
-        save_sql_sn = "INSERT INTO "+self.snTableName+" (time,cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
+        #drop snM table
+        self.drop_table(APEdbConn,self.snMTableName)
+	#create snM table
+        create_table_sql_snM="create table "+self.snMTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
+        self.create_table(APEdbConn, create_table_sql_snM)
+        save_sql_snM = "INSERT INTO "+self.snMTableName+" (time,cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
 
-        #drop table
+        #drop snS table
+        self.drop_table(APEdbConn,self.snSTableName)
+	#createsnS table
+        create_table_sql_snS="create table "+self.snSTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
+        self.create_table(APEdbConn, create_table_sql_snS)
+        save_sql_snS = "INSERT INTO "+self.snSTableName+" (time,cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
+
+        #drop REG table
         self.drop_table(APEdbConn,self.regTableName)
-	#create table
+	#create REG table
         create_table_sql_reg="create table "+self.regTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(4),sn integer,op varchar(8),type varchar(8),reg integer,dis varchar(256))"
         self.create_table(APEdbConn, create_table_sql_reg)
         save_sql_reg = "INSERT INTO "+self.regTableName+" (time,cpu,spumpu,sn,op,type,reg,dis) "
+
         #open out file and read 
         f=open(self.filePath,"r")
         lines=f.readlines()
@@ -394,8 +406,12 @@ class DataBase():
 	        if line.find("graduation_unit")>=0:
 		    item_sn.__init__()
 	            item_sn=self.snSplit(line,item_sn)
-	            data="values ("+item_sn.time+","+item_sn.cpu+","+item_sn.spumpu+","+item_sn.sn+","+item_sn.sln+","+item_sn.pc+","+item_sn.dis+","+item_sn.dest+","+item_sn.stageList[0]+","+item_sn.stageList[1]+","+item_sn.stageList[2]+","+item_sn.stageList[3]+","+item_sn.stageList[4]+","+item_sn.stageList[5]+","+item_sn.stageList[6]+","+item_sn.stageList[7]+","+item_sn.stageList[8]+","+item_sn.stageList[9]+","+item_sn.stageList[10]+","+item_sn.stageList[11]+","+item_sn.stageList[12]+","+item_sn.stageList[13]+","+item_sn.stageList[14]+","+item_sn.stageList[15]+","+item_sn.stageList[16]+","+item_sn.stageList[17]+","+item_sn.stageList[18]+","+item_sn.stageList[19]+")"
-	            self.save(APEdbConn, save_sql_sn, data)
+		    if item_sn.dis!="''":
+	                data="values ("+item_sn.time+","+item_sn.cpu+","+item_sn.spumpu+","+item_sn.sn+","+item_sn.sln+","+item_sn.pc+","+item_sn.dis+","+item_sn.dest+","+item_sn.stageList[0]+","+item_sn.stageList[1]+","+item_sn.stageList[2]+","+item_sn.stageList[3]+","+item_sn.stageList[4]+","+item_sn.stageList[5]+","+item_sn.stageList[6]+","+item_sn.stageList[7]+","+item_sn.stageList[8]+","+item_sn.stageList[9]+","+item_sn.stageList[10]+","+item_sn.stageList[11]+","+item_sn.stageList[12]+","+item_sn.stageList[13]+","+item_sn.stageList[14]+","+item_sn.stageList[15]+","+item_sn.stageList[16]+","+item_sn.stageList[17]+","+item_sn.stageList[18]+","+item_sn.stageList[19]+")"
+		        if item_sn.spumpu=="'s'":
+	                    self.save(APEdbConn, save_sql_snS, data)
+		        else:
+	                    self.save(APEdbConn, save_sql_snM, data)
 	    	elif line.find("mpurf_manager")>=0 or line.find("regfile_manager")>=0:
 		    item_reg.__init__()
 	            item_reg=self.regSplit(line,item_reg)
@@ -404,9 +420,77 @@ class DataBase():
 	 	
 	f.close()
 	APEdbConn.commit()
-        #show sn table
+
+	i=datetime.datetime.now()
+        print ("start ape0 order sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	#make snmTable order by sn asc
+	order_sql = "SELECT * FROM "+self.snMTableName+" order by sn asc"
+        cu = self.get_cursor(APEdbConn)
+        cu.execute(order_sql)
+        r = cu.fetchall()
+        if len(r) > 0:
+            #drop snM table
+            self.drop_table(APEdbConn,self.snMTableName)
+	    #create snM table
+            create_table_sql_snM="create table "+self.snMTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
+            self.create_table(APEdbConn, create_table_sql_snM)
+            save_sql_snM = "INSERT INTO "+self.snMTableName+" (time,cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
+            for e in range(len(r)):
+		item_sn.__init__()
+		item_sn.time=str(r[e][1])
+		item_sn.cpu=str(r[e][2])
+		item_sn.spumpu="'"+str(r[e][3])+"'"
+		item_sn.sn=str(r[e][4])
+		item_sn.sln=str(r[e][5])
+		item_sn.pc="'"+str(r[e][6])+"'"
+		item_sn.dis="'"+str(r[e][7])+"'"
+		item_sn.dest="'"+str(r[e][8])+"'"
+		for i in range(9,len(r[e])):
+		    item_sn.stageList[i-9]=str(r[e][i])
+	        data="values ("+item_sn.time+","+item_sn.cpu+","+item_sn.spumpu+","+item_sn.sn+","+item_sn.sln+","+item_sn.pc+","+item_sn.dis+","+item_sn.dest+","+item_sn.stageList[0]+","+item_sn.stageList[1]+","+item_sn.stageList[2]+","+item_sn.stageList[3]+","+item_sn.stageList[4]+","+item_sn.stageList[5]+","+item_sn.stageList[6]+","+item_sn.stageList[7]+","+item_sn.stageList[8]+","+item_sn.stageList[9]+","+item_sn.stageList[10]+","+item_sn.stageList[11]+","+item_sn.stageList[12]+","+item_sn.stageList[13]+","+item_sn.stageList[14]+","+item_sn.stageList[15]+","+item_sn.stageList[16]+","+item_sn.stageList[17]+","+item_sn.stageList[18]+","+item_sn.stageList[19]+")"
+		self.save(APEdbConn, save_sql_snM, data)
+
+	#make snsTable order by sn asc
+	order_sql = "SELECT * FROM "+self.snSTableName+" order by sn asc"
+        cu = self.get_cursor(APEdbConn)
+        cu.execute(order_sql)
+        r = cu.fetchall()
+        if len(r) > 0:	    
+            #drop snS table
+            self.drop_table(APEdbConn,self.snSTableName)
+	    #createsnS table
+            create_table_sql_snS="create table "+self.snSTableName+"(id integer primary key autoincrement,time integer,cpu integer,spumpu varchar(8),sn integer,sln integer,pc varchar(8),dis varchar(128),dest varchar(8),stage0 integer,stage1 integer,stage2 integer,stage3 integer,stage4 integer,stage5 integer,stage6 integer,stage7 integer,stage8 integer,stage9 integer,stage10 integer,stage11 integer,stage12 integer,stage13 integer,stage14 integer,stage15 integer,stage16 integer,stage17 integer,stage18 integer,stage19 integer)"
+            self.create_table(APEdbConn, create_table_sql_snS)
+            save_sql_snS = "INSERT INTO "+self.snSTableName+" (time,cpu,spumpu,sn,sln,pc,dis,dest,stage0,stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9,stage10,stage11,stage12,stage13,stage14,stage15,stage16,stage17,stage18,stage19) "
+            for e in range(len(r)):
+		item_sn.__init__()
+		item_sn.time=str(r[e][1])
+		item_sn.cpu=str(r[e][2])
+		item_sn.spumpu="'"+str(r[e][3])+"'"
+		item_sn.sn=str(r[e][4])
+		item_sn.sln=str(r[e][5])
+		item_sn.pc="'"+str(r[e][6])+"'"
+		item_sn.dis="'"+str(r[e][7])+"'"
+		item_sn.dest="'"+str(r[e][8])+"'"
+		for i in range(9,len(r[e])):
+		    item_sn.stageList[i-9]=str(r[e][i])
+	        data="values ("+item_sn.time+","+item_sn.cpu+","+item_sn.spumpu+","+item_sn.sn+","+item_sn.sln+","+item_sn.pc+","+item_sn.dis+","+item_sn.dest+","+item_sn.stageList[0]+","+item_sn.stageList[1]+","+item_sn.stageList[2]+","+item_sn.stageList[3]+","+item_sn.stageList[4]+","+item_sn.stageList[5]+","+item_sn.stageList[6]+","+item_sn.stageList[7]+","+item_sn.stageList[8]+","+item_sn.stageList[9]+","+item_sn.stageList[10]+","+item_sn.stageList[11]+","+item_sn.stageList[12]+","+item_sn.stageList[13]+","+item_sn.stageList[14]+","+item_sn.stageList[15]+","+item_sn.stageList[16]+","+item_sn.stageList[17]+","+item_sn.stageList[18]+","+item_sn.stageList[19]+")"
+		self.save(APEdbConn, save_sql_snS, data)
+	APEdbConn.commit()
+	i=datetime.datetime.now()
+        print ("end ape0 order sn table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+        #show snM table
 	if 0:
-            fetchall_sql = "SELECT * FROM "+self.snTableName
+            fetchall_sql = "SELECT * FROM "+self.snMTableName
+            cu = self.get_cursor(APEdbConn)
+            cu.execute(fetchall_sql)
+            r = cu.fetchall()
+            if len(r) > 0:
+                for e in range(len(r)):
+		    print (r[e])
+        #show snS table
+	if 0:
+            fetchall_sql = "SELECT * FROM "+self.snSTableName
             cu = self.get_cursor(APEdbConn)
             cu.execute(fetchall_sql)
             r = cu.fetchall()

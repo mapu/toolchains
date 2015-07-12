@@ -60,11 +60,6 @@ class StageDialog(QDialog):
 
     def currentValueSlot(self,value):
 	self.curValue=value
-	text=str(self.tableView.verticalHeaderItem(self.pageValue/2+3).text())
-	pos=text.find(":")
-	keyValue=int(text[:pos])
-	if keyValue<self.pageValue/2:
-	    keyValue=self.pageValue/2
 	self.tableView.clear()
 	self.tableView.setRowCount(self.pageValue+1)
 	self.tableView.hideRow(self.pageValue)
@@ -74,20 +69,24 @@ class StageDialog(QDialog):
 	for i in range(self.minTime,self.maxTime+1):
 	    stringList.append(str(i))
 	self.tableView.setHorizontalHeaderLabels(stringList)
-	if value>self.maxValue-self.pageValue/2:
-	    r1=self.maxValue-self.pageValue
+	if value<=self.pageValue/2:
+	    r1=self.minValue
+	    r2=self.pageValue+1
+	elif value>self.maxValue-self.pageValue/2:
+	    r1=self.maxValue-self.pageValue-1
 	    r2=self.maxValue
 	else:
-	    r1=keyValue-self.pageValue/2
-	    r2=keyValue+self.pageValue/2
-	    if self.pageValue%2==1:
-		r2=r2+1
+	    r1=value-self.pageValue/2
+	    r2=value+self.pageValue/2+1
 	self.updateAPEDialog(r1,r2)
 
     def updateAPEDialog(self,r1,r2):
 	blankList=[]
 	for k in range(r1,r2):
-	    fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(k+1)
+	    if self.flag=="m":
+	        fetchall_sql = "SELECT * FROM "+self.dataBase.snMTableName+" WHERE id = "+str(k)
+	    else:
+	        fetchall_sql = "SELECT * FROM "+self.dataBase.snSTableName+" WHERE id = "+str(k)
 	    r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
 	    if r!=0:
 		j=k-r1
@@ -95,25 +94,22 @@ class StageDialog(QDialog):
 		    stringList=r[e]
 		    if stringList[7]!="nop":
 		        temp=-1 #forward column
-		        if stringList[7]=='':
-		    	    blankList.append(k-r1)
-		        else:
-		            self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
-		            for i in range(0,20):
-		                if stringList[9+i]!=-1:
-			            column=stringList[9+i]-self.minTime
-			            self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-			            if i<5:
-				        self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
-			            else:
-				        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
-			            if temp!=-1:
-				        item=self.tableView.item(j,temp)
-				        for i in range(temp+1,column):
-				            self.tableView.setItem(j,i,QTableWidgetItem(item.text()))
-				            self.tableView.item(j,i).setBackground(item.background())					
-			            temp=column	
-		fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(k+1)
+		        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
+		        for i in range(0,20):
+		            if stringList[9+i]!=-1:
+			        column=stringList[9+i]-self.minTime
+			        self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
+			        if i<5:
+				    self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
+			        else:
+				    self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
+			        if temp!=-1:
+				    item=self.tableView.item(j,temp)
+				    for i in range(temp+1,column):
+				        self.tableView.setItem(j,i,QTableWidgetItem(item.text()))
+				        self.tableView.item(j,i).setBackground(item.background())					
+			        temp=column	
+		fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(r[e][4])
 		r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
 		if r!=0:
 	    	    for e in range(len(r)):
@@ -131,72 +127,6 @@ class StageDialog(QDialog):
 			   		item.setBackground(QBrush(QColor(255,153,18)))
 		        	    elif item.background()!=QBrush(QColor(255,153,18)):
 			    		item.setBackground(QBrush(QColor(0,255,0)))
-	    else:
-	 	blankList.append(k-r1)	
-	self.time=0
-	if len(blankList)>0:
-	    for i in range(len(blankList),0,-1):
-		self.tableView.removeRow(blankList[i-1])
-	    for i in range(0,len(blankList)):
-		if r1<=30:
-		    self.insertAPEDialog(r2+i+1+self.time,self.pageValue-len(blankList)+i,True)
-		else:
-		    if self.curValue<=30:
-			self.insertAPEDialog(r2+i+1+self.time,self.pageValue-len(blankList)+i,True)
-		    else:
-		        self.insertAPEDialog(r1-i-self.time,0,False)
-
-    def insertAPEDialog(self,k,j,flag):
-	fetchall_sql = "SELECT * FROM "+self.dataBase.snTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(k)
-	r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
-	if r!=0:
-	    for e in range(len(r)):	
-		stringList=r[e]
-		if stringList[7]!="nop":
-		    temp=-1 #forward column
-		    self.tableView.insertRow(j)
-		    if stringList[7]=='':
-		    	self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])))
-		    else:
-		        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
-		    for i in range(0,20):
-		        if stringList[9+i]!=-1:
-			    column=stringList[9+i]-self.minTime
-			    self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-			    if i<5:
-				self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
-			    else:
-				self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
-			    if temp!=-1:
-				item=self.tableView.item(j,temp)
-				for i in range(temp+1,column):
-				    self.tableView.setItem(j,i,QTableWidgetItem(item.text()))
-				    self.tableView.item(j,i).setBackground(item.background())					
-			    temp=column
-	    fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(k)
-	    r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
-	    if r!=0:
-	    	for e in range(len(r)):
-		    stringList=r[e]
-		    if stringList[6]!="Misc Reg":
-		    	item=self.tableView.item(j,int(stringList[1])-self.minTime)
-		    	if item!=None:
-		    	    if stringList[5]=="W":
-		        	if item.background()==QBrush(QColor(0,255,0)):
-			    	    item.setBackground(QBrush(QColor(255,153,18)))
-		        	elif item.background()!=QBrush(QColor(255,153,18)):
-			    	    item.setBackground(QBrush(QColor(255,0,0)))
-		    	    elif stringList[5]=="R":
-		        	if item.background()==QBrush(QColor(255,0,0)):
-			   	    item.setBackground(QBrush(QColor(255,153,18)))
-		        	elif item.background()!=QBrush(QColor(255,153,18)):
-			    	    item.setBackground(QBrush(QColor(0,255,0)))
-	else:
-	    self.time=self.time+1
-	    if flag==True:
-	        self.insertAPEDialog(k+1,j,flag)
-	    else:
-	        self.insertAPEDialog(k-1,j,flag)	
 	    
     def wheelEvent(self,event):
      	if event.orientation()==Qt.Vertical:    

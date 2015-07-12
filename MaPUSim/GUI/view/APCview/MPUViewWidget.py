@@ -737,6 +737,13 @@ class MPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+8,1).setData(0,"0")
 		    self.regFileWidget.item(i+8,1).setToolTip("")
 	        self.regFileWidget.item(i+8,1).setTextColor(QColor(0,0,0))
+	for i in range(0,14):
+	    if r[386+i]!="nop":
+		self.specialRegWidget.item(i,1).setData(0,r[386+i])
+		self.specialRegWidget.item(i,1).setToolTip(r[386+i])
+	    else:
+		self.specialRegWidget.item(i,1).setData(0,"0")
+		self.specialRegWidget.item(i,1).setToolTip("")
 
     def updateMPURegWFlag(self,r):
 	i=r[7]
@@ -787,6 +794,8 @@ class MPUViewWidget(QWidget):
 	elif i>=185 and i<=186:
 	    if self.regFileWidget.item(i+8,1).textColor()==QColor(255,0,0):
 	    	self.regFileWidget.item(i+8,1).setTextColor(QColor(255,153,18))
+
+
 
 
 

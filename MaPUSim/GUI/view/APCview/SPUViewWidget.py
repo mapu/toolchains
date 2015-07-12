@@ -492,6 +492,13 @@ class SPUViewWidget(QWidget):
 		    self.regFileWidget.item(i+2,1).setData(0,"0")
 		    self.regFileWidget.item(i+2,1).setToolTip("")
 	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
+	for i in range(0,134):
+	    if r[252+i]!="nop":
+		self.specialRegWidget.item(i,1).setData(0,r[252+i])
+		self.specialRegWidget.item(i,1).setToolTip(r[252+i])
+	    else:
+		self.specialRegWidget.item(i,1).setData(0,"0")
+		self.specialRegWidget.item(i,1).setToolTip("")
 
     def updateSPURegWFlag(self,r):
 	i=r[7]
