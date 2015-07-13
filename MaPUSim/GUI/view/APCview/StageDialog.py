@@ -103,7 +103,7 @@ class StageDialog(QDialog):
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue+1)
 	    self.tableView.hideRow(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
+	    self.tableView.setColumnCount(self.pageTime+1)
 	    self.updateAPEDialog(self.row1,self.row2,self.col1,self.col2,self.end)
 	else:
 	    self.tableView.clear()
@@ -126,7 +126,7 @@ class StageDialog(QDialog):
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue+1)
 	    self.tableView.hideRow(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
+	    self.tableView.setColumnCount(self.pageTime+1)
 	    self.updateAPEDialog(self.row1,self.row2,self.col1,self.col2)
 	else:
 	    self.tableView.clear()
@@ -150,6 +150,7 @@ class StageDialog(QDialog):
 		    if stringList[9+i]>=c1 and stringList[9+i]<c2:
 		        column=stringList[9+i]-c1
 		        self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
+			print j,column
 		        if i<5:
 			    self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
 		        else:
