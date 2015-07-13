@@ -150,7 +150,6 @@ class StageDialog(QDialog):
 		    if stringList[9+i]>=c1 and stringList[9+i]<c2:
 		        column=stringList[9+i]-c1
 		        self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-			print j,column
 		        if i<5:
 			    self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
 		        else:
