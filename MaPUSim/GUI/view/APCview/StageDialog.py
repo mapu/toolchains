@@ -33,7 +33,7 @@ class StageDialog(QDialog):
 	self.horizontalScroll=QScrollBar(Qt.Horizontal)
 	self.maxTime=100
 	self.minTime=0
-	self.pageTime=100
+	self.pageTime=70
 	self.curTime=0
 	self.tableView.setColumnCount(self.pageTime)
 	self.horizontalScroll.setRange(self.minTime,self.maxTime)
@@ -185,9 +185,9 @@ class StageDialog(QDialog):
      	if event.orientation()==Qt.Vertical:    
 	    data=event.delta()
 	    if data>0:
-	 	self.scroll.setValue(self.scroll.value()-3)
+	 	self.verticalScroll.setValue(self.scroll.value()-3)
 	    else:
-	 	self.scroll.setValue(self.scroll.value()+3)	
+	 	self.verticalScroll.setValue(self.scroll.value()+3)	
 
     def resizeEvent(self,event):
 	self.pageValue=(self.height()-35)/self.rowHeight-1
