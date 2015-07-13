@@ -28,7 +28,6 @@ class DataBase():
 
     def createDatabase(self,num,path):
 	self.filePath=path
-	self.filePath="/home/litt/aaa1.out"
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
 	self.createAPE0Database()
