@@ -80,7 +80,7 @@ class StageDialog(QDialog):
 	    if value<=self.pageValue/2:
 	        r1=self.minValue
 	        r2=self.pageValue+1
-	    elif value>self.maxValue-self.pageValue/2:
+	    elif value>=self.maxValue-self.pageValue/2:
 	        r1=self.maxValue-self.pageValue-1
 	        r2=self.maxValue
 	    else:
