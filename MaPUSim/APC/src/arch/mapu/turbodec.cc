@@ -273,6 +273,7 @@ void TurboDecoder::Decoder::reset() {
   parent->dec_res[id].sw_len[0] = 0;
   parent->dec_res[id].sw_len[1] = 0;
   cur_load_len = 0;
+  cur_pos = 0;
   DPRINTF(TurboDecAlpha, "[iter: %d, id %d] reset(): sys base: %#08x, "
           "par1 base: %#08x par2 base: %#08x\n",
           parent->current_iter, id, parent->dec_res[id].cur_sys_base,
