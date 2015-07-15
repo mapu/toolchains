@@ -22,7 +22,7 @@ class StageDialog(QDialog):
 	gridLay=QHBoxLayout()
 	gridLay.addWidget(self.tableView)
 	self.pageValue=100
-	self.tableView.setRowCount(self.pageValue+1)
+	self.tableView.setRowCount(self.pageValue)
 	self.tableView.horizontalHeader().setDefaultSectionSize(25)
 	self.verticalScroll=QScrollBar(Qt.Vertical)
 	self.maxValue=1000
@@ -54,12 +54,16 @@ class StageDialog(QDialog):
 	self.vend1=0
 	self.vtop=0
 	self.curTableValue=0
+	self.wheel=0
 	self.connect(self.tableView.verticalScrollBar(),SIGNAL("valueChanged(int)"),self.tableScrollSlot)
 	
     def tableScrollSlot(self,tableValue):
 	if tableValue!=0 or tableValue!=self.pageValue-1:
-	    if self.curTableValue<tableValue:
-	        self.verticalScroll.setValue(self.curValue+10)
+	    if self.curTableValue<=tableValue:
+		if self.maxValue-1-self.curValue>=100:
+	            self.verticalScroll.setValue(self.curValue+10)
+		else:
+		    self.verticalScroll.setValue(self.maxValue-1)
 	    else:
 	        if self.curValue>=10:
 	            self.verticalScroll.setValue(self.curValue-10)	
@@ -119,27 +123,33 @@ class StageDialog(QDialog):
 		self.end=False
 	    self.curTime=time
 	    self.tableView.clear()
-	    self.tableView.setRowCount(self.pageValue+1)
+	    self.tableView.setRowCount(self.pageValue)
 	    self.tableView.setColumnCount(self.pageTime+1)
 	    self.initAPEDialog(self.row1,self.row2,self.col1,self.col2,self.end)
 	else:
 	    self.tableView.clear()
-	    self.tableView.setRowCount(self.pageValue+1)
+	    self.tableView.setRowCount(self.pageValue)
 	    self.tableView.setColumnCount(self.pageTime+1)
 		
     def currentVValueSlot(self,value):
-	print "scroll",value
 	if value==0:
 	    num=0
 	    orientation=0
 	    self.curValue=value
 	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
-	elif value>self.curValue:
+	if self.wheel==2:
+	    if self.curValue>value:
+	     	num=self.curValue-value
+	        orientation=2
+	        self.curValue=value
+	        self.updateAPEDialog(self.col1,self.col2,num,orientation)
+	elif value>self.curValue or self.wheel==1:
 	    num=value-self.curValue
 	    orientation=1
 	    self.curValue=value
 	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
 	else:
+	    self.wheel=2
 	    num=self.curValue-value
 	    orientation=2
 	    self.curValue=value
@@ -205,7 +215,7 @@ class StageDialog(QDialog):
 	        self.vdown=self.curValue
 	        for k in range(0,num):
 	    	    self.tableView.removeRow(0)
-	        self.tableView.setRowCount(self.pageValue+1)
+	        self.tableView.setRowCount(self.pageValue)
 		self.row1=self.curValue
 		self.row2=self.curValue+self.pageValue-1
 	        for k in range(0,num):
@@ -260,7 +270,7 @@ class StageDialog(QDialog):
 		        num=self.maxValue-self.vdown-self.pageValue
 		        for k in range(0,num):
 	    	            self.tableView.removeRow(0)    
-	                self.tableView.setRowCount(self.pageValue+1)
+	                self.tableView.setRowCount(self.pageValue)
 			self.row2=self.vdown+self.pageValue+num-1
 			self.row1=self.vdown+num-2
 	                for k in range(0,num):
@@ -330,7 +340,7 @@ class StageDialog(QDialog):
 	    if self.curValue>curNum:
 	        for k in range(0,num):
 	    	    self.tableView.removeRow(self.pageValue-k-1)
-	        self.tableView.setRowCount(self.pageValue+1)
+	        self.tableView.setRowCount(self.pageValue)
 		if self.curValue+num==self.maxValue:
 		    self.curValue=self.curValue-1
 	        for k in range(num,0,-1):
@@ -381,7 +391,7 @@ class StageDialog(QDialog):
 			    	                item.setBackground(QBrush(QColor(0,255,0)))
 	    else:
 	        self.tableView.clear()
-	        self.tableView.setRowCount(self.pageValue+1)
+	        self.tableView.setRowCount(self.pageValue)
 	        self.tableView.setColumnCount(self.pageTime+1)
 		self.updateAPEDialog(c1,c2,0,0)
 		self.tableView.verticalScrollBar().setValue(0)
@@ -439,11 +449,13 @@ class StageDialog(QDialog):
 			    	        item.setBackground(QBrush(QColor(0,255,0)))
 	    
     def wheelEvent(self,event):
-     	if event.orientation()==Qt.Vertical:    
+     	if event.orientation()==Qt.Vertical:  
 	    data=event.delta()
 	    if data>0:
-	 	self.verticalScroll.setValue(self.verticalScroll.value()-10)
+		self.wheel=2
+	 	self.verticalScroll.setValue(self.curValue-10)
 	    else:
+		self.wheel=1
 	 	self.verticalScroll.setValue(self.verticalScroll.value()+10)	
 
     #def resizeEvent(self,event):
