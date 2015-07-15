@@ -137,7 +137,7 @@ class StageDialog(QDialog):
 	    orientation=0
 	    self.curValue=value
 	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
-	if self.wheel==2:
+	elif self.wheel==2:
 	    if self.curValue>value:
 	     	num=self.curValue-value
 	        orientation=2
