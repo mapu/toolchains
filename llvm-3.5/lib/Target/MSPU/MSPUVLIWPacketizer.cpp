@@ -57,6 +57,53 @@ static cl::opt<bool>
 PacketizeVolatiles("mspu-packetize-volatiles", cl::ZeroOrMore, cl::Hidden,
                    cl::init(true), cl::desc("Allow non-solo packetization "
                                             "of volatile memory references"));
+static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag) {
+  #define AGUIMM 1
+  #define SEQIMM 2
+  switch (MI->getDesc().getOpcode()) {
+  case MSPUInst::LoadSI8JI:
+  case MSPUInst::LoadUI8JI:
+  case MSPUInst::LoadSI16JI:
+  case MSPUInst::LoadUI16JI:
+  case MSPUInst::LoadI32JI:
+  case MSPUInst::LoadF32JI:
+  case MSPUInst::LoadF64JI:
+  case MSPUInst::LoadPtrJI:
+  case MSPUInst::LoadPtrOffsetJI:
+
+  case MSPUInst::StoreI8JI:
+  case MSPUInst::StoreI16JI:
+  case MSPUInst::StoreI32JI:
+  case MSPUInst::StoreF32JI:
+  case MSPUInst::StoreF64JI:
+  case MSPUInst::StorePtrJI:
+
+  case MSPUInst::AssignRRegImm11:
+  case MSPUInst::AssignJRegImm11:
+
+  case MSPUInst::AssignI32:
+  case MSPUInst::AssignPtr:
+  case MSPUInst::AssignF32:
+    flag |= AGUIMM;
+    return;
+
+  case MSPUInst::JumpImm:
+  case MSPUInst::JumpBasicBlock:
+  case MSPUInst::JumpImmCond:
+  case MSPUInst::JumpBasicBlockCond:
+
+  case MSPUInst::CallImm:
+  case MSPUInst::CallImmCond:
+
+  case MSPUInst::LoopL0:
+  case MSPUInst::LoopL1:
+    flag |= SEQIMM;
+    return;
+
+  default:
+    return;
+  }
+}
 
 namespace llvm {
   void initializeMSPUPacketizerPass(PassRegistry&);
@@ -315,6 +362,11 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
 
   if (I->getOpcode() == MSPUInst::NOP || J->getOpcode() == MSPUInst::NOP)
     return true;
+  unsigned flag = 0;
+  MSPUCheckImmFlag(I,flag);
+  MSPUCheckImmFlag(J,flag);
+  if(flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
+
 
   MachineBasicBlock::iterator II = I;
 

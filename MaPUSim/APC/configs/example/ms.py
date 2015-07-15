@@ -125,8 +125,9 @@ else:
 dumplocal = False
 dumpddr = False
 dumpshare = False
-if len(options.mem_dump) >= 1:
-    for memtype in options.mem_dump:
+memdump = options.mem_dump.split(',');
+if len(memdump) >= 1:
+    for memtype in memdump:
         if memtype == 'local':
             dumplocal = True
         elif memtype == 'ddr':
