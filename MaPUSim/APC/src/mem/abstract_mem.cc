@@ -528,7 +528,7 @@ AbstractMemory::save()
 
   string filename = name() + data;
 
-  ofstream stream(filename);
+  ofstream stream(filename.c_str());
   if (!stream.is_open() || stream.fail() || stream.bad())
       panic("Error opening %s", filename);
 
