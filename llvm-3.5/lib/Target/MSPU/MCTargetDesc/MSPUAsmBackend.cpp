@@ -25,7 +25,7 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/raw_ostream.h"
-
+#include <iostream>
 using namespace llvm;
 
 namespace {
@@ -46,7 +46,7 @@ namespace {
 
       bool immNeedsRelaxation(const MCInst & Inst,  int64_t Imm) const
       {
-        if (!Inst.getOperand(Inst.getNumOperands() - 1).isInst()) return false;
+        //if (!Inst.getOperand(Inst.getNumOperands() - 1).isInst()) return false;
 
         switch (Inst.getOpcode()) {
 
@@ -239,10 +239,18 @@ namespace {
           if (MIP->getOpcode() == MSPUInst::ImmExt) return false;
         }
 
-				int index = getImmIndx(Inst);
-        if(index < 0) return false;
+        MIP = &Inst;
+        do {
+          if (getImmIndx(*MIP) != -1) break;
+        } while (MIP->getNumOperands() &&
+                 MIP->getOperand(MIP->getNumOperands() - 1).isInst() &&
+                 (MIP = MIP->getOperand(MIP->getNumOperands() - 1).getInst()));
+
+        int index = getImmIndx(*MIP);
+
+        if (index < 0) return false;
         else {
-          const MCOperand & op = Inst.getOperand(index);
+          const MCOperand & op = MIP->getOperand(index);
 
           // note: we do not generate fixups for imm or constant expression,
           // so they will not be relaxed.
@@ -264,10 +272,32 @@ namespace {
 		                            const MCAsmLayout &Layout) const override
 			{
 
-				const MCInst& inst = DF->getInst();
+				const MCInst *inst = &DF->getInst();
 				int64_t val = (int64_t) (Value);
 
-				return immNeedsRelaxation(inst, val);
+				/*MCFixupKind Kind = Fixup.getKind();
+
+        switch(Kind) {
+          case MSPU::fixup_MSPU_PC17:
+            std::cout << "fixup_MSPU_PC17" << std::endl;
+            if(!isInt<17> (val) ) return true;
+            else return false;
+          case MSPU::fixup_MSPU_11_B5:
+          case MSPU::fixup_MSPU_11_B10:
+            std::cout << "fixup_MSPU_11_B10" << std::endl;
+            if(!isInt<11> (val) ) return true;
+            else return false;
+
+          default: return false;
+        }*/
+
+        bool res = immNeedsRelaxation(*inst, val);
+        while (!res && inst->getNumOperands() &&
+            inst->getOperand(inst->getNumOperands() - 1).isInst()) {
+          inst = inst->getOperand(inst->getNumOperands() - 1).getInst();
+          res = immNeedsRelaxation(*inst, val);
+        }
+				return res;
 			}
 
 			/// RelaxInstruction - Relax the instruction in the given fragment
@@ -285,20 +315,44 @@ namespace {
 			// be performed.
 			void relaxInstruction(const MCInst &Inst, MCInst &Res) const override
 			{
-			  Res = Inst;
-        int index = getImmIndx(Inst);
+        const MCInst *MIP = &Inst;
+        do {
+          if (getImmIndx(*MIP) != -1) break;
+        } while (MIP->getNumOperands() &&
+                 MIP->getOperand(MIP->getNumOperands() - 1).isInst() &&
+                 (MIP = MIP->getOperand(MIP->getNumOperands() - 1).getInst()));
 
-        if (index == -1) return;
+        if (getImmIndx(*MIP) == -1) return;
+
+        int index = getImmIndx(*MIP);
 
         MCInst *ImmExtInst = new MCInst();
         ImmExtInst->setOpcode(MSPUInst::ImmExt);
-        ImmExtInst->addOperand(Res.getOperand(index));
+        ImmExtInst->addOperand(MIP->getOperand(index));
 
-        if (Res.getNumOperands() &&
-            Res.getOperand(Res.getNumOperands() - 1).isInst()) {
-          ImmExtInst->addOperand(Res.getOperand(Res.getNumOperands() - 1));
-        }
-        Res.addOperand(MCOperand::CreateInst(ImmExtInst));
+        /*if (MIP->getNumOperands() &&
+            MIP->getOperand(MIP->getNumOperands() - 1).isInst()) {
+          ImmExtInst->addOperand(MIP->getOperand(MIP->getNumOperands() - 1));
+        }*/
+        MCInst *RMIP = &Res;
+        MIP = &Inst;
+        do {
+          RMIP->setOpcode(MIP->getOpcode());
+          for (unsigned i = 0; i < MIP->getNumOperands() - 1; i++)
+            RMIP->addOperand(MIP->getOperand(i));
+          if (MIP->getOperand(MIP->getNumOperands() - 1).isInst()) {
+            MIP = MIP->getOperand(MIP->getNumOperands() - 1).getInst();
+            if (RMIP == &Res) RMIP->addOperand(ImmExtInst->getOperand(0));
+            MCInst *newInst = new MCInst();
+            RMIP->addOperand(MCOperand::CreateInst(newInst));
+            RMIP = newInst;
+          } else {
+            RMIP->addOperand(MIP->getOperand(MIP->getNumOperands() - 1));
+            if (RMIP == &Res) RMIP->addOperand(ImmExtInst->getOperand(0));
+            RMIP->addOperand(MCOperand::CreateInst(ImmExtInst));
+            break;
+          }
+        } while (1);
 
         return;
 			}

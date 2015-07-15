@@ -1509,16 +1509,17 @@ def LoopL1 : SeqInstr<
 
 def Delay : SeqInstr< 
       (outs), (ins),
-    "NOP", 0b000000, [(int_mspu_delay)]>
+    "Delay", 0b000000, [(int_mspu_delay)]>
 {
   let Inst{21-0} = 0;
   let isCodeGenOnly = 1;
-  let Itinerary = ItinNop;
+  let isBarrier = 1;
+  let Itinerary = ItinPseudo;
 }
 
 def NOP : SeqInstr< 
       (outs), (ins),
-    "NOP", 0b000000, [(int_mspu_delay)]>
+    "NOP", 0b000000>
 {
   let Inst{21-0} = 0;
   let Itinerary = ItinNop;

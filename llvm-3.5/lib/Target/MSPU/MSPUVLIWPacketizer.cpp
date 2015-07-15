@@ -58,54 +58,6 @@ PacketizeVolatiles("mspu-packetize-volatiles", cl::ZeroOrMore, cl::Hidden,
                    cl::init(true), cl::desc("Allow non-solo packetization "
                                             "of volatile memory references"));
 
-static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag) {
-  #define AGUIMM 1
-  #define SEQIMM 2
-  switch (MI->getDesc().getOpcode()) {
-  case MSPUInst::LoadSI8JI:
-  case MSPUInst::LoadUI8JI:
-  case MSPUInst::LoadSI16JI:
-  case MSPUInst::LoadUI16JI:
-  case MSPUInst::LoadI32JI:
-  case MSPUInst::LoadF32JI:
-  case MSPUInst::LoadF64JI:
-  case MSPUInst::LoadPtrJI:
-  case MSPUInst::LoadPtrOffsetJI:
-
-  case MSPUInst::StoreI8JI:
-  case MSPUInst::StoreI16JI:
-  case MSPUInst::StoreI32JI:
-  case MSPUInst::StoreF32JI:
-  case MSPUInst::StoreF64JI:
-  case MSPUInst::StorePtrJI:
-
-  case MSPUInst::AssignRRegImm11:
-  case MSPUInst::AssignJRegImm11:
-
-  case MSPUInst::AssignI32:
-  case MSPUInst::AssignPtr:
-  case MSPUInst::AssignF32:
-    flag |= AGUIMM;
-    return;
-
-  case MSPUInst::JumpImm:
-  case MSPUInst::JumpBasicBlock:
-  case MSPUInst::JumpImmCond:
-  case MSPUInst::JumpBasicBlockCond:
-
-  case MSPUInst::CallImm:
-  case MSPUInst::CallImmCond:
-
-  case MSPUInst::LoopL0:
-  case MSPUInst::LoopL1:
-    flag |= SEQIMM;
-    return;
-
-  default:
-    return;
-  }
-}
-
 namespace llvm {
   void initializeMSPUPacketizerPass(PassRegistry&);
 }
@@ -188,8 +140,6 @@ public:
   // isLegalToPruneDependencies - Is it legal to prune dependece between SUI
   // and SUJ.
   //bool isLegalToPruneDependencies(SUnit *SUI, SUnit *SUJ) override;
-
-  MachineBasicBlock::iterator addToPacket(MachineInstr *MI) override;
 
 private:
   /*bool IsCallDependent(MachineInstr* MI, SDep::Kind DepType, unsigned DepReg);
@@ -348,9 +298,8 @@ bool MSPUPacketizerList::isSoloInstruction(MachineInstr *MI) {
   if(MI->isEHLabel())
     return true;
 
-  //
-  /*if(IsSchedBarrier(MI))
-    return true;*/
+  if(MI->getDesc().isBarrier())
+    return true;
 
   return false;
 }
@@ -366,14 +315,6 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
 
   if (I->getOpcode() == MSPUInst::NOP || J->getOpcode() == MSPUInst::NOP)
     return true;
-
-  unsigned flag = 0;
-  MSPUCheckImmFlag(I,flag);
-  MSPUCheckImmFlag(J,flag);
-  if(flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
-
-  const MCInstrDesc &MCIDI = I->getDesc();
-  const MCInstrDesc &MCIDJ = J->getDesc();
 
   MachineBasicBlock::iterator II = I;
 
@@ -477,18 +418,6 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
   }
 
   return true;
-}
-
-// addToPacket - Add MI to the current packet.
-MachineBasicBlock::iterator
-MSPUPacketizerList::addToPacket(MachineInstr *MI) {
-  MachineBasicBlock::iterator MII = MI;
-  if (CurrentPacketMIs.size() == MaxMINumber)
-    endPacket(MI->getParent(), MI);
-  CurrentPacketMIs.push_back(MI);
-  if (MI->getOpcode() != MSPUInst::NOP)
-    ResourceTracker->reserveResources(MI);
-  return MII;
 }
 
 //===----------------------------------------------------------------------===//

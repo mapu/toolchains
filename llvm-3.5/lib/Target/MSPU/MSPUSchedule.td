@@ -133,40 +133,49 @@ class ProcessorItineraries<list<FuncUnit> fu, list<Bypass> bp,
 */
 def MSPUItineraries : ProcessorItineraries<
   [FU_SCU, FU_AGU, FU_SEQ, FU_SYN, FU_IMM, FU_NOP], [],
-  [
-    InstrItinData<ItinSCU_2_1_1, 	[ InstrStage<1,  [FU_SCU]> ], [2,1,1]>,
-    InstrItinData<ItinSCU_4_1_1, 	[ InstrStage<1,  [FU_SCU]> ], [4,1,1]>,
-    InstrItinData<ItinSCU_5_1, 	  [ InstrStage<1,  [FU_SCU]> ], [5,1]>,
-    InstrItinData<ItinSCU_5_1_1, 	[ InstrStage<1,  [FU_SCU]> ], [5,1,1]>,
+  [InstrItinData<ItinSCU_5_1, [InstrStage<1, [FU_SCU]>], [5,1]>,
+   InstrItinData<ItinSCU_2_1_1, [InstrStage<1, [FU_SCU]>], [2,1,1]>,
+   InstrItinData<ItinSCU_4_1_1, [InstrStage<1, [FU_SCU]>], [4,1,1]>,
+   InstrItinData<ItinSCU_5_1_1, [InstrStage<1, [FU_SCU]>], [5,1,1]>,
 
-    InstrItinData<ItinAGU_1_1_1, 	[ InstrStage<1,  [FU_AGU]> ], [1,1,1]>,
-    InstrItinData<ItinAGU_ImmExt_1_1_1,  [ InstrStage<1,  [FU_AGU, FU_IMM]> ], [1,1,1]>,
-    InstrItinData<ItinAGU_1_1,  	[ InstrStage<1,  [FU_AGU]> ], [1,1,1]>,
-    InstrItinData<ItinAGU_2_1, 	  [ InstrStage<1,  [FU_AGU]> ], [2,1]>,
-    InstrItinData<ItinAGU_ImmExt_2_1,    [ InstrStage<1,  [FU_AGU, FU_IMM]> ], [2,1]>,
-    InstrItinData<ItinAGU_2_1_1, 	[ InstrStage<1,  [FU_AGU]> ], [2,1,1]>,
-    InstrItinData<ItinAGU_5_1_1, 	[ InstrStage<1,  [FU_AGU]> ], [5,1,1]>,
-    InstrItinData<ItinAGU_ImmExt_5_1_1,  [ InstrStage<1,  [FU_AGU, FU_IMM]> ], [5,1,1]>,
-    InstrItinData<ItinAGU_5_1_1_1, 	[ InstrStage<1,  [FU_AGU]> ], [5,1,1,1]>,
+   InstrItinData<ItinAGU_1_1, [InstrStage<1, [FU_AGU]>], [1,1,1]>,
+   InstrItinData<ItinAGU_2_1, [InstrStage<1, [FU_AGU]>], [2,1]>,
+   InstrItinData<ItinAGU_1_1_1, [InstrStage<1, [FU_AGU]>], [1,1,1]>,
+   InstrItinData<ItinAGU_2_1_1, [InstrStage<1, [FU_AGU]>], [2,1,1]>,
+   InstrItinData<ItinAGU_5_1_1, [InstrStage<1, [FU_AGU]> ], [5,1,1]>,
+   InstrItinData<ItinAGU_5_1_1_1, [InstrStage<1, [FU_AGU]>], [5,1,1,1]>,
+   InstrItinData<ItinAGU_ImmExt_2_1, [InstrStage<1, [FU_AGU]>, 
+                                      InstrStage<1, [FU_IMM]>], [2,1]>,
+   InstrItinData<ItinAGU_ImmExt_1_1_1, [InstrStage<1, [FU_AGU]>, 
+                                        InstrStage<1, [FU_IMM]>], [1,1,1]>,
+   InstrItinData<ItinAGU_ImmExt_5_1_1, [InstrStage<1, [FU_AGU]>, 
+                                        InstrStage<1, [FU_IMM]>], [5,1,1]>,
 
-    InstrItinData<ItinSEQ_1, 	    [ InstrStage<1,  [FU_SEQ]> ], [1]>,
-    InstrItinData<ItinSEQ_ImmExt_1,      [ InstrStage<1,  [FU_SEQ, FU_IMM]> ], [1]>,
+   InstrItinData<ItinSEQ_1, [InstrStage<1, [FU_SEQ]>], [1]>,
+   InstrItinData<ItinSEQ_ImmExt_1, [InstrStage<1, [FU_SEQ]>,
+                                    InstrStage<1, [FU_IMM]>], [1]>,
 
-    InstrItinData<ItinSYN_1, 	    [ InstrStage<1,  [FU_SYN]> ], [1]>,
-    InstrItinData<ItinSYN_1_1, 	  [ InstrStage<1,  [FU_SYN]> ], [1,1]>,
-    InstrItinData<ItinSYN_2, 	    [ InstrStage<1,  [FU_SYN]> ], [2]>,
-    InstrItinData<ItinSYN_2_1, 	  [ InstrStage<1,  [FU_SYN]> ], [2,1]>,
+   InstrItinData<ItinSEQNoReg, [InstrStage<1, [FU_SEQ]>], []>,
+   InstrItinData<ItinSEQNoReg_ImmExt, [InstrStage<1, [FU_SEQ]>,
+                                       InstrStage<1, [FU_IMM]>], []>,
 
-    InstrItinData<ItinPseudo, 	  [ InstrStage<1,  [FU_SCU,FU_AGU,FU_SEQ,FU_SYN]>], []>,
+   InstrItinData<ItinSYN_1, [InstrStage<1, [FU_SYN]>], [1]>,
+   InstrItinData<ItinSYN_2, [InstrStage<1, [FU_SYN]>], [2]>,
+   InstrItinData<ItinSYN_1_1, [InstrStage<1, [FU_SYN]>], [1,1]>,
+   InstrItinData<ItinSYN_2_1, [InstrStage<1, [FU_SYN]>], [2,1]>,
+   InstrItinData<ItinSYNNoReg, [InstrStage<1, [FU_SYN]>], []>,
 
-    InstrItinData<ItinSEQNoReg, 	[ InstrStage<1,  [FU_SEQ]> ], []>,
-    InstrItinData<ItinSEQNoReg_ImmExt,   [ InstrStage<1,  [FU_SEQ, FU_IMM]> ], []>,
-    InstrItinData<ItinSYNNoReg, 	[ InstrStage<1,  [FU_SYN]> ], []>,
-    InstrItinData<ItinNop,   [ InstrStage<1,  [FU_NOP]> ], []>
-  ]  >;
+   InstrItinData<ItinPseudo, [InstrStage<1, [FU_SCU]>, 
+                              InstrStage<1, [FU_AGU]>, 
+                              InstrStage<1, [FU_SEQ]>, 
+                              InstrStage<1, [FU_SYN]>], []>,
+   InstrItinData<ItinNop, [InstrStage<1, [FU_SCU, FU_AGU, FU_SEQ, FU_SYN]>], []>
+  ]
+>;
 
 def MSPUSchedModel : SchedMachineModel {
-  // Max issue per cycle == bundle width.
-  let IssueWidth = 4; // to hold for imm-ext instruction
+  // IssueWidth is not for restricting packet size, but is helpful for scheduler to
+  // organize a number of independent insts together before VLIW packetizing.
+  let IssueWidth = 4;
   let Itineraries = MSPUItineraries;
 }
