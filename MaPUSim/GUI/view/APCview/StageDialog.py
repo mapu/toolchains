@@ -23,7 +23,6 @@ class StageDialog(QDialog):
 	gridLay.addWidget(self.tableView)
 	self.pageValue=100
 	self.tableView.setRowCount(self.pageValue+1)
-	self.tableView.hideRow(self.pageValue)
 	self.tableView.horizontalHeader().setDefaultSectionSize(25)
 	self.verticalScroll=QScrollBar(Qt.Vertical)
 	self.maxValue=1000
@@ -34,9 +33,9 @@ class StageDialog(QDialog):
 	self.horizontalScroll=QScrollBar(Qt.Horizontal)
 	self.maxTime=100
 	self.minTime=0
-	self.pageTime=100
+	self.pageTime=70
 	self.curTime=0
-	self.tableView.setColumnCount(self.pageTime)
+	self.tableView.setColumnCount(self.pageTime+1)
 	self.horizontalScroll.setRange(self.minTime,self.maxTime)
 	self.connect(self.horizontalScroll,SIGNAL("valueChanged(int)"),self.currentHValueSlot)
 	gridLay.addWidget(self.verticalScroll)
@@ -121,14 +120,12 @@ class StageDialog(QDialog):
 	    self.curTime=time
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue+1)
-	    self.tableView.hideRow(self.pageValue)
 	    self.tableView.setColumnCount(self.pageTime+1)
 	    self.initAPEDialog(self.row1,self.row2,self.col1,self.col2,self.end)
 	else:
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue+1)
-	    self.tableView.hideRow(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
+	    self.tableView.setColumnCount(self.pageTime+1)
 		
     def currentVValueSlot(self,value):
 	print "scroll",value
@@ -136,17 +133,17 @@ class StageDialog(QDialog):
 	    num=0
 	    orientation=0
 	    self.curValue=value
-	    self.updateAPEDialog(0,self.pageTime,num,orientation)
+	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
 	elif value>self.curValue:
 	    num=value-self.curValue
 	    orientation=1
 	    self.curValue=value
-	    self.updateAPEDialog(0,self.pageTime,num,orientation)
+	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
 	else:
 	    num=self.curValue-value
 	    orientation=2
 	    self.curValue=value
-	    self.updateAPEDialog(0,self.pageTime,num,orientation)
+	    self.updateAPEDialog(self.col1,self.col2,num,orientation)
 
     def updateAPEDialog(self,c1,c2,num,orientation):
 	if orientation==0:
@@ -209,7 +206,6 @@ class StageDialog(QDialog):
 	        for k in range(0,num):
 	    	    self.tableView.removeRow(0)
 	        self.tableView.setRowCount(self.pageValue+1)
-	        self.tableView.hideRow(self.pageValue)
 		self.row1=self.curValue
 		self.row2=self.curValue+self.pageValue-1
 	        for k in range(0,num):
@@ -265,7 +261,6 @@ class StageDialog(QDialog):
 		        for k in range(0,num):
 	    	            self.tableView.removeRow(0)    
 	                self.tableView.setRowCount(self.pageValue+1)
-	                self.tableView.hideRow(self.pageValue)
 			self.row2=self.vdown+self.pageValue+num-1
 			self.row1=self.vdown+num-2
 	                for k in range(0,num):
@@ -336,7 +331,6 @@ class StageDialog(QDialog):
 	        for k in range(0,num):
 	    	    self.tableView.removeRow(self.pageValue-k-1)
 	        self.tableView.setRowCount(self.pageValue+1)
-	        self.tableView.hideRow(self.pageValue)
 		if self.curValue+num==self.maxValue:
 		    self.curValue=self.curValue-1
 	        for k in range(num,0,-1):
@@ -388,8 +382,7 @@ class StageDialog(QDialog):
 	    else:
 	        self.tableView.clear()
 	        self.tableView.setRowCount(self.pageValue+1)
-	        self.tableView.hideRow(self.pageValue)
-	        self.tableView.setColumnCount(self.pageTime)
+	        self.tableView.setColumnCount(self.pageTime+1)
 		self.updateAPEDialog(c1,c2,0,0)
 		self.tableView.verticalScrollBar().setValue(0)
 		
