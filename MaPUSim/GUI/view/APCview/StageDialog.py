@@ -331,13 +331,13 @@ class StageDialog(QDialog):
 	    else:
 	 	self.verticalScroll.setValue(self.verticalScroll.value()+10)	
 
-    def resizeEvent(self,event):
-	if self.headerFlag==1:
-	    self.headerFlag=0
-	else:
-	    self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
-	    self.tableView.setRowCount(self.pageValue)
-	    self.currentVValueSlot(self.oldValue)
+    #def resizeEvent(self,event):
+	#if self.headerFlag==1:
+	    #self.headerFlag=0
+	#else:
+	    #self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
+	    #self.tableView.setRowCount(self.pageValue)
+	    #self.currentVValueSlot(self.oldValue)
 
     def closeEvent(self,event):
 	self.openFlag=-1
