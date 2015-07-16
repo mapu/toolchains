@@ -13,7 +13,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1500,800)
+	self.resize(1500,770)
 	self.openFlag=-1
 	self.tableView=QTableWidget()
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
@@ -331,13 +331,13 @@ class StageDialog(QDialog):
 	    else:
 	 	self.verticalScroll.setValue(self.verticalScroll.value()+10)	
 
-    #def resizeEvent(self,event):
-	#if self.headerFlag==1:
-	    #self.headerFlag=0
-	#else:
-	    #self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
-	    #self.tableView.setRowCount(self.pageValue)
-	    #self.currentVValueSlot(self.oldValue)
+    def resizeEvent(self,event):
+	if self.headerFlag==1:
+	    self.headerFlag=0
+	else:
+	    self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
+	    self.tableView.setRowCount(self.pageValue)
+	    self.currentVValueSlot(self.oldValue)
 
     def closeEvent(self,event):
 	self.openFlag=-1
