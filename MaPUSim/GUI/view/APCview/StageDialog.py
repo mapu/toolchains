@@ -41,7 +41,7 @@ class StageDialog(QDialog):
 	self.minTime=0
 	self.pageTime=60
 	self.curTime=0
-	self.tableView.setColumnCount(self.pageTime)
+	self.tableView.setColumnCount(self.pageTime+1)
 	self.horizontalScroll.setRange(self.minTime,self.maxTime)
 	self.connect(self.horizontalScroll,SIGNAL("valueChanged(int)"),self.currentHValueSlot)
 	gridLay.addWidget(self.verticalScroll)
@@ -55,7 +55,9 @@ class StageDialog(QDialog):
 	self.connect(self.tableView,SIGNAL("clicked(QModelIndex)"),self.updateDialogIndex)
 	self.slider=0
 	self.headerHeight=38
+	self.headerLength=2
 	self.blankHeight=42
+	self.headerFlag=0
 	
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
@@ -94,6 +96,7 @@ class StageDialog(QDialog):
     def currentHValueSlot(self,time):
 	num=0
 	orientation=0
+	c=self.col2
 	if self.maxTime!=0 and self.maxValue!=0:
 	    if time<=self.pageTime/2:
 	        self.col1=self.minTime
@@ -107,12 +110,21 @@ class StageDialog(QDialog):
 	    self.curTime=time
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
-	    self.updateStageValue(self.row1,self.row2,self.col1,self.col2,num,orientation)
+	    self.tableView.setColumnCount(self.pageTime+1)
+	    hvFlag=1
+	    string=str(self.col2)
+	    self.headerFlag=1
+	    if len(string)>len(str(c)):
+		self.headerHeight=self.headerHeight+15*(len(string)-len(str(c)))
+		self.resize(self.width(),self.height()+15*(len(string)-len(str(c))))
+	    else:
+		self.headerHeight=self.headerHeight-15*(len(string)-len(str(c)))
+		self.resize(self.width(),self.height()-15*(len(string)-len(str(c))))
+	    self.updateStageValue(self.row1,self.row2,self.col1,self.col2,num,orientation,hvFlag)
 	else:
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
+	    self.tableView.setColumnCount(self.pageTime+1)
 		
     def currentVValueSlot(self,value):
 	headerHeight=self.tableView.horizontalHeader().height()
@@ -125,7 +137,7 @@ class StageDialog(QDialog):
 	        self.oldValue=value
 	        self.tableView.clear()
 	        self.tableView.setRowCount(self.pageValue)
-	        self.tableView.setColumnCount(self.pageTime)
+	        self.tableView.setColumnCount(self.pageTime+1)
 	        self.updateStageValue(self.row1,self.row2,self.col1,self.col2,num,orientation)
 	    elif value>=self.maxValue-self.pageValue/2-10:
 	        self.row1=self.maxValue-self.pageValue
@@ -133,7 +145,7 @@ class StageDialog(QDialog):
 	        self.oldValue=value
 	        self.tableView.clear()
 	        self.tableView.setRowCount(self.pageValue)
-	        self.tableView.setColumnCount(self.pageTime)
+	        self.tableView.setColumnCount(self.pageTime+1)
 	        self.updateStageValue(self.row1,self.row2,self.col1,self.col2,num,orientation)
 	    else:
 	        self.row1=value-self.pageValue/2
@@ -149,9 +161,9 @@ class StageDialog(QDialog):
 	else:
 	    self.tableView.clear()
 	    self.tableView.setRowCount(self.pageValue)
-	    self.tableView.setColumnCount(self.pageTime)
+	    self.tableView.setColumnCount(self.pageTime+1)
 
-    def updateStageValue(self,r1,r2,c1,c2,num,orientation):
+    def updateStageValue(self,r1,r2,c1,c2,num,orientation,hvFlag=0):
 	if orientation==0:
 	    stringList=QStringList()
 	    stringList.clear()
@@ -190,8 +202,8 @@ class StageDialog(QDialog):
 	    	    for e in range(len(r)):
 		        stringList=r[e]
 		        if stringList[6]!="Misc Reg":
-			    column=int(stringList[1])-c1
-			    if column>=c1 and column<=c2:
+			    if int(stringList[1])>=c1 and int(stringList[1])<=c2:
+			        column=int(stringList[1])-c1
 		    	        item=self.tableView.item(j,column)
 		    	        if item!=None:
 		    	            if stringList[5]=="W":
@@ -239,8 +251,8 @@ class StageDialog(QDialog):
 	    	    for e in range(len(r)):
 		        stringList=r[e]
 		        if stringList[6]!="Misc Reg":
-			    column=int(stringList[1])-c1
-			    if column>=c1 and column<c2:
+			    if int(stringList[1])>=c1 and int(stringList[1])<=c2:
+			        column=int(stringList[1])-c1
 		    	        item=self.tableView.item(j,column)
 		    	        if item!=None:
 		    	            if stringList[5]=="W":
@@ -289,8 +301,8 @@ class StageDialog(QDialog):
 	    	    for e in range(len(r)):
 		        stringList=r[e]
 		        if stringList[6]!="Misc Reg":
-			    column=int(stringList[1])-c1
-			    if column>=c1 and column<c2:
+			    if int(stringList[1])>=c1 and int(stringList[1])<=c2:
+			        column=int(stringList[1])-c1
 		    	        item=self.tableView.item(j,column)
 		    	        if item!=None:
 		    	            if stringList[5]=="W":
@@ -303,6 +315,13 @@ class StageDialog(QDialog):
 			   	            item.setBackground(QBrush(QColor(255,153,18)))
 		        	        elif item.background()!=QBrush(QColor(255,153,18)):
 			    	            item.setBackground(QBrush(QColor(0,255,0)))
+	if hvFlag==0:
+	    stringList=self.snAll[r1]
+	    if stringList[9]>self.pageTime/2:
+		time=stringList[9]+self.pageTime/3
+	    else:
+		time=stringList[9]
+	    self.horizontalScroll.setValue(time)
     
     def wheelEvent(self,event):
      	if event.orientation()==Qt.Vertical:    
@@ -313,9 +332,12 @@ class StageDialog(QDialog):
 	 	self.verticalScroll.setValue(self.verticalScroll.value()+10)	
 
     def resizeEvent(self,event):
-	self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
-	self.tableView.setRowCount(self.pageValue)
-	self.currentVValueSlot(self.oldValue)
+	if self.headerFlag==1:
+	    self.headerFlag=0
+	else:
+	    self.pageValue=(self.height()-self.blankHeight-self.headerHeight)/self.rowHeight
+	    self.tableView.setRowCount(self.pageValue)
+	    self.currentVValueSlot(self.oldValue)
 
     def closeEvent(self,event):
 	self.openFlag=-1
