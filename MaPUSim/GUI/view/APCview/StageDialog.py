@@ -13,7 +13,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1500,770)
+	self.resize(1500,800)
 	self.openFlag=-1
 	self.tableView=QTableWidget()
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
