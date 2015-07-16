@@ -6,6 +6,7 @@ class ARMStatusWidget(QWidget):
 	super(ARMStatusWidget,self).__init__(parent)
 
 	self.fullText=QTextEdit()
+	self.fullText.setReadOnly(True)
 	gridLay=QGridLayout()
 	gridLay.addWidget(self.fullText,0,0)
 	self.setLayout(gridLay)

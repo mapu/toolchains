@@ -9,10 +9,7 @@ class UARTWidget(QWidget):
     def __init__(self,parent=None):
 	super(UARTWidget,self).__init__(parent)
 
-	self.text=QTextEdit()
-	self.text.setReadOnly(True)
 	self.embTerminal=EmbTerminal()
-	
 	layout=QVBoxLayout()
 	layout.addWidget(self.embTerminal)
 	self.setLayout(layout)

@@ -472,6 +472,7 @@ class SPUViewWidget(QWidget):
 
     def stageButtonSlot(self):
 	self.stageDialog.setWindowTitle("SPU Instruction Pipeline Diagram")
+	self.stageDialog.openFlag=1
 	self.stageDialog.show()
 
     def updateSPUWidget(self,r):
@@ -514,6 +515,10 @@ class SPUViewWidget(QWidget):
     def updateSPURegRJFlag(self,i):
 	if self.regFileWidget.item(i+34,1).textColor()==QColor(255,0,0):
 	    self.regFileWidget.item(i+34,1).setTextColor(QColor(255,153,18))
+
+    def closeChildDialog(self):
+	if self.stageDialog.openFlag==1:
+	    self.stageDialog.close()
 
 
 

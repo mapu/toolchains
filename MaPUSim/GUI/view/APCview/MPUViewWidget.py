@@ -26,13 +26,15 @@ class MPUViewWidget(QWidget):
 	self.byteComboBox.insertItem(5,"3 Bytes")
 	self.byteComboBox.insertItem(6,"2 Bytes")
 	self.byteComboBox.insertItem(7,"1 Bytes")
+	self.byteComboBox.setEnabled(False)
 
 	self.laneComboBox=QComboBox()
 	self.laneComboBox.setFixedSize(100,40)
 	self.laneComboBox.insertItem(0,"Lane0")
 	self.laneComboBox.insertItem(1,"Lane1")
 	self.laneComboBox.insertItem(2,"Lane2")
-	self.laneComboBox.insertItem(3,"Lane3")	  
+	self.laneComboBox.insertItem(3,"Lane3")	 
+	self.laneComboBox.setEnabled(False) 
 
 	self.stageButton=QPushButton("Instruction Pipeline Diagram")
 	self.stageButton.setFixedSize(200,40)
@@ -578,6 +580,7 @@ class MPUViewWidget(QWidget):
 	
     def stageButtonSlot(self):
 	self.stageDialog.setWindowTitle("MPU Instruction Pipeline Diagram")
+	self.stageDialog.openFlag=1
 	self.stageDialog.show()
 
     def updateMPUFloatDialog(self,r):
@@ -795,7 +798,25 @@ class MPUViewWidget(QWidget):
 	    if self.regFileWidget.item(i+8,1).textColor()==QColor(255,0,0):
 	    	self.regFileWidget.item(i+8,1).setTextColor(QColor(255,153,18))
 
+    def closeChildDialog(self):
+	if self.stageDialog.openFlag==1:
+	    self.stageDialog.close()
+	self.buttonWidget.closeFloatDialogs()	
 
+    def setButtonEnabled(self,enable):
+	self.stageButton.setEnabled(True)
+	self.laneComboBox.setEnabled(True) 
+	self.byteComboBox.setEnabled(True) 
+	self.buttonWidget.BIU0Button.setEnabled(True)
+	self.buttonWidget.BIU1Button.setEnabled(True)
+	self.buttonWidget.BIU2Button.setEnabled(True)
+	self.buttonWidget.SHU0Button.setEnabled(True)
+	self.buttonWidget.MRFButton.setEnabled(True)
+	self.buttonWidget.SHU1Button.setEnabled(True)
+	self.buttonWidget.IALUButton.setEnabled(True)
+	self.buttonWidget.IMACButton.setEnabled(True)
+	self.buttonWidget.FALUButton.setEnabled(True)
+	self.buttonWidget.FMACButton.setEnabled(True)
 
 
 

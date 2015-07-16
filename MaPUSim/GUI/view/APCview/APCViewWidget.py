@@ -109,7 +109,7 @@ class APCViewWidget(QWidget):
 	self.APE0Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s") 
 	self.APE0Widget.MPUWidget.stageDialog.slider=self.slider 
 	self.APE0Widget.SPUWidget.stageDialog.slider=self.slider 
-	self.APE0Widget.MPUWidget.stageButton.setEnabled(True)
+	self.APE0Widget.MPUWidget.setButtonEnabled(True)
 	self.APE0Widget.SPUWidget.stageButton.setEnabled(True)
 	i=datetime.datetime.now()
         print ("end update mpu stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
@@ -120,7 +120,7 @@ class APCViewWidget(QWidget):
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider 
-	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE1Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True)
 	elif self.num==3:
 	    #APE1 MPU STAGE
@@ -129,7 +129,7 @@ class APCViewWidget(QWidget):
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider  
-	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE1Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True) 
 	    #APE2 MPU STAGE
 	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
@@ -137,7 +137,7 @@ class APCViewWidget(QWidget):
 	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
-	    self.APE2Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE2Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE2Widget.SPUWidget.stageButton.setEnabled(True) 
 	elif self.num==4:
 	    #APE1 MPU STAGE
@@ -146,7 +146,7 @@ class APCViewWidget(QWidget):
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider   
-	    self.APE1Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE1Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True)
 	    #APE2 MPU STAGE
 	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
@@ -154,7 +154,7 @@ class APCViewWidget(QWidget):
 	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
-	    self.APE2Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE2Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE2Widget.SPUWidget.stageButton.setEnabled(True)
 	    #APE3 MPU STAGE
 	    self.APE3Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m") 
@@ -162,7 +162,7 @@ class APCViewWidget(QWidget):
 	    self.APE3Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s")
 	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  
-	    self.APE3Widget.MPUWidget.stageButton.setEnabled(True)
+	    self.APE3Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE3Widget.SPUWidget.stageButton.setEnabled(True)
 	i=datetime.datetime.now()
         print ("end update stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))

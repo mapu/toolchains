@@ -32,7 +32,6 @@ class MainWindow(QMainWindow):
         self.tabWidget.addTab(self.armViewWidget,self.tr("ARM Perspective"))
         self.tabWidget.addTab(self.apcViewWidget,self.tr("APC Perspective"))
         self.tabWidget.addTab(self.configControlWidget,self.tr("Configuration and Control")) 
-
 	self.configControlWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
@@ -100,13 +99,21 @@ class MainWindow(QMainWindow):
 	self.pathEdit.setText(path)
   
     def okButtonSlot(self):
-	self.configControlWidget.simulatorPath=str(self.pathEdit.text())
-	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
-	self.setDialog.close()
+	if os.path.isdir(str(self.pathEdit.text())):
+	    self.configControlWidget.simulatorPath=str(self.pathEdit.text())
+	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	    self.setDialog.close()
+	else:
+	    QMessageBox.warning(self,"Warning","Simulator path is not exist!")
       
     def closeEvent(self,event):
 	self.configControlWidget.stopProcessExit(1)
-	self.apcViewWidget.APE0Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE1Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE2Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
-	self.apcViewWidget.APE3Widget.MPUWidget.buttonWidget.closeFloatDialogs() 
+	self.apcViewWidget.APE0Widget.MPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE1Widget.MPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE2Widget.MPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE3Widget.MPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE0Widget.SPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE1Widget.SPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE2Widget.SPUWidget.closeChildDialog() 
+	self.apcViewWidget.APE3Widget.SPUWidget.closeChildDialog() 
+

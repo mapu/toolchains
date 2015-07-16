@@ -16,20 +16,10 @@ class ConfigViewWidget(QMainWindow):
         QMainWindow.__init__(self, parent)
 
         centralWidget = QWidget()
-        self.setCentralWidget(centralWidget)
-        
+        self.setCentralWidget(centralWidget)      
 	self.simulatorPath=""	
-
         widget = QWidget()
         widget.setMinimumSize (1000,500)
-
-	#self.fullRadio=QRadioButton(self.tr("Full system"))
-	#self.fullRadio.setFixedHeight(30)
-	#self.fullRadio.setFixedWidth(900)
-	
-	#self.APCRadio=QRadioButton(self.tr("APC standalone system"))
-	#self.APCRadio.setFixedHeight(30)
-	#self.APCRadio.setFixedWidth(900)
 
 	#APC GROUP
 	self.traceFlagsButton=QPushButton(self.tr("Trace flags..."))
@@ -175,8 +165,7 @@ class ConfigViewWidget(QMainWindow):
 	self.APCGroup.setAlignment(Qt.AlignLeft)
 	self.APCGroup.setCheckable(True)
 	self.APCGroup.setChecked(False)
-	APCLay=QVBoxLayout()
-	#APCLay.addWidget(self.traceFlagsButton)	
+	APCLay=QVBoxLayout()	
 	APCLay.addLayout(traceLay)
 	APCLay.addWidget(self.APE0Label)
 	APCLay.addLayout(APE0SPULay)
@@ -228,9 +217,7 @@ class ConfigViewWidget(QMainWindow):
 	
 	#main layout
 	mainLay=QVBoxLayout()
-	#mainLay.addWidget(self.fullRadio)
 	mainLay.addWidget(self.fullGroup)
-	#mainLay.addWidget(self.APCRadio)
 	mainLay.addWidget(self.APCGroup)
 	mainLay.addLayout(buttonLay)
 	widget.setLayout(mainLay)
@@ -240,7 +227,6 @@ class ConfigViewWidget(QMainWindow):
         scroll.setWidget(widget)
         scroll.setAutoFillBackground(True)
         scroll.setWidgetResizable(True)
-
         vbox = QVBoxLayout()
         vbox.addWidget(scroll)  
         centralWidget.setLayout(vbox)
@@ -424,9 +410,19 @@ class ConfigViewWidget(QMainWindow):
 	self.fullEdit.setText(path)	
 
     def startProcess(self):
-	self.startButton.setEnabled(False)
-	self.stopButton.setEnabled(True)
+	if self.simulatorPath=="":
+ 	    QMessageBox.warning(self,"Warning","Simulator path is not set!")
+	    return
 	if self.fullGroup.isChecked()==True:
+	    #check path is legal
+	    if os.path.isfile(str(self.fullEdit.text()))==False:
+	        QMessageBox.warning(self,"Warning","Image file is not exist!")
+		return
+	    if self.fullTracefile.text()=="":
+	        QMessageBox.warning(self,"Warning","Trace file is not input!")
+		return
+	    self.startButton.setEnabled(False)
+	    self.stopButton.setEnabled(True)
 	    self.processFlag=0
 	    #copy image.bin file
 	    path=os.path.realpath(sys.path[0])
@@ -447,19 +443,52 @@ class ConfigViewWidget(QMainWindow):
             if False==self.ARMProcess.waitForStarted():
 	        self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
 	else:
+	    if self.traceFileEdit.text()=="":
+	        QMessageBox.warning(self,"Warning","Trace file is not input!")
+		return
 	    string="--debug-flags=MapuGUI,MapuMem "+self.simulatorPath+"/apc/system/se.py -c" #
-	    self.APCCommand=self.simulatorPath+"/apc/gem5.opt"   
+	    self.APCCommand=self.simulatorPath+"/apc/gem5.opt"
+	    #check path is legal
+   	    if os.path.isfile(str(self.APE0SPUEdit.text()))==False:
+	        QMessageBox.warning(self,"Warning","APE0 SPU file is not exist!")
+		return
+   	    if os.path.isfile(str(self.APE0MPUEdit.text()))==False:
+	        QMessageBox.warning(self,"Warning","APE0 MPU file is not exist!")
+		return
 	    self.APCCommand=self.APCCommand+" "+"--trace-file="+self.traceFileEdit.text()+" "+string+" "+"\""+self.APE0SPUEdit.text()+","+self.APE0MPUEdit.text()
 	    self.num=1
 	    if self.APE1Check.checkState()==Qt.Checked:
+	        #check path is legal
+   	        if os.path.isfile(str(self.APE1SPUEdit.text()))==False:
+	            QMessageBox.warning(self,"Warning","APE1 SPU file is not exist!")
+		    return
+   	        if os.path.isfile(str(self.APE1MPUEdit.text()))==False:
+	            QMessageBox.warning(self,"Warning","APE1 MPU file is not exist!")
+		    return
 	        self.APCCommand=self.APCCommand+";"+self.APE1SPUEdit.text()+","+self.APE1MPUEdit.text()
 	        self.num=self.num+1
 	        if self.APE2Check.checkState()==Qt.Checked:
+	            #check path is legal
+   	            if os.path.isfile(str(self.APE2SPUEdit.text()))==False:
+	                QMessageBox.warning(self,"Warning","APE2 SPU file is not exist!")
+		        return
+   	            if os.path.isfile(str(self.APE2MPUEdit.text()))==False:
+	                QMessageBox.warning(self,"Warning","APE2 MPU file is not exist!")
+		        return
 		    self.num=self.num+1
 		    self.APCCommand=self.APCCommand+";"+self.APE2SPUEdit.text()+","+self.APE2MPUEdit.text()
 	            if self.APE3Check.checkState()==Qt.Checked:
+	                #check path is legal
+   	                if os.path.isfile(str(self.APE3SPUEdit.text()))==False:
+	                    QMessageBox.warning(self,"Warning","APE3 SPU file is not exist!")
+		            return
+   	                if os.path.isfile(str(self.APE3MPUEdit.text()))==False:
+	                    QMessageBox.warning(self,"Warning","APE3 MPU file is not exist!")
+		            return
 		        self.num=self.num+1
 		        self.APCCommand=self.APCCommand+";"+self.APE3SPUEdit.text()+","+self.APE3MPUEdit.text()
+	    self.startButton.setEnabled(False)
+	    self.stopButton.setEnabled(True)
 	    self.APCCommand=self.APCCommand+"\""
 	    if self.num>1:
 	        self.APCCommand=self.APCCommand+" "+"-n"+" "+QString.number(self.num,10)
