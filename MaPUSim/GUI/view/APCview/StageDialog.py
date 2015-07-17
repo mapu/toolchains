@@ -13,7 +13,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1500,770)
+	self.setFixedSize(1500,770)
 	self.openFlag=-1
 	self.tableView=QTableWidget()
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
@@ -25,8 +25,6 @@ class StageDialog(QDialog):
 	self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
 	self.columnWidth=20
 	self.tableView.horizontalHeader().setDefaultSectionSize(self.columnWidth)
-	gridLay=QHBoxLayout()
-	gridLay.addWidget(self.tableView)
 	self.pageValue=30
 	self.tableView.setRowCount(self.pageValue)
 	self.tableView.horizontalHeader().setDefaultSectionSize(25)
@@ -44,20 +42,22 @@ class StageDialog(QDialog):
 	self.tableView.setColumnCount(self.pageTime+1)
 	self.horizontalScroll.setRange(self.minTime,self.maxTime)
 	self.connect(self.horizontalScroll,SIGNAL("valueChanged(int)"),self.currentHValueSlot)
-	gridLay.addWidget(self.verticalScroll)
-	mainLay=QVBoxLayout()
-	mainLay.addLayout(gridLay)
-	mainLay.addWidget(self.horizontalScroll)
-	self.setLayout(mainLay)
 	self.tableView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 	self.tableView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 	self.connect(self.tableView.horizontalHeader(),SIGNAL("sectionClicked(int)"),self.updateDialog)
 	self.connect(self.tableView,SIGNAL("clicked(QModelIndex)"),self.updateDialogIndex)
 	self.slider=0
-	self.headerHeight=38
-	self.headerLength=2
-	self.blankHeight=42
-	self.headerFlag=0
+	self.headerHeight=38  #header text string length is 2,height
+	self.headerLength=2  #header text string length
+	self.blankHeight=42  #the edging height
+	self.headerFlag=0  #1,code set widget size,not call resizeEvent;  0, drag widget call resizeEvent
+	gridLay=QHBoxLayout()
+	gridLay.addWidget(self.tableView)
+	gridLay.addWidget(self.verticalScroll)
+	mainLay=QVBoxLayout()
+	mainLay.addLayout(gridLay)
+	mainLay.addWidget(self.horizontalScroll)
+	self.setLayout(mainLay)
 	
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
@@ -116,10 +116,12 @@ class StageDialog(QDialog):
 	    self.headerFlag=1
 	    if len(string)>len(str(c)):
 		self.headerHeight=self.headerHeight+15*(len(string)-len(str(c)))
-		self.resize(self.width(),self.height()+15*(len(string)-len(str(c))))
+		self.tableView.setFixedSize(self.tableView.width(),self.tableView.height()+15*(len(string)-len(str(c))))
+		self.setFixedSize(self.width(),self.height()+15*(len(string)-len(str(c))))
 	    else:
-		self.headerHeight=self.headerHeight-15*(len(string)-len(str(c)))
-		self.resize(self.width(),self.height()-15*(len(string)-len(str(c))))
+		self.headerHeight=self.headerHeight-15*(len(str(c))-len(string))
+		self.tableView.setFixedSize(self.tableView.width(),self.tableView.height()-15*(len(str(c))-len(string)))
+		self.setFixedSize(self.width(),self.height()-15*(len(str(c))-len(string)))
 	    self.updateStageValue(self.row1,self.row2,self.col1,self.col2,num,orientation,hvFlag)
 	else:
 	    self.tableView.clear()
@@ -193,8 +195,11 @@ class StageDialog(QDialog):
 			    else:
 			        if i>0:
 				    for h in range(0,column):
-				        self.tableView.setItem(j,h,QTableWidgetItem("S"))
-				        self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))					
+				        self.tableView.setItem(j,h,QTableWidgetItem(str(i-1-5)))
+					if i-1<5:
+				            self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))
+					else:
+					    self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))					
 		            temp=column	
 	        fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(stringList[4])
 	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
