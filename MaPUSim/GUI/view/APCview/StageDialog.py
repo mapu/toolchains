@@ -13,7 +13,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.setFixedSize(1500,770)
+	self.setFixedSize(1500,800)
 	self.openFlag=-1
 	self.tableView=QTableWidget()
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
@@ -49,20 +49,38 @@ class StageDialog(QDialog):
 	self.slider=0
 	self.headerHeight=38  #header text string length is 2,height
 	self.headerLength=2  #header text string length
-	self.blankHeight=42  #the edging height
+	self.blankHeight=72  #the edging height
 	self.headerFlag=0  #1,code set widget size,not call resizeEvent;  0, drag widget call resizeEvent
 
 	pcLabel=QLabel("pc:")
-	pcEdit=QLineEdit()
+	pcLabel.setFixedSize(100,25)
+	self.pcEdit=QLineEdit()
+	self.pcEdit.setFixedSize(200,25)
 	disLabel=QLabel("dis:")
-	disEdit=QLineEdit()
+	disLabel.setFixedSize(100,25)
+	self.disEdit=QLineEdit()
+	self.disEdit.setFixedSize(200,25)
+	self.searchButton=QPushButton("Search")
+	self.searchButton.setFixedSize(100,25)
+	self.connect(self.searchButton,SIGNAL("clicked()"),self.searchSlot)
+	upLay=QHBoxLayout()
+	upLay.addWidget(pcLabel)
+	upLay.addWidget(self.pcEdit)
+	upLay.addWidget(disLabel)
+	upLay.addWidget(self.disEdit)
+	upLay.addWidget(self.searchButton)
 	gridLay=QHBoxLayout()
 	gridLay.addWidget(self.tableView)
 	gridLay.addWidget(self.verticalScroll)
 	mainLay=QVBoxLayout()
+	mainLay.addLayout(upLay)
 	mainLay.addLayout(gridLay)
 	mainLay.addWidget(self.horizontalScroll)
 	self.setLayout(mainLay)
+
+    def searchSlot(self):
+	pc=self.pcEdit.text()
+	dis=self.disEdit.text()
 	
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
