@@ -503,24 +503,32 @@ class DataBase():
 	if r!=0:	
 	    for e in range(len(r)):
 		timeList.append(r[e][0])
+	else:
+	    return
 	#get typeList
 	fetchall_sql = "SELECT type FROM "+self.regTableName+" WHERE op = 'W'"
         r=self.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:	
 	    for e in range(len(r)):
 		typeList.append(r[e][0])
+	else:
+	    return
 	#get regList
 	fetchall_sql = "SELECT reg FROM "+self.regTableName+" WHERE op = 'W'"
         r=self.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:	
 	    for e in range(len(r)):
 		regList.append(r[e][0])
+	else:
+	    return
 	#get disList
 	fetchall_sql = "SELECT dis FROM "+self.regTableName+" WHERE op = 'W'"
         r=self.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:	
 	    for e in range(len(r)):
 		disList.append(r[e][0])
+	else:
+	    return
 
 	dataList=["'nop'"]*400
 	dataList[0]=str(timeList[0])

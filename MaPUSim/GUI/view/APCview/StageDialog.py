@@ -81,6 +81,16 @@ class StageDialog(QDialog):
     def searchSlot(self):
 	pc=self.pcEdit.text()
 	dis=self.disEdit.text()
+	if pc!="" and dis!="":
+	    if self.flag=="m":
+	        order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE pc = "+"'"+str(pc)+"'"+" and dis = "+"'"+str(dis)+"'"
+	    else:
+	    	 order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE pc = "+"'"+str(pc)+"'"+" and dis = "+"'"+str(dis)+"'"
+	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
+	    if r!=0:
+	        self.verticalScroll.setValue(self.snAll.index(r[0]))
+	    else:
+		print "none"
 	
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
