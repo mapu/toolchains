@@ -9,10 +9,12 @@ from APCSigCoreWidget import*
 from DataBaseDialog import*
 from APCStatusWidget import*
 import datetime
+from Thread import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class APCViewWidget(QWidget):  
+    progressShowSignal=pyqtSignal(int,str,int)
     def __init__(self,parent=None):
 	super(APCViewWidget,self).__init__(parent)
 
@@ -69,6 +71,22 @@ class APCViewWidget(QWidget):
     def slotAPE3Widget(self):
         self.leftTab.setCurrentWidget(self.APE3Widget)
 
+
+    def callback(self,value,string,maxValue):  
+	self.progressShowSignal.emit(value,string,maxValue)	
+
+    def createDataBase(self,num,path):
+	thread=Thread()
+	thread.progressCall(self.callback)
+	thread.num=num
+	thread.path="m5out/"+path
+	thread.start()
+	eventLoop=QEventLoop()
+	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)
+	eventLoop.exec_()
+	self.dataBase=thread.dataBase
+	return self.dataBase
+
     def simulatorDoneSlot(self,num,path): #num APE count
 	self.num=num
 	#simulator exit normal,create data base
@@ -76,8 +94,9 @@ class APCViewWidget(QWidget):
 	i=datetime.datetime.now()
         print ("start create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.dataBaseDialog=DataBaseDialog()
+	self.progressShowSignal.connect(self.dataBaseDialog.updateDataBaseDialog)
 	self.dataBaseDialog.show()
-	self.dataBase=self.dataBaseDialog.createDataBase(num,path)
+	self.dataBase=self.createDataBase(num,path)
 	i=datetime.datetime.now()
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	i=datetime.datetime.now()

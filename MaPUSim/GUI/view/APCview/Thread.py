@@ -10,8 +10,10 @@ class Thread(QThread):
     def __init__(self,parent=None):
 	super(Thread,self).__init__(parent)
 	self.num=0
-	self.path="m5out/aaa.out"
-	
+	self.path="m5out/aaa.out"	
+    def progressCall(self,callback):
+	self.callback=callback
+
     def run(self):
 	self.dataBase=DataBase()
 	if os.path.exists(self.dataBase.APE0dbFilePath):
@@ -30,4 +32,4 @@ class Thread(QThread):
 	    os.remove(self.dataBase.APE3dbFilePath)
 	if os.path.exists(self.dataBase.APE3timeFilePath):
 	    os.remove(self.dataBase.APE3timeFilePath)
-	self.dataBase.createDatabase(self.num,self.path)
+	self.dataBase.createDatabase(self.num,self.path,self.callback)

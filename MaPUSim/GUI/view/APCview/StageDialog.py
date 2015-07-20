@@ -51,6 +51,11 @@ class StageDialog(QDialog):
 	self.headerLength=2  #header text string length
 	self.blankHeight=42  #the edging height
 	self.headerFlag=0  #1,code set widget size,not call resizeEvent;  0, drag widget call resizeEvent
+
+	pcLabel=QLabel("pc:")
+	pcEdit=QLineEdit()
+	disLabel=QLabel("dis:")
+	disEdit=QLineEdit()
 	gridLay=QHBoxLayout()
 	gridLay.addWidget(self.tableView)
 	gridLay.addWidget(self.verticalScroll)
@@ -177,7 +182,7 @@ class StageDialog(QDialog):
 	        j=k-r1
 	        stringList=self.snAll[k]
 	        temp=-1 #forward column
-	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
+	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -229,7 +234,7 @@ class StageDialog(QDialog):
 		stringList=self.snAll[r2+k]
 		j=self.pageValue-num+k
 	        temp=-1 #forward column
-	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
+	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -279,7 +284,7 @@ class StageDialog(QDialog):
 		j=0
 		self.tableView.insertRow(j)
 	        temp=-1 #forward column
-	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[7]))
+	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
