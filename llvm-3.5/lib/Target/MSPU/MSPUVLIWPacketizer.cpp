@@ -53,10 +53,6 @@ using namespace llvm;
 
 #define DEBUG_TYPE "packets"
 
-static cl::opt<bool>
-PacketizeVolatiles("mspu-packetize-volatiles", cl::ZeroOrMore, cl::Hidden,
-                   cl::init(true), cl::desc("Allow non-solo packetization "
-                                            "of volatile memory references"));
 static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag) {
   #define AGUIMM 1
   #define SEQIMM 2
@@ -105,6 +101,14 @@ static void MSPUCheckImmFlag(MachineInstr *MI, unsigned &flag) {
   }
 }
 
+static bool isSYNCtrl(MachineInstr *MI) {
+  switch (MI->getOpcode()) {
+  case MSPUInst::__SetKB:
+    return true;
+  default: return false;
+  }
+}
+
 namespace llvm {
   void initializeMSPUPacketizerPass(PassRegistry&);
 }
@@ -141,14 +145,7 @@ class MSPUPacketizerList : public VLIWPacketizerList {
 private:
   static const unsigned MaxMINumber = 4;
 
-  // Has the instruction been promoted to a dot-new instruction.
-  bool PromotedToDotNew;
-
-  // Has the instruction been glued to allocframe.
-  bool GlueAllocframeStore;
-
-  // Has the feeder instruction been glued to new value jump.
-  bool GlueToNewValueJump;
+  unsigned IssueCount;
 
   // Check if there is a dependence between some instruction already in this
   // packet and this instruction.
@@ -204,10 +201,10 @@ INITIALIZE_AG_DEPENDENCY(AliasAnalysis)
 INITIALIZE_PASS_END(MSPUPacketizer, "packets", "MSPU Packetizer", false, false)
 
 // MSPUPacketizerList Ctor.
-MSPUPacketizerList::MSPUPacketizerList(MachineFunction &MF,
-                                       MachineLoopInfo &MLI,
-                                       const MachineBranchProbabilityInfo *MBPI)
-  : VLIWPacketizerList(MF, MLI, true) {
+MSPUPacketizerList::
+MSPUPacketizerList(MachineFunction &MF, MachineLoopInfo &MLI,
+                   const MachineBranchProbabilityInfo *MBPI)
+  : VLIWPacketizerList(MF, MLI, true), IssueCount(0) {
   this->MBPI = MBPI;
 }
 
@@ -284,33 +281,10 @@ bool MSPUPacketizer::runOnMachineFunction(MachineFunction &Fn) {
   return true;
 }
 
-static bool IsRegDependence(const SDep::Kind DepType) {
-  return (DepType == SDep::Data || DepType == SDep::Anti ||
-          DepType == SDep::Output);
-}
-
-static bool IsControlFlow(MachineInstr* MI) {
-  return (MI->getDesc().isTerminator() || MI->getDesc().isCall());
-}
-
-/// DoesModifyCalleeSavedReg - Returns true if the instruction modifies a
-/// callee-saved register.
-static bool DoesModifyCalleeSavedReg(MachineInstr *MI,
-                                     const TargetRegisterInfo *TRI) {
-  for (const uint16_t *CSR = TRI->getCalleeSavedRegs(); *CSR; ++CSR) {
-    unsigned CalleeSavedReg = *CSR;
-    if (MI->modifiesRegister(CalleeSavedReg, TRI))
-      return true;
-  }
-  return false;
-}
-
 // initPacketizerState - Initialize packetizer flags
 void MSPUPacketizerList::initPacketizerState() {
+  IssueCount = 0;
   Dependence = false;
-  PromotedToDotNew = false;
-  GlueToNewValueJump = false;
-  GlueAllocframeStore = false;
   FoundSequentialDependence = false;
 
   return;
@@ -360,10 +334,13 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
   MachineInstr *J = SUJ->getInstr();
   assert(I && J && "Unable to packetize null instruction!");
 
+  IssueCount++;
+
   if (I->getOpcode() == MSPUInst::NOP || J->getOpcode() == MSPUInst::NOP)
     return true;
   unsigned flag = 0;
   MSPUCheckImmFlag(I,flag);
+  if (flag != 0 && IssueCount >= 3) return false; // There is no enough slots for Imm Extension.
   MSPUCheckImmFlag(J,flag);
   if(flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
 
@@ -448,6 +425,15 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
         // Check if I and J really defines DepReg.
         if(I->definesRegister(DepReg) ||
               J->definesRegister(DepReg)) {
+          FoundSequentialDependence = true;
+          break;
+        }
+      }
+
+      else if (SUJ->Succs[i].isBarrier()) {
+        if (isSYNCtrl(I) || isSYNCtrl(J))
+          continue;
+        else {
           FoundSequentialDependence = true;
           break;
         }

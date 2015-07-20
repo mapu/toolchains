@@ -80,7 +80,7 @@ public:
     // Create Packets.
     if (!NoOpt) {
       addPass(createMSPUFixupHwLoop(), false);
-      //addPass(createMSPUPacketizer());
+      addPass(createMSPUPacketizer());
     }
   }
 

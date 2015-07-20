@@ -192,12 +192,12 @@ def CallSeqEnd   : SDNode<"ISD::CALLSEQ_END",   SDT_MSPU_CallSeqEnd,
 def SDT_MSPU_Call: SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 
 def MSPU_Call    : SDNode<"MSPU_ISD::CALL", SDT_MSPU_Call,
-           [SDNPHasChain,SDNPOptInGlue,SDNPOutGlue,SDNPVariadic]>;
+           [SDNPHasChain,SDNPOptInGlue,SDNPOutGlue]>;
 
 // fixme: we should eat J30. and let J30 live in when we handle formal
 // arguments.
 def MSPU_Ret           : SDNode<"MSPU_ISD::RET", SDTNone,
-                           [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
+                           [SDNPHasChain, SDNPOptInGlue]>;
 
 def ADJCALLSTACKDOWN : PseudoInstr<(outs), 
 					   		  (ins i32imm:$t),
@@ -1418,7 +1418,7 @@ class CallInstr< dag outs, dag ins, string asm, bits<6> opcode,
 
 // call via to a PC-relative immediate address.
 def CallImm : CallInstr<
-	    (outs), (ins SImm17Ptr:$t, variable_ops),
+	    (outs), (ins SImm17Ptr:$t),
         "call $t", 0b100001,
 		[(MSPU_Call SImm17PtrLeaf:$t)]>
 {
@@ -1432,7 +1432,7 @@ def : Pat<(MSPU_Call texternalsym:$t), (CallImm texternalsym:$t)>;
 
 // call via a pointer address which is PC-irrelative.
 def CallPtr : CallInstr< 
-	    (outs), (ins JReg:$t, variable_ops),
+	    (outs), (ins JReg:$t),
 		"call $t", 0b100000,
 	 	[(MSPU_Call JReg:$t)]>
 {
@@ -1443,7 +1443,7 @@ def CallPtr : CallInstr<
 
 // conditionally call via a PC-relative immediate address.
 def CallImmCond : CallInstr<
-	    (outs), (ins I32Reg:$c, SImm17Ptr:$t, variable_ops),
+	    (outs), (ins I32Reg:$c, SImm17Ptr:$t),
         "if $c, call $t", 0b100011 >
 {
 	bits<5> c;
@@ -1455,7 +1455,7 @@ def CallImmCond : CallInstr<
 
 // conditionally call via a pointer address which is PC-irrelative.
 def CallPtrCond : CallInstr< 
-	    (outs), (ins I32Reg:$c, JReg:$t, variable_ops),
+	    (outs), (ins I32Reg:$c, JReg:$t),
 		"if $c, call $t", 0b100010 >
 {
 	bits<5> c;

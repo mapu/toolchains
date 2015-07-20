@@ -15,7 +15,7 @@ let TargetPrefix = "mspu" in {  // All intrinsics start with "llvm.mspu.".
 
   /////////////////////////////////////////////////////////////////////
   def int_mspu_setKB: GCCBuiltin<"__mspu_setKB">,
-  						Intrinsic <[], [llvm_i32_ty, llvm_i32_ty], []>;
+  						Intrinsic <[], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
 
   def int_mspu_getKB: GCCBuiltin<"__mspu_getKB">,
   						Intrinsic <[llvm_i32_ty], [llvm_i32_ty], []>;
