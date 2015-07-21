@@ -90,7 +90,7 @@ class StageDialog(QDialog):
 	    if r!=0:
 	        self.verticalScroll.setValue(self.snAll.index(r[0]))
 	    else:
-		print "none"
+		QMessageBox.warning(self,"Warning","No information matching!")
 	
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
@@ -215,24 +215,29 @@ class StageDialog(QDialog):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
 		            column=stringList[9+i]-c1
-		            self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-		            if i<5:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
-		            else:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
+		            self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))
+			    item=self.tableView.item(j,column)
+			    if item!=None:
+		                if i<5:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
+		                else:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
 		            if temp!=-1:
 			        item=self.tableView.item(j,temp)
-			        for i in range(temp+1,column):
-			            self.tableView.setItem(j,i,QTableWidgetItem(item.text()))
-			            self.tableView.item(j,i).setBackground(item.background())
+				if item!=None:
+			            for i in range(temp+1,column):
+			                self.tableView.setItem(j,i,QTableWidgetItem(item.text()))
+			                self.tableView.item(j,i).setBackground(item.background())
 			    else:
 			        if i>0:
 				    for h in range(0,column):
 				        self.tableView.setItem(j,h,QTableWidgetItem(str(i-1-5)))
-					if i-1<5:
-				            self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))
-					else:
-					    self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))					
+					item=self.tableView.item(j,h)
+					if item!=None:
+					    if i-1<5:
+				                self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))
+					    else:
+					        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))					
 		            temp=column	
 	        fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(stringList[4])
 	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
@@ -268,20 +273,28 @@ class StageDialog(QDialog):
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
 		            column=stringList[9+i]-c1
 		            self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-		            if i<5:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
-		            else:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
+			    item=self.tableView.item(j,column)
+			    if item!=None:
+		                if i<5:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
+		                else:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
 		            if temp!=-1:
 			        item=self.tableView.item(j,temp)
-			        for s in range(temp+1,column):
-			            self.tableView.setItem(j,s,QTableWidgetItem(item.text()))
-			            self.tableView.item(j,s).setBackground(item.background())
+				if item!=None:
+			            for s in range(temp+1,column):
+			                self.tableView.setItem(j,s,QTableWidgetItem(item.text()))
+			                self.tableView.item(j,s).setBackground(item.background())
 			    else:
 			        if i>0:
 				    for h in range(0,column):
-				        self.tableView.setItem(j,h,QTableWidgetItem("S"))
-				        self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))					
+				        self.tableView.setItem(j,h,QTableWidgetItem(str(i-1-5)))
+					item=self.tableView.item(j,h)
+					if item!=None:
+					    if i-1<5:
+				                self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))
+					    else:
+					        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))					
 		            temp=column	
 	        fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(stringList[4])
 	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
@@ -318,20 +331,28 @@ class StageDialog(QDialog):
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
 		            column=stringList[9+i]-c1
 		            self.tableView.setItem(j,column,QTableWidgetItem(str(i-5)))	
-		            if i<5:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
-		            else:
-			        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
+			    item=self.tableView.item(j,column)
+			    if item!=None:
+		                if i<5:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor("gray")))
+		                else:
+			            self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))
 		            if temp!=-1:
 			        item=self.tableView.item(j,temp)
-			        for s in range(temp+1,column):
-			            self.tableView.setItem(j,s,QTableWidgetItem(item.text()))
-			            self.tableView.item(j,s).setBackground(item.background())
+				if item!=None:
+			            for s in range(temp+1,column):
+			                self.tableView.setItem(j,s,QTableWidgetItem(item.text()))
+			                self.tableView.item(j,s).setBackground(item.background())
 			    else:
 			        if i>0:
 				    for h in range(0,column):
-				        self.tableView.setItem(j,h,QTableWidgetItem("S"))
-				        self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))					
+				        self.tableView.setItem(j,h,QTableWidgetItem(str(i-1-5)))
+					item=self.tableView.item(j,h)
+					if item!=None:
+					    if i-1<5:
+				                self.tableView.item(j,h).setBackground(QBrush(QColor("gray")))
+					    else:
+					        self.tableView.item(j,column).setBackground(QBrush(QColor(193,210,255)))					
 		            temp=column	
 	        fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(stringList[4])
 	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
