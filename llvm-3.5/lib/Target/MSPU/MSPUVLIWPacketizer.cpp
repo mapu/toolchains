@@ -424,9 +424,9 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
 
         // Check if I and J really defines DepReg.
         if(I->definesRegister(DepReg) ||
-              J->definesRegister(DepReg)) {
-          FoundSequentialDependence = true;
-          break;
+           J->definesRegister(DepReg)) {
+          //FoundSequentialDependence = true;
+          //break;
         }
       }
 

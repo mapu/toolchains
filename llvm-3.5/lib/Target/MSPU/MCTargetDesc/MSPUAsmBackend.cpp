@@ -112,7 +112,7 @@ namespace {
 
 				MCFixupKind Kind = Fixup.getKind();
 
-				switch(Kind) {
+				switch((MSPU::FixupKind)Kind) {
 					case MSPU::fixup_MSPU_PC28:
 					case MSPU::fixup_MSPU_28:
 					  sval>>=4; break;

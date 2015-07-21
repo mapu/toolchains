@@ -192,7 +192,7 @@ def CallSeqEnd   : SDNode<"ISD::CALLSEQ_END",   SDT_MSPU_CallSeqEnd,
 def SDT_MSPU_Call: SDTypeProfile<0, 1, [SDTCisVT<0, iPTR>]>;
 
 def MSPU_Call    : SDNode<"MSPU_ISD::CALL", SDT_MSPU_Call,
-           [SDNPHasChain,SDNPOptInGlue,SDNPOutGlue]>;
+           [SDNPHasChain, SDNPOptInGlue, SDNPOutGlue, SDNPVariadic]>;
 
 // fixme: we should eat J30. and let J30 live in when we handle formal
 // arguments.
@@ -1405,6 +1405,8 @@ class CallInstr< dag outs, dag ins, string asm, bits<6> opcode,
   //let hasSideEffects = 0;
 	let isCall = 1;
 	let hasDelaySlot = 0;
+	
+	let Defs = [ J30 ];
 
     // these defs are actually caller-saved registers, and they can
     // not live across a call-function instruction.
