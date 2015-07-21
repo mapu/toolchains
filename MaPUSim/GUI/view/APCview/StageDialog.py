@@ -52,23 +52,31 @@ class StageDialog(QDialog):
 	self.blankHeight=72  #the edging height
 	self.headerFlag=0  #1,code set widget size,not call resizeEvent;  0, drag widget call resizeEvent
 
-	pcLabel=QLabel("pc:")
-	pcLabel.setFixedSize(100,25)
-	self.pcEdit=QLineEdit()
-	self.pcEdit.setFixedSize(200,25)
-	disLabel=QLabel("dis:")
-	disLabel.setFixedSize(100,25)
-	self.disEdit=QLineEdit()
-	self.disEdit.setFixedSize(200,25)
+	blank=QLabel()
+	blank.setFixedSize(500,25)
+	searchLabel=QLabel("Key:")
+	searchLabel.setFixedSize(30,25)
+	self.searchEdit=QLineEdit()
+	self.searchEdit.setFixedSize(200,25)
 	self.searchButton=QPushButton("Search")
 	self.searchButton.setFixedSize(100,25)
 	self.connect(self.searchButton,SIGNAL("clicked()"),self.searchSlot)
+	self.preButton=QPushButton("Previous")
+	self.preButton.setEnabled(False)
+	self.preButton.setFixedSize(100,25)
+	self.connect(self.preButton,SIGNAL("clicked()"),self.previousSlot)
+	self.nextButton=QPushButton("Next")
+	self.nextButton.setEnabled(False)
+	self.nextButton.setFixedSize(100,25)
+	self.connect(self.nextButton,SIGNAL("clicked()"),self.nextSlot)
 	upLay=QHBoxLayout()
-	upLay.addWidget(pcLabel)
-	upLay.addWidget(self.pcEdit)
-	upLay.addWidget(disLabel)
-	upLay.addWidget(self.disEdit)
+	upLay.addWidget(blank)
+	upLay.addWidget(searchLabel)
+	upLay.addWidget(self.searchEdit)
 	upLay.addWidget(self.searchButton)
+	upLay.addWidget(self.preButton)
+	upLay.addWidget(self.nextButton)
+	
 	gridLay=QHBoxLayout()
 	gridLay.addWidget(self.tableView)
 	gridLay.addWidget(self.verticalScroll)
@@ -78,20 +86,45 @@ class StageDialog(QDialog):
 	mainLay.addWidget(self.horizontalScroll)
 	self.setLayout(mainLay)
 
+	self.searchList=[]
+	self.searchValue=0
+
     def searchSlot(self):
-	pc=self.pcEdit.text()
-	dis=self.disEdit.text()
-	if pc!="" and dis!="":
+	self.tableView.setStyleSheet("QHeaderView.section{color: black;}");
+	key=self.searchEdit.text()
+	self.searchList=[]
+	self.searchValue=0
+	if key!="":
 	    if self.flag=="m":
-	        order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE pc = "+"'"+str(pc)+"'"+" and dis = "+"'"+str(dis)+"'"
+	        order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE pc LIKE "+"'%"+str(key)+"%'"+" or dis LIKE "+"'%"+str(key)+"%'"
 	    else:
-	    	 order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE pc = "+"'"+str(pc)+"'"+" and dis = "+"'"+str(dis)+"'"
+	    	order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE pc LIKE "+"'%"+str(key)+"%'"+" or dis LIKE "+"'%"+str(key)+"%'"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
-	        self.verticalScroll.setValue(self.snAll.index(r[0]))
+		for e in range(len(r)):
+	            self.searchList.append(self.snAll.index(r[e]))
+		if len(self.searchList)>1:
+		    self.nextButton.setEnabled(True)
+		self.verticalScroll.setValue(self.searchList[0])
 	    else:
 		QMessageBox.warning(self,"Warning","No information matching!")
 	
+    def previousSlot(self):
+	if self.searchValue>0:
+	    self.searchValue-=1
+	    self.nextButton.setEnabled(True)
+	    self.verticalScroll.setValue(self.searchList[self.searchValue])
+	    if self.searchValue==0:
+		self.preButton.setEnabled(False)    
+
+    def nextSlot(self):
+	if self.searchValue<len(self.searchList)-1:
+	    self.searchValue+=1
+	    self.preButton.setEnabled(True)
+	    self.verticalScroll.setValue(self.searchList[self.searchValue])
+	    if self.searchValue==len(self.searchList)-1:
+		self.nextButton.setEnabled(False)
+
     def updateDialog(self,column):
 	text=self.tableView.horizontalHeaderItem(column).text()	
 	text.replace(QString("\n"),QString(""))
@@ -211,6 +244,9 @@ class StageDialog(QDialog):
 	        stringList=self.snAll[k]
 	        temp=-1 #forward column
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
+		if self.searchEdit.text()!="":
+		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
+		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -264,10 +300,15 @@ class StageDialog(QDialog):
 	    	self.tableView.removeRow(0)
 	    self.tableView.setRowCount(self.pageValue)
 	    for k in range(0,num):
+		if r2+k>=len(self.snAll):
+		    return
 		stringList=self.snAll[r2+k]
 		j=self.pageValue-num+k
 	        temp=-1 #forward column
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
+		if self.searchEdit.text()!="":
+		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
+		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -326,6 +367,9 @@ class StageDialog(QDialog):
 		self.tableView.insertRow(j)
 	        temp=-1 #forward column
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
+		if self.searchEdit.text()!="":
+		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
+		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
