@@ -113,6 +113,8 @@ class StageDialog(QDialog):
 	if self.searchValue>0:
 	    self.searchValue-=1
 	    self.nextButton.setEnabled(True)
+	    while self.row2>self.searchValue>self.row1 and self.searchValue>0:
+		self.searchValue-=1
 	    self.verticalScroll.setValue(self.searchList[self.searchValue])
 	    if self.searchValue==0:
 		self.preButton.setEnabled(False)    
@@ -121,6 +123,8 @@ class StageDialog(QDialog):
 	if self.searchValue<len(self.searchList)-1:
 	    self.searchValue+=1
 	    self.preButton.setEnabled(True)
+	    while self.row2>self.searchValue>self.row1 and self.searchValue<len(self.searchList)-1:
+		self.searchValue+=1
 	    self.verticalScroll.setValue(self.searchList[self.searchValue])
 	    if self.searchValue==len(self.searchList)-1:
 		self.nextButton.setEnabled(False)
@@ -246,7 +250,9 @@ class StageDialog(QDialog):
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 		if self.searchEdit.text()!="":
 		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
-		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
+			item=self.tableView.verticalHeaderItem(j)
+			if item!=None:
+		            self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -308,7 +314,9 @@ class StageDialog(QDialog):
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 		if self.searchEdit.text()!="":
 		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
-		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
+			item=self.tableView.verticalHeaderItem(j)
+			if item!=None:
+		            self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
@@ -369,7 +377,9 @@ class StageDialog(QDialog):
 	        self.tableView.setVerticalHeaderItem(j,QTableWidgetItem(str(stringList[4])+":"+stringList[6]+":"+stringList[7]))
 		if self.searchEdit.text()!="":
 		    if str(stringList[4]).find(str(self.searchEdit.text()))>=0 or stringList[6].find(str(self.searchEdit.text()))>=0 or stringList[7].find(str(self.searchEdit.text()))>=0:
-		        self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
+			item=self.tableView.verticalHeaderItem(j)
+			if item!=None:
+		            self.tableView.verticalHeaderItem(j).setTextColor(QColor(255,153,18))
 	        for i in range(0,20):
 		    if stringList[9+i]!=-1:
 		        if stringList[9+i]>=c1 and stringList[9+i]<=c2:
