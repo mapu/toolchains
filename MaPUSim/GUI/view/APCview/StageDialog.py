@@ -301,7 +301,23 @@ class StageDialog(QDialog):
 			   	            item.setBackground(QBrush(QColor(255,153,18)))
 		        	        elif item.background()!=QBrush(QColor(255,153,18)):
 			    	            item.setBackground(QBrush(QColor(0,255,0)))
+	    if hvFlag==0:
+	        stringList=self.snAll[r1]
+	        if stringList[9]>self.pageTime/2:
+		    time=stringList[9]+self.pageTime/3
+	        else:
+		    time=stringList[9]
+	        self.horizontalScroll.setValue(time)
+	        return
 	elif orientation==1:
+	    if hvFlag==0:
+	        stringList=self.snAll[r1]
+	        if stringList[9]>self.pageTime/2:
+		    time=stringList[9]+self.pageTime/3
+	        else:
+		    time=stringList[9]
+	        self.horizontalScroll.setValue(time)
+	        return
 	    for k in range(0,num):
 	    	self.tableView.removeRow(0)
 	    self.tableView.setRowCount(self.pageValue)
@@ -366,6 +382,14 @@ class StageDialog(QDialog):
 		        	        elif item.background()!=QBrush(QColor(255,153,18)):
 			    	            item.setBackground(QBrush(QColor(0,255,0)))
 	else:
+	    if hvFlag==0:
+	        stringList=self.snAll[r1]
+	        if stringList[9]>self.pageTime/2:
+		    time=stringList[9]+self.pageTime/3
+	        else:
+		    time=stringList[9]
+	        self.horizontalScroll.setValue(time)
+	        return
 	    for k in range(0,num):
 	    	self.tableView.removeRow(self.pageValue-k-1)
 	    self.tableView.setRowCount(self.pageValue)
@@ -428,13 +452,6 @@ class StageDialog(QDialog):
 			   	            item.setBackground(QBrush(QColor(255,153,18)))
 		        	        elif item.background()!=QBrush(QColor(255,153,18)):
 			    	            item.setBackground(QBrush(QColor(0,255,0)))
-	if hvFlag==0:
-	    stringList=self.snAll[r1]
-	    if stringList[9]>self.pageTime/2:
-		time=stringList[9]+self.pageTime/3
-	    else:
-		time=stringList[9]
-	    self.horizontalScroll.setValue(time)
     
     def wheelEvent(self,event):
      	if event.orientation()==Qt.Vertical:    
