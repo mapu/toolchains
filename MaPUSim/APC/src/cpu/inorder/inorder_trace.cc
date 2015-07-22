@@ -51,9 +51,9 @@ namespace Trace {
 inline void
 Trace::InOrderTraceRecord::dumpTicks(std::ostream &outs)
 {
-  if (!stageTrace) {
+  //if (!stageTrace) {
     ccprintf(outs, "%7d[%7d]: ", when, when/2000);
-  } else {
+  /*} else {
     ccprintf(outs, "");
     for (int i=0; i < stageCycle.size(); i++) {
         if (i < stageCycle.size() - 1)
@@ -61,7 +61,7 @@ Trace::InOrderTraceRecord::dumpTicks(std::ostream &outs)
         else
             outs << dec << stageCycle[i] << ":";
     }
-  }
+  }*/
 }
 
 InOrderTraceRecord *
