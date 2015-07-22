@@ -65,23 +65,15 @@ class DataBase():
 	self.progressCall(self.maxValue,"data base done",-1)
 
     def createAPE0Database(self):
-	i=datetime.datetime.now()
-        print ("start mem %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.progressCall(self.value,"start bulid mem table",-1)
 	self.memTableInit()
 	self.progressCall(self.value,"end build mem table",-1)
-	i=datetime.datetime.now()
-        print ("start ape0 sn reg %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.progressCall(self.value,"start build APE0 sn and reg table",-1)
 	self.APESnRegTableInit(self.APE0dbConn,0)
 	self.progressCall(self.value,"end build APE0 sn and reg table",-1)
-	i=datetime.datetime.now()
-        print ("start ape0 time %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.progressCall(self.value,"start build APE0 time table",-1)
 	self.APEtimeTableInit(self.APE0timeConn,self.APE0dbFilePath)
 	self.progressCall(self.value,"end build APE0 time table",-1)
-	i=datetime.datetime.now()
-        print ("end ape0 time %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def createAPE1Database(self):
 	self.progressCall(self.value,"start build APE1 sn and reg table",-1)
