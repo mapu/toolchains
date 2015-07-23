@@ -71,7 +71,6 @@ class APCViewWidget(QWidget):
     def slotAPE3Widget(self):
         self.leftTab.setCurrentWidget(self.APE3Widget)
 
-
     def callback(self,value,string,maxValue):  
 	self.progressShowSignal.emit(value,string,maxValue)	
 

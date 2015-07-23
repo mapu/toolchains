@@ -78,6 +78,7 @@ class StageDialog(QDialog):
 	self.maxTime=maxTime
 	self.flag=flag
 	self.minValue=0
+	self.tableModel.setDataBase(self.dataBase,self.APEdbFilePath,self.flag)
 	if self.flag=="m":
 	    order_sql = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
 	else:

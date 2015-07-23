@@ -12,6 +12,11 @@ class TableModel(QAbstractTableModel):
 	self.verticalHeaderList=[]
         self.arraydata=arraydata
 
+    def setDataBase(self,dataBase,APEdbFilePath,flag):
+	self.dataBase=dataBase
+	self.APEdbFilePath=APEdbFilePath
+	self.flag=flag
+
     def setModalDatas(self,arraydata):
          self.arraydata=arraydata
 
@@ -30,13 +35,43 @@ class TableModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        if role == Qt.DisplayRole:
+        elif role == Qt.DisplayRole:
             return QVariant(self.arraydata[index.row()][index.column()])
-        #if role == Qt.BackgroundRole:
-            #if int(index.data().toString().toInt())<=0:
-               # return QColor(Qt.blue);
-            #else:
-                #return QColor(Qt.white);   
+        elif role == Qt.BackgroundRole:
+	    if index.data().toString()!=" ":
+		header=self.verticalHeaderList[index.row()]
+		pos=header.find(":")
+		header=header[:pos]
+		read=0
+		write=0
+		fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(index.column())+" and spumpu = "+"'"+self.flag+"'"+" and sn = "+header
+	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
+	        if r!=0:
+	    	    for e in range(len(r)):
+		        stringList=r[e]
+		        if stringList[6]!="Misc Reg":
+		    	    if stringList[5]=="W":
+				write=1
+		    	    elif stringList[5]=="R":
+				read=1
+		    if read==1 and write==1:
+			return QColor(255,153,18)
+		    elif read==1:
+			return QColor(0,255,0)
+		    elif write==1:
+			return QColor(255,0,0)
+		    elif read==0 and write==0:
+		        text=str(index.data().toString())
+                        if int(text)<0:
+                            return QColor("gray");
+                        else:
+                            return QColor(193,210,255);  		
+		else:
+		    text=str(index.data().toString())
+                    if int(text)<0:
+                        return QColor("gray");
+                    else:
+                        return QColor(193,210,255);   
 
     def headerData(self,section,orientation,role):
         if role==Qt.DisplayRole:
