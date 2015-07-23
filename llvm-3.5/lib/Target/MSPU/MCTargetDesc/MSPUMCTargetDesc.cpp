@@ -33,66 +33,52 @@
 
 using namespace llvm;
 
-static MCInstrInfo *
-createMSPUMCInstrInfo()
-{
+static MCInstrInfo *createMSPUMCInstrInfo() {
 	MCInstrInfo *X = new MCInstrInfo();
 	InitMSPUMCInstrInfo(X);
 	return X;
 }
 
-static MCRegisterInfo *
-createMSPUMCRegisterInfo(StringRef TT)
-{
+static MCRegisterInfo *createMSPUMCRegisterInfo(StringRef TT) {
 	MCRegisterInfo *X = new MCRegisterInfo();
 	InitMSPUMCRegisterInfo(X, MSPUReg::J30); // J30 is return address register.
 	return X;
 }
 
-static MCSubtargetInfo *
-createMSPUMCSubtargetInfo(StringRef TT, StringRef CPU,
-							StringRef FS)
-{
+static MCSubtargetInfo *createMSPUMCSubtargetInfo(StringRef TT, StringRef CPU,
+							                                    StringRef FS) {
 	MCSubtargetInfo *X = new MCSubtargetInfo();
 	InitMSPUMCSubtargetInfo(X, TT, CPU, FS);
 	return X;
 }
 
 static MCAsmInfo *createMSPUAsmInfo(const MCRegisterInfo &MRI,
-                                         StringRef TT) {
+                                    StringRef TT) {
   MCAsmInfo *MAI = new MSPUAsmInfo(TT);
   return MAI;
 }
 
 static MCInstPrinter *
-createMSPUMCInstPrinter(const Target &T,
-                                              unsigned SyntaxVariant,
-                                              const MCAsmInfo &MAI,
-                                              const MCInstrInfo &MII,
-                                              const MCRegisterInfo &MRI,
-                                              const MCSubtargetInfo &STI) {
+createMSPUMCInstPrinter(const Target &T, unsigned SyntaxVariant,
+                        const MCAsmInfo &MAI, const MCInstrInfo &MII,
+                        const MCRegisterInfo &MRI, const MCSubtargetInfo &STI) {
   return new MSPUInstPrinter(MAI, MII, MRI);
 }
 
 static MCCodeGenInfo *
-createMSPUMCCodeGenInfo(StringRef TT, Reloc::Model RM,
-						CodeModel::Model CM,
-						CodeGenOpt::Level OL)
-{
+createMSPUMCCodeGenInfo(StringRef TT, Reloc::Model RM, CodeModel::Model CM,
+					            	CodeGenOpt::Level OL) {
 	MCCodeGenInfo *X = new MCCodeGenInfo();
 	X->InitMCCodeGenInfo(RM, CM, OL);
 	return X;
 }
 
-static MCStreamer *
-createMSPUMCStreamer(const Target &T,
-                     StringRef TT,
-                     MCContext &Ctx,
-                     MCAsmBackend &MAB,
-                     raw_ostream &_OS,
-                     MCCodeEmitter *_Emitter,
-                     const MCSubtargetInfo &STI, bool RelaxAll)
-{
+static MCStreamer *createMSPUMCStreamer(const Target &T, StringRef TT,
+                                        MCContext &Ctx, MCAsmBackend &MAB,
+                                        raw_ostream &_OS,
+                                        MCCodeEmitter *_Emitter,
+                                        const MCSubtargetInfo &STI,
+                                        bool RelaxAll) {
 	Triple TheTriple(TT);
 
 	if(TheTriple.isOSDarwin()) {
@@ -117,8 +103,7 @@ createMSPUMCStreamer(const Target &T,
 	return createELFStreamer(Ctx, MAB, _OS, _Emitter, /*RelaxAll*/ false);
 }
 
-extern "C" void LLVMInitializeMSPUTargetMC()
-{
+extern "C" void LLVMInitializeMSPUTargetMC() {
   // Register the MC asm info.
   RegisterMCAsmInfoFn X1(TheMSPUTarget, createMSPUAsmInfo);
   //TargetRegistry::RegisterMCAsmInfo(TheMSPUTarget, createMSPUAsmInfo);

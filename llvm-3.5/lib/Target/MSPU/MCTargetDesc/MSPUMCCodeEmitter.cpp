@@ -396,13 +396,13 @@ private:
   // *mutable* to ignore *const*
   mutable unsigned LineOffset;
   mutable MCInst ImmExtInst;
-  mutable const MCInst *prevInst;
+  mutable const MCInst *InstNeedsExt;
 
 public:
   MSPUMCCodeEmitter(const MCInstrInfo &mcii,
                     const MCSubtargetInfo &sti,
                     MCContext &ctx)
-    : LineOffset(0), ImmExtInst(), prevInst(NULL) {
+    : LineOffset(0), ImmExtInst(), InstNeedsExt(NULL) {
   }
 
   ~MSPUMCCodeEmitter() {
@@ -473,6 +473,7 @@ public:
         default:
           llvm_unreachable("invalid instruction opcode");
         }
+        InstNeedsExt = &MI;
 
         return 0;
       }
@@ -485,6 +486,7 @@ public:
 
     if (isInt<11>(val)) val &= 0x7FF;
     else {
+      InstNeedsExt = &MI;
       ImmExtInst.setOpcode(MSPUInst::ImmExt);
       ImmExtInst.addOperand(MCOperand::CreateImm(val));
       val &= 0xF;
@@ -531,6 +533,7 @@ public:
       if (Expr->getKind() != MCExpr::Constant) {
         Fixups.push_back(
           MCFixup::Create(LineOffset, Expr, MCFixupKind(MSPU::fixup_MSPU_PC17)));
+        InstNeedsExt = &MI;
         return 0;
       }
 
@@ -542,6 +545,7 @@ public:
 
     if (isInt<17>(val)) val &= 0x1FFFF;
     else {
+      InstNeedsExt = &MI;
       ImmExtInst.setOpcode(MSPUInst::ImmExt);
       ImmExtInst.addOperand(MCOperand::CreateImm(val));
       val &= 0xF;
@@ -561,7 +565,7 @@ public:
     else if (MO.isExpr()) {
       const MCExpr *Expr = MO.getExpr();
       if (Expr->getKind() != MCExpr::Constant) {
-        switch (prevInst->getOpcode()) {
+        switch (InstNeedsExt->getOpcode()) {
         case MSPUInst::CallImm:
         case MSPUInst::JumpImm:
         case MSPUInst::CallImmCond:
@@ -773,7 +777,6 @@ public:
       // at the beginning we encode *MI* ordinarily.
       uint64_t codes = getBinaryCodeForInstr(*MSMI, Fixups, STI);
 
-      prevInst = MSMI;
       if (ImmExtInst.getNumOperands() &&
           ImmExtInst.getOpcode() == MSPUInst::ImmExt) {
         MSMI = &ImmExtInst;
@@ -789,9 +792,9 @@ public:
         ImmExtInst.setOpcode(MSPUInst::NOP);
         ImmExtInst.clear();
       }
-      if (prevInst->getNumOperands() &&
-          prevInst->getOperand(prevInst->getNumOperands() - 1).isInst())
-        MSMI = prevInst->getOperand(prevInst->getNumOperands() - 1).getInst();
+      if (MSMI->getNumOperands() &&
+          MSMI->getOperand(MSMI->getNumOperands() - 1).isInst())
+        MSMI = MSMI->getOperand(MSMI->getNumOperands() - 1).getInst();
       else {
         codes |= (1 << 31);
         MSMI = NULL;

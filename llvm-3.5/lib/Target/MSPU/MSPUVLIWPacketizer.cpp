@@ -338,11 +338,14 @@ bool MSPUPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
 
   if (I->getOpcode() == MSPUInst::NOP || J->getOpcode() == MSPUInst::NOP)
     return true;
+
+  if (J->getDesc().isCall()) return false;
+
   unsigned flag = 0;
   MSPUCheckImmFlag(I,flag);
   if (flag != 0 && IssueCount >= 3) return false; // There is no enough slots for Imm Extension.
   MSPUCheckImmFlag(J,flag);
-  if(flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
+  if (flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
 
 
   MachineBasicBlock::iterator II = I;

@@ -197,7 +197,7 @@ def MSPU_Call    : SDNode<"MSPU_ISD::CALL", SDT_MSPU_Call,
 // fixme: we should eat J30. and let J30 live in when we handle formal
 // arguments.
 def MSPU_Ret           : SDNode<"MSPU_ISD::RET", SDTNone,
-                           [SDNPHasChain, SDNPOptInGlue]>;
+                           [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
 def ADJCALLSTACKDOWN : PseudoInstr<(outs), 
 					   		  (ins i32imm:$t),
