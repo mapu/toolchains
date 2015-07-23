@@ -6,19 +6,20 @@ import sys
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class TableModel(QAbstractTableModel):
-    def __init__(self, arraydata, parent=None,):
+    def __init__(self, arrayData, parent=None,):
         QAbstractTableModel.__init__(self, parent,)
 	self.horizontalHeaderList=[]
 	self.verticalHeaderList=[]
-        self.arraydata=arraydata
+        self.arrayData=arrayData
+	self.key=""
 
     def setDataBase(self,dataBase,APEdbFilePath,flag):
 	self.dataBase=dataBase
 	self.APEdbFilePath=APEdbFilePath
 	self.flag=flag
 
-    def setModalDatas(self,arraydata):
-         self.arraydata=arraydata
+    def setModalDatas(self,arrayData):
+         self.arrayData=arrayData
 
     def setHorizontalHeader(self,horizontalHeaderList):
 	self.horizontalHeaderList=horizontalHeaderList
@@ -27,18 +28,18 @@ class TableModel(QAbstractTableModel):
         self.verticalHeaderList=verticalHeaderList
 
     def rowCount(self, parent):
-        return len(self.arraydata)
+        return len(self.arrayData)
 
     def columnCount(self, parent):
-        return len(self.arraydata[0])
+        return len(self.arrayData[0])
 
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
         elif role == Qt.DisplayRole:
-            return QVariant(self.arraydata[index.row()][index.column()])
+            return QVariant(self.arrayData[index.row()][index.column()])
         elif role == Qt.BackgroundRole:
-	    if index.data().toString()!=" ":
+	    if index.data().toString()!="":
 		header=self.verticalHeaderList[index.row()]
 		pos=header.find(":")
 		header=header[:pos]
@@ -63,15 +64,15 @@ class TableModel(QAbstractTableModel):
 		    elif read==0 and write==0:
 		        text=str(index.data().toString())
                         if int(text)<0:
-                            return QColor("gray");
+                            return QColor("gray")
                         else:
-                            return QColor(193,210,255);  		
+                            return QColor(193,210,255)		
 		else:
 		    text=str(index.data().toString())
                     if int(text)<0:
-                        return QColor("gray");
+                        return QColor("gray")
                     else:
-                        return QColor(193,210,255);   
+                        return QColor(193,210,255) 
 
     def headerData(self,section,orientation,role):
         if role==Qt.DisplayRole:
@@ -85,6 +86,11 @@ class TableModel(QAbstractTableModel):
                     return self.verticalHeaderList[section]
                 else:
                     return QVariant()
+	elif role == Qt.TextColorRole and orientation==Qt.Vertical:
+	    if self.key!="":
+		if len(self.verticalHeaderList)>section:
+		    if self.verticalHeaderList[section].find(self.key)>=0:
+		        return QColor(255,153,18)
     	return QVariant()
 
     def refrushModel(self):
