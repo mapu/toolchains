@@ -12,6 +12,7 @@ class TableModel(QAbstractTableModel):
 	self.verticalHeaderList=[]
         self.arrayData=arrayData
 	self.key=""
+	self.curValue=0
 
     def setDataBase(self,dataBase,APEdbFilePath,flag):
 	self.dataBase=dataBase
@@ -36,43 +37,47 @@ class TableModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        elif role == Qt.DisplayRole:
-            return QVariant(self.arrayData[index.row()][index.column()])
-        elif role == Qt.BackgroundRole:
-	    if index.data().toString()!="":
-		header=self.verticalHeaderList[index.row()]
-		pos=header.find(":")
-		header=header[:pos]
-		read=0
-		write=0
-		fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(index.column())+" and spumpu = "+"'"+self.flag+"'"+" and sn = "+header
-	        r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
-	        if r!=0:
-	    	    for e in range(len(r)):
-		        stringList=r[e]
-		        if stringList[6]!="Misc Reg":
-		    	    if stringList[5]=="W":
-				write=1
-		    	    elif stringList[5]=="R":
-				read=1
-		    if read==1 and write==1:
-			return QColor(255,153,18)
-		    elif read==1:
-			return QColor(0,255,0)
-		    elif write==1:
-			return QColor(255,0,0)
-		    elif read==0 and write==0:
+	else:
+	    if self.curValue<=index.row()<=self.curValue+40:
+                if role == Qt.DisplayRole:
+                    return QVariant(self.arrayData[index.row()][index.column()])
+                elif role == Qt.BackgroundRole:
+	            if index.data().toString()!="":
+			#if self.tindex.row()==index.row() and self.tindex.column()==index.column():
+			    #print "aa"
+			    #return
 		        text=str(index.data().toString())
-                        if int(text)<0:
-                            return QColor("gray")
-                        else:
-                            return QColor(193,210,255)		
-		else:
-		    text=str(index.data().toString())
-                    if int(text)<0:
-                        return QColor("gray")
-                    else:
-                        return QColor(193,210,255) 
+			if text.find("&")>=0:
+			    return QColor(255,153,18)
+			elif text.find("R")>=0:
+			    return QColor(0,255,0)
+			elif text.find("W")>=0:
+			    return QColor(255,0,0)
+			else:
+                            if int(text)<0:
+                                return QColor("gray")
+                            else:
+                                return QColor(193,210,255) 
+
+    def setData(self,index,value,role): 
+    	if index.isValid() and role==Qt.BackgroundRole: 
+	    if value==QColor(255,153,18):
+		if self.arrayData[index.row()][index.column()].find("&")<0:
+	            self.arrayData[index.row()][index.column()]+="&"
+	    elif value==QColor(0,255,0):
+		if self.arrayData[index.row()][index.column()].find("R")<0:
+	            self.arrayData[index.row()][index.column()]+="R"
+	    elif value==QColor(255,0,0):
+		if self.arrayData[index.row()][index.column()].find("W")<0:
+	            self.arrayData[index.row()][index.column()]+="W"
+            self.dataChanged.emit(index,index)
+            return True 
+        return False
+
+    def flags(self,index):
+	if not index.isValid():
+	    return Qt.NoItemFlags
+	return Qt.ItemIsSelectable|Qt.ItemIsEnabled|Qt.ItemIsEditable
 
     def headerData(self,section,orientation,role):
         if role==Qt.DisplayRole:

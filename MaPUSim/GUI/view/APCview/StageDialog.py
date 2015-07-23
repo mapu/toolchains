@@ -14,7 +14,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1500,800)
+	self.resize(1500,600)
 	self.setMinimumSize(100,600)
 	self.openFlag=-1
 	self.arrayData=[["" for col in range(1)] for row in range(1)]
@@ -95,6 +95,11 @@ class StageDialog(QDialog):
 	    i=datetime.datetime.now()
             print ("start update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.initTable()
+	    self.updateRWColor()
+	    i=datetime.datetime.now()
+            print ("end update RW color %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+    	    self.tableModel.refrushModel()
+	    self.scrollToStage(0)
 	    i=datetime.datetime.now()
             print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
@@ -122,11 +127,38 @@ class StageDialog(QDialog):
 	self.tableModel.setModalDatas(self.arrayData)
 	i=datetime.datetime.now()
         print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-    	self.tableModel.refrushModel()
-	self.scrollToStage(0)
+
+    def updateRWColor(self):
+	value=self.tableView.verticalScrollBar().value()
+	mvalue=value+40
+	if mvalue>self.maxValue:
+	    mvalue=self.maxValue
+	for i in range(value,mvalue):    
+	    read=0
+	    write=0
+	    fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE spumpu = "+"'"+self.flag+"'"+" and sn = "+str(self.snAll[i][4])
+	    r=self.dataBase.fetchall(self.APEdbFilePath,fetchall_sql)
+	    if r!=0:
+	    	for e in range(len(r)):
+		    stringList=r[e]
+		    if stringList[6]!="Misc Reg":
+			column=int(stringList[1])
+			index=self.tableModel.index(i,column)
+			if stringList[5]=="W":
+			    write=1
+		    	elif stringList[5]=="R":
+			    read=1
+		if read==1 and write==1:
+		    self.tableModel.setData(index,QColor(255,153,18),Qt.BackgroundRole)
+		elif read==1:
+		    self.tableModel.setData(index,QColor(0,255,0),Qt.BackgroundRole)
+		elif write==1:
+		    self.tableModel.setData(index,QColor(255,0,0),Qt.BackgroundRole)    
 
     def scrollToStage(self,value):
+	self.tableModel.curValue=value
 	self.tableView.horizontalScrollBar().setValue(self.snAll[value][9])
+	self.updateRWColor()
  
     def searchSlot(self):
 	self.tableView.setStyleSheet("QHeaderView.section{color: black;}")
