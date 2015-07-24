@@ -14,7 +14,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1500,600)
+	self.resize(1500,800)
 	self.setMinimumSize(100,600)
 	self.openFlag=-1
 	self.arrayData=[["" for col in range(1)] for row in range(1)]
@@ -95,11 +95,11 @@ class StageDialog(QDialog):
 	    i=datetime.datetime.now()
             print ("start update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.initTable()
-	    self.updateRWColor()
 	    i=datetime.datetime.now()
             print ("end update RW color %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
     	    self.tableModel.refrushModel()
 	    self.scrollToStage(0)
+	    self.updateRWColor()
 	    i=datetime.datetime.now()
             print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
