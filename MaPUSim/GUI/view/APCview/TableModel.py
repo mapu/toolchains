@@ -43,9 +43,6 @@ class TableModel(QAbstractTableModel):
                     return QVariant(self.arrayData[index.row()][index.column()])
                 elif role == Qt.BackgroundRole:
 	            if index.data().toString()!="":
-			#if self.tindex.row()==index.row() and self.tindex.column()==index.column():
-			    #print "aa"
-			    #return
 		        text=str(index.data().toString())
 			if text.find("&")>=0:
 			    return QColor(255,153,18)
@@ -58,21 +55,6 @@ class TableModel(QAbstractTableModel):
                                 return QColor("gray")
                             else:
                                 return QColor(193,210,255) 
-
-    def setData(self,index,value,role): 
-    	if index.isValid() and role==Qt.BackgroundRole: 
-	    if value==QColor(255,153,18):
-		if self.arrayData[index.row()][index.column()].find("&")<0:
-	            self.arrayData[index.row()][index.column()]+="&"
-	    elif value==QColor(0,255,0):
-		if self.arrayData[index.row()][index.column()].find("R")<0:
-	            self.arrayData[index.row()][index.column()]+="R"
-	    elif value==QColor(255,0,0):
-		if self.arrayData[index.row()][index.column()].find("W")<0:
-	            self.arrayData[index.row()][index.column()]+="W"
-            self.dataChanged.emit(index,index)
-            return True 
-        return False
 
     def flags(self,index):
 	if not index.isValid():

@@ -82,22 +82,30 @@ class StageDialog(QDialog):
 	self.minValue=0
 	self.tableModel.setDataBase(self.dataBase,self.APEdbFilePath,self.flag)
 	if self.flag=="m":
-	    order_sql = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
+	    order_sql_sn = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
 	else:
-	    order_sql = "SELECT * FROM "+self.dataBase.snSTableName+" order by sn asc"
-	self.snAll=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
+	    order_sql_sn = "SELECT * FROM "+self.dataBase.snSTableName+" order by sn asc"
+	self.snAll=self.dataBase.fetchall(self.APEdbFilePath,order_sql_sn)
 	if self.snAll!=0:
 	    self.maxValue=len(self.snAll)
 	else:
 	    self.maxValue=0
 	    self.maxTime=0
+	order_sql_reg = "SELECT * FROM "+self.dataBase.regTableName+" where spumpu = "+"'"+self.flag+"'"+" order by sn asc"
+	self.regAll=self.dataBase.fetchall(self.APEdbFilePath,order_sql_reg)
+	if self.regAll!=0:
+	    self.regMax=len(self.regAll)
+	    self.reg=0
+	else:
+	    self.regMax=0
+	    self.reg=0
 	if self.maxTime!=0 or self.maxValue!=0:
 	    i=datetime.datetime.now()
             print ("start update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.initTable()
     	    self.tableModel.refrushModel()
 	    self.scrollToStage(0)
-	    self.updateRWColor()
+	    #self.updateRWColor()
 	    i=datetime.datetime.now()
             print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
@@ -119,6 +127,25 @@ class StageDialog(QDialog):
 	        for k in range(temp+1,stringList[9+j]):
 		    self.arrayData[i][k]=self.arrayData[i][temp]
 	        temp=stringList[9+j]
+	    read=0
+	    write=0
+	    while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
+		stringList=self.regAll[self.reg]
+		self.reg+=1
+		if stringList[6]!="Misc Reg":
+		    if stringList[5]=="W":
+		        write=1
+		    elif stringList[5]=="R":
+		        read=1
+	    if read==1 and write==1:
+		if self.arrayData[i][stringList[1]].find("&")<0:
+	            self.arrayData[i][stringList[1]]+="&"
+	    elif read==1:
+		if self.arrayData[i][stringList[1]].find("R")<0:
+	            self.arrayData[i][stringList[1]]+="R"
+	    elif write==1:
+ 		if self.arrayData[i][stringList[1]].find("W")<0:
+	            self.arrayData[i][stringList[1]]+="W"
 	self.tableModel.setVerticalHeader(verticalHeaderList)
 	i=datetime.datetime.now()
         print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
@@ -156,7 +183,7 @@ class StageDialog(QDialog):
     def scrollToStage(self,value):
 	self.tableModel.curValue=value
 	self.tableView.horizontalScrollBar().setValue(self.snAll[value][9])
-	self.updateRWColor()
+	#self.updateRWColor()
  
     def searchSlot(self):
 	self.tableView.setStyleSheet("QHeaderView.section{color: black;}")
