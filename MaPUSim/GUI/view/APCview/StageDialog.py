@@ -95,8 +95,6 @@ class StageDialog(QDialog):
 	    i=datetime.datetime.now()
             print ("start update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.initTable()
-	    i=datetime.datetime.now()
-            print ("end update RW color %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
     	    self.tableModel.refrushModel()
 	    self.scrollToStage(0)
 	    self.updateRWColor()
