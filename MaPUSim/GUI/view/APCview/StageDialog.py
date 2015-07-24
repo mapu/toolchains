@@ -198,21 +198,6 @@ class StageDialog(QDialog):
 	    if self.searchValue==len(self.searchList)-1:
 		self.nextButton.setEnabled(False)
 
-    def addRow(self,rowList):
-	self.arrayData.append(rowList)
-    	self.tableModel.refrushModel()
-
-    def removeRow(self,row):
-	del self.arrayData[row]
-    	self.tableModel.refrushModel()
-
-    def clear(self):
-	self.arrayData=[]
-    	self.tableModel.refrushModel()
-
-    def rowCount(self):
-  	return self.tableModel.rowCount(QModelIndex())
-
     def closeEvent(self,event):
 	self.openFlag=-1
 
