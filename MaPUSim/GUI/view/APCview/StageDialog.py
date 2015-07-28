@@ -114,7 +114,8 @@ class StageDialog(QDialog):
 	i=datetime.datetime.now()
         print ("end table horizontalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	verticalHeaderList=['0']*self.maxValue
-        self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.maxValue)]
+        #self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.maxValue)]
+	self.arrayData=[x[:] for x in [[""]*(self.maxTime+1)]*self.maxValue]
 	i=datetime.datetime.now()
         print ("end init array data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	for i in range(0,self.maxValue):
@@ -122,10 +123,11 @@ class StageDialog(QDialog):
 	    verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
 	    temp=-1
 	    for j in range(0,20):
-	        self.arrayData[i][stringList[9+j]]=str(j-5)
-	        for k in range(temp+1,stringList[9+j]):
-		    self.arrayData[i][k]=self.arrayData[i][temp]
-	        temp=stringList[9+j]
+		if stringList[9+j]!=-1:
+	            self.arrayData[i][stringList[9+j]]=str(j-5)
+	            for k in range(temp+1,stringList[9+j]):
+		        self.arrayData[i][k]=self.arrayData[i][temp]
+	            temp=stringList[9+j]
 	    read=0
 	    write=0
 	    while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:

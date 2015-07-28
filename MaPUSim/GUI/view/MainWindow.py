@@ -38,12 +38,12 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
 	
     def createActions(self): 
-        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("Open"),self)                                 
-        self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("New"),self)                  
-        self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("Save"),self)                                     
-        self.cutAction=QAction(QIcon(":/cut.png"),self.tr("Cut"),self)                  
-        self.copyAction=QAction(QIcon(":/copy.png"),self.tr("Copy"),self)    
-        self.pasteAction=QAction(QIcon(":/paste.png"),self.tr("Paste"),self)          
+        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                                 
+        self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("&New"),self)                  
+        self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("&Save"),self)                                     
+        self.cutAction=QAction(QIcon(":/cut.png"),self.tr("&Cut"),self)                  
+        self.copyAction=QAction(QIcon(":/copy.png"),self.tr("&Copy"),self)    
+        self.pasteAction=QAction(QIcon(":/paste.png"),self.tr("&Paste"),self)          
         self.aboutAction=QAction(self.tr("&about"),self) 
 	self.setAction=QAction(self.tr("&Simulator path setting..."),self)  
 	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
@@ -73,7 +73,8 @@ class MainWindow(QMainWindow):
         editTool.addAction(self.pasteAction)  
        
     def createStatusBar(self):    
-        self.statusBar().showMessage(self.tr("Statusbar"))  
+	self.statusLabel=QLabel("StatusBar")
+        self.statusBar().addWidget(self.statusLabel)
 
     def setSimulatorPath(self):
 	self.setDialog=QDialog()
