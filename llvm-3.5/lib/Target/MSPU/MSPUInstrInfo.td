@@ -1835,6 +1835,7 @@ def __CallM : SynInstr<(outs), (ins UImm17Ptr:$d),
   bits<17> d;
   let Inst{22} = 1;
   let Inst{21-5} = d;
+  let Inst{0} = 0;
 	let Itinerary = ItinSYNNoReg;
 }
 
@@ -1855,7 +1856,9 @@ def __CallMIndr : SynInstr<(outs), (ins PtrReg:$d),
 {
   
   bits<5> d;
+  let Inst{22} = 0;
   let Inst{9-5} = d;
+  let Inst{0} = 0;
 	let Itinerary = ItinSYN_1;
 }
 
@@ -1864,6 +1867,7 @@ def __CallMIndrB : SynInstr<(outs), (ins PtrReg:$d),
                     [(int_mspu_callmb PtrReg:$d)]>
 {
   bits<5> d;
+  let Inst{22} = 0;
   let Inst{9-5} = d;
   let Inst{0} = 1;
 	let Itinerary = ItinSYN_1;

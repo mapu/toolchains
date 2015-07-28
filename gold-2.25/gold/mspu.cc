@@ -574,12 +574,15 @@ template<int size, bool big_endian> inline bool Target_mspu<size, big_endian>::R
   elfcpp::Elf_Xword addend = rela.get_r_addend();
   //////////////////////////Check if Is Immextended.
   bool bImmExt = false;
-  Valtype* wv = reinterpret_cast<Valtype*>(view + 4); //get the next instruction code.
-  Valtype val = elfcpp::Swap<size, big_endian>::readval(wv);
-  if (((val >> 28) & 0x7) == 0x5)
-    bImmExt = true;
-  else
-    bImmExt = false;
+  for (unsigned i = 0; i <= 3; i++) {
+    Valtype* wv = reinterpret_cast<Valtype*>(view + 4 * i); //get the next instruction code.
+    Valtype val = elfcpp::Swap<size, big_endian>::readval(wv);
+    if (((val >> 28) & 0x7) == 0x5) {
+      bImmExt = true;
+      break;
+    }
+    if ((val >> 31) & 1) break;
+  }
 
   switch (r_type) {
   case elfcpp::R_MSPU_11_B5:   //This is the ImmAssign Instruction

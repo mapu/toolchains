@@ -8409,12 +8409,17 @@ void msputools::Link::ConstructJob(Compilation &C, const JobAction &JA,
   // input files
   AddLinkerInputs(getToolChain(), Inputs, Args, CmdArgs);
 
-  CmdArgs.push_back("-lclang_rt.builtins-mspu");
-  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/clang/" + CLANG_VERSION_STRING + "/lib/mspu"));
+  // the last input file
+  CmdArgs.push_back(Args.MakeArgString(getToolChain().GetFilePath("crtend.o")));
+
+  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/mspu/lib"));
   CmdArgs.push_back("-lm");
   CmdArgs.push_back("-lc");
   CmdArgs.push_back("-lgloss");
-  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/mspu/lib"));
+
+  CmdArgs.push_back(Args.MakeArgString("-L" + D.Dir + "/../lib/clang/" +
+                                       CLANG_VERSION_STRING + "/lib/mspu"));
+  CmdArgs.push_back("-lclang_rt.builtins-mspu");
 
   /*if (!Args.hasArg(options::OPT_nostdlib) &&
       !Args.hasArg(options::OPT_nostartfiles)) {
@@ -8444,9 +8449,6 @@ void msputools::Link::ConstructJob(Compilation &C, const JobAction &JA,
     CmdArgs.push_back(
          Args.MakeArgString(getToolChain().GetFilePath("crtend.o")));
   }*/
-
-  // the last input file
-  CmdArgs.push_back(Args.MakeArgString(getToolChain().GetFilePath("crtend.o")));
 
   const char *Exec = Args.MakeArgString(getToolChain().GetProgramPath("ld.gold"));
   C.addCommand(llvm::make_unique<Command>(JA, *this, Exec, CmdArgs));

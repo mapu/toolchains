@@ -6878,8 +6878,8 @@ static TargetInfo *AllocateTarget(const llvm::Triple &Triple) {
     case llvm::Triple::mspu: {
       return new MSPUTargetInfo(Triple);
     }
-  }
 #endif
+  }
 }
 
 /// CreateTargetInfo - Return the target info object for the specified target

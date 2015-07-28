@@ -186,7 +186,7 @@ SDNode *MSPUDAGToDAGISel::Select(SDNode *N) {
       // (int_mspu_callm (XferAddr tglobaladdr))
       // which has to be change into:
       // (int_mspu_callm tglobaladdr)
-      Opcode = N->getOpcode() == Intrinsic::mspu_callm ?
+      Opcode = IntNo == Intrinsic::mspu_callm ?
                    MSPUInst::__CallM : MSPUInst::__CallMB;
       if (N->getNumOperands() == 3
           && N->getOperand(2).getNode()->getOpcode() == MSPU_ISD::XferAddr) {

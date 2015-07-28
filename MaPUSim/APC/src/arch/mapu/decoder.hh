@@ -58,11 +58,11 @@ class Decoder
             emi = (emi | (inst << 32ULL));
             emi &= (-1ULL >> 1ULL);
           }
-          instCached = false;
         } else if (!instDone) {
           emi = inst;
           instCached = true;
         }
+        if (inst >> 31) instCached = false;
         instDone = true;
     }
 

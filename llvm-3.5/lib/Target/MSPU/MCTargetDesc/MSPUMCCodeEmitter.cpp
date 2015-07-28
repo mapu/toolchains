@@ -779,14 +779,13 @@ public:
 
       if (ImmExtInst.getNumOperands() &&
           ImmExtInst.getOpcode() == MSPUInst::ImmExt) {
-        MSMI = &ImmExtInst;
         for (unsigned i = 0; i < 4; ++i) {
           OS << (unsigned char) codes;
           codes >>= 8;
         }
         ++MCNumEmitted;
         LineOffset += 4;
-        codes = getBinaryCodeForInstr(*MSMI, Fixups, STI);
+        codes = getBinaryCodeForInstr(ImmExtInst, Fixups, STI);
 
         // reset *ImmExtInst*
         ImmExtInst.setOpcode(MSPUInst::NOP);
