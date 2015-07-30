@@ -14,7 +14,7 @@ std::string ISA::miscRegNames[NumMiscRegs] = {
     "Loop0 number",
     "Loop1 start",
     "Loop1 end",
-    "Loop1 number", "","","","","","","","",
+    "Loop1 number", "MPU Block","","","","","","","",
     "MC.r0", "MC.r1", "MC.w0", "MC.w1", "MC.w2",
     "MI.r0", "MI.r1", "MI.w0", "MI.w1", "MI.w2",
     "MS.r0", "MS.r1", "MS.w0", "MS.w1", "MS.w2","",

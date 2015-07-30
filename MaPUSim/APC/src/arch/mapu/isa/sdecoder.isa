@@ -804,14 +804,14 @@ decode OPCODE_HI default Unknown::unknown() {
     0x1:decode CALLMIMM {
       format Callm {
         0x1: decode BF{
-          0x0: callmimm  ({{ mtarget = IMM17 * 41; }});                       //CallM Imm
-          0x1: callmimmb ({{ mtarget = IMM17 * 41; xc->tcBase()->suspend(2); }});
+          0x0: callmimm  ({{ mtarget = IMM17 * 41; MPUB = 0; }});                       //CallM Imm
+          0x1: callmimmb ({{ mtarget = IMM17 * 41; MPUB = 1; }});
         }
       }
       format Callm {
         0x0: decode BF{
-          0x0: callmjm  ({{ mtarget = Js; }});                                //CallM Jm
-          0x1: callmjmb ({{ mtarget = Js; xc->tcBase()->suspend(2); }});
+          0x0: callmjm  ({{ mtarget = Js; MPUB = 0; }});                                //CallM Jm
+          0x1: callmjmb ({{ mtarget = Js; MPUB = 1; }});
         }
       }
     }

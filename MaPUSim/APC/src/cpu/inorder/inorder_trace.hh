@@ -68,11 +68,11 @@ class InOrderTraceRecord : public ExeTracerRecord
     void
     setStageCycle(int num_stage, Tick cur_cycle)
     {
-        if (stageTrace) {
+        //if (stageTrace) {
             stageCycle[num_stage] = cur_cycle;
-        } else {
+        //} else {
             when = cur_cycle;
-        }
+        //}
     }
 
     void
