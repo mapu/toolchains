@@ -1205,15 +1205,15 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
         lpe = MSEQ_IMM11 * 41 * 8;
       }}, MseqCtrlOp);
       0x4: mpustop({{
-        if (MPUB &&
-          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->status() == ThreadContext::Suspended)
-          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->activate(0);
         xc->tcBase()->halt(0); 
-        MapuLiveProcess *p = dynamic_cast<MapuLiveProcess *>(xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->getProcessPtr());
+        MapuSPUProcess *p = dynamic_cast<MapuSPUProcess *>(xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->getProcessPtr());
         assert(p);
         CsuObject *csuObj = p->getCsuPtr();
         assert(csuObj);
         csuObj->sendEvent(CsuObject::MPUIdelEvent);
+        if (p->isBlockedByMPU() &&
+          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->status() == ThreadContext::Suspended)
+          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->activate(0);
       }}, MseqCtrlOp);           //MPUSTOP
     }
   }

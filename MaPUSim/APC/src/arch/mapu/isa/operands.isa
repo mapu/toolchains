@@ -57,8 +57,6 @@ def operands {{
     'LP1S' :      ('ControlReg', 'uw', 'MISCREG_LP1S', None,1),
     'LP1E' :      ('ControlReg', 'uw', 'MISCREG_LP1E', None,2),
     'LP1N' :      ('ControlReg', 'uw', 'MISCREG_LP1N', None,3),
-    
-    'MPUB' :      ('ControlReg', 'uw', 'MISCREG_MPUB', None,3),
 
     # flag reg referred by MPU conditional execution
     'Cond' :      ('ControlReg', 'uw', 'MISCREG_MPUCOND', None,3),

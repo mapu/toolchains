@@ -100,13 +100,9 @@ _start:
  m.s     [J0+=J1] = R16 ;;
  m.s     SVR1 = [J2+J3] ;;
  m.s     SHU0.T3 = SVR1 ;;
- 
- m.s     R8 = 16;;
- m.s     CH[2] = R8;;
- m.s     CallM _IALUTest;;    // X Cluster
- m.s     CH[1] = R8;;
- m.s     R0 = CH[0];;
- m.s     CH[2] = R8;;
+
+    
+ m.s     CallM _IALUTest(B);;    // X Cluster
  m.s     NOP;;
 
 

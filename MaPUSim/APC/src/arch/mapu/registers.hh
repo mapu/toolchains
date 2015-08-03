@@ -106,7 +106,6 @@ enum MiscRegIndex{
     MISCREG_LP1S,
     MISCREG_LP1E,
     MISCREG_LP1N,
-    MISCREG_MPUB,
 
     MISCREG_MC_BASE = 16,
     MISCREG_MC_END  = 20,

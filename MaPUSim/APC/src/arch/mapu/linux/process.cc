@@ -429,7 +429,7 @@ SyscallDesc MapuSPUProcess::syscallDescs[] = {
 
 MapuSPUProcess::MapuSPUProcess(LiveProcessParams * params,
                                      ObjectFile *objFile)
-    : MapuLiveProcess(params, objFile),
+    : MapuLiveProcess(params, objFile), block(false),
      Num_Syscall_Descs(sizeof(syscallDescs) / sizeof(SyscallDesc))
 {  }
 

@@ -345,13 +345,15 @@ def format Callm(code, *inst_flags) {{
     #Condition code
     code = '''
     Addr mtarget;
+    bool block;
     if (xc->tcBase()->getCpuPtr()->getContext(ThePipeline::MaxSThreads)->status() ==
         ThreadContext::Halted) {
       %(code)s
       xc->tcBase()->getCpuPtr()->getContext(ThePipeline::MaxSThreads)->activate(0);
       dynamic_cast<InOrderCPU *>(xc->tcBase()->getCpuPtr())->pc[ThePipeline::MaxSThreads].mset(mtarget);
-      MapuLiveProcess *p = dynamic_cast<MapuLiveProcess *>(xc->tcBase()->getProcessPtr());
+      MapuSPUProcess *p = dynamic_cast<MapuSPUProcess *>(xc->tcBase()->getProcessPtr());
       assert(p);
+      p->setBlockedByMPU(block);
       CsuObject *csuObj = p->getCsuPtr();
       assert(csuObj);
       csuObj->clearEvent(CsuObject::MPUIdelEvent);

@@ -8,6 +8,7 @@
 /// A process with emulated Mapu/Linux syscalls.
 class MapuSPUProcess : public MapuLiveProcess
 {
+  bool block;
   public:
     /// Constructor.
     MapuSPUProcess(LiveProcessParams * params, ObjectFile *objFile);
@@ -23,6 +24,9 @@ class MapuSPUProcess : public MapuLiveProcess
     /// Array of syscall descriptors, indexed by call number.
     static SyscallDesc syscallDescs[];
     const int Num_Syscall_Descs;
+
+    bool isBlockedByMPU() { return block; }
+    void setBlockedByMPU(bool b) { block = b; }
 };
 
 /// A process with emulated Mapu/Linux syscalls.

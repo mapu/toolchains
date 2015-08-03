@@ -44,7 +44,7 @@ output exec {{
 #include "arch/mapu/pagetable.hh"
 #include "arch/mapu/tlb.hh"
 #include "arch/mapu/utility.hh"
-#include "arch/mapu/process.hh"
+#include "arch/mapu/linux/process.hh"
 #if defined(linux)
 #include <fenv.h>
 #endif
