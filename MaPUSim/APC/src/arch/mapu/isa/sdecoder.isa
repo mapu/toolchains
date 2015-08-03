@@ -33,7 +33,7 @@ decode OPCODE_HI default Unknown::unknown() {
         0x1: b({{ cond = 1; }});                                 //JUMP Imm
       }
       format Jump {
-        0x0: j({{ NPC = Js; if (JS == 30) _level--; }});         //JUMP Jm
+        0x0: j({{ NPC = Js; }});         //JUMP Jm
       }
     }
 
@@ -51,10 +51,10 @@ decode OPCODE_HI default Unknown::unknown() {
 
     0x10: decode SHIFT {
       format Branch {
-        0x1: callimm({{ cond = 1; J30 = NLPC; _level++;}});      //CALL Imm
+        0x1: callimm({{ cond = 1; J30 = NLPC; }});      //CALL Imm
       }
       format Jump {
-        0x0: calljm ({{  J30 = NLPC; NPC = Js; _level++;}});     //CALL Jm
+        0x0: calljm ({{  J30 = NLPC; NPC = Js; }});     //CALL Jm
       }
     }
 
@@ -805,13 +805,13 @@ decode OPCODE_HI default Unknown::unknown() {
       format Callm {
         0x1: decode BF{
           0x0: callmimm  ({{ mtarget = IMM17 * 41; MPUB = 0; }});                       //CallM Imm
-          0x1: callmimmb ({{ mtarget = IMM17 * 41; MPUB = 1; }});
+          0x1: callmimmb ({{ mtarget = IMM17 * 41; MPUB = 1; xc->tcBase()->suspend(2); }});
         }
       }
       format Callm {
         0x0: decode BF{
           0x0: callmjm  ({{ mtarget = Js; MPUB = 0; }});                                //CallM Jm
-          0x1: callmjmb ({{ mtarget = Js; MPUB = 1; }});
+          0x1: callmjmb ({{ mtarget = Js; MPUB = 1; xc->tcBase()->suspend(2); }});
         }
       }
     }
