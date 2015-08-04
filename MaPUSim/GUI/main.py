@@ -5,8 +5,7 @@ import sys
 from view.MainWindow import*
 
 app = QApplication(sys.argv)
-
-main = MainWindow()
+main = MainWindow(sys.argv)
 main.show()
 
 app.exec_()

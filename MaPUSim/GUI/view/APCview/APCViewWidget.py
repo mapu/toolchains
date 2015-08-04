@@ -350,7 +350,7 @@ class APCViewWidget(QWidget):
 			    pos=s.find(".")
 			    temp=temp+s[:pos]
 			    if temp=="DMBIU0":
-				print "dmbiu0"
+				self.APE0Widget.MPUWidget.buttonWidget.ButLi[0][0]=1
 			    elif temp=="BIU0DM":
 				print "biu0dm"
 			    elif temp=="DMBIU1":

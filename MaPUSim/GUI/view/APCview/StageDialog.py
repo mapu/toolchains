@@ -23,14 +23,13 @@ class StageDialog(QDialog):
 	self.tableView.setModel(self.tableModel)
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
 	self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-	#self.tableView.horizontalHeader().setResizeMode(QHeaderView.Fixed)
+	#self.tableView.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
 	#self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
 	self.tableView.verticalHeader().setHighlightSections(False)
 	self.rowHeight=23
 	self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
 	self.columnWidth=23
 	self.tableView.horizontalHeader().setDefaultSectionSize(self.columnWidth)
-	#self.tableView.resizeColumnsToContents()
 	self.connect(self.tableView.horizontalHeader(),SIGNAL("sectionClicked(int)"),self.updateDialog)
 	self.connect(self.tableView,SIGNAL("clicked(QModelIndex)"),self.updateDialogIndex)
 	self.connect(self.tableView.verticalScrollBar(),SIGNAL("valueChanged(int)"),self.scrollToStage)
@@ -128,9 +127,9 @@ class StageDialog(QDialog):
 	            for k in range(temp+1,stringList[9+j]):
 		        self.arrayData[i][k]=self.arrayData[i][temp]
 	            temp=stringList[9+j]
-	    read=0
-	    write=0
 	    while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
+	        read=0
+	        write=0
 		stringList=self.regAll[self.reg]
 		self.reg+=1
 		if stringList[6]!="Misc Reg":
@@ -138,15 +137,12 @@ class StageDialog(QDialog):
 		        write=1
 		    elif stringList[5]=="R":
 		        read=1
-	    if read==1 and write==1:
-		if self.arrayData[i][stringList[1]].find("&")<0:
-	            self.arrayData[i][stringList[1]]+="&"
-	    elif read==1:
-		if self.arrayData[i][stringList[1]].find("R")<0:
-	            self.arrayData[i][stringList[1]]+="R"
-	    elif write==1:
- 		if self.arrayData[i][stringList[1]].find("W")<0:
-	            self.arrayData[i][stringList[1]]+="W"
+	        if read==1:
+		    if self.arrayData[i][stringList[1]].find("R")<0:
+	                self.arrayData[i][stringList[1]]+="R"
+	        elif write==1:
+ 		    if self.arrayData[i][stringList[1]].find("W")<0:
+	                self.arrayData[i][stringList[1]]+="W"
 	self.tableModel.setVerticalHeader(verticalHeaderList)
 	i=datetime.datetime.now()
         print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))

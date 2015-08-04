@@ -44,7 +44,7 @@ class TableModel(QAbstractTableModel):
                 elif role == Qt.BackgroundRole:
 	            if index.data().toString()!="":
 		        text=str(index.data().toString())
-			if text.find("&")>=0:
+			if text.find("RW")>=0 or text.find("WR")>=0:
 			    return QColor(255,153,18)
 			elif text.find("R")>=0:
 			    return QColor(0,255,0)

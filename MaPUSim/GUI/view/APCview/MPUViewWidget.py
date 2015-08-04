@@ -12,9 +12,14 @@ from control.DataBase import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
-class MPUViewWidget(QWidget):
+class MPUViewWidget(QMainWindow):
     def __init__(self,parent=None):
 	super(MPUViewWidget,self).__init__(parent)
+
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)  
+        widget = QWidget()
+        widget.setMinimumSize(1400,600)
 
 	self.byteComboBox=QComboBox()
 	self.byteComboBox.setFixedSize(100,40)
@@ -568,13 +573,25 @@ class MPUViewWidget(QWidget):
         self.specialRegWidget.setItem(13,0,QTableWidgetItem(self.tr("MPU loop3 number")))
 	self.specialRegWidget.setItem(13,1,QTableWidgetItem(self.tr("0" )))
 
-
-	mainLayout=QHBoxLayout()
-	mainLayout.addWidget(self.leftWidget)
-	mainLayout.addWidget(self.rightTab)
-	mainLayout.setStretchFactor(self.leftWidget,5)
-	mainLayout.setStretchFactor(self.rightTab,2)
-	self.setLayout(mainLayout)
+	#splitterMain=QSplitter(Qt.Horizontal,widget)
+	#splitterMain.addWidget(self.leftWidget)
+	#splitterMain.addWidget(self.rightTab)
+	#splitterMain.setStretchFactor(0,5)
+	#splitterMain.setStretchFactor(1,4)
+	splitterMain=QHBoxLayout()
+	splitterMain.addWidget(self.leftWidget)
+	splitterMain.addWidget(self.rightTab)
+	splitterMain.setStretchFactor(self.leftWidget,5)
+	splitterMain.setStretchFactor(self.rightTab,2)
+	widget.setLayout(splitterMain)
+	#scroll
+        scroll = QScrollArea()
+        scroll.setWidget(widget)
+        scroll.setAutoFillBackground(True)
+        scroll.setWidgetResizable(True)
+        vbox = QVBoxLayout()
+        vbox.addWidget(scroll)  
+        centralWidget.setLayout(vbox)
 
 	self.stageDialog=StageDialog()
 	

@@ -9,13 +9,14 @@ class FloatDialog(QDialog):
 	super(FloatDialog,self).__init__(parent)
 
 	self.flag=-1 #-1 close , 0 open
-	self.setMinimumWidth(200)
+	self.setMinimumWidth(220)
 	self.setMinimumHeight(200)
 	self.resize(230,200)
 	self.setWindowFlags(Qt.WindowStaysOnTopHint)
 	self.stages=QTableWidget()
 	self.stages.setEditTriggers(QAbstractItemView.NoEditTriggers)
 	self.stages.setSelectionBehavior(QAbstractItemView.SelectRows)
+	self.stages.horizontalHeader().setStretchLastSection(True)	
 	self.stages.horizontalHeader().setVisible(False)
 	self.stages.verticalHeader().setVisible(False)
 	self.stages.setShowGrid(False)

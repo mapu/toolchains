@@ -12,16 +12,19 @@ import os
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class MainWindow(QMainWindow):  
-    def __init__(self,parent=None):  
+    def __init__(self,argv,parent=None):  
         super(MainWindow,self).__init__(parent)   
-      
+      	self.argv=argv
+	self.path="config.xml"
         self.setWindowTitle('MaPU Simulator')                          
         self.createActions() 
         self.createMenus()  
         self.createToolBars()
 	self.createStatusBar()
   
-	self.setMinimumSize(1600,820)
+	#self.setMinimumSize(800,620)
+	#self.setMaximumSize(1600,840)
+	self.resize(800,600)
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  
         self.simuInfoWidget=SimuInfoWidget()
@@ -36,6 +39,8 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
+
+	#self.readXML()
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                                 
@@ -106,8 +111,92 @@ class MainWindow(QMainWindow):
 	    self.setDialog.close()
 	else:
 	    QMessageBox.warning(self,"Warning","Simulator path is not exist!")
-      
+  
+    def writeXML(self):
+	xmlfile=QFile(self.path)
+	if xmlfile.open(QIODevice.WriteOnly or QIODevice.Text):
+	    xmlWrite=QXmlStreamWriter(xmlfile)
+	    xmlWrite.setAutoFormatting(True)
+	    xmlWrite.writeStartDocument()
+	    xmlWrite.writeStartElement("UserSet")
+            xmlWrite.writeTextElement("simulatorpath",self.configControlWidget.simulatorPath)
+	    xmlWrite.writeStartElement("Fullsystem")	
+            xmlWrite.writeTextElement("fulltrace",self.configControlWidget.fullTracefile.text())
+            xmlWrite.writeTextElement("image",self.configControlWidget.fullEdit.text())
+	    xmlWrite.writeEndElement()#Fullsystem
+	    xmlWrite.writeStartElement("APCsystem")	
+            xmlWrite.writeTextElement("apctrace",self.configControlWidget.traceFileEdit.text())
+	    xmlWrite.writeStartElement("APE0")
+            xmlWrite.writeTextElement("APE0SPU",self.configControlWidget.APE0SPUEdit.text())
+            xmlWrite.writeTextElement("APE0MPU",self.configControlWidget.APE0MPUEdit.text())
+	    xmlWrite.writeEndElement() #APE0
+	    xmlWrite.writeEndElement() #APCsystem
+	    xmlWrite.writeEndElement() #UserSet
+	    xmlWrite.writeEndDocument()
+
+    def readXML(self):
+	xmlfile=QFile(self.path)
+	xmlType=QXmlStreamReader.TokenType()
+	if xmlfile.open(QIODevice.ReadOnly or QIODevice.Text):	
+	    xmlRead=QXmlStreamReader(xmlfile)
+	    while not xmlRead.atEnd():
+		xmlType=xmlRead.readNext()
+		if xmlType==QXmlStreamReader.StartElement:
+		    if xmlRead.name()=="UserSet":
+			while not xmlRead.atEnd():
+			    xmlType=xmlRead.readNext()
+			    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				print "simulator",xmlRead.text().toString()
+			    if xmlType==QXmlStreamReader.EndElement:
+                            	break
+		    elif xmlRead.name()=="Fullsystem":
+			while not xmlRead.atEnd():
+			    xmlType=xmlRead.readNext()
+		            if xmlRead.name()=="fulltrace":
+			        while not xmlRead.atEnd():
+			            xmlType=xmlRead.readNext()
+			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				        print "fulltrace",xmlRead.text().toString()
+			            if xmlType==QXmlStreamReader.EndElement:
+					if xmlRead.name()=="fulltrace":
+                            	            break
+		            elif xmlRead.name()=="image":
+			        while not xmlRead.atEnd():
+			            xmlType=xmlRead.readNext()
+			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				        print "image",xmlRead.text().toString()
+			            if xmlType==QXmlStreamReader.EndElement:
+					if xmlRead.name()=="image":
+                            	            break
+		            elif xmlRead.name()=="APCsystem":
+			        while not xmlRead.atEnd():
+			            xmlType=xmlRead.readNext()
+			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				        print "APCsystem",xmlRead.text().toString()
+			            if xmlType==QXmlStreamReader.EndElement:
+                            	        break
+		            elif xmlRead.name()=="APE0":
+			        while not xmlRead.atEnd():
+		                    if xmlRead.name()=="APE0SPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				            print "APE0SPU",xmlRead.text().toString()
+			                if xmlType==QXmlStreamReader.EndElement:
+					     if xmlRead.name()=="APE0SPU":
+                            	                 break
+		                    elif xmlRead.name()=="APE0MPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                 print "APE0MPU",xmlRead.text().toString()
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE0MPU":
+                            	                      break
+	xmlfile.close()
+    
     def closeEvent(self,event):
+	#self.writeXML()
 	self.configControlWidget.stopProcessExit(1)
 	self.apcViewWidget.APE0Widget.MPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE1Widget.MPUWidget.closeChildDialog() 
@@ -117,4 +206,6 @@ class MainWindow(QMainWindow):
 	self.apcViewWidget.APE1Widget.SPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE2Widget.SPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE3Widget.SPUWidget.closeChildDialog() 
+
+
 
