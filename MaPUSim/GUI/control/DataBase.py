@@ -38,7 +38,7 @@ class DataBase():
         lines=f.readlines()
 	self.maxValue=len(lines)
 	self.maxValue=self.maxValue*10/(10-num)
-	self.progressCall(self.minValue,"start bulid data base",self.maxValue)
+	self.progressCall(self.minValue,"start build data base",self.maxValue)
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
 	self.createAPE0Database()
@@ -66,7 +66,7 @@ class DataBase():
 	self.progressCall(self.maxValue,"data base done",-1)
 
     def createAPE0Database(self):
-	self.progressCall(self.value,"start bulid mem table",-1)
+	self.progressCall(self.value,"start build mem table",-1)
 	self.memTableInit()
 	self.progressCall(self.value,"end build mem table",-1)
 	self.progressCall(self.value,"start build APE0 sn and reg table",-1)
@@ -380,7 +380,7 @@ class DataBase():
 	        data="values ("+item.time+","+item.type+","+item.addr+","+item.dis+")"
 	        self.save(self.APE0dbConn, save_sql, data)
 		self.value+=1
-		self.progressCall(self.value,"buliding mem table",-1)
+		self.progressCall(self.value,"building mem table",-1)
 	f.close()
 	self.APE0dbConn.commit()
 
@@ -447,7 +447,7 @@ class DataBase():
 	            data="values ("+item_reg.time+","+item_reg.cpu+","+item_reg.spumpu+","+item_reg.sn+","+item_reg.op+","+item_reg.type+","+item_reg.reg+","+item_reg.dis+")"
 	            self.save(APEdbConn, save_sql_reg, data)	
 		self.value+=1
-		self.progressCall(self.value,"buliding APE"+str(n)+" sn and reg table",-1) 	
+		self.progressCall(self.value,"building APE"+str(n)+" sn and reg table",-1) 	
 	f.close()
 	APEdbConn.commit()
         #show snM table

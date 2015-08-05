@@ -22,8 +22,6 @@ class MainWindow(QMainWindow):
         self.createToolBars()
 	self.createStatusBar()
   
-	#self.setMinimumSize(800,620)
-	#self.setMaximumSize(1600,840)
 	self.resize(800,600)
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  
@@ -39,8 +37,8 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
-
-	#self.readXML()
+	self.simulatorPath=""
+	self.readXML()
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                                 
@@ -85,7 +83,10 @@ class MainWindow(QMainWindow):
 	self.setDialog=QDialog()
 	self.setDialog.setWindowTitle("Simulator path setting")
 	self.setDialog.setFixedSize(400,200)
-	self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
+	if self.simulatorPath!="":
+	    self.pathEdit=QLineEdit(self.simulatorPath)
+	else:
+	    self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
 	browserButton=QPushButton("Browser")
 	self.okButton=QPushButton("OK")
 	self.okButton.setFixedSize(100,30)
@@ -120,16 +121,48 @@ class MainWindow(QMainWindow):
 	    xmlWrite.writeStartDocument()
 	    xmlWrite.writeStartElement("UserSet")
             xmlWrite.writeTextElement("simulatorpath",self.configControlWidget.simulatorPath)
-	    xmlWrite.writeStartElement("Fullsystem")	
+	    xmlWrite.writeStartElement("Fullsystem")
+	    if self.configControlWidget.fullGroup.isChecked()==True:
+		xmlWrite.writeTextElement("fullcheck","1")	
+	    else:
+		xmlWrite.writeTextElement("fullcheck","0")
             xmlWrite.writeTextElement("fulltrace",self.configControlWidget.fullTracefile.text())
             xmlWrite.writeTextElement("image",self.configControlWidget.fullEdit.text())
 	    xmlWrite.writeEndElement()#Fullsystem
-	    xmlWrite.writeStartElement("APCsystem")	
+	    xmlWrite.writeStartElement("APCsystem")
+	    if self.configControlWidget.APCGroup.isChecked()==True:
+		xmlWrite.writeTextElement("apccheck","1")	
+	    else:
+		xmlWrite.writeTextElement("apccheck","0")	
             xmlWrite.writeTextElement("apctrace",self.configControlWidget.traceFileEdit.text())
 	    xmlWrite.writeStartElement("APE0")
             xmlWrite.writeTextElement("APE0SPU",self.configControlWidget.APE0SPUEdit.text())
             xmlWrite.writeTextElement("APE0MPU",self.configControlWidget.APE0MPUEdit.text())
 	    xmlWrite.writeEndElement() #APE0
+	    xmlWrite.writeStartElement("APE1")
+	    if self.configControlWidget.APE1Check.isChecked()==True:
+		xmlWrite.writeTextElement("APE1check","1")
+	    else:
+		xmlWrite.writeTextElement("APE1check","0")
+            xmlWrite.writeTextElement("APE1SPU",self.configControlWidget.APE1SPUEdit.text())
+            xmlWrite.writeTextElement("APE1MPU",self.configControlWidget.APE1MPUEdit.text())
+	    xmlWrite.writeEndElement() #APE1
+	    xmlWrite.writeStartElement("APE2")
+	    if self.configControlWidget.APE2Check.isChecked()==True:
+		xmlWrite.writeTextElement("APE2check","1")
+	    else:
+		xmlWrite.writeTextElement("APE2check","0")
+            xmlWrite.writeTextElement("APE2SPU",self.configControlWidget.APE2SPUEdit.text())
+            xmlWrite.writeTextElement("APE2MPU",self.configControlWidget.APE2MPUEdit.text())
+	    xmlWrite.writeEndElement() #APE2
+	    xmlWrite.writeStartElement("APE3")
+	    if self.configControlWidget.APE3Check.isChecked()==True:
+		xmlWrite.writeTextElement("APE3check","1")
+	    else:
+		xmlWrite.writeTextElement("APE3check","0")
+            xmlWrite.writeTextElement("APE3SPU",self.configControlWidget.APE3SPUEdit.text())
+            xmlWrite.writeTextElement("APE3MPU",self.configControlWidget.APE3MPUEdit.text())
+	    xmlWrite.writeEndElement() #APE3
 	    xmlWrite.writeEndElement() #APCsystem
 	    xmlWrite.writeEndElement() #UserSet
 	    xmlWrite.writeEndDocument()
@@ -142,21 +175,33 @@ class MainWindow(QMainWindow):
 	    while not xmlRead.atEnd():
 		xmlType=xmlRead.readNext()
 		if xmlType==QXmlStreamReader.StartElement:
-		    if xmlRead.name()=="UserSet":
+		    if xmlRead.name()=="simulatorpath":
 			while not xmlRead.atEnd():
 			    xmlType=xmlRead.readNext()
 			    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				print "simulator",xmlRead.text().toString()
+				self.simulatorPath=xmlRead.text().toString()
 			    if xmlType==QXmlStreamReader.EndElement:
-                            	break
+                                if xmlRead.name()=="simulatorpath":
+                                    break
 		    elif xmlRead.name()=="Fullsystem":
 			while not xmlRead.atEnd():
 			    xmlType=xmlRead.readNext()
-		            if xmlRead.name()=="fulltrace":
+			    if xmlRead.name()=="fullcheck":
 			        while not xmlRead.atEnd():
 			            xmlType=xmlRead.readNext()
 			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        print "fulltrace",xmlRead.text().toString()
+				        if xmlRead.text().toString()=="1":
+					    self.configControlWidget.fullGroup.setChecked(True)
+					else:
+					    self.configControlWidget.fullGroup.setChecked(False)  
+			            if xmlType==QXmlStreamReader.EndElement:
+					if xmlRead.name()=="fullcheck":
+                            	            break
+		            elif xmlRead.name()=="fulltrace":
+			        while not xmlRead.atEnd():
+			            xmlType=xmlRead.readNext()
+			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				        self.configControlWidget.fullTracefile.setText(xmlRead.text().toString())
 			            if xmlType==QXmlStreamReader.EndElement:
 					if xmlRead.name()=="fulltrace":
                             	            break
@@ -164,39 +209,165 @@ class MainWindow(QMainWindow):
 			        while not xmlRead.atEnd():
 			            xmlType=xmlRead.readNext()
 			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        print "image",xmlRead.text().toString()
+				        self.configControlWidget.fullEdit.setText(xmlRead.text().toString())
 			            if xmlType==QXmlStreamReader.EndElement:
 					if xmlRead.name()=="image":
                             	            break
-		            elif xmlRead.name()=="APCsystem":
+			    if xmlType==QXmlStreamReader.EndElement:
+                                if xmlRead.name()=="Fullsystem":
+                                    break
+		    elif xmlRead.name()=="APCsystem":
+			while not xmlRead.atEnd():
+			    xmlType=xmlRead.readNext()
+			    if xmlRead.name()=="apccheck":
 			        while not xmlRead.atEnd():
 			            xmlType=xmlRead.readNext()
 			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        print "APCsystem",xmlRead.text().toString()
+				        if xmlRead.text().toString()=="1":
+					    self.configControlWidget.APCGroup.setChecked(True)  
+					else:
+					    self.configControlWidget.APCGroup.setChecked(False)  
 			            if xmlType==QXmlStreamReader.EndElement:
-                            	        break
+					if xmlRead.name()=="apccheck":
+                            	            break
+		            elif xmlRead.name()=="apctrace":
+			        while not xmlRead.atEnd():
+			            xmlType=xmlRead.readNext()
+			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				        self.configControlWidget.traceFileEdit.setText(xmlRead.text().toString())
+			            if xmlType==QXmlStreamReader.EndElement:
+					 if xmlRead.name()=="apctrace":
+                            	             break
 		            elif xmlRead.name()=="APE0":
 			        while not xmlRead.atEnd():
+				    xmlType=xmlRead.readNext()
 		                    if xmlRead.name()=="APE0SPU":
 			                while not xmlRead.atEnd():
 			                    xmlType=xmlRead.readNext()
-			                if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				            print "APE0SPU",xmlRead.text().toString()
-			                if xmlType==QXmlStreamReader.EndElement:
-					     if xmlRead.name()=="APE0SPU":
-                            	                 break
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                self.configControlWidget.APE0SPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE0SPU":
+                            	                     break
 		                    elif xmlRead.name()=="APE0MPU":
 			                while not xmlRead.atEnd():
 			                    xmlType=xmlRead.readNext()
 			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                 print "APE0MPU",xmlRead.text().toString()
+				                 self.configControlWidget.APE0MPUEdit.setText(xmlRead.text().toString())
 			                    if xmlType==QXmlStreamReader.EndElement:
 					         if xmlRead.name()=="APE0MPU":
                             	                      break
+			            if xmlType==QXmlStreamReader.EndElement:
+                                        if xmlRead.name()=="APE0":
+                                            break
+		            elif xmlRead.name()=="APE1":
+			        while not xmlRead.atEnd():
+				    xmlType=xmlRead.readNext()
+		                    if xmlRead.name()=="APE1check":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                if xmlRead.text().toString()=="1":
+						    self.configControlWidget.APE1Check.setCheckState(Qt.Checked)
+						else:
+						    self.configControlWidget.APE1Check.setCheckState(Qt.Unchecked)							   
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE1check":
+                            	                     break
+		                    elif xmlRead.name()=="APE1SPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                self.configControlWidget.APE1SPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE1SPU":
+                            	                     break
+		                    elif xmlRead.name()=="APE1MPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                 self.configControlWidget.APE1MPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE1MPU":
+                            	                      break
+			            if xmlType==QXmlStreamReader.EndElement:
+                                        if xmlRead.name()=="APE1":
+                                            break
+		            elif xmlRead.name()=="APE2":
+			        while not xmlRead.atEnd():
+				    xmlType=xmlRead.readNext()
+		                    if xmlRead.name()=="APE2check":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                if xmlRead.text().toString()=="1":
+						    self.configControlWidget.APE2Check.setCheckState(Qt.Checked)
+						else:
+						    self.configControlWidget.APE2Check.setCheckState(Qt.Unchecked)
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE2check":
+                            	                     break
+		                    elif xmlRead.name()=="APE2SPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                self.configControlWidget.APE2SPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE2SPU":
+                            	                     break
+		                    elif xmlRead.name()=="APE2MPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                 self.configControlWidget.APE2MPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE2MPU":
+                            	                      break
+			            if xmlType==QXmlStreamReader.EndElement:
+                                        if xmlRead.name()=="APE2":
+                                            break
+		            elif xmlRead.name()=="APE3":
+			        while not xmlRead.atEnd():
+				    xmlType=xmlRead.readNext()
+		                    if xmlRead.name()=="APE3check":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                if xmlRead.text().toString()=="1":
+						    self.configControlWidget.APE3Check.setCheckState(Qt.Checked)
+						else:
+						    self.configControlWidget.APE3Check.setCheckState(Qt.Unchecked)
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE3check":
+                            	                     break
+		                    elif xmlRead.name()=="APE3SPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                self.configControlWidget.APE3SPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE3SPU":
+                            	                     break
+		                    elif xmlRead.name()=="APE3MPU":
+			                while not xmlRead.atEnd():
+			                    xmlType=xmlRead.readNext()
+			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+				                 self.configControlWidget.APE3MPUEdit.setText(xmlRead.text().toString())
+			                    if xmlType==QXmlStreamReader.EndElement:
+					         if xmlRead.name()=="APE3MPU":
+                            	                      break
+			            if xmlType==QXmlStreamReader.EndElement:
+                                        if xmlRead.name()=="APE3":
+                                            break
+			    if xmlType==QXmlStreamReader.EndElement:
+                                if xmlRead.name()=="APCsystem":
+                                    break
 	xmlfile.close()
+	self.configControlWidget.fullCheckedSlot()
+	self.configControlWidget.APCCheckedSlot()
     
     def closeEvent(self,event):
-	#self.writeXML()
+	self.writeXML()
 	self.configControlWidget.stopProcessExit(1)
 	self.apcViewWidget.APE0Widget.MPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE1Widget.MPUWidget.closeChildDialog() 
