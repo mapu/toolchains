@@ -113,9 +113,6 @@ class MPULeftWidget(QWidget):
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
 
-	self.ButLi[0][1]=1
-	self.ButLine()
-
     #define slot function
     def DMButtonSlot(self):
 	self.DMButtonDialog.flag=1
