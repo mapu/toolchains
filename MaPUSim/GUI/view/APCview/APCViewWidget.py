@@ -86,6 +86,9 @@ class APCViewWidget(QWidget):
 	self.dataBase=thread.dataBase
 	return self.dataBase
 
+    def indexCallback(self):  
+        self.currentValueSlot(self.slider.value())
+
     def simulatorDoneSlot(self,num,path): #num APE count
 	self.num=num
 	#simulator exit normal,create data base
@@ -192,6 +195,10 @@ class APCViewWidget(QWidget):
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.spinBox.setValue)
 	self.connect(self.spinBox,SIGNAL("valueChanged(int)"),self.slider.setValue)
 	self.dataBaseDialog.close()
+	self.APE0Widget.MPUWidget.indexCallback(self.indexCallback)
+	self.APE1Widget.MPUWidget.indexCallback(self.indexCallback)
+	self.APE2Widget.MPUWidget.indexCallback(self.indexCallback)
+	self.APE3Widget.MPUWidget.indexCallback(self.indexCallback)
 	i=datetime.datetime.now()
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 

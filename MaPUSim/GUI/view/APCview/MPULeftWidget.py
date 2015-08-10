@@ -113,6 +113,9 @@ class MPULeftWidget(QWidget):
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
 
+	self.ButLi[0][1]=1
+	self.ButLine()
+
     #define slot function
     def DMButtonSlot(self):
 	self.DMButtonDialog.flag=1
@@ -584,10 +587,10 @@ class MPULeftWidget(QWidget):
            self.paintLine(6,LEPS0)  
            self.paintstaen(1,LEPS0)                          
         #DM to BIU0
-           DMX=150
-           DMY=242
-           DtoBX=210
-           DtoBY=134        
+        DMX=150
+        DMY=242
+        DtoBX=210
+        DtoBY=134        
         if self.List[67]==1:
            DMBIU01=[DMX,DMY+width,DtoBX,DtoBY+width]
            self.paintLine(2,DMBIU01)
@@ -674,7 +677,7 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,R0toS1) 
            self.paintstaen(-2,R0toS1)      
            
-#Dm=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
+#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
     def ButLine(self):
         if self.ButLi[0][1]==1:
            self.List[68]=1

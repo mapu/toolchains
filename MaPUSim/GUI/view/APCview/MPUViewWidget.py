@@ -44,485 +44,41 @@ class MPUViewWidget(QMainWindow):
 	self.rightTab=QTabWidget()
 	self.rightTab.setMinimumWidth(100)
 	self.byteComboBox=QComboBox()
-	self.byteComboBox.insertItem(0,"8 Bytes")
-	self.byteComboBox.insertItem(1,"7 Bytes")
-	self.byteComboBox.insertItem(2,"6 Bytes")
-	self.byteComboBox.insertItem(3,"5 Bytes")
-	self.byteComboBox.insertItem(4,"4 Bytes")
-	self.byteComboBox.insertItem(5,"3 Bytes")
-	self.byteComboBox.insertItem(6,"2 Bytes")
-	self.byteComboBox.insertItem(7,"1 Bytes")
-	self.regFileWidget=QTableWidget()
+	self.byteComboBox.insertItem(0,"1")
+	self.byteComboBox.insertItem(1,"2")
+	self.byteComboBox.insertItem(2,"4")
+	self.byteComboBox.insertItem(3,"float")
+	self.byteComboBox.insertItem(4,"double")
+	self.connect(self.byteComboBox,SIGNAL("currentIndexChanged(int)"),self.currentIndexSlot)
+	self.regFileWidget=QTableView()
 	regWidget=QWidget()
 	regLay=QVBoxLayout()
 	regLay.addWidget(self.byteComboBox)
 	regLay.addWidget(self.regFileWidget)
-	regWidget.setLayout(regLay)
+	regWidget.setLayout(regLay)																
 	self.specialRegWidget=QTableWidget()
 	self.traceWidget=QTableWidget()
 	self.rightTab.addTab(regWidget,self.tr("Register File"))
 	self.rightTab.addTab(self.specialRegWidget,self.tr("Special Register"))
 	self.rightTab.addTab(self.traceWidget,self.tr("Trace"))
-	self.regFileWidget.horizontalHeader().setStretchLastSection(True)
 	self.specialRegWidget.horizontalHeader().setStretchLastSection(True)
 	self.traceWidget.horizontalHeader().setStretchLastSection(True)
 
 	#define regFileWidget
+	self.regModel=QStandardItemModel()
+	self.regFileWidget.setModel(self.regModel)
 	self.regFileWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 	self.regFileWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 	self.regFileWidget.horizontalHeader().setVisible(False)
 	self.regFileWidget.verticalHeader().setVisible(False)
-	self.regFileWidget.setShowGrid(False)
-	self.regFileWidget.setColumnCount(2)
-	self.regFileWidget.setRowCount(195)
+	self.regFileWidget.setShowGrid(True)
 	self.regFileWidget.verticalHeader().setDefaultSectionSize(25)
-	self.regFileWidget.resizeColumnToContents(1)
-	self.regFileWidget.setColumnWidth(1,2500)
+	self.regFileWidget.horizontalHeader().setStretchLastSection(True)
 	self.regFileWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
 	self.regFileWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-	
-	#define regFileWidget M
-	self.regFileWidget.setItem(0,0,QTableWidgetItem(self.tr("M")))
-	self.regFileWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(1,0,QTableWidgetItem(self.tr("M0")))
-        self.regFileWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(2,0,QTableWidgetItem(self.tr("M1")))
-        self.regFileWidget.setItem(2,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(3,0,QTableWidgetItem(self.tr("M2")))
-        self.regFileWidget.setItem(3,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(4,0,QTableWidgetItem(self.tr("M3")))
-        self.regFileWidget.setItem(4,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(5,0,QTableWidgetItem(self.tr("M4")))
-        self.regFileWidget.setItem(5,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(6,0,QTableWidgetItem(self.tr("M5")))
-        self.regFileWidget.setItem(6,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(7,0,QTableWidgetItem(self.tr("M6")))
-        self.regFileWidget.setItem(7,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(8,0,QTableWidgetItem(self.tr("M7")))
-        self.regFileWidget.setItem(8,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(9,0,QTableWidgetItem(self.tr("M8")))
-        self.regFileWidget.setItem(9,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(10,0,QTableWidgetItem(self.tr("M9")))
-        self.regFileWidget.setItem(10,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(11,0,QTableWidgetItem(self.tr("M10")))
-        self.regFileWidget.setItem(11,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(12,0,QTableWidgetItem(self.tr("M11")))
-        self.regFileWidget.setItem(12,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(13,0,QTableWidgetItem(self.tr("M12")))
-        self.regFileWidget.setItem(13,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(14,0,QTableWidgetItem(self.tr("M13")))
-        self.regFileWidget.setItem(14,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(15,0,QTableWidgetItem(self.tr("M14")))
-        self.regFileWidget.setItem(15,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(16,0,QTableWidgetItem(self.tr("M15")))
-        self.regFileWidget.setItem(16,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(17,0,QTableWidgetItem(self.tr("M16")))
-        self.regFileWidget.setItem(17,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(18,0,QTableWidgetItem(self.tr("M17")))
-        self.regFileWidget.setItem(18,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(19,0,QTableWidgetItem(self.tr("M18")))
-        self.regFileWidget.setItem(19,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(20,0,QTableWidgetItem(self.tr("M19")))
-        self.regFileWidget.setItem(20,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(21,0,QTableWidgetItem(self.tr("M20")))
-        self.regFileWidget.setItem(21,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(22,0,QTableWidgetItem(self.tr("M21")))
-        self.regFileWidget.setItem(22,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(23,0,QTableWidgetItem(self.tr("M22")))
-        self.regFileWidget.setItem(23,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(24,0,QTableWidgetItem(self.tr("M23")))
-        self.regFileWidget.setItem(24,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(25,0,QTableWidgetItem(self.tr("M24")))
-        self.regFileWidget.setItem(25,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(26,0,QTableWidgetItem(self.tr("M25")))
-        self.regFileWidget.setItem(26,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(27,0,QTableWidgetItem(self.tr("M26")))
-        self.regFileWidget.setItem(27,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(28,0,QTableWidgetItem(self.tr("M27")))
-        self.regFileWidget.setItem(28,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(29,0,QTableWidgetItem(self.tr("M28")))
-        self.regFileWidget.setItem(29,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(30,0,QTableWidgetItem(self.tr("M29")))
-        self.regFileWidget.setItem(30,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(31,0,QTableWidgetItem(self.tr("M30")))
-        self.regFileWidget.setItem(31,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(32,0,QTableWidgetItem(self.tr("M31")))
-        self.regFileWidget.setItem(32,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(33,0,QTableWidgetItem(self.tr("M32")))
-        self.regFileWidget.setItem(33,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(34,0,QTableWidgetItem(self.tr("M33")))
-        self.regFileWidget.setItem(34,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(35,0,QTableWidgetItem(self.tr("M34")))
-        self.regFileWidget.setItem(35,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(36,0,QTableWidgetItem(self.tr("M35")))
-        self.regFileWidget.setItem(36,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(37,0,QTableWidgetItem(self.tr("M36")))
-        self.regFileWidget.setItem(37,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(38,0,QTableWidgetItem(self.tr("M37")))
-        self.regFileWidget.setItem(38,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(39,0,QTableWidgetItem(self.tr("M38")))
-        self.regFileWidget.setItem(39,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(40,0,QTableWidgetItem(self.tr("M39")))
-	self.regFileWidget.setItem(40,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(41,0,QTableWidgetItem(self.tr("M40")))
-        self.regFileWidget.setItem(41,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(42,0,QTableWidgetItem(self.tr("M41")))
-        self.regFileWidget.setItem(42,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(43,0,QTableWidgetItem(self.tr("M42")))
-        self.regFileWidget.setItem(43,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(44,0,QTableWidgetItem(self.tr("M43")))
-        self.regFileWidget.setItem(44,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(45,0,QTableWidgetItem(self.tr("M44")))
-        self.regFileWidget.setItem(45,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(46,0,QTableWidgetItem(self.tr("M45")))
-        self.regFileWidget.setItem(46,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(47,0,QTableWidgetItem(self.tr("M46")))
-        self.regFileWidget.setItem(47,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(48,0,QTableWidgetItem(self.tr("M47")))
-        self.regFileWidget.setItem(48,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(49,0,QTableWidgetItem(self.tr("M48")))
-        self.regFileWidget.setItem(49,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(50,0,QTableWidgetItem(self.tr("M49")))
-	self.regFileWidget.setItem(50,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(51,0,QTableWidgetItem(self.tr("M50")))
-        self.regFileWidget.setItem(51,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(52,0,QTableWidgetItem(self.tr("M51")))
-        self.regFileWidget.setItem(52,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(53,0,QTableWidgetItem(self.tr("M52")))
-        self.regFileWidget.setItem(53,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(54,0,QTableWidgetItem(self.tr("M53")))
-        self.regFileWidget.setItem(54,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(55,0,QTableWidgetItem(self.tr("M54")))
-        self.regFileWidget.setItem(55,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(56,0,QTableWidgetItem(self.tr("M55")))
-        self.regFileWidget.setItem(56,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(57,0,QTableWidgetItem(self.tr("M56")))
-        self.regFileWidget.setItem(57,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(58,0,QTableWidgetItem(self.tr("M57")))
-        self.regFileWidget.setItem(58,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(59,0,QTableWidgetItem(self.tr("M58")))
-        self.regFileWidget.setItem(59,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(60,0,QTableWidgetItem(self.tr("M59")))
-	self.regFileWidget.setItem(60,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(61,0,QTableWidgetItem(self.tr("M60")))
-        self.regFileWidget.setItem(61,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(62,0,QTableWidgetItem(self.tr("M61")))
-        self.regFileWidget.setItem(62,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(63,0,QTableWidgetItem(self.tr("M62")))
-        self.regFileWidget.setItem(63,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(64,0,QTableWidgetItem(self.tr("M63")))
-        self.regFileWidget.setItem(64,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(65,0,QTableWidgetItem(self.tr("M64")))
-        self.regFileWidget.setItem(65,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(66,0,QTableWidgetItem(self.tr("M65")))
-        self.regFileWidget.setItem(66,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(67,0,QTableWidgetItem(self.tr("M66")))
-        self.regFileWidget.setItem(67,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(68,0,QTableWidgetItem(self.tr("M67")))
-        self.regFileWidget.setItem(68,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(69,0,QTableWidgetItem(self.tr("M68")))
-        self.regFileWidget.setItem(69,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(70,0,QTableWidgetItem(self.tr("M69")))
-	self.regFileWidget.setItem(70,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(71,0,QTableWidgetItem(self.tr("M70")))
-        self.regFileWidget.setItem(71,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(72,0,QTableWidgetItem(self.tr("M71")))
-        self.regFileWidget.setItem(72,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(73,0,QTableWidgetItem(self.tr("M72")))
-        self.regFileWidget.setItem(73,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(74,0,QTableWidgetItem(self.tr("M73")))
-        self.regFileWidget.setItem(74,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(75,0,QTableWidgetItem(self.tr("M74")))
-        self.regFileWidget.setItem(75,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(76,0,QTableWidgetItem(self.tr("M75")))
-        self.regFileWidget.setItem(76,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(77,0,QTableWidgetItem(self.tr("M76")))
-        self.regFileWidget.setItem(77,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(78,0,QTableWidgetItem(self.tr("M77")))
-        self.regFileWidget.setItem(78,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(79,0,QTableWidgetItem(self.tr("M78")))
-        self.regFileWidget.setItem(79,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(80,0,QTableWidgetItem(self.tr("M79")))
-	self.regFileWidget.setItem(80,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(81,0,QTableWidgetItem(self.tr("M80")))
-        self.regFileWidget.setItem(81,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(82,0,QTableWidgetItem(self.tr("M81")))
-        self.regFileWidget.setItem(82,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(83,0,QTableWidgetItem(self.tr("M82")))
-        self.regFileWidget.setItem(83,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(84,0,QTableWidgetItem(self.tr("M83")))
-        self.regFileWidget.setItem(84,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(85,0,QTableWidgetItem(self.tr("M84")))
-        self.regFileWidget.setItem(85,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(86,0,QTableWidgetItem(self.tr("M85")))
-        self.regFileWidget.setItem(86,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(87,0,QTableWidgetItem(self.tr("M86")))
-        self.regFileWidget.setItem(87,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(88,0,QTableWidgetItem(self.tr("M87")))
-        self.regFileWidget.setItem(88,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(89,0,QTableWidgetItem(self.tr("M88")))
-        self.regFileWidget.setItem(89,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(90,0,QTableWidgetItem(self.tr("M89")))
-	self.regFileWidget.setItem(90,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(91,0,QTableWidgetItem(self.tr("M90")))
-        self.regFileWidget.setItem(91,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(92,0,QTableWidgetItem(self.tr("M91")))
-        self.regFileWidget.setItem(92,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(93,0,QTableWidgetItem(self.tr("M92")))
-        self.regFileWidget.setItem(93,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(94,0,QTableWidgetItem(self.tr("M93")))
-        self.regFileWidget.setItem(94,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(95,0,QTableWidgetItem(self.tr("M94")))
-        self.regFileWidget.setItem(95,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(96,0,QTableWidgetItem(self.tr("M95")))
-        self.regFileWidget.setItem(96,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(97,0,QTableWidgetItem(self.tr("M96")))
-        self.regFileWidget.setItem(97,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(98,0,QTableWidgetItem(self.tr("M97")))
-        self.regFileWidget.setItem(98,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(99,0,QTableWidgetItem(self.tr("M98")))
-        self.regFileWidget.setItem(99,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(100,0,QTableWidgetItem(self.tr("M99")))
-	self.regFileWidget.setItem(100,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(101,0,QTableWidgetItem(self.tr("M100")))
-        self.regFileWidget.setItem(101,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(102,0,QTableWidgetItem(self.tr("M101")))
-        self.regFileWidget.setItem(102,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(103,0,QTableWidgetItem(self.tr("M102")))
-        self.regFileWidget.setItem(103,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(104,0,QTableWidgetItem(self.tr("M103")))
-        self.regFileWidget.setItem(104,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(105,0,QTableWidgetItem(self.tr("M104")))
-        self.regFileWidget.setItem(105,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(106,0,QTableWidgetItem(self.tr("M105")))
-        self.regFileWidget.setItem(106,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(107,0,QTableWidgetItem(self.tr("M106")))
-        self.regFileWidget.setItem(107,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(108,0,QTableWidgetItem(self.tr("M107")))
-        self.regFileWidget.setItem(108,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(109,0,QTableWidgetItem(self.tr("M108")))
-        self.regFileWidget.setItem(109,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(110,0,QTableWidgetItem(self.tr("M109")))
-	self.regFileWidget.setItem(110,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(111,0,QTableWidgetItem(self.tr("M110")))
-        self.regFileWidget.setItem(111,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(112,0,QTableWidgetItem(self.tr("M111")))
-        self.regFileWidget.setItem(112,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(113,0,QTableWidgetItem(self.tr("M112")))
-        self.regFileWidget.setItem(113,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(114,0,QTableWidgetItem(self.tr("M113")))
-        self.regFileWidget.setItem(114,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(115,0,QTableWidgetItem(self.tr("M114")))
-        self.regFileWidget.setItem(115,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(116,0,QTableWidgetItem(self.tr("M115")))
-        self.regFileWidget.setItem(116,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(117,0,QTableWidgetItem(self.tr("M116")))
-        self.regFileWidget.setItem(117,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(118,0,QTableWidgetItem(self.tr("M117")))
-        self.regFileWidget.setItem(118,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(119,0,QTableWidgetItem(self.tr("M118")))
-        self.regFileWidget.setItem(119,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(120,0,QTableWidgetItem(self.tr("M119")))
-	self.regFileWidget.setItem(120,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(121,0,QTableWidgetItem(self.tr("M120")))
-        self.regFileWidget.setItem(121,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(122,0,QTableWidgetItem(self.tr("M121")))
-        self.regFileWidget.setItem(122,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(123,0,QTableWidgetItem(self.tr("M122")))
-        self.regFileWidget.setItem(123,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(124,0,QTableWidgetItem(self.tr("M123")))
-        self.regFileWidget.setItem(124,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(125,0,QTableWidgetItem(self.tr("M124")))
-        self.regFileWidget.setItem(125,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(126,0,QTableWidgetItem(self.tr("M125")))
-        self.regFileWidget.setItem(126,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(127,0,QTableWidgetItem(self.tr("M126")))
-        self.regFileWidget.setItem(127,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(128,0,QTableWidgetItem(self.tr("M127")))
-        self.regFileWidget.setItem(128,1,QTableWidgetItem(self.tr("0")))
-	
-	#define regFileWidget SHU0 T
-	self.regFileWidget.setItem(129,0,QTableWidgetItem(self.tr("SHU0 T")))
-	self.regFileWidget.setItem(129,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(129,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(129,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(130,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(130,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(131,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(131,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(132,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(132,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(133,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(133,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(134,0,QTableWidgetItem(self.tr("T4")))
-        self.regFileWidget.setItem(134,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(135,0,QTableWidgetItem(self.tr("T5")))
-        self.regFileWidget.setItem(135,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(136,0,QTableWidgetItem(self.tr("T6")))
-        self.regFileWidget.setItem(136,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(137,0,QTableWidgetItem(self.tr("T7")))
-        self.regFileWidget.setItem(137,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(138,0,QTableWidgetItem(self.tr("T8")))
-        self.regFileWidget.setItem(138,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(139,0,QTableWidgetItem(self.tr("T9")))
-        self.regFileWidget.setItem(139,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(140,0,QTableWidgetItem(self.tr("T10")))
-        self.regFileWidget.setItem(140,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(141,0,QTableWidgetItem(self.tr("T11")))
-        self.regFileWidget.setItem(141,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(142,0,QTableWidgetItem(self.tr("T12")))
-        self.regFileWidget.setItem(142,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(143,0,QTableWidgetItem(self.tr("T13")))
-        self.regFileWidget.setItem(143,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(144,0,QTableWidgetItem(self.tr("T14")))
-        self.regFileWidget.setItem(144,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(145,0,QTableWidgetItem(self.tr("T15")))
-        self.regFileWidget.setItem(145,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget SHU1 T
-	self.regFileWidget.setItem(146,0,QTableWidgetItem(self.tr("SHU1 T")))
-	self.regFileWidget.setItem(146,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(146,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(146,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(147,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(147,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(148,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(148,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(149,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(149,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(150,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(150,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(151,0,QTableWidgetItem(self.tr("T4")))
-        self.regFileWidget.setItem(151,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(152,0,QTableWidgetItem(self.tr("T5")))
-        self.regFileWidget.setItem(152,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(153,0,QTableWidgetItem(self.tr("T6")))
-        self.regFileWidget.setItem(153,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(154,0,QTableWidgetItem(self.tr("T7")))
-        self.regFileWidget.setItem(154,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(155,0,QTableWidgetItem(self.tr("T8")))
-        self.regFileWidget.setItem(155,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(156,0,QTableWidgetItem(self.tr("T9")))
-        self.regFileWidget.setItem(156,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(157,0,QTableWidgetItem(self.tr("T10")))
-        self.regFileWidget.setItem(157,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(158,0,QTableWidgetItem(self.tr("T11")))
-        self.regFileWidget.setItem(158,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(159,0,QTableWidgetItem(self.tr("T12")))
-        self.regFileWidget.setItem(159,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(160,0,QTableWidgetItem(self.tr("T13")))
-        self.regFileWidget.setItem(160,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.setItem(161,0,QTableWidgetItem(self.tr("T14")))
-        self.regFileWidget.setItem(161,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(162,0,QTableWidgetItem(self.tr("T15")))
-        self.regFileWidget.setItem(162,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget IALU T
-	self.regFileWidget.setItem(163,0,QTableWidgetItem(self.tr("IALU T")))
-	self.regFileWidget.setItem(163,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(163,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(163,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(164,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(164,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(165,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(165,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(166,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(166,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(167,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(167,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget IMAC T
-	self.regFileWidget.setItem(168,0,QTableWidgetItem(self.tr("IMAC T")))
-	self.regFileWidget.setItem(168,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(168,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(168,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(169,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(169,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(170,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(170,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(171,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(171,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(172,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(172,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget FALU T
-	self.regFileWidget.setItem(173,0,QTableWidgetItem(self.tr("FALU T")))
-	self.regFileWidget.setItem(173,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(173,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(173,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(174,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(174,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(175,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(175,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(176,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(176,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(177,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(177,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget FMAC T
-	self.regFileWidget.setItem(178,0,QTableWidgetItem(self.tr("FMAC T")))
-	self.regFileWidget.setItem(178,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(178,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(178,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(179,0,QTableWidgetItem(self.tr("T0")))
-        self.regFileWidget.setItem(179,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(180,0,QTableWidgetItem(self.tr("T1")))
-        self.regFileWidget.setItem(180,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(181,0,QTableWidgetItem(self.tr("T2")))
-        self.regFileWidget.setItem(181,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(182,0,QTableWidgetItem(self.tr("T3")))
-        self.regFileWidget.setItem(182,1,QTableWidgetItem(self.tr("0")))
-	#define regFileWidget IMRL
-        self.regFileWidget.setItem(183,0,QTableWidgetItem(self.tr("IMRL")))
-        self.regFileWidget.setItem(183,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(183,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(183,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget IMRH
-        self.regFileWidget.setItem(184,0,QTableWidgetItem(self.tr("IMRH")))
-        self.regFileWidget.setItem(184,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(184,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(184,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget FMR
-        self.regFileWidget.setItem(185,0,QTableWidgetItem(self.tr("FMR")))
-        self.regFileWidget.setItem(185,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(185,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(185,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget BIU0W
-        self.regFileWidget.setItem(186,0,QTableWidgetItem(self.tr("BIU0W")))
-        self.regFileWidget.setItem(186,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(186,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(186,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget BIU1W
-        self.regFileWidget.setItem(187,0,QTableWidgetItem(self.tr("BIU1W")))
-        self.regFileWidget.setItem(187,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(187,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(187,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget BIU2W
-        self.regFileWidget.setItem(188,0,QTableWidgetItem(self.tr("BIU2W")))
-        self.regFileWidget.setItem(188,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(188,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(188,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget DIVQU
-        self.regFileWidget.setItem(189,0,QTableWidgetItem(self.tr("DIVQU")))
-        self.regFileWidget.setItem(189,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(189,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(189,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget DIVRE
-        self.regFileWidget.setItem(190,0,QTableWidgetItem(self.tr("DIVRE")))
-        self.regFileWidget.setItem(190,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(190,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(190,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget DIV-CNT
-        self.regFileWidget.setItem(191,0,QTableWidgetItem(self.tr("DIV-CNT")))
-        self.regFileWidget.setItem(191,1,QTableWidgetItem(self.tr("0")))
-	self.regFileWidget.item(191,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(191,1).setBackgroundColor(QColor(192,192,192))
-	#define regFileWidget SVR
-        self.regFileWidget.setItem(192,0,QTableWidgetItem(self.tr("SVR")))
-        self.regFileWidget.setItem(192,1,QTableWidgetItem(self.tr("")))
-	self.regFileWidget.item(192,0).setBackgroundColor(QColor(192,192,192))
-	self.regFileWidget.item(192,1).setBackgroundColor(QColor(192,192,192))
-        self.regFileWidget.setItem(193,0,QTableWidgetItem(self.tr("SVR0")))
-        self.regFileWidget.setItem(193,1,QTableWidgetItem(self.tr("0")))
-        self.regFileWidget.setItem(194,0,QTableWidgetItem(self.tr("SVR1")))
-        self.regFileWidget.setItem(194,1,QTableWidgetItem(self.tr("0")))	
+	self.initData="0x00"
+	self.size=64
+	self.regFileTableInit()
 
 	#define specialRegWidget
 	self.specialRegWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -564,7 +120,7 @@ class MPUViewWidget(QMainWindow):
         self.specialRegWidget.setItem(12,0,QTableWidgetItem(self.tr("MPU loop2 number")))
 	self.specialRegWidget.setItem(12,1,QTableWidgetItem(self.tr("0")))
         self.specialRegWidget.setItem(13,0,QTableWidgetItem(self.tr("MPU loop3 number")))
-	self.specialRegWidget.setItem(13,1,QTableWidgetItem(self.tr("0" )))
+	self.specialRegWidget.setItem(13,1,QTableWidgetItem(self.tr("0")))
 
 	splitter=QSplitter(Qt.Horizontal,widget)
 	splitter.setChildrenCollapsible(False)
@@ -580,13 +136,319 @@ class MPUViewWidget(QMainWindow):
         vbox = QVBoxLayout()
         vbox.addWidget(scroll)  
         centralWidget.setLayout(vbox)
-
 	self.stageDialog=StageDialog()
 	
+    def regFileTableInit(self):
+	#define regFileWidget M
+	self.regModel.setItem(0,0,QStandardItem(self.tr("M")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(0,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(0,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(1,0,QStandardItem(self.tr("M0")))
+        self.regModel.setItem(2,0,QStandardItem(self.tr("M1")))
+        self.regModel.setItem(3,0,QStandardItem(self.tr("M2")))
+        self.regModel.setItem(4,0,QStandardItem(self.tr("M3")))
+	self.regModel.setItem(5,0,QStandardItem(self.tr("M4")))
+        self.regModel.setItem(6,0,QStandardItem(self.tr("M5")))
+        self.regModel.setItem(7,0,QStandardItem(self.tr("M6")))
+        self.regModel.setItem(8,0,QStandardItem(self.tr("M7")))
+	self.regModel.setItem(9,0,QStandardItem(self.tr("M8")))
+        self.regModel.setItem(10,0,QStandardItem(self.tr("M9")))
+        self.regModel.setItem(11,0,QStandardItem(self.tr("M10")))
+        self.regModel.setItem(12,0,QStandardItem(self.tr("M11")))
+        self.regModel.setItem(13,0,QStandardItem(self.tr("M12")))
+        self.regModel.setItem(14,0,QStandardItem(self.tr("M13")))
+	self.regModel.setItem(15,0,QStandardItem(self.tr("M14")))
+        self.regModel.setItem(16,0,QStandardItem(self.tr("M15")))
+        self.regModel.setItem(17,0,QStandardItem(self.tr("M16")))
+        self.regModel.setItem(18,0,QStandardItem(self.tr("M17")))
+	self.regModel.setItem(19,0,QStandardItem(self.tr("M18")))
+        self.regModel.setItem(20,0,QStandardItem(self.tr("M19")))
+        self.regModel.setItem(21,0,QStandardItem(self.tr("M20")))
+        self.regModel.setItem(22,0,QStandardItem(self.tr("M21")))
+        self.regModel.setItem(23,0,QStandardItem(self.tr("M22")))
+        self.regModel.setItem(24,0,QStandardItem(self.tr("M23")))
+	self.regModel.setItem(25,0,QStandardItem(self.tr("M24")))
+        self.regModel.setItem(26,0,QStandardItem(self.tr("M25")))
+        self.regModel.setItem(27,0,QStandardItem(self.tr("M26")))
+        self.regModel.setItem(28,0,QStandardItem(self.tr("M27")))
+	self.regModel.setItem(29,0,QStandardItem(self.tr("M28")))
+        self.regModel.setItem(30,0,QStandardItem(self.tr("M29")))
+	self.regModel.setItem(31,0,QStandardItem(self.tr("M30")))
+	self.regModel.setItem(32,0,QStandardItem(self.tr("M31")))
+        self.regModel.setItem(33,0,QStandardItem(self.tr("M32")))
+        self.regModel.setItem(34,0,QStandardItem(self.tr("M33")))
+	self.regModel.setItem(35,0,QStandardItem(self.tr("M34")))
+        self.regModel.setItem(36,0,QStandardItem(self.tr("M35")))
+        self.regModel.setItem(37,0,QStandardItem(self.tr("M36")))
+        self.regModel.setItem(38,0,QStandardItem(self.tr("M37")))
+	self.regModel.setItem(39,0,QStandardItem(self.tr("M38")))
+	self.regModel.setItem(40,0,QStandardItem(self.tr("M39")))
+        self.regModel.setItem(41,0,QStandardItem(self.tr("M40")))
+        self.regModel.setItem(42,0,QStandardItem(self.tr("M41")))
+        self.regModel.setItem(43,0,QStandardItem(self.tr("M42")))
+        self.regModel.setItem(44,0,QStandardItem(self.tr("M43")))
+	self.regModel.setItem(45,0,QStandardItem(self.tr("M44")))
+        self.regModel.setItem(46,0,QStandardItem(self.tr("M45")))
+        self.regModel.setItem(47,0,QStandardItem(self.tr("M46")))
+        self.regModel.setItem(48,0,QStandardItem(self.tr("M47")))
+	self.regModel.setItem(49,0,QStandardItem(self.tr("M48")))
+	self.regModel.setItem(50,0,QStandardItem(self.tr("M49")))
+        self.regModel.setItem(51,0,QStandardItem(self.tr("M50")))
+        self.regModel.setItem(52,0,QStandardItem(self.tr("M51")))
+        self.regModel.setItem(53,0,QStandardItem(self.tr("M52")))
+        self.regModel.setItem(54,0,QStandardItem(self.tr("M53")))
+	self.regModel.setItem(55,0,QStandardItem(self.tr("M54")))
+        self.regModel.setItem(56,0,QStandardItem(self.tr("M55")))
+        self.regModel.setItem(57,0,QStandardItem(self.tr("M56")))
+        self.regModel.setItem(58,0,QStandardItem(self.tr("M57")))
+	self.regModel.setItem(59,0,QStandardItem(self.tr("M58")))
+	self.regModel.setItem(60,0,QStandardItem(self.tr("M59")))
+        self.regModel.setItem(61,0,QStandardItem(self.tr("M60")))
+        self.regModel.setItem(62,0,QStandardItem(self.tr("M61")))
+        self.regModel.setItem(63,0,QStandardItem(self.tr("M62")))
+        self.regModel.setItem(64,0,QStandardItem(self.tr("M63")))
+	self.regModel.setItem(65,0,QStandardItem(self.tr("M64")))
+        self.regModel.setItem(66,0,QStandardItem(self.tr("M65")))
+        self.regModel.setItem(67,0,QStandardItem(self.tr("M66")))
+        self.regModel.setItem(68,0,QStandardItem(self.tr("M67")))
+	self.regModel.setItem(69,0,QStandardItem(self.tr("M68")))
+	self.regModel.setItem(70,0,QStandardItem(self.tr("M69")))
+        self.regModel.setItem(71,0,QStandardItem(self.tr("M70")))
+        self.regModel.setItem(72,0,QStandardItem(self.tr("M71")))
+        self.regModel.setItem(73,0,QStandardItem(self.tr("M72")))
+        self.regModel.setItem(74,0,QStandardItem(self.tr("M73")))
+	self.regModel.setItem(75,0,QStandardItem(self.tr("M74")))
+        self.regModel.setItem(76,0,QStandardItem(self.tr("M75")))
+        self.regModel.setItem(77,0,QStandardItem(self.tr("M76")))
+        self.regModel.setItem(78,0,QStandardItem(self.tr("M77")))
+	self.regModel.setItem(79,0,QStandardItem(self.tr("M78")))
+	self.regModel.setItem(80,0,QStandardItem(self.tr("M79")))
+        self.regModel.setItem(81,0,QStandardItem(self.tr("M80")))
+        self.regModel.setItem(82,0,QStandardItem(self.tr("M81")))
+        self.regModel.setItem(83,0,QStandardItem(self.tr("M82")))
+        self.regModel.setItem(84,0,QStandardItem(self.tr("M83")))
+	self.regModel.setItem(85,0,QStandardItem(self.tr("M84")))
+        self.regModel.setItem(86,0,QStandardItem(self.tr("M85")))
+        self.regModel.setItem(87,0,QStandardItem(self.tr("M86")))
+        self.regModel.setItem(88,0,QStandardItem(self.tr("M87")))
+	self.regModel.setItem(89,0,QStandardItem(self.tr("M88")))
+	self.regModel.setItem(90,0,QStandardItem(self.tr("M89")))
+        self.regModel.setItem(91,0,QStandardItem(self.tr("M90")))
+        self.regModel.setItem(92,0,QStandardItem(self.tr("M91")))
+        self.regModel.setItem(93,0,QStandardItem(self.tr("M92")))
+        self.regModel.setItem(94,0,QStandardItem(self.tr("M93")))
+	self.regModel.setItem(95,0,QStandardItem(self.tr("M94")))
+        self.regModel.setItem(96,0,QStandardItem(self.tr("M95")))
+        self.regModel.setItem(97,0,QStandardItem(self.tr("M96")))
+        self.regModel.setItem(98,0,QStandardItem(self.tr("M97")))
+	self.regModel.setItem(99,0,QStandardItem(self.tr("M98")))
+	self.regModel.setItem(100,0,QStandardItem(self.tr("M99")))
+        self.regModel.setItem(101,0,QStandardItem(self.tr("M100")))
+        self.regModel.setItem(102,0,QStandardItem(self.tr("M101")))
+        self.regModel.setItem(103,0,QStandardItem(self.tr("M102")))
+        self.regModel.setItem(104,0,QStandardItem(self.tr("M103")))
+	self.regModel.setItem(105,0,QStandardItem(self.tr("M104")))
+        self.regModel.setItem(106,0,QStandardItem(self.tr("M105")))
+        self.regModel.setItem(107,0,QStandardItem(self.tr("M106")))
+        self.regModel.setItem(108,0,QStandardItem(self.tr("M107")))
+	self.regModel.setItem(109,0,QStandardItem(self.tr("M108")))
+	self.regModel.setItem(110,0,QStandardItem(self.tr("M109")))
+        self.regModel.setItem(111,0,QStandardItem(self.tr("M110")))
+        self.regModel.setItem(112,0,QStandardItem(self.tr("M111")))
+        self.regModel.setItem(113,0,QStandardItem(self.tr("M112")))
+        self.regModel.setItem(114,0,QStandardItem(self.tr("M113")))
+	self.regModel.setItem(115,0,QStandardItem(self.tr("M114")))
+        self.regModel.setItem(116,0,QStandardItem(self.tr("M115")))
+        self.regModel.setItem(117,0,QStandardItem(self.tr("M116")))
+        self.regModel.setItem(118,0,QStandardItem(self.tr("M117")))
+	self.regModel.setItem(119,0,QStandardItem(self.tr("M118")))
+	self.regModel.setItem(120,0,QStandardItem(self.tr("M119")))
+        self.regModel.setItem(121,0,QStandardItem(self.tr("M120")))
+        self.regModel.setItem(122,0,QStandardItem(self.tr("M121")))
+        self.regModel.setItem(123,0,QStandardItem(self.tr("M122")))
+        self.regModel.setItem(124,0,QStandardItem(self.tr("M123")))
+	self.regModel.setItem(125,0,QStandardItem(self.tr("M124")))
+        self.regModel.setItem(126,0,QStandardItem(self.tr("M125")))
+        self.regModel.setItem(127,0,QStandardItem(self.tr("M126")))
+        self.regModel.setItem(128,0,QStandardItem(self.tr("M127")))
+	for i in range(1,129):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget SHU0 T
+	self.regModel.setItem(129,0,QStandardItem(self.tr("SHU0 T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(129,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(129,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(130,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(131,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(132,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(133,0,QStandardItem(self.tr("T3")))
+	self.regModel.setItem(134,0,QStandardItem(self.tr("T4")))
+        self.regModel.setItem(135,0,QStandardItem(self.tr("T5")))
+        self.regModel.setItem(136,0,QStandardItem(self.tr("T6")))
+        self.regModel.setItem(137,0,QStandardItem(self.tr("T7")))
+	self.regModel.setItem(138,0,QStandardItem(self.tr("T8")))
+        self.regModel.setItem(139,0,QStandardItem(self.tr("T9")))
+        self.regModel.setItem(140,0,QStandardItem(self.tr("T10")))
+        self.regModel.setItem(141,0,QStandardItem(self.tr("T11")))
+        self.regModel.setItem(142,0,QStandardItem(self.tr("T12")))
+        self.regModel.setItem(143,0,QStandardItem(self.tr("T13")))
+	self.regModel.setItem(144,0,QStandardItem(self.tr("T14")))
+        self.regModel.setItem(145,0,QStandardItem(self.tr("T15")))
+	for i in range(130,146):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget SHU1 T
+	self.regModel.setItem(146,0,QStandardItem(self.tr("SHU1 T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(146,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(146,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(147,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(148,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(149,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(150,0,QStandardItem(self.tr("T3")))
+	self.regModel.setItem(151,0,QStandardItem(self.tr("T4")))
+        self.regModel.setItem(152,0,QStandardItem(self.tr("T5")))
+        self.regModel.setItem(153,0,QStandardItem(self.tr("T6")))
+        self.regModel.setItem(154,0,QStandardItem(self.tr("T7")))
+	self.regModel.setItem(155,0,QStandardItem(self.tr("T8")))
+        self.regModel.setItem(156,0,QStandardItem(self.tr("T9")))
+        self.regModel.setItem(157,0,QStandardItem(self.tr("T10")))
+        self.regModel.setItem(158,0,QStandardItem(self.tr("T11")))
+        self.regModel.setItem(159,0,QStandardItem(self.tr("T12")))
+        self.regModel.setItem(160,0,QStandardItem(self.tr("T13")))
+	self.regModel.setItem(161,0,QStandardItem(self.tr("T14")))
+        self.regModel.setItem(162,0,QStandardItem(self.tr("T15")))
+	for i in range(147,163):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget IALU T
+	self.regModel.setItem(163,0,QStandardItem(self.tr("IALU T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(163,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(163,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(164,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(165,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(166,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(167,0,QStandardItem(self.tr("T3")))
+	for i in range(164,168):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget IMAC T
+	self.regModel.setItem(168,0,QStandardItem(self.tr("IMAC T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(168,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(168,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(169,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(170,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(171,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(172,0,QStandardItem(self.tr("T3")))
+	for i in range(169,173):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget FALU T
+	self.regModel.setItem(173,0,QStandardItem(self.tr("FALU T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(173,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(173,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(174,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(175,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(176,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(177,0,QStandardItem(self.tr("T3")))
+	for i in range(174,178):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget FMAC T
+	self.regModel.setItem(178,0,QStandardItem(self.tr("FMAC T")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(178,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(178,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(179,0,QStandardItem(self.tr("T0")))
+        self.regModel.setItem(180,0,QStandardItem(self.tr("T1")))
+        self.regModel.setItem(181,0,QStandardItem(self.tr("T2")))
+        self.regModel.setItem(182,0,QStandardItem(self.tr("T3")))
+	for i in range(179,183):
+	    for j in range(1,self.size+1):
+		self.regModel.setItem(i,j,QStandardItem(self.initData))
+	#define regFileWidget IMRL
+        self.regModel.setItem(183,0,QStandardItem(self.tr("IMRL")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(183,j,QStandardItem(self.initData))
+	#define regFileWidget IMRH
+        self.regModel.setItem(184,0,QStandardItem(self.tr("IMRH")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(184,j,QStandardItem(self.initData))
+	#define regFileWidget FMR
+        self.regModel.setItem(185,0,QStandardItem(self.tr("FMR")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(185,j,QStandardItem(self.initData))
+	#define regFileWidget BIU0W
+        self.regModel.setItem(186,0,QStandardItem(self.tr("BIU0W")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(186,j,QStandardItem(self.initData))
+	#define regFileWidget BIU1W
+        self.regModel.setItem(187,0,QStandardItem(self.tr("BIU1W")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(187,j,QStandardItem(self.initData))
+	#define regFileWidget BIU2W
+        self.regModel.setItem(188,0,QStandardItem(self.tr("BIU2W")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(188,j,QStandardItem(self.initData))
+	#define regFileWidget DIVQU
+        self.regModel.setItem(189,0,QStandardItem(self.tr("DIVQU")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(189,j,QStandardItem(self.initData))
+	#define regFileWidget DIVRE
+        self.regModel.setItem(190,0,QStandardItem(self.tr("DIVRE")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(190,j,QStandardItem(self.initData))
+	#define regFileWidget DIV-CNT
+        self.regModel.setItem(191,0,QStandardItem(self.tr("DIV-CNT")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(191,j,QStandardItem(self.initData))
+	#define regFileWidget SVR
+        self.regModel.setItem(192,0,QStandardItem(self.tr("SVR")))
+	for i in range(0,self.size):
+	    self.regModel.setItem(192,i+1,QStandardItem(self.tr("")))
+	for i in range(0,self.size+1):
+	    self.regModel.item(192,i).setBackground(QBrush(QColor(192,192,192)))
+        self.regModel.setItem(193,0,QStandardItem(self.tr("SVR0")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(193,j,QStandardItem(self.initData))
+        self.regModel.setItem(194,0,QStandardItem(self.tr("SVR1")))
+	for j in range(1,self.size+1):
+	    self.regModel.setItem(194,j,QStandardItem(self.initData))	
+	self.regFileWidget.resizeColumnsToContents()
+
     def stageButtonSlot(self):
 	self.stageDialog.setWindowTitle("MPU Instruction Pipeline Diagram")
 	self.stageDialog.openFlag=1
 	self.stageDialog.show()
+
+    def currentIndexSlot(self,index):
+	if index==0:
+	    self.initData="0x00"
+	elif index==1:
+	    self.initData="0x0000"
+	elif index==2:
+	    self.initData="0x00000000"
+	elif index==3:
+	    self.initData="0.00"
+	elif index==4:
+	    self.initData="0.0000"
+	self.regFileTableInit()
+	self.indexCall()
+ 
+    def indexCallback(self,indexCall):
+	self.indexCall=indexCall
 
     def updateMPUFloatDialog(self,r):
 	#update float dialog
@@ -672,79 +534,479 @@ class MPUViewWidget(QMainWindow):
 
     def updateMPUWidget(self,r):
 	#update mpu reg
-	for i in range(0,187):
-	    if i>=0 and i<=127:  #m0-127
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+1,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+1,1).setToolTip(r[1+i])
-		else:
-	            self.regFileWidget.item(i+1,1).setData(0,"0")
-		    self.regFileWidget.item(i+1,1).setToolTip("")
-	        self.regFileWidget.item(i+1,1).setTextColor(QColor(0,0,0))
-	    elif i>=128 and i<=143: #shu0
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+2,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+2,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+2,1).setData(0,"0")
-		    self.regFileWidget.item(i+2,1).setToolTip("")
-	        self.regFileWidget.item(i+2,1).setTextColor(QColor(0,0,0))
-	    elif i>=144 and i<=159: #shu1
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+3,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+3,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+3,1).setData(0,"0")
-		    self.regFileWidget.item(i+3,1).setToolTip("")
-	        self.regFileWidget.item(i+3,1).setTextColor(QColor(0,0,0))
-	    elif i>=160 and i<=163: #ialu
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+4,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+4,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+4,1).setData(0,"0")
-		    self.regFileWidget.item(i+4,1).setToolTip("")
-	        self.regFileWidget.item(i+4,1).setTextColor(QColor(0,0,0))
-	    elif i>=164 and i<=167:  #imac
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+5,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+5,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+5,1).setData(0,"0")
-		    self.regFileWidget.item(i+5,1).setToolTip("")
-	        self.regFileWidget.item(i+5,1).setTextColor(QColor(0,0,0))
-	    elif i>=168 and i<=171: #falu
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+6,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+6,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+6,1).setData(0,"0")
-		    self.regFileWidget.item(i+6,1).setToolTip("")
-	        self.regFileWidget.item(i+6,1).setTextColor(QColor(0,0,0))
-	    elif i>=172 and i<=175: #fmac
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+7,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+7,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+7,1).setData(0,"0")
-		    self.regFileWidget.item(i+7,1).setToolTip("")
-	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))
-	    elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+7,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+7,1).setToolTip(r[1+i])	
-		else:
-		    self.regFileWidget.item(i+7,1).setData(0,"0")
-		    self.regFileWidget.item(i+7,1).setToolTip("")
-	        self.regFileWidget.item(i+7,1).setTextColor(QColor(0,0,0))	
-	    elif i>=185 and i<=186: #svr
-	    	if r[1+i]!="nop":
-		    self.regFileWidget.item(i+8,1).setData(0,r[1+i])
-		    self.regFileWidget.item(i+8,1).setToolTip(r[1+i])
-		else:
-		    self.regFileWidget.item(i+8,1).setData(0,"0")
-		    self.regFileWidget.item(i+8,1).setToolTip("")
-	        self.regFileWidget.item(i+8,1).setTextColor(QColor(0,0,0))
+	self.regValue=r
+	index=self.byteComboBox.currentIndex()
+	if index<=2:
+	    if index==0:      #1
+		length=4
+	    elif index==1:    #2
+		length=6
+	    elif index==2:    #4
+		length=10
+	    for i in range(0,187):
+	        if i>=0 and i<=127:  #m0-127
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+	                self.regModel.item(i+1,1).setText("0x00")
+		        self.regModel.item(i+1,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+1,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=128 and i<=143: #shu0
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+2,1).setText("0x00")
+		        self.regModel.item(i+2,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+2,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=144 and i<=159: #shu1
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+3,1).setText("0x00")
+		        self.regModel.item(i+3,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+3,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=160 and i<=163: #ialu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+4,1).setText("0x00")
+		        self.regModel.item(i+4,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+4,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=164 and i<=167:  #imac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+5,1).setText("0x00")
+		        self.regModel.item(i+5,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+5,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=168 and i<=171: #falu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+6,1).setText("0x00")
+		        self.regModel.item(i+6,1).setToolTip("")
+	            self.regModel.item(i+6,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=172 and i<=175: #fmac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))	
+	        elif i>=185 and i<=186: #svr
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+8,1).setText("0x00")
+		        self.regModel.item(i+8,1).setToolTip("")
+	            self.regModel.item(i+8,1).setForeground(QBrush(QColor(0,0,0)))
+	elif index==3:    #float
+	    length=10
+	    for i in range(0,187):
+	        if i>=0 and i<=127:  #m0-127
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+	                self.regModel.item(i+1,1).setText("0x00")
+		        self.regModel.item(i+1,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+1,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=128 and i<=143: #shu0
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+2,1).setText("0x00")
+		        self.regModel.item(i+2,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+2,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=144 and i<=159: #shu1
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+3,1).setText("0x00")
+		        self.regModel.item(i+3,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+3,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=160 and i<=163: #ialu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+4,1).setText("0x00")
+		        self.regModel.item(i+4,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+4,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=164 and i<=167:  #imac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+5,1).setText("0x00")
+		        self.regModel.item(i+5,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+5,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=168 and i<=171: #falu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+6,1).setText("0x00")
+		        self.regModel.item(i+6,1).setToolTip("")
+	            self.regModel.item(i+6,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=172 and i<=175: #fmac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))	
+	        elif i>=185 and i<=186: #svr
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+8,1).setText("0x00")
+		        self.regModel.item(i+8,1).setToolTip("")
+	            self.regModel.item(i+8,1).setForeground(QBrush(QColor(0,0,0)))
+	elif index==4:    #double
+	    length=18
+	    for i in range(0,187):
+	        if i>=0 and i<=127:  #m0-127
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+	                self.regModel.item(i+1,1).setText("0x00")
+		        self.regModel.item(i+1,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+1,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=128 and i<=143: #shu0
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+2,1).setText("0x00")
+		        self.regModel.item(i+2,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+2,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=144 and i<=159: #shu1
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+3,1).setText("0x00")
+		        self.regModel.item(i+3,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+3,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=160 and i<=163: #ialu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+4,1).setText("0x00")
+		        self.regModel.item(i+4,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+4,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=164 and i<=167:  #imac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+5,1).setText("0x00")
+		        self.regModel.item(i+5,1).setToolTip("")
+		    for j in range(0,num):
+	                self.regModel.item(i+5,j+1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=168 and i<=171: #falu
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+6,1).setText("0x00")
+		        self.regModel.item(i+6,1).setToolTip("")
+	            self.regModel.item(i+6,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=172 and i<=175: #fmac
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))
+	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+7,1).setText("0x00")
+		        self.regModel.item(i+7,1).setToolTip("")
+	            self.regModel.item(i+7,1).setForeground(QBrush(QColor(0,0,0)))	
+	        elif i>=185 and i<=186: #svr
+	    	    if r[1+i]!="nop":
+			stringList=r[i+1].split(" ")
+			num=len(stringList)
+			for j in range(0,num):
+			    s=stringList[j]
+			    bit=len(s)
+			    if bit<length:
+				s=s[:2]+'0'*(length-bit)+s[2:]
+			    f= eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
+		            self.regModel.item(i+1,j+1).setToolTip(s)
+		    else:
+		        self.regModel.item(i+8,1).setText("0x00")
+		        self.regModel.item(i+8,1).setToolTip("")
+	            self.regModel.item(i+8,1).setForeground(QBrush(QColor(0,0,0)))
+	self.regFileWidget.resizeColumnsToContents()
 	for i in range(0,14):
 	    if r[386+i]!="nop":
 		self.specialRegWidget.item(i,1).setData(0,r[386+i])
@@ -756,52 +1018,70 @@ class MPUViewWidget(QMainWindow):
     def updateMPURegWFlag(self,r):
 	i=r[7]
 	if i>=0 and i<=127:
-	    self.regFileWidget.item(i+1,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+1,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=128 and i<=143: #shu0
-	    self.regFileWidget.item(i+2,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+2,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=144 and i<=159: #shu1
-	    self.regFileWidget.item(i+3,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+3,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=160 and i<=163: #ialu
-	    self.regFileWidget.item(i+4,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+4,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=164 and i<=167:  #imac
-	    self.regFileWidget.item(i+5,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+5,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=168 and i<=171: #falu
-	    self.regFileWidget.item(i+6,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+6,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=172 and i<=175: #fmac
-	    self.regFileWidget.item(i+7,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+7,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
-	    self.regFileWidget.item(i+7,1).setTextColor(QColor(255,0,0))	
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+7,j).setForeground(QBrush(QColor(255,0,0)))
 	elif i>=185 and i<=186:
-	    self.regFileWidget.item(i+8,1).setTextColor(QColor(255,0,0))
+	    for j in range(1,self.size+1):
+	        self.regModel.item(i+8,j).setForeground(QBrush(QColor(255,0,0)))
 
     def updateMPURegRFlag(self,i):
 	if i>=0 and i<=127:	
-	    if self.regFileWidget.item(i+1,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+1,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+1,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+1,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=128 and i<=143: #shu0
-	    if self.regFileWidget.item(i+2,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+2,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+2,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+2,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=144 and i<=159: #shu1
-	    if self.regFileWidget.item(i+3,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+3,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+3,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+3,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=160 and i<=163: #ialu
-	    if self.regFileWidget.item(i+4,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+4,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+4,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+4,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=164 and i<=167:  #imac
-	    if self.regFileWidget.item(i+5,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+5,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+5,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+5,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=168 and i<=171: #falu
-	    if self.regFileWidget.item(i+6,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+6,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+6,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+6,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=172 and i<=175: #fmac
-	    if self.regFileWidget.item(i+7,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+7,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+7,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+7,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
-	    if self.regFileWidget.item(i+7,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+7,1).setTextColor(QColor(255,153,18))	
+	    if self.regModel.item(i+7,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+7,j).setForeground(QBrush(QColor(255,153,18)))
 	elif i>=185 and i<=186:
-	    if self.regFileWidget.item(i+8,1).textColor()==QColor(255,0,0):
-	    	self.regFileWidget.item(i+8,1).setTextColor(QColor(255,153,18))
+	    if self.regModel.item(i+8,1).foreground()==QBrush(QColor(255,0,0)):
+	        for j in range(1,self.size+1):
+	    	    self.regModel.item(i+8,j).setForeground(QBrush(QColor(255,153,18)))
 
     def closeChildDialog(self):
 	if self.stageDialog.openFlag==1:
@@ -810,7 +1090,6 @@ class MPUViewWidget(QMainWindow):
 
     def setButtonEnabled(self,enable):
 	self.stageButton.setEnabled(True)
-	self.laneComboBox.setEnabled(True) 
 	self.buttonWidget.BIU0Button.setEnabled(True)
 	self.buttonWidget.BIU1Button.setEnabled(True)
 	self.buttonWidget.BIU2Button.setEnabled(True)

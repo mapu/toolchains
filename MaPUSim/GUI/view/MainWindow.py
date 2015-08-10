@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
 	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
        
     def createMenus(self):  
-        fileMenu=self.menuBar().addMenu(self.tr("File"))    
+        fileMenu=self.menuBar().addMenu(self.tr("File")) 
         fileMenu.addAction(self.fileNewAction)
 	fileMenu.addAction(self.fileOpenAction)
      	fileMenu.addAction(self.fileSaveAction)         

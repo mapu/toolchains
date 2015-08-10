@@ -24,7 +24,7 @@ class StageDialog(QDialog):
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
 	self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
 	#self.tableView.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
-	#self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
+	self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
 	self.tableView.verticalHeader().setHighlightSections(False)
 	self.rowHeight=23
 	self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
