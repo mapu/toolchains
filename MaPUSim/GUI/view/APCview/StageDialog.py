@@ -76,7 +76,14 @@ class StageDialog(QDialog):
 
     def currentIndexSlot(self,index):
 	if len(self.snList)>1:
-	    
+	    self.subVerticalHeaderList=['0']*(self.snList[index+1]-self.snList[index]+1)
+	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[index+1]-self.snList[index]+1)]
+	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[index]:self.snList[index+1]]
+	    self.subArray=self.arrayList[self.snList[index]:self.snList[index+1]]
+	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
+	    self.tableModel.setModalDatas(self.subArrray)
+    	    self.tableModel.refrushModel()
+	    self.scrollToStage(0)	    
 
     def updateDialog(self,column):
 	self.slider.setValue(int(column))
@@ -175,9 +182,10 @@ class StageDialog(QDialog):
 	    for i in range(1,len(self.snList)):
 		self.page+=1
 	    	self.pageCombo.addItem(str(self.page)+" page")
-	self.subVerticalHeaderList=['0']*self.maxValue
+	self.subVerticalHeaderList=['0']*(self.snList[1]+1)
 	self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[1]+1)]
-
+	self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:self.snList[1]]
+	self.subArray=self.arrayList[self.snList[0]:self.snList[1]]
 	self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
 	i=datetime.datetime.now()
         print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
