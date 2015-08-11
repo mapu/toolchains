@@ -6,21 +6,16 @@ import sys
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class TableModel(QAbstractTableModel):
-    def __init__(self, arrayData, parent=None,):
+    def __init__(self, subArray, parent=None,):
         QAbstractTableModel.__init__(self, parent,)
 	self.horizontalHeaderList=[]
 	self.verticalHeaderList=[]
-        self.arrayData=arrayData
+        self.subArray=subArray
 	self.key=""
 	self.curValue=0
 
-    def setDataBase(self,dataBase,APEdbFilePath,flag):
-	self.dataBase=dataBase
-	self.APEdbFilePath=APEdbFilePath
-	self.flag=flag
-
-    def setModalDatas(self,arrayData):
-         self.arrayData=arrayData
+    def setModalDatas(self,subArray):
+         self.subArray=subArray
 
     def setHorizontalHeader(self,horizontalHeaderList):
 	self.horizontalHeaderList=horizontalHeaderList
@@ -29,10 +24,10 @@ class TableModel(QAbstractTableModel):
         self.verticalHeaderList=verticalHeaderList
 
     def rowCount(self, parent):
-        return len(self.arrayData)
+        return len(self.subArray)
 
     def columnCount(self, parent):
-        return len(self.arrayData[0])
+        return len(self.subArray[0])
 
     def data(self, index, role):
         if not index.isValid():
@@ -40,7 +35,7 @@ class TableModel(QAbstractTableModel):
 	else:
 	    if self.curValue<=index.row()<=self.curValue+40:
                 if role == Qt.DisplayRole:
-                    return QVariant(self.arrayData[index.row()][index.column()])
+                    return QVariant(self.subArray[index.row()][index.column()])
                 elif role == Qt.BackgroundRole:
 	            if index.data().toString()!="":
 		        text=str(index.data().toString())

@@ -17,7 +17,7 @@ class MPULeftWidget(QWidget):
               
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
-	self.DMButton.setEnabled(False)
+	self.DMButton.setEnabled(True)
 	self.BIU0Button=QPushButton(self.tr("BIU0"))
 	self.BIU0Button.setFixedSize(140,50)
 	self.BIU1Button=QPushButton(self.tr("BIU1"))

@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
 	self.readXML()
 	
     def createActions(self): 
-        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                                 
+        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                               
         self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("&New"),self)                  
         self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("&Save"),self)                                     
         self.cutAction=QAction(QIcon(":/cut.png"),self.tr("&Cut"),self)                  
