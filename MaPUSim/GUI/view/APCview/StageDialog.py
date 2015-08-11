@@ -58,6 +58,7 @@ class StageDialog(QDialog):
 	self.nextButton.setFixedSize(100,25)
 	self.connect(self.nextButton,SIGNAL("clicked()"),self.nextSlot)
 	upLay=QHBoxLayout()
+	upLay.addWidget(self.pageCombo)
 	upLay.addWidget(blank)
 	upLay.addWidget(searchLabel)
 	upLay.addWidget(self.searchEdit)
@@ -76,12 +77,26 @@ class StageDialog(QDialog):
 
     def currentIndexSlot(self,index):
 	if len(self.snList)>1:
-	    self.subVerticalHeaderList=['0']*(self.snList[index+1]-self.snList[index]+1)
-	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[index+1]-self.snList[index]+1)]
-	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[index]:self.snList[index+1]]
-	    self.subArray=self.arrayList[self.snList[index]:self.snList[index+1]]
+	    i=index
+	    if (index+1)==self.page:
+		a=self.maxValue
+		self.subVerticalHeaderList=0
+		self.sub=0
+	        self.subVerticalHeaderList=['0']*(a-self.snList[i]+1)
+	        self.sub=[x[:] for x in [[""]*(self.maxTime+1)]*(a-self.snList[i]+1)]
+	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:a]
+	        self.subArray=self.arrayData[self.snList[i]:a]
+	    else:
+	        a=index+1
+		self.subVerticalHeaderList=0
+		self.subArray=0
+	        self.subVerticalHeaderList=['0']*(self.snList[a]-self.snList[i]-1)
+	        self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[a]-self.snList[i]-1)]
+	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a]-1)]
+	        self.subArray=self.arrayData[self.snList[i]:(self.snList[a]-1)]
+	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
-	    self.tableModel.setModalDatas(self.subArrray)
+	    self.tableModel.setModalDatas(self.subArray)
     	    self.tableModel.refrushModel()
 	    self.scrollToStage(0)	    
 
@@ -126,8 +141,8 @@ class StageDialog(QDialog):
             print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def initTable(self):
-	horizontalHeaderList=range(self.maxTime+1)
-	self.tableModel.setHorizontalHeader(horizontalHeaderList)
+	self.horizontalHeaderList=range(self.maxTime+1)
+	self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	i=datetime.datetime.now()
         print ("end table horizontalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.verticalHeaderList=['0']*self.maxValue
@@ -162,40 +177,49 @@ class StageDialog(QDialog):
  		    if self.arrayData[i][stringList[1]].find("W")<0:
 	                self.arrayData[i][stringList[1]]+="W"
 	if self.flag=="s":
-	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%callimm%' or dis LIKE '%callmimmb%'"
+	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%callimm%' or dis LIKE '%callmimmb%' or dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
 		for e in range(len(r)): 
-		    self.snList.append(self.snAll.index(r[e]))
-	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%stop%'"
-	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
-	    if r!=0:
-		for e in range(len(r)): 
-		    self.snList.append(self.snAll.index(r[e])+1)      
+		    if r[e][7].find("stop")>=0:
+			self.snList.append(self.snAll.index(r[e])+1)
+		    else:
+		        self.snList.append(self.snAll.index(r[e]))    
 	elif self.flag=="m":
-	    order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE dis LIKE '%stop%'"
+	    order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
 		for e in range(len(r)): 
 		    self.snList.append(self.snAll.index(r[e])+1)
+	if r[e][7].find("stop")>=0:
+	    self.snList.pop(len(self.snList)-1)
 	if len(self.snList)>1:
 	    for i in range(1,len(self.snList)):
 		self.page+=1
 	    	self.pageCombo.addItem(str(self.page)+" page")
-	self.subVerticalHeaderList=['0']*(self.snList[1]+1)
-	self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[1]+1)]
-	self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:self.snList[1]]
-	self.subArray=self.arrayList[self.snList[0]:self.snList[1]]
-	self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
-	i=datetime.datetime.now()
-        print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	self.tableModel.setModalDatas(self.subArrray)
-	i=datetime.datetime.now()
-        print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    self.subVerticalHeaderList=['0']*(self.snList[1]-1)
+	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[1]-1)]
+	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
+	    self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
+	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
+	    i=datetime.datetime.now()
+            print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    self.tableModel.setModalDatas(self.subArray)
+	    i=datetime.datetime.now()
+            print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	else:
+	    self.tableModel.setVerticalHeader(self.verticalHeaderList)
+	    i=datetime.datetime.now()
+            print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    self.tableModel.setModalDatas(self.arrayData)
+	    i=datetime.datetime.now()
+            print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def scrollToStage(self,value):
+	index=self.pageCombo.currentIndex()
 	self.tableModel.curValue=value
-	self.tableView.horizontalScrollBar().setValue(self.snAll[value][9])
+	exValue=self.snList[index]+value
+	self.tableView.horizontalScrollBar().setValue(self.snAll[exValue][9])
  
     def searchSlot(self):
 	self.tableView.setStyleSheet("QHeaderView.section{color: black;}")

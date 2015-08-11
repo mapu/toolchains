@@ -536,6 +536,7 @@ class MPUViewWidget(QMainWindow):
 	#update mpu reg
 	self.regValue=r
 	index=self.byteComboBox.currentIndex()
+	num=64
 	if index<=2:
 	    if index==0:      #1
 		length=4
