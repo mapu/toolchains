@@ -17,7 +17,7 @@ class MPULeftWidget(QWidget):
               
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
-	self.DMButton.setEnabled(True)
+	self.DMButton.setEnabled(False)
 	self.BIU0Button=QPushButton(self.tr("BIU0"))
 	self.BIU0Button.setFixedSize(140,50)
 	self.BIU1Button=QPushButton(self.tr("BIU1"))
@@ -112,7 +112,7 @@ class MPULeftWidget(QWidget):
 	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
-
+                        
     #define slot function
     def DMButtonSlot(self):
 	self.DMButtonDialog.flag=1
@@ -276,11 +276,11 @@ class MPULeftWidget(QWidget):
         YB2S0=360
         if self.List[4]==1:        
            L1B2S0=[x1BIU,YB2S0,x1BIU+LCor+8,YB2S0-LCor-8,x1BIU+LCor+8,y1BIU+width-LCor-8-57-8,x1BIU+LCor+8+LCor,B0S0Y+9,X2BIU,B0S0Y+9]
-           self.paintLine(4,L1B2S0) 
+           self.paintLine(5,L1B2S0) 
            self.paintstaen(-2,L1B2S0)       
         if self.List[5]==1:
            L2B2S0=[x1BIU,YB2S0-width,x1BIU+LCor,YB2S0-width-LCor,x1BIU+LCor,y1BIU-LCor-65+5,x1BIU+LCor+LCor+5,y1BIU-LCor-65-LCor,X2BIU,B0S0Y] 
-           self.paintLine(4,L2B2S0) 
+           self.paintLine(5,L2B2S0) 
            self.paintstaen(2,L2B2S0) 
         #BIU0 to MRF                
         if self.List[6]==1:
@@ -406,7 +406,7 @@ class MPULeftWidget(QWidget):
            self.paintstaen(2,point2S1)
         if self.List[30]==1:  
            point3S1=[X1MRF,Y1MRF+184,X1MRF+72,Y1MRF+184,X1MRF+64+LS1toP,Y1MRF+192-LS1toP,x1-LS1toP,y1+2*108+LS1toP,x1,y1+2*108]
-           self.paintLine(4,point3S1)
+           self.paintLine(5,point3S1)
            self.paintstaen(2,point3S1)
         #SHU1 to BIU
         YS1=431
@@ -703,7 +703,7 @@ class MPULeftWidget(QWidget):
         if self.ButLi[2][4]==1:
            self.List[3]=1
         if self.ButLi[4][2]==1:
-           self.List[3]=1     
+           self.List[2]=1     
         if self.ButLi[2][13]==1:
            self.List[8]=1
         if self.ButLi[13][2]==1:
@@ -771,13 +771,13 @@ class MPULeftWidget(QWidget):
            self.List[48]=1
         if self.ButLi[5][9]==1:
            self.List[22]=1 
-           self.LIst[37]=1
+           self.List[37]=1
         if self.ButLi[5][9]==2:
            self.List[23]=1 
-           self.LIst[38]=1
+           self.List[38]=1
         if self.ButLi[5][9]==3:
            self.List[24]=1 
-           self.LIst[39]=1
+           self.List[39]=1
         if self.ButLi[5][10]==1:
            self.List[22]=1
            self.List[40]=1
@@ -851,7 +851,7 @@ class MPULeftWidget(QWidget):
            self.List[27]=1
            self.List[39]=1  
         if self.ButLi[7][10]==1:
-           self.List[15]=1
+           self.List[25]=1
            self.List[40]=1   
         if self.ButLi[7][10]==2:
            self.List[26]=1
@@ -883,7 +883,7 @@ class MPULeftWidget(QWidget):
         if self.ButLi[8][9]==2:
            self.List[29]=1
            self.List[38]=1
-        if self.ButLi[4][9]==3:
+        if self.ButLi[8][9]==3:
            self.List[30]=1
            self.List[39]=1
         if self.ButLi[8][10]==1:
@@ -914,7 +914,7 @@ class MPULeftWidget(QWidget):
            self.List[30]=1
            self.List[48]=1              
         if self.ButLi[9][10]==1:
-           List[49]=1
+           self.List[49]=1
         if self.ButLi[10][9]==1:
            self.List[50]=1        
         if self.ButLi[10][11]==1:
