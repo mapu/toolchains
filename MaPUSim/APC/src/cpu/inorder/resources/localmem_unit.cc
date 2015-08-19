@@ -407,7 +407,7 @@ void LocalMemUnit::execute(int slot_num) {
               localmem_req->inst->getMemAddr(), slot_num);
       localmem_req->setCompleted(false);
       if (inst->isMCode()) {
-        stallPipelineStages(localmem_req, BackEndStartStage, NumMStages,
+        stallPipelineStages(localmem_req, 0, NumMStages,
                            tid - MaxSThreads, true);
       } else {
         stallPipelineStages(localmem_req, BackEndStartStage, NumSStages, tid,
@@ -444,7 +444,7 @@ void LocalMemUnit::execute(int slot_num) {
       //localmem_req->dataPkt->memReq = localmem_req->memReq;
       localmem_req->setCompleted(false);
       if (inst->isMCode()) {
-        stallPipelineStages(localmem_req, BackEndStartStage, NumMStages,
+        stallPipelineStages(localmem_req, 0, NumMStages,
                             tid - MaxSThreads, true);
       } else {
         stallPipelineStages(localmem_req, BackEndStartStage, NumSStages, tid,
@@ -679,7 +679,7 @@ void LocalMemUnit::processLocalMemCompletion(PacketPtr pkt) {
 
   if (localmem_req->isMemStall()) {
     if (inst->isMCode()) {
-      unstallPipelineStages(localmem_req, BackEndStartStage, NumMStages,
+      unstallPipelineStages(localmem_req, 0, NumMStages,
                             inst->getNextStage(), inst->readTid() - MaxSThreads,
                             true);
     } else {
@@ -803,7 +803,7 @@ stallPipelineStages(LocalMemReqPtr req, int start, int end, int tid, bool SorM) 
       cpu->mpipelineStage[i]->setResStall(req, tid);
   else
     for (unsigned i = start; i < end; i++)
-      cpu->mpipelineStage[i]->setResStall(req, tid);
+      cpu->pipelineStage[i]->setResStall(req, tid);
 }
 
 
@@ -818,5 +818,5 @@ unstallPipelineStages(LocalMemReqPtr req, int start, int end, int src,
     }
   } else
     for (unsigned i = start; i < end; i++)
-      cpu->mpipelineStage[i]->unsetResStall(req, tid);
+      cpu->pipelineStage[i]->unsetResStall(req, tid);
 }

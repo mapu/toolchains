@@ -603,7 +603,7 @@ void MFetchUnit::trap(Fault fault, ThreadID tid, DynInstPtr inst) {
 void MFetchUnit::squash(DynInstPtr inst, int stage_num,
                         InstSeqNum squash_seq_num, ThreadID tid) {
   //@todo: clear repeating status
-  if (cached_inst && cached_inst->seqNum >= squash_seq_num) {
+  if (inst->isMCode() && cached_inst && cached_inst->seqNum >= squash_seq_num) {
     for (int i = 0; i < MaxMThreads; i++) {
       isRepeating[i] = false;
       ReCount[i] = 0;

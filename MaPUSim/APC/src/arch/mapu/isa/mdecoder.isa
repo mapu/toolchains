@@ -1203,7 +1203,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
         lps = NPC;
         lpn = KIs - MSEQ_IMM4;
         lpe = MSEQ_IMM11 * 41 * 8;
-      }}, MseqCtrlOp);
+      }}, IsLoop, MseqCtrlOp);
       0x4: mpustop({{
         xc->tcBase()->halt(0); 
         MapuSPUProcess *p = dynamic_cast<MapuSPUProcess *>(xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->getProcessPtr());
@@ -1211,10 +1211,10 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
         CsuObject *csuObj = p->getCsuPtr();
         assert(csuObj);
         csuObj->sendEvent(CsuObject::MPUIdelEvent);
-        if (p->isBlockedByMPU() &&
-          xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->status() == ThreadContext::Suspended)
+         if (p->isBlockedByMPU() &&
+           xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->status() == ThreadContext::Suspended)
           xc->tcBase()->getCpuPtr()->getContext(1 - ThePipeline::MaxSThreads)->activate(0);
-      }}, MseqCtrlOp);           //MPUSTOP
+       }}, IsLoop, MseqCtrlOp);           //MPUSTOP
     }
   }
 }
