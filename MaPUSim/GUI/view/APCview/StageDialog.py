@@ -7,6 +7,7 @@ import sys
 sys.path.append("../..")
 from control.DataBase import*
 from TableModel import*
+from numpy import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -18,8 +19,8 @@ class StageDialog(QDialog):
 	self.setMinimumSize(100,600)
 	self.openFlag=-1
 	self.arrayData=[["" for col in range(1)] for row in range(1)]
-	self.subArrray=[["" for col in range(1)] for row in range(1)]
-	self.tableModel=TableModel(self.subArrray)
+	self.subArray=[["" for col in range(1)] for row in range(1)]
+	self.tableModel=TableModel(self.subArray)
 	self.tableView=QTableView()
 	self.tableView.setModel(self.tableModel)
 	self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
@@ -82,29 +83,41 @@ class StageDialog(QDialog):
 		a=self.maxValue
 		self.subVerticalHeaderList=0
 		self.sub=0
+		self.subArray=0
+	        self.minTime=int(self.snAll[self.snList[i]][9])
+		self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(a-self.snList[i])]
 	        self.subVerticalHeaderList=['0']*(a-self.snList[i]+1)
 	        self.sub=[x[:] for x in [[""]*(self.maxTime+1)]*(a-self.snList[i]+1)]
+	        self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:a]
-	        self.subArray=self.arrayData[self.snList[i]:a]
+	        for j in range(self.snList[i],a):
+		    self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime]
+	        #self.subArray=self.arrayData[self.snList[i]:a]
 	    else:
 	        a=index+1
 		self.subVerticalHeaderList=0
-		self.subArray=0
+		self.minTime=int(self.snAll[self.snList[i]][9])
+		self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.snList[a]-self.snList[i]-1)]
 	        self.subVerticalHeaderList=['0']*(self.snList[a]-self.snList[i]-1)
 	        self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[a]-self.snList[i]-1)]
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a]-1)]
-	        self.subArray=self.arrayData[self.snList[i]:(self.snList[a]-1)]
-	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
+		self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
+		for j in range(self.snList[i],self.snList[a]-1):
+		     self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime]
+	        #self.subArray=self.arrayData[self.snList[i]:(self.snList[a]-1)]
+	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
 	    self.tableModel.setModalDatas(self.subArray)
     	    self.tableModel.refrushModel()
 	    self.scrollToStage(0)	    
 
     def updateDialog(self,column):
-	self.slider.setValue(int(column))
+	text=self.horizontalHeaderList[column]
+	self.slider.setValue(int(text))
 
     def updateDialogIndex(self,index):
-	self.slider.setValue(index.column())
+	text=self.horizontalHeaderList[column]
+	self.slider.setValue(int(text))
 
     def updatAPEData(self,dataBase,APEdbFilePath,minTime,maxTime,flag):
 	self.dataBase=dataBase
@@ -141,8 +154,6 @@ class StageDialog(QDialog):
             print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def initTable(self):
-	self.horizontalHeaderList=range(self.maxTime+1)
-	self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	i=datetime.datetime.now()
         print ("end table horizontalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.verticalHeaderList=['0']*self.maxValue
@@ -196,11 +207,16 @@ class StageDialog(QDialog):
 	if len(self.snList)>1:
 	    for i in range(1,len(self.snList)):
 		self.page+=1
-	    	self.pageCombo.addItem(str(self.page)+" page")
+	    	self.pageCombo.addItem(str(self.page)+" page")	
+	    self.minTime=int(self.snAll[self.snList[0]][9])
 	    self.subVerticalHeaderList=['0']*(self.snList[1]-1)
 	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[1]-1)]
+	    self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
-	    self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
+	    for i in range(self.snList[0],self.snList[1]-1):
+		self.subArray[i-self.snList[0]]=self.arrayData[i][self.minTime:self.maxTime]
+	    #self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
+	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
 	    i=datetime.datetime.now()
             print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
@@ -208,10 +224,16 @@ class StageDialog(QDialog):
 	    i=datetime.datetime.now()
             print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	else:
+	    self.minTime=self.snAll[0][9]
+	    self.horizontalHeaderList=range(self.minTime,self.maxTime+1)
+	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.verticalHeaderList)
 	    i=datetime.datetime.now()
             print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	    self.tableModel.setModalDatas(self.arrayData)
+	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]
+	    for i in range(0,self.maxValue):
+		self.subArray[i]=self.arrayData[i][self.minTime:self.maxTime]
+	    self.tableModel.setModalDatas(self.subArray)
 	    i=datetime.datetime.now()
             print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
@@ -219,7 +241,7 @@ class StageDialog(QDialog):
 	index=self.pageCombo.currentIndex()
 	self.tableModel.curValue=value
 	exValue=self.snList[index]+value
-	self.tableView.horizontalScrollBar().setValue(self.snAll[exValue][9])
+	self.tableView.horizontalScrollBar().setValue(self.snAll[exValue][9]-self.minTime)
  
     def searchSlot(self):
 	self.tableView.setStyleSheet("QHeaderView.section{color: black;}")

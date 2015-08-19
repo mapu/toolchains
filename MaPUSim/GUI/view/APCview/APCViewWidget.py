@@ -219,6 +219,7 @@ class APCViewWidget(QWidget):
 	MPURList=[]
 	SPURRList=[]
 	SPURJList=[]
+        self.APE0Widget.MPUWidget.buttonWidget.lineArray = [([0] * 14) for i in range(14)] 
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
 	r=self.dataBase.fetchall(self.dataBase.APE0timeFilePath,fetchall_sql)
 	if r!=0:
@@ -356,126 +357,220 @@ class APCViewWidget(QWidget):
 			    s=s[(pos+2):]
 			    pos=s.find(".")
 			    temp=temp+s[:pos]
-			    if temp=="DMBIU0":
-				self.APE0Widget.MPUWidget.buttonWidget.ButLi[0][0]=1
+			    if temp=="DMBIU0": 
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[0][1]=1
 			    elif temp=="BIU0DM":
-				print "biu0dm"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[1][0]=1
 			    elif temp=="DMBIU1":
-				print "dmbiu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[0][2]=1
 			    elif temp=="BIU1DM":
-				print "biu1dm"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[2][0]=1
 			    elif temp=="DMBIU2":
-				print "dmbiu2"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[0][3]=1
 			    elif temp=="BIU2DM":
-				print "biu2dm"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[3][0]=1
 			    elif temp=="BIU0SHU0":
-				print "biu0shu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[1][4]=1
 			    elif temp=="SHU0BIU0":
-				print "shu0biu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][1]=1
 			    elif temp=="BIU1SHU0":
-				print "biu0shu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[2][4]=1
 			    elif temp=="SHU0BIU1":
-				print "shu0biu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][2]=1
 			    elif temp=="BIU2SHU0":
-				print "biu2shu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[3][4]=1
 			    elif temp=="SHU0BIU2":
-				print "shu0biu2"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][3]=1
 			    elif temp=="BIU0SHU1":
-				print "biu0shu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[1][8]=1
 			    elif temp=="SHU1BIU0":
-				print "shu1biu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][1]=1
 			    elif temp=="BIU1SHU1":
-				print "biu1shu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[2][8]=1
 			    elif temp=="SHU1BIU1":
-				print "shu1biu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][2]=1
 			    elif temp=="BIU2SHU1":
-				print "biu2shu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[3][8]=1
 			    elif temp=="SHU1BIU2":
-				print "shu1biu2"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][3]=1
 			    elif temp=="BIU0MRF":
-				print "biu0mrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[1][13]=1
 			    elif temp=="MRFBIU0":
-				print "mrfbiu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][1]=1
 			    elif temp=="BIU1MRF":
-				print "biu1mrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[2][13]=1
 			    elif temp=="MRFBIU1":
-				print "mrfbiu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][2]=1
 			    elif temp=="BIU2MRF":
-				print "biu2mrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[3][13]=1
 			    elif temp=="MRFBIU2":
-				print "mrfbiu2"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][3]=1
 			    elif temp=="SHU0IALU":
-				print "shu0ialu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][9]=1
 			    elif temp=="IALUSHU0":
-				print "ialushu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[9][4]=1
 			    elif temp=="SHU0IMAC":
-				print "shu0imac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][10]=1
 			    elif temp=="IMACSHU0":
-				print "imacshu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[10][4]=1
 			    elif temp=="SHU0FALU":
-				print "shu0falu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][11]=1
 			    elif temp=="FALUSHU0":
-				print "falushu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][4]=1
 			    elif temp=="SHU0FMAC":
-				print "shu0fmac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][12]=1
 			    elif temp=="FMACSHU0":
-				print "fmacshu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[12][4]=1
 			    elif temp=="MRFIALU":
-				print "mrfialu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][9]=1
 			    elif temp=="IALUMRF":
-				print "ialumrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[9][13]=1
 			    elif temp=="MRFIMAC":
-				print "mrfimac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][10]=1
 			    elif temp=="IMACMRF":
-				print "imacmrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[10][13]=1
 			    elif temp=="MRFFALU":
-				print "mrffalu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][11]=1
 			    elif temp=="FALUMRF":
-				print "falumrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][13]=1
 			    elif temp=="MRFFMAC":
-				print "mrffmac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][12]=1
 			    elif temp=="FMACMRF":
-				print "fmacmrf"
-			    elif temp=="SHU1IALU":
-				print "shu1ialu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[12][13]=1
+			    elif temp=="SHU1IALU": 
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][9]=1
 			    elif temp=="IALUSHU1":
-				print "ialushu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[9][8]=1
 			    elif temp=="SHU1IMAC":
-				print "shu1imac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][10]=1
 			    elif temp=="IMACSHU1":
-				print "imacshu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[10][8]=1
 			    elif temp=="SHU1FALU":
-				print "shu1falu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][11]=1
 			    elif temp=="FALUSHU1":
-				print "falushu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][8]=1
 			    elif temp=="SHU1FMAC":
-				print "shu1fmac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][12]=1
 			    elif temp=="FMACSHU1":
-				print "fmacshu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[12][8]=1
 			    elif temp=="IALUFALU":
-				print "ialufalu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[9][11]=1
 			    elif temp=="FALUIALU":
-				print "faluialu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][9]=1
 			    elif temp=="SHU0MRF":
-				print "shu0mrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[4][13]=1
 			    elif temp=="MRFSHU0":
-				print "mrfshu0"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][4]=1
 			    elif temp=="MRFSHU1":
-				print "mrfshu1"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[13][8]=1
 			    elif temp=="SHU1MRF":
-				print "shu1mrf"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[8][13]=1
 			    elif temp=="IALUIMAC":
-				print "ialuimac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[9][10]=1
 			    elif temp=="IMACIALU":
-				print "imacialu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[10][9]=1
 			    elif temp=="IMACFALU":
-				print "imacfalu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[10][11]=1
 			    elif temp=="FALUIMAC":
-				print "faluimac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][10]=1
 			    elif temp=="FALUFMAC":
-				print "falufmac"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[11][12]=1
 			    elif temp=="FMACFALU":
-				print "fmacfalu"
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.lineArray[12][11]=1
+			    elif temp=="DMDM":#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12 
+				print temp 
+				self.APE0Widget.MPUWidget.buttonWidget.DMButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="BIU0BIU0":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.BIU0Button.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="BIU1BIU1":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.BIU1Button.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="BIU2BIU2":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.BIU2Button.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="SHU0SHU0":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.SHU0Button.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="MRFMRF":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.MRFButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="SHU1SHU1":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.SHU1Button.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="IALUIALU":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.IALUButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="IMACIMAC":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.IMACButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="FALUFALU":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.FALUButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+			    elif temp=="FMACFMAC":
+				print temp
+				self.APE0Widget.MPUWidget.buttonWidget.FMACButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
+	self.APE0Widget.MPUWidget.buttonWidget.buttonLines()
 	self.APE0Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
 
     def updateAPE1Widget(self,curTime):
