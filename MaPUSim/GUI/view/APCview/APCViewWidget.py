@@ -120,7 +120,6 @@ class APCViewWidget(QWidget):
 	line=lines[count-1]
 	pos=line.index("[")
 	self.maxTime=int(line[:pos])/1000
-
 	i=datetime.datetime.now()
         print ("start update MPU stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#update MPU and SPU stage dialog
