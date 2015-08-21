@@ -112,11 +112,12 @@ class StageDialog(QDialog):
 	    self.scrollToStage(0)	    
 
     def updateDialog(self,column):
-	text=self.horizontalHeaderList[column]
+	text=self.subHorizontalHeaderList[column]
 	self.slider.setValue(int(text))
 
     def updateDialogIndex(self,index):
-	text=self.horizontalHeaderList[column]
+	column=index.column()
+	text=self.subHorizontalHeaderList[column]
 	self.slider.setValue(int(text))
 
     def updatAPEData(self,dataBase,APEdbFilePath,minTime,maxTime,flag):
