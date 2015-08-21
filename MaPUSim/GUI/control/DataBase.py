@@ -33,7 +33,7 @@ class DataBase():
     def createDatabase(self,num,path,progressCall):
 	self.progressCall=progressCall	
 	self.filePath=path
-	#self.filePath="/home/litt/trace.out"
+	self.filePath="/home/litt/trace.out"
         f=open(self.filePath,"r")
         lines=f.readlines()
 	self.maxValue=len(lines)
