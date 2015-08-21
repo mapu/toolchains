@@ -33,7 +33,6 @@ class DataBase():
     def createDatabase(self,num,path,progressCall):
 	self.progressCall=progressCall	
 	self.filePath=path
-	self.filePath="/home/litt/trace.out"
         f=open(self.filePath,"r")
         lines=f.readlines()
 	self.maxValue=len(lines)
@@ -530,21 +529,21 @@ class DataBase():
 	    dataList[187+regList[0]+1]="'"+disList[0]+"'"
 	elif typeList[0]=="J Reg":
 	    dataList[219+regList[0]+1]="'"+disList[0]+"'"
-	elif typeList[i]=="Misc Reg":
-	    if regList[i]>=0 and regList[i]<=7:
-	    	dataList[251+regList[i]+1]="'"+disList[i]+"'"
-	    elif regList[i]>=16 and regList[i]<=30:
-	    	dataList[251+regList[i]-8+1]="'"+disList[i]+"'"
-	    elif regList[i]>=32 and regList[i]<=107:
-	    	dataList[251+regList[i]-9+1]="'"+disList[i]+"'"
-	    elif regList[i]==112:
-	    	dataList[251+regList[i]-13+1]="'"+disList[i]+"'"
-	    elif regList[i]==116:
-	    	dataList[251+regList[i]-16+1]="'"+disList[i]+"'"
-	    elif regList[i]==120:
-	    	dataList[251+regList[i]-19+1]="'"+disList[i]+"'"
-	    elif regList[i]>=128 and regList[i]<=173:
-	    	dataList[251+regList[i]-26+1]="'"+disList[i]+"'"
+	elif typeList[0]=="Misc Reg":
+	    if regList[0]>=0 and regList[0]<=7:
+	    	dataList[251+regList[0]+1]="'"+disList[0]+"'"
+	    elif regList[0]>=16 and regList[0]<=30:
+	    	dataList[251+regList[0]-8+1]="'"+disList[0]+"'"
+	    elif regList[0]>=32 and regList[0]<=107:
+	    	dataList[251+regList[0]-9+1]="'"+disList[0]+"'"
+	    elif regList[0]==112:
+	    	dataList[251+regList[0]-13+1]="'"+disList[0]+"'"
+	    elif regList[0]==116:
+	    	dataList[251+regList[0]-16+1]="'"+disList[0]+"'"
+	    elif regList[0]==120:
+	    	dataList[251+regList[0]-19+1]="'"+disList[0]+"'"
+	    elif regList[0]>=128 and regList[0]<=173:
+	    	dataList[251+regList[0]-26+1]="'"+disList[0]+"'"
 
 	for i in range(1,len(timeList)):
 	    p=float(i)/float(len(timeList))

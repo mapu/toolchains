@@ -91,7 +91,7 @@ class StageDialog(QDialog):
 	        self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:a]
 	        for j in range(self.snList[i],a):
-		    self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime]
+		    self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime+1]
 	        #self.subArray=self.arrayData[self.snList[i]:a]
 	    else:
 	        a=index+1
@@ -103,7 +103,7 @@ class StageDialog(QDialog):
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a]-1)]
 		self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 		for j in range(self.snList[i],self.snList[a]-1):
-		     self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime]
+		     self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime+1]
 	        #self.subArray=self.arrayData[self.snList[i]:(self.snList[a]-1)]
 	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
@@ -195,15 +195,17 @@ class StageDialog(QDialog):
 		    if r[e][7].find("stop")>=0:
 			self.snList.append(self.snAll.index(r[e])+1)
 		    else:
-		        self.snList.append(self.snAll.index(r[e]))    
+		        self.snList.append(self.snAll.index(r[e]))   
+	        if r[e][7].find("stop")>=0:
+	            self.snList.pop(len(self.snList)-1) 
 	elif self.flag=="m":
 	    order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
 		for e in range(len(r)): 
 		    self.snList.append(self.snAll.index(r[e])+1)
-	if r[e][7].find("stop")>=0:
-	    self.snList.pop(len(self.snList)-1)
+	        if r[e][7].find("stop")>=0:
+	            self.snList.pop(len(self.snList)-1)
 	if len(self.snList)>1:
 	    for i in range(1,len(self.snList)):
 		self.page+=1
@@ -214,7 +216,7 @@ class StageDialog(QDialog):
 	    self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
 	    for i in range(self.snList[0],self.snList[1]-1):
-		self.subArray[i-self.snList[0]]=self.arrayData[i][self.minTime:self.maxTime]
+		self.subArray[i-self.snList[0]]=self.arrayData[i][self.minTime:self.maxTime+1]
 	    #self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
 	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
@@ -232,7 +234,7 @@ class StageDialog(QDialog):
             print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]
 	    for i in range(0,self.maxValue):
-		self.subArray[i]=self.arrayData[i][self.minTime:self.maxTime]
+		self.subArray[i]=self.arrayData[i][self.minTime:self.maxTime+1]
 	    self.tableModel.setModalDatas(self.subArray)
 	    i=datetime.datetime.now()
             print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
