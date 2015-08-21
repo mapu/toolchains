@@ -30,7 +30,7 @@ class StageDialog(QDialog):
 	self.tableView.verticalHeader().setHighlightSections(False)
 	self.rowHeight=23
 	self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
-	self.columnWidth=23
+	self.columnWidth=25
 	self.tableView.horizontalHeader().setDefaultSectionSize(self.columnWidth)
 	self.connect(self.tableView.horizontalHeader(),SIGNAL("sectionClicked(int)"),self.updateDialog)
 	self.connect(self.tableView,SIGNAL("clicked(QModelIndex)"),self.updateDialogIndex)
@@ -70,7 +70,6 @@ class StageDialog(QDialog):
 	mainLay.addLayout(upLay)
 	mainLay.addWidget(self.tableView)
 	self.setLayout(mainLay)
-
 	self.snList=[]
 	self.snList.append(0)
 	self.searchList=[]
@@ -128,8 +127,10 @@ class StageDialog(QDialog):
 	self.flag=flag
 	self.minValue=0
 	if self.flag=="m":
+	    self.mstage=["FG","FS","FW","FR","DP","RR","EX1","EX2","EX3","EX4","EX5","EX6","EX7","EX8","EX9","EX10","EX11","EX12","EX13","EX14"]
 	    order_sql_sn = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
 	else:
+	    self.sstage=["FG","FS","FW","DP","RR","EX1","EX2","EX3","EX4","EX5","EX6","EX7","EX8","EX9","EX10","EX11","EX12","EX13","EX14"]
 	    order_sql_sn = "SELECT * FROM "+self.dataBase.snSTableName+" order by sn asc"
 	self.snAll=self.dataBase.fetchall(self.APEdbFilePath,order_sql_sn)
 	if self.snAll!=0:
@@ -162,32 +163,60 @@ class StageDialog(QDialog):
 	self.arrayData=[x[:] for x in [[""]*(self.maxTime+1)]*self.maxValue]
 	i=datetime.datetime.now()
         print ("end init array data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	for i in range(0,self.maxValue):
-	    stringList=self.snAll[i]	   
-	    self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
-	    temp=-1
-	    for j in range(0,20):
-		if stringList[9+j]!=-1:
-	            self.arrayData[i][stringList[9+j]]=str(j-5)
-	            for k in range(temp+1,stringList[9+j]):
-		        self.arrayData[i][k]=self.arrayData[i][temp]
-	            temp=stringList[9+j]
-	    while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
-	        read=0
-	        write=0
-		stringList=self.regAll[self.reg]
-		self.reg+=1
-		if stringList[6]!="Misc Reg":
-		    if stringList[5]=="W":
-		        write=1
-		    elif stringList[5]=="R":
-		        read=1
-	        if read==1:
-		    if self.arrayData[i][stringList[1]].find("R")<0:
-	                self.arrayData[i][stringList[1]]+="R"
-	        elif write==1:
- 		    if self.arrayData[i][stringList[1]].find("W")<0:
-	                self.arrayData[i][stringList[1]]+="W"
+	if self.flag=="s":
+	    for i in range(0,self.maxValue):
+	        stringList=self.snAll[i]	   
+	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
+	        temp=-1
+	        for j in range(0,20):
+		    if stringList[9+j]!=-1:
+	                self.arrayData[i][stringList[9+j]]=self.sstage[j]
+	                for k in range(temp+1,stringList[9+j]):
+		            self.arrayData[i][k]=self.arrayData[i][temp]
+	                temp=stringList[9+j]
+	        while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
+	            read=0
+	            write=0
+		    stringList=self.regAll[self.reg]
+		    self.reg+=1
+		    if stringList[6]!="Misc Reg":
+		        if stringList[5]=="W":
+		            write=1
+		        elif stringList[5]=="R":
+		            read=1
+	            if read==1:
+		        if self.arrayData[i][stringList[1]].find("r")<0:
+	                    self.arrayData[i][stringList[1]]+="r"
+	            elif write==1:
+ 		        if self.arrayData[i][stringList[1]].find("w")<0:
+	                    self.arrayData[i][stringList[1]]+="w"
+	else:
+	    for i in range(0,self.maxValue):
+	        stringList=self.snAll[i]	   
+	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
+	        temp=-1
+	        for j in range(0,20):
+		    if stringList[9+j]!=-1:
+	                self.arrayData[i][stringList[9+j]]=self.mstage[j]
+	                for k in range(temp+1,stringList[9+j]):
+		            self.arrayData[i][k]=self.arrayData[i][temp]
+	                temp=stringList[9+j]
+	        while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
+	            read=0
+	            write=0
+		    stringList=self.regAll[self.reg]
+		    self.reg+=1
+		    if stringList[6]!="Misc Reg":
+		        if stringList[5]=="W":
+		            write=1
+		        elif stringList[5]=="R":
+		            read=1
+	            if read==1:
+		        if self.arrayData[i][stringList[1]].find("r")<0:
+	                    self.arrayData[i][stringList[1]]+="r"
+	            elif write==1:
+ 		        if self.arrayData[i][stringList[1]].find("w")<0:
+	                    self.arrayData[i][stringList[1]]+="w"
 	if self.flag=="s":
 	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%callimm%' or dis LIKE '%callmimmb%' or dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)

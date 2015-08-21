@@ -39,14 +39,14 @@ class TableModel(QAbstractTableModel):
                 elif role == Qt.BackgroundRole:
 	            if index.data().toString()!="":
 		        text=str(index.data().toString())
-			if text.find("RW")>=0 or text.find("WR")>=0:
+			if text.find("rw")>=0 or text.find("wr")>=0:
 			    return QColor(255,153,18)
-			elif text.find("R")>=0:
+			elif text.find("r")>=0:
 			    return QColor(0,255,0)
-			elif text.find("W")>=0:
+			elif text.find("w")>=0:
 			    return QColor(255,0,0)
 			else:
-                            if int(text)<0:
+                            if text=="FG" or text=="FS" or text=="FW" or text=="FR" or text=="DP":
                                 return QColor("gray")
                             else:
                                 return QColor(193,210,255) 
