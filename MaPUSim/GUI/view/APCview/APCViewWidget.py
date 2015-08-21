@@ -112,8 +112,8 @@ class APCViewWidget(QWidget):
 	f.close()
 	if len(lines)==0:
 	    return
-	line=lines[0]
-	pos=line.index("[")
+	#line=lines[0]
+	#pos=line.index("[")
 	#self.minTime=int(line[:pos])/1000
 	self.minTime=0
 	count=len(lines)

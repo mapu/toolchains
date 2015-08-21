@@ -39,6 +39,12 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
 	self.simulatorPath=""
 	self.readXML()
+	if len(self.argv)==3:
+	    if self.argv[1]=="-image":
+		if os.path.exists(self.argv[2])<=0:
+		    return
+		else:
+		    self.configControlWidget.fullEdit.setText(self.argv[2])
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                               

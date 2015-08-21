@@ -68,6 +68,9 @@ class TableModel(QAbstractTableModel):
                     return self.verticalHeaderList[section]
                 else:
                     return QVariant()
+	elif role==Qt.FontRole:
+            if orientation==Qt.Vertical:
+		return QFont.Monospace	
 	elif role == Qt.TextColorRole and orientation==Qt.Vertical:
 	    if self.key!="":
 		if len(self.verticalHeaderList)>section:
