@@ -7,7 +7,6 @@ import sys
 sys.path.append("../..")
 from control.DataBase import*
 from TableModel import*
-from numpy import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 

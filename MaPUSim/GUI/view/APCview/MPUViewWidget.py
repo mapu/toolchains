@@ -548,7 +548,7 @@ class MPUViewWidget(QMainWindow):
 	        if i>=0 and i<=127:  #m0-127
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -565,7 +565,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=128 and i<=143: #shu0
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -582,7 +582,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=144 and i<=159: #shu1
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -599,7 +599,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=160 and i<=163: #ialu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -616,7 +616,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=164 and i<=167:  #imac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -633,7 +633,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=168 and i<=171: #falu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -650,7 +650,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=172 and i<=175: #fmac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -667,7 +667,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -684,7 +684,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=185 and i<=186: #svr
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -704,7 +704,7 @@ class MPUViewWidget(QMainWindow):
 	        if i>=0 and i<=127:  #m0-127
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -723,7 +723,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=128 and i<=143: #shu0
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -742,7 +742,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=144 and i<=159: #shu1
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -761,7 +761,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=160 and i<=163: #ialu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -780,7 +780,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=164 and i<=167:  #imac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -799,7 +799,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=168 and i<=171: #falu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -818,7 +818,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=172 and i<=175: #fmac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -837,7 +837,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -856,7 +856,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=185 and i<=186: #svr
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -878,7 +878,7 @@ class MPUViewWidget(QMainWindow):
 	        if i>=0 and i<=127:  #m0-127
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -897,7 +897,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=128 and i<=143: #shu0
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -916,7 +916,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=144 and i<=159: #shu1
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -935,7 +935,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=160 and i<=163: #ialu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -954,7 +954,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=164 and i<=167:  #imac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -973,7 +973,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=168 and i<=171: #falu
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -992,7 +992,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=172 and i<=175: #fmac
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -1011,7 +1011,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
@@ -1030,7 +1030,7 @@ class MPUViewWidget(QMainWindow):
 	        elif i>=185 and i<=186: #svr
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
-			num=len(stringList)
+			num=len(stringList)-1
 			for j in range(0,num):
 			    s=stringList[j]
 			    bit=len(s)
