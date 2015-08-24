@@ -10,7 +10,8 @@ class Thread(QThread):
     def __init__(self,parent=None):
 	super(Thread,self).__init__(parent)
 	self.num=0
-	self.path="m5out/aaa.out"	
+	self.path="m5out/aaa.out"
+	
     def progressCall(self,callback):
 	self.callback=callback
 

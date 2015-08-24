@@ -2,7 +2,6 @@
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 from FloatDialog import*
-from LineWidget import*
 from MPULeftWidget import*
 from StageDialog import*
 import sys
@@ -65,8 +64,7 @@ class MPUViewWidget(QMainWindow):
 	self.traceWidget.horizontalHeader().setStretchLastSection(True)
 
 	#define regFileWidget
-	self.regModel=QStandardItemModel()
-	self.regFileWidget.setModel(self.regModel)
+	self.regModel=QStandardItemModel(self.regFileWidget)
 	self.regFileWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 	self.regFileWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 	self.regFileWidget.horizontalHeader().setVisible(False)
@@ -76,6 +74,7 @@ class MPUViewWidget(QMainWindow):
 	self.regFileWidget.horizontalHeader().setStretchLastSection(True)
 	self.regFileWidget.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
 	self.regFileWidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+	self.regFileWidget.setModel(self.regModel)
 	self.initData="0x00"
 	self.size=64
 	self.regFileTableInit()
@@ -128,15 +127,16 @@ class MPUViewWidget(QMainWindow):
 	splitter.addWidget(self.rightTab)
 	splitter.setStretchFactor(0,1)
 	splitter.setStretchFactor(1,1)
+
 	#scroll
-        scroll = QScrollArea()
+        scroll=QScrollArea()
         scroll.setWidget(widget)
         scroll.setAutoFillBackground(True)
         scroll.setWidgetResizable(True)
-        vbox = QVBoxLayout()
-        vbox.addWidget(scroll)  
+        vbox = QGridLayout()
+        vbox.addWidget(scroll,0,0)  
         centralWidget.setLayout(vbox)
-	self.stageDialog=StageDialog()
+	self.stageDialog=0
 	
     def regFileTableInit(self):
 	#define regFileWidget M
@@ -1124,8 +1124,9 @@ class MPUViewWidget(QMainWindow):
 	    	    self.regModel.item(i+8,j).setForeground(QBrush(QColor(255,153,18)))
 
     def closeChildDialog(self):
-	if self.stageDialog.openFlag==1:
-	    self.stageDialog.close()
+	if self.stageDialog!=0:
+	    if self.stageDialog.openFlag==1:
+	        self.stageDialog.close()
 	self.buttonWidget.closeFloatDialogs()	
 
     def setButtonEnabled(self,enable):

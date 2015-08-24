@@ -371,7 +371,7 @@ class MainWindow(QMainWindow):
 	xmlfile.close()
 	self.configControlWidget.fullCheckedSlot()
 	self.configControlWidget.APCCheckedSlot()
-    
+ 
     def closeEvent(self,event):
 	self.writeXML()
 	self.configControlWidget.stopProcessExit(1)

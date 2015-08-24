@@ -10,6 +10,7 @@ from DataBaseDialog import*
 from APCStatusWidget import*
 import datetime
 from Thread import*
+from StageDialog import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -124,8 +125,10 @@ class APCViewWidget(QWidget):
         print ("start update MPU stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#update MPU and SPU stage dialog
 	#APE0 MPU STAGE
+	self.APE0Widget.MPUWidget.stageDialog=StageDialog()
 	self.APE0Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"m") 
 	#APE0 SPU STAGE
+	self.APE0Widget.SPUWidget.stageDialog=StageDialog()
 	self.APE0Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE0dbFilePath,self.minTime,self.maxTime,"s") 
 	self.APE0Widget.MPUWidget.stageDialog.slider=self.slider 
 	self.APE0Widget.SPUWidget.stageDialog.slider=self.slider 
@@ -135,8 +138,10 @@ class APCViewWidget(QWidget):
         print ("end update mpu stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if self.num==2:
 	    #APE1 MPU STAGE
+	    self.APE1Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE1 SPU STAGE
+	    self.APE1Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s")
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider 
@@ -144,16 +149,20 @@ class APCViewWidget(QWidget):
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True)
 	elif self.num==3:
 	    #APE1 MPU STAGE
+	    self.APE1Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE1 SPU STAGE
+	    self.APE1Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider  
 	    self.APE1Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True) 
 	    #APE2 MPU STAGE
+	    self.APE2Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE2 SPU STAGE
+	    self.APE2Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
@@ -161,24 +170,30 @@ class APCViewWidget(QWidget):
 	    self.APE2Widget.SPUWidget.stageButton.setEnabled(True) 
 	elif self.num==4:
 	    #APE1 MPU STAGE
+	    self.APE1Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE1 SPU STAGE
+	    self.APE1Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE1Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE1dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE1Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE1Widget.SPUWidget.stageDialog.slider=self.slider   
 	    self.APE1Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE1Widget.SPUWidget.stageButton.setEnabled(True)
 	    #APE2 MPU STAGE
+	    self.APE2Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE2Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE2 SPU STAGE
+	    self.APE2Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE2Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE2dbFilePath,self.minTime,self.maxTime,"s") 
 	    self.APE2Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.SPUWidget.stageDialog.slider=self.slider 
 	    self.APE2Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE2Widget.SPUWidget.stageButton.setEnabled(True)
 	    #APE3 MPU STAGE
+	    self.APE3Widget.MPUWidget.stageDialog=StageDialog()
 	    self.APE3Widget.MPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"m") 
 	    #APE3 SPU STAGE
+	    self.APE3Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE3Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s")
 	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider 
 	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  

@@ -467,8 +467,7 @@ class SPUViewWidget(QWidget):
 	mainLayout.setStretchFactor(self.leftWidget,5)
 	mainLayout.setStretchFactor(self.rightTab,2)
 	self.setLayout(mainLayout)
-
-	self.stageDialog=StageDialog()
+	self.stageDialog=0
 
     def stageButtonSlot(self):
 	self.stageDialog.setWindowTitle("SPU Instruction Pipeline Diagram")
@@ -517,8 +516,9 @@ class SPUViewWidget(QWidget):
 	    self.regFileWidget.item(i+34,1).setTextColor(QColor(255,153,18))
 
     def closeChildDialog(self):
-	if self.stageDialog.openFlag==1:
-	    self.stageDialog.close()
+	if self.stageDialog!=0:
+	    if self.stageDialog.openFlag==1:
+	        self.stageDialog.close()
 
 
 
