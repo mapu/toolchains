@@ -173,12 +173,13 @@ then
     install -v $source_path/MaPUSim/mapu_sim.sh -t $install_path/simulator/
   fi
   make -C $source_path/MaPUSim/ARM/util/term clean
-  #cp GUI directory
+  #install MaPU GUI
   if [ -e "$install_path/simulator/gui" ]
   then
     rm -rf $install_path/simulator/gui
   fi
-  svn export $source_path/MaPUSim/GUI $install_path/simulator/gui
+  mkdir $install_path/simulator/gui
+  cxfreeze --install-dir=$install_path/simulator/gui $source_path/MaPUSim/GUI/main.py
 fi
 
 install_tool_path=${install_path}
