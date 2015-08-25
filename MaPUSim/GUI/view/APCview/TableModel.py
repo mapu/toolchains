@@ -35,10 +35,19 @@ class TableModel(QAbstractTableModel):
 	else:
 	    if self.curValue<=index.row()<=self.curValue+40:
                 if role == Qt.DisplayRole:
-                    return QVariant(self.subArray[index.row()][index.column()])
+		    text=self.subArray[index.row()][index.column()]
+		    if text.find("rw")>=0 or text.find("wr")>=0:
+			text=text[:(len(text)-2)]
+		    elif text.find("r")>=0:
+			text=text[:(len(text)-1)]
+		    elif text.find("w")>=0:
+			text=text[:(len(text)-1)]
+                    return QVariant(text)
+    	        elif role==Qt.TextAlignmentRole:
+                    return int(Qt.AlignHCenter)
                 elif role == Qt.BackgroundRole:
 	            if index.data().toString()!="":
-		        text=str(index.data().toString())
+		        text=self.subArray[index.row()][index.column()]
 			if text.find("rw")>=0 or text.find("wr")>=0:
 			    return QColor(255,153,18)
 			elif text.find("r")>=0:
@@ -68,14 +77,26 @@ class TableModel(QAbstractTableModel):
                     return self.verticalHeaderList[section]
                 else:
                     return QVariant()
-	elif role==Qt.FontRole:
-            if orientation==Qt.Vertical:
-		return QFont.Monospace	
 	elif role == Qt.TextColorRole and orientation==Qt.Vertical:
 	    if self.key!="":
 		if len(self.verticalHeaderList)>section:
 		    if self.verticalHeaderList[section].find(self.key)>=0:
 		        return QColor(255,153,18)
+        elif role == Qt.BackgroundRole and orientation==Qt.Vertical:
+	    if self.key!="":
+		if len(self.verticalHeaderList)>section:
+		    if self.verticalHeaderList[section].find(self.key)>=0:
+			brush=QBrush()
+			brush.setColor(QColor(255,153,18))
+		        return brush
+	elif role==Qt.FontRole and orientation==Qt.Vertical:
+	    if self.key!="":
+		if len(self.verticalHeaderList)>section:
+		    if self.verticalHeaderList[section].find(self.key)>=0:
+			font=QFont()
+			font.setFamily("Monospace")
+			font.setBold(True)
+			return font
     	return QVariant()
 
     def refrushModel(self):

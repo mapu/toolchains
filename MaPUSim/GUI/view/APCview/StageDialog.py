@@ -14,7 +14,7 @@ class StageDialog(QDialog):
     def __init__(self,parent=None):
 	super(StageDialog,self).__init__(parent)
 
-	self.resize(1000,600)
+	self.resize(1500,800)
 	self.setMinimumSize(400,600)
 	self.openFlag=-1
 	self.arrayData=[["" for col in range(1)] for row in range(1)]
@@ -27,9 +27,10 @@ class StageDialog(QDialog):
 	#self.tableView.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
 	self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
 	self.tableView.verticalHeader().setHighlightSections(False)
+	self.tableView.verticalHeader().setFont(QFont("Monospace"))
 	self.rowHeight=23
 	self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
-	self.columnWidth=25
+	self.columnWidth=32
 	self.tableView.horizontalHeader().setDefaultSectionSize(self.columnWidth)
 	self.connect(self.tableView.horizontalHeader(),SIGNAL("sectionClicked(int)"),self.updateDialog)
 	self.connect(self.tableView,SIGNAL("clicked(QModelIndex)"),self.updateDialogIndex)
@@ -155,10 +156,10 @@ class StageDialog(QDialog):
 	self.flag=flag
 	self.minValue=0
 	if self.flag=="m":
-	    self.mstage=["FG","FS","FW","FR","DP","RR","EX1","EX2","EX3","EX4","EX5","EX6","EX7","EX8","EX9","EX10","EX11","EX12","EX13","EX14"]
+	    self.mstage=["FG","FS","FW","FR","DP","RR","E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14"]
 	    order_sql_sn = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
 	else:
-	    self.sstage=["FG","FS","FW","DP","RR","EX1","EX2","EX3","EX4","EX5","EX6","EX7","EX8","EX9","EX10","EX11","EX12","EX13","EX14"]
+	    self.sstage=["FG","FS","FW","DP","RR","E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14"]
 	    order_sql_sn = "SELECT * FROM "+self.dataBase.snSTableName+" order by sn asc"
 	self.snAll=self.dataBase.fetchall(self.APEdbFilePath,order_sql_sn)
 	if self.snAll!=0:
@@ -288,6 +289,8 @@ class StageDialog(QDialog):
 	    self.horizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.verticalHeaderList)
+	    self.subHorizontalHeaderList=self.horizontalHeaderList
+	    self.subVerticalHeaderList=self.verticalHeaderList
 	    i=datetime.datetime.now()
             print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]

@@ -26,7 +26,7 @@ class MPULeftWidget(QWidget):
 	self.BIU2Button.setFixedSize(140,50)
 	self.SHU0Button=QPushButton(self.tr("SHU0"))
 	self.SHU0Button.setFixedSize(140,50)
-	self.MRFButton=QPushButton(self.tr("M RF"))
+	self.MRFButton=QPushButton(self.tr("MRF"))
 	self.MRFButton.setFixedSize(140,150)
 	self.SHU1Button=QPushButton(self.tr("SHU1"))
 	self.SHU1Button.setFixedSize(140,50)
@@ -112,7 +112,6 @@ class MPULeftWidget(QWidget):
 	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
-
                         
     #define slot function
     def DMButtonSlot(self):
