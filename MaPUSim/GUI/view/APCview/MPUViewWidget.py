@@ -15,7 +15,7 @@ class MPUViewWidget(QMainWindow):
     def __init__(self,parent=None):
 	super(MPUViewWidget,self).__init__(parent)
 
-        centralWidget = QSplitter(Qt.Horizontal)
+        centralWidget=QSplitter(Qt.Horizontal)
         self.setCentralWidget(centralWidget)  
         widget=QSplitter(Qt.Horizontal)
         widget.setMinimumSize(1400,600)
@@ -133,8 +133,8 @@ class MPUViewWidget(QMainWindow):
         scroll.setWidget(widget)
         scroll.setAutoFillBackground(True)
         scroll.setWidgetResizable(True)
-        vbox = QGridLayout()
-        vbox.addWidget(scroll,0,0)  
+        vbox = QVBoxLayout()
+        vbox.addWidget(scroll)  
         centralWidget.setLayout(vbox)
 	self.stageDialog=0
 	

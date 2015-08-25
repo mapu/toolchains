@@ -112,7 +112,7 @@ class MPULeftWidget(QWidget):
 	self.FALUButtonDialog.setWindowTitle(self.tr("FALU Stages"))	
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
-                        
+
     #define slot function
     def DMButtonSlot(self):
 	self.DMButtonDialog.flag=1
@@ -184,63 +184,69 @@ class MPULeftWidget(QWidget):
 	    self.FMACButtonDialog.close()
 		 
     def paintLine(self,n,Llist):
-        self.dn=n
-        self.dlist=Llist
-        self.qp=QPainter()
-        self.qp.begin(self)
-        self.pen=QPen(Qt.black,1.5,Qt.SolidLine)     
-        self.qp.setPen(self.pen)      
-        self.qp.translate(0,0)
+        dn=n
+        dlist=Llist
+        qp=QPainter()
+        qp.begin(self)
+        pen=QPen(Qt.black,1.5,Qt.SolidLine)     
+        qp.setPen(pen)      
+        qp.translate(0,0)
         for i in range(0,2*n-3):
             if i%2==0:
-               self.qp.drawLine(Llist[i],Llist[i+1],Llist[i+2],Llist[i+3])
-        self.qp.end()
+               qp.drawLine(Llist[i],Llist[i+1],Llist[i+2],Llist[i+3])
+        qp.end()
             
     def paintstaen(self,flag,Llist):
-        self.Flag=flag
-        self.dlist=Llist
+        Flag=flag
+        dlist=Llist
         n=len(Llist)    
         a=2.5/math.sqrt(2)       
         if flag==0: 
-            self.qp=QPainter()
-            self.qp.begin(self)          
-            self.brush=QBrush(Qt.black) 
-            self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp=QPainter()
+            qp.begin(self)          
+            brush=QBrush(Qt.black) 
+            qp.setBrush(brush)
+            qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
         elif flag==1:
-            self.qp=QPainter()
-            self.qp.begin(self) 
-            self.brush=QBrush(Qt.white)
-            self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
+            qp=QPainter()
+            qp.begin(self) 
+            brush=QBrush(Qt.white)
+            qp.setBrush(brush)
+            qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
+            qp.end()
         elif flag==-1:
-            self.qp=QPainter()
-            self.qp.begin(self) 
-            self.brush=QBrush(Qt.white)
-            self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp=QPainter()
+            qp.begin(self) 
+            brush=QBrush(Qt.white)
+            qp.setBrush(brush)
+            qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp.end()
         elif flag==2:
-            self.qp=QPainter()
-            self.qp.begin(self) 
-            self.brush=QBrush(Qt.black) 
-            self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
-            self.qp2=QPainter()
-            self.qp2.begin(self) 
-            self.brush2=QBrush(Qt.white)
-            self.qp2.setBrush(self.brush2)
-            self.qp2.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)     
+            qp=QPainter()
+            qp.begin(self) 
+            brush=QBrush(Qt.black) 
+            qp.setBrush(brush)
+            qp.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp2=QPainter()
+            qp2.begin(self) 
+            brush2=QBrush(Qt.white)
+            qp2.setBrush(brush2)
+            qp2.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)  
+            qp.end()
+            qp2.end()   
         elif flag==-2:
-            self.qp=QPainter()
-            self.qp.begin(self) 
-            self.brush=QBrush(Qt.black) 
-            self.qp.setBrush(self.brush)
-            self.qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
-            self.qp2=QPainter()
-            self.qp2.begin(self) 
-            self.brush2=QBrush(Qt.white)
-            self.qp2.setBrush(self.brush2)
-            self.qp2.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp=QPainter()
+            qp.begin(self) 
+            brush=QBrush(Qt.black) 
+            qp.setBrush(brush)
+            qp.drawEllipse(Llist[n-2]-a,Llist[n-1]-a,5,5)
+            qp2=QPainter()
+            qp2.begin(self) 
+            brush2=QBrush(Qt.white)
+            qp2.setBrush(brush2)
+            qp2.drawEllipse(Llist[0]-a,Llist[1]-a,5,5)
+            qp.end()
+            qp2.end()   
                                          	            
     def paintEvent(self,event):                        
         #SHUO to BIU0

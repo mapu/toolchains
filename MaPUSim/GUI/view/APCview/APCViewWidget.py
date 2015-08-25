@@ -585,6 +585,7 @@ class APCViewWidget(QWidget):
 				print temp
 				self.APE0Widget.MPUWidget.buttonWidget.FMACButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
 	self.APE0Widget.MPUWidget.buttonWidget.buttonLines()
+	self.APE0Widget.MPUWidget.buttonWidget.update()
 	self.APE0Widget.MPUWidget.updateMPUFloatDialog(floatDialogList)
 
     def updateAPE1Widget(self,curTime):
