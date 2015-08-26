@@ -9,7 +9,7 @@ from configview.ConfigViewWidget import*
 import time
 import os
 import sys
-sys.setrecursionlimit(10000)
+
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
