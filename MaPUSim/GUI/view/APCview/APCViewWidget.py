@@ -59,6 +59,8 @@ class APCViewWidget(QWidget):
         self.mainLayout.addLayout(bottomLay)
         self.setLayout(self.mainLayout)  
 
+	self.mainOpen=0
+
  	#define slot function
     def slotAPE0Widget(self):
         self.leftTab.setCurrentWidget(self.APE0Widget)  
@@ -79,7 +81,10 @@ class APCViewWidget(QWidget):
 	thread=Thread()
 	thread.progressCall(self.callback)
 	thread.num=num
-	thread.path="m5out/"+path
+	if self.mainOpen==0:
+	    thread.path="m5out/"+path
+	else:
+	    thread.path=path
 	thread.start()
 	eventLoop=QEventLoop()
 	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)

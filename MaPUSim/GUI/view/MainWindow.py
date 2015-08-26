@@ -60,7 +60,8 @@ class MainWindow(QMainWindow):
 	    self.configControlWidget.startProcess()
 	
     def createActions(self): 
-        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                               
+        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
+	self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpenSlot)                            
         self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("&New"),self)                  
         self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("&Save"),self)                                     
         self.cutAction=QAction(QIcon(":/cut.png"),self.tr("&Cut"),self)                  
@@ -97,6 +98,11 @@ class MainWindow(QMainWindow):
     def createStatusBar(self):    
 	self.statusLabel=QLabel("StatusBar")
         self.statusBar().addWidget(self.statusLabel)
+
+    def fileOpenSlot(self):
+	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
+	self.apcViewWidget.mainOpen=1
+	self.apcViewWidget.simulatorDoneSlot(4,path)
 
     def setSimulatorWidget(self):
 	self.setDialog=QDialog()
