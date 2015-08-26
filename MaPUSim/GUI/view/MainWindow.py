@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
 	self.simulatorPath=""
 	self.readXML()
+	self.tabWidget.setCurrentIndex(2)
 	image=0
 	trace=0
 	if len(self.argv)==3:
@@ -54,7 +55,6 @@ class MainWindow(QMainWindow):
 	if image!=0 and trace!=0:
 	    #start full system and skip ARM Perspective
 	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    self.tabWidget.setCurrentIndex(0)
 	    self.configControlWidget.fullGroup.setChecked(True)
 	    self.configControlWidget.APCGroup.setChecked(False)
 	    self.configControlWidget.startProcess()
