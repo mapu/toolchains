@@ -39,12 +39,25 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
 	self.simulatorPath=""
 	self.readXML()
+	image=0
+	trace=0
 	if len(self.argv)==3:
-	    if self.argv[1]=="-image":
-		if os.path.exists(self.argv[2])<=0:
+	    if self.argv[1][:7]=="--image":
+		image=self.argv[1][8:len(self.argv[1])]
+		if os.path.exists(image)<=0:
 		    return
 		else:
-		    self.configControlWidget.fullEdit.setText(self.argv[2])
+		    self.configControlWidget.fullEdit.setText(image)		
+	    if self.argv[2][:7]=="--trace":
+		trace=self.argv[2][8:len(self.argv[2])]
+		self.configControlWidget.fullTracefile.setText(trace)
+	if image!=0 and trace!=0:
+	    #start full system and skip ARM Perspective
+	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
+	    self.tabWidget.setCurrentIndex(0)
+	    self.configControlWidget.fullGroup.setChecked(True)
+	    self.configControlWidget.APCGroup.setChecked(False)
+	    self.configControlWidget.startProcess()
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)                               
@@ -85,7 +98,7 @@ class MainWindow(QMainWindow):
 	self.statusLabel=QLabel("StatusBar")
         self.statusBar().addWidget(self.statusLabel)
 
-    def setSimulatorPath(self):
+    def setSimulatorWidget(self):
 	self.setDialog=QDialog()
 	self.setDialog.setWindowTitle("Simulator path setting")
 	self.setDialog.setFixedSize(400,200)
@@ -104,7 +117,10 @@ class MainWindow(QMainWindow):
 	setLay=QGridLayout()
 	setLay.addLayout(lay,0,0,1,3)
 	setLay.addWidget(self.okButton,1,1)
-	self.setDialog.setLayout(setLay)
+	self.setDialog.setLayout(setLay)	
+
+    def setSimulatorPath(self):
+	self.setSimulatorWidget()
 	self.setDialog.show()
 
     def pathSlot(self):
