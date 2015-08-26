@@ -8,7 +8,7 @@ import datetime
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-sys.setrecursionlimit(1000000)
+#sys.setrecursionlimit(10000)
 
 class DataBase():
     def __init__(self):	
