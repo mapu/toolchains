@@ -8,7 +8,6 @@ import datetime
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-#sys.setrecursionlimit(10000)
 
 class DataBase():
     def __init__(self):	
@@ -36,6 +35,8 @@ class DataBase():
         f=open(self.filePath,"r")
         lines=f.readlines()
 	self.maxValue=len(lines)
+	if self.maxValue==0:
+	    return
 	self.maxValue=self.maxValue*10/(10-num)
 	self.progressCall(self.minValue,"start build data base",self.maxValue)
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
@@ -358,7 +359,6 @@ class DataBase():
 	pos=s.index("\n")
 	s=s[:pos]
 	item.dis="'"+s+"'"
-
         return item	
 
     def memTableInit(self):
@@ -490,6 +490,7 @@ class DataBase():
 	regList=[]
 	disList=[]
 	#get timeList
+	i=0
 	fetchall_sql = "SELECT time FROM "+self.regTableName+" WHERE op = 'W'"
         r=self.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:	

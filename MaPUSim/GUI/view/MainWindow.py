@@ -10,7 +10,6 @@ import time
 import os
 import sys
 
-
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class MainWindow(QMainWindow):  
