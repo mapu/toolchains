@@ -24,7 +24,7 @@ class EmbTerminal(QWidget):
 
     def startProcess(self,string): 
 	self.flag=1
-   	self.process.start('xterm',['-into', str(self.terminal.winId()),'-geometry',"255x50",'-e', str(self.simulatorPath), 'localhost', str(string)]) 
+   	self.process.start('xterm',['-into', str(self.terminal.winId()),'-geometry','250x15','-e', str(self.simulatorPath), 'localhost', str(string)]) 
         if False==self.process.waitForStarted():
 	    print "this process can not be called."
 

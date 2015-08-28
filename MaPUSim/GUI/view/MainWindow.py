@@ -22,7 +22,6 @@ class MainWindow(QMainWindow):
         self.createMenus()  
         self.createToolBars()
 	self.createStatusBar()
-  
 	self.resize(800,600)
         self.tabWidget=QTabWidget()   
 	self.setCentralWidget(self.tabWidget)  

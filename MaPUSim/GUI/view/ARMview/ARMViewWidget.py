@@ -31,4 +31,6 @@ class ARMViewWidget(QWidget):
         self.layout=QVBoxLayout()                 
         self.layout.addWidget(self.upTabWidget)
         self.layout.addWidget(self.downTabWidget)
+	self.layout.setStretchFactor(self.upTabWidget,3)
+	self.layout.setStretchFactor(self.downTabWidget,2)
         self.setLayout(self.layout)   
