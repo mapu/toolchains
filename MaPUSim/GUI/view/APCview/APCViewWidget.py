@@ -241,6 +241,8 @@ class APCViewWidget(QWidget):
 	MPURList=[]
 	SPURRList=[]
 	SPURJList=[]
+	APEWidget.MPUWidget.regModel.clear()
+	APEWidget.MPUWidget.regFileTableInit()
         APEWidget.MPUWidget.buttonWidget.lineArray = [([0] * 14) for i in range(14)] 
 	fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time = "+str(curTime)
 	r=self.dataBase.fetchall(APEtimeFilePath,fetchall_sql)
