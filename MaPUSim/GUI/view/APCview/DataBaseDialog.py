@@ -10,7 +10,6 @@ class DataBaseDialog(QProgressDialog):
 	self.setAttribute (Qt.WA_DeleteOnClose);
 	self.setLabelText("Data base is building, please wait......")
 	self.setCancelButton(None)
-	self.setModal(True)
 
     def updateDataBaseDialog(self,value,string,maxValue):
 	if maxValue!=-1:

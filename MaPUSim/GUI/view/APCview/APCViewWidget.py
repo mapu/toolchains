@@ -16,6 +16,7 @@ QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class APCViewWidget(QWidget):  
     progressShowSignal=pyqtSignal(int,str,int)
+    updateWidgetSignal=pyqtSignal(str)
     def __init__(self,parent=None):
 	super(APCViewWidget,self).__init__(parent)
 
@@ -78,19 +79,19 @@ class APCViewWidget(QWidget):
 	self.progressShowSignal.emit(value,string,maxValue)	
 
     def createThread(self,num,path):
-	thread=Thread(self)
-	thread.progressCall(self.callback)
-	thread.num=num
+	self.thread=Thread(self)
+	self.thread.progressCall(self.callback)
+	self.thread.num=num
 	if self.mainOpen==0:
-	    thread.path="m5out/"+path
+	    self.thread.path="m5out/"+path
 	else:
-	    thread.path=path
-	thread.start()
+	    self.thread.path=path
+	self.thread.start()
 	#thread.wait(3000)
 	eventLoop=QEventLoop()
-	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)
+	self.connect(self.thread,SIGNAL("finished()"),eventLoop.quit)
 	eventLoop.exec_()
-	self.dataBase=thread.dataBase
+	self.dataBase=self.thread.dataBase
 	return self.dataBase
 
     def indexCallback(self):  
@@ -110,6 +111,9 @@ class APCViewWidget(QWidget):
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	i=datetime.datetime.now()
         print ("start update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	if self.thread.isFinished()==False:
+	    self.thread.terminate()
+	self.updateWidgetSignal.emit("Data base has been created successfully, now update interface...")
 	#read file content, get min and max time
 	f=open(self.dataBase.filePath,"r")
         lines=f.readlines()
@@ -216,11 +220,11 @@ class APCViewWidget(QWidget):
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.currentValueSlot)
 	self.connect(self.slider,SIGNAL("valueChanged(int)"),self.spinBox.setValue)
 	self.connect(self.spinBox,SIGNAL("valueChanged(int)"),self.slider.setValue)
-	self.dataBaseDialog.close()
 	self.APE0Widget.MPUWidget.indexCallback(self.indexCallback)
 	self.APE1Widget.MPUWidget.indexCallback(self.indexCallback)
 	self.APE2Widget.MPUWidget.indexCallback(self.indexCallback)
 	self.APE3Widget.MPUWidget.indexCallback(self.indexCallback)
+	self.updateWidgetSignal.emit("Data update successfully!")
 	i=datetime.datetime.now()
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 

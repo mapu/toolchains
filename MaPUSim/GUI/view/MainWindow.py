@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
+	self.apcViewWidget.updateWidgetSignal.connect(self.updateWidgetShowStaus,Qt.DirectConnection)
 	self.simulatorPath=""
 	self.readXML()
 	self.tabWidget.setCurrentIndex(2)
@@ -96,8 +97,14 @@ class MainWindow(QMainWindow):
         editTool.addAction(self.pasteAction)  
        
     def createStatusBar(self):    
-	self.statusLabel=QLabel("StatusBar")
+	self.statusLabel=QLabel(self.statusBar())
+	self.statusText="StatusBar"
+	self.statusLabel.setText(self.statusText)	
         self.statusBar().addWidget(self.statusLabel)
+
+    def updateWidgetShowStaus(self,string):
+	self.statusText=string
+	self.statusLabel.setText(self.statusText)
 
     def fileOpenSlot(self):
 	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
