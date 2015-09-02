@@ -1,0 +1,41 @@
+22000[11]: system.cpu.regfile_manager: [tid:0]: [sn:4]: W R Reg 2 : 0x22x2 
+22000[11]: system.cpu.graduation_unit: [tid:0]: [sn:4]: [sln:4]: 0x00000010: immtransr  r2, 67125504 : 2000 4000 6000 8000 16000 18000 20000 22000 0 0 0 0 
+24000[12]: system.cpu.regfile_manager: [tid:0]: [sn:5]: W R Reg 3 : 0x24x3 
+24000[12]: system.cpu.graduation_unit: [tid:0]: [sn:5]: [sln:5]: 0x00000010: immtransr  r3, 67125504 : 2000 4000 6000 8000 16000 18000 20000 24000 0 0 0 0 
+26000[13]: system.cpu.regfile_manager: [tid:0]: [sn:6]: W R Reg 5 : 0x26x5 
+26000[13]: system.cpu.regfile_manager: [tid:0]: [sn:6]: R R Reg 5 : 0x26x5 
+26000[13]: system.cpu.graduation_unit: [tid:0]: [sn:6]: [sln:6]: 0x00000010: immtransr  r5, 67125504 : 2000 4000 6000 8000 16000 18000 20000 26000 0 0 0 0 
+28000[14]: system.cpu.regfile_manager: [tid:0]: [sn:7]: W R Reg 13 : 0x28x13 
+28000[14]: system.cpu.graduation_unit: [tid:0]: [sn:7]: [sln:7]: 0x00000010: immtransr  r13, 67125504 : 4000 6000 8000 16000 18000 20000 22000 28000 0 0 0 0 
+30000[15]: system.cpu.regfile_manager: [tid:0]: [sn:8]: W R Reg 15 : 0x30x15 
+30000[15]: system.cpu.graduation_unit: [tid:0]: [sn:8]: [sln:8]: 0x00000038: immtransr  r15, 1 :2000 4000 6000 9000 12000 22000 28000 30000 0 0 0 0 
+32000[16]: system.cpu.regfile_manager: [tid:0]: [sn:9]: R R Reg 15 : 0x30x15 
+32000[16]: system.cpu.graduation_unit: [tid:0]: [sn:9]: [sln:9]: 0x00000038: immtransr  r15, 1 : 6000 12000 22000 24000 26000 28000 32000 0 0 0 0 0 
+32000[16]: system.cpu.regfile_manager: [tid:0]: [sn:10]: W R Reg 21 : 0x32x21 
+32000[16]: system.cpu.graduation_unit: [tid:0]: [sn:10]: [sln:10]: 0x00000038: immtransr  r21, 1 : 6000 12000 22000 24000 26000 28000 32000 0 0 0 0 0 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:11]: W R Reg 28 : 0x34x28 
+34000[17]: system.cpu.graduation_unit: [tid:0]: [sn:11]: [sln:11]: 0x00000038: immtransr  r28, 4 : 6000 12000 22000 24000 26000 28000 34000 0 0 0 0 0 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:12]: W R Reg 31 : 0x34x31 
+36000[18]: system.cpu.graduation_unit: [tid:0]: [sn:12]: [sln:12]: 0x00000038: immtransr  r31, 4 : 6000 12000 22000 24000 26000 28000 36000 0 0 0 0 0 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:13]: R R Reg 31 : 0x34x31 
+38000[19]: system.cpu.graduation_unit: [tid:0]: [sn:13]: [sln:13]: 0x00000038: immtransr  r31, 4 : 6000 12000 22000 24000 26000 28000 38000 0 0 0 0 0 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:16]: W Misc Reg 0 : 0x400000 
+40000[20]: system.cpu.graduation_unit: [tid:0]: [sn:16]: [sln:15]: 0x0000003c: r2k        carry, r1 : 6000 14000 24000 30000 38000 40000 0 0 0 0 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:17]: W J Reg 0 : 0x400000 
+42000[21]: system.cpu.graduation_unit: [tid:0]: [sn:17]: [sln:17]: 0x00000038: immtransr  J0, 1 : 6000 12000 22000 28000 36000 38000 40000 42000 0 0 0 0 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:18]: W J Reg 9 : 0x42x9 
+42000[21]: system.cpu.graduation_unit: [tid:0]: [sn:18]: [sln:18]: 0x00000038: immtransr  J9, 1 : 6000 12000 22000 28000 36000 38000 40000 42000 0 0 0 0 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:19]: W J Reg 15 : 0x42x15 
+44000[21]: system.cpu.graduation_unit: [tid:0]: [sn:19]: [sln:18]: 0x00000038: immtransr  J15, 1 : 6000 12000 22000 28000 36000 38000 40000 44000 0 0 0 0 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:20]: W J Reg 21 : 0x46x21 
+46000[23]: system.cpu.graduation_unit: [tid:0]: [sn:20]: [sln:21]: 0x0000038: immtransr  J21, 1 : 6000 12000 22000 28000 36000 38000 40000 46000 0 0 0 0 
+48000[24]: system.cpu.regfile_manager: [tid:0]: [sn:21]: W J Reg 27 : 0x48x27 
+48000[24]: system.cpu.graduation_unit: [tid:0]: [sn:21]: [sln:21]: 0x00000038: immtransr  J27, 1 : 12000 22000 28000 36000 38000 40000 44000 48000 0 0 0 0 
+50000[25]: system.cpu.regfile_manager: [tid:0]: [sn:22]: W J Reg 31 : 0x50x31 
+50000[25]: system.cpu.graduation_unit: [tid:0]: [sn:22]: [sln:22]: 0x00000038: immtransr  J31, 1 : 22000 28000 36000 38000 40000 44000 50000 0 0 0 0 0 
+52000[26]: system.cpu.regfile_manager: [tid:0]: [sn:23]: W Misc Reg 7 : 0x400000 
+52000[26]: system.cpu.graduation_unit: [tid:0]: [sn:23]: [sln:23]: 0x0000003c: r2k        Loop1number, r1 : 14000 24000 30000 38000 40000 42000 44000 52000 0 0 0 0 
+66000[33]: system.cpu.regfile_manager: [tid:0]: [sn:28]: W Misc Reg 36 : 0x800000 
+66000[33]: system.cpu.graduation_unit: [tid:0]: [sn:28]: [sln:25]: 0x0000006c: r2k        kb4, r1 : 30000 38000 46000 52000 60000 62000 64000 66000 0 0 0 0 
+70000[34]: system.cpu.regfile_manager: [tid:0]: [sn:29]: W Misc Reg 68 : 0x40 
+70000[34]: system.cpu.graduation_unit: [tid:0]: [sn:29]: [sln:26]: 0x00000070: r2k        ks4, r2 : 32000 40000 48000 54000 62000 64000 66000 70000 0 0 0 0 
