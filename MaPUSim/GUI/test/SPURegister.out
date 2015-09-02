@@ -1,0 +1,101 @@
+22000[11]: system.cpu.regfile_manager: [tid:0]: [sn:5]: W R Reg 2 : 0x402 
+22000[12]: system.cpu.regfile_manager: [tid:0]: [sn:5]: R R Reg 2 : 0x402 
+24000[12]: system.cpu.regfile_manager: [tid:0]: [sn:5]: R R Reg 2 : 0x402 
+24000[12]: system.cpu.regfile_manager: [tid:0]: [sn:6]: W R Reg 4 : 0x04 
+26000[13]: system.cpu.regfile_manager: [tid:0]: [sn:7]: W R Reg 5 : 0x05 
+28000[14]: system.cpu.regfile_manager: [tid:0]: [sn:8]: W R Reg 6 : 0x06 
+28000[14]: system.cpu.regfile_manager: [tid:0]: [sn:8]: R R Reg 6 : 0x06 
+30000[15]: system.cpu.regfile_manager: [tid:0]: [sn:9]: W R Reg 7 : 0x07 
+32000[16]: system.cpu.regfile_manager: [tid:0]: [sn:10]: W R Reg 8 : 0x08 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:11]: W R Reg 9 : 0x09 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:12]: W R Reg 11 : 0x11 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:12]: R R Reg 11 : 0x11 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:13]: W R Reg 12 : 0x12 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:14]: W R Reg 13 : 0x13 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:14]: R R Reg 13 : 0x13 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:15]: W R Reg 14 : 0x14 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:16]: W R Reg 15 : 0x15 
+34000[17]: system.cpu.regfile_manager: [tid:0]: [sn:17]: W R Reg 16 : 0x16 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:18]: W R Reg 17 : 0x17 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:18]: R R Reg 17 : 0x17 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:19]: W R Reg 18 : 0x18 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:20]: W R Reg 19 : 0x19 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:21]: W R Reg 20 : 0x20 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:21]: R R Reg 20 : 0x20 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:22]: W R Reg 21 : 0x21 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:23]: W R Reg 22 : 0x22 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:24]: W R Reg 23 : 0x23 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:24]: R R Reg 23 : 0x23 
+36000[18]: system.cpu.regfile_manager: [tid:0]: [sn:25]: W R Reg 24 : 0x24 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:26]: W R Reg 25 : 0x25 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:27]: W R Reg 26 : 0x26 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:27]: R R Reg 26 : 0x26 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:28]: W R Reg 27 : 0x27 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:29]: W R Reg 28 : 0x28 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:29]: R R Reg 28 : 0x28 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:30]: W R Reg 29 : 0x29 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:31]: W R Reg 30 : 0x30 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:31]: R R Reg 30 : 0x30 
+38000[19]: system.cpu.regfile_manager: [tid:0]: [sn:32]: W R Reg 31 : 0x31 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:33]: W J Reg 0 : 0x00 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:33]: R J Reg 0 : 0x00 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:34]: W J Reg 1 : 0x01 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:35]: W J Reg 2 : 0x02 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:36]: W J Reg 3 : 0x03 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:36]: R J Reg 3 : 0x03 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:37]: W J Reg 4 : 0x04 
+40000[20]: system.cpu.regfile_manager: [tid:0]: [sn:38]: W J Reg 5 : 0x05 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:39]: W J Reg 6 : 0x06 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:39]: R J Reg 6 : 0x06 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:40]: W J Reg 7 : 0x07 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:41]: W J Reg 8 : 0x08 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:41]: R J Reg 8 : 0x08 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:42]: W J Reg 9 : 0x09 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:43]: W J Reg 10 : 0x10 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:43]: R J Reg 10 : 0x10 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:44]: W J Reg 11 : 0x11 
+42000[21]: system.cpu.regfile_manager: [tid:0]: [sn:45]: W J Reg 12 : 0x12 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:46]: W J Reg 13 : 0x13 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:46]: R J Reg 13 : 0x13 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:47]: W J Reg 14 : 0x14 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:48]: W J Reg 15 : 0x15 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:49]: W J Reg 16 : 0x16 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:49]: R J Reg 16 : 0x16 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:50]: W J Reg 17 : 0x17 
+44000[22]: system.cpu.regfile_manager: [tid:0]: [sn:51]: W J Reg 18 : 0x18 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:51]: W J Reg 19 : 0x19 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:15]: W J Reg 20 : 0x20 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:52]: R J Reg 20 : 0x20 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:52]: W J Reg 21 : 0x21 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:52]: W J Reg 22 : 0x22 
+46000[23]: system.cpu.regfile_manager: [tid:0]: [sn:53]: W J Reg 23 : 0x23 
+48000[24]: system.cpu.regfile_manager: [tid:0]: [sn:53]: W J Reg 24 : 0x24 
+48000[24]: system.cpu.regfile_manager: [tid:0]: [sn:53]: W J Reg 25 : 0x25 
+48000[24]: system.cpu.regfile_manager: [tid:0]: [sn:54]: W J Reg 26 : 0x26 
+48000[24]: system.cpu.regfile_manager: [tid:0]: [sn:54]: W J Reg 27 : 0x27 
+50000[25]: system.cpu.regfile_manager: [tid:0]: [sn:54]: W J Reg 28 : 0x28 
+50000[25]: system.cpu.regfile_manager: [tid:0]: [sn:55]: W J Reg 29 : 0x29 
+50000[25]: system.cpu.regfile_manager: [tid:0]: [sn:55]: W J Reg 30 : 0x30 
+50000[25]: system.cpu.regfile_manager: [tid:0]: [sn:55]: W J Reg 31 : 0x31 
+133000[66]: system.cpu.mpurf_manager: [tid:1]: [sn:236] : W Misc Reg 0 : 0 
+133000[66]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 3 : 3 
+133000[66]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 6 : 6 
+133000[66]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 17 : 17 
+133000[66]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 19 : 19 
+134000[67]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 21 : 21 
+134000[67]: system.cpu.mpurf_manager: [tid:1]: [sn:237] : W Misc Reg 24 : 24 
+134000[67]: system.cpu.mpurf_manager: [tid:1]: [sn:238] : W Misc Reg 26 : 26 
+134000[67]: system.cpu.mpurf_manager: [tid:1]: [sn:239] : W Misc Reg 33 : 33 
+134000[67]: system.cpu.mpurf_manager: [tid:1]: [sn:240] : W Misc Reg 42 : 42 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:241] : W Misc Reg 47 : 47 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:242] : W Misc Reg 49 : 49 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:243] : W Misc Reg 53 : 53 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:244] : W Misc Reg 62 : 62 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:245] : W Misc Reg 68 : 68 
+136000[68]: system.cpu.mpurf_manager: [tid:1]: [sn:246] : W Misc Reg 73 : 73 
+138000[69]: system.cpu.mpurf_manager: [tid:1]: [sn:247] : W Misc Reg 82 : 82 
+138000[69]: system.cpu.mpurf_manager: [tid:1]: [sn:248] : W Misc Reg 91 : 91 
+138000[69]: system.cpu.mpurf_manager: [tid:1]: [sn:249] : W Misc Reg 103 : 103 
+138000[69]: system.cpu.mpurf_manager: [tid:1]: [sn:250] : W Misc Reg 116 : 116 
+138000[69]: system.cpu.mpurf_manager: [tid:1]: [sn:251] : W Misc Reg 137 : 137 
+140000[70]: system.cpu.mpurf_manager: [tid:1]: [sn:252] : W Misc Reg 149 : 149 
