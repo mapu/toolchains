@@ -98,6 +98,7 @@ class APCViewWidget(QWidget):
         self.currentValueSlot(self.slider.value())
 
     def simulatorDoneSlot(self,num,path): #num APE count
+	self.updateWidgetSignal.emit("Create data base, and then update interface...")
 	self.num=num
 	#simulator exit normal,create data base
 	#show dialog and show data base is building
@@ -111,9 +112,8 @@ class APCViewWidget(QWidget):
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	i=datetime.datetime.now()
         print ("start update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	if self.thread.isFinished()==False:
-	    self.thread.terminate()
-	self.updateWidgetSignal.emit("Data base has been created successfully, now update interface...")
+	self.thread.exit()
+	del self.thread
 	#read file content, get min and max time
 	f=open(self.dataBase.filePath,"r")
         lines=f.readlines()
@@ -132,6 +132,7 @@ class APCViewWidget(QWidget):
 	self.maxTime=int(line[:pos])/1000
 	i=datetime.datetime.now()
         print ("start update MPU stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	self.updateWidgetSignal.emit("Data base has been created successfully, now update interface...")
 	#update MPU and SPU stage dialog
 	#APE0 MPU STAGE
 	self.APE0Widget.MPUWidget.stageDialog=StageDialog()
@@ -289,7 +290,10 @@ class APCViewWidget(QWidget):
 		    s=r[e][7]
 		    pos=s.find(":")
 		    s=s[(pos+1):]
-		    a=s[:4]
+		    if s[0]=="m":
+			a="mrf"
+		    else:
+		    	a=s[:4]
 		    stage="sn:"+str(r[e][4])
 		    if r[e][4]!=-1:
 			stage=stage+",sln:"+str(r[e][5])

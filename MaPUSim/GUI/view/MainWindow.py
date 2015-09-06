@@ -96,8 +96,8 @@ class MainWindow(QMainWindow):
         editTool.addAction(self.cutAction)  
         editTool.addAction(self.pasteAction)  
        
-    def createStatusBar(self):    
-	self.statusLabel=QLabel(self.statusBar())
+    def createStatusBar(self):   
+	self.statusLabel=QLabel()
 	self.statusText="StatusBar"
 	self.statusLabel.setText(self.statusText)	
         self.statusBar().addWidget(self.statusLabel)
