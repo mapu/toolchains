@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
 	if image!=0 and trace!=0:
 	    #start full system and skip ARM Perspective
 	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
+	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
 	    self.configControlWidget.fullGroup.setChecked(True)
 	    self.configControlWidget.APCGroup.setChecked(False)
 	    self.configControlWidget.startProcess()
