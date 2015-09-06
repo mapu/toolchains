@@ -396,7 +396,7 @@ class APCViewWidget(QWidget):
 				    temp=temp+"MRF"
 				else:
 				    pos=s.find(" ")
-				    temp=temp+s[:pos]
+				    temp=temp+s
 			    if temp=="DMBIU0": 
 				APEWidget.MPUWidget.buttonWidget.lineArray[0][1]=1
 			    elif temp=="BIU0DM":
