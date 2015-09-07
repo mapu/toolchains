@@ -5,6 +5,7 @@ from FloatDialog import*
 from LineWidget import*
 import sys
 import math
+from QHexEdit.HexMainWindow import*
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -17,7 +18,6 @@ class MPULeftWidget(QWidget):
               
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
-	self.DMButton.setEnabled(True)
 	self.BIU0Button=QPushButton(self.tr("BIU0"))
 	self.BIU0Button.setFixedSize(140,50)
 	self.BIU1Button=QPushButton(self.tr("BIU1"))
@@ -90,8 +90,7 @@ class MPULeftWidget(QWidget):
 	self.connect(self.FMACButton,SIGNAL("clicked()"),self.FMACButtonSlot)
 
         #define float dialog
-	self.DMButtonDialog=FloatDialog()
-	self.DMButtonDialog.setWindowTitle(self.tr("DM Stages"))
+	self.DMButtonDialog=0
 	self.BIU0ButtonDialog=FloatDialog()
 	self.BIU0ButtonDialog.setWindowTitle(self.tr("BIU0 Stages"))
 	self.BIU1ButtonDialog=FloatDialog()
@@ -115,6 +114,7 @@ class MPULeftWidget(QWidget):
 
     #define slot function
     def DMButtonSlot(self):
+	self.DMButtonDialog=HexMainWindow()
 	self.DMButtonDialog.flag=1
 	self.DMButtonDialog.show()
 
@@ -160,8 +160,9 @@ class MPULeftWidget(QWidget):
 
     #define close all float dialogs
     def closeFloatDialogs(self):
-	if self.DMButtonDialog.flag!=-1:
-	    self.DMButtonDialog.close()
+	if self.DMButtonDialog!=0:
+	    if self.DMButtonDialog.flag!=-1:
+	    	self.DMButtonDialog.close()
 	if self.BIU0ButtonDialog.flag!=-1:
 	    self.BIU0ButtonDialog.close()
 	if self.BIU1ButtonDialog.flag!=-1:
