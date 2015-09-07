@@ -30,7 +30,9 @@ PARALLEL_DIRS := ABI/MacOSX-arm ABI/MacOSX-arm64 ABI/MacOSX-i386 ABI/SysV-x86_64
 	InstrumentationRuntime/AddressSanitizer
 	
 # ARCH_MAPU
+ifneq (,$(findstring MSPU,$(TARGETS_TO_BUILD)))
 PARALLEL_DIRS += ABI/None-mspu
+endif
 # end of ARCH_MAPU
 
 ifeq ($(HOST_OS),Darwin)

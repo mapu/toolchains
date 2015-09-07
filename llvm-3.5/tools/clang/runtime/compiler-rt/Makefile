@@ -111,8 +111,10 @@ RuntimeLibrary.linux.Configs :=
 
 #### MaPU hacking ####
 # we always install for mspu
+ifneq (,$(findstring MSPU,$(TARGETS_TO_BUILD)))
 RuntimeDirs += mspu
 RuntimeLibrary.mspu.Configs += builtins-mspu.a
+endif
 #### MaPU hacking end ####
 
 # TryCompile compiler source flags

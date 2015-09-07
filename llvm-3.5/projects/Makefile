@@ -24,6 +24,11 @@ DIRS := $(filter-out libcxx,$(DIRS))
 DIRS := $(filter-out dragonegg,$(DIRS))
 
 # ARCH_MAPU
+ifneq ($(findstring MMPULite,$(TARGETS_TO_BUILD)),)
 DIRS := mmcc/apdlgen $(DIRS) 
+else
+DIRS := $(filter-out mmcc,$(DIRS))
+endif
 # end of ARCH_MAPU
+
 include $(PROJ_SRC_ROOT)/Makefile.rules
