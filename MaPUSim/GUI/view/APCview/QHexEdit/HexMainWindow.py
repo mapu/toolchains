@@ -11,6 +11,7 @@ QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 class HexMainWindow(QMainWindow):
     def __init__(self,parent=None):
 	super(HexMainWindow,self).__init__(parent)
+	self.setWindowTitle("QHexEdit")
     	self.setAcceptDrops(True)
 	self.file=QFile()
     	self.init()
