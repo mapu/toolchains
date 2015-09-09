@@ -212,9 +212,13 @@ class StageDialog(QDialog):
 		    string=stringList[9+j]
 		    if string!=-1:
 	                self.arrayData[i][string]=self.sstage[j]
-	                for k in range(temp+1,string):
-			    data=self.arrayData[i][temp]
-		            self.arrayData[i][k]=data
+			if temp!=-1:
+			    if string-(temp+1)==1:
+			        data=self.arrayData[i][temp]
+			        self.arrayData[i][temp+1]=data
+			    elif string>(temp+1):
+			        data=self.arrayData[i][temp]
+			        self.arrayData[i][(temp+1):string]=[data]*(stringList[9+j]-temp-1)
 	                temp=string
 		    else:
 			break
@@ -250,9 +254,13 @@ class StageDialog(QDialog):
 		    string=stringList[9+j]
 		    if string!=-1:
 	                self.arrayData[i][string]=self.mstage[j]
-	                for k in range(temp+1,string):
-			    data=self.arrayData[i][temp]
-		            self.arrayData[i][k]=data
+			if temp!=-1:
+			    if string-(temp+1)==1:
+			        data=self.arrayData[i][temp]
+			        self.arrayData[i][temp+1]=data
+			    elif string>(temp+1):
+			        data=self.arrayData[i][temp]
+			        self.arrayData[i][(temp+1):string]=[data]*(stringList[9+j]-temp-1)
 	                temp=string
 		    else:
 			break
