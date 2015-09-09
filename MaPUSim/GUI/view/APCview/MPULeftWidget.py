@@ -112,9 +112,18 @@ class MPULeftWidget(QWidget):
 	self.FMACButtonDialog=FloatDialog()
 	self.FMACButtonDialog.setWindowTitle(self.tr("FMAC Stages"))
 
+    def setHexFileStart(self,fileName,start,end):
+	self.hexFile=fileName
+	self.start=start
+	self.end=end
+
     #define slot function
     def DMButtonSlot(self):
+	self.hexFile="/home/litt/works/MaPUSim/GUI/system.physmem-20150908-101110.bin"
+	#self.start=0
+	#self.end=16*1024*1024
 	self.DMButtonDialog=HexMainWindow()
+	self.DMButtonDialog.loadFile(self.hexFile)
 	self.DMButtonDialog.flag=1
 	self.DMButtonDialog.show()
 

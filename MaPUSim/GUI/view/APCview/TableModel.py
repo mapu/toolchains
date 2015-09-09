@@ -36,12 +36,18 @@ class TableModel(QAbstractTableModel):
 	    if self.curValue<=index.row()<=self.curValue+40:
                 if role == Qt.DisplayRole:
 		    text=self.subArray[index.row()][index.column()]
-		    if text.find("rw")>=0 or text.find("wr")>=0:
-			text=text[:(len(text)-2)]
+		    if text.find("rw")>=0 :
+			pos=text.find("rw")
+			text=text[:pos]
+		    elif text.find("wr")>=0:
+			pos=text.find("wr")
+			text=text[:pos]
 		    elif text.find("r")>=0:
-			text=text[:(len(text)-1)]
+			pos=text.find("r")
+			text=text[:pos]
 		    elif text.find("w")>=0:
-			text=text[:(len(text)-1)]
+			pos=text.find("w")
+			text=text[:pos]
                     return QVariant(text)
     	        elif role==Qt.TextAlignmentRole:
                     return int(Qt.AlignHCenter)
@@ -59,6 +65,25 @@ class TableModel(QAbstractTableModel):
                                 return QColor("gray")
                             else:
                                 return QColor(193,210,255) 
+		elif role==Qt.ToolTipRole:
+	            if index.data().toString()!="":
+		        text=self.subArray[index.row()][index.column()]
+		        if text.find("rw")>=0 or text.find("wr")>=0:
+			    pos=text.find("rw")
+			    text=text[(pos+2):]
+			    return QString(text)
+		        elif text.find("r")>=0:
+			    pos=text.find("r")
+			    text=text[(pos+1):]
+			    return QString(text)
+		        elif text.find("w")>=0:
+			    pos=text.find("w")
+			    text=text[(pos+1):]
+			    return QString(text)
+			else:
+			    return QString("")
+		    else:
+			return QString("")
 
     def flags(self,index):
 	if not index.isValid():
@@ -102,9 +127,6 @@ class TableModel(QAbstractTableModel):
     def refrushModel(self):
         self.beginResetModel()
         self.endResetModel()
-
-
-
 
 
 

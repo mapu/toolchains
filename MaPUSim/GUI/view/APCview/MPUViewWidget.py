@@ -453,7 +453,6 @@ class MPUViewWidget(QMainWindow):
     def updateMPUFloatDialog(self,r):
 	#update float dialog
 	#clear stage list
-	self.buttonWidget.DMButtonDialog.stages.clear()
 	self.buttonWidget.BIU0ButtonDialog.stages.clear()
 	self.buttonWidget.BIU1ButtonDialog.stages.clear()
 	self.buttonWidget.BIU2ButtonDialog.stages.clear()
@@ -465,7 +464,6 @@ class MPUViewWidget(QMainWindow):
 	self.buttonWidget.FALUButtonDialog.stages.clear()
 	self.buttonWidget.FMACButtonDialog.stages.clear()
 	#init float dialog
-	self.buttonWidget.DMButtonDialog.initDialog()
 	self.buttonWidget.BIU0ButtonDialog.initDialog()
 	self.buttonWidget.BIU1ButtonDialog.initDialog()
 	self.buttonWidget.BIU2ButtonDialog.initDialog()
@@ -476,11 +474,6 @@ class MPUViewWidget(QMainWindow):
 	self.buttonWidget.IMACButtonDialog.initDialog()
 	self.buttonWidget.FALUButtonDialog.initDialog()
 	self.buttonWidget.FMACButtonDialog.initDialog()
-	#DM
-	for i in range(0,40,2):
-	    if r[i]!="nop":
-		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setData(0,r[i])
-		self.buttonWidget.DMButtonDialog.stages.item(i/2,1).setToolTip(r[i+1])
 	#BIU0
 	for i in range(0,40,2):
 	    if r[40+i]!="nop":

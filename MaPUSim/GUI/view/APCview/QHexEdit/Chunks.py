@@ -31,7 +31,7 @@ class Chunks():
     	self._ioDevice = ioDevice
     	ok = self._ioDevice.open(QIODevice.ReadOnly)
     	if ok:   #Try to open IODevice
-            self._size = self._ioDevice.size()
+            self._size = self._ioDevice.size()/8
             self._ioDevice.close()
         else:               #Fallback is an empty buffer
             buf = QBuffer()

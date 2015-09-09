@@ -7,6 +7,7 @@ import sys
 sys.path.append("../..")
 from control.DataBase import*
 from TableModel import*
+import time
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -104,6 +105,9 @@ class StageDialog(QDialog):
 	self.searchList=[]
 	self.searchValue=0
 
+	self.stagetime=0
+	self.regtime=0
+
     def currentIndexSlot(self,index):
 	if len(self.snList)>1:
 	    i=index
@@ -137,7 +141,8 @@ class StageDialog(QDialog):
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
 	    self.tableModel.setModalDatas(self.subArray)
     	    self.tableModel.refrushModel()
-	    self.scrollToStage(0)	    
+	    self.scrollToStage(0)
+	    self.tableView.verticalScrollBar().setValue(0)
 
     def updateDialog(self,column):
 	text=self.subHorizontalHeaderList[column]
@@ -177,32 +182,43 @@ class StageDialog(QDialog):
 	    self.reg=0
 	if self.maxTime!=0 or self.maxValue!=0:
 	    i=datetime.datetime.now()
-            print ("start update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+            print ("start init table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.initTable()
-    	    self.tableModel.refrushModel()
-	    self.scrollToStage(0)
 	    i=datetime.datetime.now()
-            print ("end reflushmodel table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+            print ("end init table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    i=datetime.datetime.now()
+            print ("start refrush model %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+    	    self.tableModel.refrushModel()
+	    i=datetime.datetime.now()
+            print ("end refrush model %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    self.scrollToStage(0)
 
     def initTable(self):
-	i=datetime.datetime.now()
-        print ("end table horizontalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.verticalHeaderList=['0']*self.maxValue
         #self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.maxValue)]
+	i=datetime.datetime.now()
+        print ("start init array %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.arrayData=[x[:] for x in [[""]*(self.maxTime+1)]*self.maxValue]
 	i=datetime.datetime.now()
-        print ("end init array data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+        print ("end init array %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if self.flag=="s":
+	    i=datetime.datetime.now()
+            print ("start set array data SPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    for i in range(0,self.maxValue):
 	        stringList=self.snAll[i]	   
 	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
 	        temp=-1
 	        for j in range(0,20):
-		    if stringList[9+j]!=-1:
-	                self.arrayData[i][stringList[9+j]]=self.sstage[j]
-	                for k in range(temp+1,stringList[9+j]):
-		            self.arrayData[i][k]=self.arrayData[i][temp]
-	                temp=stringList[9+j]
+		    string=stringList[9+j]
+		    if string!=-1:
+	                self.arrayData[i][string]=self.sstage[j]
+	                for k in range(temp+1,string):
+			    data=self.arrayData[i][temp]
+		            self.arrayData[i][k]=data
+	                temp=string
+		    else:
+			break
+		dis=""
 	        while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
 	            read=0
 	            write=0
@@ -213,23 +229,34 @@ class StageDialog(QDialog):
 		            write=1
 		        elif stringList[5]=="R":
 		            read=1
-	            if read==1:
-		        if self.arrayData[i][stringList[1]].find("r")<0:
-	                    self.arrayData[i][stringList[1]]+="r"
-	            elif write==1:
- 		        if self.arrayData[i][stringList[1]].find("w")<0:
-	                    self.arrayData[i][stringList[1]]+="w"
+			dis=stringList[8]
+	                if read==1:
+		            if self.arrayData[i][stringList[1]].find("r")<0:
+	                        self.arrayData[i][stringList[1]]+="r"
+	                elif write==1:
+ 		            if self.arrayData[i][stringList[1]].find("w")<0:
+	                        self.arrayData[i][stringList[1]]+="w"
+	    	self.arrayData[i][stringList[1]]+=dis
+	    i=datetime.datetime.now()
+            print ("end set array data SPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	else:
+	    i=datetime.datetime.now()
+            print ("start set array data MPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    for i in range(0,self.maxValue):
 	        stringList=self.snAll[i]	   
 	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
 	        temp=-1
 	        for j in range(0,20):
-		    if stringList[9+j]!=-1:
-	                self.arrayData[i][stringList[9+j]]=self.mstage[j]
-	                for k in range(temp+1,stringList[9+j]):
-		            self.arrayData[i][k]=self.arrayData[i][temp]
-	                temp=stringList[9+j]
+		    string=stringList[9+j]
+		    if string!=-1:
+	                self.arrayData[i][string]=self.mstage[j]
+	                for k in range(temp+1,string):
+			    data=self.arrayData[i][temp]
+		            self.arrayData[i][k]=data
+	                temp=string
+		    else:
+			break
+		dis=""	
 	        while self.reg<self.regMax and self.regAll[self.reg][4]==stringList[4]:
 	            read=0
 	            write=0
@@ -240,13 +267,19 @@ class StageDialog(QDialog):
 		            write=1
 		        elif stringList[5]=="R":
 		            read=1
-	            if read==1:
-		        if self.arrayData[i][stringList[1]].find("r")<0:
-	                    self.arrayData[i][stringList[1]]+="r"
-	            elif write==1:
- 		        if self.arrayData[i][stringList[1]].find("w")<0:
-	                    self.arrayData[i][stringList[1]]+="w"
+			dis=stringList[8]
+	                if read==1:
+		            if self.arrayData[i][stringList[1]].find("r")<0:
+	                        self.arrayData[i][stringList[1]]+="r"
+	                elif write==1:
+ 		            if self.arrayData[i][stringList[1]].find("w")<0:
+	                        self.arrayData[i][stringList[1]]+="w"
+	    	self.arrayData[i][stringList[1]]+=dis	
+	    i=datetime.datetime.now()
+            print ("end set array data MPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if self.flag=="s":
+	    i=datetime.datetime.now()
+            print ("start split SPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%callimm%' or dis LIKE '%callmimmb%' or dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
@@ -257,7 +290,11 @@ class StageDialog(QDialog):
 		        self.snList.append(self.snAll.index(r[e]))   
 	        if r[e][7].find("stop")>=0:
 	            self.snList.pop(len(self.snList)-1) 
+	    i=datetime.datetime.now()
+            print ("end split SPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	elif self.flag=="m":
+	    i=datetime.datetime.now()
+            print ("start split MPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
@@ -265,7 +302,11 @@ class StageDialog(QDialog):
 		    self.snList.append(self.snAll.index(r[e])+1)
 	        if r[e][7].find("stop")>=0:
 	            self.snList.pop(len(self.snList)-1)
+	    i=datetime.datetime.now()
+            print ("end split MPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if len(self.snList)>1:
+	    i=datetime.datetime.now()
+            print ("start copy to subarray %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    for i in range(1,len(self.snList)):
 		self.page+=1
 	    	self.pageCombo.addItem(str(self.page)+" page")	
@@ -276,29 +317,31 @@ class StageDialog(QDialog):
 	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
 	    for i in range(self.snList[0],self.snList[1]-1):
 		self.subArray[i-self.snList[0]]=self.arrayData[i][self.minTime:self.maxTime+1]
+	    i=datetime.datetime.now()
+            print ("end copy to subarray %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    #self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
+	    i=datetime.datetime.now()
+            print ("start set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
-	    i=datetime.datetime.now()
-            print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.tableModel.setModalDatas(self.subArray)
 	    i=datetime.datetime.now()
-            print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+            print ("end set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	else:
+	    i=datetime.datetime.now()
+            print ("start set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.minTime=self.snAll[0][9]
 	    self.horizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.verticalHeaderList)
 	    self.subHorizontalHeaderList=self.horizontalHeaderList
 	    self.subVerticalHeaderList=self.verticalHeaderList
-	    i=datetime.datetime.now()
-            print ("end table verticalHeader %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]
 	    for i in range(0,self.maxValue):
 		self.subArray[i]=self.arrayData[i][self.minTime:self.maxTime+1]
 	    self.tableModel.setModalDatas(self.subArray)
 	    i=datetime.datetime.now()
-            print ("end update table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+            print ("end set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
     def scrollToStage(self,value):
 	index=self.pageCombo.currentIndex()
@@ -350,5 +393,4 @@ class StageDialog(QDialog):
 
     def closeEvent(self,event):
 	self.openFlag=-1
-
 

@@ -130,8 +130,6 @@ class APCViewWidget(QWidget):
 	line=lines[count-1]
 	pos=line.find("[")
 	self.maxTime=int(line[:pos])/1000
-	i=datetime.datetime.now()
-        print ("start update MPU stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.updateWidgetSignal.emit("Data base has been created successfully, now update interface...")
 	#update MPU and SPU stage dialog
 	#APE0 MPU STAGE
@@ -144,8 +142,6 @@ class APCViewWidget(QWidget):
 	self.APE0Widget.SPUWidget.stageDialog.slider=self.slider 
 	self.APE0Widget.MPUWidget.setButtonEnabled(True)
 	self.APE0Widget.SPUWidget.stageButton.setEnabled(True)
-	i=datetime.datetime.now()
-        print ("end update mpu stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if self.num==2:
 	    #APE1 MPU STAGE
 	    self.APE1Widget.MPUWidget.stageDialog=StageDialog()
@@ -209,8 +205,6 @@ class APCViewWidget(QWidget):
 	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  
 	    self.APE3Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE3Widget.SPUWidget.stageButton.setEnabled(True)
-	i=datetime.datetime.now()
-        print ("end update stage %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	#set the range
 	self.slider.setEnabled(True)
 	self.spinBox.setEnabled(True)
