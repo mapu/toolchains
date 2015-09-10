@@ -141,7 +141,7 @@ system = MapuSystem(cpu = [CPUClass(cpu_id = i,
                     dtb = MapuTLB(cpuid = i), 
                     itb = MapuTLB(cpuid = i),
                     turbodec = TurboClass(cop_addr = 0x80000000, cop_size = 0x1000, cop_latency = '2ns')) for i in xrange(np)],
-                physmem = SimpleMemory(range=AddrRange("128MB")),
+                physmem = SimpleMemory(range=AddrRange("128MB"), needdump = dumplocal),
                 membus = NoncoherentBus(), 
                 sbus = NoncoherentBus(), 
                 cbus = NoncoherentBus(), 
@@ -156,11 +156,11 @@ system = MapuSystem(cpu = [CPUClass(cpu_id = i,
                 ddr22sys_bridge = Bridge(),
                 ddr32sys_bridge = Bridge(),
                 mem_mode = test_mem_mode,
-                ddrmem0 = SimpleMemory(range=AddrRange(0x60000000, 0x6FFFFFFF), shared=True, shmkey=options.shm_key),
-                ddrmem1 = SimpleMemory(range=AddrRange(0x70000000, size = options.mem_size), shared=True, shmkey=options.shm_key),
-                ddrmem2 = SimpleMemory(range=AddrRange(0x80000000, 0xBFFFFFFF)),
-                ddrmem3 = SimpleMemory(range=AddrRange(0xC0000000, 0xFFFFFFFF)),
-                shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF), shared=True, shmkey=options.shm_key))
+                ddrmem0 = SimpleMemory(range=AddrRange(0x60000000, 0x6FFFFFFF), shared=True, shmkey=options.shm_key, needdump = dumpddr),
+                ddrmem1 = SimpleMemory(range=AddrRange(0x70000000, size = options.mem_size), shared=True, shmkey=options.shm_key, needdump = dumpddr),
+                ddrmem2 = SimpleMemory(range=AddrRange(0x80000000, 0xBFFFFFFF), needdump = dumpddr),
+                ddrmem3 = SimpleMemory(range=AddrRange(0xC0000000, 0xFFFFFFFF), needdump = dumpddr),
+                shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF), shared=True, shmkey=options.shm_key, needdump = dumpshare))
 
 # Sanity check
 if options.fastmem and (options.caches or options.l2cache):
