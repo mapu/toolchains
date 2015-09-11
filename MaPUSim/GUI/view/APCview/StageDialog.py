@@ -8,6 +8,7 @@ sys.path.append("../..")
 from control.DataBase import*
 from TableModel import*
 import time
+import sqlite3
 
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -105,8 +106,12 @@ class StageDialog(QDialog):
 	self.searchList=[]
 	self.searchValue=0
 
-	self.stagetime=0
-	self.regtime=0
+	self.dbFile="StageArray.db"
+	self.SPUTable="sputable"
+	self.MPUTable="mputable"
+	self.conn=self.getConn(self.dbFile)
+	self.maxCol=2000
+	self.tableNum=0
 
     def currentIndexSlot(self,index):
 	if len(self.snList)>1:
@@ -119,12 +124,16 @@ class StageDialog(QDialog):
 	        self.minTime=int(self.snAll[self.snList[i]][9])
 		self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(a-self.snList[i])]
 	        self.subVerticalHeaderList=['0']*(a-self.snList[i]+1)
-	        self.sub=[x[:] for x in [[""]*(self.maxTime+1)]*(a-self.snList[i]+1)]
+	        #self.sub=[x[:] for x in [[""]*(self.maxTime+1)]*(a-self.snList[i]+1)]
 	        self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:a]
+	        if self.flag=="s":
+	            searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(a+1)
+	        else:
+		    searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(a+1)
+	        r=self.fetchall(self.dbFile,searchSql)
 	        for j in range(self.snList[i],a):
-		    self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime+1]
-	        #self.subArray=self.arrayData[self.snList[i]:a]
+		    self.subArray[j-self.snList[i]]=r[j-self.snList[i]][self.minTime+1:self.maxTime+2]
 	    else:
 	        a=index+1
 		self.subVerticalHeaderList=0
@@ -134,8 +143,14 @@ class StageDialog(QDialog):
 	        self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[a]-self.snList[i]-1)]
 	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a]-1)]
 		self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
+
+	        if self.flag=="s":
+	            searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+	        else:
+		    searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+	        r=self.fetchall(self.dbFile,searchSql)
 		for j in range(self.snList[i],self.snList[a]-1):
-		     self.subArray[j-self.snList[i]]=self.arrayData[j][self.minTime:self.maxTime+1]
+		     self.subArray[j-self.snList[i]]=r[j-self.snList[i]][self.minTime+1:self.maxTime+2]
 	        #self.subArray=self.arrayData[self.snList[i]:(self.snList[a]-1)]
 	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
@@ -160,6 +175,15 @@ class StageDialog(QDialog):
 	self.maxTime=maxTime
 	self.flag=flag
 	self.minValue=0
+	self.colTypeString=""
+	self.colString=""
+	#sqlite3_limit(self.dbFile,SQLITE_LIMIT_COLUMN,maxTime+2) 
+
+	for i in range(0,self.maxTime):
+	    self.colTypeString+="i"+str(i)+" verchar(8),"
+	    self.colString+="i"+str(i)+","
+	self.colTypeString+="i"+str(self.maxTime)+" verchar(8))"
+	self.colString+="i"+str(self.maxTime)
 	if self.flag=="m":
 	    self.mstage=["FG","FS","FW","FR","DP","RR","E1","E2","E3","E4","E5","E6","E7","E8","E9","E10","E11","E12","E13","E14"]
 	    order_sql_sn = "SELECT * FROM "+self.dataBase.snMTableName+" order by sn asc"
@@ -195,15 +219,14 @@ class StageDialog(QDialog):
 
     def initTable(self):
 	self.verticalHeaderList=['0']*self.maxValue
-        #self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.maxValue)]
-	i=datetime.datetime.now()
-        print ("start init array %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	self.arrayData=[x[:] for x in [[""]*(self.maxTime+1)]*self.maxValue]
-	i=datetime.datetime.now()
-        print ("end init array %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	self.end=0
 	if self.flag=="s":
-	    i=datetime.datetime.now()
-            print ("start set array data SPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    if self.maxValue>5000:
+	        self.rowCount=5000
+	    else:
+	        self.rowCount=self.maxValue
+	    self.initDataBaseTable(self.dbFile,self.SPUTable)
+            self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]
 	    for i in range(0,self.maxValue):
 	        stringList=self.snAll[i]	   
 	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
@@ -241,11 +264,32 @@ class StageDialog(QDialog):
  		            if self.arrayData[i][stringList[1]].find("w")<0:
 	                        self.arrayData[i][stringList[1]]+="w"
 	    	self.arrayData[i][stringList[1]]+=dis
-	    i=datetime.datetime.now()
-            print ("end set array data SPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+
+		if self.end==1:
+		    self.insertDataTable(self.dbFile,self.SPUTable,self.rowCount)
+		    del self.arrayData
+		    self.arrayData=0
+		    break		
+		if (i+1)%self.rowCount==0:
+		    self.insertDataTable(self.dbFile,self.SPUTable,self.rowCount)
+		    del self.arrayData
+		    self.arrayData=0
+		    if self.maxValue-i>self.rowCount:
+		        self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]	
+		    elif self.maxValue-i==1:
+		    	break		
+		    else:
+			self.rowCount=self.maxValue-1-i
+			self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]   
+			self.end=1 
 	else:
-	    i=datetime.datetime.now()
-            print ("start set array data MPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    if self.maxValue>5000:
+		self.end=0
+	        self.rowCount=5000
+	    else:
+	        self.rowCount=self.maxValue
+	    self.initDataBaseTable(self.dbFile,self.MPUTable)
+            self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]
 	    for i in range(0,self.maxValue):
 	        stringList=self.snAll[i]	   
 	        self.verticalHeaderList[i]=str(stringList[4])+":"+stringList[6]+":"+stringList[7]
@@ -283,11 +327,26 @@ class StageDialog(QDialog):
  		            if self.arrayData[i][stringList[1]].find("w")<0:
 	                        self.arrayData[i][stringList[1]]+="w"
 	    	self.arrayData[i][stringList[1]]+=dis	
-	    i=datetime.datetime.now()
-            print ("end set array data MPU %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+
+		if self.end==1:
+		    self.insertDataTable(self.dbFile,self.MPUTable,self.rowCount)
+		    del self.arrayData
+		    self.arrayData=0
+		    break		
+		if (i+1)%self.rowCount==0:
+		    self.insertDataTable(self.dbFile,self.MPUTable,self.rowCount)
+		    del self.arrayData
+		    self.arrayData=0
+		    if self.maxValue-i>self.rowCount:
+		        self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]	
+		    elif self.maxValue-i==1:
+		    	break		
+		    else:
+			self.rowCount=self.maxValue-1-i
+			self.arrayData=[["" for col in range(self.maxTime+1)] for row in range(self.rowCount)]   
+			self.end=1 
+	self.conn.commit()
 	if self.flag=="s":
-	    i=datetime.datetime.now()
-            print ("start split SPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    order_sql="SELECT * FROM "+self.dataBase.snSTableName+" WHERE dis LIKE '%callimm%' or dis LIKE '%callmimmb%' or dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
@@ -298,11 +357,7 @@ class StageDialog(QDialog):
 		        self.snList.append(self.snAll.index(r[e]))   
 	        if r[e][7].find("stop")>=0:
 	            self.snList.pop(len(self.snList)-1) 
-	    i=datetime.datetime.now()
-            print ("end split SPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	elif self.flag=="m":
-	    i=datetime.datetime.now()
-            print ("start split MPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    order_sql="SELECT * FROM "+self.dataBase.snMTableName+" WHERE dis LIKE '%stop%'"+" order by sn asc"
 	    r=self.dataBase.fetchall(self.APEdbFilePath,order_sql)
 	    if r!=0:
@@ -310,11 +365,7 @@ class StageDialog(QDialog):
 		    self.snList.append(self.snAll.index(r[e])+1)
 	        if r[e][7].find("stop")>=0:
 	            self.snList.pop(len(self.snList)-1)
-	    i=datetime.datetime.now()
-            print ("end split MPU table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if len(self.snList)>1:
-	    i=datetime.datetime.now()
-            print ("start copy to subarray %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    for i in range(1,len(self.snList)):
 		self.page+=1
 	    	self.pageCombo.addItem(str(self.page)+" page")	
@@ -323,33 +374,49 @@ class StageDialog(QDialog):
 	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1)]*(self.snList[1]-1)]
 	    self.subHorizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
+	    if self.flag=="s":
+	        searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+	    else:
+		searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+	    r=self.fetchall(self.dbFile,searchSql)
 	    for i in range(self.snList[0],self.snList[1]-1):
-		self.subArray[i-self.snList[0]]=self.arrayData[i][self.minTime:self.maxTime+1]
-	    i=datetime.datetime.now()
-            print ("end copy to subarray %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	    #self.subArray=self.arrayData[self.snList[0]:(self.snList[1]-1)]
-	    i=datetime.datetime.now()
-            print ("start set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+		self.subArray[i-self.snList[0]]=r[i][self.minTime+1:self.maxTime+2]
 	    self.tableModel.setHorizontalHeader(self.subHorizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.subVerticalHeaderList)
 	    self.tableModel.setModalDatas(self.subArray)
-	    i=datetime.datetime.now()
-            print ("end set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	else:
-	    i=datetime.datetime.now()
-            print ("start set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	    self.minTime=self.snAll[0][9]
 	    self.horizontalHeaderList=range(self.minTime,self.maxTime+1)
 	    self.tableModel.setHorizontalHeader(self.horizontalHeaderList)
 	    self.tableModel.setVerticalHeader(self.verticalHeaderList)
 	    self.subHorizontalHeaderList=self.horizontalHeaderList
 	    self.subVerticalHeaderList=self.verticalHeaderList
-	    self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]
-	    for i in range(0,self.maxValue):
-		self.subArray[i]=self.arrayData[i][self.minTime:self.maxTime+1]
-	    self.tableModel.setModalDatas(self.subArray)
-	    i=datetime.datetime.now()
-            print ("end set data %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	    if self.flag=="s":
+	        searchSql="SELECT * FROM "+self.SPUTable
+	    else:
+		searchSql="SELECT * FROM "+self.MPUTable
+	    r=self.fetchall(self.dbFile,searchSql)
+	    if r!=0:	    
+	        self.subArray=[x[:] for x in [[""]*(self.maxTime+1-self.minTime)]*(self.maxValue)]
+	        for i in range(0,self.maxValue):
+		    self.subArray[i]=r[i][self.minTime+1:self.maxTime+2]
+	        self.tableModel.setModalDatas(self.subArray)
+	    else:
+		print "search none"
+
+    def initDataBaseTable(self,filePath,tableName):
+	self.dropTable(self.conn,tableName)
+	createTableSql="create table "+tableName+" (id integer primary key autoincrement,"+self.colTypeString
+	self.createTable(self.conn,createTableSql)
+
+    def insertDataTable(self,filePath,tableName,count):
+	saveSql="INSERT INTO "+tableName+" ("+self.colString+")"
+	for i in range(0,count):
+	    data="values ("
+	    for j in range(0,self.maxTime):
+		data+="'"+self.arrayData[i][j]+"'"+","
+	    data+="'"+self.arrayData[i][self.maxTime]+"'"+")"
+	    self.save(self.conn, saveSql, data)		
 
     def scrollToStage(self,value):
 	index=self.pageCombo.currentIndex()
@@ -401,4 +468,64 @@ class StageDialog(QDialog):
 
     def closeEvent(self,event):
 	self.openFlag=-1
+
+    def getConn(self,path):
+        conn = sqlite3.connect(path)
+        if os.path.exists(path) and os.path.isfile(path):
+            return conn
+        else:
+            conn = None
+            return sqlite3.connect(':memory:')
+
+    def getCursor(self,conn):
+        if conn is not None:
+            return conn.cursor()
+        else:
+            return self.getConn('').cursor()
+
+    def dropTable(self,conn,table):
+        if table is not None and table != '':
+            sql = 'DROP TABLE IF EXISTS ' + table
+            cu = self.getCursor(conn)
+            cu.execute(sql)
+            conn.commit()
+            self.closeAll(conn, cu)
+
+    def createTable(self,conn,sql):
+        if sql is not None and sql != '':
+            cu = self.getCursor(conn)
+            cu.execute(sql)
+            conn.commit()
+            self.closeAll(conn, cu)
+
+    def closeAll(self,conn,cu):
+        try:
+            if cu is not None:
+                cu.close()
+        finally:
+            if cu is not None:
+                cu.close()
+
+    def save(self,conn,sql,data):
+        if sql is not None and sql != '':
+            if data is not None:
+                cu = self.getCursor(conn)
+                cu.execute(sql+data)
+                #self.close_all(conn, cu)
+
+    def fetchall(self,filename,sql):
+	conn=self.getConn(filename)
+        if sql is not None and sql != '':
+            cu = self.getCursor(conn)
+            cu.execute(sql)
+            r = cu.fetchall()
+            if len(r) > 0:
+                #for e in range(len(r)):
+		    #print (r[e])
+		return r
+	    else:
+		return 0
+	else:
+	    return 0
+
 

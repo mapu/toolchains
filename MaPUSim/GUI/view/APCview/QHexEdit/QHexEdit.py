@@ -20,7 +20,8 @@ class QHexEdit(QAbstractScrollArea):
     overwriteModeChanged=pyqtSignal(bool)
     def __init__(self,parent=None):
 	super(QHexEdit,self).__init__(parent)
-
+	
+	self.start=0
    	self._chunks = Chunks()
    	self._undoStack = UndoStack(self._chunks, self)
     	self.setFont(QFont("Monospace", 10))
@@ -160,9 +161,10 @@ class QHexEdit(QAbstractScrollArea):
     	#self._bData.setData(self._data)
     	#self.setData(self._bData)
 
-    def setData(self,iODevice):
+    def setData(self,iODevice,start):
     	ok = self._chunks.setIODevice(iODevice)
     	self.initDialog()
+	self.start=start
     	self.dataChangedPrivate(0)
     	return ok
 
@@ -448,18 +450,17 @@ class QHexEdit(QAbstractScrollArea):
                             r.setRect(pxPosX, pxPosY - self._pxCharHeight + self._pxSelectionSub, 2*self._pxCharWidth, self._pxCharHeight)
                     	else:
                             r.setRect(pxPosX - self._pxCharWidth, pxPosY - self._pxCharHeight + self._pxSelectionSub, 3*self._pxCharWidth, self._pxCharHeight)
-                    	painter.fillRect(r, c)
+                    	painter.fillRect(r,QColor(255,255,255))
                     	hexn = self._hexDataShown.mid((bPosLine + colIdx) * 2, 2).data()
                     	painter.drawText(pxPosX, pxPosY, hexn)
                     	pxPosX += 3*self._pxCharWidth
- 
                     	#render ascii value
                     	if self._asciiArea:
                             ch = self._dataShown.at(bPosLine + colIdx)
-                            if (ch < 0x20) or (ch > 0x7e):
+                            if (ch< 0x20) or (ch> 0x7e):
                             	ch = '.'
                             r.setRect(pxPosAsciiX2, pxPosY - self._pxCharHeight + self._pxSelectionSub, self._pxCharWidth, self._pxCharHeight)
-                            painter.fillRect(r, c)
+                            painter.fillRect(r, QColor(255,255,255))
                             painter.drawText(pxPosAsciiX2, pxPosY, QChar(ch))
                             pxPosAsciiX2 += self._pxCharWidth
 		pxPosY +=self._pxCharHeight
@@ -562,7 +563,7 @@ class QHexEdit(QAbstractScrollArea):
     	self.readBuffers()
 
     def readBuffers(self):
-    	self._dataShown = self._chunks.data(self._bPosFirst, self._bPosLast - self._bPosFirst + BYTES_PER_LINE + 1, self._markedShown)
+    	self._dataShown = self._chunks.data(self.start+self._bPosFirst, self._bPosLast - self._bPosFirst + BYTES_PER_LINE + 1, self._markedShown,self._bPosFirst)
     	self._hexDataShown = QByteArray(self._dataShown.toHex())
 
     def toReadable(self,ba):

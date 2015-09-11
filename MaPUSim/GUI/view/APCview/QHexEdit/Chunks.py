@@ -41,7 +41,7 @@ class Chunks():
     	self._pos = 0
     	return ok
 
-    def data(self,pos=0,maxSize=-1,highlighted=0):
+    def data(self,pos=0,maxSize=-1,highlighted=0,cur=0):
         ioDelta = 0
     	chunkIdx = 0
     	chunk=Chunk()
@@ -51,14 +51,14 @@ class Chunks():
 	if highlighted:
             highlighted.clear()
 
-    	if pos >= self._size:
-            return buffern
+    	#if pos >= self._size:
+            #return buffern
 
     	if maxSize < 0:
             maxSize = self._size
     	else:
-            if (pos + maxSize) > self._size:
-                maxSize = self._size - pos
+            if (cur + maxSize) > self._size:
+                maxSize = self._size - cur
 
     	self._ioDevice.open(QIODevice.ReadOnly)
 

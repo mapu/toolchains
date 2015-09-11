@@ -25,7 +25,7 @@ class HexMainWindow(QMainWindow):
     def dropEvent(self,event):
     	if event.mimeData().hasUrls():
             string=event.mimeData().urls().at(0).toLocalFile()
-            self.loadFile(string)
+            self.loadFile(string,self.start)
             event.accept()
 
     def dataChanged(self):
@@ -34,7 +34,7 @@ class HexMainWindow(QMainWindow):
     def openFile(self):
       	fileName = QFileDialog.getOpenFileName(self)
     	if not fileName.isEmpty():
-            self.loadFile(fileName)
+            self.loadFile(fileName,self.start)
 
     def saveAs(self):
    	fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"),self.curFile)
@@ -119,9 +119,9 @@ class HexMainWindow(QMainWindow):
     	self.editToolBar=self.addToolBar(self.tr("Edit"))
     	self.editToolBar.addAction(self.findAct)
 
-    def loadFile(self,fileName):
+    def loadFile(self,fileName,start):
     	self.file.setFileName(fileName)
-    	if not self.hexEdit.setData(self.file):
+    	if not self.hexEdit.setData(self.file,start):
             QMessageBox.warning(self,self.tr("QHexEdit"),self.tr("Cannot read file %1:\n%2.").arg(fileName).arg(self.file.errorString()))
             return
     	self.setCurrentFile(fileName)

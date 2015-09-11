@@ -12,6 +12,7 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
     ARMUart0StartProcess=pyqtSignal(str)
+    processSignal=pyqtSignal()
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
@@ -446,6 +447,7 @@ class ConfigViewWidget(QMainWindow):
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
 	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
+	    self.connect(self,SIGNAL("processSignal()"),self.ARMProcess.kill)
             self.ARMProcess.start(self.ARMCommand)
             if False==self.ARMProcess.waitForStarted():
 	        self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
@@ -600,13 +602,13 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 	if self.flag==1:
-	    self.ARMProcess.close()	
- 	    self.ARMAPCProcess.close()	
+	    #self.ARMProcess.write("quit")
+	    self.processSignal.emit()
+	    self.flag=0	
 
     def stopProcessExit(self,exitFlag):
 	self.exitFlag=exitFlag
 	if self.flag==1:
-	    self.ARMProcess.close()	
- 	    self.ARMAPCProcess.close()	
+	    self.processSignal.emit()
 	
 

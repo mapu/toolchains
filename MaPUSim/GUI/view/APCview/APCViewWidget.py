@@ -223,6 +223,24 @@ class APCViewWidget(QWidget):
 	i=datetime.datetime.now()
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
+	#update DM bin file
+	i=datetime.datetime.now()
+        tmp=str(i.year)+str(i.month)+str(i.day)+"-"+str(i.hour)+str(i.minute)+str(i.second)
+	dirpath=QDir(".")
+	stringFile=dirpath.entryList(QDir.Files,QDir.Time)
+	for j in range (0,stringFile.count()):
+	    if stringFile[j].indexOf(".bin")>0:
+		filename=stringFile[j]
+	       	self.APE0Widget.MPUWidget.buttonWidget.setHexFileStart(filename,0)
+		self.APE1Widget.MPUWidget.buttonWidget.setHexFileStart(filename,16*1024*1024)
+		self.APE2Widget.MPUWidget.buttonWidget.setHexFileStart(filename,32*1024*1024)
+		self.APE3Widget.MPUWidget.buttonWidget.setHexFileStart(filename,48*1024*1024)
+	       	self.APE0Widget.MPUWidget.buttonWidget.DMButton.setEnabled(True)
+		self.APE1Widget.MPUWidget.buttonWidget.DMButton.setEnabled(True)
+		self.APE2Widget.MPUWidget.buttonWidget.DMButton.setEnabled(True)
+		self.APE3Widget.MPUWidget.buttonWidget.DMButton.setEnabled(True)
+		break
+
     def currentValueSlot(self,time):
 	curTime=self.slider.value()
 	self.updateAPEWidget(curTime,self.APE0Widget,self.dataBase.APE0dbFilePath,self.dataBase.APE0timeFilePath)
