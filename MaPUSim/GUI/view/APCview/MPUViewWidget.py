@@ -43,6 +43,7 @@ class MPUViewWidget(QMainWindow):
 	self.rightTab=QTabWidget()
 	self.rightTab.setMinimumWidth(100)
 	self.byteComboBox=QComboBox()
+	self.byteComboBox.setEnabled(False)
 	self.byteComboBox.insertItem(0,"1")
 	self.byteComboBox.insertItem(1,"2")
 	self.byteComboBox.insertItem(2,"4")

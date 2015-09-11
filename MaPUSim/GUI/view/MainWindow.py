@@ -43,7 +43,13 @@ class MainWindow(QMainWindow):
 	self.tabWidget.setCurrentIndex(2)
 	image=0
 	trace=0
-	if len(self.argv)==3:
+	if len(self.argv)==2:
+	    if self.argv[1][:7]=="--trace":
+	    	trace=self.argv[1][8:len(self.argv[1])]
+	    if trace!=0:
+		self.apcViewWidget.mainOpen=1   #to sign the trace is absolute path(1) or relative path(0)
+		self.apcViewWidget.simulatorDoneSlot(4,trace)
+	elif len(self.argv)==3:
 	    if self.argv[1][:7]=="--image":
 		image=self.argv[1][8:len(self.argv[1])]
 		if os.path.exists(image)<=0:
@@ -53,13 +59,13 @@ class MainWindow(QMainWindow):
 	    if self.argv[2][:7]=="--trace":
 		trace=self.argv[2][8:len(self.argv[2])]
 		self.configControlWidget.fullTracefile.setText(trace)
-	if image!=0 and trace!=0:
-	    #start full system and skip ARM Perspective
-	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
-	    self.configControlWidget.fullGroup.setChecked(True)
-	    self.configControlWidget.APCGroup.setChecked(False)
-	    self.configControlWidget.startProcess()
+	    if image!=0 and trace!=0:
+	    	#start full system and skip ARM Perspective
+	    	self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
+	    	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	    	self.configControlWidget.fullGroup.setChecked(True)
+	    	self.configControlWidget.APCGroup.setChecked(False)
+	    	self.configControlWidget.startProcess()
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
