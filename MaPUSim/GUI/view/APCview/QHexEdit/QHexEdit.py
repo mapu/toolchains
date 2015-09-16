@@ -22,6 +22,7 @@ class QHexEdit(QAbstractScrollArea):
 	super(QHexEdit,self).__init__(parent)
 	
 	self.start=0
+	self.addressList=QStringList()
    	self._chunks = Chunks()
    	self._undoStack = UndoStack(self._chunks, self)
     	self.setFont(QFont("Monospace", 10))
@@ -418,6 +419,8 @@ class QHexEdit(QAbstractScrollArea):
 		pxPosY = self._pxCharHeight
                 for row in range(0,(self._dataShown.size()/BYTES_PER_LINE)+1):
                     address = QString("%1").arg(self._bPosFirst + row*BYTES_PER_LINE + self._addressOffset, self._addrDigits, 16, QChar('0'))
+		    if self.addressList.contains(address)==False:
+			self.addressList.append(address)
                     painter.drawText(self._pxPosAdrX - pxOfsX, pxPosY, address)
 		    pxPosY +=self._pxCharHeight
 

@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
 	aboutMenu.addAction(self.aboutAction)  
         
     def createToolBars(self):  
-        fileToolBar=self.addToolBar("File")    
+        fileToolBar=self.addToolBar("File")  
         fileToolBar.addAction(self.fileNewAction)  
         fileToolBar.addAction(self.fileOpenAction)  
         fileToolBar.addAction(self.fileSaveAction) 
@@ -115,8 +115,9 @@ class MainWindow(QMainWindow):
 
     def fileOpenSlot(self):
 	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
-	self.apcViewWidget.mainOpen=1
-	self.apcViewWidget.simulatorDoneSlot(4,path)
+	if path!="":
+	    self.apcViewWidget.mainOpen=1
+	    self.apcViewWidget.simulatorDoneSlot(4,path)
 
     def setSimulatorWidget(self):
 	self.setDialog=QDialog()

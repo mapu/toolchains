@@ -228,8 +228,6 @@ class APCViewWidget(QWidget):
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
 	#update DM bin file
-	i=datetime.datetime.now()
-        tmp=str(i.year)+str(i.month)+str(i.day)+"-"+str(i.hour)+str(i.minute)+str(i.second)
 	dirpath=QDir(".")
 	stringFile=dirpath.entryList(QDir.Files,QDir.Time)
 	for j in range (0,stringFile.count()):
@@ -262,6 +260,9 @@ class APCViewWidget(QWidget):
 	MPURList=[]
 	SPURRList=[]
 	SPURJList=[]
+	MPUWList=[]
+	SPUWRList=[]
+	SPUWJList=[]	
 	APEWidget.MPUWidget.regModel.clear()
 	APEWidget.MPUWidget.regFileTableInit()
         APEWidget.MPUWidget.buttonWidget.lineArray = [([0] * 14) for i in range(14)] 
@@ -271,6 +272,15 @@ class APCViewWidget(QWidget):
 	    for e in range(len(r)):
 		APEWidget.MPUWidget.updateMPUWidget(r[e])
 		APEWidget.SPUWidget.updateSPUWidget(r[e])
+	else:
+	    fetchall_sql="SELECT * FROM "+self.dataBase.timeTableName+" WHERE time < "+str(curTime)
+	    r=self.dataBase.fetchall(APEtimeFilePath,fetchall_sql)
+	    if r!=0:	
+		APEWidget.MPUWidget.updateMPUWidget(r[len(r)-1])
+		APEWidget.SPUWidget.updateSPUWidget(r[len(r)-1])	
+	    else:
+		APEWidget.MPUWidget.updateMPUWidget(["nop"]*400)
+		APEWidget.SPUWidget.updateSPUWidget(["nop"]*400)    
 	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
         r=self.dataBase.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:
@@ -279,23 +289,29 @@ class APCViewWidget(QWidget):
 		    if r[e][5]=="R":
 			MPURList.append(r[e][7])
 		    else:
+			MPUWList.append(r[e][7])
 		        APEWidget.MPUWidget.updateMPURegWFlag(r[e])
 		elif r[e][6]=="R Reg":
 		    if r[e][5]=="R":
 			SPURRList.append(r[e][7])
 		    else:
+			SPUWRList.append(r[e][7])
 		    	APEWidget.SPUWidget.updateSPURegWFlag(r[e])
 		elif r[e][6]=="J Reg":
 		    if r[e][5]=="R":
 			SPURJList.append(r[e][7])
 		    else:
+			SPUWJList.append(r[e][7])
 		    	APEWidget.SPUWidget.updateSPURegWFlag(r[e])
 	    for i in range(0,len(MPURList)):
-		APEWidget.MPUWidget.updateMPURegRFlag(MPURList[i])
+		if MPURList[i] in MPUWList:
+		    APEWidget.MPUWidget.updateMPURegRFlag(MPURList[i])
 	    for i in range(0,len(SPURRList)):
-		APEWidget.SPUWidget.updateSPURegRRFlag(SPURRList[i])
+		if SPURRList[i] in SPUWRList:
+		    APEWidget.SPUWidget.updateSPURegRRFlag(SPURRList[i])
 	    for i in range(0,len(SPURJList)):
-		APEWidget.SPUWidget.updateSPURegRJFlag(SPURJList[i])
+		if SPURJList[i] in SPUWJList:
+		    APEWidget.SPUWidget.updateSPURegRJFlag(SPURJList[i])
 
 	floatDialogList=["nop"]*440
 	fetchall_sql = "SELECT * FROM "+self.dataBase.snMTableName+" WHERE stage0 = "+str(curTime)+" or "+"stage1 = "+str(curTime)+" or "+"stage2 = "+str(curTime)+" or "+"stage3 = "+str(curTime)+" or "+"stage4 = "+str(curTime)+" or "+"stage5 = "+str(curTime)+" or "+"stage6 = "+str(curTime)+" or "+"stage7 = "+str(curTime)+" or "+"stage8 = "+str(curTime)+" or "+"stage9 = "+str(curTime)+" or "+"stage10 = "+str(curTime)+" or "+"stage11 = "+str(curTime)+" or "+"stage12 = "+str(curTime)+" or "+"stage13 = "+str(curTime)+" or "+"stage14 = "+str(curTime)+" or "+"stage15 = "+str(curTime)+" or "+"stage16 = "+str(curTime)+" or "+"stage17 = "+str(curTime)+" or "+"stage18 = "+str(curTime)+" or "+"stage19 = "+str(curTime)
