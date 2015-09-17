@@ -87,7 +87,6 @@ class APCViewWidget(QWidget):
 	else:
 	    self.thread.path=path
 	self.thread.start()
-	#thread.wait(3000)
 	eventLoop=QEventLoop()
 	self.connect(self.thread,SIGNAL("finished()"),eventLoop.quit)
 	eventLoop.exec_()

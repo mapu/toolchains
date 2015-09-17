@@ -23,6 +23,7 @@ class QHexEdit(QAbstractScrollArea):
 	
 	self.start=0
 	self.addressList=QStringList()
+	self.addressSearch=QString()
    	self._chunks = Chunks()
    	self._undoStack = UndoStack(self._chunks, self)
     	self.setFont(QFont("Monospace", 10))
@@ -163,6 +164,7 @@ class QHexEdit(QAbstractScrollArea):
     	#self.setData(self._bData)
 
     def setData(self,iODevice,start):
+	self.addressSearch.clear()
     	ok = self._chunks.setIODevice(iODevice)
     	self.initDialog()
 	self.start=start
@@ -241,28 +243,16 @@ class QHexEdit(QAbstractScrollArea):
             self.verticalScrollBar().setValue((int)(self._cursorPosition / 2 / BYTES_PER_LINE) - self._rowsShown + 1)
     	self.viewport().update()
 
-    def indexOf(self,ba, fromn):
-    	pos = self._chunks.indexOf(ba, fromn)
-     	if pos > -1:
-            curPos = pos*2
-            self.setCursorPosition(curPos + ba.length()*2)
-            self.resetSelection(curPos)
-            self.setSelection(curPos + ba.length()*2)
-        self.ensureVisible()
-        return pos
-
+    def indexOf(self,ba):
+	self.addressSearch=ba
+	pos=self.addressList.indexOf(self.addressSearch)
+	if pos>-1:
+            self.ensureVisible()
+	    self.verticalScrollBar().setValue(pos*self._pxCharHeight)
+    	return pos	    
+	
     def isModified(self):
         return self._modified
-
-    def lastIndexOf(self,ba,fromn):
-    	pos = self._chunks.lastIndexOf(ba, fromn)
-    	if pos > -1:
-            curPos = pos*2
-            self.setCursorPosition(curPos - 1)
-            self.resetSelection(curPos)
-            self.setSelection(curPos + ba.length()*2)
-            self.ensureVisible()
-    	    return pos
 
     def redo(self):
     	self._undoStack.redo()
@@ -421,6 +411,8 @@ class QHexEdit(QAbstractScrollArea):
                     address = QString("%1").arg(self._bPosFirst + row*BYTES_PER_LINE + self._addressOffset, self._addrDigits, 16, QChar('0'))
 		    if self.addressList.contains(address)==False:
 			self.addressList.append(address)
+		    if address==self.addressSearch:
+			painter.fillRect(self._pxPosAdrX - pxOfsX, pxPosY-self._pxCharHeight+4,address.size()*self._pxCharWidth,self._pxCharHeight,QColor(255,255,0));
                     painter.drawText(self._pxPosAdrX - pxOfsX, pxPosY, address)
 		    pxPosY +=self._pxCharHeight
 

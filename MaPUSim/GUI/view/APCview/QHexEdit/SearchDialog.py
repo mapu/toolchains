@@ -13,14 +13,12 @@ class SearchDialog(QDialog):
 	self.resize(300,150)
   	self._hexEdit = hexEdit
 	gbFind=QGroupBox()
-	self.cbFindFormat=QComboBox()
-	self.cbFindFormat.addItem("Hex")
-	self.cbFindFormat.addItem("UTF-8")
-	self.cbFindFormat.setFixedWidth(100)
+	self.cbFindLabel=QLabel("Find")
+	self.cbFindLabel.setFixedWidth(50)
 	self.cbFind=QComboBox()
 	self.cbFind.setEditable(True)
 	findLay=QHBoxLayout()
-	findLay.addWidget(self.cbFindFormat)
+	findLay.addWidget(self.cbFindLabel)
 	findLay.addWidget(self.cbFind)
 	gbFind.setLayout(findLay)
 
@@ -49,24 +47,14 @@ class SearchDialog(QDialog):
 	self.connect(self.pbCancel,SIGNAL("clicked()"),self.closeDialog)
 
     def findNext(self):
-	fromi = self._hexEdit.cursorPosition()/2
-    	self._findBa=self.getContent(self.cbFindFormat.currentIndex(), self.cbFind.currentText())
+    	self._findBa=self.cbFind.currentText()
     	idx = -1
-
     	if self._findBa.length() > 0:
-            idx = self._hexEdit.indexOf(self._findBa, fromi)
+            idx = self._hexEdit.indexOf(self._findBa)
     	return idx
 
     def on_pbFind_clicked(self):
     	self.findNext()
-
-    def getContent(self,comboIndex,inputi):
-	findBa=QByteArray()
-    	if comboIndex==0:    #hex
-            findBa = QByteArray.fromHex(inputi.toLatin1())
-        elif comboIndex==1:    #text
-            findBa = inputi.toUtf8()
-    	return findBa
 
     def closeDialog(self):
 	self.close()

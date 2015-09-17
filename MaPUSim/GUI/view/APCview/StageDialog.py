@@ -161,20 +161,20 @@ class StageDialog(QDialog):
 		self.subVerticalHeaderList=0
 		del self.subArray
 		self.subArray=0
-	        self.subVerticalHeaderList=['']*(self.snList[a]-self.snList[i]-1)
-	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a]-1)]
+	        self.subVerticalHeaderList=['']*(self.snList[a]-self.snList[i])
+	        self.subVerticalHeaderList=self.verticalHeaderList[self.snList[i]:(self.snList[a])]
 	        if self.flag=="s":
-	            searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+	            searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a]+1)
 	        else:
-		    searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+		    searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a]+1)
 	        r=self.fetchall(self.dbFile,searchSql)
 		if r!=0:
 	            self.minTime=r[0][1]
 		    curMaxTime=self.maxTime
 		    if self.flag=="s":
-		        fetchSql = "SELECT end FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+		        fetchSql = "SELECT end FROM "+self.SPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a]+1)
 		    else:
-		        fetchSql = "SELECT end FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a])
+		        fetchSql = "SELECT end FROM "+self.MPUTable+" WHERE id>="+str(self.snList[i]+1)+" and id<"+str(self.snList[a]+1)
         	    f=self.fetchall(self.dbFile,fetchSql)
 		    if f!=0:
 		        endList=[]	
@@ -184,9 +184,9 @@ class StageDialog(QDialog):
 		        endList.reverse()
 		        curMaxTime=endList[0]
 		        del endList
-		    self.subArray=[x[:] for x in [[""]*(curMaxTime+1-self.minTime)]*(self.snList[a]-self.snList[i]-1)]
+		    self.subArray=[x[:] for x in [[""]*(curMaxTime+1-self.minTime)]*(self.snList[a]-self.snList[i])]
 		    self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
-	            for i in range(0,self.snList[a]-self.snList[i]-1):
+	            for i in range(0,self.snList[a]-self.snList[i]):
 		        start=r[i][1]-self.minTime
 		        end=r[i][3]+1-self.minTime
 		        dataList=r[i][2].split(",")
@@ -370,24 +370,47 @@ class StageDialog(QDialog):
 
 	del self.regAll
 	self.regAll=0
+	del arrayData
+	arrayData=0
+	splitRow=10000
+	markList=[]
+	for j in range(1,len(self.snList)):
+	    if self.snList[j]-self.snList[j-1]>splitRow:
+		num=(self.snList[j]-self.snList[j-1])/splitRow
+		splitString=[]
+		for k in range(0,num):
+		    splitString.append(self.snList[j-1]+splitRow*(k+1))
+		markList.append(splitString)
+		markList.append(j)
+    	markList.reverse()
+	for j in range(0,len(markList),2):
+	    for k in range(len(markList[j+1]),0,-1):
+	        self.snList.insert(markList[j],markList[j+1][k-1])
 	if len(self.snList)>1:
+	    text=self.verticalHeaderList[self.snList[0]]
+	    pos=text.find(":")
+	    text=text[:pos]
+	    self.pageCombo.setItemText(0,"sn:"+text)	
 	    for i in range(1,len(self.snList)):
 		self.page+=1
-	    	self.pageCombo.addItem(str(self.page)+" page")	
-	    self.subVerticalHeaderList=['']*(self.snList[1]-1)
-	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1]-1)]
+	    	text=self.verticalHeaderList[self.snList[i]]
+	    	pos=text.find(":")
+	    	text=text[:pos]
+	    	self.pageCombo.addItem("sn:"+text)
+	    self.subVerticalHeaderList=['']*(self.snList[1])
+	    self.subVerticalHeaderList=self.verticalHeaderList[self.snList[0]:(self.snList[1])]
 	    if self.flag=="s":
-	        searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+	        searchSql="SELECT * FROM "+self.SPUTable+" WHERE id>=1 and id<"+str(self.snList[1]+1)
 	    else:
-		searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+		searchSql="SELECT * FROM "+self.MPUTable+" WHERE id>=1 and id<"+str(self.snList[1]+1)
 	    r=self.fetchall(self.dbFile,searchSql)
 	    if r!=0:
 	    	self.minTime=r[0][1]
 		curMaxTime=self.maxTime
 		if self.flag=="s":
-		    fetchSql = "SELECT end FROM "+self.SPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+		    fetchSql = "SELECT end FROM "+self.SPUTable+" WHERE id>=1 and id<"+str(self.snList[1]+1)
 		else:
-		    fetchSql = "SELECT end FROM "+self.MPUTable+" WHERE id>=1 and id<"+str(self.snList[1])
+		    fetchSql = "SELECT end FROM "+self.MPUTable+" WHERE id>=1 and id<"+str(self.snList[1]+1)
         	f=self.fetchall(self.dbFile,fetchSql)
 		if f!=0:
 		    endList=[]	
@@ -397,14 +420,18 @@ class StageDialog(QDialog):
 		    endList.reverse()
 		    curMaxTime=endList[0]
 		    del endList
-	        self.subArray=[["" for col in range(curMaxTime+1-self.minTime)] for row in range(self.snList[1]-1)]
+	        self.subArray=[["" for col in range(curMaxTime+1-self.minTime)] for row in range(self.snList[1])]
 		self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
-	        for i in range(self.snList[0],self.snList[1]-1):
+	        for i in range(self.snList[0],self.snList[1]):
 		    start=r[i][1]-self.minTime
 		    end=r[i][3]+1-self.minTime
 		    dataList=r[i][2].split(",")
 	            self.subArray[i][start:end]=dataList
 	else:
+	    text=self.verticalHeaderList[self.snList[0]]
+	    pos=text.find(":")
+	    text=text[:pos]
+	    self.pageCombo.setItemText(0,"sn:"+text)	
 	    self.subVerticalHeaderList=self.verticalHeaderList
 	    if self.flag=="s":
 	        searchSql="SELECT * FROM "+self.SPUTable
