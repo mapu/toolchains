@@ -247,8 +247,10 @@ class QHexEdit(QAbstractScrollArea):
 	self.addressSearch=ba
 	pos=self.addressList.indexOf(self.addressSearch)
 	if pos>-1:
+            curPos = (16*pos)*2
+            self.setCursorPosition(curPos + ba.length()*2)
+            self.setCursorPosition((2 * BYTES_PER_LINE)*100)
             self.ensureVisible()
-	    self.verticalScrollBar().setValue(pos*self._pxCharHeight)
     	return pos	    
 	
     def isModified(self):
