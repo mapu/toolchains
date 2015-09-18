@@ -452,12 +452,11 @@ class QHexEdit(QAbstractScrollArea):
                     	#render ascii value
                     	if self._asciiArea:
                             ch = self._dataShown.at(bPosLine + colIdx)
-			    print "len",len(ch)
-                            if (chr(ord(ch))< 0x20) or (chr(ord(ch))> 0x7e):
-                            	ch = '.'
+                            if (chr(ord(ch))< ' ') or (chr(ord(ch))> '~'):
+                            	ch = '.' 
                             r.setRect(pxPosAsciiX2, pxPosY - self._pxCharHeight + self._pxSelectionSub, self._pxCharWidth, self._pxCharHeight)
                             painter.fillRect(r, QColor(255,255,255))
-                            painter.drawText(pxPosAsciiX2, pxPosY, ch)
+                            painter.drawText(pxPosAsciiX2, pxPosY, chr(ord(ch)))
                             pxPosAsciiX2 += self._pxCharWidth
 		pxPosY +=self._pxCharHeight
             painter.setBackgroundMode(Qt.TransparentMode)
