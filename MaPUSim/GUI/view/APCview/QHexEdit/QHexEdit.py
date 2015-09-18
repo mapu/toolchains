@@ -20,9 +20,7 @@ class QHexEdit(QAbstractScrollArea):
     overwriteModeChanged=pyqtSignal(bool)
     def __init__(self,parent=None):
 	super(QHexEdit,self).__init__(parent)
-	
 	self.start=0
-	self.addressList=QStringList()
 	self.addressSearch=QString()
    	self._chunks = Chunks()
    	self._undoStack = UndoStack(self._chunks, self)
@@ -245,13 +243,13 @@ class QHexEdit(QAbstractScrollArea):
 
     def indexOf(self,ba):
 	self.addressSearch=ba
-	pos=self.addressList.indexOf(self.addressSearch)
-	if pos>-1:
-            curPos = (16*pos)*2
-            self.setCursorPosition(curPos + ba.length()*2)
-            self.setCursorPosition((2 * BYTES_PER_LINE)*100)
+	pos=int(str(ba),16)
+	if pos%16==0:
+            self.setCursorPosition(pos*2)
             self.ensureVisible()
-    	return pos	    
+    	    return pos
+	else:
+	    return -1	    
 	
     def isModified(self):
         return self._modified
@@ -390,6 +388,8 @@ class QHexEdit(QAbstractScrollArea):
 
     def paintEvent(self,event):
     	painter=QPainter(self.viewport())
+	apainter=QPainter(self.viewport())
+	apainter.setFont(QFont("Monospace"))
     	if event.rect() != self._cursorRect:
             #process some useful calculations
             pxOfsX = self.horizontalScrollBar().value()
@@ -411,11 +411,9 @@ class QHexEdit(QAbstractScrollArea):
 		pxPosY = self._pxCharHeight
                 for row in range(0,(self._dataShown.size()/BYTES_PER_LINE)+1):
                     address = QString("%1").arg(self._bPosFirst + row*BYTES_PER_LINE + self._addressOffset, self._addrDigits, 16, QChar('0'))
-		    if self.addressList.contains(address)==False:
-			self.addressList.append(address)
 		    if address==self.addressSearch:
-			painter.fillRect(self._pxPosAdrX - pxOfsX, pxPosY-self._pxCharHeight+4,address.size()*self._pxCharWidth,self._pxCharHeight,QColor(255,255,0));
-                    painter.drawText(self._pxPosAdrX - pxOfsX, pxPosY, address)
+			apainter.fillRect(self._pxPosAdrX - pxOfsX, pxPosY-self._pxCharHeight+4,address.size()*self._pxCharWidth,self._pxCharHeight,QColor(255,255,0));
+                    apainter.drawText(self._pxPosAdrX - pxOfsX, pxPosY, address)
 		    pxPosY +=self._pxCharHeight
 
             #paint hex and ascii area
@@ -454,11 +452,12 @@ class QHexEdit(QAbstractScrollArea):
                     	#render ascii value
                     	if self._asciiArea:
                             ch = self._dataShown.at(bPosLine + colIdx)
-                            if (ch< 0x20) or (ch> 0x7e):
+			    print "len",len(ch)
+                            if (chr(ord(ch))< 0x20) or (chr(ord(ch))> 0x7e):
                             	ch = '.'
                             r.setRect(pxPosAsciiX2, pxPosY - self._pxCharHeight + self._pxSelectionSub, self._pxCharWidth, self._pxCharHeight)
                             painter.fillRect(r, QColor(255,255,255))
-                            painter.drawText(pxPosAsciiX2, pxPosY, QChar(ch))
+                            painter.drawText(pxPosAsciiX2, pxPosY, ch)
                             pxPosAsciiX2 += self._pxCharWidth
 		pxPosY +=self._pxCharHeight
             painter.setBackgroundMode(Qt.TransparentMode)

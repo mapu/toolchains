@@ -14,7 +14,7 @@ class HexMainWindow(QMainWindow):
     	self.setAcceptDrops(True)
 	self.file=QFile()
     	self.init()
-    	self.setCurrentFile("")
+    	self.setCurrentFile("QHexEdit")
 
     def dragEnterEvent(self,event):
     	if event.mimeData().hasUrls():
@@ -135,9 +135,9 @@ class HexMainWindow(QMainWindow):
     	    self.isUntitled = False	
     	self.setWindowModified(False)
     	if fileName=="":
-            self.setWindowFilePath("QHexEdit")
+            self.setWindowTitle("QHexEdit")
     	else:
-            self.setWindowFilePath(self.curFile + " - QHexEdit")
+            self.setWindowTitle(fileName + " - QHexEdit")
 
     def strippedName(self,fullFileName):
     	return QFileInfo(fullFileName).fileName()

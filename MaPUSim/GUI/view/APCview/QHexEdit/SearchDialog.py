@@ -15,8 +15,7 @@ class SearchDialog(QDialog):
 	gbFind=QGroupBox()
 	self.cbFindLabel=QLabel("Find")
 	self.cbFindLabel.setFixedWidth(50)
-	self.cbFind=QComboBox()
-	self.cbFind.setEditable(True)
+	self.cbFind=QLineEdit()
 	findLay=QHBoxLayout()
 	findLay.addWidget(self.cbFindLabel)
 	findLay.addWidget(self.cbFind)
@@ -47,14 +46,16 @@ class SearchDialog(QDialog):
 	self.connect(self.pbCancel,SIGNAL("clicked()"),self.closeDialog)
 
     def findNext(self):
-    	self._findBa=self.cbFind.currentText()
+    	self._findBa=self.cbFind.text()
     	idx = -1
     	if self._findBa.length() > 0:
             idx = self._hexEdit.indexOf(self._findBa)
     	return idx
 
     def on_pbFind_clicked(self):
-    	self.findNext()
+    	idx=self.findNext()
+	if idx==-1:
+	    QMessageBox.warning(self,self.tr("QHexEdit"),self.tr("Cannot find %1.").arg(self._findBa))
 
     def closeDialog(self):
 	self.close()
