@@ -442,9 +442,9 @@ class MPUViewWidget(QMainWindow):
 	elif index==2:
 	    self.initData="0x00000000"
 	elif index==3:
-	    self.initData="0.00"
+	    self.initData="0.000000"
 	elif index==4:
-	    self.initData="0.0000"
+	    self.initData="0.000000"
 	self.regFileTableInit()
 	self.indexCall()
 
@@ -533,23 +533,30 @@ class MPUViewWidget(QMainWindow):
 	num=64
 	if index<=2:
 	    if index==0:      #1
-		length=4
+		length=1
 	    elif index==1:    #2
-		length=6
+		length=2
 	    elif index==2:    #4
-		length=10
+		length=4
 	    for i in range(0,187):
 	        if i>=0 and i<=127:  #m0-127
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
-		            self.regModel.item(i+1,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+1,j+1).setText(self.initData)
@@ -560,13 +567,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+2,j+1,QStandardItem(s))
-		            self.regModel.item(i+2,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+2,j+1).setText(self.initData)
@@ -577,13 +591,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+3,j+1,QStandardItem(s))
-		            self.regModel.item(i+3,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+3,j+1).setText(self.initData)
@@ -594,13 +615,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+4,j+1,QStandardItem(s))
-		            self.regModel.item(i+4,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+4,j+1).setText(self.initData)
@@ -611,13 +639,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+5,j+1,QStandardItem(s))
-		            self.regModel.item(i+5,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+5,j+1).setText(self.initData)
@@ -628,13 +663,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+6,j+1,QStandardItem(s))
-		            self.regModel.item(i+6,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+6,j+1).setText(self.initData)
@@ -645,13 +687,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+7,j+1).setText(self.initData)
@@ -662,13 +711,20 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+7,j+1).setText(self.initData)
@@ -679,35 +735,52 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    self.regModel.setItem(i+8,j+1,QStandardItem(s))
-		            self.regModel.item(i+8,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+8,j+1).setText(self.initData)
 		            self.regModel.item(i+8,j+1).setToolTip("")
 		    for j in range(0,num):
 	                self.regModel.item(i+8,j+1).setForeground(QBrush(QColor(0,0,0)))
-	elif index==3:    #float
-	    length=10
+	elif index==3 or index==4:    #float  double
+	    if index==3:
+	    	length=4
+ 	    else:
+		length=8
 	    for i in range(0,187):
 	        if i>=0 and i<=127:  #m0-127
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(round(float(f),7))
-			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
-		            self.regModel.item(i+1,j+1).setToolTip(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
+			    s=str(float(f))
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+1,j+1).setText(self.initData)
@@ -718,15 +791,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+2,j+1,QStandardItem(s))
-		            self.regModel.item(i+2,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+2,j+1).setText(self.initData)
@@ -737,15 +817,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+3,j+1,QStandardItem(s))
-		            self.regModel.item(i+3,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+3,j+1).setText(self.initData)
@@ -756,15 +843,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+4,j+1,QStandardItem(s))
-		            self.regModel.item(i+4,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+4,j+1).setText(self.initData)
@@ -775,15 +869,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+5,j+1,QStandardItem(s))
-		            self.regModel.item(i+5,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+5,j+1).setText(self.initData)
@@ -794,15 +895,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+6,j+1,QStandardItem(s))
-		            self.regModel.item(i+6,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+6,j+1).setText(self.initData)
@@ -813,15 +921,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+7,j+1).setText(self.initData)
@@ -832,15 +947,22 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+7,j+1).setText(self.initData)
@@ -851,195 +973,29 @@ class MPUViewWidget(QMainWindow):
 	    	    if r[1+i]!="nop":
 			stringList=r[i+1].split(" ")
 			num=len(stringList)-1
-			for j in range(0,num):
+			col=0
+			for j in range(0,num,length):
+			    col+=1
 			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
+			    if len(s)==3:
+				s=s[:2]+'0'+s[2:]
+			    for k in range(1,length):
+				temp=stringList[j+k]
+				temp=temp[2:]
+				if len(temp)==1:
+				    temp='0'+temp
+				s+=temp
+			    f=eval(s)
 			    s=str(float(f))
-			    self.regModel.setItem(i+8,j+1,QStandardItem(s))
-		            self.regModel.item(i+8,j+1).setToolTip(s)
+			    self.regModel.setItem(i+1,col,QStandardItem(s))
+		            self.regModel.item(i+1,col).setToolTip(s)
 		    else:
 		        for j in range(0,num):
 	                    self.regModel.item(i+8,j+1).setText(self.initData)
 		            self.regModel.item(i+8,j+1).setToolTip("")
 		    for j in range(0,num):
 	                self.regModel.item(i+8,j+1).setForeground(QBrush(QColor(0,0,0)))
-	elif index==4:    #double
-	    length=18
-	    for i in range(0,187):
-	        if i>=0 and i<=127:  #m0-127
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
-		            self.regModel.item(i+1,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+1,j+1).setText(self.initData)
-		            self.regModel.item(i+1,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+1,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=128 and i<=143: #shu0
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+2,j+1,QStandardItem(s))
-		            self.regModel.item(i+2,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+2,j+1).setText(self.initData)
-		            self.regModel.item(i+2,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+2,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=144 and i<=159: #shu1
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+3,j+1,QStandardItem(s))
-		            self.regModel.item(i+3,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+3,j+1).setText(self.initData)
-		            self.regModel.item(i+3,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+3,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=160 and i<=163: #ialu
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+4,j+1,QStandardItem(s))
-		            self.regModel.item(i+4,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+4,j+1).setText(self.initData)
-		            self.regModel.item(i+4,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+4,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=164 and i<=167:  #imac
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+5,j+1,QStandardItem(s))
-		            self.regModel.item(i+5,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+5,j+1).setText(self.initData)
-		            self.regModel.item(i+5,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+5,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=168 and i<=171: #falu
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+6,j+1,QStandardItem(s))
-		            self.regModel.item(i+6,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+6,j+1).setText(self.initData)
-		            self.regModel.item(i+6,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+6,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=172 and i<=175: #fmac
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+7,j+1).setText(self.initData)
-		            self.regModel.item(i+7,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+7,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=176 and i<=184: #IMRL,IMRH,FMR,BIU0W,BIU1W,BIU2W,DIVQU,DIVER,DIV-CNT
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+7,j+1,QStandardItem(s))
-		            self.regModel.item(i+7,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+7,j+1).setText(self.initData)
-		            self.regModel.item(i+7,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+7,j+1).setForeground(QBrush(QColor(0,0,0)))
-	        elif i>=185 and i<=186: #svr
-	    	    if r[1+i]!="nop":
-			stringList=r[i+1].split(" ")
-			num=len(stringList)-1
-			for j in range(0,num):
-			    s=stringList[j]
-			    bit=len(s)
-			    if bit<length:
-				s=s[:2]+'0'*(length-bit)+s[2:]
-			    f= eval(s)
-			    s=str(float(f))
-			    self.regModel.setItem(i+8,j+1,QStandardItem(s))
-		            self.regModel.item(i+8,j+1).setToolTip(s)
-		    else:
-		        for j in range(0,num):
-	                    self.regModel.item(i+8,j+1).setText(self.initData)
-		            self.regModel.item(i+8,j+1).setToolTip("")
-		    for j in range(0,num):
-	                self.regModel.item(i+8,j+1).setForeground(QBrush(QColor(0,0,0)))
+
 	self.regFileWidget.resizeColumnsToContents()
 	for i in range(0,14):
 	    if r[386+i]!="nop":

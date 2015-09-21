@@ -539,24 +539,24 @@ class DataBase():
 	if typeList[0]=="MPU Reg":
 	    dataList[regList[0]+1]="'"+disList[0]+"'"
 	elif typeList[0]=="R Reg":
-	    dataList[187+regList[0]+1]="'"+disList[0]+"'"
+	    dataList[188+regList[0]]="'"+disList[0]+"'"   #187+regList[0]+1
 	elif typeList[0]=="J Reg":
-	    dataList[219+regList[0]+1]="'"+disList[0]+"'"
+	    dataList[220+regList[0]]="'"+disList[0]+"'"   #219+regList[0]+1
 	elif typeList[0]=="Misc Reg":
 	    if regList[0]>=0 and regList[0]<=7:
-	    	dataList[251+regList[0]+1]="'"+disList[0]+"'"
+	    	dataList[252+regList[0]]="'"+disList[0]+"'"   #251+regList[0]+1
 	    elif regList[0]>=16 and regList[0]<=30:
-	    	dataList[251+regList[0]-8+1]="'"+disList[0]+"'"
+	    	dataList[244+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-8+1
 	    elif regList[0]>=32 and regList[0]<=107:
-	    	dataList[251+regList[0]-9+1]="'"+disList[0]+"'"
+	    	dataList[243+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-9+1
 	    elif regList[0]==112:
-	    	dataList[251+regList[0]-13+1]="'"+disList[0]+"'"
+	    	dataList[239+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-13+1
 	    elif regList[0]==116:
-	    	dataList[251+regList[0]-16+1]="'"+disList[0]+"'"
+	    	dataList[236+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-16+1
 	    elif regList[0]==120:
-	    	dataList[251+regList[0]-19+1]="'"+disList[0]+"'"
+	    	dataList[233+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-19+1
 	    elif regList[0]>=128 and regList[0]<=173:
-	    	dataList[251+regList[0]-26+1]="'"+disList[0]+"'"
+	    	dataList[226+regList[0]]="'"+disList[0]+"'"   #251+regList[0]-26+1
 
 	for i in range(1,len(timeList)):
 	    p=float(i)/float(len(timeList))
@@ -569,46 +569,46 @@ class DataBase():
 		if typeList[i]=="MPU Reg":
 	            dataList[regList[i]+1]="'"+disList[i]+"'"
 		elif typeList[i]=="R Reg":
-	    	    dataList[187+regList[i]+1]="'"+disList[i]+"'"
+	    	    dataList[188+regList[i]]="'"+disList[i]+"'"   #187+regList[i]+1
 		elif typeList[i]=="J Reg":
-	    	    dataList[219+regList[i]+1]="'"+disList[i]+"'"
+	    	    dataList[220+regList[i]]="'"+disList[i]+"'"   #219+regList[i]+1
 		elif typeList[i]=="Misc Reg":
 		    if regList[i]>=0 and regList[i]<=7:
-	    	        dataList[251+regList[i]+1]="'"+disList[i]+"'"
+	    	        dataList[252+regList[i]]="'"+disList[i]+"'"   #251+regList[i]+1
 		    elif regList[i]>=16 and regList[i]<=30:
-	    	        dataList[251+regList[i]-8+1]="'"+disList[i]+"'"
+	    	        dataList[244+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-8+1
 		    elif regList[i]>=32 and regList[i]<=107:
-	    	        dataList[251+regList[i]-9+1]="'"+disList[i]+"'"
+	    	        dataList[243+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-9+1
 		    elif regList[i]==112:
-	    	        dataList[251+regList[i]-13+1]="'"+disList[i]+"'"
-		    elif regList[i]==116:
-	    	        dataList[251+regList[i]-16+1]="'"+disList[i]+"'"
+	    	        dataList[239+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-13+1
+		    elif regList[i]==116: 
+	    	        dataList[236+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-16+1
 		    elif regList[i]==120:
-	    	        dataList[251+regList[i]-19+1]="'"+disList[i]+"'"
+	    	        dataList[233+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-19+1
 		    elif regList[i]>=128 and regList[i]<=173:
-	    	        dataList[251+regList[i]-26+1]="'"+disList[i]+"'"
+	    	        dataList[226+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-26+1
 	    else:
 		if typeList[i]=="MPU Reg":
 	            dataList[regList[i]+1]="'"+disList[i]+"'"
 		elif typeList[i]=="R Reg":
-	    	    dataList[187+regList[i]+1]="'"+disList[i]+"'"
+	    	    dataList[188+regList[i]]="'"+disList[i]+"'"   #187+regList[i]+1
 		elif typeList[i]=="J Reg":
-	    	    dataList[219+regList[i]+1]="'"+disList[i]+"'"
+	    	    dataList[220+regList[i]]="'"+disList[i]+"'"   #219+regList[i]+1
 		elif typeList[i]=="Misc Reg":
 		    if regList[i]>=0 and regList[i]<=7:
-	    	        dataList[251+regList[i]+1]="'"+disList[i]+"'"
+	    	        dataList[252+regList[i]]="'"+disList[i]+"'"   #251+regList[i]+1
 		    elif regList[i]>=16 and regList[i]<=30:
-	    	        dataList[251+regList[i]-8+1]="'"+disList[i]+"'"
+	    	        dataList[244+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-8+1
 		    elif regList[i]>=32 and regList[i]<=107:
-	    	        dataList[251+regList[i]-9+1]="'"+disList[i]+"'"
+	    	        dataList[243+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-9+1
 		    elif regList[i]==112:
-	    	        dataList[251+regList[i]-13+1]="'"+disList[i]+"'"
+	    	        dataList[239+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-13+1
 		    elif regList[i]==116:
-	    	        dataList[251+regList[i]-16+1]="'"+disList[i]+"'"
+	    	        dataList[236+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-16+1
 		    elif regList[i]==120:
-	    	        dataList[251+regList[i]-19+1]="'"+disList[i]+"'"
+	    	        dataList[233+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-19+1
 		    elif regList[i]>=128 and regList[i]<=173:
-	    	        dataList[251+regList[i]-26+1]="'"+disList[i]+"'"
+	    	        dataList[226+regList[i]]="'"+disList[i]+"'"   #251+regList[i]-26+1
 	data="values ("+dataList[0]+","+dataList[1]+","+dataList[2]+","+dataList[3]+","+dataList[4]+","+dataList[5]+","+dataList[6]+","+dataList[7]+","+dataList[8]+","+dataList[9]+","+dataList[10]+","+dataList[11]+","+dataList[12]+","+dataList[13]+","+dataList[14]+","+dataList[15]+","+dataList[16]+","+dataList[17]+","+dataList[18]+","+dataList[19]+","+dataList[20]+","+dataList[21]+","+dataList[22]+","+dataList[23]+","+dataList[24]+","+dataList[25]+","+dataList[26]+","+dataList[27]+","+dataList[28]+","+dataList[29]+","+dataList[30]+","+dataList[31]+","+dataList[32]+","+dataList[33]+","+dataList[34]+","+dataList[35]+","+dataList[36]+","+dataList[37]+","+dataList[38]+","+dataList[39]+","+dataList[40]+","+dataList[41]+","+dataList[42]+","+dataList[43]+","+dataList[44]+","+dataList[45]+","+dataList[46]+","+dataList[47]+","+dataList[48]+","+dataList[49]+","+dataList[50]+","+dataList[51]+","+dataList[52]+","+dataList[53]+","+dataList[54]+","+dataList[55]+","+dataList[56]+","+dataList[57]+","+dataList[58]+","+dataList[59]+","+dataList[60]+","+dataList[61]+","+dataList[62]+","+dataList[63]+","+dataList[64]+","+dataList[65]+","+dataList[66]+","+dataList[67]+","+dataList[68]+","+dataList[69]+","+dataList[70]+","+dataList[71]+","+dataList[72]+","+dataList[73]+","+dataList[74]+","+dataList[75]+","+dataList[76]+","+dataList[77]+","+dataList[78]+","+dataList[79]+","+dataList[80]+","+dataList[81]+","+dataList[82]+","+dataList[83]+","+dataList[84]+","+dataList[85]+","+dataList[86]+","+dataList[87]+","+dataList[88]+","+dataList[89]+","+dataList[90]+","+dataList[91]+","+dataList[92]+","+dataList[93]+","+dataList[94]+","+dataList[95]+","+dataList[96]+","+dataList[97]+","+dataList[98]+","+dataList[99]+","+dataList[100]+","+dataList[101]+","+dataList[102]+","+dataList[103]+","+dataList[104]+","+dataList[105]+","+dataList[106]+","+dataList[107]+","+dataList[108]+","+dataList[109]+","+dataList[110]+","+dataList[111]+","+dataList[112]+","+dataList[113]+","+dataList[114]+","+dataList[115]+","+dataList[116]+","+dataList[117]+","+dataList[118]+","+dataList[119]+","+dataList[120]+","+dataList[121]+","+dataList[122]+","+dataList[123]+","+dataList[124]+","+dataList[125]+","+dataList[126]+","+dataList[127]+","+dataList[128]+","+dataList[129]+","+dataList[130]+","+dataList[131]+","+dataList[132]+","+dataList[133]+","+dataList[134]+","+dataList[135]+","+dataList[136]+","+dataList[137]+","+dataList[138]+","+dataList[139]+","+dataList[140]+","+dataList[141]+","+dataList[142]+","+dataList[143]+","+dataList[144]+","+dataList[145]+","+dataList[146]+","+dataList[147]+","+dataList[148]+","+dataList[149]+","+dataList[150]+","+dataList[151]+","+dataList[152]+","+dataList[153]+","+dataList[154]+","+dataList[155]+","+dataList[156]+","+dataList[157]+","+dataList[158]+","+dataList[159]+","+dataList[160]+","+dataList[161]+","+dataList[162]+","+dataList[163]+","+dataList[164]+","+dataList[165]+","+dataList[166]+","+dataList[167]+","+dataList[168]+","+dataList[169]+","+dataList[170]+","+dataList[171]+","+dataList[172]+","+dataList[173]+","+dataList[174]+","+dataList[175]+","+dataList[176]+","+dataList[177]+","+dataList[178]+","+dataList[179]+","+dataList[180]+","+dataList[181]+","+dataList[182]+","+dataList[183]+","+dataList[184]+","+dataList[185]+","+dataList[186]+","+dataList[187]+","+dataList[188]+","+dataList[189]+","+dataList[190]+","+dataList[191]+","+dataList[192]+","+dataList[193]+","+dataList[194]+","+dataList[195]+","+dataList[196]+","+dataList[197]+","+dataList[198]+","+dataList[199]+","+dataList[200]+","+dataList[201]+","+dataList[202]+","+dataList[203]+","+dataList[204]+","+dataList[205]+","+dataList[206]+","+dataList[207]+","+dataList[208]+","+dataList[209]+","+dataList[210]+","+dataList[211]+","+dataList[212]+","+dataList[213]+","+dataList[214]+","+dataList[215]+","+dataList[216]+","+dataList[217]+","+dataList[218]+","+dataList[219]+","+dataList[220]+","+dataList[221]+","+dataList[222]+","+dataList[223]+","+dataList[224]+","+dataList[225]+","+dataList[226]+","+dataList[227]+","+dataList[228]+","+dataList[229]+","+dataList[230]+","+dataList[231]+","+dataList[232]+","+dataList[233]+","+dataList[234]+","+dataList[235]+","+dataList[236]+","+dataList[237]+","+dataList[238]+","+dataList[239]+","+dataList[240]+","+dataList[241]+","+dataList[242]+","+dataList[243]+","+dataList[244]+","+dataList[245]+","+dataList[246]+","+dataList[247]+","+dataList[248]+","+dataList[249]+","+dataList[250]+","+dataList[251]+","+dataList[252]+","+dataList[253]+","+dataList[254]+","+dataList[255]+","+dataList[256]+","+dataList[257]+","+dataList[258]+","+dataList[259]+","+dataList[260]+","+dataList[261]+","+dataList[262]+","+dataList[263]+","+dataList[264]+","+dataList[265]+","+dataList[266]+","+dataList[267]+","+dataList[268]+","+dataList[269]+","+dataList[270]+","+dataList[271]+","+dataList[272]+","+dataList[273]+","+dataList[274]+","+dataList[275]+","+dataList[276]+","+dataList[277]+","+dataList[278]+","+dataList[279]+","+dataList[280]+","+dataList[281]+","+dataList[282]+","+dataList[283]+","+dataList[284]+","+dataList[285]+","+dataList[286]+","+dataList[287]+","+dataList[288]+","+dataList[289]+","+dataList[290]+","+dataList[291]+","+dataList[292]+","+dataList[293]+","+dataList[294]+","+dataList[295]+","+dataList[296]+","+dataList[297]+","+dataList[298]+","+dataList[299]+","+dataList[300]+","+dataList[301]+","+dataList[302]+","+dataList[303]+","+dataList[304]+","+dataList[305]+","+dataList[306]+","+dataList[307]+","+dataList[308]+","+dataList[309]+","+dataList[310]+","+dataList[311]+","+dataList[312]+","+dataList[313]+","+dataList[314]+","+dataList[315]+","+dataList[316]+","+dataList[317]+","+dataList[318]+","+dataList[319]+","+dataList[320]+","+dataList[321]+","+dataList[322]+","+dataList[323]+","+dataList[324]+","+dataList[325]+","+dataList[326]+","+dataList[327]+","+dataList[328]+","+dataList[329]+","+dataList[330]+","+dataList[331]+","+dataList[332]+","+dataList[333]+","+dataList[334]+","+dataList[335]+","+dataList[336]+","+dataList[337]+","+dataList[338]+","+dataList[339]+","+dataList[340]+","+dataList[341]+","+dataList[342]+","+dataList[343]+","+dataList[344]+","+dataList[345]+","+dataList[346]+","+dataList[347]+","+dataList[348]+","+dataList[349]+","+dataList[350]+","+dataList[351]+","+dataList[352]+","+dataList[353]+","+dataList[354]+","+dataList[355]+","+dataList[356]+","+dataList[357]+","+dataList[358]+","+dataList[359]+","+dataList[360]+","+dataList[361]+","+dataList[362]+","+dataList[363]+","+dataList[364]+","+dataList[365]+","+dataList[366]+","+dataList[367]+","+dataList[368]+","+dataList[369]+","+dataList[370]+","+dataList[371]+","+dataList[372]+","+dataList[373]+","+dataList[374]+","+dataList[375]+","+dataList[376]+","+dataList[377]+","+dataList[378]+","+dataList[379]+","+dataList[380]+","+dataList[381]+","+dataList[382]+","+dataList[383]+","+dataList[384]+","+dataList[385]+","+dataList[386]+","+dataList[387]+","+dataList[388]+","+dataList[389]+","+dataList[390]+","+dataList[391]+","+dataList[392]+","+dataList[393]+","+dataList[394]+","+dataList[395]+","+dataList[396]+","+dataList[397]+","+dataList[398]+","+dataList[399]+")"
 	self.save(APEtimeConn,save_sql,data)		    
 	APEtimeConn.commit()
