@@ -245,9 +245,13 @@ class QHexEdit(QAbstractScrollArea):
 	self.addressSearch=ba
 	pos=int(str(ba),16)
 	if pos%16==0:
-            self.setCursorPosition(pos*2)
-            self.ensureVisible()
-    	    return pos
+	    lineCount = (int)(self._chunks.size() / BYTES_PER_LINE)
+	    if (pos/16)<lineCount:
+                self.setCursorPosition(pos*2)
+                self.ensureVisible()
+    	        return pos
+	    else:
+	    	return -1	
 	else:
 	    return -1	    
 	
@@ -409,7 +413,7 @@ class QHexEdit(QAbstractScrollArea):
             #paint address area
             if self._addressArea:
 		pxPosY = self._pxCharHeight
-                for row in range(0,(self._dataShown.size()/BYTES_PER_LINE)+1):
+                for row in range(0,self._dataShown.size()/BYTES_PER_LINE):
                     address = QString("%1").arg(self._bPosFirst + row*BYTES_PER_LINE + self._addressOffset, self._addrDigits, 16, QChar('0'))
 		    if address==self.addressSearch:
 			apainter.fillRect(self._pxPosAdrX - pxOfsX, pxPosY-self._pxCharHeight+4,address.size()*self._pxCharWidth,self._pxCharHeight,QColor(255,255,0));
