@@ -705,7 +705,7 @@ class MPUViewWidget(QMainWindow):
 			    if bit<length:
 				s=s[:2]+'0'*(length-bit)+s[2:]
 			    f= eval(s)
-			    s=str(float(f))
+			    s=str(round(float(f),7))
 			    self.regModel.setItem(i+1,j+1,QStandardItem(s))
 		            self.regModel.item(i+1,j+1).setToolTip(s)
 		    else:
