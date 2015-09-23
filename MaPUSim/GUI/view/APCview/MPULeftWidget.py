@@ -13,9 +13,8 @@ class MPULeftWidget(QWidget):
     def __init__(self,parent=None):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(1000,500)
-        self.List=[0]*84
-        self.lineArray = [([0] * 14) for i in range(14)] 
-              
+        self.List=[1]*84
+        self.lineArray = [([1] * 14) for i in range(14)] 
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
 	self.DMButton.setEnabled(False)
@@ -453,58 +452,58 @@ class MPULeftWidget(QWidget):
         if self.List[37]==1:
            P1IA=[x1,y1,PXIALU,P1YLALU]
            self.paintLine(2,P1IA)
-           self.paintstaen(-2,P1IA)
+           self.paintstaen(1,P1IA)
         if self.List[38]==1: 
            P2IA=[x1,y1+108,PXIALU,P1YLALU]
            self.paintLine(2,P2IA)
-           self.paintstaen(-2,P2IA)
+           self.paintstaen(1,P2IA)
         if self.List[39]==1:
            P3IA=[x1,y1+2*108,PXIALU,P1YLALU]
            self.paintLine(2,P3IA)
-           self.paintstaen(-2,P3IA)
+           self.paintstaen(1,P3IA)
         #points to IMAC        
         P1YIMAC=196
         if self.List[40]==1:
            P1IM=[x1,y1,PXIALU,P1YIMAC]
            self.paintLine(2,P1IM)
-           self.paintstaen(-2,P1IM)
+           self.paintstaen(1,P1IM)
         if self.List[41]==1:
            P2IM=[x1,y1+108,PXIALU,P1YIMAC]
            self.paintLine(2,P2IM)
-           self.paintstaen(-2,P2IM)
+           self.paintstaen(1,P2IM)
         if self.List[42]==1: 
            P3IM=[x1,y1+2*108,PXIALU,P1YIMAC]
            self.paintLine(2,P3IM)
-           self.paintstaen(-2,P3IM)   
+           self.paintstaen(1,P3IM)   
         #point to FALU
         P1YFALU=304
         if self.List[43]==1:
            P1FA=[x1,y1,PXIALU,P1YFALU]  
            self.paintLine(2,P1FA)
-           self.paintstaen(-2,P1FA)
+           self.paintstaen(1,P1FA)
         if self.List[44]==1: 
            P2FA=[x1,y1+108,PXIALU,P1YFALU]  
            self.paintLine(2,P2FA)
-           self.paintstaen(-2,P2FA)
+           self.paintstaen(1,P2FA)
         if self.List[45]==1: 
            P3FA=[x1,y1+2*108,PXIALU,P1YFALU]  
            self.paintLine(2,P3FA)
-           self.paintstaen(-2,P3FA)      
+           self.paintstaen(1,P3FA)      
         #point to FMAC
         P1YFMAC=412
         
         if self.List[46]==1:
            P1FM=[x1,y1,PXIALU,P1YFMAC]
            self.paintLine(2,P1FM)
-           self.paintstaen(-2,P1FM)
+           self.paintstaen(1,P1FM)
         if self.List[47]==1: 
            P2FM=[x1,y1+108,PXIALU,P1YFMAC]
            self.paintLine(2,P2FM)
-           self.paintstaen(-2,P2FM)
+           self.paintstaen(1,P2FM)
         if self.List[48]==1:  
            P3FM=[x1,y1+2*108,PXIALU,P1YFMAC]
            self.paintLine(2,P3FM)
-           self.paintstaen(-2,P3FM)    
+           self.paintstaen(1,P3FM)    
         #LALU to IMAC
         XLAtoIM=825
         YLAtoIM=118
@@ -572,15 +571,15 @@ class MPULeftWidget(QWidget):
         #right point to Bi
            LEPB2=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,x1BIU+6*LCor,LePy+184+20+20,x1BIU+5*LCor,LePy+184+20+20-LCor,x1BIU+5*LCor,YB2S0+5*LCor,x1BIU,YB2S0]
            self.paintLine(8,LEPB2)
-           self.paintstaen(1,LEPB2) 
+           self.paintstaen(-2,LEPB2) 
         if self.List[62]==1:
            LEPB1=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,x1BIU+6*LCor,LePy+184+20+20,x1BIU+5*LCor,LePy+184+20+20-LCor,x1BIU+5*LCor,YBIU1toMRF+width+5*LCor,x1BIU,YBIU1toMRF+width]
            self.paintLine(8,LEPB1)
-           self.paintstaen(1,LEPB1) 
+           self.paintstaen(-2,LEPB1) 
         if self.List[63]==1:
            LEPB0=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,x1BIU+6*LCor,LePy-184-20-20-5,x1BIU+5*LCor,LePy-184-20-20-5+LCor,x1BIU+5*LCor,y1BIU+width-5*LCor,x1BIU,y1BIU+width]
            self.paintLine(8,LEPB0)
-           self.paintstaen(2,LEPB0) 
+           self.paintstaen(-2,LEPB0) 
         if self.List[64]==1:
         #right point to shu1
            LEPS1=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,517+10,LePy+184+20+10+10,517,LePy+184+20+10]
@@ -590,12 +589,12 @@ class MPULeftWidget(QWidget):
         if self.List[65]==1:
            LEPMR=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,x1BIU+6*LCor,LePy-184-20-20-5,x1BIU+5*LCor,LePy-184-20-20-5+LCor,x1BIU+5*LCor,YBIU1toMRF-25,X2BIU,YBIU1toMRF]
            self.paintLine(8,LEPMR)
-           self.paintstaen(1,LEPMR)         
+           self.paintstaen(-2,LEPMR)         
         #right point to shu0
         if self.List[66]==1:
            LEPS0=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,517+10,LePy-184-20-20-5,517,LePy-184-20-20+10-5]
            self.paintLine(6,LEPS0)  
-           self.paintstaen(1,LEPS0)                          
+           self.paintstaen(-2,LEPS0)                          
         #DM to BIU0
         DMX=150
         DMY=242
