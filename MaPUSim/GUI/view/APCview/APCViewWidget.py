@@ -334,77 +334,77 @@ class APCViewWidget(QWidget):
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2				
 		    elif a=="biu0":
 			j=40
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="biu1":
 			j=80
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="biu2":
 			j=120
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2
 		    elif a=="shu0":
 			j=160
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2
 		    elif a=="mrf":
 			j=200
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="shu1":
 			j=240
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="ialu":
 			j=280
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="imac":
 			j=320
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="falu":
 			j=360
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		    elif a=="fmac":
 			j=400
 			for i in range(0,20):
 			    if r[e][9+i]==curTime:
 			        floatDialogList[j]=stage
-			        floatDialogList[j+1]=r[e][6]
+			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
 		
 		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]  (memo:ialuadd   ) IALU.T1+T2->IMAC 
