@@ -1,3 +1,5 @@
+from PyQt4.QtGui import*
+from PyQt4.QtCore import*
 import sys
 import os
 import sqlite3
@@ -41,18 +43,18 @@ class DataBase():
 	self.progressCall(self.minValue,"start build data base",self.maxValue)
         self.APE0dbConn = self.get_conn(self.APE0dbFilePath)
         self.APE0timeConn = self.get_conn(self.APE0timeFilePath)
-	self.createAPE0Database()
+	self.createAPE0SnRegDatabase()
 	if num==2:
             self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
             self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
-	    self.createAPE1Database()	
+	    self.createAPE1SnRegDatabase()	
 	elif num==3:
             self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
             self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
             self.APE2dbConn = self.get_conn(self.APE2dbFilePath)
             self.APE2timeConn = self.get_conn(self.APE2timeFilePath)
-	    self.createAPE1Database()	 
-	    self.createAPE2Database()
+	    self.createAPE1SnRegDatabase()	 
+	    self.createAPE2SnRegDatabase()
 	elif num==4:
             self.APE1dbConn = self.get_conn(self.APE1dbFilePath)
             self.APE1timeConn = self.get_conn(self.APE1timeFilePath)
@@ -60,54 +62,59 @@ class DataBase():
             self.APE2timeConn = self.get_conn(self.APE2timeFilePath)
             self.APE3dbConn = self.get_conn(self.APE3dbFilePath)
             self.APE3timeConn = self.get_conn(self.APE3timeFilePath)
-	    self.createAPE1Database()	 
-	    self.createAPE2Database()
-	    self.createAPE3Database()
-	self.progressCall(self.maxValue,"data base done",-1)
+	    self.createAPE1SnRegDatabase()	 
+	    self.createAPE2SnRegDatabase()
+	    self.createAPE3SnRegDatabase()
+	self.createAPE0TimeDatabase()
+	if num==2:
+	    self.createAPE1TimeDatabase()
+	elif num==3:
+	    self.createAPE1TimeDatabase()
+	    self.createAPE2TimeDatabase()
+	elif num==4:
+	    self.createAPE1TimeDatabase()
+	    self.createAPE2TimeDatabase()
+	    self.createAPE3TimeDatabase()
 
-    def createAPE0Database(self):
+    def createAPE0SnRegDatabase(self):
 	self.progressCall(self.value,"start build mem table",-1)
- 	h=datetime.datetime.now()
-        print ("start memTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
 	self.memTableInit()
- 	h=datetime.datetime.now()
-        print ("end memTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
 	self.progressCall(self.value,"end build mem table",-1)
 	self.progressCall(self.value,"start build APE0 sn and reg table",-1)
- 	h=datetime.datetime.now()
-        print ("start APESnRegTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
 	self.APESnRegTableInit(self.APE0dbConn,0)
- 	h=datetime.datetime.now()
-        print ("end APESnRegTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
 	self.progressCall(self.value,"end build APE0 sn and reg table",-1)
-	self.progressCall(self.value,"start build APE0 time table",-1)
- 	h=datetime.datetime.now()
-        print ("start APEtimeTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
-	self.APEtimeTableInit(self.APE0timeConn,self.APE0dbFilePath)
- 	h=datetime.datetime.now()
-        print ("end APEtimeTableInit %s:%s:%s,%s" %(h.hour,h.minute,h.second,h.microsecond))
-	self.progressCall(self.value,"end build APE0 time table",-1)
 
-    def createAPE1Database(self):
+    def createAPE1SnRegDatabase(self):
 	self.progressCall(self.value,"start build APE1 sn and reg table",-1)
 	self.APESnRegTableInit(self.APE1dbConn,1)
 	self.progressCall(self.value,"end build APE1 sn and reg table",-1)
+
+    def createAPE2SnRegDatabase(self):
+	self.progressCall(self.value,"start build APE2 sn and reg table",-1)	
+	self.APESnRegTableInit(self.APE2dbConn,2)
+	self.progressCall(self.value,"end build APE2 sn and reg table",-1)
+
+    def createAPE3SnRegDatabase(self):
+	self.progressCall(self.value,"start build APE3 sn and reg table",-1)
+	self.APESnRegTableInit(self.APE3dbConn,3)
+	self.progressCall(self.value,"end build APE3 sn and reg table",-1)
+
+    def createAPE0TimeDatabase(self):
+	self.progressCall(self.value,"start build APE0 time table",-1)
+	self.APEtimeTableInit(self.APE0timeConn,self.APE0dbFilePath)
+	self.progressCall(self.value,"end build APE0 time table",-1)
+
+    def createAPE1TimeDatabase(self):
 	self.progressCall(self.value,"start build APE1 time table",-1)
 	self.APEtimeTableInit(self.APE1timeConn,self.APE1dbFilePath)
 	self.progressCall(self.value,"end build APE1 time table",-1)
 
-    def createAPE2Database(self):
-	self.progressCall(self.value,"start build APE2 sn and reg table",-1)	
-	self.APESnRegTableInit(self.APE2dbConn,2)
-	self.progressCall(self.value,"end build APE2 sn and reg table",-1)
+    def createAPE2TimeDatabase(self):
 	self.progressCall(self.value,"start build APE2 time table",-1)
 	self.APEtimeTableInit(self.APE2timeConn,self.APE2dbFilePath)
 	self.progressCall(self.value,"end build APE2 time table",-1)
 
-    def createAPE3Database(self):
-	self.progressCall(self.value,"start build APE3 sn and reg table",-1)
-	self.APESnRegTableInit(self.APE3dbConn,3)
-	self.progressCall(self.value,"end build APE3 sn and reg table",-1)
+    def createAPE3TimeDatabase(self):
 	self.progressCall(self.value,"start build APE3 time table",-1)
 	self.APEtimeTableInit(self.APE3timeConn,self.APE3dbFilePath)
 	self.progressCall(self.value,"end build APE3 time table",-1)

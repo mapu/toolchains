@@ -12,6 +12,8 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
     ARMUart0StartProcess=pyqtSignal(str)
+    ARMSimulatorStatusSignal=pyqtSignal(bool)
+    APCSimulatorStatusSignal=pyqtSignal(bool)
     processSignal=pyqtSignal()
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
@@ -451,6 +453,8 @@ class ConfigViewWidget(QMainWindow):
             self.ARMProcess.start(self.ARMCommand)
             if False==self.ARMProcess.waitForStarted():
 	        self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
+	    else:
+		self.ARMSimulatorStatusSignal.emit(True)
 	else:
 	    if self.traceFileEdit.text()=="":
 	        QMessageBox.warning(self,"Warning","Trace file is not input!")
@@ -508,6 +512,8 @@ class ConfigViewWidget(QMainWindow):
             self.APCProcess.start(self.APCCommand)
             if False==self.APCProcess.waitForStarted():
 	        self.APCSimulatorShowSignal.emit(0,"APC process can not be called.")
+	    else:
+		self.APCSimulatorStatusSignal.emit(True)
 
     def ARMAPCSimulator(self,key,port):
 	string="--debug-flags=MapuGUI "+"--trace-file="+self.fullTracefile.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
@@ -519,6 +525,8 @@ class ConfigViewWidget(QMainWindow):
         self.ARMAPCProcess.start(self.ARMAPCCommand)
         if False==self.ARMAPCProcess.waitForStarted():
 	    self.APCSimulatorShowSignal.emit(0,"ARM APC process can not be called.")
+	else:
+	    self.APCSimulatorStatusSignal.emit(True)
 
     def APCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
@@ -528,6 +536,7 @@ class ConfigViewWidget(QMainWindow):
         else:
 	    self.APCSimulatorShowSignal.emit(0,"process exit crash")
 	    QMessageBox.about(self,"APC Exit","    1    ")
+	self.APCSimulatorStatusSignal.emit(False)
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 
@@ -544,6 +553,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
         else:
 	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
+	self.ARMSimulatorStatusSignal.emit(False)
 
     def ARMStartReadOutput(self):
         ba=self.ARMProcess.readAllStandardOutput()
@@ -586,6 +596,7 @@ class ConfigViewWidget(QMainWindow):
 	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
         else:
 	    self.APCSimulatorShowSignal.emit(0,"process exit crash")
+	self.APCSimulatorStatusSignal.emit(False)
 	#simulator exit normal,then emit signal to create data base
 	if self.exitFlag==0:
 	    self.APCSimulatorDoneSignal.emit(4,self.fullTracefile.text())

@@ -37,7 +37,8 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
-	self.apcViewWidget.updateWidgetSignal.connect(self.updateWidgetShowStaus,Qt.DirectConnection)
+	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
+	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
 	self.simulatorPath=""
 	self.readXML()
 	self.tabWidget.setCurrentIndex(2)
@@ -69,49 +70,45 @@ class MainWindow(QMainWindow):
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
-	self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpenSlot)                            
-        self.fileNewAction=QAction(QIcon(":/new.png"),self.tr("&New"),self)                  
-        self.fileSaveAction=QAction(QIcon(":/save.png"),self.tr("&Save"),self)                                     
-        self.cutAction=QAction(QIcon(":/cut.png"),self.tr("&Cut"),self)                  
-        self.copyAction=QAction(QIcon(":/copy.png"),self.tr("&Copy"),self)    
-        self.pasteAction=QAction(QIcon(":/paste.png"),self.tr("&Paste"),self)          
-        self.aboutAction=QAction(self.tr("&about"),self) 
+	self.fileOpenAction.setToolTip("Open trace file")
+	self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpenSlot)                                                                       
 	self.setAction=QAction(self.tr("&Simulator path setting..."),self)  
 	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
-       
+	self.armAction=QAction(QIcon(":/armred.png"),self.tr("ARM"),self)
+	self.apcAction=QAction(QIcon(":/apcred.png"),self.tr("APC"),self)
+	self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+ 
+    def ARMStatus(self,status):
+	if status==True:
+	    self.armAction.setIcon(QIcon(":/armgreen.png"))
+	else:
+	    self.armAction.setIcon(QIcon(":/armred.png"))
+
+    def APCStatus(self,status):
+	if status==True:
+	    self.apcAction.setIcon(QIcon(":/apcgreen.png"))
+	else:
+	    self.apcAction.setIcon(QIcon(":/apcred.png"))
+      
     def createMenus(self):  
         fileMenu=self.menuBar().addMenu(self.tr("File")) 
-        fileMenu.addAction(self.fileNewAction)
-	fileMenu.addAction(self.fileOpenAction)
-     	fileMenu.addAction(self.fileSaveAction)         
-        editMenu=self.menuBar().addMenu(self.tr("Edit"))  
-	editMenu.addAction(self.copyAction)
-	editMenu.addAction(self.cutAction)
-	editMenu.addAction(self.pasteAction)  
+	fileMenu.addAction(self.fileOpenAction)      
         setMenu=self.menuBar().addMenu(self.tr("Settings")) 
 	setMenu.addAction(self.setAction)       
-        aboutMenu=self.menuBar().addMenu(self.tr("Help")) 
-	aboutMenu.addAction(self.aboutAction)  
         
     def createToolBars(self):  
         fileToolBar=self.addToolBar("File")  
-        fileToolBar.addAction(self.fileNewAction)  
         fileToolBar.addAction(self.fileOpenAction)  
-        fileToolBar.addAction(self.fileSaveAction) 
-        editTool=self.addToolBar("Edit")  
-        editTool.addAction(self.copyAction)  
-        editTool.addAction(self.cutAction)  
-        editTool.addAction(self.pasteAction)  
-       
+        fileToolBar=self.addToolBar("ARM Status")  
+	fileToolBar.addAction(self.armAction)
+        fileToolBar=self.addToolBar("APC Status")  
+	fileToolBar.addAction(self.apcAction)
+
     def createStatusBar(self):   
 	self.statusLabel=QLabel()
 	self.statusText="StatusBar"
 	self.statusLabel.setText(self.statusText)	
         self.statusBar().addWidget(self.statusLabel)
-
-    def updateWidgetShowStaus(self,string):
-	self.statusText=string
-	self.statusLabel.setText(self.statusText)
 
     def fileOpenSlot(self):
 	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
@@ -155,7 +152,7 @@ class MainWindow(QMainWindow):
 	    self.setDialog.close()
 	else:
 	    QMessageBox.warning(self,"Warning","Simulator path is not exist!")
-  
+ 
     def writeXML(self):
 	xmlfile=QFile(self.path)
 	if xmlfile.open(QIODevice.WriteOnly or QIODevice.Text):

@@ -16,7 +16,6 @@ QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class APCViewWidget(QWidget):  
     progressShowSignal=pyqtSignal(int,str,int)
-    updateWidgetSignal=pyqtSignal(str)
     def __init__(self,parent=None):
 	super(APCViewWidget,self).__init__(parent)
 
@@ -79,25 +78,24 @@ class APCViewWidget(QWidget):
 	self.progressShowSignal.emit(value,string,maxValue)	
 
     def createThread(self,num,path):
-	self.thread=Thread(self)
-	self.thread.progressCall(self.callback)
-	self.thread.num=num
+	thread=Thread(self)
+	thread.progressCall(self.callback)
+	thread.num=num
 	if self.mainOpen==0:
-	    self.thread.path="m5out/"+path
+	    thread.path="m5out/"+path
 	else:
-	    self.thread.path=path
-	self.thread.start()
+	    thread.path=path
+	thread.start()
 	eventLoop=QEventLoop()
-	self.connect(self.thread,SIGNAL("finished()"),eventLoop.quit)
+	self.connect(thread,SIGNAL("finished()"),eventLoop.quit)
 	eventLoop.exec_()
-	self.dataBase=self.thread.dataBase
+	self.dataBase=thread.dataBase
 	return self.dataBase
 
     def indexCallback(self):  
         self.currentValueSlot(self.slider.value())
 
     def simulatorDoneSlot(self,num,path): #num APE count
-	self.updateWidgetSignal.emit("Create data base, and then update interface...")
 	self.num=num
 	#simulator exit normal,create data base
 	#show dialog and show data base is building
@@ -109,10 +107,11 @@ class APCViewWidget(QWidget):
 	self.dataBase=self.createThread(num,path)
 	i=datetime.datetime.now()
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
+	self.startUpdateWidget()
+
+    def startUpdateWidget(self):
 	i=datetime.datetime.now()
         print ("start update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
-	self.thread.exit()
-	del self.thread
 	#read file content, get min and max time
 	f=open(self.dataBase.filePath,"r")
         lines=f.readlines()
@@ -129,7 +128,6 @@ class APCViewWidget(QWidget):
 	line=lines[count-1]
 	pos=line.find("[")
 	self.maxTime=int(line[:pos])/1000
-	self.updateWidgetSignal.emit("Data base has been created successfully, now update interface...")
 	#update MPU and SPU stage dialog
 	#APE0 MPU STAGE
 	self.APE0Widget.MPUWidget.stageDialog=StageDialog()
@@ -222,7 +220,10 @@ class APCViewWidget(QWidget):
 	self.APE1Widget.MPUWidget.indexCallback(self.indexCallback)
 	self.APE2Widget.MPUWidget.indexCallback(self.indexCallback)
 	self.APE3Widget.MPUWidget.indexCallback(self.indexCallback)
-	self.updateWidgetSignal.emit("Data update successfully!")
+	#self.thread.exit()
+	#del self.thread
+	#self.thread=0
+	self.dataBaseDialog.close()
 	i=datetime.datetime.now()
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
