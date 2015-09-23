@@ -406,8 +406,9 @@ class APCViewWidget(QWidget):
 			        floatDialogList[j]=stage
 			        floatDialogList[j+1]=r[e][7]
 			    j=j+2	
-		
+		    dest=0
 		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]  (memo:ialuadd   ) IALU.T1+T2->IMAC 
+			print r[e][7]
 			s=r[e][7]
 			pos=s.find(")")
 			if pos==-1:
@@ -421,7 +422,23 @@ class APCViewWidget(QWidget):
 			    s=s[(pos+2):]
 			    pos=s.find(".")
 			    if pos!=-1:
-			    	temp=temp+s[:pos]
+				string=s[:pos]
+			    	temp=temp+string
+				s=s[pos:]
+				pos=s.find("(")
+				if pos!=-1:
+				    s=s[(pos+1):]
+				    s=s[:2]
+				    if s.find("I")>=0:
+					dest=int(s[1]) #IALU=9; IMAC=10; FALU=11; FMAC=12; IALUP0=14; IALUP1=15; IALUP2=16; IMACP0=17; IMACP1=18; IMACP2=19; FALUP0=20; FALUP1=21; FALUP2=22; FAMCP0=23; FAMCP1=24; FAMCP2=25;
+					if string=="IALU":
+					    dest+=14
+					elif string=="IMAC":
+					    dest+=17
+					elif string=="FALU":
+					    dest+=20
+					elif string=="FMAC":
+					    dest+=23
 			    else:
 				pos=s.find("[")
 				if pos!=-1:
@@ -429,6 +446,9 @@ class APCViewWidget(QWidget):
 				else:
 				    pos=s.find(" ")
 				    temp=temp+s
+       			    print len(APEWidget.MPUWidget.buttonWidget.lineArray)
+			    print len(APEWidget.MPUWidget.buttonWidget.lineArray[0])
+			    print temp,dest
 			    if temp=="DMBIU0": 
 				APEWidget.MPUWidget.buttonWidget.lineArray[0][1]=1
 			    elif temp=="BIU0DM":
@@ -477,74 +497,74 @@ class APCViewWidget(QWidget):
 				APEWidget.MPUWidget.buttonWidget.lineArray[3][13]=1
 			    elif temp=="MRFBIU2":
 				APEWidget.MPUWidget.buttonWidget.lineArray[13][3]=1
-			    elif temp=="SHU0IALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[4][9]=1
+			    elif temp=="SHU0IALU":                                   
+				APEWidget.MPUWidget.buttonWidget.lineArray[4][9]=dest
 			    elif temp=="IALUSHU0":
 				APEWidget.MPUWidget.buttonWidget.lineArray[9][4]=1
 			    elif temp=="SHU0IMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[4][10]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[4][dest]=1
 			    elif temp=="IMACSHU0":
 				APEWidget.MPUWidget.buttonWidget.lineArray[10][4]=1
 			    elif temp=="SHU0FALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[4][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[4][dest]=1
 			    elif temp=="FALUSHU0":
 				APEWidget.MPUWidget.buttonWidget.lineArray[11][4]=1
 			    elif temp=="SHU0FMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[4][12]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[4][dest]=1
 			    elif temp=="FMACSHU0":
 				APEWidget.MPUWidget.buttonWidget.lineArray[12][4]=1
 			    elif temp=="R0IALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[5][9]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[5][dest]=1
 			    elif temp=="R1IALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[6][9]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[6][dest]=1
 			    elif temp=="R2IALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[7][9]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[7][dest]=1
 			    elif temp=="IALUMRF":
 				APEWidget.MPUWidget.buttonWidget.lineArray[9][13]=1
 			    elif temp=="R0IMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[5][10]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[5][dest]=1
 			    elif temp=="R1IMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[6][10]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[6][dest]=1
 			    elif temp=="R2IMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[7][10]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[7][dest]=1
 			    elif temp=="IMACMRF":
 				APEWidget.MPUWidget.buttonWidget.lineArray[10][13]=1
 			    elif temp=="R0FALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[5][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[5][dest]=1
 			    elif temp=="R1FALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[6][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[6][dest]=1
 			    elif temp=="R2FALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[7][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[7][dest]=1
 			    elif temp=="FALUMRF":
 				APEWidget.MPUWidget.buttonWidget.lineArray[11][13]=1
 			    elif temp=="R0FMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[5][12]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[5][dest]=1
 			    elif temp=="R1FMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[6][12]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[6][dest]=1
 			    elif temp=="R2FMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[7][12]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[7][dest]=1
 			    elif temp=="FMACMRF":
 				APEWidget.MPUWidget.buttonWidget.lineArray[12][13]=1
 			    elif temp=="SHU1IALU": 
-				APEWidget.MPUWidget.buttonWidget.lineArray[8][9]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[8][dest]=1
 			    elif temp=="IALUSHU1":
 				APEWidget.MPUWidget.buttonWidget.lineArray[9][8]=1
 			    elif temp=="SHU1IMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[8][10]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[8][dest]=1
 			    elif temp=="IMACSHU1":
 				APEWidget.MPUWidget.buttonWidget.lineArray[10][8]=1
 			    elif temp=="SHU1FALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[8][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[8][dest]=1
 			    elif temp=="FALUSHU1":
 				APEWidget.MPUWidget.buttonWidget.lineArray[11][8]=1
 			    elif temp=="SHU1FMAC":
-				APEWidget.MPUWidget.buttonWidget.lineArray[8][12]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[8][dest]=1
 			    elif temp=="FMACSHU1":
 				APEWidget.MPUWidget.buttonWidget.lineArray[12][8]=1
 			    elif temp=="IALUFALU":
 				APEWidget.MPUWidget.buttonWidget.lineArray[9][11]=1
 			    elif temp=="FALUIALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[11][9]=1  #DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12 
+				APEWidget.MPUWidget.buttonWidget.lineArray[11][9]=1  
 			    elif temp=="SHU0MRF":
 				APEWidget.MPUWidget.buttonWidget.lineArray[4][13]=1
 			    elif temp=="R0SHU0":
@@ -568,7 +588,55 @@ class APCViewWidget(QWidget):
 			    elif temp=="FALUFMAC":
 				APEWidget.MPUWidget.buttonWidget.lineArray[11][12]=1
 			    elif temp=="FMACFALU":
-				APEWidget.MPUWidget.buttonWidget.lineArray[12][11]=1
+				APEWidget.MPUWidget.buttonWidget.lineArray[12][11]=1  #DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12 
+			    elif temp=="BIU0IALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[1][9]=1
+			    elif temp=="IALUBIU0":
+				APEWidget.MPUWidget.buttonWidget.lineArray[9][1]=1
+			    elif temp=="BIU0IMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[1][10]=1		
+			    elif temp=="IMACBIU0":
+				APEWidget.MPUWidget.buttonWidget.lineArray[10][1]=1
+			    elif temp=="BIU0FALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[1][11]=1
+			    elif temp=="FALUBIU0":
+				APEWidget.MPUWidget.buttonWidget.lineArray[11][1]=1
+			    elif temp=="BIU0FMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[1][12]=1
+			    elif temp=="FMACBIU0":
+				APEWidget.MPUWidget.buttonWidget.lineArray[12][1]=1
+			    elif temp=="BIU1IALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[2][9]=1
+			    elif temp=="IALUBIU1":
+				APEWidget.MPUWidget.buttonWidget.lineArray[9][2]=1
+			    elif temp=="BIU1IMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[2][10]=1		
+			    elif temp=="IMACBIU1":
+				APEWidget.MPUWidget.buttonWidget.lineArray[10][2]=1
+			    elif temp=="BIU1FALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[2][11]=1
+			    elif temp=="FALUBIU1":
+				APEWidget.MPUWidget.buttonWidget.lineArray[11][2]=1
+			    elif temp=="BIU1FMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[2][12]=1
+			    elif temp=="FMACBIU1":
+				APEWidget.MPUWidget.buttonWidget.lineArray[12][2]=1
+			    elif temp=="BIU2IALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[3][9]=1
+			    elif temp=="IALUBIU2":
+				APEWidget.MPUWidget.buttonWidget.lineArray[9][3]=1
+			    elif temp=="BIU2IMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[3][10]=1		
+			    elif temp=="IMACBIU2":
+				APEWidget.MPUWidget.buttonWidget.lineArray[10][3]=1
+			    elif temp=="BIU2FALU":
+				APEWidget.MPUWidget.buttonWidget.lineArray[3][11]=1
+			    elif temp=="FALUBIU2":
+				APEWidget.MPUWidget.buttonWidget.lineArray[11][3]=1
+			    elif temp=="BIU2FMAC":
+				APEWidget.MPUWidget.buttonWidget.lineArray[3][12]=1
+			    elif temp=="FMACBIU2":
+				APEWidget.MPUWidget.buttonWidget.lineArray[12][3]=1
 			    elif temp=="DMDM":
 				APEWidget.MPUWidget.buttonWidget.DMButton.setStyleSheet("QPushButton{border: 3px solid grey;border-radius:3px}")
 			    elif temp=="BIU0BIU0":
