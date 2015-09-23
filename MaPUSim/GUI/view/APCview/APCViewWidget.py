@@ -408,7 +408,6 @@ class APCViewWidget(QWidget):
 			    j=j+2	
 		    dest=0
 		    if r[e][7]!="nop":  #dis (memo:ialuadd   ) IALU.T1+T2->IMAC.T0  (memo:shu0idx   ) SHU0.T0 IND TSQ->M[0]  (memo:ialuadd   ) IALU.T1+T2->IMAC 
-			print r[e][7]
 			s=r[e][7]
 			pos=s.find(")")
 			if pos==-1:
@@ -446,9 +445,6 @@ class APCViewWidget(QWidget):
 				else:
 				    pos=s.find(" ")
 				    temp=temp+s
-       			    print len(APEWidget.MPUWidget.buttonWidget.lineArray)
-			    print len(APEWidget.MPUWidget.buttonWidget.lineArray[0])
-			    print temp,dest
 			    if temp=="DMBIU0": 
 				APEWidget.MPUWidget.buttonWidget.lineArray[0][1]=1
 			    elif temp=="BIU0DM":
