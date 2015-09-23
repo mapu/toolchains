@@ -14,7 +14,7 @@ class MPULeftWidget(QWidget):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(1000,500)
         self.List=[0]*84
-        self.lineArray = [([0] * 14) for i in range(14)] 
+        self.lineArray = [([0] * 26) for i in range(26)] 
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
 	self.DMButton.setEnabled(False)
@@ -686,8 +686,8 @@ class MPULeftWidget(QWidget):
            self.paintLine(2,R0toS1) 
            self.paintstaen(-2,R0toS1)      
            
-#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
-#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12  
+#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12; IALUP0=14; IALUP1=15; IALUP2=16; IMACP0=17; IMACP1=18; IMACP2=19; FALUP0=20; FALUP1=21; FALUP2=22; FAMCP0=23; FAMCP1=24; FAMCP2=25;
+#DM=0; BIU0=1; BIU1=2; BIU2=3; SHU0=4; MRF=13; SHU1=8; M0=5; M1=6; M2=7; IALU=9; IMAC=10; FALU=11; FMAC=12; IALUP0=14; IALUP1=15; IALUP2=16; IMACP0=17; IMACP1=18; IMACP2=19; FALUP0=20; FALUP1=21; FALUP2=22; FAMCP0=23; FAMCP1=24; FAMCP2=25;
     def buttonLines(self):
         if self.lineArray[0][1]==1:
            self.List[68]=1
@@ -745,185 +745,185 @@ class MPULeftWidget(QWidget):
            self.List[14]=1
         if self.lineArray[8][13]==1:
            self.List[15]=1
- #value=1:cross P1;  value=2:cross P2; value=3:cross P3     
-        if self.lineArray[4][9]==1:
+ #cross P0; cross P1; cross P2     IALU=9; IMAC=10; FALU=11; FMAC=12; IALUP0=14; IALUP1=15; IALUP2=16; IMACP0=17; IMACP1=18; IMACP2=19; FALUP0=20; FALUP1=21; FALUP2=22; FAMCP0=23; FAMCP1=24; FAMCP2=25;
+        if self.lineArray[4][14]==1:
            self.List[16]=1
            self.List[37]=1
-        if self.lineArray[4][9]==2:
+        if self.lineArray[4][15]==1:
            self.List[17]=1
            self.List[38]=1
-        if self.lineArray[4][9]==3:
+        if self.lineArray[4][16]==1:
            self.List[18]=1
            self.List[39]=1
-        if self.lineArray[4][10]==1:
+        if self.lineArray[4][17]==1:
            self.List[16]=1
            self.List[40]=1
-        if self.lineArray[4][10]==2:
+        if self.lineArray[4][18]==1:
            self.List[17]=1
            self.List[41]=1
-        if self.lineArray[4][10]==3:
+        if self.lineArray[4][19]==1:
            self.List[18]=1
            self.List[42]=1
-        if self.lineArray[4][11]==1:
+        if self.lineArray[4][20]==1:
            self.List[16]=1
            self.List[43]=1
-        if self.lineArray[4][11]==2:
+        if self.lineArray[4][21]==1:
            self.List[17]=1
            self.List[44]=1
-        if self.lineArray[4][11]==3:
+        if self.lineArray[4][22]==1:
            self.List[18]=1
            self.List[45]=1
-        if self.lineArray[4][12]==1:
+        if self.lineArray[4][23]==1:
            self.List[16]=1
            self.List[46]=1
-        if self.lineArray[4][12]==2:
+        if self.lineArray[4][24]==1:
            self.List[17]=1
            self.List[47]=1
-        if self.lineArray[4][12]==3:
+        if self.lineArray[4][25]==1:
            self.List[18]=1
            self.List[48]=1
-        if self.lineArray[5][9]==1:
+        if self.lineArray[5][14]==1:
            self.List[22]=1 
            self.List[37]=1
-        if self.lineArray[5][9]==2:
+        if self.lineArray[5][15]==1:
            self.List[23]=1 
            self.List[38]=1
-        if self.lineArray[5][9]==3:
+        if self.lineArray[5][16]==1:
            self.List[24]=1 
            self.List[39]=1
-        if self.lineArray[5][10]==1:
+        if self.lineArray[5][17]==1:
            self.List[22]=1
            self.List[40]=1
-        if self.lineArray[5][10]==2:
+        if self.lineArray[5][18]==1:
            self.List[23]=1
            self.List[41]=1
-        if self.lineArray[5][10]==3:
+        if self.lineArray[5][19]==1:
            self.List[24]=1
            self.List[42]=1
-        if self.lineArray[5][11]==1:
+        if self.lineArray[5][20]==1:
            self.List[22]=1
            self.List[43]=1
-        if self.lineArray[5][11]==2:
+        if self.lineArray[5][21]==1:
            self.List[23]=1
            self.List[44]=1
-        if self.lineArray[5][11]==3:
+        if self.lineArray[5][22]==1:
            self.List[24]=1
            self.List[45]=1
-        if self.lineArray[5][12]==1:
+        if self.lineArray[5][23]==1:
            self.List[22]=1
            self.List[46]=1
-        if self.lineArray[5][12]==2:
+        if self.lineArray[5][24]==1:
            self.List[23]=1
            self.List[47]=1
-        if self.lineArray[5][12]==3:
+        if self.lineArray[5][25]==1:
            self.List[24]=1
            self.List[48]=1     
-        if self.lineArray[6][9]==1:
+        if self.lineArray[6][14]==1:
            self.List[19]=1
            self.List[37]=1   
-        if self.lineArray[6][9]==2:
+        if self.lineArray[6][15]==1:
            self.List[20]=1
            self.List[38]=1   
-        if self.lineArray[6][9]==3:
+        if self.lineArray[6][16]==1:
            self.List[21]=1
            self.List[39]=1  
-        if self.lineArray[6][10]==1:
+        if self.lineArray[6][17]==1:
            self.List[19]=1
            self.List[40]=1   
-        if self.lineArray[6][10]==2:
+        if self.lineArray[6][18]==1:
            self.List[20]=1
            self.List[41]=1   
-        if self.lineArray[6][10]==3:
+        if self.lineArray[6][19]==1:
            self.List[21]=1
            self.List[42]=1 
-        if self.lineArray[6][11]==1:
+        if self.lineArray[6][20]==1:
            self.List[19]=1
            self.List[43]=1   
-        if self.lineArray[6][11]==2:
+        if self.lineArray[6][21]==1:
            self.List[20]=1
            self.List[44]=1   
-        if self.lineArray[6][11]==3:
+        if self.lineArray[6][22]==1:
            self.List[21]=1
            self.List[45]=1
-        if self.lineArray[6][12]==1:
+        if self.lineArray[6][23]==1:
            self.List[19]=1
            self.List[46]=1   
-        if self.lineArray[6][12]==2:
+        if self.lineArray[6][24]==1:
            self.List[20]=1
            self.List[47]=1   
-        if self.lineArray[6][12]==3:
+        if self.lineArray[6][25]==1:
            self.List[21]=1
            self.List[48]=1      
-        if self.lineArray[7][9]==1:
+        if self.lineArray[7][14]==1:
            self.List[25]=1
            self.List[37]=1   
-        if self.lineArray[7][9]==2:
+        if self.lineArray[7][15]==1:
            self.List[26]=1
            self.List[38]=1   
-        if self.lineArray[7][9]==3:
+        if self.lineArray[7][16]==1:
            self.List[27]=1
            self.List[39]=1  
-        if self.lineArray[7][10]==1:
+        if self.lineArray[7][17]==1:
            self.List[25]=1
            self.List[40]=1   
-        if self.lineArray[7][10]==2:
+        if self.lineArray[7][18]==1:
            self.List[26]=1
            self.List[41]=1   
-        if self.lineArray[7][10]==3:
+        if self.lineArray[7][19]==1:
            self.List[27]=1
            self.List[42]=1 
-        if self.lineArray[7][11]==1:
+        if self.lineArray[7][20]==1:
            self.List[25]=1
            self.List[43]=1   
-        if self.lineArray[7][11]==2:
+        if self.lineArray[7][21]==1:
            self.List[26]=1
            self.List[44]=1   
-        if self.lineArray[7][11]==3:
+        if self.lineArray[7][22]==1:
            self.List[27]=1
            self.List[45]=1
-        if self.lineArray[7][12]==1:
+        if self.lineArray[7][23]==1:
            self.List[25]=1
            self.List[46]=1   
-        if self.lineArray[7][12]==2:
+        if self.lineArray[7][24]==1:
            self.List[26]=1
            self.List[47]=1   
-        if self.lineArray[7][12]==3:
+        if self.lineArray[7][25]==1:
            self.List[27]=1
            self.List[48]=1      
-        if self.lineArray[8][9]==1:
+        if self.lineArray[8][14]==1:
            self.List[28]=1
            self.List[37]=1
-        if self.lineArray[8][9]==2:
+        if self.lineArray[8][15]==1:
            self.List[29]=1
            self.List[38]=1
-        if self.lineArray[8][9]==3:
+        if self.lineArray[8][16]==1:
            self.List[30]=1
            self.List[39]=1
-        if self.lineArray[8][10]==1:
+        if self.lineArray[8][17]==1:
            self.List[28]=1
            self.List[40]=1
-        if self.lineArray[8][10]==2:
+        if self.lineArray[8][18]==1:
            self.List[29]=1
            self.List[41]=1
-        if self.lineArray[8][10]==3:
+        if self.lineArray[8][19]==1:
            self.List[30]=1
            self.List[42]=1
-        if self.lineArray[8][11]==1:
+        if self.lineArray[8][20]==1:
            self.List[28]=1
            self.List[43]=1
-        if self.lineArray[8][11]==2:
+        if self.lineArray[8][21]==1:
            self.List[29]=1
            self.List[44]=1
-        if self.lineArray[8][11]==3:
+        if self.lineArray[8][22]==1:
            self.List[30]=1
            self.List[45]=1
-        if self.lineArray[8][12]==1:
+        if self.lineArray[8][23]==1:
            self.List[28]=1
            self.List[46]=1
-        if self.lineArray[8][12]==2:
+        if self.lineArray[8][24]==1:
            self.List[29]=1
            self.List[47]=1
-        if self.lineArray[8][12]==3:
+        if self.lineArray[8][25]==1:
            self.List[30]=1
            self.List[48]=1              
         if self.lineArray[9][10]==1:
