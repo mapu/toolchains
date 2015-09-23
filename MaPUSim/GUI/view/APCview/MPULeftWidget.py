@@ -14,7 +14,7 @@ class MPULeftWidget(QWidget):
 	super(MPULeftWidget,self).__init__(parent)        
         self.setFixedSize(1000,500)
         self.List=[0]*84
-        self.lineArray = [([0] * 26) for i in range(26)] 
+        self.lineArray =[[0 for col in range(26)] for row in range(26)]
         self.DMButton=QPushButton(self.tr("DM"))
 	self.DMButton.setFixedSize(140,50)
 	self.DMButton.setEnabled(False)
