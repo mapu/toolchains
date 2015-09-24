@@ -571,15 +571,18 @@ class MPULeftWidget(QWidget):
         #right point to Bi
            LEPB2=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,x1BIU+6*LCor,LePy+184+20+20,x1BIU+5*LCor,LePy+184+20+20-LCor,x1BIU+5*LCor,YB2S0+5*LCor,x1BIU,YB2S0]
            self.paintLine(8,LEPB2)
-           self.paintstaen(-2,LEPB2) 
+           self.paintstaen(-1,LEPB2) 
+           self.paintstaen(1,LEPB2)
         if self.List[62]==1:
            LEPB1=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,x1BIU+6*LCor,LePy+184+20+20,x1BIU+5*LCor,LePy+184+20+20-LCor,x1BIU+5*LCor,YBIU1toMRF+width+5*LCor,x1BIU,YBIU1toMRF+width]
            self.paintLine(8,LEPB1)
-           self.paintstaen(-2,LEPB1) 
+           self.paintstaen(-1,LEPB1) 
+           self.paintstaen(1,LEPB1)
         if self.List[63]==1:
            LEPB0=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,x1BIU+6*LCor,LePy-184-20-20-5,x1BIU+5*LCor,LePy-184-20-20-5+LCor,x1BIU+5*LCor,y1BIU+width-5*LCor,x1BIU,y1BIU+width]
            self.paintLine(8,LEPB0)
-           self.paintstaen(-2,LEPB0) 
+           self.paintstaen(-1,LEPB0) 
+           self.paintstaen(1,LEPB0) 
         if self.List[64]==1:
         #right point to shu1
            LEPS1=[LePx-LCor,LePy,LePx,LePy+LCor,LePx,LePy+184+20+20-LCor,LePx-LCor,LePy+184+20+20,517+10,LePy+184+20+10+10,517,LePy+184+20+10]
@@ -589,12 +592,14 @@ class MPULeftWidget(QWidget):
         if self.List[65]==1:
            LEPMR=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,x1BIU+6*LCor,LePy-184-20-20-5,x1BIU+5*LCor,LePy-184-20-20-5+LCor,x1BIU+5*LCor,YBIU1toMRF-25,X2BIU,YBIU1toMRF]
            self.paintLine(8,LEPMR)
-           self.paintstaen(-2,LEPMR)         
+           self.paintstaen(-1,LEPMR) 
+           self.paintstaen(1,LEPMR) 
         #right point to shu0
         if self.List[66]==1:
            LEPS0=[LePx-LCor,LePy,LePx,LePy-LCor,LePx,LePy-184-20-20+LCor-5,LePx-LCor,LePy-184-20-20-5,517+10,LePy-184-20-20-5,517,LePy-184-20-20+10-5]
            self.paintLine(6,LEPS0)  
-           self.paintstaen(-2,LEPS0)                          
+           self.paintstaen(-1,LEPS0)
+           self.paintstaen(1,LEPS0) 
         #DM to BIU0
         DMX=150
         DMY=242
