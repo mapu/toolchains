@@ -494,7 +494,7 @@ class APCViewWidget(QWidget):
 			    elif temp=="MRFBIU2":
 				APEWidget.MPUWidget.buttonWidget.lineArray[13][3]=1
 			    elif temp=="SHU0IALU":                                   
-				APEWidget.MPUWidget.buttonWidget.lineArray[4][9]=dest
+				APEWidget.MPUWidget.buttonWidget.lineArray[4][dest]=1
 			    elif temp=="IALUSHU0":
 				APEWidget.MPUWidget.buttonWidget.lineArray[9][4]=1
 			    elif temp=="SHU0IMAC":
