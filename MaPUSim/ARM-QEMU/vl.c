@@ -213,6 +213,8 @@ static int default_cdrom = 1;
 static int default_sdcard = 1;
 static int default_vga = 1;
 
+
+
 static struct {
     const char *driver;
     int *flag;

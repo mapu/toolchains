@@ -261,4 +261,8 @@ void os_mem_prealloc(int fd, char *area, size_t sz);
 
 int qemu_read_password(char *buf, int buf_size);
 
+/*
+ * support for shared memory
+ */
+extern int isShared;
 #endif

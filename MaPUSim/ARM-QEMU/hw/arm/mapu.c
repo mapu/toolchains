@@ -81,6 +81,8 @@ static void mapu_init(MachineState *mms)
 	MemoryRegion *sysmem = get_system_memory();
 	MemoryRegion *sram = g_new(MemoryRegion, 1);
 	MemoryRegion *sdram = g_new(MemoryRegion, 1);
+	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
+	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
 	/*
 	 * Create CPU
 	 */
@@ -129,7 +131,16 @@ static void mapu_init(MachineState *mms)
 
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SRAM], sram);
 
-	memory_region_allocate_system_memory(sdram, NULL, "mapu.sdram", mms->ram_size);
+	isShared = 1;
+
+	memory_region_allocate_system_memory(sdram, NULL, "mapu.sdram", 0x20000000);
+
+	isShared = 0;
+
+    //memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0x20000000, 0x1000000);
+    //memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0, 0x20000000);
+
+    //memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
 
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], sdram);
 
