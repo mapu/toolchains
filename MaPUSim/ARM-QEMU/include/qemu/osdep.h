@@ -264,5 +264,11 @@ int qemu_read_password(char *buf, int buf_size);
 /*
  * support for shared memory
  */
+
+#define __SHARED_MEM__
+
+#ifdef __SHARED_MEM__
 extern int isShared;
+extern int shmid;
+#endif
 #endif

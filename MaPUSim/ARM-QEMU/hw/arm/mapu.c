@@ -39,6 +39,8 @@
 #include "hw/intc/arm_gic.h"
 #include "hw/char/serial.h"
 
+#include "sys/shm.h"
+
 #define MaPU_BOARD_ID 0x8e0
 #define MaPU_FLASH_SIZE (512 * 1024 * 1024)
 #define MaPU_FLASH_SECT_SIZE (256 * 1024)
@@ -83,6 +85,8 @@ static void mapu_init(MachineState *mms)
 	MemoryRegion *sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
+
+	int shmFlg;
 	/*
 	 * Create CPU
 	 */
@@ -133,16 +137,20 @@ static void mapu_init(MachineState *mms)
 
 	isShared = 1;
 
-	memory_region_allocate_system_memory(sdram, NULL, "mapu.sdram", 0x20000000);
+	memory_region_allocate_system_memory(sdram, NULL, "mapu.sdram", 0x21000000);
 
 	isShared = 0;
 
-    //memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0x20000000, 0x1000000);
-    //memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0, 0x20000000);
+    memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0x20000000, 0x1000000);
+    memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0, 0x20000000);
 
-    //memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
+    memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
 
-	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], sdram);
+	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
+
+	shmFlg = shmctl(shmid, IPC_RMID, NULL);
+
+	fprintf(stderr, "shmid=%d, shmFlg=%d\n", shmid, shmFlg);
 
 
 	/* system control registers
