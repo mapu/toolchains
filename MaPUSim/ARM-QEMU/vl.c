@@ -123,6 +123,11 @@ int main(int argc, char **argv)
 #include "exec/semihost.h"
 #include "crypto/init.h"
 
+
+#ifdef __SHARED_MEM__
+#include <sys/shm.h>
+#endif
+
 #define MAX_VIRTIO_CONSOLES 1
 #define MAX_SCLP_CONSOLES 1
 
@@ -4652,9 +4657,14 @@ int main(int argc, char **argv, char **envp)
         }
     }
 
+
     main_loop();
     bdrv_close_all();
     pause_all_vcpus();
+
+#ifdef __SHARED_MEM__
+	shmctl(shmid, IPC_RMID, NULL);
+#endif
     res_free();
 #ifdef CONFIG_TPM
     tpm_cleanup();

@@ -148,19 +148,7 @@ static void mapu_init(MachineState *mms)
 
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
 
-	shmFlg = shmctl(shmid, IPC_RMID, NULL);
 
-	fprintf(stderr, "shmid=%d, shmFlg=%d\n", shmid, shmFlg);
-
-
-	/* system control registers
-	 * not supported by MaPU
-	 */
-//	sysctl = qdev_create(NULL, "realview_sysctl");
-//	qdev_prop_set_uint32(sysctl, "sys_id", 0x41007004);
-//	qdev_prop_set_uint32(sysctl, "proc_id", 0x02000000);
-//	qdev_init_nofail(sysctl);
-//	sysbus_mmio_map(SYS_BUS_DEVICE(sysctl), 0, 0x10000000);
 	/* irq controller
 	 * arm_gic
 	 * cpu interface: 0x547f0000
