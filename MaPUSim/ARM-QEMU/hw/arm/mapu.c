@@ -51,6 +51,7 @@ enum
 	MaPU_NOR_FLASH,
 	MaPU_SRAM,
 	MaPU_SHAREMEM,
+	MaPU_APC_REG,
 	MaPU_DMA,
 	MaPU_TIMER,
 	MaPU_UART0,
@@ -63,6 +64,7 @@ enum
 
 static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
+		[MaPU_APC_REG] = 0x41000000,
 		[MaPU_DMA] = 0x50000000, [MaPU_TIMER] = 0x50400000,
 		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000, [MaPU_UART2
 				] = 0x50920000, [MaPU_GICCPU] = 0x547f0000, [MaPU_GICDIS
@@ -224,6 +226,9 @@ static void mapu_init(MachineState *mms)
                           NULL);
     fprintf(stderr, "mapu timer init done!\n");
 
+    sysbus_create_varargs("apc_reg", MaPUboard_map[MaPU_APC_REG], NULL);
+
+    fprintf(stderr, "mapu apc reg init done!\n");
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;

@@ -12,9 +12,9 @@
 #include "qemu/thread.h"
 #include "apc_if.h"
 
-//#define DEBUG_APC_REG
+//#define DEBUG_APC_IF
 
-#ifdef DEBUG_APC_REG
+#ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
 do { fprintf(stderr, "ape_if: " fmt , ## __VA_ARGS__); } while (0)
 #else
@@ -384,3 +384,5 @@ static void apc_if_register_types(void)
 {
     type_register_static(&apc_if_info);
 }
+
+type_init(apc_if_register_types);
