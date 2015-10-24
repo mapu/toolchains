@@ -11,8 +11,9 @@
 #include <errno.h>
 #include "qemu/thread.h"
 #include "apc_if.h"
+#include "sys/ioctl.h"
 
-//#define DEBUG_APC_IF
+#define DEBUG_APC_IF
 
 #ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
@@ -28,8 +29,8 @@ do {} while (0)
 
 #define REGS_SIZE (32*1024*1024)
 
-static const uint64_t NUM_APES = 4;
-union csu_mmap ape[NUM_APES];
+//static const uint64_t NUM_APES = 4;
+union csu_mmap ape[4];
 
 typedef struct APCIfState {
   SysBusDevice parent_obj;
@@ -37,7 +38,7 @@ typedef struct APCIfState {
   MemoryRegion iomem;
   qemu_irq  irq;
 
-  unsigned char *regs;
+  //unsigned char *regs;
 
   int listen_fd;
   int fd;
@@ -76,6 +77,17 @@ static ssize_t apc_if_atomic_write(int fd, const void *s, size_t n) {
   return pos;
 }
 
+static void detach_socket(void *opaque)
+{
+	APCIfState *s = opaque;
+	qemu_set_fd_handler(s->fd, NULL, NULL, s);
+	if (s->listen_fd != -1)
+	{
+		qemu_set_fd_handler(s->listen_fd, apc_if_socket_accept, NULL, s);
+	}
+	closesocket(s->fd);
+}
+
 static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
   APCIfState *s = opaque;
   if (s->fd == -1) apc_if_socket_accept(s);
@@ -84,11 +96,11 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
 
   uint32_t core_id = offset / (4096 * 1024);
   uint32_t core_off = offset % (4096 * 1024);
-  DPRINTF("Reading from APC %d at offset: %#x\n", core_id, core_off);
+  DPRINTF("Reading from APC %d at core_off: %#x\n", core_id, core_off);
   assert(core_id < NUM_APES);
-  assert(offset < sizeof(union csu_mmap));
+  assert(core_off < sizeof(union csu_mmap));
 
-  data = ape[core_id].mem[offset / 4];
+  data = ape[core_id].mem[core_off / 4];
 
   switch(size) {
     case 1:
@@ -101,35 +113,35 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
       data &= 0xFFFFFFFFUL;
       break;
     default:
-      panic("APC read size too big?\n");
+      fprintf(stderr, "APC read size too big?\n");
       break;
   }
-  if (offset == 0xB0) {
+  if (core_off == 0xB0) {
     ape[core_id].csu_if.MailNum &= 0xFFFFFF00;
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (s->fd < 0)
-      warn("APC not properly attached.\n");
+      fprintf(stderr, "APC not properly attached.\n");
     struct csu_pkt cpkt = {core_id, ape[core_id]};
     ssize_t ret = apc_if_atomic_write(s->fd, &cpkt, sizeof(struct csu_pkt));
     DPRINTF("Send csu package to core %d.\n", core_id);
     if (ret < sizeof(struct csu_pkt)) {
-      warn("APC is incompatible, accept size is %d.\n", ret);
-      detach();
+      fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
+      detach_socket(s);
     }
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
-  } else if (offset == 0xB8) {
+  } else if (core_off == 0xB8) {
     ape[core_id].csu_if.MailNum &= 0xFF00FFFF;
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (s->fd < 0)
-      warn("APC not properly attached.\n");
+      fprintf(stderr, "APC not properly attached.\n");
     struct csu_pkt cpkt = {core_id, ape[core_id]};
     ssize_t ret = apc_if_atomic_write(s->fd, &cpkt, sizeof(struct csu_pkt));
     DPRINTF("Send csu package to core %d.\n", core_id);
     if (ret < sizeof(struct csu_pkt)) {
-      warn("APC is incompatible, accept size is %d.\n", ret);
-      detach();
+      fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
+      detach_socket(s);
     }
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
   }
@@ -138,15 +150,15 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
 }
 
 static void apc_if_write(void * opaque, hwaddr offset,
-                         uint32_t value, uint32_t size) {
+                         uint64_t value, unsigned size) {
   APCIfState *s = opaque;
   if (s->fd == -1) apc_if_socket_accept(s);
 
   uint32_t core_id = offset / (4096 * 1024);
   uint32_t core_off = offset % (4096 * 1024);
-  DPRINTF("Writing to APC %d at offset: %#x\n", core_id, core_off);
+  DPRINTF("Writing to APC %d at core_off: %#x\n", core_id, core_off);
   assert(core_id < NUM_APES);
-  assert(offset < sizeof(union csu_mmap));
+  assert(core_off < sizeof(union csu_mmap));
 
   uint32_t data = 0;
 
@@ -161,14 +173,14 @@ static void apc_if_write(void * opaque, hwaddr offset,
       data = value;
       break;
     default:
-      panic("APC write size too big?\n");
+      fprintf(stderr, "APC write size too big?\n");
       break;
   }
 
-  ape[core_id].mem[offset / 4] = data;
+  ape[core_id].mem[core_off / 4] = data;
 
   //if (data_fd < 0) panic("APC not properly attached.\n");
-  if (offset == 0x0) {
+  if (core_off == 0x0) {
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (ape[core_id].csu_if.VPUControl == 0) {
@@ -179,47 +191,47 @@ static void apc_if_write(void * opaque, hwaddr offset,
     } else if (ape[core_id].csu_if.VPUControl == CMD_SHUTDOWN) {
       ape[core_id].csu_if.VPUControl = CMD_SHUTDOWN;
     } else {
-      warn("Unknown APC command.");
+      fprintf(stderr, "Unknown APC command.");
       ape[core_id].csu_if.VPUControl = CMD_NONE;
     }
     if (s->fd < 0)
-      warn("APC not properly attached.\n");
+      fprintf(stderr, "APC not properly attached.\n");
     struct csu_pkt cpkt = {core_id, ape[core_id]};
     ssize_t ret = apc_if_atomic_write(s->fd, &cpkt, sizeof(struct csu_pkt));
     DPRINTF("Send csu package to core %d.\n", core_id);
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
     if (ret < sizeof(struct csu_pkt)) {
-      warn("APC is incompatible, accept size is %d.\n", ret);
-      detach();
+      fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
+      detach_socket(s);
     } else {
       ape[core_id].csu_if.VPUControl = CMD_NONE;
     }
-  } else if (offset == 0x78) {
+  } else if (core_off == 0x78) {
     ape[core_id].csu_if.dma.DMACommandStatus = 1;
     if (s->fd < 0)
-      warn("APC not properly attached.\n");
+      fprintf(stderr, "APC not properly attached.\n");
     struct csu_pkt cpkt = {core_id, ape[core_id]};
     ssize_t ret = apc_if_atomic_write(s->fd, &cpkt, sizeof(struct csu_pkt));
     DPRINTF("Send csu package to core %d.\n", core_id);
     if (ret < sizeof(struct csu_pkt)) {
-      warn("APC is incompatible, accept size is %d.\n", ret);
-      detach();
+      fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
+      detach_socket(s);
     }
-  } else if (offset == 0xA8) {
+  } else if (core_off == 0xA8) {
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (ape[core_id].csu_if.MailNum & 0xFF00) {
       ape[core_id].csu_if.MailNum = ape[core_id].csu_if.MailNum - 0x100;
       if (s->fd < 0)
-        warn("APC not properly attached.\n");
+        fprintf(stderr, "APC not properly attached.\n");
       struct csu_pkt cpkt = {core_id, ape[core_id]};
       ssize_t ret = apc_if_atomic_write(s->fd, &cpkt, sizeof(struct csu_pkt));
       DPRINTF("Send csu package to core %d.\n", core_id);
       if (ret < sizeof(struct csu_pkt)) {
-        warn("APC is incompatible, accept size is %d.\n", ret);
-        detach();
+    	fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
+    	detach_socket(s);
       }
-    } else if (offset == 0xC8) {
+    } else if (core_off == 0xC8) {
 
     }
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
@@ -238,11 +250,11 @@ static void apc_if_socket_send(void *opaque){
 
   size_t ret;
   uint32_t pkt[3];
-  uint32_t size = 0;
+  int size = 0;
   int err;
 
   if (s->fd < 0)
-    panic("APC not properly attached.\n");
+	fprintf(stderr, "APC not properly attached.\n");
   ioctl(s->fd, FIONREAD, &size);
 
   if (size < 0) {
@@ -264,8 +276,9 @@ static void apc_if_socket_send(void *opaque){
 
   do {
     ret = read(s->fd, pkt, 4 * 3);
+    DPRINTF("Received packet: %s\n", (unsigned char*)pkt);
     if (ret == 12) {
-      DPRINTF("Updating from APC %d at offset: %#x\n", pkt[0], pkt[1]);
+      DPRINTF("Updating from APC %d at core_off: %#x\n", pkt[0], pkt[1]);
       assert(pkt[0] < NUM_APES);
       assert(pkt[1] < sizeof(union csu_mmap));
       ape[pkt[0]].mem[pkt[1] / 4] = pkt[2];
@@ -309,8 +322,9 @@ static void apc_if_socket_accept(void *opaque) {
           inet_ntoa(saddr.sin_addr), ntohs(saddr.sin_port));
 }
 
-static int apc_if_listen_init(port) {
-  APCIfState *s;
+static int apc_if_listen_init(void* opaque, int port)
+{
+  APCIfState *s = (APCIfState*)opaque;
   struct sockaddr_in saddr;
   int fd, ret;
 
@@ -335,6 +349,8 @@ static int apc_if_listen_init(port) {
     saddr.sin_port = htons(port);
   }
 
+  fprintf(stderr, "socket port is %d\n", port);
+
   ret = listen(fd, 0);
   if (ret < 0) {
     perror("listen");
@@ -350,23 +366,22 @@ static int apc_if_listen_init(port) {
 }
 
 static int apc_if_init(SysBusDevice *dev) {
-  APCIfState *s = APC_REG(dev);
-  int listenfd, connfd;
+  APCIfState *s = APC_IF(dev);
   int port = 4000;
 
-  s->regs = (unsigned char*)malloc(REGS_SIZE);
-  memset(s->regs, 0, REGS_SIZE);
+  //s->regs = (unsigned char*)malloc(REGS_SIZE);
+  //memset(s->regs, 0, REGS_SIZE);
 
   memory_region_init_io(&s->iomem, OBJECT(s), &apc_if_ops, s, "apc_if",
                         REGS_SIZE);
   sysbus_init_mmio(dev, &s->iomem);
 
-  apc_if_listen_init(port);
+  apc_if_listen_init(s, port);
   return 0;
 }
 
 static void apc_if_class_init(ObjectClass *klass, void *data) {
-  DeviceClass *dc = DEVICE_CLASS(klass);
+  //DeviceClass *dc = DEVICE_CLASS(klass);
   SysBusDeviceClass *k = SYS_BUS_DEVICE_CLASS(klass);
 
   k->init = apc_if_init;

@@ -226,7 +226,7 @@ static void mapu_init(MachineState *mms)
                           NULL);
     fprintf(stderr, "mapu timer init done!\n");
 
-    sysbus_create_varargs("apc_reg", MaPUboard_map[MaPU_APC_REG], NULL);
+    sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG], NULL);
 
     fprintf(stderr, "mapu apc reg init done!\n");
 
