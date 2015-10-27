@@ -7,6 +7,7 @@ gold_en=1
 llvm_en=1
 newlib_en=1
 openocd_en=1
+qemu_en=1
 debug_mode=0
 install_path=
 while (( $# != 0 ))
@@ -32,12 +33,17 @@ do
      openocd_en=0
      shift
   ;;
+  "--disable-qemu" )
+     qemu_en=0
+     shift
+  ;;
   "--disable-all" )
      gem5_en=0
      gold_en=0
      llvm_en=0
      newlib_en=0
      openocd_en=0
+     qemu_en=0
      shift
   ;;
   "--enable-gem5" )
@@ -60,6 +66,10 @@ do
      openocd_en=1
      shift
   ;;
+  "--enable-qemu" )
+     qemu_en=1
+     shift
+  ;;
   "--enable-debug" )
      debug_mode=1
      shift
@@ -72,6 +82,7 @@ do
     echo -e "\t--disable-llvm\t\t\tDo not install llvm toolchain"
     echo -e "\t--disable-newlib\t\tDo not install newlib"
     echo -e "\t--disable-openocd\t\tDo not install openocd"
+    echo -e "\t--disable-qemu\t\tDo not install qemu"
     echo -e "\t--enable-xxx\t\tInstall xxx package"
     echo -e "\t--disable-all\t\tDo not install anything (used with following --enable-xxx)"
     echo -e "\t--enable-debug\t\tBuild in debug and incremental mode, and do not remove the building dirs"
@@ -115,6 +126,7 @@ llvm_err=0
 gold_err=0
 newlib_err=0
 openocd_err=0
+qemu_err=0
 
 # Install Gem5
 if [ "$gem5_en" -eq 1 ]
@@ -392,6 +404,24 @@ then
   fi
 fi
 
+# Install qemu
+if [ "$qemu_en" -eq 1 ]
+then
+  cd $root
+  if [ -e "build_qemu" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_qemu
+  fi
+  if [ ! -e "build_qemu" ]
+  then mkdir build_qemu
+  fi
+  cd build_qemu
+  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm/qemu-mapu --target-list=arm-softmmu 
+  make $MCFLAG 
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
+fi
+
 # Clean up all temporary files
 cd $root
 if [ "$debug_mode" -eq 0 ]
@@ -434,5 +464,11 @@ then
   then rm -rf build_openocd
   else echo "Failed to install openocd"
   fi
+  if [ "$qemu_err" -eq 0 ]
+  then rm -rf build_qemu
+  else echo "Failed to install qemu"
+  fi
+
 fi
+
 
