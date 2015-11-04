@@ -349,7 +349,7 @@ static int apc_if_listen_init(void* opaque, int port)
     saddr.sin_port = htons(port);
   }
 
-  fprintf(stderr, "socket port is %d\n", port);
+  fprintf(stderr, "Listening for system.realview.apc connection on port %d\n", port);
 
   ret = listen(fd, 0);
   if (ret < 0) {

@@ -134,7 +134,7 @@ static const VMStateDescription vmstate_dw_apb_timer= {
     }
 };
 
-static const VMStateDescription vmstate_vmstate_dw_apb_timer_state = {
+static const VMStateDescription vmstate_dw_apb_timer_state = {
     .name = "dw_apb_timer",
     .version_id = 1,
     .minimum_version_id = 1,
@@ -192,7 +192,7 @@ static uint64_t dw_apb_timer_read(void *opaque, hwaddr offset, unsigned size)
 	DwApbTimerState *s = (DwApbTimerState *)opaque;
 	uint32_t i;
 
-    DPRINTF("timer read: offset=0x%x size=0x%x\n", offset, size);
+  DPRINTF("timer read: offset=0x%x size=0x%x\n", offset, size);
 
 
 	if (offset < 0xA0)
@@ -266,7 +266,7 @@ static uint64_t dw_apb_timer_read(void *opaque, hwaddr offset, unsigned size)
 }
 
 static void dw_apb_timer_write(void * opaque, hwaddr offset,
-                        uint32_t value, uint32_t size)
+                        uint64_t value, unsigned size)
 {
 	DwApbTimerState *s = (DwApbTimerState *)opaque;
 
@@ -358,7 +358,7 @@ static int dw_apb_timer_init(SysBusDevice *dev)
         //ptimer_set_freq(s->timer[i].ptimer, s->freq);
     }
 
-    memory_region_init_io(&s->iomem, OBJECT(s), &dw_apb_timer_ops, s, "dw_apb_timer", 40000);
+    memory_region_init_io(&s->iomem, OBJECT(s), &dw_apb_timer_ops, s, "dw_apb_timer", 0x40000);
     sysbus_init_mmio(dev, &s->iomem);
 
     return 0;
@@ -371,7 +371,7 @@ static void dw_apb_timer_class_init(ObjectClass *klass, void *data)
 
     k->init = dw_apb_timer_init;
     dc->reset = dw_apb_timer_reset;
-    dc->vmsd = &vmstate_dw_apb_timer;
+    dc->vmsd = &vmstate_dw_apb_timer_state;
 }
 
 static const TypeInfo dw_apb_timer_info = {
