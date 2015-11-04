@@ -62,11 +62,14 @@ class MainWindow(QMainWindow):
 		self.configControlWidget.fullTracefile.setText(trace)
 	    if image!=0 and trace!=0:
 	    	#start full system and skip ARM Perspective
-	    	self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    	self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
-	    	self.configControlWidget.fullGroup.setChecked(True)
-	    	self.configControlWidget.APCGroup.setChecked(False)
-	    	self.configControlWidget.startProcess()
+	    	if os.environ.get("MAPU_HOME")!=None:
+	    	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
+	    	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	    	    self.configControlWidget.fullGroup.setChecked(True)
+	    	    self.configControlWidget.APCGroup.setChecked(False)
+	    	    self.configControlWidget.startProcess()
+		else:
+		    QMessageBox.warning(self,"Warning","Please set environment MAPU_HOME!")
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
@@ -123,7 +126,11 @@ class MainWindow(QMainWindow):
 	if self.simulatorPath!="":
 	    self.pathEdit=QLineEdit(self.simulatorPath)
 	else:
-	    self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
+	    if os.environ.get("MAPU_HOME")!=None:
+	    	self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
+	    else:
+		#QMessageBox.warning(self,"Warning","Please set MAPU_HOME!")
+	    	self.pathEdit=QLineEdit('')	
 	browserButton=QPushButton("Browser")
 	self.okButton=QPushButton("OK")
 	self.okButton.setFixedSize(100,30)

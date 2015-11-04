@@ -198,8 +198,8 @@ class APCViewWidget(QWidget):
 	    #APE3 SPU STAGE
 	    self.APE3Widget.SPUWidget.stageDialog=StageDialog()
 	    self.APE3Widget.SPUWidget.stageDialog.updatAPEData(self.dataBase,self.dataBase.APE3dbFilePath,self.minTime,self.maxTime,"s")
-	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider 
-	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider  
+	    self.APE3Widget.MPUWidget.stageDialog.slider=self.slider
+	    self.APE3Widget.SPUWidget.stageDialog.slider=self.slider
 	    self.APE3Widget.MPUWidget.setButtonEnabled(True)
 	    self.APE3Widget.SPUWidget.stageButton.setEnabled(True)
 	#set the range
@@ -256,6 +256,28 @@ class APCViewWidget(QWidget):
 	    self.updateAPEWidget(curTime,self.APE2Widget,self.dataBase.APE2dbFilePath,self.dataBase.APE2timeFilePath)
 	    self.updateAPEWidget(curTime,self.APE3Widget,self.dataBase.APE3dbFilePath,self.dataBase.APE3timeFilePath)
 
+    def updateMPUTable(self,curTime,APEWidget,APEdbFilePath):
+	regList=["nop"]*400
+	for i in range(187):
+	    fetchall_sql="SELECT * FROM "+self.dataBase.regTableName+" WHERE time<= "+str(curTime)+" and reg= "+str(i)+" and type= 'MPU Reg' and op= 'W' order by time asc"
+            r=self.dataBase.fetchall(APEdbFilePath,fetchall_sql)
+	    if r!=0:
+	    	num=len(r)
+		regList[i+1]=r[num-1][8]
+	for i in range(32):
+	    fetchall_sql="SELECT * FROM "+self.dataBase.regTableName+" WHERE time<= "+str(curTime)+" and reg= "+str(i)+" and type= 'R Reg' and op= 'W' order by time asc"
+            r=self.dataBase.fetchall(APEdbFilePath,fetchall_sql)
+	    if r!=0:
+	    	num=len(r)
+		regList[i+188]=r[num-1][8]
+	for i in range(32):
+	    fetchall_sql="SELECT * FROM "+self.dataBase.regTableName+" WHERE time<= "+str(curTime)+" and reg= "+str(i)+" and type= 'J Reg' and op= 'W' order by time asc"
+            r=self.dataBase.fetchall(APEdbFilePath,fetchall_sql)
+	    if r!=0:
+	    	num=len(r)
+		regList[i+220]=r[num-1][8]	
+	return regList    
+
     def updateAPEWidget(self,curTime,APEWidget,APEdbFilePath,APEtimeFilePath):
 	MPURList=[]
 	SPURRList=[]
@@ -280,7 +302,12 @@ class APCViewWidget(QWidget):
 		APEWidget.SPUWidget.updateSPUWidget(r[len(r)-1])	
 	    else:
 		APEWidget.MPUWidget.updateMPUWidget(["nop"]*400)
-		APEWidget.SPUWidget.updateSPUWidget(["nop"]*400)    
+		APEWidget.SPUWidget.updateSPUWidget(["nop"]*400) 
+
+	#regList=self.updateMPUTable(curTime,APEWidget,APEdbFilePath)
+	#APEWidget.MPUWidget.updateMPUWidget(regList)
+	#APEWidget.SPUWidget.updateSPUWidget(regList)
+   
 	fetchall_sql = "SELECT * FROM "+self.dataBase.regTableName+" WHERE time = "+str(curTime)
         r=self.dataBase.fetchall(APEdbFilePath,fetchall_sql)
 	if r!=0:

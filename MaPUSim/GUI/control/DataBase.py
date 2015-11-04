@@ -65,7 +65,11 @@ class DataBase():
 	    self.createAPE1SnRegDatabase()	 
 	    self.createAPE2SnRegDatabase()
 	    self.createAPE3SnRegDatabase()
+	i=datetime.datetime.now()
+        print ("start time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.createAPE0TimeDatabase()
+	i=datetime.datetime.now()
+        print ("end time table %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	if num==2:
 	    self.createAPE1TimeDatabase()
 	elif num==3:
