@@ -215,20 +215,20 @@ static void mapu_init(MachineState *mms)
 	}
 
     sysbus_create_varargs("dw_apb_timer", MaPUboard_map[MaPU_TIMER],
-                          pic[8],
-                          pic[9],
-						  pic[10],
-						  pic[11],
-                          pic[12],
-                          pic[13],
-						  pic[14],
-						  pic[15],
+        pic[8], pic[9], pic[10], pic[11],
+        pic[12], pic[13], pic[14], pic[15],
                           NULL);
     fprintf(stderr, "mapu timer init done!\n");
 
-    sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG], NULL);
+    sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
+        pic[43], pic[44], pic[45], pic[46],
+        pic[47], pic[48], pic[49], pic[50],
+        NULL);
 
     fprintf(stderr, "mapu apc reg init done!\n");
+
+    sysbus_create_varargs("dw_apb_dmac", MaPUboard_map[MaPU_DMA],
+            pic[4], NULL);
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;

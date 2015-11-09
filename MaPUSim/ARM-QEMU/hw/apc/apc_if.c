@@ -13,7 +13,7 @@
 #include "apc_if.h"
 #include "sys/ioctl.h"
 
-#define DEBUG_APC_IF
+//#define DEBUG_APC_IF
 
 #ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
@@ -36,9 +36,11 @@ typedef struct APCIfState {
   SysBusDevice parent_obj;
 
   MemoryRegion iomem;
-  qemu_irq  irq;
+  qemu_irq  irq[8];
 
   //unsigned char *regs;
+
+
 
   int listen_fd;
   int fd;
@@ -88,6 +90,35 @@ static void detach_socket(void *opaque)
 	closesocket(s->fd);
 }
 
+static void clearIntr(void * opaque, unsigned core_id, unsigned type) {
+  APCIfState *s = opaque;
+  // type: 0: DMA, 1: Mailbox
+  qemu_irq_lower(s->irq[core_id<<2+type]);
+
+}
+
+static void updateIntr(void * opaque, unsigned core_id) {
+  APCIfState *s = opaque;
+  if (ape[core_id].csu_if.DMAQueryType == 0x4) {
+    if ((ape[core_id].csu_if.DMAQueryStatus &
+         ape[core_id].csu_if.DMAQueryMask) ==
+        ape[core_id].csu_if.DMAQueryMask)
+      if ((ape[core_id].csu_if.DMAQueryMask &
+           ape[core_id].csu_if.DMAGrpIntClr) == 0)
+        // sendIntr(core_id, dma)
+        qemu_irq_raise(s->irq[core_id<<2+0]);
+      else clearIntr(s, core_id, 0);
+    else clearIntr(s, core_id, 0);
+  } else if (ape[core_id].csu_if.DMAQueryType == 0x5) {
+    if ((ape[core_id].csu_if.DMAQueryStatus & 
+         ape[core_id].csu_if.DMAQueryMask &
+         ~ape[core_id].csu_if.DMAGrpIntClr) != 0)
+      // sendIntr(core_id, dma)
+      qemu_irq_raise(s->irq[core_id<<2+0]);
+    else clearIntr(s, core_id, 0);
+  } else clearIntr(s, core_id, 0);
+}
+
 static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
   APCIfState *s = opaque;
   if (s->fd == -1) apc_if_socket_accept(s);
@@ -132,6 +163,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
   } else if (core_off == 0xB8) {
     ape[core_id].csu_if.MailNum &= 0xFF00FFFF;
+    clearIntr(s,core_id, 1);
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (s->fd < 0)
@@ -231,8 +263,10 @@ static void apc_if_write(void * opaque, hwaddr offset,
     	fprintf(stderr, "APC is incompatible, accept size is %d.\n", (int)ret);
     	detach_socket(s);
       }
+    } else if (core_off == 0x98) {
+      updateIntr(s, core_id);
     } else if (core_off == 0xC8) {
-
+      updateIntr(s, core_id);
     }
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
   }
@@ -284,9 +318,11 @@ static void apc_if_socket_send(void *opaque){
       ape[pkt[0]].mem[pkt[1] / 4] = pkt[2];
       if ((pkt[1] << 2) == 0xB0) {
         ape[pkt[0]].csu_if.MailNum |= 0x1;
-      }
-      else if ((pkt[1] << 2) == 0xB8) {
+      } else if ((pkt[1] << 2) == 0xB8) {
         ape[pkt[0]].csu_if.MailNum |= 0x10000;
+        // sendIntr(pkt[0], mail)
+      } else if ((pkt[1] << 2) == 0xA0) {
+        updateIntr(s, pkt[0]);
       }
       size -= 4 * 3;
     } else break;
@@ -368,9 +404,13 @@ static int apc_if_listen_init(void* opaque, int port)
 static int apc_if_init(SysBusDevice *dev) {
   APCIfState *s = APC_IF(dev);
   int port = 4000;
+  int i;
 
   //s->regs = (unsigned char*)malloc(REGS_SIZE);
   //memset(s->regs, 0, REGS_SIZE);
+  for(i=0; i<8; i++)
+    sysbus_init_irq(dev, &s->irq[i]);
+
 
   memory_region_init_io(&s->iomem, OBJECT(s), &apc_if_ops, s, "apc_if",
                         REGS_SIZE);
