@@ -13,7 +13,7 @@ class ARMStatusWidget(QWidget):
 
     def simulatorShowText(self,code,string): #0:normal 1:error
 	if code==0:
-	    self.fullText.append(string)
+	    self.fullText.insertPlainText(string)
 	else:
 	    defaultColor=self.fullText.textColor() 
 	    num=string.count("\n")

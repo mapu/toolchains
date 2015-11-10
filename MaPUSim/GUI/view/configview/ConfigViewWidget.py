@@ -445,7 +445,8 @@ class ConfigViewWidget(QMainWindow):
 	    	os.mkdir(destPath)
 	    if os.path.exists(srcPath):
 		shutil.copy(srcPath,destPath)
-	    self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
+	    self.ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio"
+	    #/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
             self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
 	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
@@ -585,10 +586,9 @@ class ConfigViewWidget(QMainWindow):
 	    str1=str1+"\n"
 	    self.ARMSimulatorShowSignal.emit(1,str1)
 
-	if self.key!="" and self.apcport!="" and self.uart0port!="":
+	if self.key!="" and self.apcport!="":
 	    if self.processFlag==0:
 	        self.ARMAPCSimulator(self.key,self.apcport)
-	        self.ARMUart0StartProcess.emit(self.uart0port)
 		self.processFlag=1
 
     def ARMAPCFinishProcess(self,exitCode,exitStatus):
@@ -613,7 +613,7 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 	if self.flag==1:
-	    #self.ARMProcess.write("quit")
+	    self.ARMProcess.close()
 	    self.processSignal.emit()
 	    self.flag=0	
 
