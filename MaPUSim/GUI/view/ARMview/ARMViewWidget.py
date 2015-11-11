@@ -34,3 +34,6 @@ class ARMViewWidget(QWidget):
 	self.layout.setStretchFactor(self.upTabWidget,3)
 	self.layout.setStretchFactor(self.downTabWidget,2)
         self.setLayout(self.layout)   
+
+	self.UART0Widget.embTerminal.ARMSimulatorShowSignal.connect(self.statusWidget.simulatorShowText)
+

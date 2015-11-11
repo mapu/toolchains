@@ -37,6 +37,9 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
 	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
+	self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
+	self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
+	self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
 	self.simulatorPath=""
@@ -64,7 +67,7 @@ class MainWindow(QMainWindow):
 	    	#start full system and skip ARM Perspective
 	    	if os.environ.get("MAPU_HOME")!=None:
 	    	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	    	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
 	    	    self.configControlWidget.fullGroup.setChecked(True)
 	    	    self.configControlWidget.APCGroup.setChecked(False)
 	    	    self.configControlWidget.startProcess()
@@ -155,7 +158,7 @@ class MainWindow(QMainWindow):
     def okButtonSlot(self):
 	if os.path.isdir(str(self.pathEdit.text())):
 	    self.configControlWidget.simulatorPath=str(self.pathEdit.text())
-	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())+self.armViewWidget.UART0Widget.embTerminal.simulatorPath	
+	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())
 	    self.setDialog.close()
 	else:
 	    QMessageBox.warning(self,"Warning","Simulator path is not exist!")

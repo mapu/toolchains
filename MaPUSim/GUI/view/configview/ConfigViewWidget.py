@@ -11,10 +11,10 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorDoneSignal=pyqtSignal(int,str)
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
-    ARMUart0StartProcess=pyqtSignal(str)
+    ARMUart0StartProcess=pyqtSignal()
     ARMSimulatorStatusSignal=pyqtSignal(bool)
     APCSimulatorStatusSignal=pyqtSignal(bool)
-    processSignal=pyqtSignal()
+    ARMProcessEndSignal=pyqtSignal()
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
 
@@ -445,17 +445,7 @@ class ConfigViewWidget(QMainWindow):
 	    	os.mkdir(destPath)
 	    if os.path.exists(srcPath):
 		shutil.copy(srcPath,destPath)
-	    self.ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio"
-	    #/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
-            self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
-            self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
-	    self.connect(self.ARMProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMFinishProcess)
-	    self.connect(self,SIGNAL("processSignal()"),self.ARMProcess.kill)
-            self.ARMProcess.start(self.ARMCommand)
-            if False==self.ARMProcess.waitForStarted():
-	        self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
-	    else:
-		self.ARMSimulatorStatusSignal.emit(True)
+	    self.ARMUart0StartProcess.emit()
 	else:
 	    if self.traceFileEdit.text()=="":
 	        QMessageBox.warning(self,"Warning","Trace file is not input!")
@@ -549,48 +539,6 @@ class ConfigViewWidget(QMainWindow):
         ba=self.APCProcess.readAllStandardError()
 	self.APCSimulatorShowSignal.emit(1,ba.data())
 
-    def ARMFinishProcess(self,exitCode,exitStatus):
-        if exitStatus==QProcess.NormalExit:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
-        else:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
-	self.ARMSimulatorStatusSignal.emit(False)
-
-    def ARMStartReadOutput(self):
-        ba=self.ARMProcess.readAllStandardOutput()
-	self.ARMSimulatorShowSignal.emit(0,ba.data())
-
-    def ARMStartReadErrOutput(self):
-        ba=self.ARMProcess.readAllStandardError()
-	string=QString(ba.data())
-	num=string.count("\n")
-	for i in range(0,num):
-	    pos=string.indexOf("\n")
-	    str1=string.left(pos)
-	    string=string.right(string.size()-pos-1)
-	    if str1.indexOf("Share memory key")>=0:
-		pos=str1.indexOf("is")
-		self.key=str1.right(str1.length()-pos-3)
-	    elif str1.indexOf("vncserver")>=0:
-		pos=str1.indexOf("port")
-		port=str1.right(str1.length()-pos-5)
-	    elif str1.indexOf("terminal")>=0:
-		pos=str1.indexOf("port")
-		self.uart0port=str1.right(str1.length()-pos-5)
-	    elif str1.indexOf("realview.apc")>=0:
-		pos=str1.indexOf("port")
-		self.apcport=str1.right(str1.length()-pos-5)
-	    elif str1.indexOf("remote gdb")>=0:
-		pos=str1.indexOf("port")
-		port=str1.right(str1.length()-pos-5)
-	    str1=str1+"\n"
-	    self.ARMSimulatorShowSignal.emit(1,str1)
-
-	if self.key!="" and self.apcport!="":
-	    if self.processFlag==0:
-	        self.ARMAPCSimulator(self.key,self.apcport)
-		self.processFlag=1
-
     def ARMAPCFinishProcess(self,exitCode,exitStatus):
         if exitStatus==QProcess.NormalExit:
 	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
@@ -613,13 +561,13 @@ class ConfigViewWidget(QMainWindow):
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 	if self.flag==1:
-	    self.ARMProcess.close()
-	    self.processSignal.emit()
+	    self.ARMProcessEndSignal.emit()
 	    self.flag=0	
 
     def stopProcessExit(self,exitFlag):
 	self.exitFlag=exitFlag
 	if self.flag==1:
-	    self.processSignal.emit()
+	    self.ARMProcessEndSignal.emit()
+	    self.flag=0	
 	
 

@@ -444,9 +444,6 @@ class DataBase():
 	else:
 	    s0="cpu"+str(n)
 	    s1=s0
-        #open out file and read 
-        f=open(self.filePath,"r")
-        lines=f.readlines()
 	item_sn=SnItem()
         item_reg=RegItem()
         #open out file and read 
