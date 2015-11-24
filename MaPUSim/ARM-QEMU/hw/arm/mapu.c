@@ -54,6 +54,7 @@ enum
 	MaPU_APC_REG,
 	MaPU_DMA,
 	MaPU_TIMER,
+	MaPU_VIF,
 	MaPU_UART0,
 	MaPU_UART1,
 	MaPU_UART2,
@@ -65,7 +66,7 @@ enum
 static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
 		[MaPU_APC_REG] = 0x41000000,
-		[MaPU_DMA] = 0x50000000, [MaPU_TIMER] = 0x50400000,
+		[MaPU_DMA] = 0x50000000, [MaPU_TIMER] = 0x50400000, [MaPU_VIF] = 0x50500000,
 		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000, [MaPU_UART2
 				] = 0x50920000, [MaPU_GICCPU] = 0x547f0000, [MaPU_GICDIS
 				] = 0x547f1000, [MaPU_SDRAM] = 0x60000000};
@@ -214,21 +215,27 @@ static void mapu_init(MachineState *mms)
 		fprintf(stderr, "mapu uart2 init done!\n");
 	}
 
-    sysbus_create_varargs("dw_apb_timer", MaPUboard_map[MaPU_TIMER],
-        pic[8], pic[9], pic[10], pic[11],
-        pic[12], pic[13], pic[14], pic[15],
-                          NULL);
-    fprintf(stderr, "mapu timer init done!\n");
+  sysbus_create_varargs("dw_apb_timer", MaPUboard_map[MaPU_TIMER],
+      pic[8], pic[9], pic[10], pic[11],
+      pic[12], pic[13], pic[14], pic[15],
+                        NULL);
+  fprintf(stderr, "mapu timer init done!\n");
 
-    sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
-        pic[43], pic[44], pic[45], pic[46],
-        pic[47], pic[48], pic[49], pic[50],
-        NULL);
+  sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
+      pic[43], pic[44], pic[45], pic[46],
+      pic[47], pic[48], pic[49], pic[50],
+      NULL);
 
-    fprintf(stderr, "mapu apc reg init done!\n");
+  fprintf(stderr, "mapu apc if init done!\n");
 
-    sysbus_create_varargs("dw_apb_dmac", MaPUboard_map[MaPU_DMA],
-            pic[4], NULL);
+  sysbus_create_varargs("dw_apb_dmac", MaPUboard_map[MaPU_DMA],
+          pic[4], NULL);
+
+  fprintf(stderr, "mapu dw_apb_dmac init done!\n");
+
+  sysbus_create_simple("pl110", MaPUboard_map[MaPU_VIF], pic[37]);
+
+  fprintf(stderr, "mapu pl110 init done!\n");
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;
