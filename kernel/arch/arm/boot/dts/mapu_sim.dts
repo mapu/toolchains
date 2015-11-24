@@ -1,0 +1,104 @@
+/*
+ *  Copyright (C) 2014 IACAS, Lei Wang
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/dts-v1/;
+/include/ "skeleton.dtsi"
+/ {
+	model = "IACAS MaPU SoC";
+	compatible = "iacas,mapu";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "arm,cortex-a8";
+			clock-frequency = <800000000>;
+		};
+	};
+
+  gic: interrupt-controller@547F1000 {
+		compatible = "arm,cortex-a9-gic";
+		interrupt-controller;
+		#interrupt-cells = <3>;
+		reg = <0x547F1000 0x1000>,
+			    <0x547F0000 0x0100>;
+	};
+	
+	flash@00000000 {
+		compatible = "cfi-flash";
+		reg = <0x00000000 0x20000000>;
+		bank-width = <4>;
+		device-width = <2>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		bootrom@0 {
+			label = "boot rom";
+			reg = <0x0 0x10000>;
+			read-only;
+		};
+		uboot@10000 {
+			label ="u-boot";
+			reg = <0x10000 0x70000>;
+			read-only;
+		};
+		dtb@80000 {
+			label ="dtb";
+			reg = <0x80000 0x80000>;
+			read-only;
+		};
+		uImage@100000 {
+			label ="kernel";
+			reg = <0x100000 0x200000>;
+			read-only;
+		};
+		fs@300000 {
+			label ="jffs2";
+			reg = <0x300000 0x1fd00000>;
+		};
+	};
+	
+	clcd@50500000 {
+    compatible = "arm,pl111", "arm,primecell";
+    reg = <0x50500000 0x1000>;
+    interrupte-parent = <&gic>;
+    interrupts = <37>;
+  };
+	
+	
+	
+	ahb {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+	  uart0: uart@50900000 {
+		  compatible = "snps,dw-apb-uart";
+		  reg = <0x50900000 0x1000>;
+	    interrupt-parent = <&gic>;
+		  interrupts = <0 2 0x4>;
+		  clock-frequency = <308641>;
+		  reg-shift = <2>;
+			reg-io-width = <4>;
+		};
+
+    sdc: sdhci@50d00000 {
+	    compatible = "iacas,mapu-sdhci";
+	    reg = <0x50d00000 0x200>;
+	    interrupt-parent = <&gic>;
+			interrupts = <0 31 0x4>;
+		};
+	};
+};
