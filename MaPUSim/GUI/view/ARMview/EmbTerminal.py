@@ -83,7 +83,7 @@ class EmbTerminal(QWidget):
 	    self.commandWidget.sendText("kill -s 9 "+str(pid)+"\n")
 	    del self.lay
 	    self.lay=0
-	    self.termWidget.setHidden(True)
+	    self.termWidget.setVisible(False)
 	    del self.termWidget
 	    self.termWidget=0
 
