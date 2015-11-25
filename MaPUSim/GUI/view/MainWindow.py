@@ -14,7 +14,8 @@ QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class MainWindow(QMainWindow):  
     def __init__(self,argv,parent=None):  
-        super(MainWindow,self).__init__(parent)   
+        super(MainWindow,self).__init__(parent) 
+  
       	self.argv=argv
 	self.path="config.xml"
         self.setWindowTitle('MaPU Simulator')                          

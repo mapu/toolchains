@@ -11,28 +11,28 @@ class UARTWidget(QMainWindow):
 
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)      
-        widget = QWidget()
-        widget.setMinimumSize(1000,280)
+        #widget = QWidget()
+        #widget.setMinimumSize(1000,280)
 
 	self.embTerminal=EmbTerminal()
 	layout=QVBoxLayout()
 	layout.addWidget(self.embTerminal)
 
-	fixedWidget=QWidget()
-	fixedWidget.setFixedSize(1000,280)
-	fixedWidget.setLayout(layout)
+	#fixedWidget=QWidget()
+	#fixedWidget.setFixedSize(1000,280)
+	#fixedWidget.setLayout(layout)
 
-	fixedLay=QVBoxLayout()
-	fixedLay.addWidget(fixedWidget)	
-	widget.setLayout(fixedLay)
+	#fixedLay=QVBoxLayout()
+	#fixedLay.addWidget(fixedWidget)	
+	#widget.setLayout(fixedLay)
 	#scroll
-        scroll = QScrollArea()
-        scroll.setWidget(widget)
-        scroll.setAutoFillBackground(True)
-        scroll.setWidgetResizable(True)
-        vbox = QVBoxLayout()
-        vbox.addWidget(scroll)  
-        centralWidget.setLayout(vbox)
+        #scroll = QScrollArea()
+        #scroll.setWidget(widget)
+        #scroll.setAutoFillBackground(True)
+        #scroll.setWidgetResizable(True)
+        #vbox = QVBoxLayout()
+        #vbox.addWidget(scroll)  
+        centralWidget.setLayout(layout)
 
     def m5termProcessStart(self):
 	self.embTerminal.startProcess()

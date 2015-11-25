@@ -435,16 +435,16 @@ class ConfigViewWidget(QMainWindow):
 	    self.stopButton.setEnabled(True)
 	    self.processFlag=0
 	    #copy image.bin file
-	    path=os.path.realpath(sys.path[0])
-	    if os.path.isfile(path):
-	        path=os.path.dirname(path)
-	    self.mainPath=os.path.abspath(path)
-	    srcPath=str(self.fullEdit.text())
-	    destPath=self.mainPath+"/images"
-	    if os.path.exists(destPath)<=0:
-	    	os.mkdir(destPath)
-	    if os.path.exists(srcPath):
-		shutil.copy(srcPath,destPath)
+	    #path=os.path.realpath(sys.path[0])
+	    #if os.path.isfile(path):
+	        #path=os.path.dirname(path)
+	    #self.mainPath=os.path.abspath(path)
+	    #srcPath=str(self.fullEdit.text())
+	    #destPath=self.mainPath+"/images"
+	    #if os.path.exists(destPath)<=0:
+	    	#os.mkdir(destPath)
+	    #if os.path.exists(srcPath):
+		#shutil.copy(srcPath,destPath)
 	    self.ARMUart0StartProcess.emit()
 	else:
 	    if self.traceFileEdit.text()=="":
