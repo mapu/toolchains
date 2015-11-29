@@ -1,0 +1,10 @@
+menu "MaPU Algebra Processing Cluster"
+
+config APC
+  depends on ARCH_MAPU
+  default y
+  bool "Enable MaPU Algebra Processing Cluster"
+  ---help---
+    This enables support for MaPU Algebra Processing Cluster.
+    
+endmenu
