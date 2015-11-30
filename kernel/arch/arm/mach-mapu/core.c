@@ -115,6 +115,12 @@ static struct clk_lookup lookups[] = {
   }, {  /* DesignWare timers */
     .dev_id   = "dw_timer",
     .clk    = &dw_timer_clk,
+  }, {  /* Pl110 */
+    .dev_id   = "clcd-pl110",
+    .clk    = &ref24_clk,
+  }, {  /* Pl050 */
+    .dev_id   = "keyboard-pl050",
+    .clk    = &ref24_clk,
   },
 };
 
@@ -197,10 +203,10 @@ static struct sys_timer mapu_a8_timer = {
 static int mapu_clcd_setup(struct clcd_fb *fb)
 {
 
-  fb->panel = versatile_clcd_get_panel("XVGA");
+  fb->panel = versatile_clcd_get_panel("VGA");
   if (!fb->panel)
     return -EINVAL;
-  return versatile_clcd_setup_dma(fb, 1024 * 768 * 2);
+  return versatile_clcd_setup_dma(fb, 800 * 600 * 2);
 }
 
 static void mapu_clcd_enable(struct clcd_fb *fb)
@@ -211,16 +217,6 @@ static void mapu_clcd_enable(struct clcd_fb *fb)
 static void mapu_clcd_disable(struct clcd_fb *fb)
 {
   ;
-}
-
-void mapu_clcd_remove_dma(struct clcd_fb *fb)
-{
-  ;
-}
-
-int mapu_clcd_mmap_dma(struct clcd_fb *fb, struct vm_area_struct *vma)
-{
-  return 0;
 }
 
 static struct clcd_board clcd_plat_data = {
@@ -236,7 +232,8 @@ static struct clcd_board clcd_plat_data = {
 };
 
 struct of_dev_auxdata mapu_auxdata_lookup[] __initdata = {
-    OF_DEV_AUXDATA("arm,primecell", 0x50500000, "dev:20", &clcd_plat_data),
+    OF_DEV_AUXDATA("arm,primecell", 0x50500000, "clcd-pl110", &clcd_plat_data),
+    OF_DEV_AUXDATA("arm,primecell", 0x50a20000, "keyboard-pl050", NULL),
 };
 
 

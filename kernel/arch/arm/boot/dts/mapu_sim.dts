@@ -76,7 +76,12 @@
     interrupts = <37>;
   };
 	
-	
+  keyboard@50a20000 {
+    compatible = "arm,pl050", "arm,primecell";
+    reg = <0x50a20000 0x1000>;
+    interrupt-parent = <&gic>;
+    interrupts = <26>;
+  };
 	
 	ahb {
 		compatible = "simple-bus";
