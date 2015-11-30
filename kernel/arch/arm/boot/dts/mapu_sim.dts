@@ -73,14 +73,14 @@
     compatible = "arm,pl111", "arm,primecell";
     reg = <0x50500000 0x1000>;
     interrupte-parent = <&gic>;
-    interrupts = <37>;
+    interrupts = <0 37 0x4>;
   };
 	
   keyboard@50a20000 {
     compatible = "arm,pl050", "arm,primecell";
     reg = <0x50a20000 0x1000>;
     interrupt-parent = <&gic>;
-    interrupts = <26>;
+    interrupts = <0 26 0x4>;
   };
 	
 	ahb {
