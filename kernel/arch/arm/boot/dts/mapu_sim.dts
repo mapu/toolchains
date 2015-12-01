@@ -69,30 +69,16 @@
 		};
 	};
 	
-	clcd@50500000 {
-    compatible = "arm,pl111", "arm,primecell";
-    reg = <0x50500000 0x1000>;
-    interrupte-parent = <&gic>;
-    interrupts = <0 37 0x4>;
-  };
-	
-  keyboard@50a20000 {
-    compatible = "arm,pl050", "arm,primecell";
-    reg = <0x50a20000 0x1000>;
-    interrupt-parent = <&gic>;
-    interrupts = <0 26 0x4>;
-  };
-	
 	ahb {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
+    interrupte-parent = <&gic>;
 		ranges;
 
 	  uart0: uart@50900000 {
 		  compatible = "snps,dw-apb-uart";
 		  reg = <0x50900000 0x1000>;
-	    interrupt-parent = <&gic>;
 		  interrupts = <0 2 0x4>;
 		  clock-frequency = <308641>;
 		  reg-shift = <2>;
@@ -102,8 +88,26 @@
     sdc: sdhci@50d00000 {
 	    compatible = "iacas,mapu-sdhci";
 	    reg = <0x50d00000 0x200>;
-	    interrupt-parent = <&gic>;
 			interrupts = <0 31 0x4>;
 		};
+  
+    clcd@50500000 {
+      compatible = "arm,pl111", "arm,primecell";
+      reg = <0x50500000 0x1000>;
+      interrupts = <0 37 0x4>;
+    };
+    
+    keyboard@50a20000 {
+      compatible = "arm,pl050", "arm,primecell";
+      reg = <0x50a20000 0x1000>;
+      interrupts = <0 26 0x4>;
+    };
+    
+    apc@41000000 {
+      compatible = "mapu-apc";
+      num-apes = 4;
+      reg = <0x41000000 0x400000>, <0x41400000 0x400000>, <0x41800000 0x400000>, <0x41C00000 0x400000>;
+      interrupts = <0 42 0x4>, <0 43 0x4>, <0 44 0x4>, <0 45 0x4>, <0 46 0x4>, <0 47 0x4>, <0 48 0x4>, <0 49 0x4>;
+    }
 	};
 };

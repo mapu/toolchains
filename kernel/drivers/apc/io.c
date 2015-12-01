@@ -17,7 +17,10 @@
 #include <linux/vmalloc.h>
 #include <linux/fs.h>
 #include <linux/types.h>
+#include <linux/device.h>
+#include <linux/cdev.h>
 #include <asm/uaccess.h>
+#include <asm/div64.h>
 
 #include "apc.h"
 
@@ -38,7 +41,7 @@ struct apc_info {
 ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
                   loff_t *f_pos) {
   //struct mapu_dev *dev = filp->private_data;
-  unsigned int ape_id = 0;
+  u32 ape_id;
   loff_t offset;
   //struct ape_dev *ape;
   loff_t next_byte;
@@ -53,8 +56,9 @@ ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
     printk(KERN_ERR "User program accessed unknown APE SoC address space.\n");
     return -EFAULT;
   }
-  ape_id = (u32)(*f_pos) / apc_data.ape_info[ape_id].region_size;
-  offset = (u32)(*f_pos) % apc_data.ape_info[ape_id].region_size;
+
+  ape_id = *f_pos;
+  offset = do_div(ape_id, apc_data.ape_info[ape_id].region_size);
 
   if (ape_id >= apc_data.num_of_apes) {
     printk(KERN_ERR "User program accessed unsupported number of APEs.\n");
@@ -162,7 +166,7 @@ ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
 ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
                    loff_t *f_pos) {
   //struct mapu_dev *dev = filp->private_data;
-  unsigned int ape_id = 0;
+  u32 ape_id;
   loff_t offset;
   //struct ape_dev *ape;
   //union csu_mmap *ubuf_p;
@@ -179,8 +183,9 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
     printk(KERN_ERR "User program accessed unknown APE SoC address space.\n");
     return -EFAULT;
   }
-  ape_id = (u32)(*f_pos) / apc_data.ape_info[ape_id].region_size;
-  offset = (u32)(*f_pos) % apc_data.ape_info[ape_id].region_size;
+
+  ape_id = *f_pos;
+  offset = do_div(ape_id, apc_data.ape_info[ape_id].region_size);
 
   if (ape_id >= apc_data.num_of_apes) {
     printk(KERN_ERR "User program accessed unsupported number of APEs.\n");
@@ -346,8 +351,7 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
   return count;
 }
 
-int apc_ioctl(struct inode *inode, struct file *filp,
-              unsigned int cmd, unsigned long arg) {
+long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
   return -EFAULT;
 }
 
@@ -381,6 +385,11 @@ int apc_open(struct inode *inode, struct file *filp) {
     return -EFAULT;
   }
 
+  return 0;
+}
+
+int apc_release(struct inode *inode, struct file *filp)
+{
   return 0;
 }
 
@@ -478,7 +487,106 @@ static struct platform_driver apc_platform_driver = {
   .remove     = __devexit_p(apc_remove),
 };
 
-module_platform_driver(apc_platform_driver);
+static const struct file_operations apc_fops = {
+  .llseek   = apc_llseek,
+  .read   = apc_read,
+  .write    = apc_write,
+  .unlocked_ioctl = apc_ioctl,
+  .open   = apc_open,
+  .release  = apc_release,
+};
+
+struct class *apc_class;
+
+static char *apc_devnode(struct device *dev, umode_t *mode)
+{
+  if (!mode)
+    return NULL;
+  *mode = 0666;
+  return NULL;
+}
+
+static struct platform_device *apc_devs;
+static struct cdev apc_cdev;
+static int major;    /* major device number */
+static int minor_start;  /* start of minor device number */
+
+static int __init apc_init(void)
+{
+  int ret;
+  struct device *d;
+
+  dev_t dev;
+
+  ret = alloc_chrdev_region(&dev, 0, 1, "apc");
+
+  if (!ret) {
+    major = MAJOR(dev);
+    minor_start = MINOR(dev);
+  }
+  if (ret < 0) {
+    return ret;
+  }
+  cdev_init(&apc_cdev, &apc_fops);
+  ret = cdev_add(&apc_cdev, dev, 1);
+  if (ret) {
+    unregister_chrdev_region(dev, 1);
+    return ret;
+  }
+
+  apc_class = class_create(THIS_MODULE, "apc");
+  if (IS_ERR(apc_class))
+    return PTR_ERR(apc_class);
+  apc_class->devnode = apc_devnode;
+
+  d = device_create(apc_class, NULL, dev, NULL, "apc");
+  if (IS_ERR(d)) {
+    unregister_chrdev_region(dev, 1);
+    return PTR_ERR(d);
+  }
+
+  apc_devs = platform_device_alloc("apc", 0);
+  if (!apc_devs) {
+    ret = -ENOMEM;
+    unregister_chrdev_region(dev, 1);
+    return ret;
+  }
+
+  ret = platform_device_add(apc_devs);
+  if (ret) {
+    platform_device_put(apc_devs);
+    unregister_chrdev_region(dev, 1);
+    return ret;
+  }
+
+  ret = platform_driver_register(&apc_platform_driver);
+  if (ret == 0)
+    return ret;
+
+  platform_device_del(apc_devs);
+  platform_device_put(apc_devs);
+  unregister_chrdev_region(dev, 1);
+  return ret;
+}
+
+static void __exit apc_exit(void)
+{
+  struct platform_device *isa_dev = apc_devs;
+
+  /*
+   * This tells serial8250_unregister_port() not to re-register
+   * the ports (thereby making serial8250_isa_driver permanently
+   * in use.)
+   */
+  apc_devs = NULL;
+
+  platform_driver_unregister(&apc_platform_driver);
+  platform_device_unregister(isa_dev);
+  unregister_chrdev_region(MKDEV(major, minor_start), 1);
+}
+
+module_init(apc_init);
+module_exit(apc_exit);
 
 MODULE_AUTHOR("Lei Wang");
 MODULE_LICENSE("GPL");
