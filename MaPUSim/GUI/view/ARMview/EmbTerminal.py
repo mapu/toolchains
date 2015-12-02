@@ -1,11 +1,13 @@
 #!/usr/bin/env python 
 #-*- coding:utf-8 -*- 
 import re
+import os
 import sys
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import * 
 sys.path.append("/usr/local/lib64/")
 from QTermWidget import*
+import time
 
 class EmbTerminal(QWidget): 
     ARMSimulatorStatusSignal=pyqtSignal(bool)
@@ -14,7 +16,10 @@ class EmbTerminal(QWidget):
     def __init__(self): 
 	super(EmbTerminal,self).__init__()
     	QWidget.__init__(self) 
-	
+	self.termWidget=QTermWidget()
+	self.lay=QVBoxLayout()
+	self.lay.addWidget(self.termWidget)
+	self.setLayout(self.lay)	
 	#self.resize(1000,200)
     	#self.process = QProcess(self) 
     	#self.terminal = QWidget(self) 
@@ -27,13 +32,10 @@ class EmbTerminal(QWidget):
 	self.simulatorPath=""
 	self.flag=0
 	self.errorFile="main.out"
+	self.pidFile='a.dat'
 
     def startProcess(self): 
 	self.flag=1
-	self.termWidget=QTermWidget()
-	self.lay=QVBoxLayout()
-	self.lay.addWidget(self.termWidget)
-	self.setLayout(self.lay)
 	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio 2>"+self.errorFile+" \n"
 	self.termWidget.sendText(ARMCommand)	
 
@@ -44,6 +46,10 @@ class EmbTerminal(QWidget):
 	    #self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
 	#else:
 	    #self.ARMSimulatorStatusSignal.emit(True)
+	if os.path.exists(self.pidFile)==True:
+	    os.remove(self.pidFile)
+	self.commandWidget=QTermWidget()
+	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm_qemu/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
 	self.GetAPCParameter()
 
     def finishProcess(self,exitCode,exitStatus):
@@ -61,6 +67,9 @@ class EmbTerminal(QWidget):
         ba=self.process.readAllStandardError()
 
     def GetAPCParameter(self):
+	b=os.path.exists(self.errorFile)
+	if b==False:
+  	    return
         f=open(self.errorFile,"r")
         lines=f.readlines()
         for line in lines:
@@ -78,14 +87,20 @@ class EmbTerminal(QWidget):
     def stopProcess(self):
 	if self.flag==1:
 	    pid=self.termWidget.getShellPID()
-	    self.commandWidget=QTermWidget()
-	    #self.commandWidget.sendText("kill -2 &(ps -a | grep qemu-system-arm | awk '{print $1}') \n")
-	    self.commandWidget.sendText("kill -s 9 "+str(pid)+"\n")
-	    del self.lay
-	    self.lay=0
-	    self.termWidget.setVisible(False)
-	    del self.termWidget
-	    self.termWidget=0
+	    b=os.path.exists(self.pidFile)
+	    if b==True:
+	    	f=open(self.pidFile,"r")
+	    	lines=f.readlines()
+	    	for line in lines:
+		    strList=line.split(" ")
+		    string=strList[1]
+		    string=string[:len(string)-1]
+		    if int(string)==pid:
+		        self.commandWidget.sendText("kill -s 9 "+strList[0]+"\n")
+	    #self.commandWidget.resize(800,600)
+	    #self.commandWidget.show()
+	    self.termWidget.sendText("   \n")
+	    self.termWidget.sendText("reset\n")
 
 
 
