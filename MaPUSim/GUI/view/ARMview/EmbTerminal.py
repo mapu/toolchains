@@ -72,6 +72,8 @@ class EmbTerminal(QWidget):
   	    return
         f=open(self.errorFile,"r")
         lines=f.readlines()
+	key=""
+	apcport=""
         for line in lines:
 	    str1=QString(line)
 	    self.ARMSimulatorShowSignal.emit(1,str1)
