@@ -58,6 +58,8 @@ enum
 	MaPU_UART0,
 	MaPU_UART1,
 	MaPU_UART2,
+	MaPU_KEYBOARD,
+	MaPU_MOUSE,
 	MaPU_GICCPU,
 	MaPU_GICDIS,
 	MaPU_SDRAM
@@ -65,11 +67,12 @@ enum
 
 static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
-		[MaPU_APC_REG] = 0x41000000,
-		[MaPU_DMA] = 0x50000000, [MaPU_TIMER] = 0x50400000, [MaPU_VIF] = 0x50500000,
-		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000, [MaPU_UART2
-				] = 0x50920000, [MaPU_GICCPU] = 0x547f0000, [MaPU_GICDIS
-				] = 0x547f1000, [MaPU_SDRAM] = 0x60000000};
+		[MaPU_APC_REG] = 0x41000000, [MaPU_DMA] = 0x50000000,
+		[MaPU_TIMER] = 0x50400000, [MaPU_VIF] = 0x50500000,
+		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000,
+		[MaPU_UART2] = 0x50920000, [MaPU_KEYBOARD] = 0x50a20000,
+		[MaPU_MOUSE] = 0x50a30000, [MaPU_GICCPU] = 0x547f0000,
+		[MaPU_GICDIS] = 0x547f1000, [MaPU_SDRAM] = 0x60000000};
 
 static struct arm_boot_info mapu_binfo;
 
@@ -236,6 +239,9 @@ static void mapu_init(MachineState *mms)
   sysbus_create_simple("pl110", MaPUboard_map[MaPU_VIF], pic[37]);
 
   fprintf(stderr, "mapu pl110 init done!\n");
+
+  sysbus_create_simple("pl050_keyboard", MaPUboard_map[MaPU_KEYBOARD], pic[26]);
+  //sysbus_create_simple("pl050_mouse", MaPUboard_map[MaPU_MOUSE], pic[27]);
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;

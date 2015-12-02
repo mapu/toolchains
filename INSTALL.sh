@@ -194,6 +194,24 @@ then
   cxfreeze --install-dir=$install_path/simulator/gui $source_path/MaPUSim/GUI/main.py
 fi
 
+# Install qemu
+if [ "$qemu_en" -eq 1 ]
+then
+  cd $root
+  if [ -e "build_qemu" ] && [ "$debug_mode" -eq 0 ]
+  then rm -rf build_qemu
+  fi
+  if [ ! -e "build_qemu" ]
+  then mkdir build_qemu
+  fi
+  cd build_qemu
+  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu 
+  make $MCFLAG 
+  if [ "$debug_mode" -eq 0 ]
+  then make install
+  fi
+fi
+
 install_tool_path=${install_path}
 install_path=${install_path}/apc
 
@@ -399,24 +417,6 @@ then
   make clean
   $source_path/openocd-0.5/configure --prefix="$install_path" --program-suffix="-sim" CFLAGS="-O2 -std=gnu99 -DSIM"
   make $MCFLAG || openocd_err=1
-  if [ "$debug_mode" -eq 0 ]
-  then make install
-  fi
-fi
-
-# Install qemu
-if [ "$qemu_en" -eq 1 ]
-then
-  cd $root
-  if [ -e "build_qemu" ] && [ "$debug_mode" -eq 0 ]
-  then rm -rf build_qemu
-  fi
-  if [ ! -e "build_qemu" ]
-  then mkdir build_qemu
-  fi
-  cd build_qemu
-  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm/qemu-mapu --target-list=arm-softmmu 
-  make $MCFLAG 
   if [ "$debug_mode" -eq 0 ]
   then make install
   fi
