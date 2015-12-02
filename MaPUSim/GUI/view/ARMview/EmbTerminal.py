@@ -20,15 +20,6 @@ class EmbTerminal(QWidget):
 	self.lay=QVBoxLayout()
 	self.lay.addWidget(self.termWidget)
 	self.setLayout(self.lay)	
-	#self.resize(1000,200)
-    	#self.process = QProcess(self) 
-    	#self.terminal = QWidget(self) 
-	#self.terminal.resize(1000,200)
-    	#layout = QVBoxLayout(self) 
-    	#layout.addWidget(self.terminal)
-        #self.connect(self.process,SIGNAL("readyReadStandardOutput()"),self.startReadOutput)
-        #self.connect(self.process,SIGNAL("readyReadStandardError()"),self.startReadErrOutput)
-	#self.connect(self.process,SIGNAL("finished(int,QProcess::ExitStatus)"),self.finishProcess)
 	self.simulatorPath=""
 	self.flag=0
 	self.errorFile="main.out"
@@ -36,35 +27,15 @@ class EmbTerminal(QWidget):
 
     def startProcess(self): 
 	self.flag=1
-	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio 2>"+self.errorFile+" \n"
+	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio 2>"+self.errorFile+"\n"
 	self.termWidget.sendText(ARMCommand)	
 
 	#/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
-   	#self.process.start('gnome-terminal',['-into', str(self.terminal.winId()),'--geometry=GEOMETRY',"255x50",'-e', str(self.ARMCommand)]) 
-	#self.process.start('xterm',['-into', str(self.terminal.winId()),'-geometry',"100x200",'-e', str(self.ARMCommand)]) 
-        #if False==self.process.waitForStarted():
-	    #self.ARMSimulatorShowSignal.emit(0,"ARM process can not be called.")
-	#else:
-	    #self.ARMSimulatorStatusSignal.emit(True)
 	if os.path.exists(self.pidFile)==True:
 	    os.remove(self.pidFile)
 	self.commandWidget=QTermWidget()
 	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm_qemu/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
 	self.GetAPCParameter()
-
-    def finishProcess(self,exitCode,exitStatus):
-        if exitStatus==QProcess.NormalExit:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit normal")
-        else:
-	    self.ARMSimulatorShowSignal.emit(0,"process exit crash")
-	self.ARMSimulatorStatusSignal.emit(False)
-
-    def startReadOutput(self):
-        ba=self.process.readAllStandardOutput()
-	self.ARMSimulatorShowSignal.emit(0,ba.data())
-
-    def startReadErrOutput(self):
-        ba=self.process.readAllStandardError()
 
     def GetAPCParameter(self):
 	b=os.path.exists(self.errorFile)
