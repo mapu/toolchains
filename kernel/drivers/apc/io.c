@@ -19,6 +19,8 @@
 #include <linux/types.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
+#include <linux/sched.h>
+#include <linux/interrupt.h>
 #include <asm/uaccess.h>
 #include <asm/div64.h>
 
@@ -37,6 +39,9 @@ struct apc_info {
     unsigned int  mpuclk;  /* MPU clock rate */
   } *ape_info;
 } apc_data;
+
+static DECLARE_WAIT_QUEUE_HEAD(dmaq);
+static volatile int dma_complete;
 
 ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
                   loff_t *f_pos) {
@@ -351,7 +356,49 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
   return count;
 }
 
+static irqreturn_t apc_dma_int(int irq, void *dev_id)
+{
+  union csu_mmap *ape;
+  unsigned int ape_id = (irq - 42) / 2;
+
+  ape = apc_data.ape_info[ape_id].membase;
+  dma_complete = 0;
+  writel(1, &(ape->csu_if.DMAQueryType));
+  wake_up_interruptible(&dmaq);
+  return IRQ_HANDLED;
+}
+
 long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
+  int ret = 0;
+  unsigned int ape_id = filp->f_pos >> 24;
+  union csu_mmap *ape;
+  if (ape_id >= apc_data.num_of_apes) {
+    printk(KERN_ERR "User program accessed unsupported number of APEs.\n");
+    return -ENOMEM;
+  }
+
+  if (_IOC_TYPE(cmd) != APC_IOC_MAGIC) {
+    return -ENOTTY;
+  }
+
+  ape = apc_data.ape_info[ape_id].membase;
+
+  switch (cmd) {
+  case APC_IOCWAITDMA:
+    // arg: DMA group No.
+    dma_complete = 1;
+    writel(~(1UL << arg), &(ape->csu_if.DMAQueryMask));
+    writel(5, &(ape->csu_if.DMAQueryType));
+    wait_event_interruptible(dmaq, dma_complete == 0);
+    writel(1UL << arg, &(ape->csu_if.DMAGrpIntClr));
+    writel(1, &(ape->csu_if.DMAQueryType));
+    break;
+
+  default:
+    ret = -EFAULT;
+    break;
+  }
+
   return -EFAULT;
 }
 
@@ -380,9 +427,20 @@ loff_t apc_llseek(struct file *filp, loff_t off, int whence) {
 }
 
 int apc_open(struct inode *inode, struct file *filp) {
+  int ret = 0;
+  u32 i;
   if (!apc_data.num_of_apes || !apc_data.ape_info) {
     printk(KERN_ERR "APC device initialization failed.\n");
     return -EFAULT;
+  }
+
+  for (i = 0; i < apc_data.num_of_apes; i++) {
+    ret = request_irq(apc_data.ape_info[i].dma_irq, apc_dma_int, 0, "apc", NULL);
+
+    if (ret) {
+      printk(KERN_ERR "apc: failed to claim IRQ%d\n", apc_data.ape_info[i].dma_irq);
+      return ret;
+    }
   }
 
   return 0;

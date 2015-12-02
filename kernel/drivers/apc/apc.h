@@ -86,4 +86,7 @@ union csu_mmap {
 };
 #pragma pack(pop)
 
+#define APC_IOC_MAGIC 'M'
+#define APC_IOCWAITDMA _IOW(APC_IOC_MAGIC, 0, int)
+
 #endif /* DRIVERS_APC_APC_H_ */
