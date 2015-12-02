@@ -73,7 +73,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-    interrupte-parent = <&gic>;
+    interrupt-parent = <&gic>;
 		ranges;
 
 	  uart0: uart@50900000 {
