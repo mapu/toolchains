@@ -41,7 +41,6 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
 	self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
 	self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
-	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
 	self.simulatorPath=""
 	self.readXML()

@@ -25,16 +25,17 @@ class EmbTerminal(QWidget):
 	self.errorFile="main.out"
 	self.pidFile='a.dat'
 
-    def startProcess(self,path): 
+    def startProcess(self,path):
+	self.ARMSimulatorStatusSignal.emit(True) 
 	self.flag=1
-	ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"
+	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"
 	self.termWidget.sendText(ARMCommand)	
 
 	#/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
 	if os.path.exists(self.pidFile)==True:
 	    os.remove(self.pidFile)
 	self.commandWidget=QTermWidget()
-	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
+	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm_qemu/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
 	self.GetAPCParameter()
 
     def GetAPCParameter(self):
@@ -76,6 +77,7 @@ class EmbTerminal(QWidget):
 	    #self.commandWidget.show()
 	    self.termWidget.sendText("   \n")
 	    self.termWidget.sendText("reset\n")
+	self.ARMSimulatorStatusSignal.emit(False) 
 
 
 

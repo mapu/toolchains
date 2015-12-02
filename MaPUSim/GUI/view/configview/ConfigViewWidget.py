@@ -12,7 +12,6 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
     ARMUart0StartProcess=pyqtSignal(str)
-    ARMSimulatorStatusSignal=pyqtSignal(bool)
     APCSimulatorStatusSignal=pyqtSignal(bool)
     ARMProcessEndSignal=pyqtSignal()
     def __init__(self, parent=None):
