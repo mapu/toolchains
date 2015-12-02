@@ -11,7 +11,7 @@ class ConfigViewWidget(QMainWindow):
     APCSimulatorDoneSignal=pyqtSignal(int,str)
     APCSimulatorShowSignal=pyqtSignal(int,str)
     ARMSimulatorShowSignal=pyqtSignal(int,str)
-    ARMUart0StartProcess=pyqtSignal()
+    ARMUart0StartProcess=pyqtSignal(str)
     ARMSimulatorStatusSignal=pyqtSignal(bool)
     APCSimulatorStatusSignal=pyqtSignal(bool)
     ARMProcessEndSignal=pyqtSignal()
@@ -445,7 +445,7 @@ class ConfigViewWidget(QMainWindow):
 	    	#os.mkdir(destPath)
 	    #if os.path.exists(srcPath):
 		#shutil.copy(srcPath,destPath)
-	    self.ARMUart0StartProcess.emit()
+	    self.ARMUart0StartProcess.emit(self.fullEdit.text())
 	else:
 	    if self.traceFileEdit.text()=="":
 	        QMessageBox.warning(self,"Warning","Trace file is not input!")

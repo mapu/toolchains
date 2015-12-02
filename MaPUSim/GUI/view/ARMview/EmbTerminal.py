@@ -25,9 +25,9 @@ class EmbTerminal(QWidget):
 	self.errorFile="main.out"
 	self.pidFile='a.dat'
 
-    def startProcess(self): 
+    def startProcess(self,path): 
 	self.flag=1
-	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+self.simulatorPath+"/sim_dmac.bin -serial stdio 2>"+self.errorFile+"\n"
+	ARMCommand=self.simulatorPath+"/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"
 	self.termWidget.sendText(ARMCommand)	
 
 	#/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
@@ -51,9 +51,11 @@ class EmbTerminal(QWidget):
 	    if str1.indexOf("Share memory key")>=0:
 		pos=str1.indexOf("is")
 		key=str1.right(str1.length()-pos-3)
+		key=key[:len(key)-1]
 	    elif str1.indexOf("realview.apc")>=0:
 		pos=str1.indexOf("port")
 		apcport=str1.right(str1.length()-pos-5)
+		apcport=apcport[:len(apcport)-1]
 	if key!="" and apcport!="":
 	    self.APCSimulatorSignal.emit(key,apcport)
 
