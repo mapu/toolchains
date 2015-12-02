@@ -11,10 +11,10 @@ class ARMStatusWidget(QWidget):
 	gridLay.addWidget(self.fullText,0,0)
 	self.setLayout(gridLay)
 
-    def simulatorShowText(self,code,string): #0:normal 1:error
+    def simulatorShowText(self,code,string): #0:normal 1:error 2:clear
 	if code==0:
 	    self.fullText.insertPlainText(string)
-	else:
+	elif code==1:
 	    defaultColor=self.fullText.textColor() 
 	    num=string.count("\n")
 	    for i in range(0,num):
@@ -27,6 +27,9 @@ class ARMStatusWidget(QWidget):
 		    self.fullText.setTextColor(defaultColor)
 		else:
 		    self.fullText.append(str1)
+	else:
+	    self.fullText.clear()
+	    self.fullText.append(string)
 
 
 

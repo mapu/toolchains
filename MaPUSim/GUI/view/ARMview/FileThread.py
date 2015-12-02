@@ -4,25 +4,34 @@ from PyQt4.QtCore import*
 import os
 
 class FileThread(QThread):
-    fileExistSignal=pyqtSignal(list)
+    fileExistSignal=pyqtSignal(list,int)
     def __init__(self,path,parent=None):
 	super(FileThread,self).__init__(parent)
 	self.path=path
+	self.oldLines=[]
 
     def run(self):
 	while True:
 	    if os.path.exists(self.path)==True:
-		while True:
-		    b=self.GetAPCParameter()
-		    if b==True:
-			self.fileExistSignal.emit(self.lines)
-		   	break
-		break
+		if self.oldLines==[]:
+		    while True:
+		        b=self.GetAPCParameter()
+		        if b==True:
+			    self.fileExistSignal.emit(self.lines,0)
+			    self.oldLines=self.lines
+		   	    break
+		else:
+        	    f=open(self.path,"r")
+        	    self.lines=f.readlines()
+		    f.close()
+		    if self.lines!=self.oldLines:
+			self.oldLines=self.lines
+			self.fileExistSignal.emit(self.lines,1)
 
     def GetAPCParameter(self):
 	b=os.path.exists(self.path)
 	if b==False:
-	    return
+	    return False
         f=open(self.path,"r")
         self.lines=f.readlines()
 	f.close()

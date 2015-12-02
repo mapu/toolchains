@@ -41,26 +41,28 @@ class EmbTerminal(QWidget):
 	self.thread.fileExistSignal.connect(self.GetAPCParameter)
 	self.thread.start()
 
-    def GetAPCParameter(self,lines):
-	#self.thread.close()
-	del self.thread
-	self.thread=0
-	os.remove(self.errorFile)
-	key=""
-	apcport=""
-        for line in lines:
-	    str1=QString(line)
-	    self.ARMSimulatorShowSignal.emit(1,str1)
-	    if str1.indexOf("Share memory key")>=0:
-		pos=str1.indexOf("is")
-		key=str1.right(str1.length()-pos-3)
-		key=key[:len(key)-1]
-	    elif str1.indexOf("realview.apc")>=0:
-		pos=str1.indexOf("port")
-		apcport=str1.right(str1.length()-pos-5)
-		apcport=apcport[:len(apcport)-1]
-	if key!="" and apcport!="":
-	    self.APCSimulatorSignal.emit(key,apcport)
+    def GetAPCParameter(self,lines,flag):
+	if flag==0:
+	    key=""
+	    apcport=""
+            for line in lines:
+	    	str1=QString(line)
+	    	self.ARMSimulatorShowSignal.emit(1,str1)
+	    	if str1.indexOf("Share memory key")>=0:
+		    pos=str1.indexOf("is")
+		    key=str1.right(str1.length()-pos-3)
+		    key=key[:len(key)-1]
+	    	elif str1.indexOf("realview.apc")>=0:
+		    pos=str1.indexOf("port")
+		    apcport=str1.right(str1.length()-pos-5)
+		    apcport=apcport[:len(apcport)-1]
+	    if key!="" and apcport!="":
+	        self.APCSimulatorSignal.emit(key,apcport)
+	else:
+	    str1=""
+            for line in lines:
+	    	str1+=QString(line)
+	    self.ARMSimulatorShowSignal.emit(2,str1)	
 
     def stopProcess(self):
 	if self.flag==1:
@@ -80,6 +82,10 @@ class EmbTerminal(QWidget):
 	    self.termWidget.sendText("   \n")
 	    self.termWidget.sendText("reset\n")
 	self.ARMSimulatorStatusSignal.emit(False) 
+	self.thread.quit()
+	del self.thread
+	self.thread=0
+	os.remove(self.errorFile)
 
 
 
