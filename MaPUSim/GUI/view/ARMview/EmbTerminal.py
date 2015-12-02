@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import * 
 sys.path.append("/usr/local/lib64/")
 from QTermWidget import*
-import time
+from FileThread import*
 
 class EmbTerminal(QWidget): 
     ARMSimulatorStatusSignal=pyqtSignal(bool)
@@ -36,13 +36,16 @@ class EmbTerminal(QWidget):
 	    os.remove(self.pidFile)
 	self.commandWidget=QTermWidget()
 	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
-	self.GetAPCParameter()
+	
+	self.thread=FileThread(self.errorFile)
+	self.thread.fileExistSignal.connect(self.GetAPCParameter)
+	self.thread.start()
 
-    def GetAPCParameter(self):
-	while os.path.exists(self.errorFile):
-	    break
-        f=open(self.errorFile,"r")
-        lines=f.readlines()
+    def GetAPCParameter(self,lines):
+	#self.thread.close()
+	del self.thread
+	self.thread=0
+	os.remove(self.errorFile)
 	key=""
 	apcport=""
         for line in lines:
