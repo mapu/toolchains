@@ -94,12 +94,12 @@ class EmbTerminal(QWidget):
 		        self.commandWidget.sendText("kill -s 9 "+strList[0]+"\n")
 	    self.termWidget.sendText("   \n")
 	    self.termWidget.sendText("reset\n")
+	    self.watcher.removePath(self.errorFile)
+	    del self.watcher
+	    self.watcher=0
+	    os.remove(self.errorFile)
 	self.ARMSimulatorStatusSignal.emit(False) 
-	self.watcher.removePath(self.errorFile)
-	del self.watcher
-	self.watcher=0
 	self.parameter=0
-	os.remove(self.errorFile)
 
 
 
