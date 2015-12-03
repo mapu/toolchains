@@ -9,9 +9,10 @@ class FileThread(QThread):
 	super(FileThread,self).__init__(parent)
 	self.path=path
 	self.oldLines=[]
+	self.flag=True
 
     def run(self):
-	while True:
+	while self.flag:
 	    if os.path.exists(self.path)==True:
 		if self.oldLines==[]:
 		    while True:

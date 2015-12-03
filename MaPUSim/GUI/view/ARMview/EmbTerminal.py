@@ -24,10 +24,13 @@ class EmbTerminal(QWidget):
 	self.flag=0
 	self.errorFile="main.out"
 	self.pidFile='a.dat'
+	self.parameter=0
 
     def startProcess(self,path):
 	self.ARMSimulatorStatusSignal.emit(True) 
 	self.flag=1
+	f=open(self.errorFile,"w")
+	f.close()
 	ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"
 	self.termWidget.sendText(ARMCommand)	
 
@@ -37,32 +40,44 @@ class EmbTerminal(QWidget):
 	self.commandWidget=QTermWidget()
 	self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
 	
-	self.thread=FileThread(self.errorFile)
-	self.thread.fileExistSignal.connect(self.GetAPCParameter)
-	self.thread.start()
+	self.watcher=QFileSystemWatcher()
+	self.watcher.addPath(self.errorFile)
+	self.connect(self.watcher,SIGNAL("fileChanged(QString)"),self.fileChangedSlot)
 
-    def GetAPCParameter(self,lines,flag):
-	if flag==0:
-	    key=""
-	    apcport=""
-            for line in lines:
-	    	str1=QString(line)
-	    	self.ARMSimulatorShowSignal.emit(1,str1)
-	    	if str1.indexOf("Share memory key")>=0:
-		    pos=str1.indexOf("is")
-		    key=str1.right(str1.length()-pos-3)
-		    key=key[:len(key)-1]
-	    	elif str1.indexOf("realview.apc")>=0:
-		    pos=str1.indexOf("port")
-		    apcport=str1.right(str1.length()-pos-5)
-		    apcport=apcport[:len(apcport)-1]
-	    if key!="" and apcport!="":
-	        self.APCSimulatorSignal.emit(key,apcport)
-	else:
-	    str1=""
-            for line in lines:
-	    	str1+=QString(line)
-	    self.ARMSimulatorShowSignal.emit(2,str1)	
+    def showToWidget(self,lines):
+	str1=""
+        for line in lines:
+	    str1+=QString(line)
+	self.ARMSimulatorShowSignal.emit(2,str1)	
+
+    def GetAPCParameter(self,lines):
+	key=""
+	apcport=""
+        for line in lines:
+	    str1=QString(line)
+	    if str1.indexOf("Share memory key")>=0:
+		pos=str1.indexOf("is")
+		key=str1.right(str1.length()-pos-3)
+		key=key[:len(key)-1]
+	    elif str1.indexOf("realview.apc")>=0:
+		pos=str1.indexOf("port")
+		apcport=str1.right(str1.length()-pos-5)
+		apcport=apcport[:len(apcport)-1]
+	if key!="" and apcport!="":
+	    self.parameter=1
+	    self.APCSimulatorSignal.emit(key,apcport)
+
+
+    def fileChangedSlot(self,string):
+	b=os.path.exists(self.errorFile)
+	if b==False:
+	    return False
+        f=open(self.errorFile,"r")
+        lines=f.readlines()
+	f.close()
+	if self.parameter==0:
+	    self.GetAPCParameter(lines)
+	self.showToWidget(lines)
 
     def stopProcess(self):
 	if self.flag==1:
@@ -77,14 +92,13 @@ class EmbTerminal(QWidget):
 		    string=string[:len(string)-1]
 		    if int(string)==pid:
 		        self.commandWidget.sendText("kill -s 9 "+strList[0]+"\n")
-	    #self.commandWidget.resize(800,600)
-	    #self.commandWidget.show()
 	    self.termWidget.sendText("   \n")
 	    self.termWidget.sendText("reset\n")
 	self.ARMSimulatorStatusSignal.emit(False) 
-	self.thread.quit()
-	del self.thread
-	self.thread=0
+	self.watcher.removePath(self.errorFile)
+	del self.watcher
+	self.watcher=0
+	self.parameter=0
 	os.remove(self.errorFile)
 
 
