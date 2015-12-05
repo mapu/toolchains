@@ -7,7 +7,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import * 
 sys.path.append("/usr/local/lib64/")
 from QTermWidget import*
-from FileThread import*
 
 class EmbTerminal(QWidget): 
     ARMSimulatorStatusSignal=pyqtSignal(bool)
