@@ -206,7 +206,7 @@ then
   fi
   cd build_qemu
   $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu 
-  make $MCFLAG 
+  make $MCFLAG || qemu_err=1 
   if [ "$debug_mode" -eq 0 ]
   then make install
   fi
