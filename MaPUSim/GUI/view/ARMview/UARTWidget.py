@@ -34,7 +34,7 @@ class UARTWidget(QMainWindow):
         #vbox.addWidget(scroll)  
         centralWidget.setLayout(layout)
 
-    def m5termProcessStart(self,path):
-	self.embTerminal.startProcess(path)
+    def m5termProcessStart(self,index,path):
+	self.embTerminal.startProcess(index,path)
 
 

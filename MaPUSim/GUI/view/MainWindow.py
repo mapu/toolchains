@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
 	self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
 	self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
 	self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
+	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
 	self.simulatorPath=""
 	self.readXML()
@@ -73,6 +74,9 @@ class MainWindow(QMainWindow):
 	    	    self.configControlWidget.startProcess()
 		else:
 		    QMessageBox.warning(self,"Warning","Please set environment MAPU_HOME!")
+	else:
+	    self.configControlWidget.simulatorPath=self.simulatorPath
+	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=self.simulatorPath
 	
     def createActions(self): 
         self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
@@ -170,7 +174,7 @@ class MainWindow(QMainWindow):
 	    xmlWrite.setAutoFormatting(True)
 	    xmlWrite.writeStartDocument()
 	    xmlWrite.writeStartElement("UserSet")
-            xmlWrite.writeTextElement("simulatorpath",self.configControlWidget.simulatorPath)
+            xmlWrite.writeTextElement("simulatorpath",self.simulatorPath)
 	    xmlWrite.writeStartElement("Fullsystem")
 	    if self.configControlWidget.fullGroup.isChecked()==True:
 		xmlWrite.writeTextElement("fullcheck","1")	
