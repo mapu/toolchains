@@ -492,6 +492,7 @@ static int __devinit apc_probe(struct platform_device *pdev)
 
     if (!request_mem_region(apc_data.ape_info[i].mapbase,
                             apc_data.ape_info[i].region_size, region_name[i])) {
+      dev_err(&pdev->dev, "failed to request memory region for apc\n");
       kfree(apc_data.ape_info);
       apc_data.ape_info = NULL;
       return -EBUSY;
@@ -500,6 +501,7 @@ static int __devinit apc_probe(struct platform_device *pdev)
     apc_data.ape_info[i].membase = ioremap_nocache(apc_data.ape_info[i].mapbase,
                                                    apc_data.ape_info[i].region_size);
     if (!apc_data.ape_info[i].membase) {
+      dev_err(&pdev->dev, "failed to ioremap apc address\n");
       release_mem_region(apc_data.ape_info[i].mapbase,
                          apc_data.ape_info[i].region_size);
       kfree(apc_data.ape_info);
@@ -507,6 +509,10 @@ static int __devinit apc_probe(struct platform_device *pdev)
       return -ENOMEM;
     }
   }
+
+  printk(KERN_INFO "Found %d APEs.\n", apc_data.num_of_apes);
+  for (i = 0; i < val; i++)
+    printk(KERN_INFO "Mapped APE%d at 0x%08x.\n", i, apc_data.ape_info[i].membase);
 
   //platform_set_drvdata(pdev, data);
 
