@@ -576,7 +576,6 @@ class ConfigViewWidget(QMainWindow):
 	string="--debug-flags=MapuGUI "+"--trace-file="+self.fullTracefile.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
 	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
 	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key+" -n 4"
-	print self.ARMAPCCommand
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardOutput()"),self.ARMAPCStartReadOutput)
         self.connect(self.ARMAPCProcess,SIGNAL("readyReadStandardError()"),self.ARMAPCStartReadErrOutput)
 	self.connect(self.ARMAPCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.ARMAPCFinishProcess)
