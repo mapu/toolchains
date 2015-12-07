@@ -268,12 +268,11 @@ class ConfigViewWidget(QMainWindow):
 	self.connect(self.startButton,SIGNAL("clicked()"),self.startProcess)
 	self.connect(self.stopButton,SIGNAL("clicked()"),self.stopProcess)
 	
-	self.ARMAPCProcess=QProcess()
-	self.ARMProcess=QProcess()
 	self.key=""
 	self.apcport=""
 	self.uart0port=""
 	self.exitFlag=0
+	self.flag=0	#1,GEM5; 2,QEMU
 	self.startButton.setEnabled(True)
 	self.stopButton.setEnabled(False)
 
@@ -282,7 +281,6 @@ class ConfigViewWidget(QMainWindow):
 
     def fullCheckedSlot(self):
 	if self.fullGroup.isChecked()==True:
-	    self.flag=1
 	    self.fullBrowserButton.setEnabled(True)
 	    self.fullEdit.setEnabled(True)
 	    self.fullTracefile.setEnabled(True)
@@ -313,7 +311,6 @@ class ConfigViewWidget(QMainWindow):
 
     def APCCheckedSlot(self):
 	if self.APCGroup.isChecked()==True:
-	    self.flag=0
 	    self.traceFlagsButton.setEnabled(True)
 	    self.traceFileEdit.setEnabled(True)
 	    self.APE0SPUEdit.setEnabled(True)
@@ -444,10 +441,11 @@ class ConfigViewWidget(QMainWindow):
 	    self.startButton.setEnabled(False)
 	    self.stopButton.setEnabled(True)
 	    self.processFlag=0
-	    self.flag=1
 	    if self.fullQemuRadio.isChecked()==True:
+	        self.flag=2
 		self.ARMUart0StartProcess.emit(1,self.fullEdit.text())
 	    elif self.fullGem5Radio.isChecked()==True:
+		self.flag=1
 	        #copy image.bin file
 	        path=os.path.realpath(sys.path[0])
 	        if os.path.isfile(path):
@@ -459,6 +457,7 @@ class ConfigViewWidget(QMainWindow):
 	    	    os.mkdir(destPath)
 	    	if os.path.exists(srcPath):
 		    shutil.copy(srcPath,destPath)
+		self.ARMProcess=QProcess()
 	    	self.ARMCommand=self.simulatorPath+"/arm/gem5.opt"+" "+self.simulatorPath+"/arm/system/fs.py"+" --bare-metal --machine-type=MaPU_Board"
            	self.connect(self.ARMProcess,SIGNAL("readyReadStandardOutput()"),self.ARMStartReadOutput)
             	self.connect(self.ARMProcess,SIGNAL("readyReadStandardError()"),self.ARMStartReadErrOutput,Qt.DirectConnection)
@@ -573,6 +572,7 @@ class ConfigViewWidget(QMainWindow):
 		self.processFlag=1
 
     def ARMAPCSimulator(self,key,port):
+	self.ARMAPCProcess=QProcess()
 	string="--debug-flags=MapuGUI "+"--trace-file="+self.fullTracefile.text()+" "+self.simulatorPath+"/apc/system/ms.py -c " #
 	self.ARMAPCCommand=self.simulatorPath+"/apc/gem5.opt"  
 	self.ARMAPCCommand=self.ARMAPCCommand+" "+string+port+" -k "+key+" -n 4"
@@ -589,6 +589,7 @@ class ConfigViewWidget(QMainWindow):
         if exitStatus==QProcess.NormalExit:
 	    self.APCSimulatorShowSignal.emit(0,"process exit normal")
 	    #simulator exit normal,then emit signal to create data base
+	    print "APC DONE"
 	    self.APCSimulatorDoneSignal.emit(self.num,self.traceFileEdit.text()) 
         else:
 	    self.APCSimulatorShowSignal.emit(0,"process exit crash")
@@ -628,6 +629,14 @@ class ConfigViewWidget(QMainWindow):
 	self.stopButton.setEnabled(False)
 	if self.flag==1:
 	    self.ARMProcess.close()
+	    del self.ARMProcess
+	    self.ARMProcess=0
+	    self.ARMAPCProcess.close()
+	    del self.ARMAPCProcess
+	    self.ARMAPCProcess=0
+	    self.ARMProcessEndSignal.emit()
+	    self.flag=0	
+	elif self.flag==2:
 	    self.ARMProcessEndSignal.emit()
 	    self.flag=0	
 
@@ -635,7 +644,18 @@ class ConfigViewWidget(QMainWindow):
 	self.exitFlag=exitFlag
 	if self.flag==1:
 	    self.ARMProcess.close()
+	    del self.ARMProcess
+	    self.ARMProcess=0
+	    self.ARMAPCProcess.close()
+	    del self.ARMAPCProcess
+	    self.ARMAPCProcess=0
 	    self.ARMProcessEndSignal.emit()
+	    self.flag=0	
+	elif self.flag==2:
+	    self.ARMProcessEndSignal.emit()
+	    self.ARMAPCProcess.close()
+	    del self.ARMAPCProcess
+	    self.ARMAPCProcess=0
 	    self.flag=0	
 	
 
