@@ -316,12 +316,12 @@ static void apc_if_socket_send(void *opaque){
       assert(pkt[0] < NUM_APES);
       assert(pkt[1] < sizeof(union csu_mmap));
       ape[pkt[0]].mem[pkt[1] / 4] = pkt[2];
-      if ((pkt[1] << 2) == 0xB0) {
+      if ((pkt[1]) == 0xB0) {
         ape[pkt[0]].csu_if.MailNum |= 0x1;
-      } else if ((pkt[1] << 2) == 0xB8) {
+      } else if ((pkt[1]) == 0xB8) {
         ape[pkt[0]].csu_if.MailNum |= 0x10000;
         // sendIntr(pkt[0], mail)
-      } else if ((pkt[1] << 2) == 0xA0) {
+      } else if ((pkt[1]) == 0xA0) {
         updateIntr(s, pkt[0]);
       }
       size -= 4 * 3;
