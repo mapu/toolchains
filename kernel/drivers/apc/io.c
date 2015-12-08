@@ -476,8 +476,8 @@ static int __devinit apc_probe(struct platform_device *pdev)
 
   for (i = 0; i < val; i++) {
     regs = platform_get_resource(pdev, IORESOURCE_MEM, i);
-    irq_dma = platform_get_resource(pdev, IORESOURCE_IRQ, i << 2);
-    irq_mb = platform_get_resource(pdev, IORESOURCE_IRQ, (i << 2) + 1);
+    irq_dma = platform_get_resource(pdev, IORESOURCE_IRQ, i << 1);
+    irq_mb = platform_get_resource(pdev, IORESOURCE_IRQ, (i << 1) + 1);
 
     if (!regs || !irq_dma || !irq_mb) {
       dev_err(&pdev->dev, "no registers/irq defined\n");
@@ -539,7 +539,7 @@ static const struct of_device_id apc_match[] = {
   { .compatible = "mapu,apc" },
   { /* Sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, dw8250_match);
+MODULE_DEVICE_TABLE(of, apc_match);
 
 static struct platform_driver apc_platform_driver = {
   .driver = {
