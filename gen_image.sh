@@ -3,12 +3,64 @@
 
 root=`pwd`
 
+make_bootrom=0
+make_uboot=0
+make_kernel=0
+output=
+
+
 export PATH=$MAPU_HOME/arm-none-eabi/bin:$PATH
 export PATH=$MAPU_HOME/tools:$MAPU_HOME/arm/bin:$PATH
 
+while (( $# != 0))
+do
+  case $1 in
+  "--make_all" )
+    make_bootrom=1
+    make_uboot=1
+    make_kernel=1
+    shift
+  ;;
+  "--make_bootrom" )
+    make_bootrom=1
+    shift
+  ;;
+  "--make_uboot" )
+    make_uboot=1
+    shift
+  ;;
+  "--make_kernel" )
+    make_kernel=1
+    shift
+  ;;
+  "-h" )
+    echo "Usage of $0:"
+    echo -e "\t-h\t\t\t\tShow this list"
+    echo -e "\t--make_all\t\t\tCompile boot_rom, u-boot, dtb and uImage NO MATTER exist or not!"
+    echo -e "\t--make_bootrom\t\t\tCompile boot_rom NO MATTER exist or not!"
+    echo -e "\t--make_uboot\t\t\tCompile u-boot NO MATTER exist or not!"
+    echo -e "\t--make_kernel\t\t\tCompile dtb and uImage NO MATTER exist or not!"
+    echo -e "\n\tother words in arguments will be set as the file NAME or PATH of the image generated!"
+    echo -e "\tthe defaul file name of the image generted is sim.img!"
+    echo -e "\n\tthe default make option will not compile anything if the file for image exist!\n\n"
+    exit 0
+  ;;
+  * )
+    if [ -n "$output" ]
+    then
+      echo "Unknown argument $1, try $0 -h to see the usage"
+      exit 1
+    fi
+    echo "Install to $1."
+    output=$1
+    shift
+  ;;
+  esac
+done
+
 # Build kernel
 cd $root
-if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb ]
+if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb -o "$make_bootrom" -eq 1 ]
 then 
   echo -e "\n\n\n\nMake kernel....\n"
   if [ -e $root/kernel ]
@@ -19,7 +71,7 @@ then
       make distclean
       cp $root/kernel/arch/arm/configs/mapu_defconfig .config
       make uImage dtbs ARCH=arm CROSS_COMPILE=$MAPU_HOME/arm-linux-gnueabi/bin/arm-linux-gnueabi- -j64
-      if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/dtb ]
+      if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb ]
       then
         echo -e "\n\n\n\nMake kernel fail: make uImage or dtb fail!\n"
         exit
@@ -40,14 +92,14 @@ fi
 uboot_err=0
 
 cd $root
-if [ ! -e $root/u-boot/mapu/u-boot.bin ]
+if [ ! -e $root/u-boot/mapu/u-boot.bin -o "$make_uboot" -eq 1 ]
 then 
   echo -e "\n\n\n\nMake u-boot.bin....\n"
   if [ -e $root/u-boot ]
   then
     cd $root/u-boot
     rm mapu/ -rf
-    make O=mapu mapu_sim CONFIG_APP=y || uboot_err=1
+    make O=mapu mapu_sim CONFIG_APP=y || uboot_err=1 -j64
     if [ "$uboot_err" -eq 1 ]
     then
       echo -e "\n\n\n\nMake u-boot fail: make u-boot.bin fail!\n"
@@ -62,7 +114,7 @@ fi
 
 # Build boot rom
 cd $root
-if [ ! -e $root/boot_rom/main.bin ]
+if [ ! -e $root/boot_rom/main.bin -o "$make_kernel" -eq 1 ]
 then
   echo -e "\n\n\n\nMake boot_rom!\n"
   if [ -e $root/boot_rom ]
