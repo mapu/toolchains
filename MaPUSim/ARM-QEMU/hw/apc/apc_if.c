@@ -13,7 +13,7 @@
 #include "apc_if.h"
 #include "sys/ioctl.h"
 
-//#define DEBUG_APC_IF
+#define DEBUG_APC_IF
 
 #ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
@@ -127,7 +127,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
 
   uint32_t core_id = offset / (4096 * 1024);
   uint32_t core_off = offset % (4096 * 1024);
-  DPRINTF("Reading from APC %d at core_off: %#x\n", core_id, core_off);
+  //DPRINTF("Reading from APE %d at core_off: %#x\n", core_id, core_off);
   assert(core_id < NUM_APES);
   assert(core_off < sizeof(union csu_mmap));
 
@@ -188,7 +188,7 @@ static void apc_if_write(void * opaque, hwaddr offset,
 
   uint32_t core_id = offset / (4096 * 1024);
   uint32_t core_off = offset % (4096 * 1024);
-  DPRINTF("Writing to APC %d at core_off: %#x\n", core_id, core_off);
+  DPRINTF("Writing 0x%llx to APE %d at core_off: %#x\n", value, core_id, core_off);
   assert(core_id < NUM_APES);
   assert(core_off < sizeof(union csu_mmap));
 
@@ -310,9 +310,9 @@ static void apc_if_socket_send(void *opaque){
 
   do {
     ret = read(s->fd, pkt, 4 * 3);
-    DPRINTF("Received packet: %s\n", (unsigned char*)pkt);
+    DPRINTF("Received packet: 0x%x\n", pkt[2]);
     if (ret == 12) {
-      DPRINTF("Updating from APC %d at core_off: %#x\n", pkt[0], pkt[1]);
+      DPRINTF("Updating from APE %d at core_off: %#x\n", pkt[0], pkt[1]);
       assert(pkt[0] < NUM_APES);
       assert(pkt[1] < sizeof(union csu_mmap));
       ape[pkt[0]].mem[pkt[1] / 4] = pkt[2];
@@ -369,7 +369,7 @@ static int apc_if_listen_init(void* opaque, int port)
     perror("socket");
     return -1;
   }
-  qemu_set_nonblock(fd);
+  qemu_set_block(fd);
 
   socket_set_fast_reuse(fd);
 

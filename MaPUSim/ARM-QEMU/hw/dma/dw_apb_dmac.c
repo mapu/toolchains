@@ -129,18 +129,15 @@ static void dmaStart(void *opaque)
   uint32_t dwidth = (s->chnRegs[COFS2R(CTL)] >> 3) & 7;
   uint32_t width = swidth > dwidth ? swidth : dwidth;
   uint32_t pt = 0;
-  uint8_t buf[32];
+  uint8_t buf[1024*1024];
 
-  width = ((width + 1) & 0b110) ? 32: (1 << width);
+  width = 1 << width;
 
   DPRINTF("Starting DMA for addr: %#x size: %d \n", s->chnRegs[COFS2R(SAR)], num * width);
 
-  for (pt = 0; pt < num * width; pt+= width)
-  {
-    cpu_physical_memory_read( s->chnRegs[COFS2R(SAR)] + pt, buf, width);
-    cpu_physical_memory_write( s->chnRegs[COFS2R(DAR)] + pt, buf, width);
+  cpu_physical_memory_read( s->chnRegs[COFS2R(SAR)], buf, width*num);
+  cpu_physical_memory_write( s->chnRegs[COFS2R(DAR)], buf, width*num);
 
-  }
   ((DwApbDmacState*)(s->father))->Regs[OFS2R(RAW_START)] |= 1 << s->id;
   if((((DwApbDmacState*)(s->father))->Regs[OFS2R(MASK_START)] >> s->id) & 1)
   {

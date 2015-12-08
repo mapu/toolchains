@@ -60,8 +60,10 @@ enum
 	MaPU_UART2,
 	MaPU_KEYBOARD,
 	MaPU_MOUSE,
+	MaPU_SDC,
 	MaPU_GICCPU,
 	MaPU_GICDIS,
+	MaPU_DDR3REG,
 	MaPU_SDRAM
 };
 
@@ -71,8 +73,9 @@ static hwaddr MaPUboard_map[] =
 		[MaPU_TIMER] = 0x50400000, [MaPU_VIF] = 0x50500000,
 		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000,
 		[MaPU_UART2] = 0x50920000, [MaPU_KEYBOARD] = 0x50a20000,
-		[MaPU_MOUSE] = 0x50a30000, [MaPU_GICCPU] = 0x547f0000,
-		[MaPU_GICDIS] = 0x547f1000, [MaPU_SDRAM] = 0x60000000};
+		[MaPU_MOUSE] = 0x50a30000, [MaPU_SDC] = 0x50d00000,
+		[MaPU_GICCPU] = 0x547f0000, [MaPU_GICDIS] = 0x547f1000,
+		[MaPU_DDR3REG] = 0x54800000, [MaPU_SDRAM] = 0x60000000};
 
 static struct arm_boot_info mapu_binfo;
 
@@ -91,6 +94,7 @@ static void mapu_init(MachineState *mms)
 	MemoryRegion *sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
+	MemoryRegion *ddr3_reg = g_new(MemoryRegion, 1);
 
 	int shmFlg;
 	/*
@@ -147,12 +151,17 @@ static void mapu_init(MachineState *mms)
 
 	isShared = 0;
 
-    memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0x20000000, 0x1000000);
-    memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0, 0x20000000);
+    memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0x1000000, 0x20000000);
+    memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0, 0x1000000);
+
 
     memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
 
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
+
+  memory_region_allocate_system_memory(ddr3_reg, NULL, "DDR3_reg", MaPUboard_map[MaPU_SDRAM] - MaPUboard_map[MaPU_DDR3REG]);
+
+  memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_DDR3REG], ddr3_reg);
 
 
 	/* irq controller
@@ -242,6 +251,11 @@ static void mapu_init(MachineState *mms)
 
   sysbus_create_simple("pl050_keyboard", MaPUboard_map[MaPU_KEYBOARD], pic[26]);
   //sysbus_create_simple("pl050_mouse", MaPUboard_map[MaPU_MOUSE], pic[27]);
+
+  busdev = qdev_create(NULL, "generic-sdhci");
+  qdev_init_nofail(busdev);
+  sysbus_mmio_map(SYS_BUS_DEVICE(busdev), 0, MaPUboard_map[MaPU_SDC]);
+  sysbus_connect_irq(SYS_BUS_DEVICE(busdev), 0, pic[31]);
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;
