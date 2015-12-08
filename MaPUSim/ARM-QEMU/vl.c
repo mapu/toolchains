@@ -4663,7 +4663,8 @@ int main(int argc, char **argv, char **envp)
     pause_all_vcpus();
 
 #ifdef __SHARED_MEM__
-	shmctl(shmid, IPC_RMID, NULL);
+    if (shmid > 0)
+      shmctl(shmid, IPC_RMID, NULL);
 #endif
     res_free();
 #ifdef CONFIG_TPM

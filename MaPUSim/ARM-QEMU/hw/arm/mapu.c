@@ -79,6 +79,8 @@ static hwaddr MaPUboard_map[] =
 
 static struct arm_boot_info mapu_binfo;
 
+int shmid = 0;
+
 static void mapu_init(MachineState *mms)
 {
 	ObjectClass *cpu_oc;
@@ -88,6 +90,9 @@ static void mapu_init(MachineState *mms)
 	qemu_irq pic[160];
 	DeviceState *gicdev;
 	SysBusDevice *busdev;
+	int key;
+	void *ptr;
+
 
 	MemoryRegion *sysmem = get_system_memory();
 	MemoryRegion *sram = g_new(MemoryRegion, 1);
@@ -145,19 +150,35 @@ static void mapu_init(MachineState *mms)
 
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SRAM], sram);
 
-	isShared = 1;
+	/*
+	 * Add shared memory
+	 */
+  if (shmid == 0)
+  {
+    key = 9000;
+    while ((shmid = shmget(key, 0x21000000, IPC_CREAT | IPC_EXCL | 0666)) < 0)
+      key++;
+      fprintf(stderr, "Share memory key is %d\n", key);
+  }
+  ptr = (uint8_t *)shmat(shmid, NULL, 0);
+  assert(ptr != -1);
 
-	memory_region_allocate_system_memory(sdram, NULL, "mapu.sdram", 0x21000000);
+  memory_region_init_ram_ptr(share_mem, NULL, "share_memory", 0x1000000, ptr);
 
-	isShared = 0;
+  vmstate_register_ram_global(share_mem);
 
-    memory_region_init_alias(ddr3_sdram, NULL, "DDR3_sdram", sdram, 0x1000000, 0x20000000);
-    memory_region_init_alias(share_mem, NULL, "share_memory", sdram, 0, 0x1000000);
+  memory_region_init_ram_ptr(ddr3_sdram, NULL, "DDR3_sdram", 0x20000000, ptr+0x1000000);
 
+  vmstate_register_ram_global(ddr3_sdram);
 
-    memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
+  memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
 
-	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
+  memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
+
+  /*
+   * Add DDR3 control registers
+   * no use in simulation, but avoid unpredictable problems of writing to space without declaration
+   */
 
   memory_region_allocate_system_memory(ddr3_reg, NULL, "DDR3_reg", MaPUboard_map[MaPU_SDRAM] - MaPUboard_map[MaPU_DDR3REG]);
 

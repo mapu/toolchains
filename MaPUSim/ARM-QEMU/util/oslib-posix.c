@@ -63,9 +63,6 @@ extern int daemon(int, int);
 #include <setjmp.h>
 #include <sys/signal.h>
 
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
 #ifdef CONFIG_LINUX
 #include <sys/syscall.h>
 #include <sys/vfs.h>
@@ -73,18 +70,6 @@ extern int daemon(int, int);
 
 #ifdef __FreeBSD__
 #include <sys/sysctl.h>
-#endif
-
-
-/*
- * support for shared memory
- */
-
-//#define __SHARED_MEM__
-
-#ifdef __SHARED_MEM__
-int isShared = 0;
-int shmid = 0;
 #endif
 
 int qemu_get_thread_id(void)
@@ -144,31 +129,8 @@ void *qemu_anon_ram_alloc(size_t size, uint64_t *alignment)
 {
     size_t align = QEMU_VMALLOC_ALIGN;
     size_t total = size + align - getpagesize();
-    void *ptr;
-
-#ifdef __SHARED_MEM__
-    int key;
-    if (isShared == 0)
-    {
-    	ptr = mmap(0, total, PROT_READ | PROT_WRITE,
+    void *ptr = mmap(0, total, PROT_READ | PROT_WRITE,
                      MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    }
-    else
-    {
-        if (shmid == 0)
-        {
-        	key = 9000;
-        	while ((shmid = shmget(key, total, IPC_CREAT | IPC_EXCL | 0666)) < 0)
-            key++;
-            fprintf(stderr, "Share memory key is %d\n", key);
-        }
-        ptr = (uint8_t *)shmat(shmid, NULL, 0);
-        assert(ptr != -1);
-    }
-#else
-	ptr = mmap(0, total, PROT_READ | PROT_WRITE,
-                 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-#endif
     size_t offset = QEMU_ALIGN_UP((uintptr_t)ptr, align) - (uintptr_t)ptr;
 
     if (ptr == MAP_FAILED) {
