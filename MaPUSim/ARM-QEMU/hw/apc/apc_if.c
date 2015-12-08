@@ -13,7 +13,7 @@
 #include "apc_if.h"
 #include "sys/ioctl.h"
 
-#define DEBUG_APC_IF
+//#define DEBUG_APC_IF
 
 #ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
@@ -127,7 +127,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
 
   uint32_t core_id = offset / (4096 * 1024);
   uint32_t core_off = offset % (4096 * 1024);
-  //DPRINTF("Reading from APE %d at core_off: %#x\n", core_id, core_off);
+  DPRINTF("Reading from APE %d at core_off: %#x\n", core_id, core_off);
   assert(core_id < NUM_APES);
   assert(core_off < sizeof(union csu_mmap));
 
