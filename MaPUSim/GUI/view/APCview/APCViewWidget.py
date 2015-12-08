@@ -110,6 +110,7 @@ class APCViewWidget(QWidget):
 	i=datetime.datetime.now()
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 	self.startUpdateWidget()
+	self.databaseFlag=0
 
     def startUpdateWidget(self):
 	i=datetime.datetime.now()
@@ -120,6 +121,7 @@ class APCViewWidget(QWidget):
 	f.close()
 	if len(lines)==0:
 	    self.dataBaseDialog.close()
+	    self.databaseFlag=0
 	    QMessageBox.warning(self,"Warning","Trace file is empty!")
 	    return
 	#line=lines[0]
@@ -226,6 +228,7 @@ class APCViewWidget(QWidget):
 	#del self.thread
 	#self.thread=0
 	self.dataBaseDialog.close()
+	self.databaseFlag=0
 	i=datetime.datetime.now()
         print ("end update widget %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
 
