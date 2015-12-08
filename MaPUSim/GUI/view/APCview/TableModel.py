@@ -71,19 +71,34 @@ class TableModel(QAbstractTableModel):
 		        if text.find("rw")>=0 or text.find("wr")>=0:
 			    pos=text.find("rw")
 			    text=text[(pos+2):]
-			    return QString(text)
 		        elif text.find("r")>=0:
 			    pos=text.find("r")
 			    text=text[(pos+1):]
-			    return QString(text)
 		        elif text.find("w")>=0:
 			    pos=text.find("w")
 			    text=text[(pos+1):]
-			    return QString(text)
 			else:
-			    return QString("")
+			    text=""
 		    else:
-			return QString("")
+			text=""
+		    dis=text.split(" ")
+		    num=len(dis)
+		    if num>1:
+			text=""
+			for i in range(0,num):
+			    s=dis[i][2:]
+			    if len(s)==1:
+				s="0"+s
+			    s+=" "	    
+			    text+=s
+			    if (i+1)%8==0:
+				text+="\n"
+			text=text[:(len(text)-2)]
+		    return QString(text)
+		#elif role==Qt.FontRole:
+		    #font=QFont()
+		    #font.setFamily("Monospace")
+		    #return font
 
     def flags(self,index):
 	if not index.isValid():

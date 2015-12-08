@@ -325,7 +325,7 @@ class DataBase():
 	    item.type="'"+slist[1]+" "+slist[2]+"'"
 	    item.reg=slist[3]
 	    s=s[(pos+2):]
-	    pos=s.index("\n")
+	    pos=s.find("\n")
 	    item.dis="'"+s[:pos]+"'"	
 	elif s.find("regfile_manager")>=0:
 	    #16000[8]: system.cpu.regfile_manager: [tid:0]: [sn:2]: W R Reg 1 : 0xffffff01.

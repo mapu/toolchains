@@ -118,9 +118,9 @@ class StageDialog(QDialog):
 	    if (index+1)==self.page:
 		a=self.maxValue
 		del self.subHorizontalHeaderList
-		self.subHorizontalHeaderList=0
+		self.subHorizontalHeaderList=[]
 		del self.subVerticalHeaderList
-		self.subVerticalHeaderList=0
+		self.subVerticalHeaderList=[]
 		del self.subArray
 		self.subArray=0
 	        self.subVerticalHeaderList=['']*(a-self.snList[i]+1)
@@ -147,7 +147,13 @@ class StageDialog(QDialog):
 		        curMaxTime=endList[0]
 		        del endList
 	            self.subArray=[["" for col in range(curMaxTime+1-self.minTime)] for row in range(a-self.snList[i])]
-		    self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
+		    #self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
+		    for i in range(self.minTime,curMaxTime+1):
+			time=str(i)
+			num=len(time)
+			for j in range(0,num-1):
+			    time=time[:(num-1-j)]+'\n'+time[(num-1-j):]
+			self.subHorizontalHeaderList.append(time)
 	            for i in range(0,a-self.snList[i]):
 		        start=r[i][1]-self.minTime
 		        end=r[i][3]+1-self.minTime
@@ -156,9 +162,9 @@ class StageDialog(QDialog):
 	    else:
 	        a=index+1
 		del self.subHorizontalHeaderList
-		self.subHorizontalHeaderList=0
+		self.subHorizontalHeaderList=[]
 		del self.subVerticalHeaderList
-		self.subVerticalHeaderList=0
+		self.subVerticalHeaderList=[]
 		del self.subArray
 		self.subArray=0
 	        self.subVerticalHeaderList=['']*(self.snList[a]-self.snList[i])
@@ -185,7 +191,13 @@ class StageDialog(QDialog):
 		        curMaxTime=endList[0]
 		        del endList
 		    self.subArray=[x[:] for x in [[""]*(curMaxTime+1-self.minTime)]*(self.snList[a]-self.snList[i])]
-		    self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
+		    #self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
+		    for k in range(self.minTime,curMaxTime+1):
+			time=str(k)
+			num=len(time)
+			for j in range(0,num-1):
+			    time=time[:(num-1-j)]+'\n'+time[(num-1-j):]
+			self.subHorizontalHeaderList.append(time)
 	            for i in range(0,self.snList[a]-self.snList[i]):
 		        start=r[i][1]-self.minTime
 		        end=r[i][3]+1-self.minTime
@@ -200,11 +212,13 @@ class StageDialog(QDialog):
 
     def updateDialog(self,column):
 	text=self.subHorizontalHeaderList[column]
+	text=text.replace('\n',"")
 	self.slider.setValue(int(text))
 
     def updateDialogIndex(self,index):
 	column=index.column()
 	text=self.subHorizontalHeaderList[column]
+	text=text.replace('\n',"")
 	self.slider.setValue(int(text))
 
     def updatAPEData(self,dataBase,APEdbFilePath,minTime,maxTime,flag):
@@ -421,7 +435,13 @@ class StageDialog(QDialog):
 		    curMaxTime=endList[0]
 		    del endList
 	        self.subArray=[["" for col in range(curMaxTime+1-self.minTime)] for row in range(self.snList[1])]
-		self.subHorizontalHeaderList=range(self.minTime,curMaxTime+1)
+		self.subHorizontalHeaderList=[]
+		for i in range(self.minTime,curMaxTime+1):
+		    time=str(i)
+		    num=len(time)
+		    for j in range(0,num-1):
+			time=time[:(num-1-j)]+'\n'+time[(num-1-j):]
+		    self.subHorizontalHeaderList.append(time)
 	        for i in range(self.snList[0],self.snList[1]):
 		    start=r[i][1]-self.minTime
 		    end=r[i][3]+1-self.minTime
@@ -456,7 +476,13 @@ class StageDialog(QDialog):
 		    del endList
 	        self.subArray=[x[:] for x in [[""]*(curMaxTime+1-self.minTime)]*(self.maxValue)]
 	        self.horizontalHeaderList=range(self.minTime,curMaxTime+1)
-	        self.subHorizontalHeaderList=self.horizontalHeaderList	    
+	        self.subHorizontalHeaderList=[]  
+		for i in range(self.minTime,curMaxTime+1):
+		    time=str(i)
+		    num=len(time)
+		    for j in range(0,num-1):
+			time=time[:(num-1-j)]+'\n'+time[(num-1-j):]
+		    self.subHorizontalHeaderList.append(time)
 	        for i in range(0,self.maxValue):
 		    start=r[i][1]-self.minTime
 		    end=r[i][3]+1-self.minTime

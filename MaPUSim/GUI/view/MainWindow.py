@@ -431,6 +431,7 @@ class MainWindow(QMainWindow):
 	self.apcViewWidget.APE1Widget.SPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE2Widget.SPUWidget.closeChildDialog() 
 	self.apcViewWidget.APE3Widget.SPUWidget.closeChildDialog() 
+	self.apcViewWidget.closeDataBaseDialog()
 
 
 

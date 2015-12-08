@@ -16,7 +16,8 @@ class EmbTerminal(QWidget):
 	super(EmbTerminal,self).__init__()
     	QWidget.__init__(self) 
 	self.termWidget=QTermWidget()
-	font=QFont(QFont.Monospace)
+	self.termWidget.setScrollBarPosition(2)
+	font=QFont("Monospace")
 	self.termWidget.setTerminalFont(font)
 	self.lay=QVBoxLayout()
 	self.lay.addWidget(self.termWidget)
@@ -48,6 +49,9 @@ class EmbTerminal(QWidget):
 	    self.termWidget.sendText(ARMCommand)	
 
 	    #/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
+	    #self.termWidget.m_impl.m_session.setProgram(self.simulatorPath+"/arm/bin/qemu-system-arm")
+	    #args=["-M","mapu","-m","512","-pflash",path,"-serial","stdio"]
+	    #self.termWidget.m_impl.m_session.setArguments(args)
 	    if os.path.exists(self.qemupidFile)==True:
 	    	os.remove(self.qemupidFile)
 	    self.commandWidget=QTermWidget()

@@ -60,6 +60,7 @@ class APCViewWidget(QWidget):
         self.setLayout(self.mainLayout)  
 
 	self.mainOpen=0
+	self.databaseFlag=0
 
  	#define slot function
     def slotAPE0Widget(self):
@@ -104,6 +105,7 @@ class APCViewWidget(QWidget):
 	self.dataBaseDialog=DataBaseDialog()
 	self.progressShowSignal.connect(self.dataBaseDialog.updateDataBaseDialog)
 	self.dataBaseDialog.show()
+	self.databaseFlag=1
 	self.dataBase=self.createThread(num,path)
 	i=datetime.datetime.now()
         print ("end create data base %s:%s:%s,%s" %(i.hour,i.minute,i.second,i.microsecond))
@@ -685,5 +687,9 @@ class APCViewWidget(QWidget):
 	APEWidget.MPUWidget.buttonWidget.buttonLines()
 	APEWidget.MPUWidget.buttonWidget.update()
 	APEWidget.MPUWidget.updateMPUFloatDialog(floatDialogList)
+
+    def closeDataBaseDialog(self):
+	if self.databaseFlag==1:
+	     self.dataBaseDialog.close()
 
 
