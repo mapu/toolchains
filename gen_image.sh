@@ -60,7 +60,7 @@ done
 
 # Build kernel
 cd $root
-if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb -o "$make_bootrom" -eq 1 ]
+if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb -o "$make_kernel" -eq 1 ]
 then 
   echo -e "\n\n\n\nMake kernel....\n"
   if [ -e $root/kernel ]
@@ -114,7 +114,7 @@ fi
 
 # Build boot rom
 cd $root
-if [ ! -e $root/boot_rom/main.bin -o "$make_kernel" -eq 1 ]
+if [ ! -e $root/boot_rom/main.bin -o "$make_bootrom" -eq 1 ]
 then
   echo -e "\n\n\n\nMake boot_rom!\n"
   if [ -e $root/boot_rom ]

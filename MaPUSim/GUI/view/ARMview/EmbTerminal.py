@@ -45,7 +45,7 @@ class EmbTerminal(QWidget):
 	    self.flag=2
 	    f=open(self.errorFile,"w")
 	    f.close()
-	    ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"
+	    ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio -gdb tcp::1234 -S 2>"+self.errorFile+"\n"
 	    self.termWidget.sendText(ARMCommand)	
 
 	    #/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
