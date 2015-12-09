@@ -106,7 +106,7 @@ static void updateIntr(void * opaque, unsigned core_id) {
       if ((ape[core_id].csu_if.DMAQueryMask &
            ape[core_id].csu_if.DMAGrpIntClr) == 0)
         // sendIntr(core_id, dma)
-        qemu_irq_raise(s->irq[core_id<<2+0]);
+        qemu_irq_raise(s->irq[(core_id << 1) + 0]);
       else clearIntr(s, core_id, 0);
     else clearIntr(s, core_id, 0);
   } else if (ape[core_id].csu_if.DMAQueryType == 0x5) {
@@ -114,7 +114,7 @@ static void updateIntr(void * opaque, unsigned core_id) {
          ape[core_id].csu_if.DMAQueryMask &
          ~ape[core_id].csu_if.DMAGrpIntClr) != 0)
       // sendIntr(core_id, dma)
-      qemu_irq_raise(s->irq[core_id<<2+0]);
+      qemu_irq_raise(s->irq[(core_id << 1) + 0]);
     else clearIntr(s, core_id, 0);
   } else clearIntr(s, core_id, 0);
 }
@@ -163,7 +163,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
   } else if (core_off == 0xB8) {
     ape[core_id].csu_if.MailNum &= 0xFF00FFFF;
-    clearIntr(s,core_id, 1);
+    clearIntr(s, core_id, 1);
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (s->fd < 0)
@@ -321,6 +321,7 @@ static void apc_if_socket_send(void *opaque){
       } else if ((pkt[1]) == 0xB8) {
         ape[pkt[0]].csu_if.MailNum |= 0x10000;
         // sendIntr(pkt[0], mail)
+        qemu_irq_raise(s->irq[(pkt[0] << 1) + 1]);
       } else if ((pkt[1]) == 0xA0) {
         updateIntr(s, pkt[0]);
       }
