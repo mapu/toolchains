@@ -93,7 +93,7 @@ static void detach_socket(void *opaque)
 static void clearIntr(void * opaque, unsigned core_id, unsigned type) {
   APCIfState *s = opaque;
   // type: 0: DMA, 1: Mailbox
-  qemu_irq_lower(s->irq[core_id<<2+type]);
+  qemu_irq_lower(s->irq[(core_id << 1) + type]);
 
 }
 
