@@ -735,7 +735,7 @@ static void pflash_cfi01_realize(DeviceState *dev, Error **errp)
 
     if (pfl->blk) {
         /* read the initial flash content */
-        ret = blk_read(pfl->blk, 0, pfl->storage, total_len >> 9);
+        ret = blk_read(pfl->blk, 0, pfl->storage, blk_getlength(pfl->blk) >> 9);
 
         if (ret < 0) {
             vmstate_unregister_ram(&pfl->mem, DEVICE(pfl));
