@@ -52,6 +52,7 @@ class EmbTerminal(QWidget):
 	    #self.termWidget.m_impl.m_session.setProgram(self.simulatorPath+"/arm/bin/qemu-system-arm")
 	    #args=["-M","mapu","-m","512","-pflash",path,"-serial","stdio"]
 	    #self.termWidget.m_impl.m_session.setArguments(args)
+
 	    if os.path.exists(self.qemupidFile)==True:
 	    	os.remove(self.qemupidFile)
 	    self.commandWidget=QTermWidget()

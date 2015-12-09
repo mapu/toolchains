@@ -2,7 +2,6 @@
 from PyQt4.QtGui import*
 from PyQt4.QtCore import*
 from FloatDialog import*
-from LineWidget import*
 import sys
 import math
 from QHexEdit.HexMainWindow import*
