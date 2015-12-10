@@ -51,7 +51,6 @@ do
       echo "Unknown argument $1, try $0 -h to see the usage"
       exit 1
     fi
-    echo "Install to $1."
     output=$1
     shift
   ;;
@@ -164,14 +163,39 @@ then
   exit
 fi
 
-output=$1
 
 dd if=boot_rom/main.bin of=${output:-sim.img}
+if [ $? -ne 0 ]
+then
+  echo -e "\n\n\tdd main.bin fail!\n\n"
+  exit
+fi
 dd bs=1k seek=64 if=u-boot/mapu/u-boot.bin of=${output:-sim.img} oflag=append
+if [ $? -ne 0 ]
+then
+  echo -e "\n\n\tdd u-boot.bin fail!\n\n"
+  exit
+fi
 dd bs=1k seek=512 if=kernel/arch/arm/boot/mapu_sim.dtb of=${output:-sim.img}  oflag=append
+if [ $? -ne 0 ]
+then
+  echo -e "\n\n\tdd mapu_sim.dtb fail!\n\n"
+  exit
+fi
 dd bs=1k seek=1K if=kernel/arch/arm/boot/uImage of=${output:-sim.img}  oflag=append
+if [ $? -ne 0 ]
+then
+  echo -e "\n\n\tdd uImage fail!\n\n"
+  exit
+fi
 dd bs=1k seek=3K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
-
-echo -e "\n\n\n\n\tMake image done!\n\n"
-echo
+if [ $? -ne 0 ]
+then
+  echo -e "\n\n\tdd ubuntu.img fail!\n\n"
+  exit
+else
+  echo -e "\n\n\n\n\tMake image done!\n\n"
+  echo -e "\timage is stored at" ${output:-${root}/sim.img}
+  echo
+fi
 
