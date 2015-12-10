@@ -203,10 +203,10 @@ static struct sys_timer mapu_a8_timer = {
 static int mapu_clcd_setup(struct clcd_fb *fb)
 {
 
-  fb->panel = versatile_clcd_get_panel("VGA");
+  fb->panel = versatile_clcd_get_panel("XVGA");
   if (!fb->panel)
     return -EINVAL;
-  return versatile_clcd_setup_dma(fb, 800 * 600 * 2);
+  return versatile_clcd_setup_dma(fb, 1024 * 768 * 2);
 }
 
 static void mapu_clcd_enable(struct clcd_fb *fb)
