@@ -123,10 +123,11 @@ int main(int argc, char **argv)
 #include "exec/semihost.h"
 #include "crypto/init.h"
 
-
-#ifdef __SHARED_MEM__
+/*
+ * support for MaPU APC
+ * luoxq
+ */
 #include <sys/shm.h>
-#endif
 
 #define MAX_VIRTIO_CONSOLES 1
 #define MAX_SCLP_CONSOLES 1
@@ -4010,6 +4011,13 @@ int main(int argc, char **argv, char **envp)
                     exit(1);
                 }
                 break;
+            /*
+             * support for MaPU APC
+             * luoxq
+             */
+            case QEMU_OPTION_noapc:
+                enAPC = 0;
+                break;
             default:
                 os_parse_cmd_args(popt->index, optarg);
             }
@@ -4662,10 +4670,13 @@ int main(int argc, char **argv, char **envp)
     bdrv_close_all();
     pause_all_vcpus();
 
-#ifdef __SHARED_MEM__
-    if (shmid > 0)
-      shmctl(shmid, IPC_RMID, NULL);
-#endif
+    /*
+     * support for MaPU apc
+     * luoxq
+     */
+    if (shmId > 0)
+      shmctl(shmId, IPC_RMID, NULL);
+
     res_free();
 #ifdef CONFIG_TPM
     tpm_cleanup();

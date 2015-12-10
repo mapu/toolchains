@@ -262,12 +262,9 @@ void os_mem_prealloc(int fd, char *area, size_t sz);
 int qemu_read_password(char *buf, int buf_size);
 
 /*
- * support for shared memory
+ * support for MaPU APC
+ * luoxq
  */
-
-#define __SHARED_MEM__
-
-#ifdef __SHARED_MEM__
-extern int shmid;
-#endif
+extern int shmId;
+extern int enAPC;
 #endif

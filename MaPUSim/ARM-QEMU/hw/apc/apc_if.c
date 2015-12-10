@@ -364,6 +364,10 @@ static int apc_if_listen_init(void* opaque, int port)
   APCIfState *s = (APCIfState*)opaque;
   struct sockaddr_in saddr;
   int fd, ret;
+  FILE * infoout = NULL;
+
+  infoout = fopen("info.out", "a+");
+  assert(infoout != NULL);
 
   fd = qemu_socket(PF_INET, SOCK_STREAM, 0);
   if (fd < 0) {
@@ -386,7 +390,8 @@ static int apc_if_listen_init(void* opaque, int port)
     saddr.sin_port = htons(port);
   }
 
-  fprintf(stderr, "Listening for system.realview.apc connection on port %d\n", port);
+  fprintf(infoout, "\nListening for system.realview.apc connection on port %d\n", port);
+  fclose(infoout);
 
   ret = listen(fd, 0);
   if (ret < 0) {

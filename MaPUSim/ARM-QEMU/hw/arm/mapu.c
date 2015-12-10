@@ -41,6 +41,7 @@
 
 #include "sys/shm.h"
 
+
 #define MaPU_BOARD_ID 0x8e0
 #define MaPU_FLASH_SIZE (512 * 1024 * 1024)
 #define MaPU_FLASH_SECT_SIZE (256 * 1024)
@@ -79,7 +80,12 @@ static hwaddr MaPUboard_map[] =
 
 static struct arm_boot_info mapu_binfo;
 
-int shmid = 0;
+/*
+ * support for MaPU shared memory
+ * luoxq
+ */
+int shmId = 0;
+int enAPC = 1;
 
 static void mapu_init(MachineState *mms)
 {
@@ -92,16 +98,15 @@ static void mapu_init(MachineState *mms)
 	SysBusDevice *busdev;
 	int key;
 	void *ptr;
+	FILE *infoout = NULL;
 
 
 	MemoryRegion *sysmem = get_system_memory();
 	MemoryRegion *sram = g_new(MemoryRegion, 1);
-	MemoryRegion *sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_reg = g_new(MemoryRegion, 1);
 
-	int shmFlg;
 	/*
 	 * Create CPU
 	 */
@@ -137,43 +142,42 @@ static void mapu_init(MachineState *mms)
 
 	/* Memory */
 
-	if (mms->ram_size > 0x20000000)
-	{
-		/* 512MB is the maximum the address space permits */
-		fprintf(stderr, "mapu_cortext-a8: cannot model more than 512MB RAM\n");
-		exit(1);
-	}
-
-	fprintf(stderr, "ram size = %x\n", (unsigned int) mms->ram_size);
-
-	memory_region_allocate_system_memory(sram, NULL, "mapu.sram", mms->ram_size);
-
+	memory_region_allocate_system_memory(sram, NULL, "mapu.sram", 0x20000000);
 	memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SRAM], sram);
-
+	fprintf(stderr, "\tmapu sram init done!\n");
 	/*
 	 * Add shared memory
 	 */
-  if (shmid == 0)
-  {
-    key = 9000;
-    while ((shmid = shmget(key, 0x21000000, IPC_CREAT | IPC_EXCL | 0666)) < 0)
-      key++;
-      fprintf(stderr, "Share memory key is %d\n", key);
-  }
-  ptr = (uint8_t *)shmat(shmid, NULL, 0);
-  assert(ptr != -1);
+	if (enAPC == 1)
+	{
+	  infoout = fopen( "info.out", "w+");
 
-  memory_region_init_ram_ptr(share_mem, NULL, "share_memory", 0x1000000, ptr);
+	  assert(infoout != NULL);
 
-  vmstate_register_ram_global(share_mem);
-
-  memory_region_init_ram_ptr(ddr3_sdram, NULL, "DDR3_sdram", 0x20000000, ptr+0x1000000);
-
-  vmstate_register_ram_global(ddr3_sdram);
+    if (shmId == 0)
+    {
+      key = 9000;
+      while ((shmId = shmget(key, 0x21000000, IPC_CREAT | IPC_EXCL | 0666)) < 0)
+        key++;
+        fprintf(infoout, "\nShare memory key is %d\n", key);
+        fclose( infoout);
+    }
+    ptr = (uint8_t *)shmat(shmId, NULL, 0);
+    assert(ptr != -1);
+    memory_region_init_ram_ptr(share_mem, NULL, "share_memory", 0x1000000, ptr);
+    vmstate_register_ram_global(share_mem);
+    memory_region_init_ram_ptr(ddr3_sdram, NULL, "DDR3_sdram", 0x20000000, ptr+0x1000000);
+    vmstate_register_ram_global(ddr3_sdram);
+	}
+	else
+	{
+	  memory_region_allocate_system_memory(share_mem, NULL, "share_memory", 0x1000000);
+	  memory_region_allocate_system_memory(ddr3_sdram, NULL, "DDR3_sdram", 0x20000000);
+	}
 
   memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SHAREMEM], share_mem);
-
   memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_SDRAM], ddr3_sdram);
+  fprintf(stderr, "\tmapu shared memory (%s) init done!\n", enAPC ? "with shared memory" : "with normal memory");
 
   /*
    * Add DDR3 control registers
@@ -181,9 +185,8 @@ static void mapu_init(MachineState *mms)
    */
 
   memory_region_allocate_system_memory(ddr3_reg, NULL, "DDR3_reg", MaPUboard_map[MaPU_SDRAM] - MaPUboard_map[MaPU_DDR3REG]);
-
   memory_region_add_subregion(sysmem, MaPUboard_map[MaPU_DDR3REG], ddr3_reg);
-
+  fprintf(stderr, "\tmapu DDR3 register init done!\n");
 
 	/* irq controller
 	 * arm_gic
@@ -210,7 +213,7 @@ static void mapu_init(MachineState *mms)
 	/* connect the CPU to GIC   */
 	sysbus_connect_irq(busdev, 0, qdev_get_gpio_in(DEVICE(cpu), 0));
 	sysbus_connect_irq(busdev, 1, qdev_get_gpio_in(DEVICE(cpu), 1));
-
+  fprintf(stderr, "\tmapu gic init done!\n");
 	/* NOR flash
 	 * Size: 64 MB
 	 * Address: 0x00000000
@@ -226,8 +229,7 @@ static void mapu_init(MachineState *mms)
 	{
 		fprintf(stderr, "qemu: Error registering flash memory.\n");
 	}
-
-	fprintf(stderr, "pflash init done!\n");
+	fprintf(stderr, "\tmapu pflash init done!\n");
 	/* UART 0
 	 * Address: 0x5090 0000
 	 *  */
@@ -235,48 +237,51 @@ static void mapu_init(MachineState *mms)
 	if (serial_hds[0])
 	{
 		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART0], 2, pic[2], 115200, serial_hds[0], DEVICE_NATIVE_ENDIAN);
-		fprintf(stderr, "mapu uart0 init done!\n");
+		fprintf(stderr, "\tmapu uart0 init done!\n");
 	}
 	if (serial_hds[1])
 	{
 		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART1], 2, pic[3], 115200, serial_hds[1], DEVICE_NATIVE_ENDIAN);
-		fprintf(stderr, "mapu uart1 init done!\n");
+		fprintf(stderr, "\tmapu uart1 init done!\n");
 	}
 	if (serial_hds[2])
 	{
 		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART2], 2, pic[4], 115200, serial_hds[2], DEVICE_NATIVE_ENDIAN);
-		fprintf(stderr, "mapu uart2 init done!\n");
+		fprintf(stderr, "\tmapu uart2 init done!\n");
 	}
 
   sysbus_create_varargs("dw_apb_timer", MaPUboard_map[MaPU_TIMER],
       pic[8], pic[9], pic[10], pic[11],
       pic[12], pic[13], pic[14], pic[15],
                         NULL);
-  fprintf(stderr, "mapu timer init done!\n");
+  fprintf(stderr, "\tmapu timer init done!\n");
 
-  sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
-      pic[42], pic[43], pic[44], pic[45],
-      pic[46], pic[47], pic[48], pic[49],
-      NULL);
+  if (enAPC == 1)
+  {
+    sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
+        pic[42], pic[43], pic[44], pic[45],
+        pic[46], pic[47], pic[48], pic[49],
+        NULL);
 
-  fprintf(stderr, "mapu apc if init done!\n");
+    fprintf(stderr, "\tmapu apc if init done!\n");
+  }
 
   sysbus_create_varargs("dw_apb_dmac", MaPUboard_map[MaPU_DMA],
           pic[4], NULL);
-
-  fprintf(stderr, "mapu dw_apb_dmac init done!\n");
+  fprintf(stderr, "\tmapu dw_apb_dmac init done!\n");
 
   sysbus_create_simple("pl110", MaPUboard_map[MaPU_VIF], pic[37]);
-
-  fprintf(stderr, "mapu pl110 init done!\n");
+  fprintf(stderr, "\tmapu pl110 init done!\n");
 
   sysbus_create_simple("pl050_keyboard", MaPUboard_map[MaPU_KEYBOARD], pic[26]);
+  fprintf(stderr, "\tmapu keyboard init done!\n");
   //sysbus_create_simple("pl050_mouse", MaPUboard_map[MaPU_MOUSE], pic[27]);
 
   busdev = qdev_create(NULL, "generic-sdhci");
   qdev_init_nofail(busdev);
   sysbus_mmio_map(SYS_BUS_DEVICE(busdev), 0, MaPUboard_map[MaPU_SDC]);
   sysbus_connect_irq(SYS_BUS_DEVICE(busdev), 0, pic[31]);
+  fprintf(stderr, "\tmapu sdhci init done!\n");
 
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;
@@ -287,7 +292,7 @@ static void mapu_init(MachineState *mms)
 	mapu_binfo.firmware_loaded = bios_name || drive_get(IF_PFLASH, 0, 0);
 	arm_load_kernel(cpu, &mapu_binfo);
 
-	fprintf(stderr, "mapu board init done!\n");
+	fprintf(stderr, "\tmapu board init done!\n");
 }
 
 static QEMUMachine mapu_machine =
