@@ -15,51 +15,56 @@ class EmbTerminal(QWidget):
     def __init__(self): 
 	super(EmbTerminal,self).__init__()
     	QWidget.__init__(self) 
+	
+	self.simulatorPath=""
+	self.flag=0
+	#self.errorFile="/home/litt/works/MaPUSim/GUI/main.out"
+	self.errorFile="/arm/bin/info.out"
+	self.parameter=0
+	self.m5termPath="/arm/utils/m5term"
+	self.lay=QVBoxLayout()
+	self.setLayout(self.lay)
 	self.termWidget=QTermWidget()
 	self.termWidget.setScrollBarPosition(2)
 	font=QFont("Monospace")
 	self.termWidget.setTerminalFont(font)
-	self.lay=QVBoxLayout()
 	self.lay.addWidget(self.termWidget)
-	self.setLayout(self.lay)	
-	self.simulatorPath=""
-	self.flag=0
-	self.errorFile="main.out"
-	self.qemupidFile='qemu.dat'
-	self.pidFile="gem5.dat"
-	self.parameter=0
-	self.watcher=QFileSystemWatcher()
-	self.m5termPath="/arm/utils/m5term"
 
     def startProcess(self,index,path):
 	self.ARMSimulatorStatusSignal.emit(True) 
+	self.lay.removeWidget(self.termWidget)
+	self.termWidget.close()
+	del self.termWidget
+	self.termWidget=0
+	self.termWidget=QTermWidget()
+	self.termWidget.setScrollBarPosition(2)
+	font=QFont("Monospace")
+	self.termWidget.setTerminalFont(font)
+	self.lay.addWidget(self.termWidget)
 	if index==0:
 	    self.flag=1
-	    ARMCommand=self.simulatorPath+self.m5termPath+" localhost "+path+"\n"
-	    self.termWidget.sendText(ARMCommand)	
-	    if os.path.exists(self.pidFile)==True:
-	    	os.remove(self.pidFile)
-	    self.commandWidget=QTermWidget()
-	    self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm/utils/m5term | awk '{print $2 , $3}'>>"+self.pidFile+"\n")
+	    #ARMCommand=self.simulatorPath+self.m5termPath+" localhost "+path+"\n"
+	    self.termWidget.setShellProgram(self.simulatorPath+self.m5termPath)
+	    args=["localhost",path]
+	    self.termWidget.setArgs(args)
+	    self.termWidget.startShellProgram()	
+
 	elif index==1:
 	    self.flag=2
-	    f=open(self.errorFile,"w")
-	    f.close()
-	    #ARMCommand="gdb --args "+self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" 2>"+self.errorFile+"\n"
+	    self.errorFile=self.simulatorPath+self.errorFile
+	    #ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"  # -gdb tcp::1234 -S
 	    #self.termWidget.sendText(ARMCommand)	
 
 	    #/home/litt/simulator/arm_qemu/bin/qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
-	    self.termWidget.m_impl.m_session.setProgram(self.simulatorPath)
-	    args=["/arm/bin/qemu-system-arm","-M","mapu","-m","512","-pflash",path,"-serial","stdio"]
-	    self.termWidget.m_impl.m_session.setArguments(args)
+	    self.termWidget.setShellProgram(self.simulatorPath+"/arm/bin/qemu-system-arm")
+	    args=["-M","mapu","-m","512","-pflash",path,"-serial","stdio",""]
+	    self.termWidget.setArgs(args)
+	    self.termWidget.startShellProgram()
 
-	    if os.path.exists(self.qemupidFile)==True:
-	    	os.remove(self.qemupidFile)
-	    self.commandWidget=QTermWidget()
-	    self.commandWidget.sendText("ps -ef | grep "+self.simulatorPath+"/arm/bin/qemu-system-arm | awk '{print $2 , $3}'>>"+self.qemupidFile+"\n")
-	
-	    self.watcher.addPath(self.errorFile)
-	    self.connect(self.watcher,SIGNAL("fileChanged(QString)"),self.fileChangedSlot)
+	    #self.watcher=QFileSystemWatcher()
+	    #self.watcher.addPath(self.errorFile)
+	    #self.connect(self.watcher,SIGNAL("fileChanged(QString)"),self.fileChangedSlot)
+	    self.fileChangedSlot()
 
     def showToWidget(self,lines):
 	str1=""
@@ -85,7 +90,7 @@ class EmbTerminal(QWidget):
 	    self.APCSimulatorSignal.emit(key,apcport)
 
 
-    def fileChangedSlot(self,string):
+    def fileChangedSlot(self):
 	b=os.path.exists(self.errorFile)
 	if b==False:
 	    return False
@@ -97,38 +102,20 @@ class EmbTerminal(QWidget):
 	self.showToWidget(lines)
 
     def stopProcess(self):
+	self.commandWidget=QTermWidget()
+	self.commandWidget.setShellProgram("/bin/bash")
+	self.commandWidget.setArgs([])
+	self.commandWidget.startShellProgram()
 	if self.flag==1:
 	    pid=self.termWidget.getShellPID()
-	    b=os.path.exists(self.pidFile)
-	    if b==True:
-	    	f=open(self.pidFile,"r")
-	    	lines=f.readlines()
-	    	for line in lines:
-		    strList=line.split(" ")
-		    string=strList[1]
-		    string=string[:len(string)-1]
-		    if int(string)==pid:
-		        self.commandWidget.sendText("kill -s 9 "+strList[0]+"\n")
-	    self.termWidget.sendText("   \n")
-	    self.termWidget.sendText("reset\n")
+	    self.commandWidget.sendText("kill -s 9 "+str(pid)+"\n")
 	elif self.flag==2:
 	    pid=self.termWidget.getShellPID()
-	    b=os.path.exists(self.qemupidFile)
-	    if b==True:
-	    	f=open(self.qemupidFile,"r")
-	    	lines=f.readlines()
-	    	for line in lines:
-		    strList=line.split(" ")
-		    string=strList[1]
-		    string=string[:len(string)-1]
-		    if int(string)==pid:
-		        self.commandWidget.sendText("kill -s 9 "+strList[0]+"\n")
-	    self.termWidget.sendText("   \n")
-	    self.termWidget.sendText("reset\n")
-	    self.watcher.removePath(self.errorFile)
-	    del self.watcher
-	    self.watcher=0
-	    os.remove(self.errorFile)
+	    self.commandWidget.sendText("kill -s 9 "+str(pid)+"\n")
+	    #self.watcher.removePath(self.errorFile)
+	    #del self.watcher
+	    #self.watcher=0
+	    #os.remove(self.errorFile)
 	self.ARMSimulatorStatusSignal.emit(False) 
 	self.parameter=0
 
