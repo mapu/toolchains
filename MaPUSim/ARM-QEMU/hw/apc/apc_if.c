@@ -32,6 +32,8 @@ do {} while (0)
 //static const uint64_t NUM_APES = 4;
 union csu_mmap ape[4];
 
+extern FILE* infoout;
+
 typedef struct APCIfState {
   SysBusDevice parent_obj;
 
@@ -364,9 +366,9 @@ static int apc_if_listen_init(void* opaque, int port)
   APCIfState *s = (APCIfState*)opaque;
   struct sockaddr_in saddr;
   int fd, ret;
-  FILE * infoout = NULL;
+  //FILE * infoout = NULL;
 
-  infoout = fopen("info.out", "a+");
+  //infoout = fopen("info.out", "a+");
   assert(infoout != NULL);
 
   fd = qemu_socket(PF_INET, SOCK_STREAM, 0);
@@ -390,8 +392,13 @@ static int apc_if_listen_init(void* opaque, int port)
     saddr.sin_port = htons(port);
   }
 
+  if (infoout == NULL)
+  {
+    fprintf(stderr, "\n\n\tAPC IF infoout fail!\n");
+    exit(1);
+  }
   fprintf(infoout, "\nListening for system.realview.apc connection on port %d\n", port);
-  fclose(infoout);
+  //fclose(infoout);
 
   ret = listen(fd, 0);
   if (ret < 0) {

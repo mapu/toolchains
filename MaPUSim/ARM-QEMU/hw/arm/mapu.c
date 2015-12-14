@@ -40,6 +40,7 @@
 #include "hw/char/serial.h"
 
 #include "sys/shm.h"
+#include "sys/unistd.h"
 
 
 #define MaPU_BOARD_ID 0x8e0
@@ -81,11 +82,27 @@ static hwaddr MaPUboard_map[] =
 static struct arm_boot_info mapu_binfo;
 
 /*
- * support for MaPU shared memory
+ * support for MaPU APC
  * luoxq
  */
 int shmId = 0;
 int enAPC = 1;
+FILE *infoout = NULL;
+
+
+static int get_executable_path( char* processdir,char* processname, size_t len)
+{
+        char* path_end;
+        if(readlink("/proc/self/exe", processdir,len) <=0)
+                return -1;
+        path_end = strrchr(processdir,  '/');
+        if(path_end == NULL)
+                return -1;
+        ++path_end;
+        strcpy(processname, path_end);
+        *path_end = '\0';
+        return (size_t)(path_end - processdir);
+}
 
 static void mapu_init(MachineState *mms)
 {
@@ -98,14 +115,19 @@ static void mapu_init(MachineState *mms)
 	SysBusDevice *busdev;
 	int key;
 	void *ptr;
-	FILE *infoout = NULL;
 
+  unsigned char dir[256];
+  unsigned char name[] = "qemu-system-arm";
 
 	MemoryRegion *sysmem = get_system_memory();
 	MemoryRegion *sram = g_new(MemoryRegion, 1);
 	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_reg = g_new(MemoryRegion, 1);
+
+	assert(get_executable_path((char*)dir, (char*)name, 256) != -1);
+
+	fprintf(stderr, "\n\tqemu-system-file is running at DIR: %s\n", dir);
 
 	/*
 	 * Create CPU
@@ -150,9 +172,14 @@ static void mapu_init(MachineState *mms)
 	 */
 	if (enAPC == 1)
 	{
-	  infoout = fopen( "info.out", "w+");
+	  strcat(dir, "info.out");
+	  infoout = fopen( dir, "w+");
 
-	  assert(infoout != NULL);
+	  if(infoout == NULL)
+	  {
+	    fprintf(stderr, "\ncreate info.out for APC fail!\n\n");
+	    exit(1);
+	  }
 
     if (shmId == 0)
     {
@@ -160,7 +187,8 @@ static void mapu_init(MachineState *mms)
       while ((shmId = shmget(key, 0x21000000, IPC_CREAT | IPC_EXCL | 0666)) < 0)
         key++;
         fprintf(infoout, "\nShare memory key is %d\n", key);
-        fclose( infoout);
+        fprintf(stderr, "\nShare memory key is %d\n", key);
+        //fclose( infoout);
     }
     ptr = (uint8_t *)shmat(shmId, NULL, 0);
     assert(ptr != -1);
@@ -264,6 +292,8 @@ static void mapu_init(MachineState *mms)
         NULL);
 
     fprintf(stderr, "\tmapu apc if init done!\n");
+    if(infoout != NULL)
+      fclose(infoout);
   }
 
   sysbus_create_varargs("dw_apb_dmac", MaPUboard_map[MaPU_DMA],

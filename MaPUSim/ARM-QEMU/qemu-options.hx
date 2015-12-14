@@ -3572,6 +3572,16 @@ to the RNG daemon.
 
 ETEXI
 
+DEF("noapc", 0, QEMU_OPTION_noapc,
+    "-noapc : specify booting MaPU without APC.\n"
+    "default: not set this option, specify booting MaPU with APC.\n",
+    QEMU_ARCH_ALL)
+STEXI
+@item -naapc @var{noapc}
+@findex -noapc
+
+Select CPU model (@code{-cpu help} for list and additional feature selection)
+ETEXI
 
 HXCOMM This is the last statement. Insert new options before this line!
 STEXI
