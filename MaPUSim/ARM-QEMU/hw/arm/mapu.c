@@ -40,7 +40,6 @@
 #include "hw/char/serial.h"
 
 #include "sys/shm.h"
-#include "sys/unistd.h"
 
 
 #define MaPU_BOARD_ID 0x8e0
@@ -90,19 +89,6 @@ int enAPC = 1;
 FILE *infoout = NULL;
 
 
-static int get_executable_path( char* processdir,char* processname, size_t len)
-{
-        char* path_end;
-        if(readlink("/proc/self/exe", processdir,len) <=0)
-                return -1;
-        path_end = strrchr(processdir,  '/');
-        if(path_end == NULL)
-                return -1;
-        ++path_end;
-        strcpy(processname, path_end);
-        *path_end = '\0';
-        return (size_t)(path_end - processdir);
-}
 
 static void mapu_init(MachineState *mms)
 {
@@ -116,18 +102,12 @@ static void mapu_init(MachineState *mms)
 	int key;
 	void *ptr;
 
-  unsigned char dir[256];
-  unsigned char name[] = "qemu-system-arm";
 
 	MemoryRegion *sysmem = get_system_memory();
 	MemoryRegion *sram = g_new(MemoryRegion, 1);
 	MemoryRegion *share_mem = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_sdram = g_new(MemoryRegion, 1);
 	MemoryRegion *ddr3_reg = g_new(MemoryRegion, 1);
-
-	assert(get_executable_path((char*)dir, (char*)name, 256) != -1);
-
-	fprintf(stderr, "\n\tqemu-system-file is running at DIR: %s\n", dir);
 
 	/*
 	 * Create CPU
@@ -172,8 +152,7 @@ static void mapu_init(MachineState *mms)
 	 */
 	if (enAPC == 1)
 	{
-	  strcat(dir, "info.out");
-	  infoout = fopen( dir, "w+");
+	  infoout = fopen( "info.out", "w+");
 
 	  if(infoout == NULL)
 	  {
