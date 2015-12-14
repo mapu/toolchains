@@ -18,8 +18,7 @@ class EmbTerminal(QWidget):
 	
 	self.simulatorPath=""
 	self.flag=0
-	#self.errorFile="/home/litt/works/MaPUSim/GUI/main.out"
-	self.errorFile="/arm/bin/info.out"
+	self.errorFile="info.out"
 	self.parameter=0
 	self.m5termPath="/arm/utils/m5term"
 	self.lay=QVBoxLayout()
@@ -51,7 +50,10 @@ class EmbTerminal(QWidget):
 
 	elif index==1:
 	    self.flag=2
-	    self.errorFile=self.simulatorPath+self.errorFile
+
+	    f=open(self.errorFile,"w")
+	    f.close()
+		
 	    #ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"  # -gdb tcp::1234 -S
 	    #self.termWidget.sendText(ARMCommand)	
 
@@ -61,10 +63,10 @@ class EmbTerminal(QWidget):
 	    self.termWidget.setArgs(args)
 	    self.termWidget.startShellProgram()
 
-	    #self.watcher=QFileSystemWatcher()
-	    #self.watcher.addPath(self.errorFile)
-	    #self.connect(self.watcher,SIGNAL("fileChanged(QString)"),self.fileChangedSlot)
-	    self.fileChangedSlot()
+	    self.watcher=QFileSystemWatcher()
+	    self.watcher.addPath(self.errorFile)
+	    self.connect(self.watcher,SIGNAL("fileChanged(QString)"),self.fileChangedSlot)
+	    #self.fileChangedSlot()
 
     def showToWidget(self,lines):
 	str1=""
@@ -90,10 +92,7 @@ class EmbTerminal(QWidget):
 	    self.APCSimulatorSignal.emit(key,apcport)
 
 
-    def fileChangedSlot(self):
-	b=os.path.exists(self.errorFile)
-	if b==False:
-	    return False
+    def fileChangedSlot(self,string):
         f=open(self.errorFile,"r")
         lines=f.readlines()
 	f.close()
@@ -112,9 +111,9 @@ class EmbTerminal(QWidget):
 	elif self.flag==2:
 	    pid=self.termWidget.getShellPID()
 	    self.commandWidget.sendText("kill -s 9 "+str(pid)+"\n")
-	    #self.watcher.removePath(self.errorFile)
-	    #del self.watcher
-	    #self.watcher=0
+	    self.watcher.removePath(self.errorFile)
+	    del self.watcher
+	    self.watcher=0
 	    #os.remove(self.errorFile)
 	self.ARMSimulatorStatusSignal.emit(False) 
 	self.parameter=0

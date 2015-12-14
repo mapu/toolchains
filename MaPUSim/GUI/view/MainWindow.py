@@ -180,6 +180,10 @@ class MainWindow(QMainWindow):
 		xmlWrite.writeTextElement("fullcheck","1")	
 	    else:
 		xmlWrite.writeTextElement("fullcheck","0")
+	    if self.configControlWidget.fullGem5Radio.isChecked()==True:
+		xmlWrite.writeTextElement("Gem5_Qemu","0")
+	    else:
+		xmlWrite.writeTextElement("Gem5_Qemu","1")
             xmlWrite.writeTextElement("fulltrace",self.configControlWidget.fullTracefile.text())
             xmlWrite.writeTextElement("image",self.configControlWidget.fullEdit.text())
 	    xmlWrite.writeEndElement()#Fullsystem
@@ -250,6 +254,17 @@ class MainWindow(QMainWindow):
 					    self.configControlWidget.fullGroup.setChecked(False)  
 			            if xmlType==QXmlStreamReader.EndElement:
 					if xmlRead.name()=="fullcheck":
+                            	            break
+			    elif xmlRead.name()=="Gem5_Qemu":
+				while not xmlRead.atEnd():
+				    xmlType=xmlRead.readNext()
+				    if xmlType==QXmlStreamReader.Characters and not xmlRead.isWhitespace():
+					if xmlRead.text().toString()=="0":
+					    self.configControlWidget.fullGem5Radio.setChecked(True)
+					else:
+					    self.configControlWidget.fullQemuRadio.setChecked(True)
+			            if xmlType==QXmlStreamReader.EndElement:
+					if xmlRead.name()=="Gem5_Qemu":
                             	            break
 		            elif xmlRead.name()=="fulltrace":
 			        while not xmlRead.atEnd():
