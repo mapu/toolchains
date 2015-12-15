@@ -13,6 +13,10 @@ import sys
 QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class MainWindow(QMainWindow):  
+    closeChildDialogAPE0=pyqtSignal()
+    closeChildDialogAPE1=pyqtSignal()
+    closeChildDialogAPE2=pyqtSignal()
+    closeChildDialogAPE3=pyqtSignal()
     def __init__(self,argv,parent=None):  
         super(MainWindow,self).__init__(parent) 
   
@@ -43,6 +47,10 @@ class MainWindow(QMainWindow):
 	self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
 	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
+	self.closeChildDialogAPE0.connect(self.apcViewWidget.APE0Widget.closeChildDialogSlot)
+	self.closeChildDialogAPE1.connect(self.apcViewWidget.APE1Widget.closeChildDialogSlot)
+	self.closeChildDialogAPE2.connect(self.apcViewWidget.APE2Widget.closeChildDialogSlot)
+	self.closeChildDialogAPE3.connect(self.apcViewWidget.APE3Widget.closeChildDialogSlot)
 	self.simulatorPath=""
 	self.readXML()
 	self.tabWidget.setCurrentIndex(2)
@@ -438,14 +446,10 @@ class MainWindow(QMainWindow):
     def closeEvent(self,event):
 	self.writeXML()
 	self.configControlWidget.stopProcessExit(1)
-	self.apcViewWidget.APE0Widget.MPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE1Widget.MPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE2Widget.MPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE3Widget.MPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE0Widget.SPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE1Widget.SPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE2Widget.SPUWidget.closeChildDialog() 
-	self.apcViewWidget.APE3Widget.SPUWidget.closeChildDialog() 
+	self.closeChildDialogAPE0.emit()
+	self.closeChildDialogAPE1.emit()
+	self.closeChildDialogAPE2.emit()
+	self.closeChildDialogAPE3.emit()
 	self.apcViewWidget.closeDataBaseDialog()
 
 

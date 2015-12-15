@@ -21,3 +21,8 @@ class APCSigCoreWidget(QWidget):
 	lay.addWidget(APETab)
 	self.setLayout(lay)
 
+    def closeChildDialogSlot(self):
+	self.SPUWidget.closeChildDialog()
+	self.MPUWidget.closeChildDialog()
+
+
