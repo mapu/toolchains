@@ -5,7 +5,6 @@ import os
 import sys
 from PyQt4.QtCore import * 
 from PyQt4.QtGui import * 
-sys.path.append("/usr/local/lib64/")
 from QTermWidget import*
 
 class EmbTerminal(QWidget): 
@@ -23,7 +22,7 @@ class EmbTerminal(QWidget):
 	self.m5termPath="/arm/utils/m5term"
 	self.lay=QVBoxLayout()
 	self.setLayout(self.lay)
-	self.termWidget=QTermWidget()
+	self.termWidget=QTermWidget(0)
 	self.termWidget.setScrollBarPosition(2)
 	font=QFont("Monospace")
 	self.termWidget.setTerminalFont(font)
@@ -35,7 +34,7 @@ class EmbTerminal(QWidget):
 	self.termWidget.close()
 	del self.termWidget
 	self.termWidget=0
-	self.termWidget=QTermWidget()
+	self.termWidget=QTermWidget(0)
 	self.termWidget.setScrollBarPosition(2)
 	font=QFont("Monospace")
 	self.termWidget.setTerminalFont(font)
@@ -101,7 +100,7 @@ class EmbTerminal(QWidget):
 	self.showToWidget(lines)
 
     def stopProcess(self):
-	self.commandWidget=QTermWidget()
+	self.commandWidget=QTermWidget(0)
 	self.commandWidget.setShellProgram("/bin/bash")
 	self.commandWidget.setArgs([])
 	self.commandWidget.startShellProgram()
