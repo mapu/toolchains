@@ -196,15 +196,15 @@ HostInfoPosix::ComputePythonDirectory(FileSpec &file_spec)
     os << "/python" << PY_MAJOR_VERSION << '.' << PY_MINOR_VERSION << "/site-packages";
     os.flush();
 
-#ifdef ARCH_MAPU
-#  if defined(__x86_64__) || defined(__amd64__) || defined(__LP64__)
+//#ifdef ARCH_MAPU
+//#  if defined(__x86_64__) || defined(__amd64__) || defined(__LP64__)
 // Fixme: this is a MaPU hack for 64-bit Linux, since lldb generate
 // python into "lib/python2.6/site-packages" rather than
 //             "lib64/python2.6/site-packages" which is designated here.
-    ::strncat(raw_path, "64", sizeof(raw_path) - strlen(raw_path) - 1);
+//    ::strncat(raw_path, "64", sizeof(raw_path) - strlen(raw_path) - 1);
 // end MaPU hacking
-#  endif
-#endif
+//#  endif
+//#endif
     // We may get our string truncated. Should we protect this with an assert?
     ::strncat(raw_path, python_version_dir.c_str(), sizeof(raw_path) - strlen(raw_path) - 1);
 
