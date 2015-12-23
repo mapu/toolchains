@@ -10,7 +10,7 @@ config SYS_GENERIC_BOARD
 
 choice
 	prompt "Architecture select"
-	default SANDBOX
+	default ARM
 
 config ARC
 	bool "ARC architecture"

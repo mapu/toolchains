@@ -260,6 +260,41 @@ cmd_record_mcount =						\
 	fi;
 endif
 
+# MaPU
+cmd_bison_o_y = $(CC)  $(c_flags) -o $@ $(obj)/$(notdir $<).c -c
+define rule_bison_o_y
+	$(call echo-cmd,checksrc) $(cmd_checksrc)       \
+	$(call echo-cmd,bison_o_y) $(cmd_bison_o_y);              \
+	rm -f $(depfile);             
+endef
+
+cmd_bison_h_y = bison -o $(obj)/$(notdir $<).c --defines=$@ $<
+define rule_bison_h_y
+	$(call echo-cmd,checksrc) $(cmd_checksrc)       \
+	$(call echo-cmd,bison_h_y) $(cmd_bison_h_y);              \
+	rm -f $(depfile);             
+endef
+
+cmd_ragel_c_rl = ragel -C -o $@.c $<
+cmd_ragel_o_c = $(CC)  $(c_flags) -o $@ $@.c -c -I$(obj)
+define rule_ragel_o_rl
+	$(call echo-cmd,checksrc) $(cmd_checksrc)       \
+	$(call echo-cmd,ragel_c_rl) $(cmd_ragel_c_rl);              \
+	$(call echo-cmd,ragel_o_c) $(cmd_ragel_o_c);              \
+	rm -f $(depfile);             
+endef
+
+$(obj)/%.bison.o: $(src)/%.y FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,bison_o_y)
+$(obj)/%.h: $(src)/%.y FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,bison_h_y)
+$(obj)/%_lexer.ragel.o: $(src)/%_lexer.rl $(obj)/%_parser.h FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,ragel_o_rl)
+
+
 define rule_cc_o_c
 	$(call echo-cmd,checksrc) $(cmd_checksrc)			  \
 	$(call echo-cmd,cc_o_c) $(cmd_cc_o_c);				  \
@@ -323,6 +358,10 @@ quiet_cmd_cpp_lds_S = LDS     $@
 
 $(obj)/%.lds: $(src)/%.lds.S FORCE
 	$(call if_changed_dep,cpp_lds_S)
+
+
+
+
 
 # ASN.1 grammar
 # ---------------------------------------------------------------------------

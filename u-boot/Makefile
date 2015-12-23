@@ -1563,6 +1563,15 @@ endif
 %.symtypes: %.c prepare scripts FORCE
 	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
 
+# MaPU
+%.bison.o: %.y prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%.h: %.y prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%_lexer.ragel.o: %_parser.h %_lexer.rl prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+
+
 # Modules
 /: prepare scripts FORCE
 	$(cmd_crmodverdir)

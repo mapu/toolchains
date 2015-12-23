@@ -70,7 +70,7 @@ config SYS_L2CACHE_OFF
 
 choice
 	prompt "Target select"
-	default TARGET_HIKEY
+	default TARGET_MAPU
 
 config ARCH_AT91
 	bool "Atmel AT91"
@@ -666,6 +666,11 @@ config ARCH_ROCKCHIP
 	select CPU_V7
 	select DM
 
+config TARGET_MAPU
+  bool "Support CASIA MaPU"
+  select CPU_V7
+  select SYS_GENERIC_BOARD
+
 endchoice
 
 source "arch/arm/mach-at91/Kconfig"
@@ -797,6 +802,7 @@ source "board/technologic/ts4800/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
+source "board/casia/mapu/Kconfig"
 
 source "arch/arm/Kconfig.debug"
 

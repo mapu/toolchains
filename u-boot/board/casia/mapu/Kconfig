@@ -1,0 +1,16 @@
+if TARGET_MAPU
+
+config SYS_ARCH
+  default "arm"
+
+config SYS_BOARD
+	default "mapu"
+
+config SYS_VENDOR
+	default "casia"
+
+config SYS_CONFIG_NAME
+	default "mapu_sim"
+
+endif
+
