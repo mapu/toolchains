@@ -15,6 +15,9 @@
 
 #include <linux/types.h>
 
+/* Size of the EDID data */
+#define EDID_SIZE	128
+
 #define GET_BIT(_x, _pos) \
 	(((_x) >> (_pos)) & 1)
 #define GET_BITS(_x, _pos_msb, _pos_lsb) \
@@ -86,6 +89,10 @@ struct edid_detailed_timing {
 	GET_BITS((_x).flags, 4, 3)
 #define EDID_DETAILED_TIMING_FLAG_POLARITY(_x) \
 	GET_BITS((_x).flags, 2, 1)
+#define EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 2)
+#define EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 1)
 #define EDID_DETAILED_TIMING_FLAG_INTERLEAVED(_x) \
 	GET_BIT((_x).flags, 0)
 } __attribute__ ((__packed__));
@@ -226,6 +233,25 @@ struct edid1_info {
 	unsigned char checksum;
 } __attribute__ ((__packed__));
 
+struct edid_cea861_info {
+	unsigned char extension_tag;
+#define EDID_CEA861_EXTENSION_TAG	0x02
+	unsigned char revision;
+	unsigned char dtd_offset;
+	unsigned char dtd_count;
+#define EDID_CEA861_SUPPORTS_UNDERSCAN(_x) \
+	GET_BIT(((_x).dtd_count), 7)
+#define EDID_CEA861_SUPPORTS_BASIC_AUDIO(_x) \
+	GET_BIT(((_x).dtd_count), 6)
+#define EDID_CEA861_SUPPORTS_YUV444(_x) \
+	GET_BIT(((_x).dtd_count), 5)
+#define EDID_CEA861_SUPPORTS_YUV422(_x) \
+	GET_BIT(((_x).dtd_count), 4)
+#define EDID_CEA861_DTD_COUNT(_x) \
+	GET_BITS(((_x).dtd_count), 3, 0)
+	unsigned char data[124];
+} __attribute__ ((__packed__));
+
 /**
  * Print the EDID info.
  *
@@ -242,6 +268,15 @@ void edid_print_info(struct edid1_info *edid_info);
 int edid_check_info(struct edid1_info *info);
 
 /**
+ * Check checksum of a 128 bytes EDID data block
+ *
+ * @param edid_block	EDID block data
+ *
+ * @return 0 on success, or a negative errno on error
+ */
+int edid_check_checksum(u8 *edid_block);
+
+/**
  * Get the horizontal and vertical rate ranges of the monitor.
  *
  * @param edid	The EDID info
@@ -254,5 +289,21 @@ int edid_check_info(struct edid1_info *info);
 int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,
 		    unsigned int *hmax, unsigned int *vmin,
 		    unsigned int *vmax);
+
+struct display_timing;
+
+/**
+ * edid_get_timing() - Get basic digital display parameters
+ *
+ * @param buf		Buffer containing EDID data
+ * @param buf_size	Size of buffer in bytes
+ * @param timing	Place to put preferring timing information
+ * @param panel_bits_per_colourp	Place to put the number of bits per
+ *			colour supported by the panel. This will be set to
+ *			-1 if not available
+ * @return 0 if timings are OK, -ve on error
+ */
+int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
+		    int *panel_bits_per_colourp);
 
 #endif /* __EDID_H_ */

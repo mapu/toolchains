@@ -243,7 +243,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <common.h>
-#include <usb.h>
+#include <g_dnl.h>
 
 #include <linux/err.h>
 #include <linux/usb/ch9.h>
@@ -255,6 +255,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/composite.h>
 #include <usb/lin_gadget_compat.h>
+#include <g_dnl.h>
 
 /*------------------------------------------------------------------------*/
 
@@ -670,7 +671,7 @@ static int sleep_thread(struct fsg_common *common)
 		if (common->thread_wakeup_needed)
 			break;
 
-		if (++i == 50000) {
+		if (++i == 20000) {
 			busy_indicator();
 			i = 0;
 			k++;
@@ -680,15 +681,15 @@ static int sleep_thread(struct fsg_common *common)
 			/* Handle CTRL+C */
 			if (ctrlc())
 				return -EPIPE;
-#ifdef CONFIG_USB_CABLE_CHECK
+
 			/* Check cable connection */
-			if (!usb_cable_connected())
+			if (!g_dnl_board_usb_cable_connected())
 				return -EIO;
-#endif
+
 			k = 0;
 		}
 
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 	common->thread_wakeup_needed = 0;
 	return rc;
@@ -972,7 +973,7 @@ static int do_write(struct fsg_common *common)
 
 			/* If an error occurred, report it and its position */
 			if (nwritten < amount) {
-				printf("nwritten:%d amount:%d\n", nwritten,
+				printf("nwritten:%zd amount:%u\n", nwritten,
 				       amount);
 				curlun->sense_data = SS_WRITE_ERROR;
 				curlun->info_valid = 1;
@@ -1109,6 +1110,7 @@ static int do_inquiry(struct fsg_common *common, struct fsg_buffhd *bh)
 
 	memset(buf, 0, 8);
 	buf[0] = TYPE_DISK;
+	buf[1] = curlun->removable ? 0x80 : 0;
 	buf[2] = 2;		/* ANSI SCSI level 2 */
 	buf[3] = 2;		/* SCSI-2 INQUIRY data format */
 	buf[4] = 31;		/* Additional length */
@@ -2461,12 +2463,12 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 
 	/* Allocate? */
 	if (!common) {
-		common = calloc(sizeof *common, 1);
+		common = calloc(sizeof(*common), 1);
 		if (!common)
 			return ERR_PTR(-ENOMEM);
 		common->free_storage_on_release = 1;
 	} else {
-		memset(common, 0, sizeof common);
+		memset(common, 0, sizeof(*common));
 		common->free_storage_on_release = 0;
 	}
 
@@ -2515,7 +2517,7 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 buffhds_first_it:
 		bh->inreq_busy = 0;
 		bh->outreq_busy = 0;
-		bh->buf = kmalloc(FSG_BUFLEN, GFP_KERNEL);
+		bh->buf = memalign(CONFIG_SYS_CACHELINE_SIZE, FSG_BUFLEN);
 		if (unlikely(!bh->buf)) {
 			rc = -ENOMEM;
 			goto error_release;
@@ -2622,7 +2624,7 @@ usb_copy_descriptors(struct usb_descriptor_header **src)
 		bytes += (*tmp)->bLength;
 	bytes += (n_desc + 1) * sizeof(*tmp);
 
-	mem = kmalloc(bytes, GFP_KERNEL);
+	mem = memalign(CONFIG_SYS_CACHELINE_SIZE, bytes);
 	if (!mem)
 		return NULL;
 
@@ -2778,3 +2780,5 @@ int fsg_init(struct ums *ums_dev)
 
 	return 0;
 }
+
+DECLARE_GADGET_BIND_CALLBACK(usb_dnl_ums, fsg_add);

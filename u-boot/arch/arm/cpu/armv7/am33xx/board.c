@@ -9,7 +9,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
+#include <ns16550.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -36,14 +38,53 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct gpio_bank gpio_bank_am33xx[4] = {
-	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+#if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_OF_CONTROL)
+/*
+ * TODO(sjg@chromium.org): When we can move SPL serial to DM, we can remove
+ * the CONFIGs. At the same time, we should move this to the board files.
+ */
+static const struct ns16550_platdata am33xx_serial[] = {
+	{ CONFIG_SYS_NS16550_COM1, 2, CONFIG_SYS_NS16550_CLK },
+# ifdef CONFIG_SYS_NS16550_COM2
+	{ CONFIG_SYS_NS16550_COM2, 2, CONFIG_SYS_NS16550_CLK },
+#  ifdef CONFIG_SYS_NS16550_COM3
+	{ CONFIG_SYS_NS16550_COM3, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM4, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM5, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM6, 2, CONFIG_SYS_NS16550_CLK },
+#  endif
+# endif
+};
+
+U_BOOT_DEVICES(am33xx_uarts) = {
+	{ "serial_omap", &am33xx_serial[0] },
+#  ifdef CONFIG_SYS_NS16550_COM2
+	{ "serial_omap", &am33xx_serial[1] },
+#   ifdef CONFIG_SYS_NS16550_COM3
+	{ "serial_omap", &am33xx_serial[2] },
+	{ "serial_omap", &am33xx_serial[3] },
+	{ "serial_omap", &am33xx_serial[4] },
+	{ "serial_omap", &am33xx_serial[5] },
+#   endif
+#  endif
+};
+#endif
+
+
+#ifndef CONFIG_DM_GPIO
+static const struct gpio_bank gpio_bank_am33xx[] = {
+	{ (void *)AM33XX_GPIO0_BASE },
+	{ (void *)AM33XX_GPIO1_BASE },
+	{ (void *)AM33XX_GPIO2_BASE },
+	{ (void *)AM33XX_GPIO3_BASE },
+#ifdef CONFIG_AM43XX
+	{ (void *)AM33XX_GPIO4_BASE },
+	{ (void *)AM33XX_GPIO5_BASE },
+#endif
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
+#endif
 
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int cpu_mmc_init(bd_t *bis)
@@ -59,7 +100,7 @@ int cpu_mmc_init(bd_t *bis)
 #endif
 
 /* AM33XX has two MUSB controllers which can be host or gadget */
-#if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
+#if (defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -138,7 +179,20 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+/*
+ * In the case of non-SPL based booting we'll want to call these
+ * functions a tiny bit later as it will require gd to be set and cleared
+ * and that's not true in s_init in this case so we cannot do it there.
+ */
+int board_early_init_f(void)
+{
+	prcm_init();
+	set_mux_conf_regs();
+
+	return 0;
+}
+
 /*
  * This function is the place to do per-board things such as ramp up the
  * MPU clock frequency.
@@ -196,6 +250,13 @@ static void watchdog_disable(void)
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	board_early_init_f();
+	sdram_init();
+}
 #endif
 
 void s_init(void)
@@ -208,44 +269,19 @@ void s_init(void)
 #ifdef CONFIG_NOR_BOOT
 	enable_norboot_pin_mux();
 #endif
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 	watchdog_disable();
-	timer_init();
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();
-#endif
-#ifdef CONFIG_NOR_BOOT
+#if defined(CONFIG_NOR_BOOT) || defined(CONFIG_QSPI_BOOT)
+	/* TODO: This does not work, gd is not available yet */
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
 	gd->have_console = 1;
-#else
-	gd = &gdata;
-	preloader_console_init();
 #endif
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
-	prcm_init();
-	set_mux_conf_regs();
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 #endif
-	sdram_init();
+}
 #endif
-}
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-}
-#endif /* !CONFIG_SYS_DCACHE_OFF */

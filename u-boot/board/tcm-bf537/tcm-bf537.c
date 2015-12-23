@@ -12,7 +12,6 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/blackfin.h>
-#include <asm/net.h>
 #include "../cm-bf537e/gpio_cfi_flash.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -22,18 +21,6 @@ int checkboard(void)
 	printf("Board: Bluetechnix TCM-BF537 board\n");
 	printf("       Support: http://www.bluetechnix.at/\n");
 	return 0;
-}
-
-static void board_init_enetaddr(char *var)
-{
-	uchar enetaddr[6];
-
-	if (eth_getenv_enetaddr(var, enetaddr))
-		return;
-
-	printf("Warning: %s: generating 'random' MAC address\n", var);
-	bfin_gen_rand_mac(enetaddr);
-	eth_setenv_enetaddr(var, enetaddr);
 }
 
 #ifndef CONFIG_BFIN_MAC
@@ -51,9 +38,6 @@ int board_eth_init(bd_t *bis)
 
 int misc_init_r(void)
 {
-	board_init_enetaddr("ethaddr");
-	board_init_enetaddr("eth1addr");
-
 	gpio_cfi_flash_init();
 
 	return 0;

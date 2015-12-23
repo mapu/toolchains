@@ -14,22 +14,16 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
-#define CONFIG_OMAP3_LOGIC		/* working with Logic OMAP boards */
-#define CONFIG_OMAP_GPIO
-#define CONFIG_OMAP_COMMON
 
+#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define CONFIG_SYS_TEXT_BASE	0x80400000
 
-#define CONFIG_SDRC	/* The chip has SDRC controller */
-
-#include <asm/arch/cpu.h>	/* get chip and board defs */
-#include <asm/arch/omap3.h>
-
+#include <configs/ti_omap3_common.h>
+#define CONFIG_OMAP3_LOGIC		/* working with Logic OMAP boards */
 /*
  * Display CPU and Board information
  */
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -52,25 +46,14 @@
  */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-
 /*
  * Hardware drivers
  */
 
 /*
- * NS16550 Configuration
- */
-#define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
-
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-
-/*
  * select serial console configuration
  */
+#undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
 #define CONFIG_SERIAL1			1	/* UART1 on OMAP Logic boards */
@@ -86,12 +69,9 @@
 #define CONFIG_DOS_PARTITION
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
@@ -103,15 +83,8 @@
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
-#define CONFIG_CMD_NET      /* bootp, tftpboot, rarpboot    */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
-
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
 
@@ -126,31 +99,23 @@
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_POWER
+
 
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST
+#define CONFIG_SYS_NAND_BASE            NAND_BASE
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
-#define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
-							/* to access nand at */
-							/* CS0 */
+
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define CONFIG_JFFS2_NAND
-/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_DEV		"nand0"
-/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_OFFSET	0x680000
-#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
-							/* partition */
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
+
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		2
 
 /*
  * PREBOOT assumes the 4.3" display is attached.  User can interrupt
@@ -240,21 +205,16 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"OMAP Logic # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
+
+
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
 
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock
@@ -276,16 +236,12 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #elif defined(CONFIG_CMD_ONENAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_ONEN_BASE
+#define CONFIG_SYS_FLASH_BASE		ONENAND_MAP
 #endif
 
 /* Monitor at start of flash */
@@ -295,7 +251,6 @@
 
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_OMAP_GPMC
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #endif
@@ -303,12 +258,8 @@
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
 #define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
 
 /*
  * SMSC922x Ethernet

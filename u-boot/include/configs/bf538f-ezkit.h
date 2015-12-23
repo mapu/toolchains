@@ -63,8 +63,6 @@
 #define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20310300
 #define CONFIG_HOSTNAME		bf538f-ezkit
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*
@@ -83,10 +81,10 @@
  */
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
+/*
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ALL
-
+*/
 
 /*
  * Env Storage Settings
@@ -125,8 +123,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
-#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
@@ -134,7 +132,6 @@
  */
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

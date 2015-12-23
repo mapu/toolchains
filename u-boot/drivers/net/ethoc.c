@@ -189,12 +189,12 @@ struct ethoc_bd {
 	u32 addr;
 };
 
-static inline u32 ethoc_read(struct eth_device *dev, loff_t offset)
+static inline u32 ethoc_read(struct eth_device *dev, size_t offset)
 {
 	return readl(dev->iobase + offset);
 }
 
-static inline void ethoc_write(struct eth_device *dev, loff_t offset, u32 data)
+static inline void ethoc_write(struct eth_device *dev, size_t offset, u32 data)
 {
 	writel(data, dev->iobase + offset);
 }
@@ -202,7 +202,7 @@ static inline void ethoc_write(struct eth_device *dev, loff_t offset, u32 data)
 static inline void ethoc_read_bd(struct eth_device *dev, int index,
 				 struct ethoc_bd *bd)
 {
-	loff_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
+	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
 	bd->stat = ethoc_read(dev, offset + 0);
 	bd->addr = ethoc_read(dev, offset + 4);
 }
@@ -210,7 +210,7 @@ static inline void ethoc_read_bd(struct eth_device *dev, int index,
 static inline void ethoc_write_bd(struct eth_device *dev, int index,
 				  const struct ethoc_bd *bd)
 {
-	loff_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
+	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
 	ethoc_write(dev, offset + 0, bd->stat);
 	ethoc_write(dev, offset + 4, bd->addr);
 }
@@ -267,7 +267,7 @@ static int ethoc_init_ring(struct eth_device *dev)
 	bd.stat = RX_BD_EMPTY | RX_BD_IRQ;
 
 	for (i = 0; i < priv->num_rx; i++) {
-		bd.addr = (u32)NetRxPackets[i];
+		bd.addr = (u32)net_rx_packets[i];
 		if (i == priv->num_rx - 1)
 			bd.stat |= RX_BD_WRAP;
 
@@ -372,7 +372,7 @@ static int ethoc_rx(struct eth_device *dev, int limit)
 		if (ethoc_update_rx_stats(&bd) == 0) {
 			int size = bd.stat >> 16;
 			size -= 4;	/* strip the CRC */
-			NetReceive((void *)bd.addr, size);
+			net_process_received_packet((void *)bd.addr, size);
 		}
 
 		/* clear the buffer descriptor so it can be reused */

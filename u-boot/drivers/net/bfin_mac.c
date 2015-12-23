@@ -16,6 +16,7 @@
 #include <linux/mii.h>
 
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/dma.h>
 #include <asm/mach-common/bits/emac.h>
@@ -188,8 +189,8 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 
 		debug("%s: len = %d\n", __func__, length - 4);
 
-		NetRxPackets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
-		NetReceive(NetRxPackets[rxIdx], length - 4);
+		net_rx_packets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
+		net_process_received_packet(net_rx_packets[rxIdx], length - 4);
 		bfin_write_DMA1_IRQ_STATUS(DMA_DONE | DMA_ERR);
 		rxbuf[rxIdx]->StatusWord = 0x00000000;
 		if ((rxIdx + 1) >= PKTBUFSRX)
@@ -259,6 +260,8 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 		*opmode = 0;
 
 	bfin_write_EMAC_MMC_CTL(RSTC | CROLL);
+	bfin_write_EMAC_VLAN1(EMAC_VLANX_DEF_VAL);
+	bfin_write_EMAC_VLAN2(EMAC_VLANX_DEF_VAL);
 
 	/* Initialize the TX DMA channel registers */
 	bfin_write_DMA2_X_COUNT(0);

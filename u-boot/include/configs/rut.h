@@ -41,26 +41,18 @@
 #undef CONFIG_SPL_NET_VCI_STRING
 #undef CONFIG_SPL_ETH_SUPPORT
 
-#define CONFIG_PHY_ADDR			1
 #define CONFIG_PHY_NATSEMI
 
 #define CONFIG_FACTORYSET
 
-/* UBI Support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#endif
 
 /* Watchdog */
 #define WATCHDOG_TRIGGER_GPIO	14
 
 #ifndef CONFIG_SPL_BUILD
+
+/* Use common default */
+#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V1
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -68,7 +60,8 @@
 	"nand_img_size=0x500000\0" \
 	"splashpos=m,m\0" \
 	"optargs=fixrtc --no-log consoleblank=0 \0" \
-	CONFIG_COMMON_ENV_SETTINGS \
+	CONFIG_ENV_SETTINGS_V1 \
+	CONFIG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
 	"mmc_root_fs_type=ext4 rootwait\0" \
@@ -153,6 +146,10 @@
 #define DISPL_PLL_SPREAD_SPECTRUM
 #define CONFIG_SYS_CONSOLE_BG_COL	0xff
 #define CONFIG_SYS_CONSOLE_FG_COL	0x00
+#endif
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FIT
 #endif
 
 #endif	/* ! __CONFIG_RUT_H */

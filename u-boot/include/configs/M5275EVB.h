@@ -21,8 +21,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5275			/* define processor type */
 #define CONFIG_M5275EVB			/* define board type */
 
 #define CONFIG_MCFTMR
@@ -44,6 +42,10 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
+#define LDS_BOARD_TEXT \
+        . = DEFINED(env_offset) ? env_offset : .; \
+        common/env_embedded.o (.text);
+
 /*
  * BOOTP options
  */
@@ -53,20 +55,13 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Available command configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_DHCP
 
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
@@ -103,7 +98,6 @@
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFF0)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0x000F)
 
-#define CONFIG_SYS_PROMPT		"-> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 
 #if (CONFIG_CMD_KGDB)

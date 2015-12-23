@@ -950,30 +950,6 @@ static void mxc_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 }
 
 /*
- * Used by the upper layer to verify the data in NAND Flash
- * with the data in the buf.
- */
-static int mxc_nand_verify_buf(struct mtd_info *mtd,
-				const u_char *buf, int len)
-{
-	u_char tmp[256];
-	uint bsize;
-
-	while (len) {
-		bsize = min(len, 256);
-		mxc_nand_read_buf(mtd, tmp, bsize);
-
-		if (memcmp(buf, tmp, bsize))
-			return 1;
-
-		buf += bsize;
-		len -= bsize;
-	}
-
-	return 0;
-}
-
-/*
  * This function is used by upper layer for select and
  * deselect of the NAND chip
  */
@@ -1203,7 +1179,6 @@ int board_nand_init(struct nand_chip *this)
 	this->read_word = mxc_nand_read_word;
 	this->write_buf = mxc_nand_write_buf;
 	this->read_buf = mxc_nand_read_buf;
-	this->verify_buf = mxc_nand_verify_buf;
 
 	host->regs = (struct mxc_nand_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
 #ifdef MXC_NFC_V3_2

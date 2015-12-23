@@ -187,11 +187,12 @@ static int smc911x_send(struct eth_device *dev, void *packet, int length)
 static void smc911x_halt(struct eth_device *dev)
 {
 	smc911x_reset(dev);
+	smc911x_handle_mac_address(dev);
 }
 
 static int smc911x_rx(struct eth_device *dev)
 {
-	u32 *data = (u32 *)NetRxPackets[0];
+	u32 *data = (u32 *)net_rx_packets[0];
 	u32 pktlen, tmplen;
 	u32 status;
 
@@ -210,7 +211,7 @@ static int smc911x_rx(struct eth_device *dev)
 				": dropped bad packet. Status: 0x%08x\n",
 				status);
 		else
-			NetReceive(NetRxPackets[0], pktlen);
+			net_process_received_packet(net_rx_packets[0], pktlen);
 	}
 
 	return 0;

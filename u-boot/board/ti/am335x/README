@@ -46,30 +46,49 @@ NAND
 The AM335x GP EVM ships with a 256MiB NAND available in most profiles.  In
 this example to program the NAND we assume that an SD card has been
 inserted with the files to write in the first SD slot and that mtdparts
-have been configured correctly for the board.  As a time saving measure we
-load MLO into memory in one location, copy it into the three locatations
-that the ROM checks for additional valid copies, then load U-Boot into
-memory.  We then write that whole section of memory to NAND.
+have been configured correctly for the board. All images are first loaded
+into memory, then written to NAND.
 
-U-Boot # mmc rescan
-U-Boot # env default -f -a
-U-Boot # nand erase.chip
-U-Boot # saveenv
-U-Boot # load mmc 0 81000000 MLO
-U-Boot # cp.b 81000000 81020000 20000
-U-Boot # cp.b 81000000 81040000 20000
-U-Boot # cp.b 81000000 81060000 20000
-U-Boot # load mmc 0 81080000 u-boot.img
-U-Boot # nand write 81000000 0 260000
-U-Boot # load mmc 0 ${loadaddr} uImage
-U-Boot # nand write ${loadaddr} kernel 500000
+Step-1: Building u-boot for NAND boot
+	Set following CONFIGxx options for NAND device.
+	CONFIG_SYS_NAND_PAGE_SIZE	number of main bytes in NAND page
+	CONFIG_SYS_NAND_OOBSIZE		number of OOB bytes in NAND page
+	CONFIG_SYS_NAND_BLOCK_SIZE	number of bytes in NAND erase-block
+	CONFIG_SYS_NAND_ECCPOS		ECC map for NAND page
+	CONFIG_NAND_OMAP_ECCSCHEME	(refer doc/README.nand)
+
+Step-2: Flashing NAND via MMC/SD
+	# select BOOTSEL to MMC/SD boot and boot from MMC/SD card
+	U-Boot # mmc rescan
+	# erase flash
+	U-Boot # nand erase.chip
+	U-Boot # env default -f -a
+	U-Boot # saveenv
+	# flash MLO. Redundant copies of MLO are kept for failsafe
+	U-Boot # load mmc 0 0x82000000 MLO
+	U-Boot # nand write 0x82000000 0x00000 0x20000
+	U-Boot # nand write 0x82000000 0x20000 0x20000
+	U-Boot # nand write 0x82000000 0x40000 0x20000
+	U-Boot # nand write 0x82000000 0x60000 0x20000
+	# flash u-boot.img
+	U-Boot # load mmc 0 0x82000000 u-boot.img
+	U-Boot # nand write 0x82000000 0x80000 0x60000
+	# flash kernel image
+	U-Boot # load mmc 0 0x82000000 uImage
+	U-Boot # nand write 0x82000000 ${nandsrcaddr} ${nandimgsize}
+	# flash filesystem image
+	U-Boot # load mmc 0 0x82000000 filesystem.img
+	U-Boot # nand write 0x82000000 ${loadaddress} 0x300000
+
+Step-3: Set BOOTSEL pin to select NAND boot, and POR the device.
+	The device should boot from images flashed on NAND device.
 
 NOR
 ===
 
-The Beaglebone White can be equiped with a "memory cape" that in turn can
+The Beaglebone White can be equipped with a "memory cape" that in turn can
 have a NOR module plugged into it.  In this case it is then possible to
-program and boot from NOR.  Note that due to how U-Boot is architectured we
+program and boot from NOR.  Note that due to how U-Boot is designed we
 must build a specific version of U-Boot that knows we have NOR flash.  This
 build is named 'am335x_evm_nor'.  Further, we have a 'am335x_evm_norboot'
 build that will assume that the environment is on NOR rather than NAND.  In
@@ -174,7 +193,7 @@ Falcon Mode: NAND
 
 In this case the additional data is written to another partition of the
 NAND.  In this example we assume that the uImage and device tree to be are
-already located on the NAND somewhere (such as fileystem or mtd partition)
+already located on the NAND somewhere (such as filesystem or mtd partition)
 along with a Falcon Mode aware MLO written to the correct locations for
 booting and mtdparts have been configured correctly for the board:
 

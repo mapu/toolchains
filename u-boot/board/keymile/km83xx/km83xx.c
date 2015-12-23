@@ -28,6 +28,8 @@
 
 #include "../common/common.h"
 
+static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 #if defined(CONFIG_MPC8360)
@@ -190,6 +192,7 @@ int board_early_init_r(void)
 
 int misc_init_r(void)
 {
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 
@@ -359,16 +362,18 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+	return 0;
 }
 #endif
 
 #if defined(CONFIG_HUSH_INIT_VAR)
 int hush_init_var(void)
 {
-	ivm_read_eeprom();
+	ivm_analyze_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 #endif

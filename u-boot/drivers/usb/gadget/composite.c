@@ -283,7 +283,7 @@ static void device_qual(struct usb_composite_dev *cdev)
 	qual->bDeviceSubClass = cdev->desc.bDeviceSubClass;
 	qual->bDeviceProtocol = cdev->desc.bDeviceProtocol;
 	/* ASSUME same EP0 fifo size at both speeds */
-	qual->bMaxPacketSize0 = cdev->desc.bMaxPacketSize0;
+	qual->bMaxPacketSize0 = cdev->gadget->ep0->maxpacket;
 	qual->bNumConfigurations = count_configs(cdev, USB_DT_DEVICE_QUALIFIER);
 	qual->bRESERVED = 0;
 }
@@ -736,6 +736,8 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		case USB_DT_DEVICE:
 			cdev->desc.bNumConfigurations =
 				count_configs(cdev, USB_DT_DEVICE);
+			cdev->desc.bMaxPacketSize0 =
+				cdev->gadget->ep0->maxpacket;
 			value = min(w_length, (u16) sizeof cdev->desc);
 			memcpy(req->buf, &cdev->desc, value);
 			break;
@@ -743,8 +745,8 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 			if (!gadget_is_dualspeed(gadget))
 				break;
 			device_qual(cdev);
-			value = min(w_length,
-				sizeof(struct usb_qualifier_descriptor));
+			value = min_t(int, w_length,
+				      sizeof(struct usb_qualifier_descriptor));
 			break;
 		case USB_DT_OTHER_SPEED_CONFIG:
 			if (!gadget_is_dualspeed(gadget))
@@ -760,6 +762,14 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 					w_index, w_value & 0xff);
 			if (value >= 0)
 				value = min(w_length, (u16) value);
+			break;
+		case USB_DT_BOS:
+			/*
+			 * The USB compliance test (USB 2.0 Command Verifier)
+			 * issues this request. We should not run into the
+			 * default path here. But return for now until
+			 * the superspeed support is added.
+			 */
 			break;
 		default:
 			goto unknown;
@@ -938,6 +948,7 @@ static void composite_unbind(struct usb_gadget *gadget)
 			debug("unbind config '%s'/%p\n", c->label, c);
 			c->unbind(c);
 		}
+		free(c);
 	}
 	if (composite->unbind)
 		composite->unbind(cdev);
@@ -1042,6 +1053,7 @@ static struct usb_gadget_driver composite_driver = {
 	.unbind         = composite_unbind,
 
 	.setup		= composite_setup,
+	.reset          = composite_disconnect,
 	.disconnect	= composite_disconnect,
 
 	.suspend        = composite_suspend,

@@ -21,16 +21,20 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX	/* which is a 34XX */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_CMD_GPIO
 #define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /*
  * Display CPU and Board information
@@ -45,13 +49,6 @@
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT		1
-/*
- * The early kernel mapping on ARM currently only maps from the base of DRAM
- * to the end of the kernel image.  The kernel is loaded at DRAM base + 0x8000.
- * The early kernel pagetable uses DRAM base + 0x4000 to DRAM base + 0x8000,
- * so that leaves DRAM base to DRAM base + 0x4000 available.
- */
-#define CONFIG_SYS_BOOTMAPSZ	        0x4000
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -103,7 +100,7 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_USB_STORAGE
-#define CONFIG_MUSB_UDC
+#define CONFIG_USB_MUSB_UDC
 #define CONFIG_TWL4030_USB
 #define CONFIG_CMD_USB
 
@@ -111,12 +108,8 @@
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-/* This delay is really for slow-to-power-on USB sticks, not the hub */
-#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY 500
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
@@ -134,9 +127,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -145,6 +135,7 @@
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+#define CONFIG_SYS_I2C_EEPROM_BUS	0
 #define CONFIG_I2C_MULTI_BUS
 
 /*
@@ -156,17 +147,15 @@
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define GPMC_NAND_ECC_LP_x8_LAYOUT
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
+
 /* Environment information */
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
@@ -232,7 +221,6 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"CM-T3x # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -268,9 +256,6 @@
  */
 
 /* **** PISMO SUPPORT *** */
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
@@ -322,6 +307,7 @@
 
 #define CONFIG_LCD
 #define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SOURCE
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
 #define CONFIG_SCF0403_LCD
@@ -329,14 +315,13 @@
 #define CONFIG_OMAP3_SPI
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -377,7 +362,6 @@
 
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 /*
  * Use 0x80008000 as TEXT_BASE here for compatibility reasons with the

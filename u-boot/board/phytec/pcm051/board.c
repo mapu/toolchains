@@ -176,13 +176,13 @@ static struct cpsw_slave_data cpsw_slaves[] = {
 	{
 		.slave_reg_ofs	= 0x208,
 		.sliver_reg_ofs	= 0xd80,
-		.phy_id		= 0,
+		.phy_addr	= 0,
 		.phy_if		= PHY_INTERFACE_MODE_RGMII,
 	},
 	{
 		.slave_reg_ofs	= 0x308,
 		.sliver_reg_ofs	= 0xdc0,
-		.phy_id		= 1,
+		.phy_addr	= 1,
 		.phy_if		= PHY_INTERFACE_MODE_RGMII,
 	},
 };
@@ -208,7 +208,7 @@ static struct cpsw_platform_data cpsw_data = {
 #endif
 
 #if defined(CONFIG_DRIVER_TI_CPSW) || \
-	(defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET))
+	(defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET))
 int board_eth_init(bd_t *bis)
 {
 	int rv, n = 0;
@@ -228,7 +228,7 @@ int board_eth_init(bd_t *bis)
 		mac_addr[4] = mac_lo & 0xFF;
 		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 		else
 			goto try_usbether;

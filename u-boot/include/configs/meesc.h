@@ -56,6 +56,8 @@
 #define CONFIG_DISPLAY_CPUINFO			/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Hardware drivers
  */
@@ -86,12 +88,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NAND
@@ -124,7 +120,6 @@
 #ifdef CONFIG_SYS_USE_DATAFLASH
 # define CONFIG_ATMEL_DATAFLASH_SPI
 # define CONFIG_HAS_DATAFLASH
-# define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
 # define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
 # define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
 # define AT91_SPI_CLK				15000000

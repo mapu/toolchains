@@ -8,9 +8,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
-#include <version.h>
-
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -406,9 +403,6 @@ __second_half_boot_page:
 	andi.	r11,r4,1
 	bne	3b
 	isync
-
-	/* setup IVORs to match fixed offsets */
-#include "fixed_ivor.S"
 
 	/* get the upper bits of the addr */
 	lwz	r11,ENTRY_ADDR_UPPER(r10)

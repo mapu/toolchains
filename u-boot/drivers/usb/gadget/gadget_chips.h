@@ -125,7 +125,7 @@
 #endif
 
 /* Mentor high speed "dual role" controller, in peripheral role */
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 #define gadget_is_musbhdrc(g)	(!strcmp("musb-hdrc", (g)->name))
 #else
 #define gadget_is_musbhdrc(g)	0
@@ -144,10 +144,10 @@
 #define	gadget_is_m66592(g)	0
 #endif
 
-#ifdef CONFIG_MV_UDC
-#define gadget_is_mv(g)        (!strcmp("mv_udc", (g)->name))
+#ifdef CONFIG_CI_UDC
+#define gadget_is_ci(g)        (!strcmp("ci_udc", (g)->name))
 #else
-#define gadget_is_mv(g)        0
+#define gadget_is_ci(g)        0
 #endif
 
 #ifdef CONFIG_USB_GADGET_FOTG210
@@ -155,6 +155,14 @@
 #else
 #define gadget_is_fotg210(g)        0
 #endif
+
+#ifdef CONFIG_USB_DWC3_GADGET
+#define gadget_is_dwc3(g)        (!strcmp("dwc3-gadget", (g)->name))
+#else
+#define gadget_is_dwc3(g)        0
+#endif
+
+
 
 /*
  * CONFIG_USB_GADGET_SX2
@@ -219,7 +227,7 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x19;
 	else if (gadget_is_m66592(gadget))
 		return 0x20;
-	else if (gadget_is_mv(gadget))
+	else if (gadget_is_ci(gadget))
 		return 0x21;
 	else if (gadget_is_fotg210(gadget))
 		return 0x22;

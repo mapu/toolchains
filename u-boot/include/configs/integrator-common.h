@@ -7,8 +7,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#define CONFIG_INTEGRATOR
-
 #define CONFIG_SYS_TEXT_BASE		0x01000000
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
@@ -22,10 +20,16 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size*/
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
 
+/* Serial port PL010/PL011 through the device model */
+#define CONFIG_PL01X_SERIAL
+#define CONFIG_BAUDRATE			38400
+#define CONFIG_CONS_INDEX		0
+
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_OF_LIBFDT		/* enable passing a Device Tree */
 #define CONFIG_MISC_INIT_R		/* call misc_init_r during start up */
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * There are various dependencies on the core module (CM) fitted
@@ -85,3 +89,24 @@
 				    CONFIG_SYS_INIT_RAM_SIZE - \
 				    GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR CONFIG_SYS_GBL_DATA_OFFSET
+
+/*
+ * FLASH and environment organization
+ * Top varies according to amount fitted
+ * Reserve top 4 blocks of flash
+ * - ARM Boot Monitor
+ * - Unused
+ * - SIB block
+ * - U-Boot environment
+ */
+#define CONFIG_CMD_ARMFLASH
+#define CONFIG_SYS_FLASH_CFI		1
+#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_BASE		0x24000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+
+/* Timeout values in ticks */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
+#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
+#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

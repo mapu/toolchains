@@ -14,7 +14,12 @@ enum dma_data_direction {
 	DMA_TO_DEVICE		= 1,
 	DMA_FROM_DEVICE		= 2,
 };
-extern void *dma_alloc_coherent(size_t len, unsigned long *handle);
+
+static inline void *dma_alloc_coherent(size_t len, unsigned long *handle)
+{
+	*handle = (unsigned long)memalign(ARCH_DMA_MINALIGN, len);
+	return (void *)*handle;
+}
 
 static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
 					   enum dma_data_direction dir)
@@ -23,13 +28,15 @@ static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
 
 	switch (dir) {
 	case DMA_BIDIRECTIONAL:
-		dcache_flush_range(vaddr, len);
+		flush_dcache_range((unsigned long)vaddr,
+				   (unsigned long)vaddr + len);
 		break;
 	case DMA_TO_DEVICE:
 		dcache_clean_range(vaddr, len);
 		break;
 	case DMA_FROM_DEVICE:
-		dcache_invalidate_range(vaddr, len);
+		invalidate_dcache_range((unsigned long)vaddr,
+					(unsigned long)vaddr + len);
 		break;
 	default:
 		/* This will cause a linker error */

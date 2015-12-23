@@ -18,6 +18,7 @@ SECTIONS
 	.text :
 	{
 		__image_copy_start = .;
+		*(.vectors)
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
@@ -31,8 +32,18 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-
+#ifdef CONFIG_SPL_DM
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list_*_driver_*)));
+		KEEP(*(SORT(.u_boot_list_*_uclass_*)));
+	}
+#endif
 	. = .;
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list*_i2c_*)));
+	}
+
+	. = ALIGN(4);
 
 	__image_copy_end = .;
 
@@ -42,7 +53,12 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
@@ -50,8 +66,8 @@ SECTIONS
 		 . = ALIGN(4);
 		__bss_end = .;
 	}
-
-	.dynsym _end : { *(.dynsym) }
+	__bss_size = __bss_end - __bss_start;
+	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }

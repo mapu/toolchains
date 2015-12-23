@@ -13,9 +13,13 @@
  * High level configuration options
  */
 #define CONFIG_OMAP			/* This is TI OMAP core */
-#define CONFIG_OMAP34XX			/* belonging to 34XX family */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
@@ -95,9 +99,6 @@
 /*
  * PISMO support
  */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 /* Monitor at start of flash - Reserve 2 sectors */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
@@ -120,7 +121,7 @@
 
 /* Max number of NAND devices */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 /* Timeout values (in ticks) */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
@@ -146,7 +147,7 @@
  */
 #ifdef CONFIG_USB_OMAP3
 
-#ifdef CONFIG_MUSB_HCD
+#ifdef CONFIG_USB_MUSB_HCD
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -158,9 +159,9 @@
 #define CONFIG_PREBOOT			"usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HCD */
+#endif /* CONFIG_USB_MUSB_HCD */
 
-#ifdef CONFIG_MUSB_UDC
+#ifdef CONFIG_USB_MUSB_UDC
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
@@ -171,7 +172,7 @@
 #define CONFIG_USBD_PRODUCTID		0x5678
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"EVM"
-#endif /* CONFIG_MUSB_UDC */
+#endif /* CONFIG_USB_MUSB_UDC */
 
 #endif /* CONFIG_USB_OMAP3 */
 
@@ -179,7 +180,6 @@
  * U-boot features
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_SYS_PROMPT		"OMAP3_EVM # "
 #define CONFIG_SYS_MAXARGS		16	/* max args for a command */
 
 #define CONFIG_MISC_INIT_R
@@ -205,13 +205,12 @@
  * NAND / OneNAND
  */
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 
 #define CONFIG_NAND_OMAP_GPMC
-#define GPMC_NAND_ECC_LP_x16_LAYOUT
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #elif defined(CONFIG_CMD_ONENAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_ONEN_BASE
+#define CONFIG_SYS_FLASH_BASE		ONENAND_MAP
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 #endif
 
@@ -261,11 +260,9 @@
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */

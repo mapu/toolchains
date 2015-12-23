@@ -29,6 +29,7 @@ enum clock_id {
 	/* These are the base clocks (inputs to the Tegra SOC) */
 	CLOCK_ID_32KHZ,
 	CLOCK_ID_OSC,
+	CLOCK_ID_CLK_M,
 
 	CLOCK_ID_COUNT,	/* number of clocks */
 	CLOCK_ID_NONE = -1,
@@ -131,7 +132,7 @@ enum periph_id {
 	/* 72 */
 	PERIPH_ID_AFI,
 	PERIPH_ID_CORESIGHT,
-	PERIPH_ID_RESERVED74,
+	PERIPH_ID_PCIEXCLK,
 	PERIPH_ID_AVPUCQ,
 	PERIPH_ID_RESERVED76,
 	PERIPH_ID_RESERVED77,

@@ -776,7 +776,7 @@ static int drop_var_from_set(const char *name, int nvars, char * vars[])
 
 int himport_r(struct hsearch_data *htab,
 		const char *env, size_t size, const char sep, int flag,
-		int nvars, char * const vars[])
+		int crlf_is_lf, int nvars, char * const vars[])
 {
 	char *data, *sp, *dp, *name, *value;
 	char *localvars[nvars];
@@ -789,12 +789,13 @@ int himport_r(struct hsearch_data *htab,
 	}
 
 	/* we allocate new space to make sure we can write to the array */
-	if ((data = malloc(size)) == NULL) {
-		debug("himport_r: can't malloc %zu bytes\n", size);
+	if ((data = malloc(size + 1)) == NULL) {
+		debug("himport_r: can't malloc %zu bytes\n", size + 1);
 		__set_errno(ENOMEM);
 		return 0;
 	}
 	memcpy(data, env, size);
+	data[size] = '\0';
 	dp = data;
 
 	/* make a local copy of the list of variables */
@@ -841,6 +842,23 @@ int himport_r(struct hsearch_data *htab,
 		}
 	}
 
+	if (!size) {
+		free(data);
+		return 1;		/* everything OK */
+	}
+	if(crlf_is_lf) {
+		/* Remove Carriage Returns in front of Line Feeds */
+		unsigned ignored_crs = 0;
+		for(;dp < data + size && *dp; ++dp) {
+			if(*dp == '\r' &&
+			   dp < data + size - 1 && *(dp+1) == '\n')
+				++ignored_crs;
+			else
+				*(dp-ignored_crs) = *dp;
+		}
+		size -= ignored_crs;
+		dp = data;
+	}
 	/* Parse environment; allow for '\0' and 'sep' as separators */
 	do {
 		ENTRY e, *rv;
@@ -891,6 +909,7 @@ int himport_r(struct hsearch_data *htab,
 		if (*name == 0) {
 			debug("INSERT: unable to use an empty key\n");
 			__set_errno(EINVAL);
+			free(data);
 			return 0;
 		}
 

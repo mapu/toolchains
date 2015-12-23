@@ -18,8 +18,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 #define CONFIG_GRXC3S1500	1	/* ... on GR-XC3S-1500 board */
 
 /* CPU / AMBA BUS configuration */
@@ -42,8 +40,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_AMBAPP
 #define CONFIG_CMD_PING
@@ -222,15 +218,6 @@
  */
 #define CONFIG_GRETH	1
 
-/* Default GRETH Ethernet HARDWARE address */
-#define GRETH_HWADDR_0 0x00
-#define GRETH_HWADDR_1 0x00
-#define GRETH_HWADDR_2 0x7a
-#define GRETH_HWADDR_3 0xcc
-#define GRETH_HWADDR_4 0x00
-#define GRETH_HWADDR_5 0x12
-
-#define CONFIG_ETHADDR   00:00:7a:cc:00:12
 #define CONFIG_PHY_ADDR	 0x00
 
 /*

@@ -33,15 +33,8 @@ static int confirm_prog(void)
 					"what you are doing!\n"
 			"\nReally perform this fuse programming? <y/N>\n");
 
-	if (getc() == 'y') {
-		int c;
-
-		putc('y');
-		c = getc();
-		putc('\n');
-		if (c == '\r')
-			return 1;
-	}
+	if (confirm_yesno())
+		return 1;
 
 	puts("Fuse programming aborted\n");
 	return 0;
@@ -135,7 +128,7 @@ static int do_fuse(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 err:
 	puts("ERROR\n");
-	return ret;
+	return CMD_RET_FAILURE;
 }
 
 U_BOOT_CMD(

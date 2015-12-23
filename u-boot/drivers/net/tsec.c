@@ -20,6 +20,7 @@
 #include <fsl_mdio.h>
 #include <asm/errno.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -283,7 +284,7 @@ void redundant_init(struct eth_device *dev)
 			}
 		}
 
-		if (!memcmp(pkt, (void *)NetRxPackets[rx_idx], sizeof(pkt)))
+		if (!memcmp(pkt, (void *)net_rx_packets[rx_idx], sizeof(pkt)))
 			fail = 0;
 
 		out_be16(&rxbd[rx_idx].length, 0);
@@ -339,7 +340,7 @@ static void startup_tsec(struct eth_device *dev)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		out_be16(&rxbd[i].status, RXBD_EMPTY);
 		out_be16(&rxbd[i].length, 0);
-		out_be32(&rxbd[i].bufptr, (u32)NetRxPackets[i]);
+		out_be32(&rxbd[i].bufptr, (u32)net_rx_packets[i]);
 	}
 	status = in_be16(&rxbd[PKTBUFSRX - 1].status);
 	out_be16(&rxbd[PKTBUFSRX - 1].status, status | RXBD_WRAP);
@@ -423,7 +424,8 @@ static int tsec_recv(struct eth_device *dev)
 
 		/* Send the packet up if there were no errors */
 		if (!(status & RXBD_STATS))
-			NetReceive(NetRxPackets[rx_idx], length - 4);
+			net_process_received_packet(net_rx_packets[rx_idx],
+						    length - 4);
 		else
 			printf("Got error %x\n", (status & RXBD_STATS));
 
@@ -590,6 +592,8 @@ static int init_phy(struct eth_device *dev)
 		tsec_configure_serdes(priv);
 
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
+	if (!phydev)
+		return 0;
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;

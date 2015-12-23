@@ -10,6 +10,8 @@
 #ifndef __T4QDS_H
 #define __T4QDS_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_CMD_REGINFO
 
 /* High Level Configuration Options */
@@ -17,11 +19,10 @@
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MPC85xx			/* MPC85xx/PQ3 platform */
 #define CONFIG_MP			/* support multiple processors */
 
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
@@ -69,7 +70,16 @@
 /*
  *  Config the L3 Cache as L3 SRAM
  */
-#define CONFIG_SYS_INIT_L3_ADDR		CONFIG_RAMBOOT_TEXT_BASE
+#define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
+#define CONFIG_SYS_L3_SIZE		(512 << 10)
+#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
+#ifdef CONFIG_RAMBOOT_PBL
+#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
+#endif
+#define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
+#define CONFIG_SPL_RELOC_MALLOC_SIZE	(50 << 10)
+#define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
+#define CONFIG_SPL_RELOC_STACK_SIZE	(22 << 10)
 
 #define CONFIG_SYS_DCSRBAR		0xf0000000
 #define CONFIG_SYS_DCSRBAR_PHYS		0xf00000000ull
@@ -97,7 +107,11 @@
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)
 
 
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
+#else
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
+#endif
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 #define CONFIG_MISC_INIT_R
@@ -109,7 +123,7 @@
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xfdd00000	/* Initial L1 address */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH	0xf
-#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe0ec000
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW	0xfe03c000
 /* The assembler doesn't like typecast */
 #define CONFIG_SYS_INIT_RAM_ADDR_PHYS \
 	((CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH * 1ull << 32) | \
@@ -120,7 +134,7 @@
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
@@ -218,9 +232,7 @@
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-#define CONFIG_E1000
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
@@ -260,8 +272,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
@@ -270,11 +280,9 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SETEXPR
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*

@@ -21,6 +21,7 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/omap.h>
 
@@ -28,7 +29,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* Use HUSH for command parsing */
-#define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
 
@@ -38,8 +38,6 @@
 #define CONFIG_INITRD_TAG		/* for ramdisk support */
 
 /* commands to include */
-# include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_VERSION_VARIABLE
 
@@ -101,8 +99,6 @@
 /* Clock Defines */
 #define V_OSCK			24000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
-
-#define CONFIG_CMD_ECHO
 
 /* max number of command args */
 #define CONFIG_SYS_MAXARGS		16
@@ -168,19 +164,17 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40300000
 #define CONFIG_SPL_MAX_SIZE		((128 - 18) * 1024)
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS      0x200 /* 256 KB */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME        "u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 
@@ -218,7 +212,6 @@
 #undef CONFIG_USE_IRQ
 
 /* Ethernet */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
@@ -230,10 +223,8 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
-#define CONFIG_PHY_ADDR			1
 #define CONFIG_PHY_ET1011C
 #define CONFIG_PHY_ET1011C_TX_CLK_FIX
 

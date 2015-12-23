@@ -13,7 +13,7 @@
 #define __OMAP3_EVM_QUICK_NAND_H
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot commands
@@ -27,7 +27,6 @@
  * When revision is statically configured via CONFIG_STATIC_BOARD_REV,
  * this option can be removed. Generated binary is leaner by ~16Kbytes.
  */
-#define CONFIG_CMD_NET
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot features

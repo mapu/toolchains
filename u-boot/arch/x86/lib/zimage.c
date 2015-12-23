@@ -18,11 +18,14 @@
 #include <asm/ptrace.h>
 #include <asm/zimage.h>
 #include <asm/byteorder.h>
+#include <asm/bootm.h>
 #include <asm/bootparam.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Memory lay-out:
@@ -39,15 +42,31 @@
 
 #define COMMAND_LINE_SIZE	2048
 
-unsigned generic_install_e820_map(unsigned max_entries,
-				  struct e820entry *entries)
+/*
+ * Install a default e820 table with 3 entries as follows:
+ *
+ *	0x000000-0x0a0000	Useable RAM
+ *	0x0a0000-0x100000	Reserved for ISA
+ *	0x100000-gd->ram_size	Useable RAM
+ */
+__weak unsigned install_e820_map(unsigned max_entries,
+				 struct e820entry *entries)
 {
-	return 0;
-}
+	entries[0].addr = 0;
+	entries[0].size = ISA_START_ADDRESS;
+	entries[0].type = E820_RAM;
+	entries[1].addr = ISA_START_ADDRESS;
+	entries[1].size = ISA_END_ADDRESS - ISA_START_ADDRESS;
+	entries[1].type = E820_RESERVED;
+	entries[2].addr = ISA_END_ADDRESS;
+	entries[2].size = gd->ram_size - ISA_END_ADDRESS;
+	entries[2].type = E820_RAM;
+	entries[3].addr = CONFIG_PCIE_ECAM_BASE;
+	entries[3].size = CONFIG_PCIE_ECAM_SIZE;
+	entries[3].type = E820_RESERVED;
 
-unsigned install_e820_map(unsigned max_entries,
-			  struct e820entry *entries)
-	__attribute__((weak, alias("generic_install_e820_map")));
+	return 4;
+}
 
 static void build_command_line(char *command_line, int auto_boot)
 {
@@ -102,7 +121,7 @@ static int get_boot_protocol(struct setup_header *hdr)
 }
 
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
-				void **load_address)
+				ulong *load_addressp)
 {
 	struct boot_params *setup_base;
 	int setup_size;
@@ -154,9 +173,9 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 
 	/* Determine load address */
 	if (big_image)
-		*load_address = (void *)BZIMAGE_LOAD_ADDR;
+		*load_addressp = BZIMAGE_LOAD_ADDR;
 	else
-		*load_address = (void *)ZIMAGE_LOAD_ADDR;
+		*load_addressp = ZIMAGE_LOAD_ADDR;
 
 	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
 	memset(setup_base, 0, sizeof(*setup_base));
@@ -203,10 +222,10 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 		return 0;
 	}
 
-	printf("Loading %s at address %p (%ld bytes)\n",
-		big_image ? "bzImage" : "zImage", *load_address, kernel_size);
+	printf("Loading %s at address %lx (%ld bytes)\n",
+	       big_image ? "bzImage" : "zImage", *load_addressp, kernel_size);
 
-	memmove(*load_address, image + setup_size, kernel_size);
+	memmove((void *)*load_addressp, image + setup_size, kernel_size);
 
 	return setup_base;
 }
@@ -242,61 +261,24 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		hdr->loadflags |= HEAP_FLAG;
 	}
 
-	if (bootproto >= 0x0202) {
-		hdr->cmd_line_ptr = (uintptr_t)cmd_line;
-	} else if (bootproto >= 0x0200) {
-		setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
-		setup_base->screen_info.cl_offset =
-			(uintptr_t)cmd_line - (uintptr_t)setup_base;
+	if (cmd_line) {
+		if (bootproto >= 0x0202) {
+			hdr->cmd_line_ptr = (uintptr_t)cmd_line;
+		} else if (bootproto >= 0x0200) {
+			setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
+			setup_base->screen_info.cl_offset =
+				(uintptr_t)cmd_line - (uintptr_t)setup_base;
 
-		hdr->setup_move_size = 0x9100;
+			hdr->setup_move_size = 0x9100;
+		}
+
+		/* build command line at COMMAND_LINE_OFFSET */
+		build_command_line(cmd_line, auto_boot);
 	}
 
-	/* build command line at COMMAND_LINE_OFFSET */
-	build_command_line(cmd_line, auto_boot);
+	setup_video(&setup_base->screen_info);
+
 	return 0;
-}
-
-/*
- * Implement a weak default function for boards that optionally
- * need to clean up the system before jumping to the kernel.
- */
-__weak void board_final_cleanup(void)
-{
-}
-
-void boot_zimage(void *setup_base, void *load_address)
-{
-	debug("## Transferring control to Linux (at address %08x) ...\n",
-	      (u32)setup_base);
-
-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-#ifdef CONFIG_BOOTSTAGE_REPORT
-	bootstage_report();
-#endif
-	board_final_cleanup();
-
-	printf("\nStarting kernel ...\n\n");
-
-#ifdef CONFIG_SYS_COREBOOT
-	timestamp_add_now(TS_U_BOOT_START_KERNEL);
-#endif
-	/*
-	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
-	 * structure, and then jump to the kernel. We assume that %cs is
-	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
-	 * 4GB flat, and read/write. U-boot is setting them up that way for
-	 * itself in arch/i386/cpu/cpu.c.
-	 */
-	__asm__ __volatile__ (
-	"movl $0, %%ebp\n"
-	"cli\n"
-	"jmp *%[kernel_entry]\n"
-	:: [kernel_entry]"a"(load_address),
-	   [boot_params] "S"(setup_base),
-	   "b"(0), "D"(0)
-	:  "%ebp"
-	);
 }
 
 void setup_pcat_compatibility(void)
@@ -310,7 +292,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct boot_params *base_ptr;
 	void *bzImage_addr = NULL;
-	void *load_address;
+	ulong load_address;
 	char *s;
 	ulong bzImage_size = 0;
 	ulong initrd_addr = 0;
@@ -345,20 +327,17 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	base_ptr = load_zimage(bzImage_addr, bzImage_size, &load_address);
 
 	if (!base_ptr) {
-		printf("## Kernel loading failed ...\n");
+		puts("## Kernel loading failed ...\n");
 		return -1;
 	}
 	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
 			0, initrd_addr, initrd_size)) {
-		printf("Setting up boot parameters failed ...\n");
+		puts("Setting up boot parameters failed ...\n");
 		return -1;
 	}
 
 	/* we assume that the kernel is in place */
-	boot_zimage(base_ptr, load_address);
-	/* does not return */
-
-	return -1;
+	return boot_linux_kernel((ulong)base_ptr, load_address, false);
 }
 
 U_BOOT_CMD(

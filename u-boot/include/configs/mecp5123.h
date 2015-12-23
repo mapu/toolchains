@@ -15,6 +15,9 @@
 #define __CONFIG_H
 
 #define CONFIG_MECP5123 1
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Memory map for the MECP5123 board:
  *
@@ -29,7 +32,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC512X		1	/* MPC512X family */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
@@ -294,13 +296,10 @@
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_EEPROM

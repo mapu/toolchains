@@ -33,7 +33,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_DESIGNWARE_ETH
+#ifdef CONFIG_ETH_DESIGNWARE
 int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
@@ -41,12 +41,12 @@ int board_eth_init(bd_t *bis)
 	if (CONFIG_DW_PORTS & 1) {
 		static const unsigned short pins[] = P_RMII0;
 		if (!peripheral_request_list(pins, "emac0"))
-			ret += designware_initialize(0, EMAC0_MACCFG, 1, 0);
+			ret += designware_initialize(EMAC0_MACCFG, 0);
 	}
 	if (CONFIG_DW_PORTS & 2) {
 		static const unsigned short pins[] = P_RMII1;
 		if (!peripheral_request_list(pins, "emac1"))
-			ret += designware_initialize(1, EMAC1_MACCFG, 1, 0);
+			ret += designware_initialize(EMAC1_MACCFG, 0);
 	}
 
 	return ret;

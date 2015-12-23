@@ -11,15 +11,13 @@
 /* ** HEADER FILES							*/
 /************************************************************************/
 
-#include <config.h>
 #include <common.h>
-#include <version.h>
-#include <stdarg.h>
-#include <linux/types.h>
-#include <stdio_dev.h>
-#include <lcd.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/io.h>
+#include <lcd.h>
+#include <linux/types.h>
+#include <stdarg.h>
+#include <stdio_dev.h>
 
 /* #define DEBUG */
 
@@ -342,6 +340,12 @@ static int pxafb_init (vidinfo_t *vid);
 /* ---------------  PXA chipset specific functions  ------------------- */
 /************************************************************************/
 
+ushort *configuration_get_cmap(void)
+{
+	struct pxafb_info *fbi = &panel_info.pxa;
+	return (ushort *)fbi->palette;
+}
+
 void lcd_ctrl_init (void *lcdbase)
 {
 	pxafb_init_mem(lcdbase, &panel_info);
@@ -377,21 +381,6 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 		palette[regno]);
 }
 #endif /* LCD_COLOR8 */
-
-/*----------------------------------------------------------------------*/
-#if LCD_BPP == LCD_MONOCHROME
-void lcd_initcolregs (void)
-{
-	struct pxafb_info *fbi = &panel_info.pxa;
-	cmap = (ushort *)fbi->palette;
-	ushort regno;
-
-	for (regno = 0; regno < 16; regno++) {
-		cmap[regno * 2] = 0;
-		cmap[(regno * 2) + 1] = regno & 0x0f;
-	}
-}
-#endif /* LCD_MONOCHROME */
 
 /*----------------------------------------------------------------------*/
 __weak void lcd_enable(void)

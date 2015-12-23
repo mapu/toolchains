@@ -3,20 +3,7 @@
  * Copyright (c) 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
  * All rights reserved.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation version 2 of
- * the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef USB_EHCI_H
@@ -47,9 +34,9 @@ struct ehci_hcor {
 	uint32_t or_usbcmd;
 #define CMD_PARK	(1 << 11)		/* enable "park" */
 #define CMD_PARK_CNT(c)	(((c) >> 8) & 3)	/* how many transfers to park */
-#define CMD_ASE		(1 << 5)		/* async schedule enable */
 #define CMD_LRESET	(1 << 7)		/* partial reset */
-#define CMD_IAAD	(1 << 5)		/* "doorbell" interrupt */
+#define CMD_IAAD	(1 << 6)		/* "doorbell" interrupt */
+#define CMD_ASE		(1 << 5)		/* async schedule enable */
 #define CMD_PSE		(1 << 4)		/* periodic schedule enable */
 #define CMD_RESET	(1 << 1)		/* reset HC not bus */
 #define CMD_RUN		(1 << 0)		/* start/stop HC */
@@ -238,7 +225,24 @@ struct QH {
 	};
 };
 
+/* Tweak flags for EHCI, used to control operation */
+enum {
+	/* don't use or_configflag in init */
+	EHCI_TWEAK_NO_INIT_CF		= 1 << 0,
+};
+
+struct ehci_ctrl;
+
+struct ehci_ops {
+	void (*set_usb_mode)(struct ehci_ctrl *ctrl);
+	int (*get_port_speed)(struct ehci_ctrl *ctrl, uint32_t reg);
+	void (*powerup_fixup)(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+			      uint32_t *reg);
+	uint32_t *(*get_portsc_register)(struct ehci_ctrl *ctrl, int port);
+};
+
 struct ehci_ctrl {
+	enum usb_init_type init;
 	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct ehci_hcor *hcor;
 	int rootdev;
@@ -246,12 +250,44 @@ struct ehci_ctrl {
 	struct QH qh_list __aligned(USB_DMA_MINALIGN);
 	struct QH periodic_queue __aligned(USB_DMA_MINALIGN);
 	uint32_t *periodic_list;
+	int periodic_schedules;
 	int ntds;
+	struct ehci_ops ops;
+	void *priv;	/* client's private data */
 };
+
+/**
+ * ehci_set_controller_info() - Set up private data for the controller
+ *
+ * This function can be called in ehci_hcd_init() to tell the EHCI layer
+ * about the controller's private data pointer. Then in the above functions
+ * this can be accessed given the struct ehci_ctrl pointer. Also special
+ * EHCI operation methods can be provided if required
+ *
+ * @index:	Controller number to set
+ * @priv:	Controller pointer
+ * @ops:	Controller operations, or NULL to use default
+ */
+void ehci_set_controller_priv(int index, void *priv,
+			      const struct ehci_ops *ops);
+
+/**
+ * ehci_get_controller_priv() - Get controller private data
+ *
+ * @index	Controller number to get
+ * @return controller pointer for this index
+ */
+void *ehci_get_controller_priv(int index);
 
 /* Low level init functions */
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor);
 int ehci_hcd_stop(int index);
+
+int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
+		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
+		  uint tweaks, enum usb_init_type init);
+int ehci_deregister(struct udevice *dev);
+extern struct dm_usb_ops ehci_usb_ops;
 
 #endif /* USB_EHCI_H */

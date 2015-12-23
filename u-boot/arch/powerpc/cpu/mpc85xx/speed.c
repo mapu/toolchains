@@ -28,15 +28,20 @@ void get_sys_info(sys_info_t *sys_info)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_FSL_IFC
-	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
 #ifdef CONFIG_FSL_CORENET
 	volatile ccsr_clk_t *clk = (void *)(CONFIG_SYS_FSL_CORENET_CLK_ADDR);
 	unsigned int cpu;
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	unsigned int dsp_cpu;
+	uint rcw_tmp1, rcw_tmp2;
+#endif
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	int cc_group[12] = CONFIG_SYS_FSL_CLUSTER_CLOCKS;
 #endif
+	__maybe_unused u32 svr;
 
 	const u8 core_cplx_PLL[16] = {
 		[ 0] = 0,	/* CC1 PPL / 1 */
@@ -68,34 +73,40 @@ void get_sys_info(sys_info_t *sys_info)
 		[14] = 4,	/* CC4 PPL / 4 */
 	};
 	uint i, freq_c_pll[CONFIG_SYS_FSL_NUM_CC_PLLS];
-#if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
+#if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV) || \
+	defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)
 	uint rcw_tmp;
 #endif
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
 	uint mem_pll_rat;
-#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
-	uint single_src;
-#endif
 
 	sys_info->freq_systembus = sysclk;
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	uint ddr_refclk_sel;
+	unsigned int porsr1_sys_clk;
+	porsr1_sys_clk = in_be32(&gur->porsr1) >> FSL_DCFG_PORSR1_SYSCLK_SHIFT
+						& FSL_DCFG_PORSR1_SYSCLK_MASK;
+	if (porsr1_sys_clk == FSL_DCFG_PORSR1_SYSCLK_DIFF)
+		sys_info->diff_sysclk = 1;
+	else
+		sys_info->diff_sysclk = 0;
+
 	/*
 	 * DDR_REFCLK_SEL rcw bit is used to determine if DDR PLLS
 	 * are driven by separate DDR Refclock or single source
 	 * differential clock.
 	 */
-	single_src = (in_be32(&gur->rcwsr[5]) >>
+	ddr_refclk_sel = (in_be32(&gur->rcwsr[5]) >>
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_SHIFT) &
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_MASK;
 	/*
-	 * For single source clocking, both ddrclock and syclock
+	 * For single source clocking, both ddrclock and sysclock
 	 * are driven by differential sysclock.
 	 */
-	if (single_src == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK) {
-		printf("Single Source Clock Configuration\n");
+	if (ddr_refclk_sel == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK)
 		sys_info->freq_ddrbus = CONFIG_SYS_CLK_FREQ;
-	} else
+	else
 #endif
 #ifdef CONFIG_DDR_CLK_FREQ
 		sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
@@ -107,13 +118,37 @@ void get_sys_info(sys_info_t *sys_info)
 	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
 			FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT)
 			& FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007212
+	if (mem_pll_rat == 0) {
+		mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT) &
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+	}
+#endif
 	/* T4240/T4160 Rev2.0 MEM_PLL_RAT uses a value which is half of
 	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
 	 * it uses 6.
+	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
-	if (SVR_MAJ(get_svr()) >= 2)
-		mem_pll_rat *= 2;
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080)
+	svr = get_svr();
+	switch (SVR_SOC_VER(svr)) {
+	case SVR_T4240:
+	case SVR_T4160:
+	case SVR_T4120:
+	case SVR_T4080:
+		if (SVR_MAJ(svr) >= 2)
+			mem_pll_rat *= 2;
+		break;
+	case SVR_T2080:
+	case SVR_T2081:
+		if ((SVR_MAJ(svr) > 1) || (SVR_MIN(svr) >= 1))
+			mem_pll_rat *= 2;
+		break;
+	default:
+		break;
+	}
 #endif
 	if (mem_pll_rat > 2)
 		sys_info->freq_ddrbus *= mem_pll_rat;
@@ -127,6 +162,7 @@ void get_sys_info(sys_info_t *sys_info)
 		else
 			freq_c_pll[i] = sys_info->freq_systembus * ratio[i];
 	}
+
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	/*
 	 * As per CHASSIS2 architeture total 12 clusters are posible and
@@ -151,9 +187,27 @@ void get_sys_info(sys_info_t *sys_info)
 		sys_info->freq_processor[cpu] =
 			 freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
 	}
-#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_T2080)
+
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	for_each_cpu(i, dsp_cpu, cpu_num_dspcores(), cpu_dsp_mask()) {
+		int dsp_cluster = fsl_qoriq_dsp_core_to_cluster(dsp_cpu);
+		u32 c_pll_sel = (in_be32
+				(&clk->clkcsr[dsp_cluster].clkcncsr) >> 27)
+				& 0xf;
+		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
+		cplx_pll += cc_group[dsp_cluster] - 1;
+		sys_info->freq_processor_dsp[dsp_cpu] =
+			 freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
+	}
+#endif
+
+#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420) || \
+	defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
+#elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023)
+#define FM1_CLK_SEL	0x00000007
+#define FM1_CLK_SHIFT	0
 #else
 #define PME_CLK_SEL	0xe0000000
 #define PME_CLK_SHIFT	29
@@ -161,7 +215,11 @@ void get_sys_info(sys_info_t *sys_info)
 #define FM1_CLK_SHIFT	26
 #endif
 #if !defined(CONFIG_FM_PLAT_CLK_DIV) || !defined(CONFIG_PME_PLAT_CLK_DIV)
+#if defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023)
+	rcw_tmp = in_be32(&gur->rcwsr[15]) - 4;
+#else
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
+#endif
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
@@ -199,7 +257,131 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-	sys_info->freq_qman = sys_info->freq_systembus / 2;
+#ifndef CONFIG_QBMAN_CLK_DIV
+#define CONFIG_QBMAN_CLK_DIV	2
+#endif
+	sys_info->freq_qman = sys_info->freq_systembus / CONFIG_QBMAN_CLK_DIV;
+#endif
+
+#if defined(CONFIG_SYS_MAPLE)
+#define CPRI_CLK_SEL		0x1C000000
+#define CPRI_CLK_SHIFT		26
+#define CPRI_ALT_CLK_SEL	0x00007000
+#define CPRI_ALT_CLK_SHIFT	12
+
+	rcw_tmp1 = in_be32(&gur->rcwsr[7]);	/* Reading RCW bits: 224-255*/
+	rcw_tmp2 = in_be32(&gur->rcwsr[15]);	/* Reading RCW bits: 480-511*/
+	/* For MAPLE and CPRI frequency */
+	switch ((rcw_tmp1 & CPRI_CLK_SEL) >> CPRI_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK];
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK];
+		break;
+	case 2:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 2;
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 2;
+		break;
+	case 3:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 3;
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 3;
+		break;
+	case 4:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 4;
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK] / 4;
+		break;
+	case 5:
+		if (((rcw_tmp2 & CPRI_ALT_CLK_SEL)
+					>> CPRI_ALT_CLK_SHIFT) == 6) {
+			sys_info->freq_maple =
+				freq_c_pll[CONFIG_SYS_CPRI_CLK - 2] / 2;
+			sys_info->freq_cpri =
+				freq_c_pll[CONFIG_SYS_CPRI_CLK - 2] / 2;
+		}
+		if (((rcw_tmp2 & CPRI_ALT_CLK_SEL)
+					>> CPRI_ALT_CLK_SHIFT) == 7) {
+			sys_info->freq_maple =
+				freq_c_pll[CONFIG_SYS_CPRI_CLK - 2] / 3;
+			sys_info->freq_cpri =
+				freq_c_pll[CONFIG_SYS_CPRI_CLK - 2] / 3;
+		}
+		break;
+	case 6:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK + 1] / 2;
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK + 1] / 2;
+		break;
+	case 7:
+		sys_info->freq_maple = freq_c_pll[CONFIG_SYS_CPRI_CLK + 1] / 3;
+		sys_info->freq_cpri = freq_c_pll[CONFIG_SYS_CPRI_CLK + 1] / 3;
+		break;
+	default:
+		printf("Error: Unknown MAPLE/CPRI clock select!\n");
+	}
+
+	/* For MAPLE ULB and eTVPE frequencies */
+#define ULB_CLK_SEL		0x00000038
+#define ULB_CLK_SHIFT		3
+#define ETVPE_CLK_SEL		0x00000007
+#define ETVPE_CLK_SHIFT		0
+
+	switch ((rcw_tmp2 & ULB_CLK_SEL) >> ULB_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_maple_ulb = freq_c_pll[CONFIG_SYS_ULB_CLK];
+		break;
+	case 2:
+		sys_info->freq_maple_ulb = freq_c_pll[CONFIG_SYS_ULB_CLK] / 2;
+		break;
+	case 3:
+		sys_info->freq_maple_ulb = freq_c_pll[CONFIG_SYS_ULB_CLK] / 3;
+		break;
+	case 4:
+		sys_info->freq_maple_ulb = freq_c_pll[CONFIG_SYS_ULB_CLK] / 4;
+		break;
+	case 5:
+		sys_info->freq_maple_ulb = sys_info->freq_systembus;
+		break;
+	case 6:
+		sys_info->freq_maple_ulb =
+			freq_c_pll[CONFIG_SYS_ULB_CLK - 1] / 2;
+		break;
+	case 7:
+		sys_info->freq_maple_ulb =
+			freq_c_pll[CONFIG_SYS_ULB_CLK - 1] / 3;
+		break;
+	default:
+		printf("Error: Unknown MAPLE ULB clock select!\n");
+	}
+
+	switch ((rcw_tmp2 & ETVPE_CLK_SEL) >> ETVPE_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_maple_etvpe = freq_c_pll[CONFIG_SYS_ETVPE_CLK];
+		break;
+	case 2:
+		sys_info->freq_maple_etvpe =
+			freq_c_pll[CONFIG_SYS_ETVPE_CLK] / 2;
+		break;
+	case 3:
+		sys_info->freq_maple_etvpe =
+			freq_c_pll[CONFIG_SYS_ETVPE_CLK] / 3;
+		break;
+	case 4:
+		sys_info->freq_maple_etvpe =
+			freq_c_pll[CONFIG_SYS_ETVPE_CLK] / 4;
+		break;
+	case 5:
+		sys_info->freq_maple_etvpe = sys_info->freq_systembus;
+		break;
+	case 6:
+		sys_info->freq_maple_etvpe =
+			freq_c_pll[CONFIG_SYS_ETVPE_CLK - 1] / 2;
+		break;
+	case 7:
+		sys_info->freq_maple_etvpe =
+			freq_c_pll[CONFIG_SYS_ETVPE_CLK - 1] / 3;
+		break;
+	default:
+		printf("Error: Unknown MAPLE eTVPE clock select!\n");
+	}
+
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -272,6 +454,48 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 #endif
 
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+#if defined(CONFIG_PPC_T2080)
+#define ESDHC_CLK_SEL	0x00000007
+#define ESDHC_CLK_SHIFT	0
+#define ESDHC_CLK_RCWSR	15
+#else	/* Support T1040 T1024 by now */
+#define ESDHC_CLK_SEL	0xe0000000
+#define ESDHC_CLK_SHIFT	29
+#define ESDHC_CLK_RCWSR	7
+#endif
+	rcw_tmp = in_be32(&gur->rcwsr[ESDHC_CLK_RCWSR]);
+	switch ((rcw_tmp & ESDHC_CLK_SEL) >> ESDHC_CLK_SHIFT) {
+	case 1:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK];
+		break;
+	case 2:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 2;
+		break;
+	case 3:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 3;
+		break;
+#if defined(CONFIG_SYS_SDHC_CLK_2_PLL)
+	case 4:
+		sys_info->freq_sdhc = freq_c_pll[CONFIG_SYS_SDHC_CLK] / 4;
+		break;
+#if defined(CONFIG_PPC_T2080)
+	case 5:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK];
+		break;
+#endif
+	case 6:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK] / 2;
+		break;
+	case 7:
+		sys_info->freq_sdhc = freq_c_pll[1 - CONFIG_SYS_SDHC_CLK] / 3;
+		break;
+#endif
+	default:
+		sys_info->freq_sdhc = 0;
+		printf("Error: Unknown SDHC peripheral clock select!\n");
+	}
+#endif
 #else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
@@ -334,6 +558,10 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#ifdef CONFIG_U_QE
+	sys_info->freq_qe =  sys_info->freq_systembus / 2;
+#endif
 
 #else /* CONFIG_FSL_CORENET */
 	uint plat_ratio, e500_ratio, half_freq_systembus;
@@ -412,7 +640,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = in_be32(&ifc_regs->ifc_ccr);
+	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
 	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
 
 	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
@@ -475,11 +703,15 @@ int get_clocks (void)
 	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+	gd->arch.sdhc_clk = sys_info.freq_sdhc / 2;
+#else
 #if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
        defined(CONFIG_P1014)
 	gd->arch.sdhc_clk = gd->bus_clk;
 #else
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
+#endif
 #endif
 #endif /* defined(CONFIG_FSL_ESDHC) */
 

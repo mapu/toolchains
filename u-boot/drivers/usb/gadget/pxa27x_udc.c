@@ -10,11 +10,10 @@
 
 
 #include <common.h>
-#include <config.h>
-#include <asm/byteorder.h>
-#include <usbdevice.h>
 #include <asm/arch/hardware.h>
+#include <asm/byteorder.h>
 #include <asm/io.h>
+#include <usbdevice.h>
 #include <usb/pxa27x_udc.h>
 #include <usb/udc.h>
 
@@ -65,7 +64,8 @@ static int udc_write_urb(struct usb_endpoint_instance *endpoint)
 	if (!urb || !urb->actual_length)
 		return -1;
 
-	n = MIN(urb->actual_length - endpoint->sent, endpoint->tx_packetSize);
+	n = min_t(unsigned int, urb->actual_length - endpoint->sent,
+		  endpoint->tx_packetSize);
 	if (n <= 0)
 		return -1;
 

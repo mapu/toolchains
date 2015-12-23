@@ -15,6 +15,7 @@
 #include <common.h>
 #include <command.h>
 #include <image.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #if defined(CONFIG_BZIP2)
 #include <bzlib.h>
@@ -32,10 +33,13 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong		addr = load_addr;
 	ulong		dest = 0;
-	ulong		data, len, count;
+	ulong		data, len;
 	int		verify;
 	int		part = 0;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+	ulong		count;
 	image_header_t	*hdr = NULL;
+#endif
 #if defined(CONFIG_FIT)
 	const char	*uname = NULL;
 	const void*	fit_hdr;
@@ -64,6 +68,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	switch (genimg_get_format((void *)addr)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	case IMAGE_FORMAT_LEGACY:
 
 		printf("## Copying part %d from legacy image "
@@ -114,6 +119,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		image_multi_getimg(hdr, part, &data, &len);
 		break;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		if (uname == NULL) {
@@ -211,7 +217,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			}
 			break;
 #endif
-#if defined(CONFIG_BZIP2)
+#if defined(CONFIG_BZIP2) && defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IH_COMP_BZIP2:
 			{
 				int i;
@@ -241,6 +247,8 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		}
 		puts("OK\n");
 	}
+
+	flush_cache(dest, len);
 
 	setenv_hex("fileaddr", data);
 	setenv_hex("filesize", len);

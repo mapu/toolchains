@@ -71,9 +71,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		cm-bf537e
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
-
 
 /*
  * Flash Settings
@@ -122,8 +119,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
-#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*

@@ -21,14 +21,17 @@
 #include "siemens-am33x-common.h"
 
 #define CONFIG_SYS_MPUCLK	720
-#define DXR2_IOCTRL_VAL		0x18b
+#define DDR_IOCTRL_VAL		0x18b
 #define DDR_PLL_FREQ		266
 
 #define BOARD_DFU_BUTTON_GPIO	59
-#define BOARD_DFU_BUTTON_LED	117
 #define BOARD_LCD_POWER		111
 #define BOARD_BACK_LIGHT	112
 #define BOARD_TOUCH_POWER	57
+
+#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	"button_dfu0=59\0" \
+	"led0=117,0,1\0" \
 
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(512 << 20)	/* 1GB */
@@ -44,34 +47,29 @@
 #undef CONFIG_SPL_NET_VCI_STRING
 #undef CONFIG_SPL_ETH_SUPPORT
 
-#define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_ATHEROS
 
 #define CONFIG_FACTORYSET
 
-/* UBI Support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-#define CONFIG_RBTREE
-#define CONFIG_LZO
-#define CONFIG_CMD_UBI
-#define CONFIG_CMD_UBIFS
-#endif
 
 /* Watchdog */
 #define CONFIG_OMAP_WATCHDOG
 
 #ifndef CONFIG_SPL_BUILD
 
+/* Use common default */
+#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V1
+
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=pxm2\0" \
 	"nand_img_size=0x500000\0" \
 	"optargs=\0" \
+	"preboot=draco_led 0\0" \
+	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
 	"splashpos=m,m\0"	\
-	CONFIG_COMMON_ENV_SETTINGS \
+	CONFIG_ENV_SETTINGS_V1 \
+	CONFIG_ENV_SETTINGS_NAND_V1 \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
 	"mmc_root_fs_type=ext4 rootwait\0" \
@@ -149,6 +147,10 @@
 #define PWM_DUTY	0x200
 #define CONFIG_SYS_CONSOLE_BG_COL	0xff
 #define CONFIG_SYS_CONSOLE_FG_COL	0x00
+#endif
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FIT
 #endif
 
 #endif	/* ! __CONFIG_PXM2_H */

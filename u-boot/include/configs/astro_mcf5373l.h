@@ -39,21 +39,9 @@
 #error No card type defined!
 #endif
 
-/*
- * Define processor
- * possible values for Urmel board: only Coldfire M5373 processor supported
- * (please do not change)
- */
-
-/* it seems not clear yet which processor defines we should use */
-#define CONFIG_MCF537x			/* define processor family */
-#define CONFIG_MCF532x			/* define processor family */
-#define CONFIG_M5373			/* define processor type */
 #define CONFIG_ASTRO5373L		/* define board type */
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
 /*
  * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
  * a different bootloader that has already performed RAM setup) or
@@ -74,20 +62,12 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
-#define CONFIG_CMD_XIMG
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 #if ENABLE_JFFS
 #define CONFIG_CMD_JFFS2
 #endif
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_SYS_HUSH_PARSER
@@ -227,8 +207,6 @@
 #define CONFIG_BOOTARGS		" console=ttyS2,115200 rootfstype=romfs"\
 				" loaderversion=$loaderversion"
 
-#define CONFIG_SYS_PROMPT	"URMEL > "
-
 /* default RAM address for user programs */
 #define CONFIG_SYS_LOAD_ADDR	0x20000
 
@@ -351,6 +329,10 @@
 #define CONFIG_SYS_FLASH_PROTECTION	1
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 #define CONFIG_SYS_FLASH_CFI_NONBLOCK	1
+
+#define LDS_BOARD_TEXT \
+	. = DEFINED(env_offset) ? env_offset : .; \
+	common/env_embedded.o       (.text*)
 
 #if ENABLE_JFFS
 /* JFFS Partition offset set */

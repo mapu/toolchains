@@ -15,8 +15,14 @@
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
 #define PGTABLE_SIZE	(0x10000)
+/* 2MB granularity */
+#define MMU_SECTION_SHIFT	21
 
 #ifndef __ASSEMBLY__
+
+enum dcache_option {
+	DCACHE_OFF = 0x3,
+};
 
 #define isb()				\
 	({asm volatile(			\
@@ -66,16 +72,21 @@ static inline void set_sctlr(unsigned int val)
 }
 
 void __asm_flush_dcache_all(void);
+void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
+int __asm_flush_l3_cache(void);
 
 void armv8_switch_to_el2(void);
 void armv8_switch_to_el1(void);
 void gic_init(void);
 void gic_send_sgi(unsigned long sgino);
 void wait_for_wakeup(void);
+void protect_secure_region(void);
 void smp_kick_all_cpus(void);
+
+void flush_l3_cache(void);
 
 #endif	/* __ASSEMBLY__ */
 
@@ -139,6 +150,37 @@ void smp_kick_all_cpus(void);
 
 #ifndef __ASSEMBLY__
 
+/**
+ * save_boot_params() - Save boot parameters before starting reset sequence
+ *
+ * If you provide this function it will be called immediately U-Boot starts,
+ * both for SPL and U-Boot proper.
+ *
+ * All registers are unchanged from U-Boot entry. No registers need be
+ * preserved.
+ *
+ * This is not a normal C function. There is no stack. Return by branching to
+ * save_boot_params_ret.
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
+ */
+
+/**
+ * save_boot_params_ret() - Return from save_boot_params()
+ *
+ * If you provide save_boot_params(), then you should jump back to this
+ * function when done. Try to preserve all registers.
+ *
+ * If your implementation of save_boot_params() is in C then it is acceptable
+ * to simply call save_boot_params_ret() at the end of your function. Since
+ * there is no link register set up, you cannot just exit the function. U-Boot
+ * will return to the (initialised) value of lr, and likely crash/hang.
+ *
+ * If your implementation of save_boot_params() is in assembler then you
+ * should use 'b' or 'bx' to return to save_boot_params_ret.
+ */
+void save_boot_params_ret(void);
+
 #define isb() __asm__ __volatile__ ("" : : : "memory")
 
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
@@ -152,7 +194,7 @@ void smp_kick_all_cpus(void);
 static inline unsigned int get_cr(void)
 {
 	unsigned int val;
-	asm("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val) : : "cc");
+	asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val) : : "cc");
 	return val;
 }
 
@@ -177,12 +219,36 @@ static inline void set_dacr(unsigned int val)
 	isb();
 }
 
+#ifdef CONFIG_ARMV7
+/* Short-Descriptor Translation Table Level 1 Bits */
+#define TTB_SECT_NS_MASK	(1 << 19)
+#define TTB_SECT_NG_MASK	(1 << 17)
+#define TTB_SECT_S_MASK		(1 << 16)
+/* Note: TTB AP bits are set elsewhere */
+#define TTB_SECT_TEX(x)		((x & 0x7) << 12)
+#define TTB_SECT_DOMAIN(x)	((x & 0xf) << 5)
+#define TTB_SECT_XN_MASK	(1 << 4)
+#define TTB_SECT_C_MASK		(1 << 3)
+#define TTB_SECT_B_MASK		(1 << 2)
+#define TTB_SECT			(2 << 0)
+
+/* options available for data cache on each page */
+enum dcache_option {
+	DCACHE_OFF = TTB_SECT_S_MASK | TTB_SECT_DOMAIN(0) |
+					TTB_SECT_XN_MASK | TTB_SECT,
+	DCACHE_WRITETHROUGH = DCACHE_OFF | TTB_SECT_C_MASK,
+	DCACHE_WRITEBACK = DCACHE_WRITETHROUGH | TTB_SECT_B_MASK,
+	DCACHE_WRITEALLOC = DCACHE_WRITEBACK | TTB_SECT_TEX(1),
+};
+#else
 /* options available for data cache on each page */
 enum dcache_option {
 	DCACHE_OFF = 0x12,
 	DCACHE_WRITETHROUGH = 0x1a,
 	DCACHE_WRITEBACK = 0x1e,
+	DCACHE_WRITEALLOC = 0x16,
 };
+#endif
 
 /* Size of an MMU section */
 enum {
@@ -190,15 +256,19 @@ enum {
 	MMU_SECTION_SIZE	= 1 << MMU_SECTION_SHIFT,
 };
 
-/**
- * Change the cache settings for a region.
- *
- * \param start		start address of memory region to change
- * \param size		size of memory region to change
- * \param option	dcache option to select
- */
-void mmu_set_region_dcache_behaviour(u32 start, int size,
-				     enum dcache_option option);
+#ifdef CONFIG_ARMV7
+/* TTBR0 bits */
+#define TTBR0_BASE_ADDR_MASK	0xFFFFC000
+#define TTBR0_RGN_NC			(0 << 3)
+#define TTBR0_RGN_WBWA			(1 << 3)
+#define TTBR0_RGN_WT			(2 << 3)
+#define TTBR0_RGN_WB			(3 << 3)
+/* TTBR0[6] is IRGN[0] and TTBR[0] is IRGN[1] */
+#define TTBR0_IRGN_NC			(0 << 0 | 0 << 6)
+#define TTBR0_IRGN_WBWA			(0 << 0 | 1 << 6)
+#define TTBR0_IRGN_WT			(1 << 0 | 0 << 6)
+#define TTBR0_IRGN_WB			(1 << 0 | 1 << 6)
+#endif
 
 /**
  * Register an update to the page tables, and flush the TLB
@@ -208,6 +278,11 @@ void mmu_set_region_dcache_behaviour(u32 start, int size,
  */
 void mmu_page_table_flush(unsigned long start, unsigned long stop);
 
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+void noncached_init(void);
+phys_addr_t noncached_alloc(size_t size, size_t align);
+#endif /* CONFIG_SYS_NONCACHED_MEMORY */
+
 #endif /* __ASSEMBLY__ */
 
 #define arch_align_stack(x) (x)
@@ -215,5 +290,18 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop);
 #endif /* __KERNEL__ */
 
 #endif /* CONFIG_ARM64 */
+
+#ifndef __ASSEMBLY__
+/**
+ * Change the cache settings for a region.
+ *
+ * \param start		start address of memory region to change
+ * \param size		size of memory region to change
+ * \param option	dcache option to select
+ */
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option);
+
+#endif /* __ASSEMBLY__ */
 
 #endif

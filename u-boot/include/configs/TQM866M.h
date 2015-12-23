@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2008
+ * (C) Copyright 2000-2014
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -19,6 +19,8 @@
 
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 
@@ -138,8 +140,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
@@ -147,7 +147,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 
 

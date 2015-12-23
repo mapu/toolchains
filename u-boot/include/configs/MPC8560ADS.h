@@ -12,16 +12,18 @@
  * Please refer to doc/README.mpc85xx for more info.
  *
  * Make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
+ * search for CONFIG_SERVERIP, etc. in this file.
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/MPC8560 */
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific */
 #define CONFIG_MPC8560		1
@@ -385,13 +387,10 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -401,12 +400,6 @@
 #if defined(CONFIG_ETHER_ON_FCC)
     #define CONFIG_CMD_MII
 #endif
-
-#if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_SAVEENV
-    #undef CONFIG_CMD_LOADS
-#endif
-
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -444,17 +437,11 @@
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR   00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
 #define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR  00:E0:0C:00:03:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253

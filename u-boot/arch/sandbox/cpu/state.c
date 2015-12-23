@@ -13,11 +13,6 @@
 static struct sandbox_state main_state;
 static struct sandbox_state *state;	/* Pointer to current state record */
 
-void state_record_exit(enum exit_type_id exit_type)
-{
-	state->exit_type = exit_type;
-}
-
 static int state_ensure_space(int extra_size)
 {
 	void *blob = state->state_fdt;
@@ -49,12 +44,12 @@ static int state_ensure_space(int extra_size)
 
 static int state_read_file(struct sandbox_state *state, const char *fname)
 {
-	int size;
+	loff_t size;
 	int ret;
 	int fd;
 
-	size = os_get_filesize(fname);
-	if (size < 0) {
+	ret = os_get_filesize(fname, &size);
+	if (ret < 0) {
 		printf("Cannot find sandbox state file '%s'\n", fname);
 		return -ENOENT;
 	}
@@ -350,6 +345,10 @@ int state_init(void)
 	state->ram_buf = os_malloc(state->ram_size);
 	assert(state->ram_buf);
 
+	/* No reset yet, so mark it as such. Always allow power reset */
+	state->last_reset = RESET_COUNT;
+	state->reset_allowed[RESET_POWER] = true;
+
 	/*
 	 * Example of how to use GPIOs:
 	 *
@@ -365,7 +364,7 @@ int state_uninit(void)
 
 	state = &main_state;
 
-	if (state->write_ram_buf) {
+	if (state->write_ram_buf && !state->ram_buf_rm) {
 		err = os_write_ram_buf(state->ram_buf_fname);
 		if (err) {
 			printf("Failed to write RAM buffer\n");
@@ -379,6 +378,10 @@ int state_uninit(void)
 			return -1;
 		}
 	}
+
+	/* Delete this at the last moment so as not to upset gdb too much */
+	if (state->jumped_fname)
+		os_unlink(state->jumped_fname);
 
 	if (state->state_fdt)
 		os_free(state->state_fdt);

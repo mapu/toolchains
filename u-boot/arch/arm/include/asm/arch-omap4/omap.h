@@ -60,9 +60,6 @@
 /* Watchdog Timer2 - MPU watchdog */
 #define WDT2_BASE		(OMAP44XX_L4_WKUP_BASE + 0x14000)
 
-/* GPMC */
-#define OMAP44XX_GPMC_BASE	0x50000000
-
 /*
  * Hardware Register Details
  */
@@ -126,5 +123,16 @@ struct s32ktimer {
 
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 7)
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int boot_message;
+	unsigned int boot_device_descriptor;
+	unsigned char boot_device;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+};
+#endif
 
 #endif

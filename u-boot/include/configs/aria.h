@@ -13,6 +13,9 @@
 #define __CONFIG_H
 
 #define CONFIG_ARIA 1
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Memory map for the ARIA board:
  *
@@ -31,7 +34,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
@@ -405,8 +407,6 @@
 #define CONFIG_LOADS_ECHO		1
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
@@ -415,7 +415,6 @@
 #undef CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 

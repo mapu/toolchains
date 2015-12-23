@@ -12,11 +12,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC834x		1	/* MPC834x specific */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_TQM834X		1	/* TQM834X board specific */
@@ -287,15 +289,12 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
@@ -304,11 +303,6 @@
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
-#endif
-
-#if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_SAVEENV
-    #undef CONFIG_CMD_LOADS
 #endif
 
 /*

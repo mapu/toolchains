@@ -379,11 +379,7 @@ int board_early_init_r (void)
 	 */
 
 	/* Remap the NOR FLASH to 0xcc00.0000 ... 0xcfff.ffff */
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtebc(PB3CR, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
-#else
 	mtebc(PB0CR, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
-#endif
 
 	/* Remove TLB entry of boot EBC mapping */
 	remove_tlb(CONFIG_SYS_BOOT_BASE_ADDR, 16 << 20);
@@ -494,9 +490,9 @@ int misc_init_r(void)
 #endif	/* !defined(CONFIG_ARCHES) */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-extern void __ft_board_setup(void *blob, bd_t *bd);
+extern int __ft_board_setup(void *blob, bd_t *bd);
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	__ft_board_setup(blob, bd);
 
@@ -519,5 +515,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, "/plb/sata@bffd1000", "status",
 				     "disabled", sizeof("disabled"), 1);
 	}
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

@@ -40,6 +40,7 @@
 /*
  * CPU specifics
  */
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* MXS uses FDT */
 #define CONFIG_OF_LIBFDT
@@ -49,17 +50,16 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 
 /* Memory sizes */
 #define CONFIG_SYS_MALLOC_LEN		0x00400000	/* 4 MB for malloc */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* Initial data */
 #define CONFIG_SYS_MEMTEST_START	0x40000000	/* Memtest start adr */
 #define CONFIG_SYS_MEMTEST_END		0x40400000	/* 4 MB RAM test */
 
@@ -81,17 +81,20 @@
  * We need to sacrifice first 4 bytes of RAM here to avoid triggering some
  * strange BUG in ROM corrupting first 4 bytes of RAM when loading U-Boot
  * binary. In case there was more of this mess, 0x100 bytes are skipped.
+ *
+ * In case of a HAB boot, we cannot for some weird reason use the first 4KiB
+ * of DRAM when loading. Moreover, we use the first 4 KiB for IVT and CST
+ * blocks, thus U-Boot starts at offset +8 KiB of DRAM start.
+ *
+ * As for the SPL, we must avoid the first 4 KiB as well, but we load the
+ * IVT and CST to 0x8000, so we don't need to waste the subsequent 4 KiB.
  */
-#define CONFIG_SYS_TEXT_BASE		0x40000100
+#define CONFIG_SYS_TEXT_BASE		0x40002000
+#define CONFIG_SPL_TEXT_BASE		0x00001000
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_LONGHELP
-#ifndef CONFIG_SYS_PROMPT
-#endif
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_PBSIZE	\
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-						/* Print buffer size */
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
@@ -143,7 +146,8 @@
 
 /* I2C */
 #ifdef CONFIG_CMD_I2C
-#define CONFIG_I2C_MXS
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXS
 #define CONFIG_HARD_I2C
 #ifndef CONFIG_SYS_I2C_SPEED
 #define CONFIG_SYS_I2C_SPEED		400000
@@ -173,6 +177,11 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x60000000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#endif
+
+/* OCOTP */
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXS_OCOTP
 #endif
 
 /* SPI */

@@ -33,7 +33,6 @@
  *
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -2068,7 +2067,11 @@ int musb_urb_enqueue(
 
 	/* precompute addressing for external hub/tt ports */
 	if (musb->is_multipoint) {
+#ifndef __UBOOT__
 		struct usb_device	*parent = urb->dev->parent;
+#else
+		struct usb_device	*parent = usb_dev_get_parent(urb->dev);
+#endif
 
 #ifndef __UBOOT__
 		if (parent != hcd->self.root_hub) {
@@ -2131,8 +2134,6 @@ done:
 	return ret;
 }
 
-
-#ifndef __UBOOT__
 /*
  * abort a transfer that's at the head of a hardware queue.
  * called with controller locked, irqs blocked
@@ -2196,7 +2197,14 @@ static int musb_cleanup_urb(struct urb *urb, struct musb_qh *qh)
 	return status;
 }
 
-static int musb_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
+#ifndef __UBOOT__
+static int musb_urb_dequeue(
+#else
+int musb_urb_dequeue(
+#endif
+	struct usb_hcd *hcd,
+	struct urb *urb,
+	int status)
 {
 	struct musb		*musb = hcd_to_musb(hcd);
 	struct musb_qh		*qh;
@@ -2254,6 +2262,7 @@ done:
 	return ret;
 }
 
+#ifndef __UBOOT__
 /* disable an endpoint */
 static void
 musb_h_disable(struct usb_hcd *hcd, struct usb_host_endpoint *hep)

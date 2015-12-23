@@ -60,6 +60,14 @@ usage()
 	exit ${ret}
 }
 
+deprecation() {
+	echo "** Note: MAKEALL is deprecated - please use buildman instead"
+	echo "** See tools/buildman/README for details"
+	echo
+}
+
+deprecation
+
 SHORT_OPTS="ha:c:v:s:b:lmMCnr"
 LONG_OPTS="help,arch:,cpu:,vendor:,soc:,board:,list,maintainers,mails,check,continue,rebuild-errors"
 
@@ -162,8 +170,19 @@ while true ; do
 		echo "Internal error!" >&2 ; exit 1 ;;
 	esac
 done
+
+GNU_MAKE=$(scripts/show-gnu-make) || {
+	echo "GNU Make not found" >&2
+	exit 1
+}
+
 # echo "Remaining arguments:"
 # for arg do echo '--> '"\`$arg'" ; done
+
+tools/genboardscfg.py || {
+	echo "Failed to generate boards.cfg" >&2
+	exit 1
+}
 
 FILTER="\$1 !~ /^#/"
 [ "$opt_a" ] && FILTER="${FILTER} && $opt_a"
@@ -281,12 +300,6 @@ LIST_8xx="$(targets_by_cpu mpc8xx)"
 LIST_4xx="$(targets_by_cpu ppc4xx)"
 
 #########################################################################
-## MPC824x Systems
-#########################################################################
-
-LIST_824x="$(targets_by_cpu mpc824x)"
-
-#########################################################################
 ## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
@@ -311,12 +324,6 @@ LIST_85xx="$(targets_by_cpu mpc85xx)"
 LIST_86xx="$(targets_by_cpu mpc86xx)"
 
 #########################################################################
-## 74xx/7xx Systems
-#########################################################################
-
-LIST_74xx_7xx="$(targets_by_cpu 74xx_7xx)"
-
-#########################################################################
 ## PowerPC groups
 #########################################################################
 
@@ -337,7 +344,6 @@ LIST_powerpc="		\
 	${LIST_85xx}	\
 	${LIST_86xx}	\
 	${LIST_4xx}	\
-	${LIST_74xx_7xx}\
 "
 
 # Alias "ppc" -> "powerpc" to not break compatibility with older scripts
@@ -398,8 +404,6 @@ LIST_at91="$(targets_by_soc at91)"
 
 LIST_pxa="$(targets_by_cpu pxa)"
 
-LIST_ixp="$(targets_by_cpu ixp)"
-
 #########################################################################
 ## SPEAr Systems
 #########################################################################
@@ -420,50 +424,8 @@ LIST_arm="$(targets_by_arch arm |		\
 ## MIPS Systems		(default = big endian)
 #########################################################################
 
-LIST_mips4kc="		\
-	incaip		\
-	incaip_100MHz	\
-	incaip_133MHz	\
-	incaip_150MHz	\
-	qemu_mips	\
-	vct_platinum	\
-	vct_platinum_small	\
-	vct_platinum_onenand	\
-	vct_platinum_onenand_small	\
-	vct_platinumavc	\
-	vct_platinumavc_small	\
-	vct_platinumavc_onenand	\
-	vct_platinumavc_onenand_small	\
-	vct_premium	\
-	vct_premium_small	\
-	vct_premium_onenand	\
-	vct_premium_onenand_small	\
-"
+LIST_mips="$(targets_by_arch mips)"
 
-LIST_au1xx0="		\
-	dbau1000	\
-	dbau1100	\
-	dbau1500	\
-	dbau1550	\
-"
-
-LIST_mips="		\
-	${LIST_mips4kc}	\
-	${LIST_mips5kc}	\
-	${LIST_au1xx0}	\
-"
-
-#########################################################################
-## MIPS Systems		(little endian)
-#########################################################################
-
-LIST_au1xx0_el="	\
-	dbau1550_el	\
-	pb1000		\
-"
-LIST_mips_el="			\
-	${LIST_au1xx0_el}	\
-"
 #########################################################################
 ## OpenRISC Systems
 #########################################################################
@@ -529,6 +491,12 @@ LIST_sparc="$(targets_by_arch sparc)"
 
 LIST_nds32="$(targets_by_arch nds32)"
 
+#########################################################################
+## ARC Systems
+#########################################################################
+
+LIST_arc="$(targets_by_arch arc)"
+
 #-----------------------------------------------------------------------
 
 get_target_location() {
@@ -544,9 +512,9 @@ get_target_location() {
 
 	set ${line}
 
-	CONFIG_NAME="${7%_config}"
+	CONFIG_NAME="${7%_defconfig}"
 
-	[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_config}"
+	[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_defconfig}"
 
 	if [ $# -gt 5 ]; then
 		if [ "$6" = "-" ] ; then
@@ -591,13 +559,7 @@ get_target_maintainers() {
 get_target_arch() {
 	local target=$1
 
-	# Automatic mode
-	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
-
-	if [ -z "${line}" ] ; then echo "" ; return ; fi
-
-	set ${line}
-	echo "$2"
+	awk '$7 == "'$target'" { print $2 }' boards.cfg
 }
 
 list_target() {
@@ -668,20 +630,24 @@ build_target() {
 		output_dir="${OUTPUT_PREFIX}"
 	fi
 
-	export BUILD_DIR="${output_dir}"
-
 	target_arch=$(get_target_arch ${target})
 	eval cross_toolchain=\$CROSS_COMPILE_`echo $target_arch | tr '[:lower:]' '[:upper:]'`
 	if [ "${cross_toolchain}" ] ; then
-	    MAKE="make CROSS_COMPILE=${cross_toolchain}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${cross_toolchain}"
 	elif [ "${CROSS_COMPILE}" ] ; then
-	    MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${CROSS_COMPILE}"
 	else
-	    MAKE=make
+	    MAKE=$GNU_MAKE
 	fi
 
-	${MAKE} distclean >/dev/null
-	${MAKE} -s ${target}_config
+	if [  "${output_dir}" != "." ] ; then
+		MAKE="${MAKE} O=${output_dir}"
+	fi
+
+	${MAKE} mrproper >/dev/null
+
+	echo "Building ${target} board..."
+	${MAKE} -s ${target}_defconfig >/dev/null
 
 	${MAKE} ${JOBS} ${CHECK} all \
 		>${LOG_DIR}/$target.MAKELOG 2> ${LOG_DIR}/$target.ERR
@@ -691,10 +657,17 @@ build_target() {
 		RC=1
 	fi
 
+	OBJS=${output_dir}/u-boot
+	if [ -e ${output_dir}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
+	fi
+
+	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
+
 	if [ $BUILD_MANY == 1 ] ; then
 		trap - TERM
 
-		${MAKE} -s tidy
+		${MAKE} -s clean
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
 			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}
@@ -714,13 +687,6 @@ build_target() {
 			rm ${LOG_DIR}/${target}.ERR
 		fi
 	fi
-
-	OBJS=${output_dir}/u-boot
-	if [ -e ${output_dir}/spl/u-boot-spl ]; then
-		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
-	fi
-
-	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
 
 	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
 
@@ -868,6 +834,8 @@ print_stats() {
 	if [ $BUILD_MANY == 1 ] ; then
 		kill_children
 	fi
+
+	deprecation
 
 	exit $RC
 }

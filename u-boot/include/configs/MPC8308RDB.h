@@ -9,11 +9,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1 /* E300 family */
-#define CONFIG_MPC83xx		1 /* MPC83xx family */
 #define CONFIG_MPC830x		1 /* MPC830x family */
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 #define CONFIG_MPC8308RDB	1 /* MPC8308RDB board specific */
@@ -353,7 +355,6 @@
 #ifdef CONFIG_MPC8XXX_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_USE_SPIFLASH
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #endif
@@ -445,13 +446,10 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 

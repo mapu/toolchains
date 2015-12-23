@@ -8,7 +8,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /* LP0 suspend / resume */
 #define CONFIG_TEGRA_LP0
@@ -19,33 +19,18 @@
 
 #include "tegra20-common.h"
 
-/* Enable fdt support for Seaboard. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-seaboard
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
-#define V_PROMPT		"Tegra20 (SeaBoard) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Seaboard"
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
-/* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
-#define CONFIG_UART_DISABLE_GPIO	GPIO_PI3
-
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT		/* Make sure LCD init is complete */
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
-#define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
 
 /* SD/MMC */
 #define CONFIG_MMC
@@ -71,7 +56,6 @@
 #define CONFIG_USB_ETHER_ASIX
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 /* Enable keyboard */

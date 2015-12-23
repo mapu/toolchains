@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +23,40 @@
 
 #define ULL_8FS 0xFFFFFFFFULL
 
+u32 fsl_ddr_get_version(unsigned int ctrl_num)
+{
+	struct ccsr_ddr __iomem *ddr;
+	u32 ver_major_minor_errata;
+
+	switch (ctrl_num) {
+	case 0:
+		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+		break;
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	case 1:
+		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+	case 2:
+		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+		break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+	case 3:
+		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+		break;
+#endif
+	default:
+		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
+		return 0;
+	}
+	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
+	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
+
+	return ver_major_minor_errata;
+}
+
 /*
  * Round up mclk_ps to nearest 1 ps in memory controller code
  * if the error is 0.5ps or more.
@@ -31,9 +65,9 @@
  * propagation, compute a suitably rounded mclk_ps to compute
  * a working memory controller configuration.
  */
-unsigned int get_memory_clk_period_ps(void)
+unsigned int get_memory_clk_period_ps(const unsigned int ctrl_num)
 {
-	unsigned int data_rate = get_ddr_freq(0);
+	unsigned int data_rate = get_ddr_freq(ctrl_num);
 	unsigned int result;
 
 	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
@@ -47,10 +81,10 @@ unsigned int get_memory_clk_period_ps(void)
 }
 
 /* Convert picoseconds into DRAM clock cycles (rounding up if needed). */
-unsigned int picos_to_mclk(unsigned int picos)
+unsigned int picos_to_mclk(const unsigned int ctrl_num, unsigned int picos)
 {
 	unsigned long long clks, clks_rem;
-	unsigned long data_rate = get_ddr_freq(0);
+	unsigned long data_rate = get_ddr_freq(ctrl_num);
 
 	/* Short circuit for zero picos */
 	if (!picos)
@@ -76,9 +110,9 @@ unsigned int picos_to_mclk(unsigned int picos)
 	return (unsigned int) clks;
 }
 
-unsigned int mclk_to_picos(unsigned int mclk)
+unsigned int mclk_to_picos(const unsigned int ctrl_num, unsigned int mclk)
 {
-	return get_memory_clk_period_ps() * mclk;
+	return get_memory_clk_period_ps(ctrl_num) * mclk;
 }
 
 #ifdef CONFIG_PPC
@@ -137,7 +171,7 @@ u32 fsl_ddr_get_intl3r(void)
 	return val;
 }
 
-void board_add_ram_info(int use_default)
+void print_ddr_info(unsigned int start_ctrl)
 {
 	struct ccsr_ddr __iomem *ddr =
 		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
@@ -146,23 +180,31 @@ void board_add_ram_info(int use_default)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
-	uint32_t cs0_config = in_be32(&ddr->cs0_config);
+	uint32_t cs0_config = ddr_in32(&ddr->cs0_config);
 #endif
-	uint32_t sdram_cfg = in_be32(&ddr->sdram_cfg);
+	uint32_t sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	int cas_lat;
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
-	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
+	    (start_ctrl == 1)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
-		sdram_cfg = in_be32(&ddr->sdram_cfg);
+		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
-	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
+	    (start_ctrl == 2)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
-		sdram_cfg = in_be32(&ddr->sdram_cfg);
+		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
+
+	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+		puts(" (DDR not enabled)\n");
+		return;
+	}
+
 	puts(" (DDR");
 	switch ((sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) >>
 		SDRAM_CFG_SDRAM_TYPE_SHIFT) {
@@ -174,6 +216,9 @@ void board_add_ram_info(int use_default)
 		break;
 	case SDRAM_TYPE_DDR3:
 		puts("3");
+		break;
+	case SDRAM_TYPE_DDR4:
+		puts("4");
 		break;
 	default:
 		puts("?");
@@ -188,9 +233,12 @@ void board_add_ram_info(int use_default)
 		puts(", 64-bit");
 
 	/* Calculate CAS latency based on timing cfg values */
-	cas_lat = ((in_be32(&ddr->timing_cfg_1) >> 16) & 0xf) + 1;
-	if ((in_be32(&ddr->timing_cfg_3) >> 12) & 1)
-		cas_lat += (8 << 1);
+	cas_lat = ((ddr_in32(&ddr->timing_cfg_1) >> 16) & 0xf);
+	if (fsl_ddr_get_version(0) <= 0x40400)
+		cas_lat += 1;
+	else
+		cas_lat += 2;
+	cas_lat += ((ddr_in32(&ddr->timing_cfg_3) >> 12) & 3) << 4;
 	printf(", CL=%d", cas_lat >> 1);
 	if (cas_lat & 0x1)
 		puts(".5");
@@ -223,11 +271,14 @@ void board_add_ram_info(int use_default)
 #endif
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
-	if (cs0_config & 0x20000000) {
+	if ((cs0_config & 0x20000000) && (start_ctrl == 0)) {
 		puts("\n");
 		puts("       DDR Controller Interleaving Mode: ");
 
 		switch ((cs0_config >> 24) & 0xf) {
+		case FSL_DDR_256B_INTERLEAVING:
+			puts("256B");
+			break;
 		case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			puts("cache line");
 			break;
@@ -269,3 +320,68 @@ void board_add_ram_info(int use_default)
 		}
 	}
 }
+
+void __weak detail_board_ddr_info(void)
+{
+	print_ddr_info(0);
+}
+
+void board_add_ram_info(int use_default)
+{
+	detail_board_ddr_info();
+}
+
+#ifdef CONFIG_FSL_DDR_SYNC_REFRESH
+#define DDRC_DEBUG20_INIT_DONE	0x80000000
+#define DDRC_DEBUG2_RF		0x00000040
+void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
+				 unsigned int last_ctrl)
+{
+	unsigned int i;
+	u32 ddrc_debug20;
+	u32 ddrc_debug2[CONFIG_NUM_DDR_CONTROLLERS] = {};
+	u32 *ddrc_debug2_p[CONFIG_NUM_DDR_CONTROLLERS] = {};
+	struct ccsr_ddr __iomem *ddr;
+
+	for (i = first_ctrl; i <= last_ctrl; i++) {
+		switch (i) {
+		case 0:
+			ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+			break;
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+		case 1:
+			ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+		case 2:
+			ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+		case 3:
+			ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+			break;
+#endif
+		default:
+			printf("%s unexpected ctrl = %u\n", __func__, i);
+			return;
+		}
+		ddrc_debug20 = ddr_in32(&ddr->debug[19]);
+		ddrc_debug2_p[i] = &ddr->debug[1];
+		while (!(ddrc_debug20 & DDRC_DEBUG20_INIT_DONE)) {
+			/* keep polling until DDRC init is done */
+			udelay(100);
+			ddrc_debug20 = ddr_in32(&ddr->debug[19]);
+		}
+		ddrc_debug2[i] = ddr_in32(&ddr->debug[1]) | DDRC_DEBUG2_RF;
+	}
+	/*
+	 * Sync refresh
+	 * This is put together to make sure the refresh reqeusts are sent
+	 * closely to each other.
+	 */
+	for (i = first_ctrl; i <= last_ctrl; i++)
+		ddr_out32(ddrc_debug2_p[i], ddrc_debug2[i]);
+}
+#endif /* CONFIG_FSL_DDR_SYNC_REFRESH */

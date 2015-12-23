@@ -14,7 +14,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC86xx		1	/* MPC86xx */
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
@@ -24,6 +23,8 @@
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_ALTIVEC		1
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
@@ -137,7 +138,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NAND_ACTL_CLE 	(1 << 15)	/* C_LA15 */
 #define CONFIG_SYS_NAND_ACTL_NCE	0		/* NCE not controlled by ADDR */
 #define CONFIG_SYS_NAND_ACTL_DELAY	25
-#define CONFIG_SYS_NAND_QUIET_TEST
 #define CONFIG_JFFS2_NAND
 
 /*
@@ -525,8 +525,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -535,14 +533,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI

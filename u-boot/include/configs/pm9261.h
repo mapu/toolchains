@@ -20,6 +20,8 @@
 #include <asm/hardware.h>
 /* ARM asynchronous clock */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		15
@@ -181,13 +183,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
@@ -202,7 +197,6 @@
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
 #define CONFIG_HAS_DATAFLASH
-#define CONFIG_SYS_SPI_WRITE_TOUT		(5 * CONFIG_SYS_HZ)
 #define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
 #define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3	0xD0000000	/* CS3 */
@@ -342,7 +336,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_SYS_PROMPT		"pm9261> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		\

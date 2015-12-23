@@ -11,11 +11,18 @@
 #define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P2041
 
-#define CONFIG_SYS_TEXT_BASE	0xfff80000
+#define CONFIG_SYS_TEXT_BASE	0xfff40000
 
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
 
+/* an additionnal option is required for UBI as subpage access is
+ * supported in u-boot */
+#define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
+
 #define CONFIG_NAND_ECC_BCH
+
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 /* common KM defines */
 #include "keymile-common.h"
@@ -24,15 +31,14 @@
 #define CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/keymile/kmp204x/pbi.cfg
-#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/keymile/kmp204x/rcw_kmp204x.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/keymile/kmp204x/pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/keymile/kmp204x/rcw_kmp204x.cfg
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MPC85xx			/* MPC85xx/PQ3 platform */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MP			/* support multiple processors */
 
@@ -82,11 +88,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
 
-#define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
-#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00800000
-#define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
+#define CONFIG_POST CONFIG_SYS_POST_MEM_REGIONS	/* POST memory regions test */
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -140,16 +142,16 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_KM_PNVRAM	0x80000
 /* physical RAM MTD size [hex] */
 #define CONFIG_KM_PHRAM		0x100000
-/* resereved pram area at the end of memroy [hex] */
-#define CONFIG_KM_RESERVED_PRAM	0x0
-/* enable protected RAM */
-#define CONFIG_PRAM		0
+/* reserved pram area at the end of memory [hex]
+ * u-boot reserves some memory for the MP boot page */
+#define CONFIG_KM_RESERVED_PRAM	0x1000
+/* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
+ * is not valid yet, which is the case for when u-boot copies itself to RAM */
+#define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)
 
 #define CONFIG_KM_CRAMFS_ADDR	0x2000000
 #define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
 #define CONFIG_KM_FDT_ADDR	0x1F80000	/* max dtb    size  0.5Mbytes */
-
-#define CONFIG_BOOTCOUNT_LIMIT
 
 /*
  * Local Bus Definitions
@@ -165,7 +167,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_NAND_BASE_LIST     {CONFIG_SYS_NAND_BASE}
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 #define CONFIG_SYS_NAND_BLOCK_SIZE    (128 * 1024)
 
@@ -207,8 +208,13 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_QRIO_BR_PRELIM /* QRIO Base Address */
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
 
+/* bootcounter in QRIO */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_QRIO_BASE + 0x20)
+
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
+#define CONFIG_MISC_INIT_F
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
@@ -231,7 +237,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
@@ -264,7 +270,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
 
 /* I2C */
+
 #define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_SYS_I2C_SPEED		100000 /* deblocking */
 #define CONFIG_SYS_NUM_I2C_BUSES	3
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_FSL		/* Use FSL I2C driver */
@@ -277,6 +286,12 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 					{0, {{I2C_MUX_PCA9547, 0x70, 1 } } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2 } } }, \
 				}
+#ifndef __ASSEMBLY__
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
+#endif
 
 #define CONFIG_KM_IVM_BUS		1	/* I2C1 (Mux-Port 1)*/
 
@@ -284,9 +299,9 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
 #define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         20000000
 #define CONFIG_SF_DEFAULT_MODE          0
@@ -322,10 +337,26 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #define CONFIG_SYS_BMAN_MEM_PHYS	0xff4000000ull
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x00200000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG	0xE08
 #define CONFIG_SYS_QMAN_NUM_PORTALS	10
 #define CONFIG_SYS_QMAN_MEM_BASE	0xf4200000
 #define CONFIG_SYS_QMAN_MEM_PHYS	0xff4200000ull
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x00200000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
@@ -334,7 +365,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
  * ucode is stored after env, so we got 0x120000.
  */
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x120000
+#define CONFIG_SYS_FMAN_FW_ADDR	0x120000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
@@ -344,7 +375,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-#define CONFIG_E1000
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_DOS_PARTITION
@@ -363,15 +393,21 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
+ * Hardware Watchdog
+ */
+#define CONFIG_WATCHDOG			/* enable CPU watchdog */
+#define CONFIG_WATCHDOG_PRESC 34	/* wdog prescaler 2^(64-34) (~10min) */
+#define CONFIG_WATCHDOG_RC WRC_CHIP	/* reset chip on watchdog event */
+
+
+/*
  * additionnal command line configuration.
  */
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
+#define CONFIG_CMD_ERRATA
 
 /* we don't need flash support */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_FLASH_CFI_MTD
 #undef CONFIG_JFFS2_CMDLINE
 
@@ -421,6 +457,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"update="							\
 		"sf probe 0;sf erase 0 +${filesize};"			\
 		"sf write ${load_addr_r} 0 ${filesize};\0"		\
+	"set_fdthigh=true\0"						\
 	""
 
 #define CONFIG_HW_ENV_SETTINGS						\

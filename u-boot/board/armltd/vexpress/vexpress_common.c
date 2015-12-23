@@ -119,11 +119,6 @@ void dram_init_banksize(void)
 			get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
 }
 
-int timer_init(void)
-{
-	return 0;
-}
-
 /*
  * Start timer:
  *    Setup a 32 bit timer, running at 1KHz
@@ -186,7 +181,7 @@ ulong get_board_rev(void){
 	return readl((u32 *)SYS_ID);
 }
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 /* Setting the address at which secondary cores start from.
  * Versatile Express uses one address for all cores, so ignore corenr
  */

@@ -13,10 +13,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/60/55/41 */
 #define CONFIG_CPM2		1	/* has CPM2 */
 #define CONFIG_MPC8555		1	/* MPC8555 specific */
 #define CONFIG_MPC8555CDS	1	/* MPC8555CDS board specific */
@@ -365,14 +367,11 @@ extern unsigned long get_clock_freq(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
@@ -413,15 +412,10 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR   00:E0:0C:00:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR  00:E0:0C:00:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR  00:E0:0C:00:02:FD
 #endif
 
 #define CONFIG_IPADDR    192.168.1.253

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,9 +14,6 @@ struct board_specific_parameters {
 	u32 wrlvl_start;
 	u32 wrlvl_ctl_2;
 	u32 wrlvl_ctl_3;
-	u32 cpo;
-	u32 write_data_delay;
-	u32 force_2t;
 };
 
 /*
@@ -28,19 +25,25 @@ struct board_specific_parameters {
 static const struct board_specific_parameters udimm0[] = {
 	/*
 	 * memory controller 0
-	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl | cpo  |wrdata|2T
-	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |      |delay |
+	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl |
+	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |
 	 */
-	{2,  1350, 4, 4,     8, 0x0809090b, 0x0c0c0d0a,   0xff,    2,  0},
-	{2,  1350, 0, 5,     7, 0x0709090b, 0x0c0c0d09,   0xff,    2,  0},
-	{2,  1666, 4, 4,     8, 0x080a0a0d, 0x0d10100b,   0xff,    2,  0},
-	{2,  1666, 0, 5,     7, 0x080a0a0c, 0x0d0d0e0a,   0xff,    2,  0},
-	{2,  1900, 0, 4,     8, 0x090a0b0e, 0x0f11120c,   0xff,    2,  0},
-	{2,  2140, 0, 4,     8, 0x090a0b0e, 0x0f11120c,   0xff,    2,  0},
-	{1,  1350, 0, 5,     8, 0x0809090b, 0x0c0c0d0a,   0xff,    2,  0},
-	{1,  1700, 0, 5,     8, 0x080a0a0c, 0x0c0d0e0a,   0xff,    2,  0},
-	{1,  1900, 0, 4,     8, 0x080a0a0c, 0x0e0e0f0a,   0xff,    2,  0},
-	{1,  2140, 0, 4,     8, 0x090a0b0c, 0x0e0f100b,   0xff,    2,  0},
+#ifdef CONFIG_SYS_FSL_DDR4
+	{2,  1666, 0, 4,     7, 0x0808090B, 0x0C0D0E0A,},
+	{2,  1900, 0, 4,     6, 0x08080A0C, 0x0D0E0F0A,},
+	{1,  1666, 0, 4,     6, 0x0708090B, 0x0C0D0E09,},
+	{1,  1900, 0, 4,     6, 0x08080A0C, 0x0D0E0F0A,},
+	{1,  2200, 0, 4,     7, 0x08090A0D, 0x0F0F100C,},
+#elif defined(CONFIG_SYS_FSL_DDR3)
+	{2,  833,  0, 4,     6, 0x06060607, 0x08080807,},
+	{2,  1350, 0, 4,     7, 0x0708080A, 0x0A0B0C09,},
+	{2,  1666, 0, 4,     7, 0x0808090B, 0x0C0D0E0A,},
+	{1,  833,  0, 4,     6, 0x06060607, 0x08080807,},
+	{1,  1350, 0, 4,     7, 0x0708080A, 0x0A0B0C09,},
+	{1,  1666, 0, 4,     7, 0x0808090B, 0x0C0D0E0A,},
+#else
+#error DDR type not defined
+#endif
 	{}
 };
 

@@ -27,6 +27,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
@@ -597,7 +598,8 @@ static void davinci_eth_close(struct eth_device *dev)
 	debug_emac("+ emac_close\n");
 
 	davinci_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
-	davinci_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
+	if (readl(&adap_emac->RXCONTROL) & 1)
+		davinci_eth_ch_teardown(EMAC_CH_RX); /* RX Channel teardown */
 
 	/* Reset EMAC module and disable interrupts in wrapper */
 	writel(1, &adap_emac->SOFTRESET);
@@ -699,8 +701,9 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
 
 			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
-			NetReceive (rx_curr_desc->buffer,
-				    (rx_curr_desc->buff_off_len & 0xffff));
+			net_process_received_packet(
+				rx_curr_desc->buffer,
+				rx_curr_desc->buff_off_len & 0xffff);
 			ret = rx_curr_desc->buff_off_len & 0xffff;
 		}
 

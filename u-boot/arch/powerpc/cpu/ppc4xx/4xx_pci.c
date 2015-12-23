@@ -63,10 +63,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
-#if defined(CONFIG_PMC405)
-ushort pmc405_pci_subsys_deviceid(void);
-#endif
-
 /*#define DEBUG*/
 
 /*
@@ -412,7 +408,7 @@ void pci_405gp_setup_vga(struct pci_controller *hose, pci_dev_t dev,
 	pci_hose_write_config_dword(hose, dev, PCI_COMMAND, cmdstat);
 }
 
-#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405)) && !(defined (CONFIG_SC3))
+#if !(defined(CONFIG_PIP405) || defined (CONFIG_MIP405))
 
 /*
  *As is these functs get called out of flash Not a horrible

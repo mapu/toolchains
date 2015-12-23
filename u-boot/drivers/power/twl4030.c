@@ -46,6 +46,66 @@ void twl4030_power_reset_init(void)
 }
 
 /*
+ * Power off
+ */
+void twl4030_power_off(void)
+{
+	u8 data;
+
+	/* PM master unlock (CFG and TST keys) */
+
+	data = 0xCE;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, data);
+	data = 0xEC;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, data);
+
+	/* VBAT start disable */
+
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+			    TWL4030_PM_MASTER_CFG_P1_TRANSITION, &data);
+	data &= ~TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_VBAT;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_CFG_P1_TRANSITION, data);
+
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+			    TWL4030_PM_MASTER_CFG_P2_TRANSITION, &data);
+	data &= ~TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_VBAT;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_CFG_P2_TRANSITION, data);
+
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+			    TWL4030_PM_MASTER_CFG_P3_TRANSITION, &data);
+	data &= ~TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_VBAT;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_CFG_P3_TRANSITION, data);
+
+	/* High jitter for PWRANA2 */
+
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+			    TWL4030_PM_MASTER_CFG_PWRANA2, &data);
+	data &= ~(TWL4030_PM_MASTER_CFG_PWRANA2_LOJIT0_LOWV |
+		  TWL4030_PM_MASTER_CFG_PWRANA2_LOJIT1_LOWV);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_CFG_PWRANA2, data);
+
+	/* PM master lock */
+
+	data = 0xFF;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, data);
+
+	/* Power off */
+
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+			    TWL4030_PM_MASTER_P1_SW_EVENTS, &data);
+	data |= TWL4030_PM_MASTER_SW_EVENTS_DEVOFF;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_P1_SW_EVENTS, data);
+}
+
+/*
  * Set Device Group and Voltage
  */
 void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
@@ -91,11 +151,23 @@ void twl4030_power_init(void)
 				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }
 
-void twl4030_power_mmc_init(void)
+void twl4030_power_mmc_init(int dev_index)
 {
-	/* Set VMMC1 to 3.15 Volts */
-	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
-				TWL4030_PM_RECEIVER_VMMC1_VSEL_32,
-				TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
-				TWL4030_PM_RECEIVER_DEV_GRP_P1);
+	if (dev_index == 0) {
+		/* Set VMMC1 to 3.15 Volts */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
+					TWL4030_PM_RECEIVER_VMMC1_VSEL_32,
+					TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+
+		mdelay(100);	/* ramp-up delay from Linux code */
+	} else if (dev_index == 1) {
+		/* Set VMMC2 to 3.15 Volts */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC2_DEDICATED,
+					TWL4030_PM_RECEIVER_VMMC2_VSEL_32,
+					TWL4030_PM_RECEIVER_VMMC2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+
+		mdelay(100);	/* ramp-up delay from Linux code */
+	}
 }

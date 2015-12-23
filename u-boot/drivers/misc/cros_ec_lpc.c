@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <command.h>
 #include <cros_ec.h>
 #include <asm/io.h>
@@ -40,75 +41,11 @@ static int wait_for_sync(struct cros_ec_dev *dev)
 	return 0;
 }
 
-/**
- * Send a command to a LPC CROS_EC device and return the reply.
- *
- * The device's internal input/output buffers are used.
- *
- * @param dev		CROS_EC device
- * @param cmd		Command to send (EC_CMD_...)
- * @param cmd_version	Version of command to send (EC_VER_...)
- * @param dout          Output data (may be NULL If dout_len=0)
- * @param dout_len      Size of output data in bytes
- * @param dinp          Place to put pointer to response data
- * @param din_len       Maximum size of response in bytes
- * @return number of bytes in response, or -1 on error
- */
-static int old_lpc_command(struct cros_ec_dev *dev, uint8_t cmd,
+int cros_ec_lpc_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
-	int ret, i;
-
-	if (dout_len > EC_OLD_PARAM_SIZE) {
-		debug("%s: Cannot send %d bytes\n", __func__, dout_len);
-		return -1;
-	}
-
-	if (din_len > EC_OLD_PARAM_SIZE) {
-		debug("%s: Cannot receive %d bytes\n", __func__, din_len);
-		return -1;
-	}
-
-	if (wait_for_sync(dev)) {
-		debug("%s: Timeout waiting ready\n", __func__);
-		return -1;
-	}
-
-	debug_trace("cmd: %02x, ", cmd);
-	for (i = 0; i < dout_len; i++) {
-		debug_trace("%02x ", dout[i]);
-		outb(dout[i], EC_LPC_ADDR_OLD_PARAM + i);
-	}
-	outb(cmd, EC_LPC_ADDR_HOST_CMD);
-	debug_trace("\n");
-
-	if (wait_for_sync(dev)) {
-		debug("%s: Timeout waiting ready\n", __func__);
-		return -1;
-	}
-
-	ret = inb(EC_LPC_ADDR_HOST_DATA);
-	if (ret) {
-		debug("%s: CROS_EC result code %d\n", __func__, ret);
-		return -ret;
-	}
-
-	debug_trace("resp: %02x, ", ret);
-	for (i = 0; i < din_len; i++) {
-		dev->din[i] = inb(EC_LPC_ADDR_OLD_PARAM + i);
-		debug_trace("%02x ", dev->din[i]);
-	}
-	debug_trace("\n");
-	*dinp = dev->din;
-
-	return din_len;
-}
-
-int cros_ec_lpc_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
-		     const uint8_t *dout, int dout_len,
-		     uint8_t **dinp, int din_len)
-{
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
 	const int cmd_addr = EC_LPC_ADDR_HOST_CMD;
 	const int data_addr = EC_LPC_ADDR_HOST_DATA;
 	const int args_addr = EC_LPC_ADDR_HOST_ARGS;
@@ -119,12 +56,7 @@ int cros_ec_lpc_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	int csum;
 	int i;
 
-	/* Fall back to old-style command interface if args aren't supported */
-	if (!dev->cmd_version_is_supported)
-		return old_lpc_command(dev, cmd, dout, dout_len, dinp,
-				       din_len);
-
-	if (dout_len > EC_HOST_PARAM_SIZE) {
+	if (dout_len > EC_PROTO2_MAX_PARAM_SIZE) {
 		debug("%s: Cannot send %d bytes\n", __func__, dout_len);
 		return -1;
 	}
@@ -229,7 +161,7 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
 	byte = 0xff;
 	byte &= inb(EC_LPC_ADDR_HOST_CMD);
 	byte &= inb(EC_LPC_ADDR_HOST_DATA);
-	for (i = 0; i < EC_HOST_PARAM_SIZE && (byte == 0xff); i++)
+	for (i = 0; i < EC_PROTO2_MAX_PARAM_SIZE && (byte == 0xff); i++)
 		byte &= inb(EC_LPC_ADDR_HOST_PARAM + i);
 	if (byte == 0xff) {
 		debug("%s: CROS_EC device not found on LPC bus\n",
@@ -248,7 +180,7 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
  * seeing whether the EC sets the EC_HOST_ARGS_FLAG_FROM_HOST flag
  * in args when it responds.
  */
-int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
+static int cros_ec_lpc_check_version(struct udevice *dev)
 {
 	if (inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID) == 'E' &&
 			inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID + 1)
@@ -256,13 +188,32 @@ int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
 			(inb(EC_LPC_ADDR_MEMMAP +
 				EC_MEMMAP_HOST_CMD_FLAGS) &
 				EC_HOST_CMD_FLAG_LPC_ARGS_SUPPORTED)) {
-		dev->cmd_version_is_supported = 1;
-	} else {
-		/* We are going to use the old IO ports */
-		dev->cmd_version_is_supported = 0;
+		return 0;
 	}
-	debug("lpc: version %s\n", dev->cmd_version_is_supported ?
-			"new" : "old");
 
-	return 0;
+	printf("%s: ERROR: old EC interface not supported\n", __func__);
+	return -1;
 }
+
+static int cros_ec_probe(struct udevice *dev)
+{
+	return cros_ec_register(dev);
+}
+
+static struct dm_cros_ec_ops cros_ec_ops = {
+	.command = cros_ec_lpc_command,
+	.check_version = cros_ec_lpc_check_version,
+};
+
+static const struct udevice_id cros_ec_ids[] = {
+	{ .compatible = "google,cros-ec-lpc" },
+	{ }
+};
+
+U_BOOT_DRIVER(cros_ec_lpc) = {
+	.name		= "cros_ec_lpc",
+	.id		= UCLASS_CROS_EC,
+	.of_match	= cros_ec_ids,
+	.probe		= cros_ec_probe,
+	.ops		= &cros_ec_ops,
+};

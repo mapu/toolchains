@@ -24,7 +24,6 @@
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#undef CONFIG_CMD_NET
 
 /* sdram */
 #define CONFIG_SYS_SDRAM_SIZE_MB       64
@@ -38,7 +37,6 @@
 #define CONFIG_ENV_OVERWRITE 	1
 
 /*Misc*/
-#define CONFIG_SYS_PROMPT	"FX12MM:/# " /* Monitor Command Prompt */
 #define CONFIG_PREBOOT      	"echo U-Boot is up and running;"
 
 /*Flash*/

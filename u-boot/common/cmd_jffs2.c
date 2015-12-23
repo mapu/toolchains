@@ -422,8 +422,7 @@ int mtdparts_init(void)
  * @param part_num requested partition number
  * @return pointer to the part_info, NULL otherwise
  */
-//static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num)
-struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num)
+static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int part_num)
 {
 	struct list_head *entry;
 	struct part_info *part;
@@ -606,15 +605,14 @@ U_BOOT_CMD(
 	"    - load binary file from flash bank\n"
 	"      with offset 'off'"
 );
-
 U_BOOT_CMD(
-	ls,	2,	0,	do_jffs2_ls,
+	ls,	2,	1,	do_jffs2_ls,
 	"list files in a directory (default /)",
 	"[ directory ]"
 );
 
 U_BOOT_CMD(
-	fsinfo,	1,	0,	do_jffs2_fsinfo,
+	fsinfo,	1,	1,	do_jffs2_fsinfo,
 	"print information about filesystems",
 	""
 );

@@ -187,6 +187,31 @@ static void skip_num(int hex, const char *value, const char **end,
 		*end = value;
 }
 
+#ifdef CONFIG_CMD_NET
+int eth_validate_ethaddr_str(const char *addr)
+{
+	const char *end;
+	const char *cur;
+	int i;
+
+	cur = addr;
+	for (i = 0; i < 6; i++) {
+		skip_num(1, cur, &end, 2);
+		if (cur == end)
+			return -1;
+		if (cur + 2 == end && is_hex_prefix(cur))
+			return -1;
+		if (i != 5 && *end != ':')
+			return -1;
+		if (i == 5 && *end != '\0')
+			return -1;
+		cur = end + 1;
+	}
+
+	return 0;
+}
+#endif
+
 /*
  * Based on the declared type enum, validate that the value string complies
  * with that format
@@ -239,19 +264,8 @@ static int _env_flags_validate_type(const char *value,
 		}
 		break;
 	case env_flags_vartype_macaddr:
-		cur = value;
-		for (i = 0; i < 6; i++) {
-			skip_num(1, cur, &end, 2);
-			if (cur == end)
-				return -1;
-			if (cur + 2 == end && is_hex_prefix(cur))
-				return -1;
-			if (i != 5 && *end != ':')
-				return -1;
-			if (i == 5 && *end != '\0')
-				return -1;
-			cur = end + 1;
-		}
+		if (eth_validate_ethaddr_str(value))
+			return -1;
 		break;
 #endif
 	case env_flags_vartype_end:
@@ -435,7 +449,7 @@ static int clear_flags(ENTRY *entry)
 /*
  * Call for each element in the list that defines flags for a variable
  */
-static int set_flags(const char *name, const char *value)
+static int set_flags(const char *name, const char *value, void *priv)
 {
 	ENTRY e, *ep;
 
@@ -463,9 +477,9 @@ static int on_flags(const char *name, const char *value, enum env_op op,
 	hwalk_r(&env_htab, clear_flags);
 
 	/* configure any static flags */
-	env_attr_walk(ENV_FLAGS_LIST_STATIC, set_flags);
+	env_attr_walk(ENV_FLAGS_LIST_STATIC, set_flags, NULL);
 	/* configure any dynamic flags */
-	env_attr_walk(value, set_flags);
+	env_attr_walk(value, set_flags, NULL);
 
 	return 0;
 }

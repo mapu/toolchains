@@ -9,9 +9,15 @@
 #ifndef __CONFIG_SMDK_H
 #define __CONFIG_SMDK_H
 
-#include <configs/exynos5250-dt.h>
+#include <configs/exynos5250-common.h>
+#include <configs/exynos5-dt-common.h>
+#include <configs/exynos5-common.h>
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-smdk5250
+#undef CONFIG_KEYBOARD
+
+#define CONFIG_BOARD_COMMON
+
+#define CONFIG_IDENT_STRING		" for SMDK5250"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #endif	/* __CONFIG_SMDK_H */

@@ -8,7 +8,6 @@
 #include <command.h>
 #include <ansi.h>
 #include <menu.h>
-#include <hush.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <linux/string.h>
@@ -136,7 +135,7 @@ static void bootmenu_loop(struct bootmenu_data *menu,
 	int c;
 
 	while (!tstc()) {
-		//WATCHDOG_RESET();
+		WATCHDOG_RESET();
 		mdelay(10);
 	}
 

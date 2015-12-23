@@ -66,8 +66,6 @@
 #define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20200300
 #define CONFIG_HOSTNAME		cm-bf533
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*
@@ -97,7 +95,6 @@
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BOOTCOMMAND	"run flashboot"
 #define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
-
 
 /*
  * Pull in common ADI header for remaining command/environment setup

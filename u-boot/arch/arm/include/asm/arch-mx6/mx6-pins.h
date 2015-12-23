@@ -35,6 +35,10 @@ enum {
 };
 #elif defined(CONFIG_MX6SL)
 #include "mx6sl_pins.h"
+#elif defined(CONFIG_MX6SX)
+#include "mx6sx_pins.h"
+#elif defined(CONFIG_MX6UL)
+#include "mx6ul_pins.h"
 #else
 #error "Please select cpu"
 #endif	/* CONFIG_MX6Q */

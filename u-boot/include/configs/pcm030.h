@@ -15,13 +15,13 @@
 #define __CONFIG_H
 
 #define CONFIG_BOARDINFO	 "phyCORE-MPC5200B-tiny"
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*-----------------------------------------------------------------------------
 High Level Configuration Options
 (easy to change)
 -----------------------------------------------------------------------------*/
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_MPC5200_DDR	1	/* (with DDR-SDRAM) */
 #define CONFIG_PHYCORE_MPC5200B_TINY 1	/* phyCORE-MPC5200B -> */
 					/* FEC configuration and IDE */
@@ -51,15 +51,12 @@ Serial console configuration
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
@@ -341,7 +338,6 @@ RTC configuration
  Miscellaneous configurable options
 -------------------------------------------------------------------------------*/
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT "uboot> " /* Monitor Command Prompt */
 
 #define CONFIG_CMDLINE_EDITING 1 /* add command line history */
 

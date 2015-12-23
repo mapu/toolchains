@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/at91sam9g45_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
@@ -15,7 +16,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
+#include <linux/mtd/nand.h>
 #include <atmel_lcdc.h>
+#include <atmel_mci.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -70,6 +73,76 @@ void at91sam9m10g45ek_nand_hw_init(void)
 }
 #endif
 
+#if defined(CONFIG_SPL_BUILD)
+#include <spl.h>
+#include <nand.h>
+
+void at91_spl_board_init(void)
+{
+	/*
+	 * On the at91sam9m10g45ek board, the chip wm9711 stays in the
+	 * test mode, so it needs do some action to exit test mode.
+	 */
+	at91_periph_clk_enable(ATMEL_ID_PIODE);
+	at91_set_gpio_output(AT91_PIN_PD7, 0);
+	at91_set_gpio_output(AT91_PIN_PD8, 0);
+	at91_set_pio_pullup(AT91_PIO_PORTD, 7, 1);
+	at91_set_pio_pullup(AT91_PIO_PORTD, 8, 1);
+
+#ifdef CONFIG_SYS_USE_MMC
+	at91_mci_hw_init();
+#elif CONFIG_SYS_USE_NANDFLASH
+	at91sam9m10g45ek_nand_hw_init();
+#endif
+}
+
+#include <asm/arch/atmel_mpddrc.h>
+static void ddr2_conf(struct atmel_mpddr *ddr2)
+{
+	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
+
+	ddr2->cr = (ATMEL_MPDDRC_CR_NC_COL_10 |
+		    ATMEL_MPDDRC_CR_NR_ROW_14 |
+		    ATMEL_MPDDRC_CR_DQMS_SHARED |
+		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3);
+
+	ddr2->rtr = 0x24b;
+
+	ddr2->tpr0 = (6 << ATMEL_MPDDRC_TPR0_TRAS_OFFSET |/* 6*7.5 = 45 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TRCD_OFFSET |/* 2*7.5 = 15 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TWR_OFFSET | /* 2*7.5 = 15 ns */
+		      8 << ATMEL_MPDDRC_TPR0_TRC_OFFSET | /* 8*7.5 = 60 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TRP_OFFSET | /* 2*7.5 = 15 ns */
+		      1 << ATMEL_MPDDRC_TPR0_TRRD_OFFSET | /* 1*7.5= 7.5 ns*/
+		      1 << ATMEL_MPDDRC_TPR0_TWTR_OFFSET | /* 1 clk cycle */
+		      2 << ATMEL_MPDDRC_TPR0_TMRD_OFFSET); /* 2 clk cycles */
+
+	ddr2->tpr1 = (2 << ATMEL_MPDDRC_TPR1_TXP_OFFSET | /* 2*7.5 = 15 ns */
+		      200 << ATMEL_MPDDRC_TPR1_TXSRD_OFFSET |
+		      16 << ATMEL_MPDDRC_TPR1_TXSNR_OFFSET |
+		      14 << ATMEL_MPDDRC_TPR1_TRFC_OFFSET);
+
+	ddr2->tpr2 = (1 << ATMEL_MPDDRC_TPR2_TRTP_OFFSET |
+		      0 << ATMEL_MPDDRC_TPR2_TRPA_OFFSET |
+		      7 << ATMEL_MPDDRC_TPR2_TXARDS_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR2_TXARD_OFFSET);
+}
+
+void mem_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	struct atmel_mpddr ddr2;
+
+	ddr2_conf(&ddr2);
+
+	/* enable DDR2 clock */
+	writel(AT91_PMC_DDR, &pmc->scer);
+
+	/* DDRAM2 Controller initialize */
+	ddr2_init(ATMEL_BASE_DDRSDRC0, ATMEL_BASE_CS6, &ddr2);
+}
+#endif
+
 #ifdef CONFIG_CMD_USB
 static void at91sam9m10g45ek_usb_hw_init(void)
 {
@@ -120,20 +193,20 @@ static void at91sam9m10g45ek_macb_hw_init(void)
 #ifdef CONFIG_LCD
 
 vidinfo_t panel_info = {
-	vl_col:		480,
-	vl_row:		272,
-	vl_clk:		9000000,
-	vl_sync:	ATMEL_LCDC_INVLINE_NORMAL |
-			ATMEL_LCDC_INVFRAME_NORMAL,
-	vl_bpix:	3,
-	vl_tft:		1,
-	vl_hsync_len:	45,
-	vl_left_margin:	1,
-	vl_right_margin:1,
-	vl_vsync_len:	1,
-	vl_upper_margin:40,
-	vl_lower_margin:1,
-	mmio :		 ATMEL_BASE_LCDC,
+	.vl_col =		480,
+	.vl_row =		272,
+	.vl_clk =		9000000,
+	.vl_sync =		ATMEL_LCDC_INVLINE_NORMAL |
+				ATMEL_LCDC_INVFRAME_NORMAL,
+	.vl_bpix =		3,
+	.vl_tft =		1,
+	.vl_hsync_len =		45,
+	.vl_left_margin =	1,
+	.vl_right_margin =	1,
+	.vl_vsync_len =		1,
+	.vl_upper_margin =	40,
+	.vl_lower_margin =	1,
+	.mmio =			ATMEL_BASE_LCDC,
 };
 
 
@@ -215,6 +288,15 @@ void lcd_show_board_info(void)
 		nand_size >> 20 );
 }
 #endif /* CONFIG_LCD_INFO */
+#endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bis)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI0);
+}
 #endif
 
 int board_early_init_f(void)

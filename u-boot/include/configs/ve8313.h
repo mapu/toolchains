@@ -13,11 +13,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC83xx		1
 #define CONFIG_MPC831x		1
 #define CONFIG_MPC8313		1
 #define CONFIG_VE8313		1
@@ -184,7 +186,6 @@
  */
 #define CONFIG_SYS_NAND_BASE		0x61000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
@@ -330,8 +331,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING

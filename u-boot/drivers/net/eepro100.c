@@ -230,7 +230,7 @@ static int eepro100_send(struct eth_device *dev, void *packet, int length);
 static int eepro100_recv (struct eth_device *dev);
 static void eepro100_halt (struct eth_device *dev);
 
-#if defined(CONFIG_E500) || defined(CONFIG_DB64360) || defined(CONFIG_DB64460)
+#if defined(CONFIG_E500)
 #define bus_to_phys(a) (a)
 #define phys_to_bus(a) (a)
 #else
@@ -674,7 +674,8 @@ static int eepro100_recv (struct eth_device *dev)
 			/* Pass the packet up to the protocol
 			 * layers.
 			 */
-			NetReceive((u8 *)rx_ring[rx_next].data, length);
+			net_process_received_packet((u8 *)rx_ring[rx_next].data,
+						    length);
 		} else {
 			/* There was an error.
 			 */

@@ -13,6 +13,7 @@
 
 #include <linux/types.h>
 
+struct rtc_time;
 struct sandbox_state;
 
 /**
@@ -64,7 +65,7 @@ off_t os_lseek(int fd, off_t offset, int whence);
  * Access to the OS open() system call
  *
  * \param pathname	Pathname of file to open
- * \param flags		Flags, like O_RDONLY, O_RDWR
+ * \param flags		Flags, like OS_O_RDONLY, OS_O_RDWR
  * \return file descriptor, or -1 on error
  */
 int os_open(const char *pathname, int flags);
@@ -84,6 +85,14 @@ int os_open(const char *pathname, int flags);
 int os_close(int fd);
 
 /**
+ * Access to the OS unlink() system call
+ *
+ * \param pathname Path of file to delete
+ * \return 0 for success, other for error
+ */
+int os_unlink(const char *pathname);
+
+/**
  * Access to the OS exit() system call
  *
  * This exits with the supplied return code, which should be 0 to indicate
@@ -95,8 +104,20 @@ void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
  * Put tty into raw mode to mimic serial console better
+ *
+ * @param fd		File descriptor of stdin (normally 0)
+ * @param allow_sigs	Allow Ctrl-C, Ctrl-Z to generate signals rather than
+ *			be handled by U-Boot
  */
-void os_tty_raw(int fd);
+void os_tty_raw(int fd, bool allow_sigs);
+
+/**
+ * Restore the tty to its original mode
+ *
+ * Call this to restore the original terminal mode, after it has been changed
+ * by os_tty_raw(). This is an internal function.
+ */
+void os_fd_restore(void);
 
 /**
  * Acquires some memory from the underlying os.
@@ -113,7 +134,7 @@ void *os_malloc(size_t length);
  *
  * \param ptr		Pointer to memory block to free
  */
-void *os_free(void *ptr);
+void os_free(void *ptr);
 
 /**
  * Reallocate previously-allocated memory to increase/decrease space
@@ -205,9 +226,10 @@ const char *os_dirent_get_typename(enum os_dirent_t type);
  * Get the size of a file
  *
  * @param fname		Filename to check
- * @return size of file, or -1 if an error ocurred
+ * @param size		size of file is returned if no error
+ * @return 0 on success or -1 if an error ocurred
  */
-ssize_t os_get_filesize(const char *fname);
+int os_get_filesize(const char *fname, loff_t *size);
 
 /**
  * Write a character to the controlling OS terminal
@@ -244,5 +266,34 @@ int os_write_ram_buf(const char *fname);
  * @return 0 if OK, -ve on error
  */
 int os_read_ram_buf(const char *fname);
+
+/**
+ * Jump to a new executable image
+ *
+ * This uses exec() to run a new executable image, after putting it in a
+ * temporary file. The same arguments and environment are passed to this
+ * new image, with the addition of:
+ *
+ *	-j <filename>	Specifies the filename the image was written to. The
+ *			calling image may want to delete this at some point.
+ *	-m <filename>	Specifies the file containing the sandbox memory
+ *			(ram_buf) from this image, so that the new image can
+ *			have access to this. It also means that the original
+ *			memory filename passed to U-Boot will be left intact.
+ *
+ * @param dest		Buffer containing executable image
+ * @param size		Size of buffer
+ */
+int os_jump_to_image(const void *dest, int size);
+
+/**
+ * Read the current system time
+ *
+ * This reads the current Local Time and places it into the provided
+ * structure.
+ *
+ * @param rt		Place to put system time
+ */
+void os_localtime(struct rtc_time *rt);
 
 #endif

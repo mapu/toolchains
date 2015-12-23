@@ -30,7 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (bd_t *kbd);
@@ -53,6 +52,13 @@ static void boot_jump_linux(bootm_headers_t *images)
 		(ulong)kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+#ifdef CONFIG_BOOTSTAGE_FDT
+	bootstage_fdt_add_report();
+#endif
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
 	unlock_ram_in_cache();
@@ -120,7 +126,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 #endif
 
 	size = min(bootm_size, get_effective_memsize());
-	size = min(size, CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
+	size = min(size, (ulong)CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;

@@ -16,10 +16,10 @@
 #include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
-#define CONFIG_ARM1136	/* This is an arm1136 CPU core */
 #define CONFIG_MX35
 
 #define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Set TEXT at the beginning of the NOR flash */
 #define CONFIG_SYS_TEXT_BASE	0xA0000000
@@ -42,6 +42,9 @@
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
 
@@ -52,7 +55,7 @@
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_FSL
-#define CONFIG_PMIC_FSL_MC13892
+#define CONFIG_POWER_FSL_MC13892
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR	0x08
 #define CONFIG_RTC_MC13XXX
 
@@ -76,9 +79,6 @@
 /*
  * Command definition
  */
-
-#include <config_cmd_default.h>
-
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_PING
@@ -93,7 +93,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_NET_RETRY_COUNT	100
 #define CONFIG_CMD_DATE
 
@@ -139,15 +138,11 @@
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
 
 #define CONFIG_SYS_MEMTEST_START	0	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x10000
-
-#undef	CONFIG_SYS_CLKS_IN_HZ	/* everything, incl board info, in Hz */
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 

@@ -16,6 +16,8 @@
 #include <asm/io.h>
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
+#include <asm/bootm.h>
+
 #include <i2c.h>
 #include <linux/compiler.h>
 
@@ -41,11 +43,23 @@ static char *rev_s_37xx[CPU_37XX_MAX_REV] = {
 #endif /* CONFIG_DISPLAY_CPUINFO */
 
 /*****************************************************************
+ * get_dieid(u32 *id) - read die ID
+ *****************************************************************/
+void get_dieid(u32 *id)
+{
+	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
+
+	id[3] = readl(&id_base->die_id_0);
+	id[2] = readl(&id_base->die_id_1);
+	id[1] = readl(&id_base->die_id_2);
+	id[0] = readl(&id_base->die_id_3);
+}
+
+/*****************************************************************
  * dieid_num_r(void) - read and set die ID
  *****************************************************************/
 void dieid_num_r(void)
 {
-	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
 	char *uid_s, die_id[34];
 	u32 id[4];
 
@@ -54,10 +68,7 @@ void dieid_num_r(void)
 	uid_s = getenv("dieid#");
 
 	if (uid_s == NULL) {
-		id[3] = readl(&id_base->die_id_0);
-		id[2] = readl(&id_base->die_id_1);
-		id[1] = readl(&id_base->die_id_2);
-		id[0] = readl(&id_base->die_id_3);
+		get_dieid(id);
 		sprintf(die_id, "%08x%08x%08x%08x", id[0], id[1], id[2], id[3]);
 		setenv("dieid#", die_id);
 		uid_s = die_id;
@@ -185,15 +196,17 @@ u32 get_gpmc0_width(void)
  * get_board_rev() - setup to pass kernel board revision information
  * returns:(bit[0-3] sub version, higher bit[7-4] is higher version)
  *************************************************************************/
+#ifdef CONFIG_REVISION_TAG
 u32 __weak get_board_rev(void)
 {
 	return 0x20;
 }
+#endif
 
 /********************************************************
  *  get_base(); get upper addr of current execution
  *******************************************************/
-u32 get_base(void)
+static u32 get_base(void)
 {
 	u32 val;
 

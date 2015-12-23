@@ -18,11 +18,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void __ft_board_setup(void *blob, bd_t *bd)
+int __ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+	return 0;
 }
-void ft_board_setup(void *blob, bd_t *bd) \
+int ft_board_setup(void *blob, bd_t *bd)
 	__attribute__((weak, alias("__ft_board_setup")));
 
 void ft_cpu_setup(void *blob, bd_t *bd)

@@ -69,11 +69,6 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 
 	asm volatile("mcr p15, 0, %0, c7, c10, 4\n" : : "r"(0));
 }
-
-void flush_cache(unsigned long start, unsigned long size)
-{
-	flush_dcache_range(start, start + size);
-}
 #else /* #ifndef CONFIG_SYS_DCACHE_OFF */
 void invalidate_dcache_all(void)
 {
@@ -82,24 +77,9 @@ void invalidate_dcache_all(void)
 void flush_dcache_all(void)
 {
 }
-
-void invalidate_dcache_range(unsigned long start, unsigned long stop)
-{
-}
-
-void flush_dcache_range(unsigned long start, unsigned long stop)
-{
-}
-
-void flush_cache(unsigned long start, unsigned long size)
-{
-}
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
 
 /*
  * Stub implementations for l2 cache operations
  */
-void __l2_cache_disable(void) {}
-
-void l2_cache_disable(void)
-	__attribute__((weak, alias("__l2_cache_disable")));
+__weak void l2_cache_disable(void) {}

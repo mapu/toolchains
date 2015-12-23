@@ -20,13 +20,14 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM920T		/* This is an ARM920T Core */
-#define CONFIG_S3C24X0		/* in a SAMSUNG S3C24x0-type SoC */
+#define CONFIG_S3C24X0		/* This is a SAMSUNG S3C24x0-type SoC */
 #define CONFIG_S3C2410		/* specifically a SAMSUNG S3C2410 SoC */
 #define CONFIG_VCMA9		/* on a MPL VCMA9 Board  */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MPL_VCMA9 /* Machine type */
 
 #define CONFIG_SYS_TEXT_BASE	0x0
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
@@ -48,8 +49,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
@@ -61,7 +60,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NAND_YAFFS
 
 #define CONFIG_BOARD_LATE_INIT
 
@@ -142,7 +140,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"VCMA9 # "
 #define CONFIG_SYS_CBSIZE		256
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
@@ -214,7 +211,6 @@
 
 /* File system */
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_JFFS2

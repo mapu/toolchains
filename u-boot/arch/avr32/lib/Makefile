@@ -8,6 +8,6 @@
 #
 
 obj-y	+= memset.o
-obj-y	+= board.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= interrupts.o
+obj-y	+= dram_init.o

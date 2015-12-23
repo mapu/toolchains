@@ -14,11 +14,12 @@
 #include <common.h>
 #include <command.h>
 #include <exports.h>
-
+#include <memalign.h>
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
+#include <linux/err.h>
 #include <ubi_uboot.h>
 #include <asm/errno.h>
 #include <jffs2/load_kernel.h>
@@ -49,33 +50,6 @@ static struct selected_dev ubi_dev;
 int ubifs_is_mounted(void);
 void cmd_ubifs_umount(void);
 #endif
-
-static void ubi_dump_vol_info(const struct ubi_volume *vol)
-{
-	ubi_msg("volume information dump:");
-	ubi_msg("vol_id          %d", vol->vol_id);
-	ubi_msg("reserved_pebs   %d", vol->reserved_pebs);
-	ubi_msg("alignment       %d", vol->alignment);
-	ubi_msg("data_pad        %d", vol->data_pad);
-	ubi_msg("vol_type        %d", vol->vol_type);
-	ubi_msg("name_len        %d", vol->name_len);
-	ubi_msg("usable_leb_size %d", vol->usable_leb_size);
-	ubi_msg("used_ebs        %d", vol->used_ebs);
-	ubi_msg("used_bytes      %lld", vol->used_bytes);
-	ubi_msg("last_eb_bytes   %d", vol->last_eb_bytes);
-	ubi_msg("corrupted       %d", vol->corrupted);
-	ubi_msg("upd_marker      %d", vol->upd_marker);
-
-	if (vol->name_len <= UBI_VOL_NAME_MAX &&
-		strnlen(vol->name, vol->name_len + 1) == vol->name_len) {
-		ubi_msg("name            %s", vol->name);
-	} else {
-		ubi_msg("the 1st 5 characters of the name: %c%c%c%c%c",
-				vol->name[0], vol->name[1], vol->name[2],
-				vol->name[3], vol->name[4]);
-	}
-	printf("\n");
-}
 
 static void display_volume_info(struct ubi_device *ubi)
 {
@@ -122,6 +96,27 @@ static int ubi_info(int layout)
 
 	return 0;
 }
+
+static int ubi_check_volumename(const struct ubi_volume *vol, char *name)
+{
+	return strcmp(vol->name, name);
+}
+
+static int ubi_check(char *name)
+{
+	int i;
+
+	for (i = 0; i < (ubi->vtbl_slots + 1); i++) {
+		if (!ubi->volumes[i])
+			continue;	/* Empty record */
+
+		if (!ubi_check_volumename(ubi->volumes[i], name))
+			return 0;
+	}
+
+	return 1;
+}
+
 
 static int verify_mkvol_req(const struct ubi_device *ubi,
 			    const struct ubi_mkvol_req *req)
@@ -266,7 +261,7 @@ out_err:
 	return err;
 }
 
-int ubi_volume_continue_write(char *volume, void *buf, size_t size)
+static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 {
 	int err = 1;
 	struct ubi_volume *vol;
@@ -368,7 +363,7 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 	tbuf_size = vol->usable_leb_size;
 	if (size < tbuf_size)
 		tbuf_size = ALIGN(size, ubi->min_io_size);
-	tbuf = malloc(tbuf_size);
+	tbuf = malloc_cache_aligned(tbuf_size);
 	if (!tbuf) {
 		printf("NO MEM\n");
 		return ENOMEM;
@@ -558,6 +553,14 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ubi_info(layout);
 	}
 
+	if (strcmp(argv[1], "check") == 0) {
+		if (argc > 2)
+			return ubi_check(argv[2]);
+
+		printf("Error, no volume name passed\n");
+		return 1;
+	}
+
 	if (strncmp(argv[1], "create", 6) == 0) {
 		int dynamic = 1;	/* default: dynamic volume */
 
@@ -663,6 +666,8 @@ U_BOOT_CMD(
 		" header offset)\n"
 	"ubi info [l[ayout]]"
 		" - Display volume and ubi layout information\n"
+	"ubi check volumename"
+		" - check if volumename exists\n"
 	"ubi create[vol] volume [size] [type]"
 		" - create volume name with size\n"
 	"ubi write[vol] address volume size"

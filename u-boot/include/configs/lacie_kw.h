@@ -8,6 +8,11 @@
 #define _CONFIG_LACIE_KW_H
 
 /*
+ * Generic board support
+ */
+#define CONFIG_SYS_GENERIC_BOARD
+
+/*
  * Machine number definition
  */
 #if defined(CONFIG_INETSPACE_V2)
@@ -41,7 +46,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SoC Family Name */
 /* SoC name */
 #if defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
 #define CONFIG_KW88F6192
@@ -54,7 +58,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
@@ -80,9 +83,9 @@
  * from the Network Space v2
  */
 #if defined(CONFIG_INETSPACE_V2)
-#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-is2.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-is2.cfg
 #elif defined(CONFIG_NETSPACE_LITE_V2) || defined(CONFIG_NETSPACE_MINI_V2)
-#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-ns2l.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-ns2l.cfg
 #endif
 
 /*
@@ -98,8 +101,6 @@
 #undef CONFIG_SYS_IDE_MAXDEVICE
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_ENV_SPI_MAX_HZ           20000000 /* 20Mhz */
-#define CONFIG_SYS_IDE_MAXBUS           1
-#define CONFIG_SYS_IDE_MAXDEVICE        1
 #if defined(CONFIG_D2NET_V2)
 #define CONFIG_SYS_PROMPT		"d2v2> "
 #elif defined(CONFIG_NET2BIG_V2)
@@ -129,6 +130,11 @@
 #if defined(CONFIG_NETSPACE_MAX_V2) || defined(CONFIG_D2NET_V2) || \
 	defined(CONFIG_NET2BIG_V2)
 #define CONFIG_SYS_ATA_IDE1_OFFSET      MV_SATA_PORT1_OFFSET
+#define CONFIG_SYS_IDE_MAXBUS           2
+#define CONFIG_SYS_IDE_MAXDEVICE        2
+#else
+#define CONFIG_SYS_IDE_MAXBUS           1
+#define CONFIG_SYS_IDE_MAXDEVICE        1
 #endif
 #endif /* CONFIG_MVSATA_IDE */
 

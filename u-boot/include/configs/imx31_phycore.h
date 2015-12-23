@@ -15,9 +15,10 @@
 #include <asm/arch/imx-regs.h>
 
 /* High Level Configuration Options */
-#define CONFIG_ARM1136			/* This is an arm1136 CPU core */
-#define CONFIG_MX31			/* in a mx31 */
+#define CONFIG_MX31			/* This is a mx31 */
 #define CONFIG_MX31_CLK32	32000
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -37,6 +38,9 @@
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 #define CONFIG_SYS_I2C_CLK_OFFSET	I2C2_CLK_OFFSET
 
 #define CONFIG_MXC_UART
@@ -50,9 +54,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
@@ -103,7 +104,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"uboot> "
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256
 /* Print Buffer Size */

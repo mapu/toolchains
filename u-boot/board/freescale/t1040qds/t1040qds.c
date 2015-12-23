@@ -18,7 +18,9 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <hwconfig.h>
 
+#include "../common/sleep.h"
 #include "../common/qixis.h"
 #include "t1040qds.h"
 #include "t1040qds_qixis.h"
@@ -89,11 +91,45 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+static void qe_board_setup(void)
+{
+	u8 brdcfg15, brdcfg9;
+
+	if (hwconfig("qe") && hwconfig("tdm")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		/*
+		 * TDMRiser uses QE-TDM
+		 * Route QE_TDM signals to TDM Riser slot
+		 */
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 7);
+	} else if (hwconfig("qe") && hwconfig("uart")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		brdcfg9 = QIXIS_READ(brdcfg[9]);
+		/*
+		 * Route QE_TDM signals to UCC
+		 * ProfiBus controlled by UCC3
+		 */
+		brdcfg15 &= 0xfc;
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 2);
+		QIXIS_WRITE(brdcfg[9], brdcfg9 | 4);
+	}
+}
+
+int board_early_init_f(void)
+{
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
+	return 0;
+}
+
 int board_early_init_r(void)
 {
 #ifdef CONFIG_SYS_FLASH_BASE
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
-	const u8 flash_esel = find_tlb_idx((void *)flashbase, 1);
+	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 
 	/*
 	 * Remap Boot flash + PROMJET region to caching-inhibited
@@ -104,8 +140,14 @@ int board_early_init_r(void)
 	flush_dcache();
 	invalidate_icache();
 
-	/* invalidate existing TLB entry for flash + promjet */
-	disable_tlb(flash_esel);
+	if (flash_esel == -1) {
+		/* very unlikely unless something is messed up */
+		puts("Error: Could not find TLB for FLASH BASE\n");
+		flash_esel = 2;	/* give our best effort to continue */
+	} else {
+		/* invalidate existing TLB entry for flash + promjet */
+		disable_tlb(flash_esel);
+	}
 
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -196,10 +238,12 @@ int misc_init_r(void)
 		}
 	}
 
+	qe_board_setup();
+
 	return 0;
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -223,7 +267,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_fman_ethernet(blob);
+	fdt_fixup_board_enet(blob);
 #endif
+
+	return 0;
 }
 
 void qixis_dump_switch(void)

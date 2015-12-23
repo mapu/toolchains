@@ -16,10 +16,11 @@
  */
 
 #define CONFIG_MPC5200
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPX5200		1	/* ... on MPX5200 board */
-#define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM */
+#define CONFIG_MPX5200		1	/* MPX5200 board */
+#define CONFIG_MPC5200_DDR	1	/* use DDR RAM */
 #define CONFIG_IPEK01           	/* Motherboard is ipek01 */
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0xfc000000
 
@@ -102,8 +103,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP		/* BMP support */
 #endif

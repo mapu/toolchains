@@ -17,7 +17,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
@@ -28,11 +27,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
@@ -48,7 +43,11 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
+#ifndef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(16 * 1024)
+#else
+#define CONFIG_ENV_SIZE			(4 * 1024)
+#endif
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */
@@ -70,7 +69,6 @@
 /* Environemnt is in SPI flash */
 #if defined(CONFIG_CMD_SF) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SIZE			0x1000		/* 4KB */
 #define CONFIG_ENV_OFFSET		0x40000		/* 256K */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SECT_SIZE		0x1000
@@ -104,7 +102,6 @@
 /* FEC Ethernet on SoC */
 #ifdef	CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
-#define CONFIG_NET_MULTI
 #define CONFIG_MX28_FEC_MAC_IN_OCOTP
 #endif
 
@@ -130,7 +127,6 @@
 
 /* SPI Flash */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SF_DEFAULT_BUS		2
 #define CONFIG_SF_DEFAULT_CS		0
 /* this may vary and depends on the installed chip */
@@ -198,7 +194,7 @@
 		"else " \
 			"setenv get_cmd tftp; " \
 		"fi; " \
-		"${get_cmd} ${uimage}; " \
+		"${get_cmd} ${image}; " \
 		"nand write ${loadaddr} kernel ${filesize}\0" \
 	"update_nand_fdt="		/* Update fdt */ \
 		"mtdparts default; " \
@@ -230,10 +226,10 @@
 		"nand read ${loadaddr} kernel 0x00400000; " \
 		"if test ${boot_fdt} = yes; then " \
 			"nand read ${fdt_addr} fdt 0x00080000; " \
-			"bootm ${loadaddr} - ${fdt_addr}; " \
+			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"else " \
 			"if test ${boot_fdt} = no; then " \
-				"bootm; " \
+				"bootz; " \
 			"else " \
 				"echo \"ERROR: Set boot_fdt to yes or no.\"; " \
 			"fi; " \
@@ -248,7 +244,7 @@
 		"fi ; "	\
 		"fi\0" \
 	"script=boot.scr\0"	\
-	"uimage=uImage\0" \
+	"image=zImage\0" \
 	"console_fsl=ttyAM0\0" \
 	"console_mainline=ttyAMA0\0" \
 	"fdt_file=imx28-evk.dtb\0" \
@@ -264,22 +260,22 @@
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; "	\
 		"source\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
+					"bootz; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi; " \
 			"fi; " \
 		"else " \
-			"bootm; " \
+			"bootz; " \
 		"fi;\0" \
 	"netargs=setenv bootargs console=${console_mainline},${baudrate} " \
 		"root=/dev/nfs " \
@@ -291,19 +287,19 @@
 		"else " \
 			"setenv get_cmd tftp; " \
 		"fi; " \
-		"${get_cmd} ${uimage}; " \
+		"${get_cmd} ${image}; " \
 		"if test ${boot_fdt} = yes; then " \
 			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
+					"bootz; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi;" \
 			"fi; " \
 		"else " \
-			"bootm; " \
+			"bootz; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
@@ -311,7 +307,7 @@
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
-			"if run loaduimage; then " \
+			"if run loadimage; then " \
 				"run mmcboot; " \
 			"else run netboot; " \
 			"fi; " \

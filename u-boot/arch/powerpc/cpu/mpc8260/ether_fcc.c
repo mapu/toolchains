@@ -183,7 +183,7 @@ static int fec_recv(struct eth_device* dev)
 	}
 	else {
 	    /* Pass the packet up to the protocol layers. */
-	    NetReceive(NetRxPackets[rxIdx], length - 4);
+	    net_process_received_packet(net_rx_packets[rxIdx], length - 4);
 	}
 
 
@@ -243,7 +243,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     {
       rtx.rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
       rtx.rxbd[i].cbd_datlen = 0;
-      rtx.rxbd[i].cbd_bufaddr = (uint)NetRxPackets[i];
+      rtx.rxbd[i].cbd_bufaddr = (uint)net_rx_packets[i];
     }
     rtx.rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
 
@@ -299,7 +299,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
      * it unique by setting a few bits in the upper byte of the
      * non-static part of the address.
      */
-#define ea eth_get_dev()->enetaddr
+#define ea eth_get_ethaddr()
     pram_ptr->fen_paddrh = (ea[5] << 8) + ea[4];
     pram_ptr->fen_paddrm = (ea[3] << 8) + ea[2];
     pram_ptr->fen_paddrl = (ea[1] << 8) + ea[0];
@@ -637,7 +637,7 @@ eth_loopback_test (void)
 
 	puts ("FCC Ethernet External loopback test\n");
 
-	eth_getenv_enetaddr("ethaddr", NetOurEther);
+	eth_getenv_enetaddr("ethaddr", net_ethaddr);
 
 	/*
 	 * global initialisations for all FCC channels
@@ -645,32 +645,7 @@ eth_loopback_test (void)
 
 	/* 28.9 - (1-2): ioports have been set up already */
 
-#if defined(CONFIG_HYMOD)
-	/*
-	 * Attention: this is board-specific
-	 * 0, FCC1
-	 * 1, FCC2
-	 * 2, FCC3
-	 */
-#       define FCC_START_LOOP 0
-#       define FCC_END_LOOP   2
-
-	/*
-	 * Attention: this is board-specific
-	 * - FCC1 Rx-CLK is CLK10
-	 * - FCC1 Tx-CLK is CLK11
-	 * - FCC2 Rx-CLK is CLK13
-	 * - FCC2 Tx-CLK is CLK14
-	 * - FCC3 Rx-CLK is CLK15
-	 * - FCC3 Tx-CLK is CLK16
-	 */
-
-	/* 28.9 - (3): connect FCC's tx and rx clocks */
-	immr->im_cpmux.cmx_uar = 0;
-	immr->im_cpmux.cmx_fcr = CMXFCR_RF1CS_CLK10|CMXFCR_TF1CS_CLK11|\
-	    CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14|\
-	    CMXFCR_RF3CS_CLK15|CMXFCR_TF3CS_CLK16;
-#elif defined(CONFIG_SACSng)
+#if defined(CONFIG_SACSng)
 	/*
 	 * Attention: this is board-specific
 	 * 1, FCC2
@@ -745,8 +720,8 @@ eth_loopback_test (void)
 			bdp->cbd_sc = BD_ENET_TX_READY | BD_ENET_TX_PAD | \
 				BD_ENET_TX_LAST | BD_ENET_TX_TC;
 
-			memset ((void *)bp, patbytes[i], ELBT_BUFSZ);
-			NetSetEther (bp, NetBcastAddr, 0x8000);
+			memset((void *)bp, patbytes[i], ELBT_BUFSZ);
+			net_set_ether(bp, net_bcast_ethaddr, 0x8000);
 		}
 		ecp->txbd[ELBT_NTXBD - 1].cbd_sc |= BD_ENET_TX_WRAP;
 
@@ -824,11 +799,9 @@ eth_loopback_test (void)
 		 * So, far we have only been given one Ethernet address. We use
 		 * the same address for all channels
 		 */
-#define ea NetOurEther
-		fpp->fen_paddrh = (ea[5] << 8) + ea[4];
-		fpp->fen_paddrm = (ea[3] << 8) + ea[2];
-		fpp->fen_paddrl = (ea[1] << 8) + ea[0];
-#undef ea
+		fpp->fen_paddrh = (net_ethaddr[5] << 8) + net_ethaddr[4];
+		fpp->fen_paddrm = (net_ethaddr[3] << 8) + net_ethaddr[2];
+		fpp->fen_paddrl = (net_ethaddr[1] << 8) + net_ethaddr[0];
 
 		fpp->fen_minflr = PKT_MINBUF_SIZE; /* min frame len register */
 		/*
@@ -1041,7 +1014,7 @@ eth_loopback_test (void)
 							&ecp->rxbufs[i][0];
 
 						ours = memcmp (ehp->et_src, \
-							NetOurEther, 6);
+							net_ethaddr, 6);
 
 						prot = swap16 (ehp->et_protlen);
 						tb = prot & 0x8000;

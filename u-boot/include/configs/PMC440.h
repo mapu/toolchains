@@ -24,11 +24,13 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_440EPX		1	/* Specific PPC440EPx   */
 #define CONFIG_440		1	/* ... PPC440 family    */
-#define CONFIG_4xx		1	/* ... PPC4xx family    */
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFF90000
 #endif
+
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_CLK_FREQ	33333400
 
@@ -96,12 +98,7 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_ENV_IS_IN_EEPROM	1	/* use FLASH for environment vars */
-#else
-#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars */
-#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
-#endif
 
 /*-----------------------------------------------------------------------
  * RTC
@@ -139,73 +136,15 @@
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_I2C_ENV_EEPROM_BUS	0
 #define CONFIG_ENV_OFFSET		0	/* environment starts at the beginning of the EEPROM */
 #define CONFIG_ENV_SIZE		0x1000	/* 4096 bytes may be used for env vars */
-#endif
-
-/*
- * IPL (Initial Program Loader, integrated inside CPU)
- * Will load first 4k from NAND (SPL) into cache and execute it from there.
- *
- * SPL (Secondary Program Loader)
- * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
- * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
- * controller and the NAND controller so that the special U-Boot image can be
- * loaded from NAND to SDRAM.
- *
- * NUB (NAND U-Boot)
- * This NAND U-Boot (NUB) is a special U-Boot version which can be started
- * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
- *
- * On 440EPx the SPL is copied to SDRAM before the NAND controller is
- * set up. While still running from cache, I experienced problems accessing
- * the NAND controller.	sr - 2006-08-25
- */
-#if defined (CONFIG_NAND_U_BOOT)
-#define CONFIG_SYS_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location                 */
-#define CONFIG_SYS_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size                     */
-#define CONFIG_SYS_NAND_BOOT_SPL_DST	(CONFIG_SYS_OCM_BASE + (12 << 10)) /* Copy SPL here    */
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr        */
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST /* Start NUB from this addr */
-#define CONFIG_SYS_NAND_BOOT_SPL_DELTA	(CONFIG_SYS_NAND_BOOT_SPL_SRC - CONFIG_SYS_NAND_BOOT_SPL_DST)
-
-/*
- * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
- */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image   */
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image     */
-
-/*
- * Now the NAND chip has to be defined (no autodetection used!)
- */
-#define CONFIG_SYS_NAND_PAGE_SIZE	512	/* NAND chip page size          */
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(16 << 10) /* NAND chip block size      */
-#define CONFIG_SYS_NAND_PAGE_COUNT	32	/* NAND chip page count         */
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	5	/* Location of bad block marker */
-#undef CONFIG_SYS_NAND_4_ADDR_CYCLE		/* No fourth addr used (<=32MB) */
-
-#define CONFIG_SYS_NAND_ECCSIZE	256
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_SYS_NAND_OOBSIZE	16
-#define CONFIG_SYS_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
-#endif
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
- */
-#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_DDR_DATA_EYE	/* use DDR2 optimization        */
-#endif
 #define CONFIG_SYS_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes */
 						  /* 440EPx errata CHIP 11 */
 
@@ -332,8 +271,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -344,8 +281,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
@@ -392,12 +327,6 @@
 #define CONFIG_MX_CYCLIC	1	/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-#define CONFIG_AUTOBOOT_KEYED	1
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /*-----------------------------------------------------------------------
  * PCI stuff
@@ -449,7 +378,6 @@
 /*
  * On Sequoia CS0 and CS3 are switched when configuring for NAND booting
  */
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SYS_NAND_CS		2	/* NAND chip connected to CSx   */
 
 /* Memory Bank 0 (NOR-FLASH) initialization */
@@ -459,16 +387,6 @@
 /* Memory Bank 2 (NAND-FLASH) initialization */
 #define CONFIG_SYS_EBC_PB2AP		0x018003c0
 #define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_NAND_ADDR | 0x1c000)
-#else
-#define CONFIG_SYS_NAND_CS		0	/* NAND chip connected to CSx   */
-/* Memory Bank 2 (NOR-FLASH) initialization */
-#define CONFIG_SYS_EBC_PB2AP		0x03017200
-#define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_FLASH_BASE | 0xda000)
-
-/* Memory Bank 0 (NAND-FLASH) initialization */
-#define CONFIG_SYS_EBC_PB0AP		0x018003c0
-#define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_NAND_ADDR | 0x1c000)
-#endif
 
 /* Memory Bank 1 (RESET) initialization */
 #define CONFIG_SYS_EBC_PB1AP		0x7f817200 /* 0x03017200 */
@@ -488,7 +406,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_ADDR + CONFIG_SYS_NAND_CS)
 #define CONFIG_SYS_NAND_SELECT_DEVICE	1 /* nand driver supports mutipl. chips */
-#define CONFIG_SYS_NAND_QUIET_TEST	1
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

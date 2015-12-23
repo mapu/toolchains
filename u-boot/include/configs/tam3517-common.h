@@ -14,9 +14,13 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		/* which is a 34XX */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_SYS_TEXT_BASE 0x80008000
 
@@ -25,7 +29,7 @@
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /*
  * Display CPU and Board information
@@ -96,8 +100,6 @@
 #define CONFIG_USB_STORAGE
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
@@ -106,15 +108,10 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_EEPROM
-
-#undef CONFIG_CMD_FLASH		/* only NAND on the SOM */
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -181,12 +178,8 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
+#define CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
-#define GPMC_NAND_ECC_LP_x16_LAYOUT
 #define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
 
@@ -219,7 +212,6 @@
 #define CONFIG_NET_RETRY_COUNT 10
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_CONSOLE
@@ -242,7 +234,6 @@
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x8f000000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
@@ -250,6 +241,7 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 /* NAND boot config */
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
@@ -262,6 +254,7 @@
 #define CONFIG_SYS_NAND_ECCSIZE		256
 #define CONFIG_SYS_NAND_ECCBYTES	3
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_SW
+#define CONFIG_NAND_OMAP_GPMC_PREFETCH
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 

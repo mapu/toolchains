@@ -10,17 +10,18 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC83xx		1
 #define CONFIG_MPC831x		1
 #define CONFIG_MPC8313		1
 #define CONFIG_MPC8313ERDB	1
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
@@ -271,7 +272,6 @@
 	"mtdparts=e2800000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
@@ -489,19 +489,12 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PCI
-
-#if defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_NAND)
-    #undef CONFIG_CMD_SAVEENV
-    #undef CONFIG_CMD_LOADS
-#endif
 
 #define CONFIG_CMDLINE_EDITING 1
 #define CONFIG_AUTO_COMPLETE	/* add autocompletion support   */

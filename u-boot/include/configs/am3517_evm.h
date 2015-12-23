@@ -17,14 +17,18 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_AM3517EVM	1	/* working with AM3517EVM */
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /*
  * Display CPU and Board information
@@ -37,6 +41,8 @@
 #define V_SCLK			(V_OSCK >> 1)
 
 #define CONFIG_MISC_INIT_R
+
+#define CONFIG_OF_LIBFDT
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
@@ -91,16 +97,16 @@
 
 /*
  * USB configuration
- * Enable CONFIG_MUSB_HOST for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_GADGET for Device functionalities.
+ * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
+ * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
  */
 #define CONFIG_USB_MUSB_AM35X
-#define CONFIG_MUSB_HOST
-#define CONFIG_MUSB_PIO_ONLY
+#define CONFIG_USB_MUSB_HOST
+#define CONFIG_USB_MUSB_PIO_ONLY
 
 #ifdef CONFIG_USB_MUSB_AM35X
 
-#ifdef CONFIG_MUSB_HOST
+#ifdef CONFIG_USB_MUSB_HOST
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -112,19 +118,17 @@
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HOST */
+#endif /* CONFIG_USB_MUSB_HOST */
 
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
-#endif /* CONFIG_MUSB_GADGET */
+#endif /* CONFIG_USB_MUSB_GADGET */
 
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
@@ -135,10 +139,6 @@
 #define CONFIG_CMD_DHCP
 #undef CONFIG_CMD_PING
 
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
@@ -218,11 +218,8 @@
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT			"AM3517_EVM # "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		V_PROMPT
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -259,25 +256,19 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors */
 						/* on one chip */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 
 #define CONFIG_NAND_OMAP_GPMC
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
@@ -308,21 +299,19 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SIMPLE
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT

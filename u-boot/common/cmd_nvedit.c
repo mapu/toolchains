@@ -25,14 +25,17 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include <environment.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -205,12 +208,11 @@ DONE:
  * Set a new environment variable,
  * or replace or delete an existing one.
  */
-static int _do_env_set(int flag, int argc, char * const argv[])
+static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 {
 	int   i, len;
 	char  *name, *value, *s;
 	ENTRY e, *ep;
-	int env_flag = H_INTERACTIVE;
 
 	debug("Initial value for argc=%d\n", argc);
 	while (argc > 1 && **(argv + 1) == '-') {
@@ -288,9 +290,9 @@ int setenv(const char *varname, const char *varvalue)
 		return 1;
 
 	if (varvalue == NULL || varvalue[0] == '\0')
-		return _do_env_set(0, 2, (char * const *)argv);
+		return _do_env_set(0, 2, (char * const *)argv, H_PROGRAMMATIC);
 	else
-		return _do_env_set(0, 3, (char * const *)argv);
+		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
 }
 
 /**
@@ -344,7 +346,7 @@ static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	return _do_env_set(flag, argc, argv);
+	return _do_env_set(flag, argc, argv, H_INTERACTIVE);
 }
 
 /*
@@ -407,7 +409,7 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	/* prompt for input */
-	len = readline(message);
+	len = cli_readline(message);
 
 	if (size < len)
 		console_buffer[size] = '\0';
@@ -419,12 +421,13 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* Continue calling setenv code */
-	return _do_env_set(flag, len, local_args);
+	return _do_env_set(flag, len, local_args, H_INTERACTIVE);
 }
 #endif
 
 #if defined(CONFIG_CMD_ENV_CALLBACK)
-static int print_static_binding(const char *var_name, const char *callback_name)
+static int print_static_binding(const char *var_name, const char *callback_name,
+				void *priv)
 {
 	printf("\t%-20s %-20s\n", var_name, callback_name);
 
@@ -486,7 +489,7 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Static callback bindings:\n");
 	printf("\t%-20s %-20s\n", "Variable Name", "Callback Name");
 	printf("\t%-20s %-20s\n", "-------------", "-------------");
-	env_attr_walk(ENV_CALLBACK_LIST_STATIC, print_static_binding);
+	env_attr_walk(ENV_CALLBACK_LIST_STATIC, print_static_binding, NULL);
 	puts("\n");
 
 	/* walk through each variable and print the callback if it has one */
@@ -499,7 +502,8 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 #if defined(CONFIG_CMD_ENV_FLAGS)
-static int print_static_flags(const char *var_name, const char *flags)
+static int print_static_flags(const char *var_name, const char *flags,
+			      void *priv)
 {
 	enum env_flags_vartype type = env_flags_parse_vartype(flags);
 	enum env_flags_varaccess access = env_flags_parse_varaccess(flags);
@@ -556,7 +560,7 @@ int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		"Variable Access");
 	printf("\t%-20s %-20s %-20s\n", "-------------", "-------------",
 		"---------------");
-	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags);
+	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags, NULL);
 	puts("\n");
 
 	/* walk through each variable and print the flags if non-default */
@@ -583,6 +587,10 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	/* before import into hashtable */
+	if (!(gd->flags & GD_FLG_ENV_READY))
+		return 1;
+
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
 	if (init_val)
@@ -590,10 +598,19 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		buffer[0] = '\0';
 
-	if (readline_into_buffer("edit: ", buffer, 0) < 0)
+	if (cli_readline_into_buffer("edit: ", buffer, 0) < 0)
 		return 1;
 
-	return setenv(argv[1], buffer);
+	if (buffer[0] == '\0') {
+		const char * const _argv[3] = { "setenv", argv[1], NULL };
+
+		return _do_env_set(0, 2, (char * const *)_argv, H_INTERACTIVE);
+	} else {
+		const char * const _argv[4] = { "setenv", argv[1], buffer,
+			NULL };
+
+		return _do_env_set(0, 3, (char * const *)_argv, H_INTERACTIVE);
+	}
 }
 #endif /* CONFIG_CMD_EDITENV */
 #endif /* CONFIG_SPL_BUILD */
@@ -846,7 +863,8 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
 	char	buf[32];
-	char	*addr, *cmd, *res;
+	ulong	addr;
+	char	*ptr, *cmd, *res;
 	size_t	size = 0;
 	ssize_t	len;
 	env_t	*envp;
@@ -891,10 +909,11 @@ NXTARG:		;
 	if (argc < 1)
 		return CMD_RET_USAGE;
 
-	addr = (char *)simple_strtoul(argv[0], NULL, 16);
+	addr = simple_strtoul(argv[0], NULL, 16);
+	ptr = map_sysmem(addr, size);
 
 	if (size)
-		memset(addr, '\0', size);
+		memset(ptr, '\0', size);
 
 	argc--;
 	argv++;
@@ -902,7 +921,7 @@ NXTARG:		;
 	if (sep) {		/* export as text file */
 		len = hexport_r(&env_htab, sep,
 				H_MATCH_KEY | H_MATCH_IDENT,
-				&addr, size, argc, argv);
+				&ptr, size, argc, argv);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n", errno);
 			return 1;
@@ -913,12 +932,12 @@ NXTARG:		;
 		return 0;
 	}
 
-	envp = (env_t *)addr;
+	envp = (env_t *)ptr;
 
 	if (chk)		/* export as checksum protected block */
 		res = (char *)envp->data;
 	else			/* export as raw binary data */
-		res = addr;
+		res = ptr;
 
 	len = hexport_r(&env_htab, '\0',
 			H_MATCH_KEY | H_MATCH_IDENT,
@@ -946,11 +965,15 @@ sep_err:
 
 #ifdef CONFIG_CMD_IMPORTENV
 /*
- * env import [-d] [-t | -b | -c] addr [size]
+ * env import [-d] [-t [-r] | -b | -c] addr [size]
  *	-d:	delete existing environment before importing;
  *		otherwise overwrite / append to existion definitions
  *	-t:	assume text format; either "size" must be given or the
  *		text data must be '\0' terminated
+ *	-r:	handle CRLF like LF, that means exported variables with
+ *		a content which ends with \r won't get imported. Used
+ *		to import text files created with editors which are using CRLF
+ *		for line endings. Only effective in addition to -t.
  *	-b:	assume binary format ('\0' separated, "\0\0" terminated)
  *	-c:	assume checksum protected environment format
  *	addr:	memory address to read from
@@ -960,11 +983,13 @@ sep_err:
 static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
-	char	*cmd, *addr;
+	ulong	addr;
+	char	*cmd, *ptr;
 	char	sep = '\n';
 	int	chk = 0;
 	int	fmt = 0;
 	int	del = 0;
+	int	crlf_is_lf = 0;
 	size_t	size;
 
 	cmd = *argv;
@@ -989,6 +1014,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 					goto sep_err;
 				sep = '\n';
 				break;
+			case 'r':		/* handle CRLF like LF */
+				crlf_is_lf = 1;
+				break;
 			case 'd':
 				del = 1;
 				break;
@@ -1004,12 +1032,19 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	if (!fmt)
 		printf("## Warning: defaulting to text format\n");
 
-	addr = (char *)simple_strtoul(argv[0], NULL, 16);
+	if (sep != '\n' && crlf_is_lf )
+		crlf_is_lf = 0;
+
+	addr = simple_strtoul(argv[0], NULL, 16);
+	ptr = map_sysmem(addr, 0);
 
 	if (argc == 2) {
 		size = simple_strtoul(argv[1], NULL, 16);
+	} else if (argc == 1 && chk) {
+		puts("## Error: external checksum format must pass size\n");
+		return CMD_RET_FAILURE;
 	} else {
-		char *s = addr;
+		char *s = ptr;
 
 		size = 0;
 
@@ -1029,20 +1064,20 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 
 	if (chk) {
 		uint32_t crc;
-		env_t *ep = (env_t *)addr;
+		env_t *ep = (env_t *)ptr;
 
 		size -= offsetof(env_t, data);
 		memcpy(&crc, &ep->crc, sizeof(crc));
 
-		/*if (crc32(0, ep->data, size) != crc) {
+		if (crc32(0, ep->data, size) != crc) {
 			puts("## Error: bad CRC, import failed\n");
 			return 1;
-		}*/
-		addr = (char *)ep->data;
+		}
+		ptr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR,
-			0, NULL) == 0) {
+	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
+			crlf_is_lf, 0, NULL) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}
@@ -1171,7 +1206,7 @@ static char env_help_text[] =
 #endif
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
-	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
+	"env import [-d] [-t [-r] | -b | -c] addr [size] - import environment\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
