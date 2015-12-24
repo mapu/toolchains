@@ -97,8 +97,11 @@ then
   if [ -e $root/u-boot ]
   then
     cd $root/u-boot
+    make distclean O=mapu
     rm mapu/ -rf
-    make O=mapu mapu_sim CONFIG_APP=y || uboot_err=1 -j64
+    cp -rf $root/arm $root/u-boot/app
+    make mapu_defconfig O=mapu 
+    make O=mapu CONFIG_APP=y mapu_${platform:-sim} CROSS_COMPILE=arm-none-eabi- || uboot_err=1
     if [ "$uboot_err" -eq 1 ]
     then
       echo -e "\n\n\n\nMake u-boot fail: make u-boot.bin fail!\n"
