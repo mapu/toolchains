@@ -233,7 +233,7 @@
 		  "fatload mmc 0 ${loadaddr} uimage;" \
 			"bootm ${loadaddr}\0" \
     "bootmenu_1=Boot 2. linux 3.4.85=run bootflash\0" \
-    "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x80000;cp.l 0x80000 0x60000000 0x1000;" \
+    "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x240000;cp.l 0x80000 0x60000000 0x1000;" \
     "bootm 0x60007fc0 - 0x60000000\0" \
     "bootmenu_0=Boot 1. linux 3.4.85 (Nor Flash)=run bootnor\0"\
     "initapclib=mtdparts;chpart nor0,2;apclib sinit;apclib minit;"\

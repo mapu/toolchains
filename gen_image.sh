@@ -191,7 +191,8 @@ then
   echo -e "\n\n\tdd uImage fail!\n\n"
   exit
 fi
-dd bs=1k seek=3K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
+dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
+
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd ubuntu.img fail!\n\n"
