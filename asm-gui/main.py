@@ -6,7 +6,7 @@ from view.MainWindow import*
 
 app = QApplication(sys.argv)
 main = MainWindow()
-main.move((QApplication.desktop().width()-main.width())/2,(QApplication.desktop().height()-main.height())/2) 
+main.move((QApplication.desktop().width()-main.width())/2, (QApplication.desktop().height()-main.height())/2) 
 main.show()
 
 app.exec_()
