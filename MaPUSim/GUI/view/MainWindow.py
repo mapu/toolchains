@@ -1,456 +1,182 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import*  
-from PyQt4.QtCore import*  
-import res.qrc_resources 
-from SimuInfoWidget import*
-from ARMview.ARMViewWidget import*
-from APCview.APCViewWidget import*
-from configview.ConfigViewWidget import*
-import time
+# from SimuInfoWidget import*
+from APCview.APCViewWidget import APCViewWidget
+from ARMview.ARMViewWidget import ARMViewWidget
+from ConfigView.ConfigViewWidget import ConfigViewWidget
+from PyQt4.QtCore import QProcess, SIGNAL, Qt
+from PyQt4.QtGui import QMainWindow, QTabWidget, QAction, QIcon, \
+    QLabel, QFileDialog, QInputDialog, QPixmap
+from view.Utils import warning
+from res import qrc_resources
 import os
-import sys
 
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
+#QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class MainWindow(QMainWindow):  
-    closeChildDialogAPE0=pyqtSignal()
-    closeChildDialogAPE1=pyqtSignal()
-    closeChildDialogAPE2=pyqtSignal()
-    closeChildDialogAPE3=pyqtSignal()
-    def __init__(self,argv,parent=None):  
-        super(MainWindow,self).__init__(parent) 
-  
-      	self.argv=argv
-	self.path="config.xml"
-        self.setWindowTitle('MaPU Simulator')                          
-        self.createActions() 
-        self.createMenus()  
-        self.createToolBars()
-	self.createStatusBar()
-	self.resize(800,600)
-        self.tabWidget=QTabWidget()   
-	self.setCentralWidget(self.tabWidget)  
-        self.simuInfoWidget=SimuInfoWidget()
-        self.armViewWidget=ARMViewWidget()
-        self.apcViewWidget=APCViewWidget()
-        self.configControlWidget=ConfigViewWidget()
-        #self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))        
-        self.tabWidget.addTab(self.armViewWidget,self.tr("ARM Perspective"))
-        self.tabWidget.addTab(self.apcViewWidget,self.tr("APC Perspective"))
-        self.tabWidget.addTab(self.configControlWidget,self.tr("Configuration and Control")) 
-	self.configControlWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
-	self.configControlWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
-	self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
-	self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
-	self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
-	self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
-	self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
-	self.configControlWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
-	self.configControlWidget.APCSimulatorStatusSignal.connect(self.APCStatus)	
-	self.closeChildDialogAPE0.connect(self.apcViewWidget.APE0Widget.closeChildDialogSlot)
-	self.closeChildDialogAPE1.connect(self.apcViewWidget.APE1Widget.closeChildDialogSlot)
-	self.closeChildDialogAPE2.connect(self.apcViewWidget.APE2Widget.closeChildDialogSlot)
-	self.closeChildDialogAPE3.connect(self.apcViewWidget.APE3Widget.closeChildDialogSlot)
-	self.simulatorPath=""
-	self.readXML()
-	self.tabWidget.setCurrentIndex(2)
-	image=0
-	trace=0
-	if len(self.argv)==2:
-	    if self.argv[1][:7]=="--trace":
-	    	trace=self.argv[1][8:len(self.argv[1])]
-	    if trace!=0:
-		self.apcViewWidget.mainOpen=1   #to sign the trace is absolute path(1) or relative path(0)
-		self.apcViewWidget.simulatorDoneSlot(4,trace)
-	elif len(self.argv)==3:
-	    if self.argv[1][:7]=="--image":
-		image=self.argv[1][8:len(self.argv[1])]
-		if os.path.exists(image)<=0:
-		    return
-		else:
-		    self.configControlWidget.fullEdit.setText(image)		
-	    if self.argv[2][:7]=="--trace":
-		trace=self.argv[2][8:len(self.argv[2])]
-		self.configControlWidget.fullTracefile.setText(trace)
-	    if image!=0 and trace!=0:
-	    	#start full system and skip ARM Perspective
-	    	if os.environ.get("MAPU_HOME")!=None:
-	    	    self.configControlWidget.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=os.environ["MAPU_HOME"]+"/simulator"
-	    	    self.configControlWidget.fullGroup.setChecked(True)
-	    	    self.configControlWidget.APCGroup.setChecked(False)
-	    	    self.configControlWidget.startProcess()
-		else:
-		    QMessageBox.warning(self,"Warning","Please set environment MAPU_HOME!")
-	else:
-	    self.configControlWidget.simulatorPath=self.simulatorPath
-	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=self.simulatorPath
-	
-    def createActions(self): 
-        self.fileOpenAction=QAction(QIcon(":/open.png"),self.tr("&Open"),self)   
-	self.fileOpenAction.setToolTip("Open trace file")
-	self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpenSlot)                                                                       
-	self.setAction=QAction(self.tr("&Simulator path setting..."),self)  
-	self.connect(self.setAction,SIGNAL("triggered()"),self.setSimulatorPath)
-	self.armAction=QAction(QIcon(":/armred.png"),self.tr("ARM"),self)
-	self.apcAction=QAction(QIcon(":/apcred.png"),self.tr("APC"),self)
-	self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
- 
-    def ARMStatus(self,status):
-	if status==True:
-	    self.armAction.setIcon(QIcon(":/armgreen.png"))
-	else:
-	    self.armAction.setIcon(QIcon(":/armred.png"))
+    #closeChildDialogAPE0 = pyqtSignal()
+    #closeChildDialogAPE1 = pyqtSignal()
+    #closeChildDialogAPE2 = pyqtSignal()
+    #closeChildDialogAPE3 = pyqtSignal()
 
-    def APCStatus(self,status):
-	if status==True:
-	    self.apcAction.setIcon(QIcon(":/apcgreen.png"))
-	else:
-	    self.apcAction.setIcon(QIcon(":/apcred.png"))
+    def __init__(self, config, control, parent = None):
+        super(MainWindow, self).__init__(parent)
+        self.config = config
+        self.control = control
+        self.setWindowTitle(self.tr("MaPU Simulator"))
+        self.createActions()
+        self.createMenus()
+        self.createToolBars()
+        #---Temporarily removed status bar-------------------------------------- 
+        #self.createStatusBar()
+        self.perspTabs = QTabWidget()
+        self.setCentralWidget(self.perspTabs)
+        self.armViewWidget = ARMViewWidget(config, control)
+        self.apcViewWidget = APCViewWidget(config, control)
+        self.configWidget = ConfigViewWidget(config)
+        
+        # Fix me: this is ugly...
+        self.configWidget.ARMmodeGroup.buttonClicked.connect(self.armViewWidget.UART0Widget.switchMode)
+        #======================================================================
+        # Simulator information is currently removed
+        #======================================================================
+        #self.simuInfoWidget = SimuInfoWidget()
+        # self.tabWidget.addTab(self.simuInfoWidget,self.tr("Simulator Information"))
+        self.perspTabs.addTab(self.armViewWidget, self.tr("ARM Perspective"))
+        self.perspTabs.addTab(self.apcViewWidget, self.tr("APC Perspective"))
+        self.perspTabs.addTab(self.configWidget, self.tr("Configuration"))
+        
+        self.control.ARMProcess.stateChanged.connect(self.ARMStatus)
+        self.control.APCProcess.stateChanged.connect(self.APCStatus)
+        
+        self.control.ARMProcess.stateChanged.connect(self.statusChange)
+        self.control.APCProcess.stateChanged.connect(self.statusChange)
+        
+        #self.configWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
+        #self.configWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
+        #self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
+        #self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
+        #self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
+        #self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
+        #self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
+        #self.configWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
+        #self.configWidget.APCSimulatorStatusSignal.connect(self.APCStatus)        
+        #self.closeChildDialogAPE0.connect(self.apcViewWidget.APE0Widget.closeChildDialogSlot)
+        #self.closeChildDialogAPE1.connect(self.apcViewWidget.APE1Widget.closeChildDialogSlot)
+        #self.closeChildDialogAPE2.connect(self.apcViewWidget.APE2Widget.closeChildDialogSlot)
+        #self.closeChildDialogAPE3.connect(self.apcViewWidget.APE3Widget.closeChildDialogSlot)
+    
+        self.perspTabs.setCurrentIndex(2)
       
     def createMenus(self):  
-        fileMenu=self.menuBar().addMenu(self.tr("File")) 
-	fileMenu.addAction(self.fileOpenAction)      
-        setMenu=self.menuBar().addMenu(self.tr("Settings")) 
-	setMenu.addAction(self.setAction)       
+        fileMenu = self.menuBar().addMenu(self.tr("File"))
+        fileMenu.addAction(self.fileOpenAction)
+        setMenu = self.menuBar().addMenu(self.tr("Settings"))
+        setMenu.addAction(self.setAction)
+    
+    def createActions(self):
+        self.fileOpenAction = QAction(QIcon(":/open.png"), self.tr("&Open"), self)
+        self.fileOpenAction.setToolTip(self.tr("Open trace file"))
+        self.connect(self.fileOpenAction, SIGNAL("triggered()"), self.fileOpenSlot)
+        self.setAction = QAction(self.tr("&Simulator path ..."), self)
+        self.connect(self.setAction, SIGNAL("triggered()"), self.setSimulatorPath)
+    
+        self.startAction = QAction(self.tr("Start"), self)
+        self.startAction.setToolTip(self.tr("Start the simulation"))
+        self.stopAction = QAction(self.tr("Stop"), self)
+        self.stopAction.setToolTip(self.tr("Terminate the simulation"))
+        self.startAction.triggered.connect(self.startProcess)
+        self.stopAction.triggered.connect(self.stopProcess)
+
+        self.startAction.setEnabled(True)
+        self.stopAction.setEnabled(False)
+
+    def startProcess(self):
+        if self.control.start():
+            self.startAction.setEnabled(False)
+            self.stopAction.setEnabled(True)
+            #---Force the configuration to be readonly during the simulation---- 
+        else:
+            warning(self.tr("Failed to launch the simulation!"),
+                    self.tr("Invalid configuration"))
+                        
+    def stopProcess(self):
+        self.startAction.setEnabled(True)
+        self.stopAction.setEnabled(False)
+        self.control.stop()
+                        
+    def statusChange(self, status):
+        if ((self.control.ARMProcess.state() == QProcess.NotRunning) and
+            (self.control.APCProcess.state() == QProcess.NotRunning)):
+            self.startAction.setEnabled(True)
+            self.stopAction.setEnabled(False)
+ 
+    def ARMStatus(self, status):
+        if status == QProcess.Running:
+            self.armAction.setIcon(QIcon(":/armgreen.png"))
+        elif status == QProcess.NotRunning:
+            self.armAction.setIcon(QIcon(":/armred.png"))
+
+    def APCStatus(self,status):
+        if status == QProcess.Running:
+            self.armAction.setIcon(QIcon(":/armgreen.png"))
+        elif status == QProcess.NotRunning:
+            self.armAction.setIcon(QIcon(":/armred.png"))
         
     def createToolBars(self):  
-        fileToolBar=self.addToolBar("File")  
-        fileToolBar.addAction(self.fileOpenAction)  
-        fileToolBar=self.addToolBar("ARM Status")  
-	fileToolBar.addAction(self.armAction)
-        fileToolBar=self.addToolBar("APC Status")  
-	fileToolBar.addAction(self.apcAction)
+        toolBar = self.addToolBar(self.tr("Trace file bar"))
+        toolBar.addAction(self.fileOpenAction)
+        self.RedPixmap = \
+            QPixmap(":/armred.png").scaledToHeight(25, Qt.SmoothTransformation)
+        self.GreenPixmap = \
+            QPixmap(":/armgreen.png").scaledToHeight(25, Qt.SmoothTransformation)
+        self.ARMTextLabel = QLabel("ARM")
+        self.ARMLabel = QLabel()
+        self.ARMLabel.setPixmap(self.RedPixmap)
+        self.APCTextLabel = QLabel("APC")
+        self.APCLabel = QLabel()
+        self.APCLabel.setPixmap(self.RedPixmap)
+        toolBar = self.addToolBar(self.tr("Simulator status"))
+        toolBar.addWidget(self.ARMLabel)
+        toolBar.addWidget(self.ARMTextLabel)
+        toolBar.insertSeparator(toolBar.addWidget(self.APCLabel))
+        toolBar.addWidget(self.APCTextLabel)
+        toolBar = self.addToolBar(self.tr("Simulator control"))
+        toolBar.addAction(self.startAction)
+        toolBar.addAction(self.stopAction)
 
-    def createStatusBar(self):   
-	self.statusLabel=QLabel()
-	self.statusText="StatusBar"
-	self.statusLabel.setText(self.statusText)	
+    def createStatusBar(self):
+        self.statusLabel = QLabel()
+        self.statusText = self.tr("Status")
+        self.statusLabel.setText(self.statusText)
         self.statusBar().addWidget(self.statusLabel)
 
     def fileOpenSlot(self):
-	path=QFileDialog.getOpenFileName(self,self.tr("select file"),"/")
-	if path!="":
-	    self.apcViewWidget.mainOpen=1
-	    self.apcViewWidget.simulatorDoneSlot(4,path)
-
-    def setSimulatorWidget(self):
-	self.setDialog=QDialog()
-	self.setDialog.setWindowTitle("Simulator path setting")
-	self.setDialog.setFixedSize(400,200)
-	if self.simulatorPath!="":
-	    self.pathEdit=QLineEdit(self.simulatorPath)
-	else:
-	    if os.environ.get("MAPU_HOME")!=None:
-	    	self.pathEdit=QLineEdit(os.environ["MAPU_HOME"]+"/simulator")
-	    else:
-		#QMessageBox.warning(self,"Warning","Please set MAPU_HOME!")
-	    	self.pathEdit=QLineEdit('')	
-	browserButton=QPushButton("Browser")
-	self.okButton=QPushButton("OK")
-	self.okButton.setFixedSize(100,30)
-	self.connect(self.okButton,SIGNAL("clicked()"),self.okButtonSlot)
-	self.connect(browserButton,SIGNAL("clicked()"),self.pathSlot)
-	lay=QHBoxLayout()
-	lay.addWidget(self.pathEdit)
-	lay.addWidget(browserButton)
-	setLay=QGridLayout()
-	setLay.addLayout(lay,0,0,1,3)
-	setLay.addWidget(self.okButton,1,1)
-	self.setDialog.setLayout(setLay)	
+        tracefile = QFileDialog.getOpenFileName(self, self.tr("select file"), "/home/wangl/toolchains/trunk/MaPUSim/GUI/test/SPUTime.out")
+        if ((tracefile != None) and os.path.isfile(tracefile)):
+            self.control.simDB.analyzeTraceFile(4, tracefile)
 
     def setSimulatorPath(self):
-	self.setSimulatorWidget()
-	self.setDialog.show()
-
-    def pathSlot(self):
-	path=QFileDialog.getExistingDirectory(self,self.tr("select file"),"/")
-	self.pathEdit.setText(path)
-  
-    def okButtonSlot(self):
-	if os.path.isdir(str(self.pathEdit.text())):
-	    self.configControlWidget.simulatorPath=str(self.pathEdit.text())
-	    self.armViewWidget.UART0Widget.embTerminal.simulatorPath=str(self.pathEdit.text())
-	    self.setDialog.close()
-	else:
-	    QMessageBox.warning(self,"Warning","Simulator path is not exist!")
+        self.setDialog = QInputDialog(self)
+        self.setDialog.setWindowTitle(self.tr("Setting"))
+        self.setDialog.setFixedSize(400, 200)
+        path, ok = QInputDialog.getText(self, self.tr("Simulator path setting"), 
+                                        self.tr("Simulator path setting"), 
+                                        mode = QInputDialog.QLineEdit_Normal, 
+                                        text = self.config.
+                                        getConfig("simulatorpath"))
+        if ok:
+            self.config.setConfig("simulatorpath", path)
  
-    def writeXML(self):
-	xmlfile=QFile(self.path)
-	if xmlfile.open(QIODevice.WriteOnly or QIODevice.Text):
-	    xmlWrite=QXmlStreamWriter(xmlfile)
-	    xmlWrite.setAutoFormatting(True)
-	    xmlWrite.writeStartDocument()
-	    xmlWrite.writeStartElement("UserSet")
-            xmlWrite.writeTextElement("simulatorpath",self.simulatorPath)
-	    xmlWrite.writeStartElement("Fullsystem")
-	    if self.configControlWidget.fullGroup.isChecked()==True:
-		xmlWrite.writeTextElement("fullcheck","1")	
-	    else:
-		xmlWrite.writeTextElement("fullcheck","0")
-	    if self.configControlWidget.fullGem5Radio.isChecked()==True:
-		xmlWrite.writeTextElement("Gem5_Qemu","0")
-	    else:
-		xmlWrite.writeTextElement("Gem5_Qemu","1")
-            xmlWrite.writeTextElement("fulltrace",self.configControlWidget.fullTracefile.text())
-            xmlWrite.writeTextElement("image",self.configControlWidget.fullEdit.text())
-	    xmlWrite.writeEndElement()#Fullsystem
-	    xmlWrite.writeStartElement("APCsystem")
-	    if self.configControlWidget.APCGroup.isChecked()==True:
-		xmlWrite.writeTextElement("apccheck","1")	
-	    else:
-		xmlWrite.writeTextElement("apccheck","0")	
-            xmlWrite.writeTextElement("apctrace",self.configControlWidget.traceFileEdit.text())
-	    xmlWrite.writeStartElement("APE0")
-            xmlWrite.writeTextElement("APE0SPU",self.configControlWidget.APE0SPUEdit.text())
-            xmlWrite.writeTextElement("APE0MPU",self.configControlWidget.APE0MPUEdit.text())
-	    xmlWrite.writeEndElement() #APE0
-	    xmlWrite.writeStartElement("APE1")
-	    if self.configControlWidget.APE1Check.isChecked()==True:
-		xmlWrite.writeTextElement("APE1check","1")
-	    else:
-		xmlWrite.writeTextElement("APE1check","0")
-            xmlWrite.writeTextElement("APE1SPU",self.configControlWidget.APE1SPUEdit.text())
-            xmlWrite.writeTextElement("APE1MPU",self.configControlWidget.APE1MPUEdit.text())
-	    xmlWrite.writeEndElement() #APE1
-	    xmlWrite.writeStartElement("APE2")
-	    if self.configControlWidget.APE2Check.isChecked()==True:
-		xmlWrite.writeTextElement("APE2check","1")
-	    else:
-		xmlWrite.writeTextElement("APE2check","0")
-            xmlWrite.writeTextElement("APE2SPU",self.configControlWidget.APE2SPUEdit.text())
-            xmlWrite.writeTextElement("APE2MPU",self.configControlWidget.APE2MPUEdit.text())
-	    xmlWrite.writeEndElement() #APE2
-	    xmlWrite.writeStartElement("APE3")
-	    if self.configControlWidget.APE3Check.isChecked()==True:
-		xmlWrite.writeTextElement("APE3check","1")
-	    else:
-		xmlWrite.writeTextElement("APE3check","0")
-            xmlWrite.writeTextElement("APE3SPU",self.configControlWidget.APE3SPUEdit.text())
-            xmlWrite.writeTextElement("APE3MPU",self.configControlWidget.APE3MPUEdit.text())
-	    xmlWrite.writeEndElement() #APE3
-	    xmlWrite.writeEndElement() #APCsystem
-	    xmlWrite.writeEndElement() #UserSet
-	    xmlWrite.writeEndDocument()
-
-    def readXML(self):
-	xmlfile=QFile(self.path)
-	xmlType=QXmlStreamReader.TokenType()
-	if xmlfile.open(QIODevice.ReadOnly or QIODevice.Text):	
-	    xmlRead=QXmlStreamReader(xmlfile)
-	    while not xmlRead.atEnd():
-		xmlType=xmlRead.readNext()
-		if xmlType==QXmlStreamReader.StartElement:
-		    if xmlRead.name()=="simulatorpath":
-			while not xmlRead.atEnd():
-			    xmlType=xmlRead.readNext()
-			    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				self.simulatorPath=xmlRead.text().toString()
-			    if xmlType==QXmlStreamReader.EndElement:
-                                if xmlRead.name()=="simulatorpath":
-                                    break
-		    elif xmlRead.name()=="Fullsystem":
-			while not xmlRead.atEnd():
-			    xmlType=xmlRead.readNext()
-			    if xmlRead.name()=="fullcheck":
-			        while not xmlRead.atEnd():
-			            xmlType=xmlRead.readNext()
-			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        if xmlRead.text().toString()=="1":
-					    self.configControlWidget.fullGroup.setChecked(True)
-					else:
-					    self.configControlWidget.fullGroup.setChecked(False)  
-			            if xmlType==QXmlStreamReader.EndElement:
-					if xmlRead.name()=="fullcheck":
-                            	            break
-			    elif xmlRead.name()=="Gem5_Qemu":
-				while not xmlRead.atEnd():
-				    xmlType=xmlRead.readNext()
-				    if xmlType==QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-					if xmlRead.text().toString()=="0":
-					    self.configControlWidget.fullGem5Radio.setChecked(True)
-					else:
-					    self.configControlWidget.fullQemuRadio.setChecked(True)
-			            if xmlType==QXmlStreamReader.EndElement:
-					if xmlRead.name()=="Gem5_Qemu":
-                            	            break
-		            elif xmlRead.name()=="fulltrace":
-			        while not xmlRead.atEnd():
-			            xmlType=xmlRead.readNext()
-			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        self.configControlWidget.fullTracefile.setText(xmlRead.text().toString())
-			            if xmlType==QXmlStreamReader.EndElement:
-					if xmlRead.name()=="fulltrace":
-                            	            break
-		            elif xmlRead.name()=="image":
-			        while not xmlRead.atEnd():
-			            xmlType=xmlRead.readNext()
-			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        self.configControlWidget.fullEdit.setText(xmlRead.text().toString())
-			            if xmlType==QXmlStreamReader.EndElement:
-					if xmlRead.name()=="image":
-                            	            break
-			    if xmlType==QXmlStreamReader.EndElement:
-                                if xmlRead.name()=="Fullsystem":
-                                    break
-		    elif xmlRead.name()=="APCsystem":
-			while not xmlRead.atEnd():
-			    xmlType=xmlRead.readNext()
-			    if xmlRead.name()=="apccheck":
-			        while not xmlRead.atEnd():
-			            xmlType=xmlRead.readNext()
-			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        if xmlRead.text().toString()=="1":
-					    self.configControlWidget.APCGroup.setChecked(True)  
-					else:
-					    self.configControlWidget.APCGroup.setChecked(False)  
-			            if xmlType==QXmlStreamReader.EndElement:
-					if xmlRead.name()=="apccheck":
-                            	            break
-		            elif xmlRead.name()=="apctrace":
-			        while not xmlRead.atEnd():
-			            xmlType=xmlRead.readNext()
-			            if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				        self.configControlWidget.traceFileEdit.setText(xmlRead.text().toString())
-			            if xmlType==QXmlStreamReader.EndElement:
-					 if xmlRead.name()=="apctrace":
-                            	             break
-		            elif xmlRead.name()=="APE0":
-			        while not xmlRead.atEnd():
-				    xmlType=xmlRead.readNext()
-		                    if xmlRead.name()=="APE0SPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                self.configControlWidget.APE0SPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE0SPU":
-                            	                     break
-		                    elif xmlRead.name()=="APE0MPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                 self.configControlWidget.APE0MPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE0MPU":
-                            	                      break
-			            if xmlType==QXmlStreamReader.EndElement:
-                                        if xmlRead.name()=="APE0":
-                                            break
-		            elif xmlRead.name()=="APE1":
-			        while not xmlRead.atEnd():
-				    xmlType=xmlRead.readNext()
-		                    if xmlRead.name()=="APE1check":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                if xmlRead.text().toString()=="1":
-						    self.configControlWidget.APE1Check.setCheckState(Qt.Checked)
-						else:
-						    self.configControlWidget.APE1Check.setCheckState(Qt.Unchecked)							   
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE1check":
-                            	                     break
-		                    elif xmlRead.name()=="APE1SPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                self.configControlWidget.APE1SPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE1SPU":
-                            	                     break
-		                    elif xmlRead.name()=="APE1MPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                 self.configControlWidget.APE1MPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE1MPU":
-                            	                      break
-			            if xmlType==QXmlStreamReader.EndElement:
-                                        if xmlRead.name()=="APE1":
-                                            break
-		            elif xmlRead.name()=="APE2":
-			        while not xmlRead.atEnd():
-				    xmlType=xmlRead.readNext()
-		                    if xmlRead.name()=="APE2check":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                if xmlRead.text().toString()=="1":
-						    self.configControlWidget.APE2Check.setCheckState(Qt.Checked)
-						else:
-						    self.configControlWidget.APE2Check.setCheckState(Qt.Unchecked)
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE2check":
-                            	                     break
-		                    elif xmlRead.name()=="APE2SPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                self.configControlWidget.APE2SPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE2SPU":
-                            	                     break
-		                    elif xmlRead.name()=="APE2MPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                 self.configControlWidget.APE2MPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE2MPU":
-                            	                      break
-			            if xmlType==QXmlStreamReader.EndElement:
-                                        if xmlRead.name()=="APE2":
-                                            break
-		            elif xmlRead.name()=="APE3":
-			        while not xmlRead.atEnd():
-				    xmlType=xmlRead.readNext()
-		                    if xmlRead.name()=="APE3check":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                if xmlRead.text().toString()=="1":
-						    self.configControlWidget.APE3Check.setCheckState(Qt.Checked)
-						else:
-						    self.configControlWidget.APE3Check.setCheckState(Qt.Unchecked)
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE3check":
-                            	                     break
-		                    elif xmlRead.name()=="APE3SPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                self.configControlWidget.APE3SPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE3SPU":
-                            	                     break
-		                    elif xmlRead.name()=="APE3MPU":
-			                while not xmlRead.atEnd():
-			                    xmlType=xmlRead.readNext()
-			                    if xmlType == QXmlStreamReader.Characters and not xmlRead.isWhitespace():
-				                 self.configControlWidget.APE3MPUEdit.setText(xmlRead.text().toString())
-			                    if xmlType==QXmlStreamReader.EndElement:
-					         if xmlRead.name()=="APE3MPU":
-                            	                      break
-			            if xmlType==QXmlStreamReader.EndElement:
-                                        if xmlRead.name()=="APE3":
-                                            break
-			    if xmlType==QXmlStreamReader.EndElement:
-                                if xmlRead.name()=="APCsystem":
-                                    break
-	xmlfile.close()
-	self.configControlWidget.fullCheckedSlot()
-	self.configControlWidget.APCCheckedSlot()
- 
-    def closeEvent(self,event):
-	self.writeXML()
-	self.configControlWidget.stopProcessExit(1)
-	self.closeChildDialogAPE0.emit()
-	self.closeChildDialogAPE1.emit()
-	self.closeChildDialogAPE2.emit()
-	self.closeChildDialogAPE3.emit()
-	self.apcViewWidget.closeDataBaseDialog()
+    def closeEvent(self, event):
+        self.config.writeXML()
+        self.control.stop()
+        event.accept()
+        #self.configControlWidget.stopProcessExit(1)
+        #self.closeChildDialogAPE0.emit()
+        #self.closeChildDialogAPE1.emit()
+        #self.closeChildDialogAPE2.emit()
+        #self.closeChildDialogAPE3.emit()
+        #self.apcViewWidget.closeDataBaseDialog()
 
 
 

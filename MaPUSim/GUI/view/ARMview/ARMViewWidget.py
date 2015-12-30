@@ -1,39 +1,42 @@
 # -*- coding: utf-8 -*-  
-from PyQt4.QtGui import*  
-from PyQt4.QtCore import* 
-from UARTWidget import*
-from ARMStatusWidget import*
+from PyQt4.QtGui import QWidget, QTabWidget, QVBoxLayout
+from EmbTerminal import EmbTerminal
+from view.SimLogWidget import SimLogWidget
 
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
+#QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
 class ARMViewWidget(QWidget):  
-    def __init__(self,parent=None):  
-        super(ARMViewWidget,self).__init__(parent) 
+    def __init__(self, config, control, parent = None):
+        super(ARMViewWidget, self).__init__(parent)
+        self.config = config
+        self.control = control
+        self.UART0Widget = EmbTerminal(config, control)
+        self.UART0Widget.switchMode(1)
+        self.UART1Widget = EmbTerminal(config, control)
+        self.LCDWidget = QWidget()
+        self.logWidget = SimLogWidget()
+        self.control.ARMGem5Process.updateLog.connect(self.logWidget.logUpdate)
+        self.control.ARMQemuProcess.updateLog.connect(self.logWidget.logUpdate)
 
-        self.UART0Widget=UARTWidget()    
-        self.UART1Widget=UARTWidget()
-        self.LCDWidget=QWidget()
-	self.statusWidget=ARMStatusWidget()
+        self.topTabWidget = QTabWidget()
+        self.topTabWidget.addTab(self.UART0Widget, "UART0")
+        self.topTabWidget.addTab(self.UART1Widget, "UART1")
+        self.topTabWidget.addTab(self.LCDWidget, "LCD")
+        self.topTabWidget.addTab(self.logWidget, self.tr("Simulator log"))
 
-        self.upTabWidget=QTabWidget() 
-        self.upTabWidget.addTab(self.UART0Widget,"UART0")
-        self.upTabWidget.addTab(self.UART1Widget,"UART1")
-        self.upTabWidget.addTab(self.LCDWidget,"LCD")  
-	self.upTabWidget.addTab(self.statusWidget,"Status")      
-            
-        self.GDBWidget=QWidget()
-	self.ConsoleWidget=QWidget()
-	self.downTabWidget=QTabWidget()
-	self.downTabWidget.setTabPosition(QTabWidget.South)
-	self.downTabWidget.addTab(self.GDBWidget,"GDB")
-	self.downTabWidget.addTab(self.ConsoleWidget,"Console")
+        self.GDBWidget = QWidget()
+        self.ConsoleWidget = QWidget()
+        self.bottomTabWidget = QTabWidget()
+        self.bottomTabWidget.setTabPosition(QTabWidget.South)
+        self.bottomTabWidget.addTab(self.GDBWidget, "GDB")
+        self.bottomTabWidget.addTab(self.ConsoleWidget, self.tr("Console"))
 
-        self.layout=QVBoxLayout()                 
-        self.layout.addWidget(self.upTabWidget)
-        self.layout.addWidget(self.downTabWidget)
-	self.layout.setStretchFactor(self.upTabWidget,3)
-	self.layout.setStretchFactor(self.downTabWidget,2)
-        self.setLayout(self.layout)   
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.topTabWidget)
+        self.layout.addWidget(self.bottomTabWidget)
+        self.layout.setStretchFactor(self.topTabWidget, 3)
+        self.layout.setStretchFactor(self.bottomTabWidget, 2)
+        self.setLayout(self.layout)
 
-	self.UART0Widget.embTerminal.ARMSimulatorShowSignal.connect(self.statusWidget.simulatorShowText)
+        #self.UART0Widget.embTerminal.ARMSimulatorShowSignal.connect(self.statusWidget.simulatorShowText)
 
