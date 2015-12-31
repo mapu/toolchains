@@ -88,7 +88,7 @@ class ARMGem5Process(Gem5Process):
             shmemkey = self.shmem_pat.search(str_stderr)
             apcport = self.apcport_pat.search(str_stderr)
             uartport = self.uart_pat.search(str_stderr)
-            if ((shmemkey != None) and (apcport != None)):
+            if ((shmemkey != None) and (apcport != None) and (uartport != None)):
                 self.commkey = [int(shmemkey.group(0)),
                                 int(apcport.group(0)),
                                 int(uartport.group(3))]

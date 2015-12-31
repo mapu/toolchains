@@ -157,9 +157,15 @@ class ARMQemuProcess(QObject):
         This method will clean all output of the process executed last time
         and also clean the share memory between two simulators.
         '''
-        self.stderr = ""
         if self.commkey != None:
             # unconditionally execute "ipcrm -m key"
-            QProcess.execute("ipcrm", ["-m", ("%d" % self.commkey[0])])
+            QProcess.execute("ipcrm", ["-M", ("%d" % self.commkey[0])])
             self.commkey = None
+        else:
+            # try get the key again
+            str_stderr = unicode(self.stderr)
+            shmemkey = self.shmem_pat.search(str_stderr)
+            if shmemkey != None:
+                QProcess.execute("ipcrm", ["-M", shmemkey.group(0)])
+        self.stderr = ""
         

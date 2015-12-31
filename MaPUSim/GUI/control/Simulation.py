@@ -8,6 +8,7 @@ from control.Gem5Process import ARMGem5Process, APCGem5Process
 from control.QemuProcess import ARMQemuProcess
 from view.Utils import fatal, warning
 import os
+import shutil
 from data.SimDB import SimDB
 
 
@@ -47,6 +48,10 @@ class Simulation(QObject):
             return False
                                  
         if self.config.getConfig("isFullsystem") == "True":
+            if not os.path.isfile(image):
+                    fatal(self.tr("Cannot find flash image %s!" % ARMSimulatorFile),
+                          self.tr("Failed to launch the simulation"))
+                    return False
             if self.config.getConfig("ARMSimType") == "QEMU":
                 ARMSimulatorFile = path + "/arm/bin/qemu-system-arm"
                 if not os.path.isfile(ARMSimulatorFile):
@@ -54,10 +59,6 @@ class Simulation(QObject):
                           self.tr("Failed to launch the simulation"))
                     return False
                 image = self.config.getConfig("flashimage")
-                if not os.path.isfile(image):
-                    fatal(self.tr("Cannot find flash image %s!" % ARMSimulatorFile),
-                          self.tr("Failed to launch the simulation"))
-                    return False
                 args = ["-M", "mapu", "-m", "512", "-pflash", image,
                         "-serial", "stdio", ""]
                 self.ARMProcess.start(ARMSimulatorFile, args)
@@ -76,6 +77,9 @@ class Simulation(QObject):
                 sim_command = ARMSimulatorFile + " "
                 sim_command += path + "/arm/system/fs.py --bare-metal "
                 sim_command += "--machine-type=MaPU_Board"
+                if not os.path.exists("./images"):
+                    os.makedirs("./images")
+                shutil.copy2(image, "./images/image.bin")
                 self.ARMProcess.start(sim_command)
             else:
                 fatal(self.tr("Unknown ARM simulator type!"),
