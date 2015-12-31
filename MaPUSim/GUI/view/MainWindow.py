@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.perspTabs)
         self.armViewWidget = ARMViewWidget(config, control)
         self.apcViewWidget = APCViewWidget(config, control)
-        self.configWidget = ConfigViewWidget(config)
+        self.configWidget = ConfigViewWidget(config, control)
         
         # Fix me: this is ugly...
         self.configWidget.ARMmodeGroup.buttonClicked.connect(self.armViewWidget.UART0Widget.switchMode)
@@ -112,15 +112,15 @@ class MainWindow(QMainWindow):
  
     def ARMStatus(self, status):
         if status == QProcess.Running:
-            self.armAction.setIcon(QIcon(":/armgreen.png"))
+            self.ARMLabel.setPixmap(self.GreenPixmap)
         elif status == QProcess.NotRunning:
-            self.armAction.setIcon(QIcon(":/armred.png"))
+            self.ARMLabel.setPixmap(self.RedPixmap)
 
     def APCStatus(self,status):
         if status == QProcess.Running:
-            self.armAction.setIcon(QIcon(":/armgreen.png"))
+            self.APCLabel.setPixmap(self.GreenPixmap)
         elif status == QProcess.NotRunning:
-            self.armAction.setIcon(QIcon(":/armred.png"))
+            self.APCLabel.setPixmap(self.RedPixmap)
         
     def createToolBars(self):  
         toolBar = self.addToolBar(self.tr("Trace file bar"))

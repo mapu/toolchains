@@ -98,13 +98,13 @@ class Simulation(QObject):
                 return False
             
             commkeys = self.ARMProcess.getCommKeys()
-            if self.config.getConfig("ARMSimType") == "GEM5":
-                self.ARMProcess.signalUARTStart.emit(commkeys[2])
             if commkeys == None:
                 self.ARMProcess.tryTerminate()
                 fatal(self.tr("Cannot get communication keys from ARM simulator"),
                       self.tr("Failed to launch the simulation"))
                 return False
+            if self.config.getConfig("ARMSimType") == "GEM5":
+                self.ARMProcess.signalUARTStart.emit(commkeys[2])
             sim_command += path + ("/apc/system/ms.py -c %d -k %d -n 4" %
                                    commkeys[1], commkeys[0])
         else: # Standalone mode

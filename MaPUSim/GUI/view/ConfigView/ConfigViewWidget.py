@@ -15,9 +15,10 @@ class ConfigViewWidget(QMainWindow):
     ARMSimulatorStatusSignal = pyqtSignal(bool)
     ARMProcessEndSignal = pyqtSignal()
     
-    def __init__(self, config, parent = None):
+    def __init__(self, config, control, parent = None):
         QMainWindow.__init__(self, parent)
         self.config = config
+        self.control = control
 
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)

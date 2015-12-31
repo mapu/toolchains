@@ -6,7 +6,7 @@ Created on Dec 19, 2015
 
 from PyQt4.QtGui import QMessageBox
 
-mainWindow = None
+#mainWindow = None
 
 def initParent(parent):
     global mainWindow

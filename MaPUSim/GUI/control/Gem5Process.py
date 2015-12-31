@@ -7,6 +7,7 @@ from PyQt4.QtCore import QProcess, SIGNAL, QString, pyqtSignal, QCoreApplication
 from PyQt4.QtGui import QMessageBox
 from time import sleep
 from view.Utils import fatal
+import view.Utils
 import re
 
 class Gem5Process(QProcess):
@@ -30,16 +31,20 @@ class Gem5Process(QProcess):
         '''
         Slot function for reading stdout of process
         '''
+        print "stdout"
         new_output = QString(self.readAllStandardOutput().data())
         self.stdout += new_output
+        print self.stdout
         self.updateLog.emit(new_output)
         
     def ReadErrOutput(self):
         '''
         Slot function for reading stdout of process
         '''
+        print "errout"
         new_output = QString(self.readAllStandardError().data())
         self.stderr += new_output
+        print self.stderr
         self.updateLog.emit(new_output)
 
 
@@ -87,14 +92,16 @@ class ARMGem5Process(Gem5Process):
                 self.commkey = [int(shmemkey.group(0)),
                                 int(apcport.group(0)),
                                 int(uartport.group(3))]
+            if shmemkey != None:
+                self.commkey = [int(shmemkey.group(0)), None, None]
             else:
                 # wait for the ARM simulator starting 
                 sleep(0.5)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(
-                        self, self.tr("ARM simulator has no output"),
-                        self.tr("Cannot get proper standard error output from"
+                        view.Utils.mainWindow, self.tr("ARM simulator has no output"),
+                        self.tr("Cannot get proper standard error output from "
                            "ARM simulator. Do you want to keep on waiting?"),
                         buttons = QMessageBox.Yes | QMessageBox.No,
                         defaultButton = QMessageBox.No)
@@ -119,7 +126,7 @@ class ARMGem5Process(Gem5Process):
             sleep(1)
             wait -= 1
             if wait == 0:
-                ret = QMessageBox.warning(self,
+                ret = QMessageBox.warning(view.Utils.mainWindow,
                                           self.tr("ARM simulator has no response"),
                                           self.tr("Cannot stop ARM simulator. "
                                              "Do you want to kill it?"),
@@ -150,12 +157,18 @@ class ARMGem5Process(Gem5Process):
         This method will clean all output of the process executed last time
         and also clean the share memory between two simulators.
         '''
-        self.stdout = ""
-        self.stderr = ""
         if self.commkey != None:
             # unconditionally execute "ipcrm -m key"
-            QProcess.execute("ipcrm", ["-m", ("%d" % self.commkey[0])])
+            QProcess.execute("ipcrm", ["-M", ("%d" % self.commkey[0])])
             self.commkey = None
+        else:
+            # try get the key again
+            str_stderr = unicode(self.stderr)
+            shmemkey = self.shmem_pat.search(str_stderr)
+            if shmemkey != None:
+                QProcess.execute("ipcrm", ["-M", shmemkey.group(0)])
+        self.stdout = ""
+        self.stderr = ""
 
 
 class APCGem5Process(Gem5Process):
@@ -198,7 +211,7 @@ class APCGem5Process(Gem5Process):
             sleep(1)
             wait -= 1
             if wait == 0:
-                ret = QMessageBox.warning(self,
+                ret = QMessageBox.warning(view.Utils.mainWindow,
                                           self.tr("APC simulator has no response"),
                                           self.tr("Cannot stop APC simulator. "
                                              "Do you want to kill it?"),
