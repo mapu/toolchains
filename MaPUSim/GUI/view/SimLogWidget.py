@@ -12,7 +12,7 @@ class SimLogWidget(QTextEdit):
     '''
 
 
-    def __init__(self, xmlfile = "config.xml", parent = None):
+    def __init__(self, parent = None):
         '''
         Constructor
         '''
@@ -51,8 +51,10 @@ class SimLogWidget(QTextEdit):
             self.updateTimer.start(1000)
         elif state == QProcess.NotRunning:
             self.updateTimer.stop()
-            self.log = ""
+            self.updateTextView()
+            #self.log = ""
             
     def logUpdate(self, text):
         self.log += text
+        self.update()
         

@@ -35,6 +35,7 @@ class APCViewWidget(QWidget):
         self.APCWidget = APCMutiCoreWidget(self)  # APC mutiple core view
         self.logWidget = SimLogWidget()
         self.control.APCProcess.updateLog.connect(self.logWidget.logUpdate)
+        self.control.APCProcess.stateChanged.connect(self.logWidget.updateSwitch)
 
         # define left tab
         self.APCViewTab = QTabWidget()

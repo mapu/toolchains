@@ -17,6 +17,8 @@ class ARMViewWidget(QWidget):
         self.logWidget = SimLogWidget()
         self.control.ARMGem5Process.updateLog.connect(self.logWidget.logUpdate)
         self.control.ARMQemuProcess.updateLog.connect(self.logWidget.logUpdate)
+        self.control.ARMGem5Process.stateChanged.connect(self.logWidget.updateSwitch)
+        self.control.ARMQemuProcess.stateChanged.connect(self.logWidget.updateSwitch)
 
         self.topTabWidget = QTabWidget()
         self.topTabWidget.addTab(self.UART0Widget, "UART0")
