@@ -40,7 +40,7 @@ class Simulation(QObject):
         '''
         path = self.config.getConfig("simulatorpath")
                                  
-        APCSimulatorFile = path + "/apc/bin/gem5.opt"
+        APCSimulatorFile = path + "/apc/gem5.opt"
         if not os.path.isfile(APCSimulatorFile):
             fatal(self.tr("Cannot find APC simulator %s!" % APCSimulatorFile), 
                   self.tr("Failed to launch the simulation"))
@@ -63,7 +63,7 @@ class Simulation(QObject):
                 self.ARMProcess.start(ARMSimulatorFile, args)
                 
             elif self.config.getConfig("ARMSimType") == "GEM5":
-                ARMSimulatorFile = path + "/arm/bin/gem5.opt"
+                ARMSimulatorFile = path + "/arm/gem5.opt"
                 if not os.path.isfile(ARMSimulatorFile):
                     fatal(self.tr("Cannot find ARM simulator %s!" % ARMSimulatorFile),
                           self.tr("Failed to launch the simulation"))

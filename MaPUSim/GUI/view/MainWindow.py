@@ -5,7 +5,7 @@ from ARMview.ARMViewWidget import ARMViewWidget
 from ConfigView.ConfigViewWidget import ConfigViewWidget
 from PyQt4.QtCore import QProcess, SIGNAL, Qt
 from PyQt4.QtGui import QMainWindow, QTabWidget, QAction, QIcon, \
-    QLabel, QFileDialog, QInputDialog, QPixmap
+    QLabel, QFileDialog, QInputDialog, QPixmap, QLineEdit
 from view.Utils import warning
 from res import qrc_resources
 import os
@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
         self.setDialog.setFixedSize(400, 200)
         path, ok = QInputDialog.getText(self, self.tr("Simulator path setting"), 
                                         self.tr("Simulator path setting"), 
-                                        mode = QInputDialog.QLineEdit_Normal, 
+                                        mode = QLineEdit.Normal, 
                                         text = self.config.
                                         getConfig("simulatorpath"))
         if ok:
@@ -171,12 +171,6 @@ class MainWindow(QMainWindow):
         self.config.writeXML()
         self.control.stop()
         event.accept()
-        #self.configControlWidget.stopProcessExit(1)
-        #self.closeChildDialogAPE0.emit()
-        #self.closeChildDialogAPE1.emit()
-        #self.closeChildDialogAPE2.emit()
-        #self.closeChildDialogAPE3.emit()
-        #self.apcViewWidget.closeDataBaseDialog()
 
 
 
