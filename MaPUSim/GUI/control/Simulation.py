@@ -81,6 +81,8 @@ class Simulation(QObject):
                     os.makedirs("./images")
                 shutil.copy2(image, "./images/image.bin")
                 self.ARMProcess.start(sim_command)
+                if not self.ARMProcess.waitForStarted():
+                    return False
             else:
                 fatal(self.tr("Unknown ARM simulator type!"),
                       self.tr("Failed to launch the simulation"))
@@ -102,6 +104,7 @@ class Simulation(QObject):
                 return False
             
             commkeys = self.ARMProcess.getCommKeys()
+            print commkeys
             if commkeys == None:
                 self.ARMProcess.tryTerminate()
                 fatal(self.tr("Cannot get communication keys from ARM simulator"),
@@ -110,7 +113,7 @@ class Simulation(QObject):
             if self.config.getConfig("ARMSimType") == "GEM5":
                 self.ARMProcess.signalUARTStart.emit(commkeys[2])
             sim_command += path + ("/apc/system/ms.py -c %d -k %d -n 4" %
-                                   commkeys[1], commkeys[0])
+                                   (commkeys[1], commkeys[0]))
         else: # Standalone mode
             tracefile = self.config.getConfig("standalonetrace")
             if ((tracefile == "") or (tracefile == None)):
@@ -162,6 +165,7 @@ class Simulation(QObject):
             sim_command += '"'
         # Run APC simulator
         self.APCProcess.start(sim_command)
+        print "apc launched"
         if not self.APCProcess.waitForStarted():
             fatal(self.tr("APC simulator is not able to execute"),
                   self.tr("Failed to launch the simulation"))

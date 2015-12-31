@@ -48,9 +48,6 @@ class MainWindow(QMainWindow):
         self.control.ARMProcess.stateChanged.connect(self.ARMStatus)
         self.control.APCProcess.stateChanged.connect(self.APCStatus)
         
-        self.control.ARMProcess.stateChanged.connect(self.statusChange)
-        self.control.APCProcess.stateChanged.connect(self.statusChange)
-        
         #self.configWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
         #self.configWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
         #self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
@@ -104,17 +101,15 @@ class MainWindow(QMainWindow):
         self.stopAction.setEnabled(False)
         self.control.stop()
                         
-    def statusChange(self, status):
-        if ((self.control.ARMProcess.state() == QProcess.NotRunning) and
-            (self.control.APCProcess.state() == QProcess.NotRunning)):
-            self.startAction.setEnabled(True)
-            self.stopAction.setEnabled(False)
- 
     def ARMStatus(self, status):
         if status == QProcess.Running:
             self.ARMLabel.setPixmap(self.GreenPixmap)
+            self.startAction.setEnabled(False)
+            self.stopAction.setEnabled(True)
         elif status == QProcess.NotRunning:
             self.ARMLabel.setPixmap(self.RedPixmap)
+            self.startAction.setEnabled(True)
+            self.stopAction.setEnabled(False)
 
     def APCStatus(self,status):
         if status == QProcess.Running:

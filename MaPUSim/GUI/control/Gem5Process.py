@@ -34,7 +34,7 @@ class Gem5Process(QProcess):
         print "stdout"
         new_output = QString(self.readAllStandardOutput().data())
         self.stdout += new_output
-        print self.stdout
+        #print self.stdout
         self.updateLog.emit(new_output)
         
     def ReadErrOutput(self):
@@ -44,7 +44,7 @@ class Gem5Process(QProcess):
         print "errout"
         new_output = QString(self.readAllStandardError().data())
         self.stderr += new_output
-        print self.stderr
+        #print self.stderr
         self.updateLog.emit(new_output)
 
 
@@ -92,11 +92,9 @@ class ARMGem5Process(Gem5Process):
                 self.commkey = [int(shmemkey.group(0)),
                                 int(apcport.group(0)),
                                 int(uartport.group(3))]
-            if shmemkey != None:
-                self.commkey = [int(shmemkey.group(0)), None, None]
             else:
                 # wait for the ARM simulator starting 
-                sleep(0.5)
+                self.waitForReadyRead(1000)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(
@@ -119,11 +117,12 @@ class ARMGem5Process(Gem5Process):
         '''
         if self.state() == QProcess.Running:
             self.terminate()
+            self.waitForFinished()
         else:
             return
         wait = 50
         while self.state() == QProcess.Running:
-            sleep(1)
+            self.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 ret = QMessageBox.warning(view.Utils.mainWindow,
@@ -189,12 +188,12 @@ class APCGem5Process(Gem5Process):
         '''
         Slot function for dealing with the process exit
         '''
-        from main import SimulationControl
+        #from main import SimulationControl
         self.stdout = ""
         self.stderr = ""
         if exitstatus == QProcess.CrashExit:
             fatal("APC simulator exits abnormally!")
-            SimulationControl.ARMProcess.tryTerminate()
+            #SimulationControl.ARMProcess.tryTerminate()
     
     def tryTerminate(self):
         '''
@@ -204,11 +203,12 @@ class APCGem5Process(Gem5Process):
         '''
         if self.state() == QProcess.Running:
             self.terminate()
+            self.waitForFinished()
         else:
             return
         wait = 50
         while self.state() == QProcess.Running:
-            sleep(1)
+            self.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 ret = QMessageBox.warning(view.Utils.mainWindow,
