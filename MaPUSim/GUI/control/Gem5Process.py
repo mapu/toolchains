@@ -31,20 +31,16 @@ class Gem5Process(QProcess):
         '''
         Slot function for reading stdout of process
         '''
-        print "stdout"
         new_output = QString(self.readAllStandardOutput().data())
         self.stdout += new_output
-        #print self.stdout
         self.updateLog.emit(new_output)
         
     def ReadErrOutput(self):
         '''
         Slot function for reading stdout of process
         '''
-        print "errout"
         new_output = QString(self.readAllStandardError().data())
         self.stderr += new_output
-        #print self.stderr
         self.updateLog.emit(new_output)
 
 

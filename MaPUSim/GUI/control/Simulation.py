@@ -165,12 +165,12 @@ class Simulation(QObject):
             sim_command += '"'
         # Run APC simulator
         self.APCProcess.start(sim_command)
-        print "apc launched"
         if not self.APCProcess.waitForStarted():
             fatal(self.tr("APC simulator is not able to execute"),
                   self.tr("Failed to launch the simulation"))
             self.ARMProcess.tryTerminate()
             return False
+        return True
             
     
     def stop(self):
@@ -207,6 +207,7 @@ class Simulation(QObject):
         else:
             tracefile = self.config.getConfig("standalonetrace")
             numofcores = int(self.config.getConfig("numberofAPEs"))
-        if os.path.exists(tracefile):
+        if os.path.exists("m5out/" + tracefile):
+            tracefile = "m5out/" + tracefile
             self.simDB.analyzeTraceFile(numofcores, tracefile)
         
