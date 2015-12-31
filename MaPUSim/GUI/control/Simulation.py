@@ -48,6 +48,7 @@ class Simulation(QObject):
             return False
                                  
         if self.config.getConfig("isFullsystem") == "True":
+            image = self.config.getConfig("flashimage")
             if not os.path.isfile(image):
                     fatal(self.tr("Cannot find flash image %s!" % ARMSimulatorFile),
                           self.tr("Failed to launch the simulation"))
@@ -58,7 +59,6 @@ class Simulation(QObject):
                     fatal(self.tr("Cannot find ARM simulator %s!" % ARMSimulatorFile),
                           self.tr("Failed to launch the simulation"))
                     return False
-                image = self.config.getConfig("flashimage")
                 args = ["-M", "mapu", "-m", "512", "-pflash", image,
                         "-serial", "stdio", ""]
                 self.ARMProcess.start(ARMSimulatorFile, args)
