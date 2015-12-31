@@ -72,7 +72,7 @@ class Simulation(QObject):
                     fatal(self.tr("Cannot find simulator file %s!" %
                              path + "/arm/system/fs.py"),
                           self.tr("Failed to launch the simulation"))
-                return False
+                    return False
                 sim_command = ARMSimulatorFile + " "
                 sim_command += path + "/arm/system/fs.py --bare-metal "
                 sim_command += "--machine-type=MaPU_Board"
