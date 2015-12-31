@@ -67,7 +67,7 @@ class ARMGem5Process(Gem5Process):
         self.apcport_pat = re.compile(
             "(?<=Listening for system\.realview\.apc connection on port )\d+")
         self.uart_pat = re.compile(
-            "(?<=Listening for )(\.*terminal\.*)( connection on port )(\d+)")
+            "(?<=Listening for )(\.*terminal.*)( connection on port )(\d+)")
         
     def FinishProcess(self, exitcode, exitstatus):
         '''
