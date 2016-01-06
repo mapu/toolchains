@@ -20,7 +20,7 @@ class HexMainWindow(QMainWindow):
     	if event.mimeData().hasUrls():
             event.accept()
             string=event.mimeData().urls().at(0).toLocalFile()
-            self.statusBar().showMessage( tr("Drop File: ")+string,2000)
+            self.statusBar().showMessage( self.tr("Drop File: ")+string,2000)
 
     def dropEvent(self,event):
     	if event.mimeData().hasUrls():

@@ -1,0 +1,150 @@
+'''
+Created on Dec 23, 2015
+
+@author: wangl
+'''
+
+from PyQt4.QtCore import QObject
+import re
+
+class RegTable(QObject):
+    '''
+    The base class of register operation tables
+    '''
+
+
+    def __init__(self, conn, parent = None):
+        '''
+        Constructor
+        '''
+        super(RegTable, self).__init__(parent)
+        self.DBConn = conn
+        self.Name = ""
+        self.itemsid = ["id", "time", "sn", "op", "class", "no", "val"]
+        self.itemstype = ["integer primary key autoincrement", "integer",
+                          "integer", "varchar", "varchar(8)", "integer",
+                          "varchar(256)"]
+        #=======================================================================
+        # The insert template prepares the sql command for this table
+        # this will save time for insert procedure
+        #=======================================================================
+        self.insert_template = ""
+        self.getop_template = ""
+        self.key = ""
+        
+    def createTable(self):
+        '''
+        Create the table
+        '''
+        sql_query = "CREATE TABLE " + self.Name + " ("
+        sql_query += ", ".join(" ".join(x)
+                               for x in zip(self.itemsid, self.itemstype))
+        sql_query += ")"
+        self.DBConn.execute(sql_query)
+        
+    def clearTable(self):
+        '''
+        Drop the table first if it exists, and then create a new one
+        '''
+        sql_query = "DROP TABLE IF EXISTS " + self.Name
+        self.DBConn.execute(sql_query)
+        self.createTable()
+            
+    def traceAnalyze(self, lines):
+        '''
+        Analyze the trace in 'lines', and create the record if it is matched
+        the pattern
+        '''
+        #=======================================================================
+        # Note that [:] will make a copy of lines, which is nessecary 
+        # because items are deleted during loop
+        #=======================================================================
+        text = ""
+        for i in xrange(len(lines)):
+            if self.key in lines[i]:
+                text += lines[i]
+                lines[i] = ""
+        records = self.pattern.findall(text)
+        if records != []:
+            self.DBConn.executemany(self.insert_template, records)
+            self.DBConn.commit()
+            
+    def getOperations(self, time, condition):
+        '''
+        Get all registers' operations on 'time'
+        '''
+        sql_query = self.getop_template + str(time)
+        if condition != "":
+            sql_query += " AND " + condition
+        cursor = self.DBConn.execute(sql_query)
+        ret = cursor.fetchall()
+        cursor.close()
+        return ret
+        
+
+class SPURegTable(RegTable):
+    '''
+    SPU register operation table
+    '''
+
+
+    def __init__(self, idx, conn, parent = None):
+        '''
+        Constructor
+        '''
+        super(SPURegTable, self).__init__(conn, parent)
+        self.Name = "APE%dSPURegTable" % idx
+        
+        self.insert_template = "INSERT INTO " + self.Name + " ("
+        self.insert_template += ", ".join(self.itemsid[1:])
+        self.insert_template += ") VALUES("
+        self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
+        
+        self.getop_template = "SELECT op, class, no FROM " + self.Name + " "
+        self.getop_template += "WHERE time = "
+        
+        self.key = "regfile_manager: [tid:0]"
+        
+        if idx == 0:
+            self.pattern = re.compile(
+                "(\d+)000\[\d+\]: system\.cpu[0]?\.regfile_manager: \[tid:0\]: "
+                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+        else:
+            self.pattern = re.compile(
+                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.regfile_manager: \[tid:0\]: "
+                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+        
+
+class MPURegTable(RegTable):
+    '''
+    MPU register operation table
+    '''
+
+
+    def __init__(self, idx, conn, parent = None):
+        '''
+        Constructor
+        '''
+        super(MPURegTable, self).__init__(conn, parent)
+        self.Name = "APE%dMPURegTable" % idx
+        
+        self.insert_template = "INSERT INTO " + self.Name + " ("
+        self.insert_template += ", ".join(self.itemsid[1:])
+        self.insert_template += ") VALUES("
+        self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
+        
+        self.getop_template = "SELECT op, class, no FROM " + self.Name + " "
+        self.getop_template += "WHERE time = "
+        
+        self.key = "mpurf_manager: [tid:1]"
+        
+        if idx == 0:
+            self.pattern = re.compile(
+                "(\d+)000\[\d+\]: system\.cpu[0]?\.mpurf_manager: \[tid:1\]: "
+                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+        else:
+            self.pattern = re.compile(
+                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.mpurf_manager: \[tid:1\]: "
+                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+            
+            
