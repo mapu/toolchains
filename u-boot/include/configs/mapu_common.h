@@ -227,7 +227,7 @@
 		"dram=512M\0" \
 		"root=/dev/mtdblock4 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=jffs2 "\
+    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=ext4 "\
     "console=tty0\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
