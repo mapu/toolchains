@@ -204,6 +204,9 @@ then
   if [ ! -e "build_qemu" ]
   then mkdir build_qemu
   fi
+  cd $source_path/MaPUSim/ARM-QEMU
+  make distclean
+  cd $root
   cd build_qemu
   $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu 
   make $MCFLAG || qemu_err=1 
