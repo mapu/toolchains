@@ -10,6 +10,8 @@
 #ifndef __AMCC_COMMON_H
 #define __AMCC_COMMON_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* Start of U-Boot	*/
 #define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
@@ -20,8 +22,10 @@
  */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
+#ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#endif
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
@@ -49,8 +53,6 @@
 /*
  * Commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #if defined(CONFIG_440)
 #define CONFIG_CMD_CACHE
@@ -63,11 +65,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SETEXPR
 
 /*
  * Miscellaneous configurable options
@@ -102,7 +101,6 @@
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 /*
  * BOOTP options
  */
@@ -252,11 +250,5 @@
 		"era " __stringify(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
 		"cp.b ${fileaddr} " __stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0" \
 	"upd=run load update\0"						\
-
-#define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
-	"u-boot-nand=" __stringify(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"\
-	"nload=tftp 200000 ${u-boot-nand}\0"				\
-	"nupdate=nand erase 0 100000;nand write 200000 0 100000\0"	\
-	"nupd=run nload nupdate\0"
 
 #endif /* __AMCC_COMMON_H */

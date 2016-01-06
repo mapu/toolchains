@@ -12,6 +12,7 @@
 #include <scsi.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sata.h>
+#include <sata.h>
 #include <asm/io.h>
 #include "pipe3-phy.h"
 
@@ -31,7 +32,7 @@ struct omap_pipe3 sata_phy = {
 	.dpll_map = dpll_map_sata,
 };
 
-int omap_sata_init(void)
+int init_sata(int dev)
 {
 	int ret;
 	u32 val;
@@ -68,8 +69,25 @@ int omap_sata_init(void)
 	val = TI_SATA_IDLE_NO | TI_SATA_STANDBY_NO;
 	writel(val, TI_SATA_WRAPPER_BASE + TI_SATA_SYSCONFIG);
 
-	ret = ahci_init(DWC_AHSATA_BASE);
-	scsi_scan(1);
+	ret = ahci_init((void __iomem *)DWC_AHSATA_BASE);
 
 	return ret;
+}
+
+int reset_sata(int dev)
+{
+	return 0;
+}
+
+/* On OMAP platforms SATA provides the SCSI subsystem */
+void scsi_init(void)
+{
+	init_sata(0);
+	scsi_scan(1);
+}
+
+void scsi_bus_reset(void)
+{
+	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
+	ahci_init((void __iomem *)DWC_AHSATA_BASE);
 }

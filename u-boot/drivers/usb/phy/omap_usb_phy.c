@@ -118,7 +118,6 @@ void usb_phy_power(int on)
 void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs)
 {
 	omap_usb_dpll_lock(phy_regs);
-
 	usb3_phy_partial_powerup(phy_regs);
 	/*
 	 * Give enough time for the PHY to partially power-up before
@@ -126,23 +125,11 @@ void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs)
 	 * team.
 	 */
 	mdelay(100);
-	usb3_phy_power(1);
 }
 
 static void omap_enable_usb3_phy(struct omap_xhci *omap)
 {
 	u32	val;
-
-	/* Setting OCP2SCP1 register */
-	setbits_le32((*prcm)->cm_l3init_ocp2scp1_clkctrl,
-		     OCP2SCP1_CLKCTRL_MODULEMODE_HW);
-
-	/* Turn on 32K AON clk */
-	setbits_le32((*prcm)->cm_coreaon_usb_phy_core_clkctrl,
-		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
-
-	/* Setting CM_L3INIT_CLKSTCTRL to 0x0 i.e NO sleep */
-	writel(0x0, (*prcm)->cm_l3init_clkstctrl);
 
 	val = (USBOTGSS_DMADISABLE |
 			USBOTGSS_STANDBYMODE_SMRT_WKUP |
@@ -171,11 +158,6 @@ static void omap_enable_usb3_phy(struct omap_xhci *omap)
 	writel(val, &omap->otg_wrapper->irqstatus_1);
 	val = readl(&omap->otg_wrapper->irqstatus_0);
 	writel(val, &omap->otg_wrapper->irqstatus_0);
-
-	/* Enable the USB OTG Super speed clocks */
-	val = (OPTFCLKEN_REFCLK960M | OTG_SS_CLKCTRL_MODULEMODE_HW);
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl, val);
-
 };
 #endif /* CONFIG_OMAP_USB3PHY1_HOST */
 
@@ -222,27 +204,24 @@ static void am437x_enable_usb2_phy2(struct omap_xhci *omap)
 
 void usb_phy_power(int on)
 {
-	return;
+	u32 val;
+
+	/* USB1_CTRL */
+	val = readl(USB1_CTRL);
+	if (on) {
+		/*
+		 * these bits are re-used on AM437x to power up/down the USB
+		 * CM and OTG PHYs, if we don't toggle them, USB will not be
+		 * functional on newer silicon revisions
+		 */
+		val &= ~(USB1_CTRL_CM_PWRDN | USB1_CTRL_OTG_PWRDN);
+	} else {
+		val |= USB1_CTRL_CM_PWRDN | USB1_CTRL_OTG_PWRDN;
+	}
+
+	writel(val, USB1_CTRL);
 }
 #endif /* CONFIG_AM437X_USB2PHY2_HOST */
-
-void omap_reset_usb_phy(struct dwc3 *dwc3_reg)
-{
-	/* Assert USB3 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Assert USB2 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-	mdelay(100);
-
-	/* Clear USB3 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Clear USB2 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-}
 
 void omap_enable_phy(struct omap_xhci *omap)
 {

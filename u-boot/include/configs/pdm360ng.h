@@ -13,6 +13,8 @@
 #define __CONFIG_H
 
 #define CONFIG_PDM360NG 1
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory map for the PDM360NG board:
@@ -30,7 +32,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
@@ -379,8 +380,6 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
-
-#include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE

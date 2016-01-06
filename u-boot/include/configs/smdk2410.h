@@ -17,12 +17,13 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM920T		/* This is an ARM920T Core */
-#define CONFIG_S3C24X0		/* in a SAMSUNG S3C24x0-type SoC */
+#define CONFIG_S3C24X0		/* This is a SAMSUNG S3C24x0-type SoC */
 #define CONFIG_S3C2410		/* specifically a SAMSUNG S3C2410 SoC */
 #define CONFIG_SMDK2410		/* on a SAMSUNG SMDK2410 Board */
 
 #define CONFIG_SYS_TEXT_BASE	0x0
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
@@ -74,8 +75,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
@@ -107,7 +106,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"SMDK2410 # "
 #define CONFIG_SYS_CBSIZE	256
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \

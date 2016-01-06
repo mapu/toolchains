@@ -3,9 +3,11 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#include <errno.h>
 #include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
+#include <fsl_mdio.h>
 
 #include "fm.h"
 
@@ -147,6 +149,9 @@ void fm_disable_port(enum fm_port port)
 {
 	int i = fm_port_to_index(port);
 
+	if (i == -1)
+		return;
+
 	fm_info[i].enabled = 0;
 	fman_disable_port(port);
 }
@@ -154,6 +159,9 @@ void fm_disable_port(enum fm_port port)
 void fm_enable_port(enum fm_port port)
 {
 	int i = fm_port_to_index(port);
+
+	if (i == -1)
+		return;
 
 	fm_info[i].enabled = 1;
 	fman_enable_port(port);
@@ -223,7 +231,7 @@ void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 	 __attribute__((weak, alias("__def_board_ft_fman_fixup_port")));
 
-static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
+int ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 {
 	int off;
 	uint32_t ph;
@@ -232,18 +240,22 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 				CONFIG_SYS_FSL_FM1_DTSEC1_OFFSET;
 
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
+	if (off == -FDT_ERR_NOTFOUND)
+		return -EINVAL;
 
 	if (info->enabled) {
 		fdt_fixup_phy_connection(blob, off, info->enet_if);
 		board_ft_fman_fixup_port(blob, prop, paddr, info->port, off);
-		return ;
+		return 0;
 	}
 
 #ifdef CONFIG_SYS_FMAN_V3
+#ifndef CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
 	/*
-	 * Physically FM1_DTSEC9 and FM1_10GEC1 use the same dual-role MAC, when
-	 * FM1_10GEC1 is enabled and  FM1_DTSEC9 is disabled, ensure that the
-	 * dual-role MAC is not disabled, ditto for other dual-role MACs.
+	 * On T2/T4 SoCs, physically FM1_DTSEC9 and FM1_10GEC1 use the same
+	 * dual-role MAC, when FM1_10GEC1 is enabled and  FM1_DTSEC9
+	 * is disabled, ensure that the dual-role MAC is not disabled,
+	 * ditto for other dual-role MACs.
 	 */
 	if (((info->port == FM1_DTSEC9) && (PORT_IS_ENABLED(FM1_10GEC1)))  ||
 	    ((info->port == FM1_DTSEC10) && (PORT_IS_ENABLED(FM1_10GEC2))) ||
@@ -260,8 +272,19 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	    ((info->port == FM2_10GEC1) && (PORT_IS_ENABLED(FM2_DTSEC9)))	||
 	    ((info->port == FM2_10GEC2) && (PORT_IS_ENABLED(FM2_DTSEC10)))
 #endif
+#else
+	/* FM1_DTSECx and FM1_10GECx use the same dual-role MAC */
+	if (((info->port == FM1_DTSEC1) && (PORT_IS_ENABLED(FM1_10GEC1)))  ||
+	    ((info->port == FM1_DTSEC2) && (PORT_IS_ENABLED(FM1_10GEC2)))  ||
+	    ((info->port == FM1_DTSEC3) && (PORT_IS_ENABLED(FM1_10GEC3)))  ||
+	    ((info->port == FM1_DTSEC4) && (PORT_IS_ENABLED(FM1_10GEC4)))  ||
+	    ((info->port == FM1_10GEC1) && (PORT_IS_ENABLED(FM1_DTSEC1)))  ||
+	    ((info->port == FM1_10GEC2) && (PORT_IS_ENABLED(FM1_DTSEC2)))  ||
+	    ((info->port == FM1_10GEC3) && (PORT_IS_ENABLED(FM1_DTSEC3)))  ||
+	    ((info->port == FM1_10GEC4) && (PORT_IS_ENABLED(FM1_DTSEC4)))
+#endif
 	)
-		return;
+		return 0;
 #endif
 	/* board code might have caused offset to change */
 	off = fdt_node_offset_by_compat_reg(blob, prop, paddr);
@@ -274,72 +297,31 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	ph = fdt_get_phandle(blob, off);
 	do_fixup_by_prop(blob, "fsl,fman-mac", &ph, sizeof(ph),
 		"status", "disabled", strlen("disabled") + 1, 1);
-}
 
-#ifdef CONFIG_SYS_FMAN_V3
-static int ft_fixup_xgec(void *blob, struct fm_eth_info *info)
-{
-	int off, i, ci;
-#define FM1_10GEC3_RX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x488000)
-#define FM1_10GEC3_TX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4a8000)
-#define FM1_10GEC3_MAC_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4e0000)
-
-	if ((info->port == FM1_10GEC3) || (info->port == FM1_10GEC4)) {
-		ci = (info->port == FM1_10GEC3) ? 2 : 3;
-		i = (info->port == FM1_10GEC3) ? 0 : 1;
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-rx",
-						    FM1_10GEC3_RX_PORT_ADDR +
-						    i * 0x1000);
-		if (off > 0) {
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-			fdt_setprop(blob, off, "compatible",
-				    "fsl,fman-port-10g-rx", 20);
-		} else {
-			goto err;
-		}
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-tx",
-						    FM1_10GEC3_TX_PORT_ADDR +
-						    i * 0x1000);
-		if (off > 0) {
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-			fdt_setprop(blob, off, "compatible",
-				    "fsl,fman-port-10g-tx", 20);
-		} else {
-			goto err;
-		}
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-memac",
-						    FM1_10GEC3_MAC_ADDR +
-						    i * 0x2000);
-		if (off > 0)
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-		else
-			goto err;
-	}
 	return 0;
-err:
-	printf("WARNING: Fail to find the node\n");
-	return -1;
 }
-#endif
 
 void fdt_fixup_fman_ethernet(void *blob)
 {
 	int i;
 
 #ifdef CONFIG_SYS_FMAN_V3
-	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
+	for (i = 0; i < ARRAY_SIZE(fm_info); i++)
 		ft_fixup_port(blob, &fm_info[i], "fsl,fman-memac");
-		ft_fixup_xgec(blob, &fm_info[i]);
-	}
 #else
 	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
-		if (fm_info[i].type == FM_ETH_1G_E)
-			ft_fixup_port(blob, &fm_info[i], "fsl,fman-1g-mac");
-		else
-			ft_fixup_port(blob, &fm_info[i], "fsl,fman-10g-mac");
+		/* Try the new compatible first.
+		 * If the node is missing, try the old.
+		 */
+		if (fm_info[i].type == FM_ETH_1G_E) {
+			if (ft_fixup_port(blob, &fm_info[i], "fsl,fman-dtsec"))
+				ft_fixup_port(blob, &fm_info[i],
+					      "fsl,fman-1g-mac");
+		} else {
+			if (ft_fixup_port(blob, &fm_info[i], "fsl,fman-tgec"))
+				ft_fixup_port(blob, &fm_info[i],
+					      "fsl,fman-10g-mac");
+		}
 	}
 #endif
 }

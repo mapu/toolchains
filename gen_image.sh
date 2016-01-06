@@ -97,8 +97,11 @@ then
   if [ -e $root/u-boot ]
   then
     cd $root/u-boot
+    make distclean O=mapu
     rm mapu/ -rf
-    make O=mapu mapu_sim CONFIG_APP=y || uboot_err=1 -j64
+    cp -rf $root/arm $root/u-boot/app
+    make mapu_defconfig O=mapu 
+    make O=mapu CONFIG_APP=y CROSS_COMPILE=arm-none-eabi- || uboot_err=1
     if [ "$uboot_err" -eq 1 ]
     then
       echo -e "\n\n\n\nMake u-boot fail: make u-boot.bin fail!\n"
@@ -188,7 +191,8 @@ then
   echo -e "\n\n\tdd uImage fail!\n\n"
   exit
 fi
-dd bs=1k seek=3K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
+dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
+
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd ubuntu.img fail!\n\n"

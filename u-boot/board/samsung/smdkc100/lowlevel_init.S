@@ -7,7 +7,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/power.h>
 
@@ -16,9 +15,6 @@
  *
  * r5 has zero always
  */
-
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
 
 	.globl lowlevel_init
 lowlevel_init:

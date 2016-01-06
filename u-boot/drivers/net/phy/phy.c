@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
@@ -18,6 +19,9 @@
 #include <phy.h>
 #include <errno.h>
 #include <linux/err.h>
+#include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Generic PHY support and helper functions */
 
@@ -441,20 +445,23 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_PHY_AQUANTIA
+	phy_aquantia_init();
+#endif
 #ifdef CONFIG_PHY_ATHEROS
 	phy_atheros_init();
 #endif
 #ifdef CONFIG_PHY_BROADCOM
 	phy_broadcom_init();
 #endif
+#ifdef CONFIG_PHY_CORTINA
+	phy_cortina_init();
+#endif
 #ifdef CONFIG_PHY_DAVICOM
 	phy_davicom_init();
 #endif
 #ifdef CONFIG_PHY_ET1011C
 	phy_et1011c_init();
-#endif
-#ifdef CONFIG_PHY_ICPLUS
-	phy_icplus_init();
 #endif
 #ifdef CONFIG_PHY_LXT
 	phy_lxt_init();
@@ -489,6 +496,20 @@ int phy_register(struct phy_driver *drv)
 	INIT_LIST_HEAD(&drv->list);
 	list_add_tail(&drv->list, &phy_drivers);
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	if (drv->probe)
+		drv->probe += gd->reloc_off;
+	if (drv->config)
+		drv->config += gd->reloc_off;
+	if (drv->startup)
+		drv->startup += gd->reloc_off;
+	if (drv->shutdown)
+		drv->shutdown += gd->reloc_off;
+	if (drv->readext)
+		drv->readext += gd->reloc_off;
+	if (drv->writeext)
+		drv->writeext += gd->reloc_off;
+#endif
 	return 0;
 }
 
@@ -533,7 +554,7 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev,
 }
 
 static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
-					    int phy_id,
+					    u32 phy_id,
 					    phy_interface_t interface)
 {
 	struct phy_device *dev;
@@ -550,7 +571,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 	memset(dev, 0, sizeof(*dev));
 
 	dev->duplex = -1;
-	dev->link = 1;
+	dev->link = 0;
 	dev->interface = interface;
 
 	dev->autoneg = AUTONEG_ENABLE;
@@ -577,7 +598,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
  * Description: Reads the ID registers of the PHY at @addr on the
  *   @bus, stores it in @phy_id and returns zero on success.
  */
-static int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
+int __weak get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {
 	int phy_reg;
 
@@ -608,10 +629,8 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 	while (phy_mask) {
 		int addr = ffs(phy_mask) - 1;
 		int r = get_phy_id(bus, addr, devad, &phy_id);
-		if (r < 0)
-			return ERR_PTR(r);
 		/* If the PHY ID is mostly f's, we didn't find anything */
-		if ((phy_id & 0x1fffffff) != 0x1fffffff)
+		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff)
 			return phy_device_create(bus, addr, phy_id, interface);
 		phy_mask &= ~(1 << addr);
 	}
@@ -652,7 +671,7 @@ static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 		if (phydev)
 			return phydev;
 	}
-	printf("Phy not found\n");
+	printf("Phy %d not found\n", ffs(phy_mask) - 1);
 	return phy_device_create(bus, ffs(phy_mask) - 1, 0xffffffff, interface);
 }
 
@@ -744,15 +763,21 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface)
 {
 	/* Reset the bus */
-	if (bus->reset)
+	if (bus->reset) {
 		bus->reset(bus);
 
-	/* Wait 15ms to make sure the PHY has come out of hard reset */
-	udelay(15000);
+		/* Wait 15ms to make sure the PHY has come out of hard reset */
+		udelay(15000);
+	}
+
 	return get_phy_device_by_mask(bus, phy_mask, interface);
 }
 
+#ifdef CONFIG_DM_ETH
+void phy_connect_dev(struct phy_device *phydev, struct udevice *dev)
+#else
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
+#endif
 {
 	/* Soft Reset the PHY */
 	phy_reset(phydev);
@@ -765,8 +790,13 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 	debug("%s connected to %s\n", dev->name, phydev->drv->name);
 }
 
+#ifdef CONFIG_DM_ETH
+struct phy_device *phy_connect(struct mii_dev *bus, int addr,
+		struct udevice *dev, phy_interface_t interface)
+#else
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 		struct eth_device *dev, phy_interface_t interface)
+#endif
 {
 	struct phy_device *phydev;
 
@@ -789,15 +819,12 @@ int phy_startup(struct phy_device *phydev)
 	return 0;
 }
 
-static int __board_phy_config(struct phy_device *phydev)
+__weak int board_phy_config(struct phy_device *phydev)
 {
 	if (phydev->drv->config)
 		return phydev->drv->config(phydev);
 	return 0;
 }
-
-int board_phy_config(struct phy_device *phydev)
-	__attribute__((weak, alias("__board_phy_config")));
 
 int phy_config(struct phy_device *phydev)
 {
@@ -813,4 +840,16 @@ int phy_shutdown(struct phy_device *phydev)
 		phydev->drv->shutdown(phydev);
 
 	return 0;
+}
+
+int phy_get_interface_by_name(const char *str)
+{
+	int i;
+
+	for (i = 0; i < PHY_INTERFACE_MODE_COUNT; i++) {
+		if (!strcmp(str, phy_interface_strings[i]))
+			return i;
+	}
+
+	return -1;
 }

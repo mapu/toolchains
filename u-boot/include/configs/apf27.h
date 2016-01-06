@@ -18,15 +18,14 @@
 /*
  * SoC configurations
  */
-#define CONFIG_ARM926EJS		/* this is an ARM926EJS CPU */
-#define CONFIG_MX27			/* in a Freescale i.MX27 Chip */
+#define CONFIG_MX27			/* This is a Freescale i.MX27 Chip */
 #define CONFIG_MACH_TYPE	1698	/* APF27 */
 #define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Enable the call to miscellaneous platform dependent initialization.
  */
-#define CONFIG_SYS_NO_FLASH	/* to be define before <config_cmd_default.h> */
+#define CONFIG_SYS_NO_FLASH
 
 /*
  * Board display option
@@ -37,11 +36,11 @@
 /*
  * SPL
  */
-#define CONFIG_SPL
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 #define CONFIG_SPL_TEXT_BASE    0xA0000000
+#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* NAND boot config */
 #define CONFIG_SPL_NAND_SUPPORT
@@ -67,8 +66,6 @@
 /*
  * U-Boot Commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
 #define CONFIG_CMD_BSP		/* Board Specific functions	*/
 #define CONFIG_CMD_CACHE	/* icache, dcache		*/
@@ -86,9 +83,7 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_PING		/* ping support			*/
-#define CONFIG_CMD_SETEXPR	/* setexpr support		*/
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
@@ -145,7 +140,6 @@
  * U-Boot general configurations
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"BIOS> "	/* prompt string */
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
 #define CONFIG_SYS_PBSIZE		\
 				(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
@@ -323,6 +317,8 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_MXC_I2C1_SPEED	100000	/* 100 kHz */
 #define CONFIG_SYS_MXC_I2C1_SLAVE	0x7F
 #define CONFIG_SYS_MXC_I2C2_SPEED	100000	/* 100 kHz */
@@ -354,11 +350,6 @@
 #define CONFIG_RTC_DS1374
 #define CONFIG_SYS_RTC_BUS_NUM		0
 #endif /* CONFIG_CMD_DATE */
-
-/*
- * Clocks
- */
-#define	CONFIG_SYS_HZ			1000	/* Ticks per second */
 
 /*
  * PLL

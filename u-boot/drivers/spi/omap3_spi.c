@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include "omap3_spi.h"
 
-#define SPI_WAIT_TIMEOUT 3000000
+#define SPI_WAIT_TIMEOUT 10
 
 static void spi_reset(struct omap3_spi_slave *ds)
 {
@@ -227,7 +227,7 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	int i;
-	int timeout = SPI_WAIT_TIMEOUT;
+	ulong start;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 
 	/* Enable the channel */
@@ -241,9 +241,10 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 
 	for (i = 0; i < len; i++) {
 		/* wait till TX register is empty (TXS == 1) */
+		start = get_timer(0);
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
 			 OMAP3_MCSPI_CHSTAT_TXS)) {
-			if (--timeout <= 0) {
+			if (get_timer(start) > SPI_WAIT_TIMEOUT) {
 				printf("SPI TXS timed out, status=0x%08x\n",
 				       readl(&ds->regs->channel[ds->slave.cs].chstat));
 				return -1;
@@ -260,8 +261,9 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 	}
 
 	/* wait to finish of transfer */
-	while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
-			 OMAP3_MCSPI_CHSTAT_EOT));
+	while ((readl(&ds->regs->channel[ds->slave.cs].chstat) &
+			 (OMAP3_MCSPI_CHSTAT_EOT | OMAP3_MCSPI_CHSTAT_TXS)) !=
+			 (OMAP3_MCSPI_CHSTAT_EOT | OMAP3_MCSPI_CHSTAT_TXS));
 
 	/* Disable the channel otherwise the next immediate RX will get affected */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
@@ -279,7 +281,7 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	int i;
-	int timeout = SPI_WAIT_TIMEOUT;
+	ulong start;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 
 	/* Enable the channel */
@@ -294,10 +296,11 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 	writel(0, &ds->regs->channel[ds->slave.cs].tx);
 
 	for (i = 0; i < len; i++) {
+		start = get_timer(0);
 		/* Wait till RX register contains data (RXS == 1) */
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
 			 OMAP3_MCSPI_CHSTAT_RXS)) {
-			if (--timeout <= 0) {
+			if (get_timer(start) > SPI_WAIT_TIMEOUT) {
 				printf("SPI RXS timed out, status=0x%08x\n",
 				       readl(&ds->regs->channel[ds->slave.cs].chstat));
 				return -1;
@@ -331,7 +334,7 @@ int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
 		   const void *txp, void *rxp, unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
-	int timeout = SPI_WAIT_TIMEOUT;
+	ulong start;
 	int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
 	int irqstatus = readl(&ds->regs->irqstatus);
 	int i=0;
@@ -349,9 +352,10 @@ int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
 	for (i=0; i < len; i++){
 		/* Write: wait for TX empty (TXS == 1)*/
 		irqstatus |= (1<< (4*(ds->slave.bus)));
+		start = get_timer(0);
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
 			 OMAP3_MCSPI_CHSTAT_TXS)) {
-			if (--timeout <= 0) {
+			if (get_timer(start) > SPI_WAIT_TIMEOUT) {
 				printf("SPI TXS timed out, status=0x%08x\n",
 				       readl(&ds->regs->channel[ds->slave.cs].chstat));
 				return -1;
@@ -367,9 +371,10 @@ int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
 			writel(((u8 *)txp)[i], tx);
 
 		/*Read: wait for RX containing data (RXS == 1)*/
+		start = get_timer(0);
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
 			 OMAP3_MCSPI_CHSTAT_RXS)) {
-			if (--timeout <= 0) {
+			if (get_timer(start) > SPI_WAIT_TIMEOUT) {
 				printf("SPI RXS timed out, status=0x%08x\n",
 				       readl(&ds->regs->channel[ds->slave.cs].chstat));
 				return -1;

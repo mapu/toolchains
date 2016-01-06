@@ -79,6 +79,8 @@ static void get_eeprom(struct tricorder_eeprom *eeprom)
 		} else {
 			panic("Could not get board revision\n");
 		}
+	} else {
+		memset(eeprom, 0, TRICORDER_EEPROM_SIZE);
 	}
 }
 
@@ -142,6 +144,13 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+#endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif
 

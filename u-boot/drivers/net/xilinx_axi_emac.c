@@ -261,6 +261,10 @@ static int setup_phy(struct eth_device *dev)
 		       phydev->dev->name);
 		return 0;
 	}
+	if (!phydev->link) {
+		printf("%s: No link.\n", phydev->dev->name);
+		return 0;
+	}
 
 	switch (phydev->speed) {
 	case 1000:
@@ -552,7 +556,7 @@ static int axiemac_recv(struct eth_device *dev)
 #endif
 	/* Pass the received frame up for processing */
 	if (length)
-		NetReceive(rxframe, length);
+		net_process_received_packet(rxframe, length);
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */

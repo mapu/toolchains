@@ -47,6 +47,7 @@
  * 1MB = 0x100000, 0x100000 = 1024 * 1024
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+
 /*
  * select serial console configuration
  */
@@ -62,10 +63,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_NAND
 
 #define CONFIG_CMD_CACHE
@@ -155,7 +152,6 @@
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT		"SMDKC100 # "
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -216,5 +212,9 @@
 #define CONFIG_SMC911X_BASE    0x98800300      /* SMC911X Drive Base   */
 #define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
+
+#define CONFIG_OF_LIBFDT
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 #endif	/* __CONFIG_H */

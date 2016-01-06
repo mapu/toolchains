@@ -12,9 +12,23 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/omap_common.h>
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/clock.h>
+#include <asm/ti-common/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Structure for Iodelay configuration registers.
+ * Theoretical max for g_delay is 21560 ps.
+ * Theoretical max for a_delay is 1/3rd of g_delay max.
+ * So using u16 for both a/g_delay.
+ */
+struct iodelay_cfg_entry {
+	u16 offset;
+	u16 a_delay;
+	u16 g_delay;
+};
 
 struct pad_conf_entry {
 	u32 offset;
@@ -30,9 +44,8 @@ void gpmc_init(void);
 void watchdog_init(void);
 u32 get_device_type(void);
 void do_set_mux(u32 base, struct pad_conf_entry const *array, int size);
+void do_set_mux32(u32 base, struct pad_conf_entry const *array, int size);
 void set_muxconf_regs_essential(void);
-void set_muxconf_regs_non_essential(void);
-void sr32(void *, u32, u32, u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
 void setup_clocks_for_console(void);
@@ -57,55 +70,6 @@ void get_ioregs(const struct ctrl_ioregs **regs);
 void srcomp_enable(void);
 void setup_warmreset_time(void);
 
-static inline u32 running_from_sdram(void)
-{
-	u32 pc;
-	asm volatile ("mov %0, pc" : "=r" (pc));
-	return ((pc >= OMAP54XX_DRAM_ADDR_SPACE_START) &&
-	    (pc < OMAP54XX_DRAM_ADDR_SPACE_END));
-}
-
-static inline u8 uboot_loaded_by_spl(void)
-{
-	/*
-	 * u-boot can be running from sdram either because of configuration
-	 * Header or by SPL. If because of CH, then the romcode sets the
-	 * CHSETTINGS executed bit to true in the boot parameter structure that
-	 * it passes to the bootloader.This parameter is stored in the ch_flags
-	 * variable by both SPL and u-boot.Check out for CHSETTINGS, which is a
-	 * mandatory section if CH is present.
-	 */
-	if ((gd->arch.omap_boot_params.ch_flags) & (CH_FLAGS_CHSETTINGS))
-		return 0;
-	else
-		return running_from_sdram();
-}
-/*
- * The basic hardware init of OMAP(s_init()) can happen in 4
- * different contexts:
- *  1. SPL running from SRAM
- *  2. U-Boot running from FLASH
- *  3. Non-XIP U-Boot loaded to SDRAM by SPL
- *  4. Non-XIP U-Boot loaded to SDRAM by ROM code using the
- *     Configuration Header feature
- *
- * This function finds this context.
- * Defining as inline may help in compiling out unused functions in SPL
- */
-static inline u32 omap_hw_init_context(void)
-{
-#ifdef CONFIG_SPL_BUILD
-	return OMAP_INIT_CONTEXT_SPL;
-#else
-	if (uboot_loaded_by_spl())
-		return OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL;
-	else if (running_from_sdram())
-		return OMAP_INIT_CONTEXT_UBOOT_AFTER_CH;
-	else
-		return OMAP_INIT_CONTEXT_UBOOT_FROM_NOR;
-#endif
-}
-
 static inline u32 div_round_up(u32 num, u32 den)
 {
 	return (num + den - 1)/den;
@@ -115,4 +79,8 @@ static inline u32 usec_to_32k(u32 usec)
 {
 	return div_round_up(32768 * usec, 1000000);
 }
+
+#define OMAP5_SERVICE_L2ACTLR_SET    0x104
+#define OMAP5_SERVICE_ACR_SET        0x107
+
 #endif

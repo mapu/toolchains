@@ -44,12 +44,15 @@ obj-$(CONFIG_PPC_P5020) += p5020_ids.o
 obj-$(CONFIG_PPC_P5040) += p5040_ids.o
 obj-$(CONFIG_PPC_T4240) += t4240_ids.o
 obj-$(CONFIG_PPC_T4160) += t4240_ids.o
+obj-$(CONFIG_PPC_T4080) += t4240_ids.o
 obj-$(CONFIG_PPC_B4420) += b4860_ids.o
 obj-$(CONFIG_PPC_B4860) += b4860_ids.o
 obj-$(CONFIG_PPC_T1040) += t1040_ids.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_ids.o
+obj-$(CONFIG_PPC_T1023) += t1024_ids.o
+obj-$(CONFIG_PPC_T1024) += t1024_ids.o
 obj-$(CONFIG_PPC_T2080) += t2080_ids.o
 obj-$(CONFIG_PPC_T2081) += t2080_ids.o
 
@@ -88,6 +91,7 @@ obj-$(CONFIG_PPC_P5020) += p5020_serdes.o
 obj-$(CONFIG_PPC_P5040) += p5040_serdes.o
 obj-$(CONFIG_PPC_T4240) += t4240_serdes.o
 obj-$(CONFIG_PPC_T4160) += t4240_serdes.o
+obj-$(CONFIG_PPC_T4080) += t4240_serdes.o
 obj-$(CONFIG_PPC_B4420) += b4860_serdes.o
 obj-$(CONFIG_PPC_B4860) += b4860_serdes.o
 obj-$(CONFIG_BSC9132) += bsc9132_serdes.o
@@ -95,6 +99,8 @@ obj-$(CONFIG_PPC_T1040) += t1040_serdes.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_serdes.o
+obj-$(CONFIG_PPC_T1023) += t1024_serdes.o
+obj-$(CONFIG_PPC_T1024) += t1024_serdes.o
 obj-$(CONFIG_PPC_T2080) += t2080_serdes.o
 obj-$(CONFIG_PPC_T2081) += t2080_serdes.o
 
@@ -102,11 +108,10 @@ obj-y	+= cpu.o
 obj-y	+= cpu_init.o
 obj-y	+= cpu_init_early.o
 obj-y	+= interrupts.o
+ifneq ($(CONFIG_QEMU_E500),y)
 obj-y	+= speed.o
+endif
 obj-y	+= tlb.o
 obj-y	+= traps.o
-
-# Stub implementations of cache management functions for USB
-obj-y += cache.o
 
 endif # not minimal

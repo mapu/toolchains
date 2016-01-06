@@ -43,7 +43,7 @@ extern int eeprom_write_enable (unsigned dev_addr, int state);
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_EEPROM)
-int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
@@ -161,6 +161,9 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		spi_read (addr, alen, buffer, len);
 #else
+#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+#endif
 		if (i2c_read(addr[0], offset, alen - 1, buffer, len))
 			rcode = 1;
 #endif
@@ -339,6 +342,9 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		/* Write is enabled ... now write eeprom value.
 		 */
 #endif
+#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+#endif
 		if (i2c_write(addr[0], offset, alen - 1, buffer, len))
 			rcode = 1;
 
@@ -408,7 +414,7 @@ U_BOOT_CMD(
 	"read  devaddr addr off cnt\n"
 	"eeprom write devaddr addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
-);
+)
 #else /* One EEPROM */
 U_BOOT_CMD(
 	eeprom,	5,	1,	do_eeprom,
@@ -416,7 +422,7 @@ U_BOOT_CMD(
 	"read  addr off cnt\n"
 	"eeprom write addr off cnt\n"
 	"       - read/write `cnt' bytes at EEPROM offset `off'"
-);
+)
 #endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
 
 #endif

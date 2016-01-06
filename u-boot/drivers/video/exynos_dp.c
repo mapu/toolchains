@@ -9,6 +9,7 @@
 #include <config.h>
 #include <common.h>
 #include <malloc.h>
+#include <linux/compat.h>
 #include <linux/err.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
@@ -20,8 +21,6 @@
 #include "exynos_dp_lowlevel.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static struct exynos_dp_platform_data *dp_pd;
 
 void __exynos_set_dp_phy(unsigned int onoff)
 {
@@ -850,7 +849,6 @@ static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
 	return ret;
 }
 
-#ifdef CONFIG_OF_CONTROL
 int exynos_dp_parse_dt(const void *blob, struct edp_device_info *edp_info)
 {
 	unsigned int node = fdtdec_next_compatible(blob, 0,
@@ -904,7 +902,6 @@ int exynos_dp_parse_dt(const void *blob, struct edp_device_info *edp_info)
 						"samsung,color-depth", 0);
 	return 0;
 }
-#endif
 
 unsigned int exynos_init_dp(void)
 {
@@ -917,16 +914,8 @@ unsigned int exynos_init_dp(void)
 		return -EFAULT;
 	}
 
-#ifdef CONFIG_OF_CONTROL
 	if (exynos_dp_parse_dt(gd->fdt_blob, edp_info))
 		debug("unable to parse DP DT node\n");
-#else
-	edp_info = dp_pd->edp_dev_info;
-	if (edp_info == NULL) {
-		debug("failed to get edp_info data.\n");
-		return -EFAULT;
-	}
-#endif
 
 	exynos_dp_set_base_addr();
 
@@ -966,17 +955,7 @@ unsigned int exynos_init_dp(void)
 		return ret;
 	}
 
-	printf("Exynos DP init done\n");
+	debug("Exynos DP init done\n");
 
 	return ret;
-}
-
-void exynos_set_dp_platform_data(struct exynos_dp_platform_data *pd)
-{
-	if (pd == NULL) {
-		debug("pd is NULL\n");
-		return;
-	}
-
-	dp_pd = pd;
 }

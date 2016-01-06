@@ -12,13 +12,7 @@
 #include "../board/xilinx/microblaze-generic/xparameters.h"
 
 /* MicroBlaze CPU */
-#define	CONFIG_MICROBLAZE	1
 #define	MICROBLAZE_V5		1
-
-/* Open Firmware DTS */
-#define CONFIG_OF_CONTROL	1
-#define CONFIG_OF_EMBED		1
-#define CONFIG_DEFAULT_DEVICE_TREE microblaze-generic
 
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
@@ -71,7 +65,7 @@
 
 /* ethernet */
 #undef CONFIG_SYS_ENET
-#if defined(XILINX_EMACLITE_BASEADDR)
+#if defined(XILINX_EMACLITE_BASEADDR) || defined(CONFIG_OF_CONTROL)
 # define CONFIG_XILINX_EMACLITE	1
 # define CONFIG_SYS_ENET
 #endif
@@ -112,62 +106,23 @@
 # define CONFIG_XILINX_TB_WATCHDOG
 #endif
 
-/*
- * memory layout - Example
- * CONFIG_SYS_TEXT_BASE = 0x1200_0000;	defined in config.mk
- * CONFIG_SYS_SRAM_BASE = 0x1000_0000;
- * CONFIG_SYS_SRAM_SIZE = 0x0400_0000;	64MB
- *
- * CONFIG_SYS_MONITOR_LEN = 0x40000
- * CONFIG_SYS_MALLOC_LEN = 3 * CONFIG_SYS_MONITOR_LEN = 0xC0000
- *
- * CONFIG_SYS_GBL_DATA_OFFSET = 0x1000_0000 + 0x0400_0000 - 0x1000 = 0x13FF_F000
- * CONFIG_SYS_MONITOR_BASE = 0x13FF_F000 - CONFIG_SYS_MONITOR_LEN = 0x13FB_F000
- * CONFIG_SYS_MALLOC_BASE = 0x13FB_F000 - CONFIG_SYS_MALLOC_LEN = 0x13EF_F000
- *
- * 0x1000_0000	CONFIG_SYS_SDRAM_BASE
- *					MEMTEST_AREA	 64kB
- *					FREE
- * 0x1200_0000	CONFIG_SYS_TEXT_BASE
- *		U-BOOT code
- * 0x1202_0000
- *					FREE
- *
- *					STACK
- * 0x13EF_F000	CONFIG_SYS_MALLOC_BASE
- *					MALLOC_AREA	768kB	Alloc
- * 0x13FB_F000	CONFIG_SYS_MONITOR_BASE
- *					MONITOR_CODE	256kB	Env
- * 0x13FF_F000	CONFIG_SYS_GBL_DATA_OFFSET
- *					GLOBAL_DATA	4kB	bd, gd
- * 0x1400_0000	CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_SDRAM_SIZE
- */
-
+#if !defined(CONFIG_OF_CONTROL) || \
+	(defined(CONFIG_SPL_BUILD) && !defined(CONFIG_SPL_OF_CONTROL))
 /* ddr sdram - main memory */
-#define	CONFIG_SYS_SDRAM_BASE		XILINX_RAM_START
-#define	CONFIG_SYS_SDRAM_SIZE		XILINX_RAM_SIZE
-#define	CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define	CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x1000)
+# define CONFIG_SYS_SDRAM_BASE	XILINX_RAM_START
+# define CONFIG_SYS_SDRAM_SIZE	XILINX_RAM_SIZE
+#endif
 
-/* global pointer */
-/* start of global data */
-#define	CONFIG_SYS_GBL_DATA_OFFSET \
-		(CONFIG_SYS_SDRAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_MALLOC_LEN	0xC0000
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_SYS_MALLOC_F_LEN	1024
+#else
+# define CONFIG_SYS_MALLOC_SIMPLE
+# define CONFIG_SYS_MALLOC_F_LEN	0x150
+#endif
 
-/* monitor code */
-#define	SIZE				0x40000
-#define	CONFIG_SYS_MONITOR_LEN		SIZE
-#define	CONFIG_SYS_MONITOR_BASE	\
-		(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
-			- CONFIG_SYS_MONITOR_LEN - GENERATED_BD_INFO_SIZE)
-#define	CONFIG_SYS_MONITOR_END \
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
-#define	CONFIG_SYS_MALLOC_LEN		(SIZE * 3)
-#define	CONFIG_SYS_MALLOC_BASE \
-			(CONFIG_SYS_MONITOR_BASE - CONFIG_SYS_MALLOC_LEN)
-
-/* stack */
-#define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_MALLOC_BASE
+/* Stack location before relocation */
+#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_TEXT_BASE
 
 /*
  * CFI flash memory layout - Example
@@ -200,7 +155,8 @@
 # define CONFIG_SYS_MAX_FLASH_SECT	512
 /* hardware flash protection */
 # define CONFIG_SYS_FLASH_PROTECTION
-
+/* use buffered writes (20x faster) */
+# define	CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 # ifdef	RAMENV
 #  define CONFIG_ENV_IS_NOWHERE	1
 #  define CONFIG_ENV_SIZE	0x1000
@@ -221,7 +177,6 @@
 # define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
 # define CONFIG_XILINX_SPI		1
 # define CONFIG_SPI			1
-# define CONFIG_SPI_FLASH		1
 # define CONFIG_SPI_FLASH_STMICRO	1
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 # define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
@@ -290,12 +245,9 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_GPIO
 
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
@@ -304,10 +256,7 @@
 # undef CONFIG_CMD_CACHE
 #endif
 
-#ifndef CONFIG_SYS_ENET
-# undef CONFIG_CMD_NET
-# undef CONFIG_CMD_NFS
-#else
+#ifdef CONFIG_SYS_ENET
 # define CONFIG_CMD_PING
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_TFTPPUT
@@ -319,15 +268,11 @@
 #endif
 
 #if defined(FLASH)
-# define CONFIG_CMD_ECHO
-# define CONFIG_CMD_FLASH
-# define CONFIG_CMD_IMLS
 # define CONFIG_CMD_JFFS2
 # define CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
-#  define CONFIG_CMD_SAVEENV
 #  define CONFIG_CMD_SAVES
 # endif
 
@@ -336,12 +281,9 @@
 # define CONFIG_CMD_SF
 
 # if !defined(RAMENV)
-#  define CONFIG_CMD_SAVEENV
 #  define CONFIG_CMD_SAVES
 # endif
 #else
-# undef CONFIG_CMD_IMLS
-# undef CONFIG_CMD_FLASH
 # undef CONFIG_CMD_JFFS2
 # undef CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
@@ -375,8 +317,6 @@
 				"1m(cramfs),-(jffs2)"
 #endif
 
-/* Miscellaneous configurable options */
-#define	CONFIG_SYS_PROMPT	"U-Boot-mONStR> "
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
  /* print buffer size */
@@ -395,7 +335,6 @@
 #define	CONFIG_IPADDR		192.168.0.3
 #define	CONFIG_SERVERIP		192.168.0.5
 #define	CONFIG_GATEWAYIP	192.168.0.1
-#define	CONFIG_ETHADDR		00:E0:0C:00:00:FD
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
@@ -445,5 +384,51 @@
 # undef CONFIG_CMD_MII
 # undef CONFIG_PHYLIB
 #endif
+
+/* SPL part */
+#define CONFIG_CMD_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
+
+#define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
+
+#define CONFIG_SPL_RAM_DEVICE
+#ifdef CONFIG_SYS_FLASH_BASE
+# define CONFIG_SPL_NOR_SUPPORT
+# define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
+#endif
+
+/* for booting directly linux */
+#define CONFIG_SPL_OS_BOOT
+
+#define CONFIG_SYS_OS_BASE		(CONFIG_SYS_FLASH_BASE + \
+					 0x60000)
+#define CONFIG_SYS_FDT_BASE		(CONFIG_SYS_FLASH_BASE + \
+					 0x40000)
+#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_TEXT_BASE + \
+					 0x1000000)
+
+/* SP location before relocation, must use scratch RAM */
+/* BRAM start */
+#define CONFIG_SYS_INIT_RAM_ADDR	0x0
+/* BRAM size - will be generated */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x100000
+
+# define CONFIG_SPL_STACK_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 CONFIG_SYS_MALLOC_F_LEN)
+
+/* Just for sure that there is a space for stack */
+#define CONFIG_SPL_STACK_SIZE		0x100
+
+#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
+
+#define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 CONFIG_SYS_INIT_RAM_ADDR - \
+					 CONFIG_SYS_MALLOC_F_LEN - \
+					 CONFIG_SPL_STACK_SIZE)
 
 #endif	/* __CONFIG_H */

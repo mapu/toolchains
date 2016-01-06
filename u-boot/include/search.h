@@ -102,7 +102,8 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
  */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
-		     int __flag, int nvars, char * const vars[]);
+		     int __flag, int __crlf_is_lf, int nvars,
+		     char * const vars[]);
 
 /* Walk the whole table calling the callback on each element */
 extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
@@ -119,5 +120,7 @@ extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 #define H_MATCH_SUBSTR	(1 << 7) /* search for substring matches	     */
 #define H_MATCH_REGEX	(1 << 8) /* search for regular expression matches    */
 #define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR | H_MATCH_REGEX)
+#define H_PROGRAMMATIC	(1 << 9) /* indicate that an import is from setenv() */
+#define H_ORIGIN_FLAGS	(H_INTERACTIVE | H_PROGRAMMATIC)
 
 #endif /* search.h */

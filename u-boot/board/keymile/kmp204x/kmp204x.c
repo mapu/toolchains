@@ -26,6 +26,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+
 int checkboard(void)
 {
 	printf("Board: Keymile %s\n", CONFIG_KM_BOARD_NAME);
@@ -33,35 +35,92 @@ int checkboard(void)
 	return 0;
 }
 
-/* TODO: implement the I2C deblocking function */
-int i2c_make_abort(void)
+/* I2C deblocking uses the algorithm defined in board/keymile/common/common.c
+ * 2 dedicated QRIO GPIOs externally pull the SCL and SDA lines
+ * For I2C only the low state is activly driven and high state is pulled-up
+ * by a resistor. Therefore the deblock GPIOs are used
+ *  -> as an active output to drive a low state
+ *  -> as an open-drain input to have a pulled-up high state
+ */
+
+/* QRIO GPIOs used for deblocking */
+#define DEBLOCK_PORT1	GPIO_A
+#define DEBLOCK_SCL1	20
+#define DEBLOCK_SDA1	21
+
+/* By default deblock GPIOs are floating */
+static void i2c_deblock_gpio_cfg(void)
 {
-	return 1;
+	/* set I2C bus 1 deblocking GPIOs input, but 0 value for open drain */
+	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SCL1);
+	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SDA1);
+
+	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, 0);
+	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, 0);
 }
 
+void set_sda(int state)
+{
+	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, state);
+}
+
+void set_scl(int state)
+{
+	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, state);
+}
+
+int get_sda(void)
+{
+	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1);
+}
+
+int get_scl(void)
+{
+	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1);
+}
+
+
 #define ZL30158_RST	8
-#define ZL30343_RST	9
+#define BFTIC4_RST	0
+#define RSTRQSR1_WDT_RR	0x00200000
+#define RSTRQSR1_SW_RR	0x00100000
 
 int board_early_init_f(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	bool cpuwd_flag = false;
+
+	/* configure mode for uP reset request */
+	qrio_uprstreq(UPREQ_CORE_RST);
 
 	/* board only uses the DDR_MCK0, so disable the DDR_MCK1/2/3 */
 	setbits_be32(&gur->ddrclkdr, 0x001f000f);
 
-	/* take the Zarlinks out of reset as soon as possible */
-	qrio_prst(ZL30158_RST, false, false);
-	qrio_prst(ZL30343_RST, false, false);
+	/* set reset reason according CPU register */
+	if ((gur->rstrqsr1 & (RSTRQSR1_WDT_RR | RSTRQSR1_SW_RR)) ==
+	    RSTRQSR1_WDT_RR)
+		cpuwd_flag = true;
 
-	/* and set their reset to power-up only */
+	qrio_cpuwd_flag(cpuwd_flag);
+	/* clear CPU bits by writing 1 */
+	setbits_be32(&gur->rstrqsr1, RSTRQSR1_WDT_RR | RSTRQSR1_SW_RR);
+
+	/* set the BFTIC's prstcfg to reset at power-up and unit reset only */
+	qrio_prstcfg(BFTIC4_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* and enable WD on it */
+	qrio_wdmask(BFTIC4_RST, true);
+
+	/* set the ZL30138's prstcfg to reset at power-up only */
 	qrio_prstcfg(ZL30158_RST, PRSTCFG_POWUP_RST);
-	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_RST);
+	/* and take it out of reset as soon as possible (needed for Hooper) */
+	qrio_prst(ZL30158_RST, false, false);
 
 	return 0;
 }
 
 int board_early_init_r(void)
 {
+	int ret = 0;
 	/* Flush d-cache and invalidate i-cache of any FLASH data */
 	flush_dcache();
 	invalidate_icache();
@@ -69,7 +128,17 @@ int board_early_init_r(void)
 	set_liodns();
 	setup_portals();
 
-	return 0;
+	ret = trigger_fpga_config();
+	if (ret)
+		printf("error triggering PCIe FPGA config\n");
+
+	/* enable the Unit LED (red) & Boot LED (on) */
+	qrio_set_leds();
+
+	/* enable Application Buffer */
+	qrio_enable_app_buffer();
+
+	return ret;
 }
 
 unsigned long get_board_sys_clk(unsigned long dummy)
@@ -77,84 +146,37 @@ unsigned long get_board_sys_clk(unsigned long dummy)
 	return 66666666;
 }
 
-#define WDMASK_OFF	0x16
+#define ETH_FRONT_PHY_RST	15
+#define QSFP2_RST		11
+#define QSFP1_RST		10
+#define ZL30343_RST		9
 
-static void qrio_wdmask(u8 bit, bool wden)
+int misc_init_f(void)
 {
-	u16 wdmask;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+	/* configure QRIO pis for i2c deblocking */
+	i2c_deblock_gpio_cfg();
 
-	wdmask = in_be16(qrio_base + WDMASK_OFF);
+	/* configure the front phy's prstcfg and take it out of reset */
+	qrio_prstcfg(ETH_FRONT_PHY_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prst(ETH_FRONT_PHY_RST, false, false);
 
-	if (wden)
-		wdmask |= (1 << bit);
-	else
-		wdmask &= ~(1 << bit);
+	/* set the ZL30343 prstcfg to reset at power-up only */
+	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_RST);
+	/* and enable the WD on it */
+	qrio_wdmask(ZL30343_RST, true);
 
-	out_be16(qrio_base + WDMASK_OFF, wdmask);
-}
+	/* set the QSFPs' prstcfg to reset at power-up and unit rst only */
+	qrio_prstcfg(QSFP1_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prstcfg(QSFP2_RST, PRSTCFG_POWUP_UNIT_RST);
 
-#define PRST_OFF	0x1a
+	/* and enable the WD on them */
+	qrio_wdmask(QSFP1_RST, true);
+	qrio_wdmask(QSFP2_RST, true);
 
-void qrio_prst(u8 bit, bool en, bool wden)
-{
-	u16 prst;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	qrio_wdmask(bit, wden);
-
-	prst = in_be16(qrio_base + PRST_OFF);
-
-	if (en)
-		prst &= ~(1 << bit);
-	else
-		prst |= (1 << bit);
-
-	out_be16(qrio_base + PRST_OFF, prst);
-}
-
-#define PRSTCFG_OFF	0x1c
-
-void qrio_prstcfg(u8 bit, u8 mode)
-{
-	u32 prstcfg;
-	u8 i;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	prstcfg = in_be32(qrio_base + PRSTCFG_OFF);
-
-	for (i = 0; i < 2; i++) {
-		if (mode & (1<<i))
-			set_bit(2*bit+i, &prstcfg);
-		else
-			clear_bit(2*bit+i, &prstcfg);
-	}
-
-	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
-}
-
-
-#define BOOTCOUNT_OFF	0x12
-
-void bootcount_store(ulong counter)
-{
-	u8 val;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	val = (counter <= 255) ? (u8)counter : 255;
-	out_8(qrio_base + BOOTCOUNT_OFF, val);
-}
-
-ulong bootcount_load(void)
-{
-	u8 val;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-	val = in_8(qrio_base + BOOTCOUNT_OFF);
-	return val;
+	return 0;
 }
 
 #define NUM_SRDS_BANKS	2
-#define PHY_RST		15
 
 int misc_init_r(void)
 {
@@ -175,24 +197,36 @@ int misc_init_r(void)
 		}
 	}
 
-	/* take the mgmt eth phy out of reset */
-	qrio_prst(PHY_RST, false, false);
-
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 
 #if defined(CONFIG_HUSH_INIT_VAR)
 int hush_init_var(void)
 {
-	ivm_read_eeprom();
+	ivm_analyze_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 #endif
 
 #if defined(CONFIG_LAST_STAGE_INIT)
+
 int last_stage_init(void)
 {
+#if defined(CONFIG_KMCOGE4)
+	/* on KMCOGE4, the BFTIC4 is on the LBAPP2 */
+	struct bfticu_iomap *bftic4 =
+		(struct bfticu_iomap *)CONFIG_SYS_LBAPP2_BASE;
+	u8 dip_switch = in_8((u8 *)&(bftic4->mswitch)) & BFTICU_DIPSWITCH_MASK;
+
+	if (dip_switch != 0) {
+		/* start bootloader */
+		puts("DIP:   Enabled\n");
+		setenv("actual_bank", "0");
+	}
+#endif
 	set_km_env();
+
 	return 0;
 }
 #endif
@@ -230,7 +264,7 @@ void fdt_fixup_fman_mac_addresses(void *blob)
 }
 #endif
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -255,4 +289,19 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_fman_mac_addresses(blob);
 #endif
+
+	return 0;
 }
+
+#if defined(CONFIG_POST)
+
+/* DIC26_SELFTEST GPIO used to start factory test sw */
+#define SELFTEST_PORT	GPIO_A
+#define SELFTEST_PIN	31
+
+int post_hotkeys_pressed(void)
+{
+	qrio_gpio_direction_input(SELFTEST_PORT, SELFTEST_PIN);
+	return qrio_get_gpio(SELFTEST_PORT, SELFTEST_PIN);
+}
+#endif

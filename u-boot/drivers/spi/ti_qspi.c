@@ -11,6 +11,10 @@
 #include <asm/arch/omap.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/gpio.h>
+#include <asm/omap_gpio.h>
+#include <asm/omap_common.h>
+#include <asm/ti-common/ti-edma3.h>
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
@@ -39,7 +43,8 @@
 #define MM_SWITCH                       0x01
 #define MEM_CS                          0x100
 #define MEM_CS_UNSELECT                 0xfffff0ff
-#define MMAP_START_ADDR                 0x5c000000
+#define MMAP_START_ADDR_DRA		0x5c000000
+#define MMAP_START_ADDR_AM43x		0x30000000
 #define CORE_CTRL_IO                    0x4a002558
 
 #define QSPI_CMD_READ                   (0x3 << 0)
@@ -99,12 +104,24 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	struct spi_slave *slave = &qslave->slave;
 	u32 memval = 0;
 
-	slave->memory_map = (void *)MMAP_START_ADDR;
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
+#else
+	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
+#endif
 
+#ifdef CONFIG_QSPI_QUAD_SUPPORT
+	memval |= (QSPI_CMD_READ_QUAD | QSPI_SETUP0_NUM_A_BYTES |
+			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
+			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
+			QSPI_NUM_DUMMY_BITS);
+	slave->op_mode_rx = SPI_OPM_RX_QOF;
+#else
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
 			QSPI_SETUP0_READ_NORMAL | QSPI_CMD_WRITE |
 			QSPI_NUM_DUMMY_BITS;
+#endif
 
 	writel(memval, &qslave->base->setup0);
 }
@@ -164,6 +181,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct ti_qspi_slave *qslave;
+
+#ifdef CONFIG_AM43XX
+	gpio_request(CONFIG_QSPI_SEL_GPIO, "qspi_gpio");
+	gpio_direction_output(CONFIG_QSPI_SEL_GPIO, 1);
+#endif
 
 	qslave = spi_alloc_slave(struct ti_qspi_slave, bus, cs);
 	if (!qslave) {
@@ -229,7 +251,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	const uchar *txp = dout;
 	uchar *rxp = din;
 	uint status;
-	int timeout, val;
+	int timeout;
+
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+	int val;
+#endif
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i words:%i flags:%lx\n",
 	      slave->bus, slave->cs, bitlen, words, flags);
@@ -237,15 +263,19 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	/* Setup mmap flags */
 	if (flags & SPI_XFER_MMAP) {
 		writel(MM_SWITCH, &qslave->base->memswitch);
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 		val = readl(CORE_CTRL_IO);
 		val |= MEM_CS;
 		writel(val, CORE_CTRL_IO);
+#endif
 		return 0;
 	} else if (flags & SPI_XFER_MMAP_END) {
 		writel(~MM_SWITCH, &qslave->base->memswitch);
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 		val = readl(CORE_CTRL_IO);
 		val &= MEM_CS_UNSELECT;
 		writel(val, CORE_CTRL_IO);
+#endif
 		return 0;
 	}
 
@@ -265,6 +295,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		qslave->cmd |= QSPI_3_PIN;
 	qslave->cmd |= 0xfff;
 
+/* FIXME: This delay is required for successfull
+ * completion of read/write/erase. Once its root
+ * caused, it will be remove from the driver.
+ */
+#ifdef CONFIG_AM43XX
+	udelay(100);
+#endif
 	while (words--) {
 		if (txp) {
 			debug("tx cmd %08x dc %08x data %02x\n",
@@ -287,6 +324,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			qslave->cmd |= QSPI_RD_SNGL;
 			debug("rx cmd %08x dc %08x\n",
 			      qslave->cmd, qslave->dc);
+			#ifdef CONFIG_DRA7XX
+				udelay(500);
+			#endif
 			writel(qslave->cmd, &qslave->base->cmd);
 			status = readl(&qslave->base->status);
 			timeout = QSPI_TIMEOUT;
@@ -309,3 +349,26 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	return 0;
 }
+
+/* TODO: control from sf layer to here through dm-spi */
+#ifdef CONFIG_TI_EDMA3
+void spi_flash_copy_mmap(void *data, void *offset, size_t len)
+{
+	unsigned int			addr = (unsigned int) (data);
+	unsigned int			edma_slot_num = 1;
+
+	/* Invalidate the area, so no writeback into the RAM races with DMA */
+	invalidate_dcache_range(addr, addr + roundup(len, ARCH_DMA_MINALIGN));
+
+	/* enable edma3 clocks */
+	enable_edma3_clocks();
+
+	/* Call edma3 api to do actual DMA transfer	*/
+	edma3_transfer(EDMA3_BASE, edma_slot_num, data, offset, len);
+
+	/* disable edma3 clocks */
+	disable_edma3_clocks();
+
+	*((unsigned int *)offset) += len;
+}
+#endif

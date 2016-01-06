@@ -8,7 +8,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <stdio_dev.h>
 #include <asm/byteorder.h>
 
@@ -29,7 +32,7 @@ int overwrite_console(void)
 #endif
 
 /* Keyboard sampling rate */
-#define REPEAT_RATE	(40 / 4)	/* 40msec -> 25cps */
+#define REPEAT_RATE	40		/* 40msec -> 25cps */
 #define REPEAT_DELAY	10		/* 10 x REPEAT_RATE = 400msec */
 
 #define NUM_LOCK	0x53
@@ -91,7 +94,19 @@ static const unsigned char usb_kbd_arrow[] = {
 #define USB_KBD_LEDMASK		\
 	(USB_KBD_NUMLOCK | USB_KBD_CAPSLOCK | USB_KBD_SCROLLLOCK)
 
+/*
+ * USB Keyboard reports are 8 bytes in boot protocol.
+ * Appendix B of HID Device Class Definition 1.11
+ */
+#define USB_KBD_BOOT_REPORT_SIZE 8
+
 struct usb_kbd_pdata {
+	unsigned long	intpipe;
+	int		intpktsize;
+	int		intinterval;
+	unsigned long	last_report;
+	struct int_queue *intq;
+
 	uint32_t	repeat_delay;
 
 	uint32_t	usb_in_pointer;
@@ -99,7 +114,7 @@ struct usb_kbd_pdata {
 	uint8_t		usb_kbd_buffer[USB_KBD_BUFFER_LEN];
 
 	uint8_t		*new;
-	uint8_t		old[8];
+	uint8_t		old[USB_KBD_BOOT_REPORT_SIZE];
 
 	uint8_t		flags;
 };
@@ -108,31 +123,6 @@ extern int __maybe_unused net_busy_flag;
 
 /* The period of time between two calls of usb_kbd_testc(). */
 static unsigned long __maybe_unused kbd_testc_tms;
-
-/* Generic keyboard event polling. */
-void usb_kbd_generic_poll(void)
-{
-	struct stdio_dev *dev;
-	struct usb_device *usb_kbd_dev;
-	struct usb_kbd_pdata *data;
-	struct usb_interface *iface;
-	struct usb_endpoint_descriptor *ep;
-	int pipe;
-	int maxp;
-
-	/* Get the pointer to USB Keyboard device pointer */
-	dev = stdio_get_by_name(DEVNAME);
-	usb_kbd_dev = (struct usb_device *)dev->priv;
-	data = usb_kbd_dev->privptr;
-	iface = &usb_kbd_dev->config.if_desc[0];
-	ep = &iface->ep_desc[0];
-	pipe = usb_rcvintpipe(usb_kbd_dev, ep->bEndpointAddress);
-
-	/* Submit a interrupt transfer request */
-	maxp = usb_maxpacket(usb_kbd_dev, pipe);
-	usb_submit_int_msg(usb_kbd_dev, pipe, data->new,
-			maxp > 8 ? 8 : maxp, ep->bInterval);
-}
 
 /* Puts character in the queue and sets up the in and out pointer. */
 static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
@@ -163,11 +153,12 @@ static void usb_kbd_setled(struct usb_device *dev)
 {
 	struct usb_interface *iface = &dev->config.if_desc[0];
 	struct usb_kbd_pdata *data = dev->privptr;
-	uint32_t leds = data->flags & USB_KBD_LEDMASK;
+	ALLOC_ALIGN_BUFFER(uint32_t, leds, 1, USB_DMA_MINALIGN);
 
+	*leds = data->flags & USB_KBD_LEDMASK;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-		0x200, iface->desc.bInterfaceNumber, (void *)&leds, 1, 0);
+		0x200, iface->desc.bInterfaceNumber, leds, 1, 0);
 }
 
 #define CAPITAL_MASK	0x20
@@ -266,8 +257,11 @@ static uint32_t usb_kbd_service_key(struct usb_device *dev, int i, int up)
 		old = data->old;
 	}
 
-	if ((old[i] > 3) && (memscan(new + 2, old[i], 6) == new + 8))
+	if ((old[i] > 3) &&
+	    (memscan(new + 2, old[i], USB_KBD_BOOT_REPORT_SIZE - 2) ==
+			new + USB_KBD_BOOT_REPORT_SIZE)) {
 		res |= usb_kbd_translate(data, old[i], data->new[0], up);
+	}
 
 	return res;
 }
@@ -285,7 +279,7 @@ static int usb_kbd_irq_worker(struct usb_device *dev)
 	else if ((data->new[0] == LEFT_CNTR) || (data->new[0] == RIGHT_CNTR))
 		data->flags |= USB_KBD_CTRL;
 
-	for (i = 2; i < 8; i++) {
+	for (i = 2; i < USB_KBD_BOOT_REPORT_SIZE; i++) {
 		res |= usb_kbd_service_key(dev, i, 0);
 		res |= usb_kbd_service_key(dev, i, 1);
 	}
@@ -297,7 +291,7 @@ static int usb_kbd_irq_worker(struct usb_device *dev)
 	if (res == 1)
 		usb_kbd_setled(dev);
 
-	memcpy(data->old, data->new, 8);
+	memcpy(data->old, data->new, USB_KBD_BOOT_REPORT_SIZE);
 
 	return 1;
 }
@@ -305,7 +299,8 @@ static int usb_kbd_irq_worker(struct usb_device *dev)
 /* Keyboard interrupt handler */
 static int usb_kbd_irq(struct usb_device *dev)
 {
-	if ((dev->irq_status != 0) || (dev->irq_act_len != 8)) {
+	if ((dev->irq_status != 0) ||
+	    (dev->irq_act_len != USB_KBD_BOOT_REPORT_SIZE)) {
 		debug("USB KBD: Error %lX, len %d\n",
 		      dev->irq_status, dev->irq_act_len);
 		return 1;
@@ -317,38 +312,46 @@ static int usb_kbd_irq(struct usb_device *dev)
 /* Interrupt polling */
 static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 {
-#if	defined(CONFIG_SYS_USB_EVENT_POLL)
-	struct usb_interface *iface;
-	struct usb_endpoint_descriptor *ep;
-	struct usb_kbd_pdata *data;
-	int pipe;
-	int maxp;
-
-	/* Get the pointer to USB Keyboard device pointer */
-	data = dev->privptr;
-	iface = &dev->config.if_desc[0];
-	ep = &iface->ep_desc[0];
-	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
+#if defined(CONFIG_SYS_USB_EVENT_POLL)
+	struct usb_kbd_pdata *data = dev->privptr;
 
 	/* Submit a interrupt transfer request */
-	maxp = usb_maxpacket(dev, pipe);
-	usb_submit_int_msg(dev, pipe, &data->new[0],
-			maxp > 8 ? 8 : maxp, ep->bInterval);
+	usb_submit_int_msg(dev, data->intpipe, &data->new[0], data->intpktsize,
+			   data->intinterval);
 
 	usb_kbd_irq_worker(dev);
-#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+#elif defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) || \
+      defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+#if defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
 	struct usb_interface *iface;
 	struct usb_kbd_pdata *data = dev->privptr;
 	iface = &dev->config.if_desc[0];
 	usb_get_report(dev, iface->desc.bInterfaceNumber,
-			1, 0, data->new, sizeof(data->new));
-	if (memcmp(data->old, data->new, sizeof(data->new)))
+		       1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE);
+	if (memcmp(data->old, data->new, USB_KBD_BOOT_REPORT_SIZE)) {
 		usb_kbd_irq_worker(dev);
+#else
+	struct usb_kbd_pdata *data = dev->privptr;
+	if (poll_int_queue(dev, data->intq)) {
+		usb_kbd_irq_worker(dev);
+		/* We've consumed all queued int packets, create new */
+		destroy_int_queue(dev, data->intq);
+		data->intq = create_int_queue(dev, data->intpipe, 1,
+				      USB_KBD_BOOT_REPORT_SIZE, data->new,
+				      data->intinterval);
+#endif
+		data->last_report = get_timer(0);
+	/* Repeat last usb hid report every REPEAT_RATE ms for keyrepeat */
+	} else if (data->last_report != -1 &&
+		   get_timer(data->last_report) > REPEAT_RATE) {
+		usb_kbd_irq_worker(dev);
+		data->last_report = get_timer(0);
+	}
 #endif
 }
 
 /* test if a character is in the queue */
-static int usb_kbd_testc(void)
+static int usb_kbd_testc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
@@ -374,7 +377,7 @@ static int usb_kbd_testc(void)
 }
 
 /* gets the character from the queue */
-static int usb_kbd_getc(void)
+static int usb_kbd_getc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
@@ -401,7 +404,6 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	struct usb_kbd_pdata *data;
-	int pipe, maxp;
 
 	if (dev->descriptor.bNumConfigurations != 1)
 		return 0;
@@ -441,7 +443,8 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	memset(data, 0, sizeof(struct usb_kbd_pdata));
 
 	/* allocate input buffer aligned and sized to USB DMA alignment */
-	data->new = memalign(USB_DMA_MINALIGN, roundup(8, USB_DMA_MINALIGN));
+	data->new = memalign(USB_DMA_MINALIGN,
+		roundup(USB_KBD_BOOT_REPORT_SIZE, USB_DMA_MINALIGN));
 
 	/* Insert private data into USB device structure */
 	dev->privptr = data;
@@ -449,18 +452,33 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	/* Set IRQ handler */
 	dev->irq_handle = usb_kbd_irq;
 
-	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
-	maxp = usb_maxpacket(dev, pipe);
+	data->intpipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
+	data->intpktsize = min(usb_maxpacket(dev, data->intpipe),
+			       USB_KBD_BOOT_REPORT_SIZE);
+	data->intinterval = ep->bInterval;
+	data->last_report = -1;
 
 	/* We found a USB Keyboard, install it. */
 	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
 
 	debug("USB KBD: found set idle...\n");
-	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
+#if !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) && \
+    !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE / 4, 0);
+#else
+	usb_set_idle(dev, iface->desc.bInterfaceNumber, 0, 0);
+#endif
 
 	debug("USB KBD: enable interrupt pipe...\n");
-	if (usb_submit_int_msg(dev, pipe, data->new, maxp > 8 ? 8 : maxp,
-			       ep->bInterval) < 0) {
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+	data->intq = create_int_queue(dev, data->intpipe, 1,
+				      USB_KBD_BOOT_REPORT_SIZE, data->new,
+				      data->intinterval);
+	if (!data->intq) {
+#else
+	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
+			       data->intinterval) < 0) {
+#endif
 		printf("Failed to get keyboard state from device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
 		/* Abort, we don't want to use that non-functional keyboard. */
@@ -471,82 +489,135 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	return 1;
 }
 
+static int probe_usb_keyboard(struct usb_device *dev)
+{
+	char *stdinname;
+	struct stdio_dev usb_kbd_dev;
+	int error;
+
+	/* Try probing the keyboard */
+	if (usb_kbd_probe(dev, 0) != 1)
+		return -ENOENT;
+
+	/* Register the keyboard */
+	debug("USB KBD: register.\n");
+	memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
+	strcpy(usb_kbd_dev.name, DEVNAME);
+	usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	usb_kbd_dev.getc = usb_kbd_getc;
+	usb_kbd_dev.tstc = usb_kbd_testc;
+	usb_kbd_dev.priv = (void *)dev;
+	error = stdio_register(&usb_kbd_dev);
+	if (error)
+		return error;
+
+	stdinname = getenv("stdin");
+#ifdef CONFIG_CONSOLE_MUX
+	error = iomux_doenv(stdin, stdinname);
+	if (error)
+		return error;
+#else
+	/* Check if this is the standard input device. */
+	if (strcmp(stdinname, DEVNAME))
+		return 1;
+
+	/* Reassign the console */
+	if (overwrite_console())
+		return 1;
+
+	error = console_assign(stdin, DEVNAME);
+	if (error)
+		return error;
+#endif
+
+	return 0;
+}
+
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
-	struct stdio_dev usb_kbd_dev, *old_dev;
-	struct usb_device *dev;
-	char *stdinname = getenv("stdin");
 	int error, i;
 
+	debug("%s: Probing for keyboard\n", __func__);
+#ifdef CONFIG_DM_USB
+	/*
+	 * TODO: We should add U_BOOT_USB_DEVICE() declarations to each USB
+	 * keyboard driver and then most of this file can be removed.
+	 */
+	struct udevice *bus;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_USB, &uc);
+	if (ret)
+		return ret;
+	uclass_foreach_dev(bus, uc) {
+		for (i = 0; i < USB_MAX_DEVICE; i++) {
+			struct usb_device *dev;
+
+			dev = usb_get_dev_index(bus, i); /* get device */
+			debug("i=%d, %p\n", i, dev);
+			if (!dev)
+				break; /* no more devices available */
+
+			error = probe_usb_keyboard(dev);
+			if (!error)
+				return 1;
+			if (error && error != -ENOENT)
+				return error;
+		} /* for */
+	}
+#else
 	/* Scan all USB Devices */
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		struct usb_device *dev;
+
 		/* Get USB device. */
 		dev = usb_get_dev_index(i);
 		if (!dev)
-			return -1;
+			break;
 
 		if (dev->devnum == -1)
 			continue;
 
-		/* Try probing the keyboard */
-		if (usb_kbd_probe(dev, 0) != 1)
-			continue;
-
-		/* We found a keyboard, check if it is already registered. */
-		debug("USB KBD: found set up device.\n");
-		old_dev = stdio_get_by_name(DEVNAME);
-		if (old_dev) {
-			/* Already registered, just return ok. */
-			debug("USB KBD: is already registered.\n");
-			usb_kbd_deregister();
+		error = probe_usb_keyboard(dev);
+		if (!error)
 			return 1;
-		}
-
-		/* Register the keyboard */
-		debug("USB KBD: register.\n");
-		memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
-		strcpy(usb_kbd_dev.name, DEVNAME);
-		usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-		usb_kbd_dev.putc = NULL;
-		usb_kbd_dev.puts = NULL;
-		usb_kbd_dev.getc = usb_kbd_getc;
-		usb_kbd_dev.tstc = usb_kbd_testc;
-		usb_kbd_dev.priv = (void *)dev;
-		error = stdio_register(&usb_kbd_dev);
-		if (error)
+		if (error && error != -ENOENT)
 			return error;
-
-#ifdef CONFIG_CONSOLE_MUX
-		error = iomux_doenv(stdin, stdinname);
-		if (error)
-			return error;
-#else
-		/* Check if this is the standard input device. */
-		if (strcmp(stdinname, DEVNAME))
-			return 1;
-
-		/* Reassign the console */
-		if (overwrite_console())
-			return 1;
-
-		error = console_assign(stdin, DEVNAME);
-		if (error)
-			return error;
-#endif
-
-		return 1;
 	}
+#endif
 
 	/* No USB Keyboard found */
 	return -1;
 }
 
 /* Deregister the keyboard. */
-int usb_kbd_deregister(void)
+int usb_kbd_deregister(int force)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	return stdio_deregister(DEVNAME);
+	struct stdio_dev *dev;
+	struct usb_device *usb_kbd_dev;
+	struct usb_kbd_pdata *data;
+
+	dev = stdio_get_by_name(DEVNAME);
+	if (dev) {
+		usb_kbd_dev = (struct usb_device *)dev->priv;
+		data = usb_kbd_dev->privptr;
+		if (stdio_deregister_dev(dev, force) != 0)
+			return 1;
+#ifdef CONFIG_CONSOLE_MUX
+		if (iomux_doenv(stdin, getenv("stdin")) != 0)
+			return 1;
+#endif
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+		destroy_int_queue(usb_kbd_dev, data->intq);
+#endif
+		free(data->new);
+		free(data);
+	}
+
+	return 0;
 #else
 	return 1;
 #endif

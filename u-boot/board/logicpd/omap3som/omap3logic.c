@@ -12,6 +12,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <netdev.h>
 #include <flash.h>
 #include <nand.h>
@@ -33,6 +35,18 @@ DECLARE_GLOBAL_DATA_PTR;
  * machine IDs; row it selected based on CPU column is slected based
  * on hsusb0_data5 pin having a pulldown resistor
  */
+
+static const struct ns16550_platdata omap3logic_serial = {
+	OMAP34XX_UART1,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(omap3logic_uart) = {
+	"serial_omap",
+	&omap3logic_serial
+};
+
 static struct board_id {
 	char *name;
 	int machine_id;
@@ -125,6 +139,13 @@ int board_init(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+#endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif
 
@@ -230,6 +251,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M0));
-	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(JTAG_NTRST),		(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SDRC_CKE0),		(IDIS | PTU | EN  | M0));
 }

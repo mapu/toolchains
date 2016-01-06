@@ -172,6 +172,9 @@
 /* CM_COREAON_USB_PHY_CORE_CLKCTRL */
 #define USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K	(1 << 8)
 
+/* CM_COREAON_L3INIT_60M_GFCLK_CLKCTRL */
+#define L3INIT_CLKCTRL_OPTFCLKEN_60M_GFCLK	(1 << 8)
+
 /* CM_L3INIT_USB_OTG_SS_CLKCTRL */
 #define OTG_SS_CLKCTRL_MODULEMODE_HW	(1 << 0)
 #define OPTFCLKEN_REFCLK960M			(1 << 8)
@@ -236,12 +239,19 @@
 #define VDD_MPU_ES2_LOW 880
 #define VDD_MM_ES2_LOW 880
 
-/* TPS659038 Voltage settings in mv for OPP_NOMINAL */
-#define VDD_MPU_DRA752		1090
+/* DRA74x/75x voltage settings in mv for OPP_NOM per DM */
+#define VDD_MPU_DRA752		1100
 #define VDD_EVE_DRA752		1060
 #define VDD_GPU_DRA752		1060
-#define VDD_CORE_DRA752		1030
+#define VDD_CORE_DRA752		1060
 #define VDD_IVA_DRA752		1060
+
+/* DRA72x voltage settings in mv for OPP_NOM per DM */
+#define VDD_MPU_DRA72x		1100
+#define VDD_EVE_DRA72x		1060
+#define VDD_GPU_DRA72x		1060
+#define VDD_CORE_DRA72x		1060
+#define VDD_IVA_DRA72x		1060
 
 /* Efuse register offsets for DRA7xx platform */
 #define DRA752_EFUSE_BASE	0x4A002000
@@ -278,11 +288,18 @@
 
 /* TPS659038 */
 #define TPS659038_I2C_SLAVE_ADDR		0x58
-#define TPS659038_REG_ADDR_SMPS12_MPU		0x23
-#define TPS659038_REG_ADDR_SMPS45_EVE		0x2B
-#define TPS659038_REG_ADDR_SMPS6_GPU		0x2F
-#define TPS659038_REG_ADDR_SMPS7_CORE		0x33
-#define TPS659038_REG_ADDR_SMPS8_IVA		0x37
+#define TPS659038_REG_ADDR_SMPS12		0x23
+#define TPS659038_REG_ADDR_SMPS45		0x2B
+#define TPS659038_REG_ADDR_SMPS6		0x2F
+#define TPS659038_REG_ADDR_SMPS7		0x33
+#define TPS659038_REG_ADDR_SMPS8		0x37
+
+/* TPS65917 */
+#define TPS65917_I2C_SLAVE_ADDR		0x58
+#define TPS65917_REG_ADDR_SMPS1		0x23
+#define TPS65917_REG_ADDR_SMPS2		0x27
+#define TPS65917_REG_ADDR_SMPS3		0x2F
+
 
 /* TPS */
 #define TPS62361_I2C_SLAVE_ADDR		0x60
@@ -314,13 +331,16 @@
  */
 #define CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC	31219
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 #define V_OSCK			20000000	/* Clock output from T2 */
 #else
 #define V_OSCK			19200000	/* Clock output from T2 */
 #endif
 
 #define V_SCLK	V_OSCK
+
+/* CKO buffer control */
+#define CKOBUFFER_CLK_ENABLE_MASK	(1 << 28)
 
 /* AUXCLKx reg fields */
 #define AUXCLK_ENABLE_MASK		(1 << 8)

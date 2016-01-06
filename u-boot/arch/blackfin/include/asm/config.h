@@ -174,4 +174,9 @@
 	}
 #endif
 
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_ARCH_MISC_INIT
+
+#define CONFIG_CPU CONFIG_BFIN_CPU
+
 #endif

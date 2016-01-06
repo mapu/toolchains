@@ -18,8 +18,11 @@
 
 /* High Level Configuration Options */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP_COMMON
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER
 /*
@@ -33,7 +36,9 @@
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
@@ -62,6 +67,9 @@
 
 /* GPIO support */
 #define CONFIG_OMAP_GPIO
+
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63 are in GPIO bank 2 */
 
 /* LED support */
 #define CONFIG_STATUS_LED
@@ -134,8 +142,6 @@
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
 #define CONFIG_BCH
@@ -143,8 +149,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EXT2			/* EXT2 Support */
 #define CONFIG_CMD_FAT			/* FAT support */
 #define CONFIG_CMD_I2C			/* I2C serial bus support */
@@ -156,10 +160,6 @@
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_FPGA			/* FPGA configuration Support */
-#undef CONFIG_CMD_IMI			/* iminfo */
 #undef CONFIG_CMD_JFFS2			/* JFFS2 Support */
 
 /* needed for ubi */
@@ -284,7 +284,6 @@
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_CMDLINE_EDITING		/* enable cmdline history */
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_PROMPT		"OMAP3 Tricorder # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -314,8 +313,6 @@
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
 /* NAND and environment organization  */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
@@ -330,7 +327,6 @@
 #define CONFIG_SYS_SRAM_SIZE		0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
@@ -349,13 +345,12 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME        "u-boot.img"
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(57 * 1024)	/* 7 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000 /*CONFIG_SYS_SDRAM_BASE*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
@@ -367,11 +362,12 @@
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
-#define CONFIG_SYS_NAND_ECCPOS		{12, 13, 14, 15, 16, 17, 18, 19, 20,\
-			21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,\
-			34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,\
-			47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,\
-			60, 61, 62, 63}
+#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
+					 13, 14, 16, 17, 18, 19, 20, 21, 22, \
+					 23, 24, 25, 26, 27, 28, 30, 31, 32, \
+					 33, 34, 35, 36, 37, 38, 39, 40, 41, \
+					 42, 44, 45, 46, 47, 48, 49, 50, 51, \
+					 52, 53, 54, 55, 56}
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13

@@ -18,14 +18,12 @@
 #define __OMAP3EVM_CONFIG_H
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot commands
  * ----------------------------------------------------------------------------
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 
 #define CONFIG_CMD_EXT2
@@ -37,11 +35,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot features
@@ -75,8 +68,8 @@
 #define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 /* Partition tables */
 #define CONFIG_EFI_PARTITION
@@ -84,12 +77,12 @@
 
 /* USB
  *
- * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_UDD for Device functionalities.
+ * Enable CONFIG_USB_MUSB_HCD for Host functionalities MSC, keyboard
+ * Enable CONFIG_USB_MUSB_UDD for Device functionalities.
  */
 #define CONFIG_USB_OMAP3
-#define CONFIG_MUSB_HCD
-/* #define CONFIG_MUSB_UDC */
+#define CONFIG_USB_MUSB_HCD
+/* #define CONFIG_USB_MUSB_UDC */
 
 /* NAND SPL */
 #define CONFIG_SPL_NAND_SIMPLE

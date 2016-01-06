@@ -210,9 +210,13 @@ static struct clk ipu_clk = {
 	.usecount = 0,
 };
 
+#if !defined CONFIG_SYS_LDB_CLOCK
+#define CONFIG_SYS_LDB_CLOCK 65000000
+#endif
+
 static struct clk ldb_clk = {
 	.name = "ldb_clk",
-	.rate = 65000000,
+	.rate = CONFIG_SYS_LDB_CLOCK,
 	.usecount = 0,
 };
 
@@ -379,7 +383,7 @@ static struct clk pixel_clk[] = {
 /*
  * This function resets IPU
  */
-void ipu_reset(void)
+static void ipu_reset(void)
 {
 	u32 *reg;
 	u32 value;
@@ -1193,4 +1197,12 @@ ipu_color_space_t format_to_colorspace(uint32_t fmt)
 		break;
 	}
 	return RGB;
+}
+
+/* should be removed when clk framework is availiable */
+int ipu_set_ldb_clock(int rate)
+{
+	ldb_clk.rate = rate;
+
+	return 0;
 }

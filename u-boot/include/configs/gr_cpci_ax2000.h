@@ -19,8 +19,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 #define CONFIG_CPCI_AX2000	1	/* ... on GR-CPCI-AX2000 board */
 
 #define CONFIG_LEON_RAM_SRAM 1
@@ -61,8 +59,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_AMBAPP
 #define CONFIG_CMD_PING
@@ -282,7 +278,6 @@
 /*#define CONFIG_SHOW_ACTIVITY*/
 #define CONFIG_NET_RETRY_COUNT		10	/* # of retries          */
 
-#define CONFIG_ETHADDR   00:00:7a:cc:00:13
 #define CONFIG_PHY_ADDR	 0x00
 
 /*

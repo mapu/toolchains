@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,11 +13,13 @@
  * Pick a basic DDR Technology.
  */
 #include <ddr_spd.h>
+#include <fsl_ddrc_version.h>
 
-#define SDRAM_TYPE_DDR1    2
-#define SDRAM_TYPE_DDR2    3
-#define SDRAM_TYPE_LPDDR1  6
-#define SDRAM_TYPE_DDR3    7
+#define SDRAM_TYPE_DDR1		2
+#define SDRAM_TYPE_DDR2		3
+#define SDRAM_TYPE_LPDDR1	6
+#define SDRAM_TYPE_DDR3		7
+#define SDRAM_TYPE_DDR4		5
 
 #define DDR_BL4		4	/* burst length 4 */
 #define DDR_BC4		DDR_BL4	/* burst chop for ddr3 */
@@ -49,10 +51,15 @@ typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR3)
-#define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
+#endif
+#elif defined(CONFIG_SYS_FSL_DDR4)
+#define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
+typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
+#ifndef CONFIG_FSL_SDRAM_TYPE
+#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR4
 #endif
 #endif	/* #if defined(CONFIG_SYS_FSL_DDR1) */
 
@@ -76,6 +83,7 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define FSL_DDR_PAGE_INTERLEAVING	0x1
 #define FSL_DDR_BANK_INTERLEAVING	0x2
 #define FSL_DDR_SUPERBANK_INTERLEAVING	0x3
+#define FSL_DDR_256B_INTERLEAVING	0x8
 #define FSL_DDR_3WAY_1KB_INTERLEAVING	0xA
 #define FSL_DDR_3WAY_4KB_INTERLEAVING	0xC
 #define FSL_DDR_3WAY_8KB_INTERLEAVING	0xD
@@ -106,6 +114,7 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define SDRAM_CFG_2T_EN			0x00008000
 #define SDRAM_CFG_BI			0x00000001
 
+#define SDRAM_CFG2_FRC_SR		0x80000000
 #define SDRAM_CFG2_D_INIT		0x00000010
 #define SDRAM_CFG2_ODT_CFG_MASK		0x00600000
 #define SDRAM_CFG2_ODT_NEVER		0
@@ -115,7 +124,8 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 
 #define TIMING_CFG_2_CPO_MASK	0x0F800000
 
-#if defined(CONFIG_P4080)
+#if defined(CONFIG_SYS_FSL_DDR_VER) && \
+	(CONFIG_SYS_FSL_DDR_VER > FSL_DDR_VER_4_4)
 #define RD_TO_PRE_MASK		0xf
 #define RD_TO_PRE_SHIFT		13
 #define WR_DATA_DELAY_MASK	0xf
@@ -145,6 +155,8 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define MD_CNTL_CKE_CNTL_HIGH	0x00200000
 #define MD_CNTL_WRCW		0x00080000
 #define MD_CNTL_MD_VALUE(x)	(x & 0x0000FFFF)
+#define MD_CNTL_CS_SEL(x)	(((x) & 0x7) << 28)
+#define MD_CNTL_MD_SEL(x)	(((x) & 0xf) << 24)
 
 /* DDR_CDR1 */
 #define DDR_CDR1_DHC_EN	0x80000000
@@ -153,9 +165,29 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define DDR_CDR2_ODT_MASK	0x1
 #define DDR_CDR1_ODT(x) ((x & DDR_CDR1_ODT_MASK) << DDR_CDR1_ODT_SHIFT)
 #define DDR_CDR2_ODT(x) (x & DDR_CDR2_ODT_MASK)
+#define DDR_CDR2_VREF_OVRD(x)	(0x00008080 | ((((x) - 37) & 0x3F) << 8))
+#define DDR_CDR2_VREF_TRAIN_EN	0x00000080
+#define DDR_CDR2_VREF_RANGE_2	0x00000040
 
 #if (defined(CONFIG_SYS_FSL_DDR_VER) && \
 	(CONFIG_SYS_FSL_DDR_VER >= FSL_DDR_VER_4_7))
+#ifdef CONFIG_SYS_FSL_DDR3L
+#define DDR_CDR_ODT_OFF		0x0
+#define DDR_CDR_ODT_120ohm	0x1
+#define DDR_CDR_ODT_200ohm	0x2
+#define DDR_CDR_ODT_75ohm	0x3
+#define DDR_CDR_ODT_60ohm	0x5
+#define DDR_CDR_ODT_46ohm	0x7
+#elif defined(CONFIG_SYS_FSL_DDR4)
+#define DDR_CDR_ODT_OFF		0x0
+#define DDR_CDR_ODT_100ohm	0x1
+#define DDR_CDR_ODT_120OHM	0x2
+#define DDR_CDR_ODT_80ohm	0x3
+#define DDR_CDR_ODT_60ohm	0x4
+#define DDR_CDR_ODT_40ohm	0x5
+#define DDR_CDR_ODT_50ohm	0x6
+#define DDR_CDR_ODT_30ohm	0x7
+#else
 #define DDR_CDR_ODT_OFF		0x0
 #define DDR_CDR_ODT_120ohm	0x1
 #define DDR_CDR_ODT_180ohm	0x2
@@ -164,6 +196,7 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define DDR_CDR_ODT_60hm	0x5
 #define DDR_CDR_ODT_70ohm	0x6
 #define DDR_CDR_ODT_47ohm	0x7
+#endif /* DDR3L */
 #else
 #define DDR_CDR_ODT_75ohm	0x0
 #define DDR_CDR_ODT_55ohm	0x1
@@ -173,6 +206,8 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define DDR_CDR_ODT_43ohm	0x5
 #define DDR_CDR_ODT_120ohm	0x6
 #endif
+
+#define DDR_INIT_ADDR_EXT_UIA	(1 << 31)
 
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
@@ -187,6 +222,7 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int timing_cfg_2;
 	unsigned int ddr_sdram_cfg;
 	unsigned int ddr_sdram_cfg_2;
+	unsigned int ddr_sdram_cfg_3;
 	unsigned int ddr_sdram_mode;
 	unsigned int ddr_sdram_mode_2;
 	unsigned int ddr_sdram_mode_3;
@@ -195,6 +231,14 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_sdram_mode_6;
 	unsigned int ddr_sdram_mode_7;
 	unsigned int ddr_sdram_mode_8;
+	unsigned int ddr_sdram_mode_9;
+	unsigned int ddr_sdram_mode_10;
+	unsigned int ddr_sdram_mode_11;
+	unsigned int ddr_sdram_mode_12;
+	unsigned int ddr_sdram_mode_13;
+	unsigned int ddr_sdram_mode_14;
+	unsigned int ddr_sdram_mode_15;
+	unsigned int ddr_sdram_mode_16;
 	unsigned int ddr_sdram_md_cntl;
 	unsigned int ddr_sdram_interval;
 	unsigned int ddr_data_init;
@@ -203,6 +247,10 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_init_ext_addr;
 	unsigned int timing_cfg_4;
 	unsigned int timing_cfg_5;
+	unsigned int timing_cfg_6;
+	unsigned int timing_cfg_7;
+	unsigned int timing_cfg_8;
+	unsigned int timing_cfg_9;
 	unsigned int ddr_zq_cntl;
 	unsigned int ddr_wrlvl_cntl;
 	unsigned int ddr_wrlvl_cntl_2;
@@ -210,6 +258,14 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_sr_cntr;
 	unsigned int ddr_sdram_rcw_1;
 	unsigned int ddr_sdram_rcw_2;
+	unsigned int ddr_sdram_rcw_3;
+	unsigned int ddr_sdram_rcw_4;
+	unsigned int ddr_sdram_rcw_5;
+	unsigned int ddr_sdram_rcw_6;
+	unsigned int dq_map_0;
+	unsigned int dq_map_1;
+	unsigned int dq_map_2;
+	unsigned int dq_map_3;
 	unsigned int ddr_eor;
 	unsigned int ddr_cdr1;
 	unsigned int ddr_cdr2;
@@ -224,13 +280,14 @@ typedef struct memctl_options_partial_s {
 	unsigned int all_dimms_burst_lengths_bitmask;
 	unsigned int all_dimms_registered;
 	unsigned int all_dimms_unbuffered;
-	/*	unsigned int lowest_common_SPD_caslat; */
+	/*	unsigned int lowest_common_spd_caslat; */
 	unsigned int all_dimms_minimum_trcd_ps;
 } memctl_options_partial_t;
 
 #define DDR_DATA_BUS_WIDTH_64 0
 #define DDR_DATA_BUS_WIDTH_32 1
 #define DDR_DATA_BUS_WIDTH_16 2
+#define DDR_CSWL_CS0	0x04000001
 /*
  * Generalized parameters for memory controller configuration,
  * might be a little specific to the FSL memory controller
@@ -290,6 +347,7 @@ typedef struct memctl_options_s {
 	unsigned int cpo_override;
 	unsigned int write_data_delay;		/* DQS adjust */
 
+	unsigned int cswl_override;
 	unsigned int wrlvl_override;
 	unsigned int wrlvl_sample;		/* Write leveling */
 	unsigned int wrlvl_start;
@@ -300,7 +358,6 @@ typedef struct memctl_options_s {
 	unsigned int twot_en;
 	unsigned int threet_en;
 	unsigned int bstopre;
-	unsigned int tcke_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tfaw_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
 
 	/* Rtt impedance */
@@ -327,12 +384,20 @@ typedef struct memctl_options_s {
 	unsigned int trwt;			/* read-to-write turnaround */
 } memctl_options_t;
 
-extern phys_size_t fsl_ddr_sdram(void);
-extern phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_ddr_sdram(void);
+phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_other_ddr_sdram(unsigned long long base,
+				unsigned int first_ctrl,
+				unsigned int num_ctrls,
+				unsigned int dimm_slots_per_ctrl,
+				int (*board_need_reset)(void),
+				void (*board_reset)(void),
+				void (*board_de_reset)(void));
 extern int fsl_use_spd(void);
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-					unsigned int ctrl_num, int step);
+void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+			     unsigned int ctrl_num, int step);
 u32 fsl_ddr_get_intl3r(void);
+void print_ddr_info(unsigned int start_ctrl);
 
 static void __board_assert_mem_reset(void)
 {
@@ -355,6 +420,12 @@ static int __board_need_mem_reset(void)
 
 int board_need_mem_reset(void)
 	__attribute__((weak, alias("__board_need_mem_reset")));
+
+#if defined(CONFIG_DEEP_SLEEP)
+void board_mem_sleep_setup(void);
+bool is_warm_boot(void);
+int fsl_dp_resume(void);
+#endif
 
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the

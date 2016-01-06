@@ -23,6 +23,7 @@
 
 
 #include <common.h>
+#include <memalign.h>
 #include <linux/stat.h>
 #include <div64.h>
 #include "ext4_common.h"
@@ -116,10 +117,8 @@ static void delete_single_indirect_block(struct ext2_inode *inode)
 	if (inode->b.blocks.indir_block != 0) {
 		debug("SIPB releasing %u\n", inode->b.blocks.indir_block);
 		blknr = inode->b.blocks.indir_block;
-		if (fs->blksz != 1024) {
-			bg_idx = blknr / blk_per_grp;
-		} else {
-			bg_idx = blknr / blk_per_grp;
+		bg_idx = blknr / blk_per_grp;
+		if (fs->blksz == 1024) {
 			remainder = blknr % blk_per_grp;
 			if (!remainder)
 				bg_idx--;
@@ -181,11 +180,9 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 				break;
 
 			debug("DICB releasing %u\n", *di_buffer);
-			if (fs->blksz != 1024) {
-				bg_idx = (*di_buffer) / blk_per_grp;
-			} else {
-				bg_idx = (*di_buffer) / blk_per_grp;
-				remainder = (*di_buffer) % blk_per_grp;
+			bg_idx = *di_buffer / blk_per_grp;
+			if (fs->blksz == 1024) {
+				remainder = *di_buffer % blk_per_grp;
 				if (!remainder)
 					bg_idx--;
 			}
@@ -213,10 +210,8 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 
 		/* removing the parent double indirect block */
 		blknr = inode->b.blocks.double_indir_block;
-		if (fs->blksz != 1024) {
-			bg_idx = blknr / blk_per_grp;
-		} else {
-			bg_idx = blknr / blk_per_grp;
+		bg_idx = blknr / blk_per_grp;
+		if (fs->blksz == 1024) {
 			remainder = blknr % blk_per_grp;
 			if (!remainder)
 				bg_idx--;
@@ -293,12 +288,9 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			for (j = 0; j < fs->blksz / sizeof(int); j++) {
 				if (*tip_buffer == 0)
 					break;
-				if (fs->blksz != 1024) {
-					bg_idx = (*tip_buffer) / blk_per_grp;
-				} else {
-					bg_idx = (*tip_buffer) / blk_per_grp;
-
-					remainder = (*tip_buffer) % blk_per_grp;
+				bg_idx = *tip_buffer / blk_per_grp;
+				if (fs->blksz == 1024) {
+					remainder = *tip_buffer % blk_per_grp;
 					if (!remainder)
 						bg_idx--;
 				}
@@ -336,12 +328,9 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			 * removing the grand parent blocks
 			 * which is connected to inode
 			 */
-			if (fs->blksz != 1024) {
-				bg_idx = (*tigp_buffer) / blk_per_grp;
-			} else {
-				bg_idx = (*tigp_buffer) / blk_per_grp;
-
-				remainder = (*tigp_buffer) % blk_per_grp;
+			bg_idx = *tigp_buffer / blk_per_grp;
+			if (fs->blksz == 1024) {
+				remainder = *tigp_buffer % blk_per_grp;
 				if (!remainder)
 					bg_idx--;
 			}
@@ -371,10 +360,8 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 
 		/* removing the grand parent triple indirect block */
 		blknr = inode->b.blocks.triple_indir_block;
-		if (fs->blksz != 1024) {
-			bg_idx = blknr / blk_per_grp;
-		} else {
-			bg_idx = blknr / blk_per_grp;
+		bg_idx = blknr / blk_per_grp;
+		if (fs->blksz == 1024) {
 			remainder = blknr % blk_per_grp;
 			if (!remainder)
 				bg_idx--;
@@ -452,10 +439,8 @@ static int ext4fs_delete_file(int inodeno)
 
 		for (i = 0; i < no_blocks; i++) {
 			blknr = read_allocated_block(&(node_inode->inode), i);
-			if (fs->blksz != 1024) {
-				bg_idx = blknr / blk_per_grp;
-			} else {
-				bg_idx = blknr / blk_per_grp;
+			bg_idx = blknr / blk_per_grp;
+			if (fs->blksz == 1024) {
 				remainder = blknr % blk_per_grp;
 				if (!remainder)
 					bg_idx--;
@@ -499,10 +484,8 @@ static int ext4fs_delete_file(int inodeno)
 			no_blocks++;
 		for (i = 0; i < no_blocks; i++) {
 			blknr = read_allocated_block(&inode, i);
-			if (fs->blksz != 1024) {
-				bg_idx = blknr / blk_per_grp;
-			} else {
-				bg_idx = blknr / blk_per_grp;
+			bg_idx = blknr / blk_per_grp;
+			if (fs->blksz == 1024) {
 				remainder = blknr % blk_per_grp;
 				if (!remainder)
 					bg_idx--;
@@ -580,6 +563,7 @@ static int ext4fs_delete_file(int inodeno)
 
 	ext4fs_update();
 	ext4fs_deinit();
+	ext4fs_reinit_global();
 
 	if (ext4fs_init() != 0) {
 		printf("error in File System init\n");
@@ -857,7 +841,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int ibmap_idx;
 	struct ext_filesystem *fs = get_fs();
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
-	memset(filename, 0x00, sizeof(filename));
+	memset(filename, 0x00, 256);
 
 	g_parent_inode = zalloc(sizeof(struct ext2_inode));
 	if (!g_parent_inode)
@@ -989,6 +973,32 @@ fail:
 	free(inode_buffer);
 	free(g_parent_inode);
 	g_parent_inode = NULL;
+
+	return -1;
+}
+
+int ext4_write_file(const char *filename, void *buf, loff_t offset,
+		    loff_t len, loff_t *actwrite)
+{
+	int ret;
+
+	if (offset != 0) {
+		printf("** Cannot support non-zero offset **\n");
+		return -1;
+	}
+
+	ret = ext4fs_write(filename, buf, len);
+	if (ret) {
+		printf("** Error ext4fs_write() **\n");
+		goto fail;
+	}
+
+	*actwrite = len;
+
+	return 0;
+
+fail:
+	*actwrite = 0;
 
 	return -1;
 }

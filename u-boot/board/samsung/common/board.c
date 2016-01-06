@@ -13,25 +13,32 @@
 #include <tmu.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/board.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dwmmc.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
-#include <power/pmic.h>
+#include <asm/arch/system.h>
 #include <asm/arch/sromc.h>
-#include <power/max77686_pmic.h>
+#include <lcd.h>
+#include <i2c.h>
+#include <usb.h>
+#include <dwc3-uboot.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct local_info {
-	struct cros_ec_dev *cros_ec_dev;	/* Pointer to cros_ec device */
-	int cros_ec_err;			/* Error for cros_ec, 0 if ok */
-};
+__weak int exynos_early_init_f(void)
+{
+	return 0;
+}
 
-static struct local_info local;
+__weak int exynos_power_init(void)
+{
+	return 0;
+}
 
 #if defined CONFIG_EXYNOS_TMU
 /* Boot Time Thermal Analysis for SoC temperature threshold breach */
@@ -77,16 +84,19 @@ int board_init(void)
 	}
 	boot_temp_check();
 #endif
+#ifdef CONFIG_TZSW_RESERVED_DRAM_SIZE
+	/* The last few MB of memory can be reserved for secure firmware */
+	ulong size = CONFIG_TZSW_RESERVED_DRAM_SIZE;
 
-#ifdef CONFIG_EXYNOS_SPI
-	spi_init();
+	gd->ram_size -= size;
+	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= size;
 #endif
 	return exynos_init();
 }
 
 int dram_init(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -98,7 +108,7 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr, size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -129,7 +139,9 @@ static int board_uart_init(void)
 int board_early_init_f(void)
 {
 	int err;
-
+#ifdef CONFIG_BOARD_TYPES
+	set_board_type();
+#endif
 	err = board_uart_init();
 	if (err) {
 		debug("UART init failed\n");
@@ -140,155 +152,35 @@ int board_early_init_f(void)
 	board_i2c_init(gd->fdt_blob);
 #endif
 
-	return err;
+#if defined(CONFIG_EXYNOS_FB)
+	/*
+	 * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
+	 * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix,
+	 * to reserve frame-buffer memory at a very early stage. So, we need
+	 * to fill panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix
+	 * before lcd_setmem() is called.
+	 */
+	err = exynos_lcd_early_init(gd->fdt_blob);
+	if (err) {
+		debug("LCD early init failed\n");
+		return err;
+	}
+#endif
+
+	return exynos_early_init_f();
 }
 #endif
 
-struct cros_ec_dev *board_get_cros_ec_dev(void)
-{
-	return local.cros_ec_dev;
-}
-
-#ifdef CONFIG_CROS_EC
-static int board_init_cros_ec_devices(const void *blob)
-{
-	local.cros_ec_err = cros_ec_init(blob, &local.cros_ec_dev);
-	if (local.cros_ec_err)
-		return -1;  /* Will report in board_late_init() */
-
-	return 0;
-}
-#endif
-
-#if defined(CONFIG_POWER)
-#ifdef CONFIG_POWER_MAX77686
-static int pmic_reg_update(struct pmic *p, int reg, uint regval)
-{
-	u32 val;
-	int ret = 0;
-
-	ret = pmic_reg_read(p, reg, &val);
-	if (ret) {
-		debug("%s: PMIC %d register read failed\n", __func__, reg);
-		return -1;
-	}
-	val |= regval;
-	ret = pmic_reg_write(p, reg, val);
-	if (ret) {
-		debug("%s: PMIC %d register write failed\n", __func__, reg);
-		return -1;
-	}
-	return 0;
-}
-
-static int max77686_init(void)
-{
-	struct pmic *p;
-
-	if (pmic_init(I2C_PMIC))
-		return -1;
-
-	p = pmic_get("MAX77686_PMIC");
-	if (!p)
-		return -ENODEV;
-
-	if (pmic_probe(p))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_32KHZ, MAX77686_32KHCP_EN))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BBAT,
-			    MAX77686_BBCHOSTEN | MAX77686_BBCVS_3_5V))
-		return -1;
-
-	/* VDD_MIF */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-			   MAX77686_BUCK1OUT_1V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK1OUT);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK1CRTL,
-			    MAX77686_BUCK1CTRL_EN))
-		return -1;
-
-	/* VDD_ARM */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK2DVS1,
-			   MAX77686_BUCK2DVS1_1_3V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK2DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK2CTRL1,
-			    MAX77686_BUCK2CTRL_ON))
-		return -1;
-
-	/* VDD_INT */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK3DVS1,
-			   MAX77686_BUCK3DVS1_1_0125V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK3DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK3CTRL,
-			    MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_G3D */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK4DVS1,
-			   MAX77686_BUCK4DVS1_1_2V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK4DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK4CTRL1,
-			    MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_LDO2 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO2CTRL1,
-			    MAX77686_LD02CTRL1_1_5V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO3 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO3CTRL1,
-			    MAX77686_LD03CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO5 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO5CTRL1,
-			    MAX77686_LD05CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO10 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO10CTRL1,
-			    MAX77686_LD10CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	return 0;
-}
-#endif
-
+#if defined(CONFIG_POWER) || defined(CONFIG_DM_PMIC)
 int power_init_board(void)
 {
-	int ret = 0;
-
 	set_ps_hold_ctrl();
 
-#ifdef CONFIG_POWER_MAX77686
-	ret = max77686_init();
-#endif
-
-	return ret;
+	return exynos_power_init();
 }
 #endif
 
-#ifdef CONFIG_OF_CONTROL
+#ifdef CONFIG_SMC911X
 static int decode_sromc(const void *blob, struct fdt_sromc *config)
 {
 	int err;
@@ -312,6 +204,7 @@ static int decode_sromc(const void *blob, struct fdt_sromc *config)
 	}
 	return 0;
 }
+#endif
 
 int board_eth_init(bd_t *bis)
 {
@@ -365,18 +258,57 @@ int board_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+static int init_mmc(void)
+{
+#ifdef CONFIG_SDHCI
+	return exynos_mmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
+static int init_dwmmc(void)
+{
+#ifdef CONFIG_DWMMC
+	return exynos_dwmmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
 
-	/* dwmmc initializattion for available channels */
-	ret = exynos_dwmmc_init(gd->fdt_blob);
+	if (get_boot_mode() == BOOT_MODE_SD) {
+		ret = init_mmc();
+		ret |= init_dwmmc();
+	} else {
+		ret = init_dwmmc();
+		ret |= init_mmc();
+	}
+
 	if (ret)
-		debug("dwmmc init failed\n");
+		debug("mmc init failed\n");
 
 	return ret;
 }
 #endif
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	const char *board_info;
+
+	board_info = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	printf("Board: %s\n", board_info ? board_info : "unknown");
+#ifdef CONFIG_BOARD_TYPES
+	board_info = get_board_type();
+
+	printf("Model: %s\n", board_info ? board_info : "unknown");
+#endif
+	return 0;
+}
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
@@ -384,12 +316,12 @@ int board_late_init(void)
 {
 	stdio_print_current_devices();
 
-	if (local.cros_ec_err) {
+	if (cros_ec_get_error()) {
 		/* Force console on */
 		gd->flags &= ~GD_FLG_SILENT;
 
 		printf("cros-ec communications failure %d\n",
-		       local.cros_ec_err);
+		       cros_ec_get_error());
 		puts("\nPlease reset with Power+Refresh\n\n");
 		panic("Cannot init cros-ec device");
 		return -1;
@@ -398,14 +330,56 @@ int board_late_init(void)
 }
 #endif
 
-int arch_early_init_r(void)
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
 {
-#ifdef CONFIG_CROS_EC
-	if (board_init_cros_ec_devices(gd->fdt_blob)) {
-		printf("%s: Failed to init EC\n", __func__);
-		return 0;
-	}
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
 #endif
 
+void reset_misc(void)
+{
+	struct gpio_desc gpio = {};
+	int node;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0,
+			"samsung,emmc-reset");
+	if (node < 0)
+		return;
+
+	gpio_request_by_name_nodev(gd->fdt_blob, node, "reset-gpio", 0, &gpio,
+				   GPIOD_IS_OUT);
+
+	if (dm_gpio_is_valid(&gpio)) {
+		/*
+		 * Reset eMMC
+		 *
+		 * FIXME: Need to optimize delay time. Minimum 1usec pulse is
+		 *	  required by 'JEDEC Standard No.84-A441' (eMMC)
+		 *	  document but real delay time is expected to greater
+		 *	  than 1usec.
+		 */
+		dm_gpio_set_value(&gpio, 0);
+		mdelay(10);
+		dm_gpio_set_value(&gpio, 1);
+	}
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+#ifdef CONFIG_USB_DWC3
+	dwc3_uboot_exit(index);
+#endif
 	return 0;
 }

@@ -22,15 +22,12 @@
 
 #include <common.h>
 #include <splash.h>
+#include <lcd.h>
 
-int __splash_screen_prepare(void)
+__weak int splash_screen_prepare(void)
 {
 	return 0;
 }
-
-int splash_screen_prepare(void)
-	__attribute__ ((weak, alias("__splash_screen_prepare")));
-
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 void splash_get_pos(int *x, int *y)
@@ -54,3 +51,18 @@ void splash_get_pos(int *x, int *y)
 	}
 }
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
+#if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_LCD)
+int lcd_splash(ulong addr)
+{
+	int x = 0, y = 0, ret;
+
+	ret = splash_screen_prepare();
+	if (ret)
+		return ret;
+
+	splash_get_pos(&x, &y);
+
+	return bmp_display(addr, x, y);
+}
+#endif

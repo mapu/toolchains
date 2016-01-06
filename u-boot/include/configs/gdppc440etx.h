@@ -21,7 +21,6 @@
 #define CONFIG_440GR		1		/* Specific PPC440GR support */
 #define CONFIG_HOSTNAME		gdppc440etx
 #define CONFIG_440		1		/* ... PPC440 family         */
-#define CONFIG_4xx		1		/* ... PPC4xx family         */
 #define CONFIG_SYS_CLK_FREQ	66666666	/* external freq to pll      */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
@@ -33,10 +32,9 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* call board_early_init_f*/
 #define CONFIG_MISC_INIT_R		1	/* call misc_init_r()     */
+#define CONFIG_SYS_GENERIC_BOARD
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
-#define CONFIG_AUTOBOOT_KEYED          /* use key strings to stop autoboot */
-#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /*
  * Base addresses -- Note these are effective addresses where the

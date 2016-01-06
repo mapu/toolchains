@@ -10,10 +10,10 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <config_cmd_default.h>
 
 #define CONFIG_VF610
 
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -42,7 +42,35 @@
 #define CONFIG_SYS_UART_PORT		(1)
 #define CONFIG_BAUDRATE			115200
 
-#undef CONFIG_CMD_IMLS
+/* NAND support */
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_TRIMFFS
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
+
+/* UBI */
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+
+/* Dynamic MTD partition support */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_MTD_DEVICE
+#define MTDIDS_DEFAULT			"nand0=fsl_nfc"
+#define MTDPARTS_DEFAULT		"mtdparts=fsl_nfc:"		\
+					"128k(vf-bcb)ro,"		\
+					"1408k(u-boot)ro,"		\
+					"512k(u-boot-env),"		\
+					"4m(kernel),"			\
+					"512k(fdt),"		\
+					"-(rootfs)"
+#endif
 
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
@@ -59,7 +87,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -68,25 +95,58 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 
+/* QSPI Configs*/
+#define CONFIG_FSL_QSPI
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+#define CONFIG_SYS_FSL_QSPI_LE
+#endif
+
 /* I2C Configs */
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_BOOTDELAY		3
 
-#define CONFIG_LOADADDR			0x82000000
-#define CONFIG_SYS_TEXT_BASE		0x3f008000
+#define CONFIG_SYS_LOAD_ADDR		0x82000000
+
+/* We boot from the gfxRAM area of the OCRAM. */
+#define CONFIG_SYS_TEXT_BASE		0x3f408000
+#define CONFIG_BOARD_SIZE_LIMIT		524288
+
+/*
+ * We do have 128MB of memory on the Vybrid Tower board. Leave the last
+ * 16MB alone to avoid conflicts with Cortex-M4 firmwares running from
+ * DDR3. Hence, limit the memory range for image processing to 112MB
+ * using bootm_size. All of the following must be within this range.
+ * We have the default load at 32MB into DDR (for the kernel), FDT at
+ * 64MB and the ramdisk 512KB above that (allowing for hopefully never
+ * seen large trees). This allows a reasonable split between ramdisk
+ * and kernel size, where the ram disk can be a bit larger.
+ */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x07000000\0" \
+	"loadaddr=0x82000000\0" \
+	"kernel_addr_r=0x82000000\0" \
+	"fdt_addr=0x84000000\0" \
+	"fdt_addr_r=0x84000000\0" \
+	"rdaddr=0x84080000\0" \
+	"ramdisk_addr_r=0x84080000\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_SETTINGS \
 	"script=boot.scr\0" \
-	"uimage=uImage\0" \
+	"image=zImage\0" \
 	"console=ttyLP1\0" \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
 	"fdt_file=vf610-twr.dtb\0" \
-	"fdt_addr=0x81000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
@@ -112,22 +172,22 @@
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
+					"bootz; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi; " \
 			"fi; " \
 		"else " \
-			"bootm; " \
+			"bootz; " \
 		"fi;\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
@@ -139,19 +199,19 @@
 		"else " \
 			"setenv get_cmd tftp; " \
 		"fi; " \
-		"${get_cmd} ${uimage}; " \
+		"${get_cmd} ${image}; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootm ${loadaddr} - ${fdt_addr}; " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
-					"bootm; " \
+					"bootz; " \
 				"else " \
 					"echo WARN: Cannot load the DT; " \
 				"fi; " \
 			"fi; " \
 		"else " \
-			"bootm; " \
+			"bootz; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
@@ -159,7 +219,7 @@
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \
 		   "else " \
-			   "if run loaduimage; then " \
+			   "if run loadimage; then " \
 				   "run mmcboot; " \
 			   "else run netboot; " \
 			   "fi; " \
@@ -180,8 +240,6 @@
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80010000
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /*
  * Stack sizes
@@ -206,11 +264,19 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
+#ifdef CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 
 #define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_SIZE			(64 * 2048)
+#define CONFIG_ENV_SECT_SIZE		(64 * 2048)
+#define CONFIG_ENV_RANGE		(512 * 1024)
+#define CONFIG_ENV_OFFSET		0x180000
+#endif
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ

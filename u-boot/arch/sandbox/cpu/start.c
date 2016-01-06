@@ -4,8 +4,12 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <os.h>
+#include <cli.h>
+#include <malloc.h>
 #include <asm/getopt.h>
+#include <asm/io.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 
@@ -37,7 +41,7 @@ int sandbox_early_getopt_check(void)
 
 	max_arg_len = 0;
 	for (i = 0; i < num_options; ++i)
-		max_arg_len = max(strlen(sb_opt[i]->flag), max_arg_len);
+		max_arg_len = max((int)strlen(sb_opt[i]->flag), max_arg_len);
 	max_noarg_len = max_arg_len + 7;
 
 	for (i = 0; i < num_options; ++i) {
@@ -74,14 +78,32 @@ int sandbox_main_loop_init(void)
 	struct sandbox_state *state = state_get_current();
 
 	/* Execute command if required */
-	if (state->cmd) {
-		run_command_list(state->cmd, -1, 0);
+	if (state->cmd || state->run_distro_boot) {
+		int retval = 0;
+
+		cli_init();
+
+		if (state->cmd)
+			retval = run_command_list(state->cmd, -1, 0);
+
+		if (state->run_distro_boot)
+			retval = cli_simple_run_command("run distro_bootcmd",
+							0);
+
 		if (!state->interactive)
-			os_exit(state->exit_type);
+			os_exit(retval);
 	}
 
 	return 0;
 }
+
+static int sandbox_cmdline_cb_boot(struct sandbox_state *state,
+				      const char *arg)
+{
+	state->run_distro_boot = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(boot, 'b', 0, "Run distro boot commands");
 
 static int sandbox_cmdline_cb_command(struct sandbox_state *state,
 				      const char *arg)
@@ -98,6 +120,25 @@ static int sandbox_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
 }
 SANDBOX_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
 
+static int sandbox_cmdline_cb_default_fdt(struct sandbox_state *state,
+					  const char *arg)
+{
+	const char *fmt = "%s.dtb";
+	char *fname;
+	int len;
+
+	len = strlen(state->argv[0]) + strlen(fmt) + 1;
+	fname = os_malloc(len);
+	if (!fname)
+		return -ENOMEM;
+	snprintf(fname, len, fmt, state->argv[0]);
+	state->fdt_fname = fname;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(default_fdt, 'D', 0,
+		"Use the default u-boot.dtb control FDT in U-Boot directory");
+
 static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 					  const char *arg)
 {
@@ -106,6 +147,16 @@ static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 }
 
 SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
+
+static int sandbox_cmdline_cb_jump(struct sandbox_state *state,
+				   const char *arg)
+{
+	/* Remember to delete this U-Boot image later */
+	state->jumped_fname = arg;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(jump, 'j', 1, "Jumped from previous U-Boot");
 
 static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 				     const char *arg)
@@ -116,7 +167,8 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 	state->write_ram_buf = true;
 	state->ram_buf_fname = arg;
 
-	if (os_read_ram_buf(arg)) {
+	err = os_read_ram_buf(arg);
+	if (err) {
 		printf("Failed to read RAM buffer\n");
 		return err;
 	}
@@ -125,6 +177,15 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(memory, 'm', 1,
 			  "Read/write ram_buf memory contents from file");
+
+static int sandbox_cmdline_cb_rm_memory(struct sandbox_state *state,
+					const char *arg)
+{
+	state->ram_buf_rm = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(rm_memory, 0, "Remove memory file after reading");
 
 static int sandbox_cmdline_cb_state(struct sandbox_state *state,
 				    const char *arg)
@@ -159,9 +220,47 @@ static int sandbox_cmdline_cb_ignore_missing(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(ignore_missing, 'n', 0,
 			  "Ignore missing state on read");
 
+static int sandbox_cmdline_cb_show_lcd(struct sandbox_state *state,
+				       const char *arg)
+{
+	state->show_lcd = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(show_lcd, 'l', 0,
+			  "Show the sandbox LCD display");
+
+static const char *term_args[STATE_TERM_COUNT] = {
+	"raw-with-sigs",
+	"raw",
+	"cooked",
+};
+
+static int sandbox_cmdline_cb_terminal(struct sandbox_state *state,
+				       const char *arg)
+{
+	int i;
+
+	for (i = 0; i < STATE_TERM_COUNT; i++) {
+		if (!strcmp(arg, term_args[i])) {
+			state->term_raw = i;
+			return 0;
+		}
+	}
+
+	printf("Unknown terminal setting '%s' (", arg);
+	for (i = 0; i < STATE_TERM_COUNT; i++)
+		printf("%s%s", i ? ", " : "", term_args[i]);
+	puts(")\n");
+
+	return 1;
+}
+SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
+			  "Set terminal to raw/cooked mode");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
+	gd_t data;
 	int ret;
 
 	ret = state_init();
@@ -175,6 +274,16 @@ int main(int argc, char *argv[])
 	ret = sandbox_read_state(state, state->state_fname);
 	if (ret)
 		goto err;
+
+	/* Remove old memory file if required */
+	if (state->ram_buf_rm && state->ram_buf_fname)
+		os_unlink(state->ram_buf_fname);
+
+	memset(&data, '\0', sizeof(data));
+	gd = &data;
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

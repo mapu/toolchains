@@ -6,15 +6,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -mcpu=xscale
-# =========================================================================
-#
-# Supply options according to compiler version
-#
-# ========================================================================
-PF_RELFLAGS_SLB_AT := $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
-PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
-
 #
 # !WARNING!
 # The PXA's OneNAND SPL uses .text.0 and .text.1 segments to allow booting from
@@ -25,5 +16,5 @@ PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
 #
 
 #ifdef CONFIG_SPL_BUILD
-OBJCFLAGS += -j .text.0 -j .text.1
+OBJCOPYFLAGS += -j .text.0 -j .text.1
 #endif

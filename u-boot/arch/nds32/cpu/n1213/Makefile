@@ -10,3 +10,5 @@
 #
 
 extra-y	= start.o
+
+obj-$(if $(filter ag101,$(SOC)),y) += ag101/

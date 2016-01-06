@@ -19,6 +19,7 @@
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <nand.h>
 #include <search.h>
 #include <errno.h>
@@ -124,7 +125,7 @@ int env_init(void)
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
  */
-int writeenv(size_t offset, u_char *buf)
+static int writeenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_saved = 0;
@@ -132,7 +133,7 @@ int writeenv(size_t offset, u_char *buf)
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_saved < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
@@ -181,8 +182,6 @@ int saveenv(void)
 {
 	int	ret = 0;
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	ssize_t	len;
-	char	*res;
 	int	env_idx = 0;
 	static const struct env_location location[] = {
 		{
@@ -207,13 +206,10 @@ int saveenv(void)
 	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 
-	res = (char *)&env_new->data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
-	env_new->crc   = crc32(0, env_new->data, ENV_SIZE);
+	ret = env_export(env_new);
+	if (ret)
+		return ret;
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	env_new->flags = ++env_flags; /* increase the serial */
 	env_idx = (gd->env_valid == 1);
@@ -238,7 +234,13 @@ int saveenv(void)
 }
 #endif /* CMD_SAVEENV */
 
-int readenv(size_t offset, u_char *buf)
+#if defined(CONFIG_SPL_BUILD)
+static int readenv(size_t offset, u_char *buf)
+{
+	return nand_spl_load_image(offset, CONFIG_ENV_SIZE, buf);
+}
+#else
+static int readenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_loaded = 0;
@@ -249,7 +251,7 @@ int readenv(size_t offset, u_char *buf)
 	if (!blocksize)
 		return 1;
 
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
@@ -271,6 +273,7 @@ int readenv(size_t offset, u_char *buf)
 
 	return 0;
 }
+#endif /* #if defined(CONFIG_SPL_BUILD) */
 
 #ifdef CONFIG_ENV_OFFSET_OOB
 int get_nand_env_oob(nand_info_t *nand, unsigned long *result)

@@ -123,26 +123,63 @@
 #define DWMCI_BMOD_IDMAC_FB	(1 << 1)
 #define DWMCI_BMOD_IDMAC_EN	(1 << 7)
 
+/* UHS register */
+#define DWMCI_DDR_MODE	(1 << 16)
+
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
+/**
+ * struct dwmci_host - Information about a designware MMC host
+ *
+ * @name:	Device name
+ * @ioaddr:	Base I/O address of controller
+ * @quirks:	Quick flags - see DWMCI_QUIRK_...
+ * @caps:	Capabilities - see MMC_MODE_...
+ * @bus_hz:	Bus speed in Hz, if @get_mmc_clk() is NULL
+ * @div:	Arbitrary clock divider value for use by controller
+ * @dev_index:	Arbitrary device index for use by controller
+ * @dev_id:	Arbitrary device ID for use by controller
+ * @buswidth:	Bus width in bits (8 or 4)
+ * @fifoth_val:	Value for FIFOTH register (or 0 to leave unset)
+ * @mmc:	Pointer to generic MMC structure for this device
+ * @priv:	Private pointer for use by controller
+ */
 struct dwmci_host {
-	char *name;
+	const char *name;
 	void *ioaddr;
 	unsigned int quirks;
 	unsigned int caps;
 	unsigned int version;
 	unsigned int clock;
 	unsigned int bus_hz;
+	unsigned int div;
 	int dev_index;
+	int dev_id;
 	int buswidth;
-	u32 clksel_val;
 	u32 fifoth_val;
 	struct mmc *mmc;
+	void *priv;
 
 	void (*clksel)(struct dwmci_host *host);
 	void (*board_init)(struct dwmci_host *host);
-	unsigned int (*get_mmc_clk)(int dev_index);
+
+	/**
+	 * Get / set a particular MMC clock frequency
+	 *
+	 * This is used to request the current clock frequency of the clock
+	 * that drives the DWMMC peripheral. The caller will then use this
+	 * information to work out the divider it needs to achieve the
+	 * required MMC bus clock frequency. If you want to handle the
+	 * clock external to DWMMC, use @freq to select the frequency and
+	 * return that value too. Then DWMMC will put itself in bypass mode.
+	 *
+	 * @host:	DWMMC host
+	 * @freq:	Frequency the host is trying to achieve
+	 */
+	unsigned int (*get_mmc_clk)(struct dwmci_host *host, uint freq);
+
+	struct mmc_config cfg;
 };
 
 struct dwmci_idmac {
@@ -150,7 +187,7 @@ struct dwmci_idmac {
 	u32 cnt;
 	u32 addr;
 	u32 next_addr;
-};
+} __aligned(ARCH_DMA_MINALIGN);
 
 static inline void dwmci_writel(struct dwmci_host *host, int reg, u32 val)
 {

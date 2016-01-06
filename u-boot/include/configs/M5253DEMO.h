@@ -7,8 +7,6 @@
 #ifndef _M5253DEMO_H
 #define _M5253DEMO_H
 
-#define CONFIG_MCF52x2		/* define processor family */
-#define CONFIG_M5253		/* define processor type */
 #define CONFIG_M5253DEMO	/* define board type */
 
 #define CONFIG_MCFTMR
@@ -34,19 +32,17 @@
 #	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
+#define LDS_BOARD_TEXT \
+        . = DEFINED(env_offset) ? env_offset : .; \
+        common/env_embedded.o (.text*);
+
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_PING
 
 #ifdef CONFIG_CMD_IDE

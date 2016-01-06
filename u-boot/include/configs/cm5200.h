@@ -8,11 +8,15 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
+
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfc000000
@@ -22,8 +26,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
@@ -33,7 +35,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SNTP

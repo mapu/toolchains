@@ -18,8 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5301x		/* define processor family */
-#define CONFIG_M53015		/* define processor type */
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
@@ -29,17 +27,11 @@
 #define CONFIG_WATCHDOG_TIMEOUT		5000
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #undef CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
@@ -96,13 +88,10 @@
 #define CONFIG_UDP_CHECKSUM
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
-#	define CONFIG_ETH1ADDR	00:e0:0c:bc:e5:61
 #	define CONFIG_IPADDR	192.162.1.2
 #	define CONFIG_NETMASK	255.255.255.0
 #	define CONFIG_SERVERIP	192.162.1.1
 #	define CONFIG_GATEWAYIP	192.162.1.1
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
 #endif				/* FEC_ENET */
 
 #define CONFIG_HOSTNAME		M53017
@@ -119,7 +108,6 @@
 	""
 
 #define CONFIG_PRAM		512	/* 512 KB */
-#define CONFIG_SYS_PROMPT	"-> "
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 
 #ifdef CONFIG_CMD_KGDB
@@ -202,10 +190,14 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CONFIG_ENV_OFFSET		0x8000
+#define CONFIG_ENV_OFFSET		(CONFIG_SYS_FLASH_BASE + 0x40000)
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_SECT_SIZE		0x8000
 #define CONFIG_ENV_IS_IN_FLASH		1
+
+#define LDS_BOARD_TEXT \
+	. = DEFINED(env_offset) ? env_offset : .; \
+	common/env_embedded.o       (.text*)
 
 /*-----------------------------------------------------------------------
  * Cache Configuration

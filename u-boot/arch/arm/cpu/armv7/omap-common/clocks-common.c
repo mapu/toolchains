@@ -372,6 +372,7 @@ static void setup_dplls(void)
 {
 	u32 temp;
 	const struct dpll_params *params;
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
 
 	debug("setup_dplls\n");
 
@@ -382,7 +383,8 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
+	if (emif_sdram_type(readl(&emif->emif_sdram_config)) ==
+	    EMIF_SDRAM_TYPE_LPDDR2)
 		do_setup_dpll((*prcm)->cm_clkmode_dpll_core, params,
 							DPLL_NO_LOCK, "core");
 	else
@@ -418,55 +420,6 @@ static void setup_dplls(void)
 #endif
 }
 
-#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
-static void setup_non_essential_dplls(void)
-{
-	u32 abe_ref_clk;
-	const struct dpll_params *params;
-
-	/* IVA */
-	clrsetbits_le32((*prcm)->cm_bypclk_dpll_iva,
-		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
-
-	params = get_iva_dpll_params(*dplls_data);
-	do_setup_dpll((*prcm)->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
-
-	/* Configure ABE dpll */
-	params = get_abe_dpll_params(*dplls_data);
-#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
-	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
-
-	if (omap_revision() == DRA752_ES1_0)
-		/* Select the sys clk for dpll_abe */
-		clrsetbits_le32((*prcm)->cm_abe_pll_sys_clksel,
-				CM_CLKSEL_ABE_PLL_SYS_CLKSEL_MASK,
-				CM_ABE_PLL_SYS_CLKSEL_SYSCLK2);
-#else
-	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_32KCLK;
-	/*
-	 * We need to enable some additional options to achieve
-	 * 196.608MHz from 32768 Hz
-	 */
-	setbits_le32((*prcm)->cm_clkmode_dpll_abe,
-			CM_CLKMODE_DPLL_DRIFTGUARD_EN_MASK|
-			CM_CLKMODE_DPLL_RELOCK_RAMP_EN_MASK|
-			CM_CLKMODE_DPLL_LPMODE_EN_MASK|
-			CM_CLKMODE_DPLL_REGM4XEN_MASK);
-	/* Spend 4 REFCLK cycles at each stage */
-	clrsetbits_le32((*prcm)->cm_clkmode_dpll_abe,
-			CM_CLKMODE_DPLL_RAMP_RATE_MASK,
-			1 << CM_CLKMODE_DPLL_RAMP_RATE_SHIFT);
-#endif
-
-	/* Select the right reference clk */
-	clrsetbits_le32((*prcm)->cm_abe_pll_ref_clksel,
-			CM_ABE_PLL_REF_CLKSEL_CLKSEL_MASK,
-			abe_ref_clk << CM_ABE_PLL_REF_CLKSEL_CLKSEL_SHIFT);
-	/* Lock the dpll */
-	do_setup_dpll((*prcm)->cm_clkmode_dpll_abe, params, DPLL_LOCK, "abe");
-}
-#endif
-
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic)
 {
 	u32 offset_code;
@@ -486,12 +439,15 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 {
 	u32 offset_code;
 	u32 offset = volt_mv;
+#ifndef	CONFIG_DRA7XX
 	int ret = 0;
+#endif
 
 	if (!volt_mv)
 		return;
 
 	pmic->pmic_bus_init();
+#ifndef	CONFIG_DRA7XX
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -505,7 +461,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	/* Pull the GPIO low to select SET0 register, while we program SET1 */
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 0);
-
+#endif
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
@@ -516,9 +472,10 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 
 	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-
+#ifndef	CONFIG_DRA7XX
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 1);
+#endif
 }
 
 static u32 optimize_vcore_voltage(struct volts const *v)
@@ -553,18 +510,110 @@ static u32 optimize_vcore_voltage(struct volts const *v)
 	return val;
 }
 
+#ifdef CONFIG_IODELAY_RECALIBRATION
+void __weak recalibrate_iodelay(void)
+{
+}
+#endif
+
 /*
- * Setup the voltages for vdd_mpu, vdd_core, and vdd_iva
- * We set the maximum voltages allowed here because Smart-Reflex is not
- * enabled in bootloader. Voltage initialization in the kernel will set
- * these to the nominal values after enabling Smart-Reflex
+ * Setup the voltages for the main SoC core power domains.
+ * We start with the maximum voltages allowed here, as set in the corresponding
+ * vcores_data struct, and then scale (usually down) to the fused values that
+ * are retrieved from the SoC. The scaling happens only if the efuse.reg fields
+ * are initialised.
+ * Rail grouping is supported for the DRA7xx SoCs only, therefore the code is
+ * compiled conditionally. Note that the new code writes the scaled (or zeroed)
+ * values back to the vcores_data struct for eventual reuse. Zero values mean
+ * that the corresponding rails are not controlled separately, and are not sent
+ * to the PMIC.
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
+#if defined(CONFIG_DRA7XX)
+	int i;
+	struct volts *pv = (struct volts *)vcores;
+	struct volts *px;
+
+	for (i=0; i<(sizeof(struct vcores_data)/sizeof(struct volts)); i++) {
+		debug("%d -> ", pv->value);
+		if (pv->value) {
+			/* Handle non-empty members only */
+			pv->value = optimize_vcore_voltage(pv);
+     			px = (struct volts *)vcores;
+			while (px < pv) {
+				/*
+				 * Scan already handled non-empty members to see
+				 * if we have a group and find the max voltage,
+				 * which is set to the first occurance of the
+				 * particular SMPS; the other group voltages are
+				 * zeroed.
+				 */
+				if (px->value) {
+					if ((pv->pmic->i2c_slave_addr ==
+					     px->pmic->i2c_slave_addr) &&
+					    (pv->addr == px->addr)) {
+					    	/* Same PMIC, same SMPS */
+						if (pv->value > px->value)
+							px->value = pv->value;
+
+						pv->value = 0;
+					}
+		     		}
+				px++;
+			}
+		}
+	     	debug("%d\n", pv->value);
+		pv++;
+	}
+
+	debug("cor: %d\n", vcores->core.value);
+	do_scale_vcore(vcores->core.addr, vcores->core.value, vcores->core.pmic);
+	/*
+	 * IO delay recalibration should be done immediately after
+	 * adjusting AVS voltages for VDD_CORE_L.
+	 * Respective boards should call __recalibrate_iodelay()
+	 * with proper mux, virtual and manual mode configurations.
+	 */
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	recalibrate_iodelay();
+#endif
+
+	debug("mpu: %d\n", vcores->mpu.value);
+	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value, vcores->mpu.pmic);
+	/* Configure MPU ABB LDO after scale */
+	abb_setup((*ctrl)->control_std_fuse_opp_vdd_mpu_2,
+		  (*ctrl)->control_wkup_ldovbb_mpu_voltage_ctrl,
+		  (*prcm)->prm_abbldo_mpu_setup,
+		  (*prcm)->prm_abbldo_mpu_ctrl,
+		  (*prcm)->prm_irqstatus_mpu_2,
+		  OMAP_ABB_MPU_TXDONE_MASK,
+		  OMAP_ABB_FAST_OPP);
+
+	/* The .mm member is not used for the DRA7xx */
+
+	debug("gpu: %d\n", vcores->gpu.value);
+	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value, vcores->gpu.pmic);
+	debug("eve: %d\n", vcores->eve.value);
+	do_scale_vcore(vcores->eve.addr, vcores->eve.value, vcores->eve.pmic);
+	debug("iva: %d\n", vcores->iva.value);
+	do_scale_vcore(vcores->iva.addr, vcores->iva.value, vcores->iva.pmic);
+	/* Might need udelay(1000) here if debug is enabled to see all prints */
+#else
 	u32 val;
 
 	val = optimize_vcore_voltage(&vcores->core);
 	do_scale_vcore(vcores->core.addr, val, vcores->core.pmic);
+
+	/*
+	 * IO delay recalibration should be done immediately after
+	 * adjusting AVS voltages for VDD_CORE_L.
+	 * Respective boards should call __recalibrate_iodelay()
+	 * with proper mux, virtual and manual mode configurations.
+	 */
+#ifdef CONFIG_IODELAY_RECALIBRATION
+	recalibrate_iodelay();
+#endif
 
 	val = optimize_vcore_voltage(&vcores->mpu);
 	do_scale_vcore(vcores->mpu.addr, val, vcores->mpu.pmic);
@@ -589,6 +638,7 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	val = optimize_vcore_voltage(&vcores->iva);
 	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
+#endif
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
@@ -596,6 +646,14 @@ static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
 	clrsetbits_le32(clkctrl_reg, CD_CLKCTRL_CLKTRCTRL_MASK,
 			enable_mode << CD_CLKCTRL_CLKTRCTRL_SHIFT);
 	debug("Enable clock domain - %x\n", clkctrl_reg);
+}
+
+static inline void disable_clock_domain(u32 const clkctrl_reg)
+{
+	clrsetbits_le32(clkctrl_reg, CD_CLKCTRL_CLKTRCTRL_MASK,
+			CD_CLKCTRL_CLKTRCTRL_SW_SLEEP <<
+			CD_CLKCTRL_CLKTRCTRL_SHIFT);
+	debug("Disable clock domain - %x\n", clkctrl_reg);
 }
 
 static inline void wait_for_clk_enable(u32 clkctrl_addr)
@@ -625,6 +683,34 @@ static inline void enable_clock_module(u32 const clkctrl_addr, u32 enable_mode,
 	debug("Enable clock module - %x\n", clkctrl_addr);
 	if (wait_for_enable)
 		wait_for_clk_enable(clkctrl_addr);
+}
+
+static inline void wait_for_clk_disable(u32 clkctrl_addr)
+{
+	u32 clkctrl, idlest = MODULE_CLKCTRL_IDLEST_FULLY_FUNCTIONAL;
+	u32 bound = LDELAY;
+
+	while ((idlest != MODULE_CLKCTRL_IDLEST_DISABLED)) {
+		clkctrl = readl(clkctrl_addr);
+		idlest = (clkctrl & MODULE_CLKCTRL_IDLEST_MASK) >>
+			 MODULE_CLKCTRL_IDLEST_SHIFT;
+		if (--bound == 0) {
+			printf("Clock disable failed for 0x%x idlest 0x%x\n",
+			       clkctrl_addr, clkctrl);
+			return;
+		}
+	}
+}
+
+static inline void disable_clock_module(u32 const clkctrl_addr,
+					u32 wait_for_disable)
+{
+	clrsetbits_le32(clkctrl_addr, MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_DISABLE <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+	debug("Disable clock module - %x\n", clkctrl_addr);
+	if (wait_for_disable)
+		wait_for_clk_disable(clkctrl_addr);
 }
 
 void freq_update_core(void)
@@ -750,6 +836,23 @@ void do_enable_clocks(u32 const *clk_domains,
 	}
 }
 
+void do_disable_clocks(u32 const *clk_domains,
+			    u32 const *clk_modules_disable,
+			    u8 wait_for_disable)
+{
+	u32 i, max = 100;
+
+
+	/* Clock modules that need to be put in SW_DISABLE */
+	for (i = 0; (i < max) && clk_modules_disable[i]; i++)
+		disable_clock_module(clk_modules_disable[i],
+				     wait_for_disable);
+
+	/* Put the clock domains in SW_SLEEP mode */
+	for (i = 0; (i < max) && clk_domains[i]; i++)
+		disable_clock_domain(clk_domains[i]);
+}
+
 void prcm_init(void)
 {
 	switch (omap_hw_init_context()) {
@@ -760,10 +863,6 @@ void prcm_init(void)
 		timer_init();
 		scale_vcores(*omap_vcores);
 		setup_dplls();
-#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
-		setup_non_essential_dplls();
-		enable_non_essential_clocks();
-#endif
 		setup_warmreset_time();
 		break;
 	default:

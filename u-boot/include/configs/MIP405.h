@@ -17,10 +17,11 @@
  * (easy to change)
  ***********************************************************/
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_MIP405		1	/* ...on a MIP405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /***********************************************************
  * Note that it may also be a MIP405T board which is a subset of the
@@ -50,8 +51,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP

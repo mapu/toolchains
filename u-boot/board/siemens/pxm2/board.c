@@ -70,11 +70,11 @@ struct cmd_control pxm2_ddr3_cmd_ctrl_data = {
 };
 
 const struct ctrl_ioregs ioregs = {
-	.cm0ioctl		= DXR2_IOCTRL_VAL,
-	.cm1ioctl		= DXR2_IOCTRL_VAL,
-	.cm2ioctl		= DXR2_IOCTRL_VAL,
-	.dt0ioctl		= DXR2_IOCTRL_VAL,
-	.dt1ioctl		= DXR2_IOCTRL_VAL,
+	.cm0ioctl		= DDR_IOCTRL_VAL,
+	.cm1ioctl		= DDR_IOCTRL_VAL,
+	.cm2ioctl		= DDR_IOCTRL_VAL,
+	.dt0ioctl		= DDR_IOCTRL_VAL,
+	.dt1ioctl		= DDR_IOCTRL_VAL,
 };
 
 	config_ddr(DDR_PLL_FREQ, &ioregs, &pxm2_ddr3_data,
@@ -181,13 +181,13 @@ static struct cpsw_slave_data cpsw_slaves[] = {
 	{
 		.slave_reg_ofs	= 0x208,
 		.sliver_reg_ofs	= 0xd80,
-		.phy_id		= 0,
+		.phy_addr	= 0,
 		.phy_if		= PHY_INTERFACE_MODE_RMII,
 	},
 	{
 		.slave_reg_ofs	= 0x308,
 		.sliver_reg_ofs	= 0xdc0,
-		.phy_id		= 1,
+		.phy_addr	= 1,
 		.phy_if		= PHY_INTERFACE_MODE_RMII,
 	},
 };
@@ -213,7 +213,7 @@ static struct cpsw_platform_data cpsw_data = {
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
 
 #if defined(CONFIG_DRIVER_TI_CPSW) || \
-	(defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET))
+	(defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET))
 int board_eth_init(bd_t *bis)
 {
 	int n = 0;
@@ -222,14 +222,14 @@ int board_eth_init(bd_t *bis)
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_FACTORYSET
 	int rv;
-	if (!is_valid_ether_addr(factory_dat.mac))
+	if (!is_valid_ethaddr(factory_dat.mac))
 		printf("Error: no valid mac address\n");
 	else
 		eth_setenv_enetaddr("ethaddr", factory_dat.mac);
 #endif /* #ifdef CONFIG_FACTORYSET */
 
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */
-	writel(RGMII_MODE_ENABLE , &cdev->miisel);
+	writel(RGMII_MODE_ENABLE  | RGMII_INT_DELAY, &cdev->miisel);
 
 	rv = cpsw_register(&cpsw_data);
 	if (rv < 0)
@@ -428,4 +428,38 @@ static int board_video_init(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	int ret;
+
+	omap_nand_switch_ecc(1, 8);
+
+#ifdef CONFIG_FACTORYSET
+	if (factory_dat.asn[0] != 0) {
+		char tmp[2 * MAX_STRING_LENGTH + 2];
+
+		if (strncmp((const char *)factory_dat.asn, "PXM50", 5) == 0)
+			factory_dat.pxm50 = 1;
+		else
+			factory_dat.pxm50 = 0;
+		sprintf(tmp, "%s_%s", factory_dat.asn,
+			factory_dat.comp_version);
+		ret = setenv("boardid", tmp);
+		if (ret)
+			printf("error setting board id\n");
+	} else {
+		factory_dat.pxm50 = 1;
+		ret = setenv("boardid", "PXM50_1.0");
+		if (ret)
+			printf("error setting board id\n");
+	}
+	debug("PXM50: %d\n", factory_dat.pxm50);
+#endif
+
+	return 0;
+}
+#endif
+
 #include "../common/board.c"

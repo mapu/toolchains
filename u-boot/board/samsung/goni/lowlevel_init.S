@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/power.h>
@@ -21,9 +20,6 @@
  * r8 has real GPIO base, 0xE0300000, 0xE0200000 at S5PC100, S5PC110 repectively
  * r9 has Mobile DDR size, 1 means 1GiB, 2 means 2GiB and so on
  */
-
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
 
 	.globl lowlevel_init
 lowlevel_init:

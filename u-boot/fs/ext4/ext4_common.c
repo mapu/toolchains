@@ -22,7 +22,9 @@
 #include <common.h>
 #include <ext_common.h>
 #include <ext4fs.h>
+#include <inttypes.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <stddef.h>
 #include <linux/stat.h>
 #include <linux/time.h>
@@ -73,7 +75,7 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 	if ((startblock + (size >> log2blksz)) >
 	    (part_offset + fs->total_sect)) {
 		printf("part_offset is " LBAFU "\n", part_offset);
-		printf("total_sector is %llu\n", fs->total_sect);
+		printf("total_sector is %" PRIu64 "\n", fs->total_sect);
 		printf("error: overflow occurs\n");
 		return;
 	}
@@ -613,8 +615,7 @@ static int parse_path(char **arr, char *dirname)
 	arr[i] = zalloc(strlen("/") + 1);
 	if (!arr[i])
 		return -ENOMEM;
-
-	arr[i++] = "/";
+	memcpy(arr[i++], "/", strlen("/"));
 
 	/* add each path entry after root */
 	while (token != NULL) {
@@ -744,6 +745,11 @@ end:
 fail:
 	free(depth_dirname);
 	free(parse_dirname);
+	for (i = 0; i < depth; i++) {
+		if (!ptr[i])
+			break;
+		free(ptr[i]);
+	}
 	free(ptr);
 	free(parent_inode);
 	free(first_inode);
@@ -764,6 +770,7 @@ static int check_filename(char *filename, unsigned int blknr)
 	struct ext2_dirent *previous_dir = NULL;
 	char *ptr = NULL;
 	struct ext_filesystem *fs = get_fs();
+	int ret = -1;
 
 	/* get the first block of root */
 	first_block_no_of_root = blknr;
@@ -817,12 +824,12 @@ static int check_filename(char *filename, unsigned int blknr)
 		if (ext4fs_put_metadata(root_first_block_addr,
 					first_block_no_of_root))
 			goto fail;
-		return inodeno;
+		ret = inodeno;
 	}
 fail:
 	free(root_first_block_buffer);
 
-	return -1;
+	return ret;
 }
 
 int ext4fs_filename_check(char *filename)
@@ -904,10 +911,8 @@ long int ext4fs_get_new_blk_no(void)
 restart:
 		fs->curr_blkno++;
 		/* get the blockbitmap index respective to blockno */
-		if (fs->blksz != 1024) {
-			bg_idx = fs->curr_blkno / blk_per_grp;
-		} else {
-			bg_idx = fs->curr_blkno / blk_per_grp;
+		bg_idx = fs->curr_blkno / blk_per_grp;
+		if (fs->blksz == 1024) {
 			remainder = fs->curr_blkno % blk_per_grp;
 			if (!remainder)
 				bg_idx--;
@@ -1382,7 +1387,7 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 	unsigned int no_blks_reqd = 0;
 
 	/* allocation of direct blocks */
-	for (i = 0; i < INDIRECT_BLOCKS; i++) {
+	for (i = 0; total_remaining_blocks && i < INDIRECT_BLOCKS; i++) {
 		direct_blockno = ext4fs_get_new_blk_no();
 		if (direct_blockno == -1) {
 			printf("no block left to assign\n");
@@ -1392,8 +1397,6 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 		debug("DB %ld: %u\n", direct_blockno, total_remaining_blocks);
 
 		total_remaining_blocks--;
-		if (total_remaining_blocks == 0)
-			break;
 	}
 
 	alloc_single_indirect_block(file_inode, &total_remaining_blocks,
@@ -1843,16 +1846,20 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 	return blknr;
 }
 
-void ext4fs_close(void)
+/**
+ * ext4fs_reinit_global() - Reinitialize values of ext4 write implementation's
+ *			    global pointers
+ *
+ * This function assures that for a file with the same name but different size
+ * the sequential store on the ext4 filesystem will be correct.
+ *
+ * In this function the global data, responsible for internal representation
+ * of the ext4 data are initialized to the reset state. Without this, during
+ * replacement of the smaller file with the bigger truncation of new file was
+ * performed.
+ */
+void ext4fs_reinit_global(void)
 {
-	if ((ext4fs_file != NULL) && (ext4fs_root != NULL)) {
-		ext4fs_free_node(ext4fs_file, &ext4fs_root->diropen);
-		ext4fs_file = NULL;
-	}
-	if (ext4fs_root != NULL) {
-		free(ext4fs_root);
-		ext4fs_root = NULL;
-	}
 	if (ext4fs_indir1_block != NULL) {
 		free(ext4fs_indir1_block);
 		ext4fs_indir1_block = NULL;
@@ -1872,12 +1879,26 @@ void ext4fs_close(void)
 		ext4fs_indir3_blkno = -1;
 	}
 }
+void ext4fs_close(void)
+{
+	if ((ext4fs_file != NULL) && (ext4fs_root != NULL)) {
+		ext4fs_free_node(ext4fs_file, &ext4fs_root->diropen);
+		ext4fs_file = NULL;
+	}
+	if (ext4fs_root != NULL) {
+		free(ext4fs_root);
+		ext4fs_root = NULL;
+	}
+
+	ext4fs_reinit_global();
+}
 
 int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 				struct ext2fs_node **fnode, int *ftype)
 {
 	unsigned int fpos = 0;
 	int status;
+	loff_t actread;
 	struct ext2fs_node *diro = (struct ext2fs_node *) dir;
 
 #ifdef DEBUG
@@ -1895,8 +1916,8 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 
 		status = ext4fs_read_file(diro, fpos,
 					   sizeof(struct ext2_dirent),
-					   (char *) &dirent);
-		if (status < 1)
+					   (char *)&dirent, &actread);
+		if (status < 0)
 			return 0;
 
 		if (dirent.namelen != 0) {
@@ -1907,8 +1928,9 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			status = ext4fs_read_file(diro,
 						  fpos +
 						  sizeof(struct ext2_dirent),
-						  dirent.namelen, filename);
-			if (status < 1)
+						  dirent.namelen, filename,
+						  &actread);
+			if (status < 0)
 				return 0;
 
 			fdiro = zalloc(sizeof(struct ext2fs_node));
@@ -1990,8 +2012,8 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 					printf("< ? > ");
 					break;
 				}
-				printf("%10d %s\n",
-					__le32_to_cpu(fdiro->inode.size),
+				printf("%10u %s\n",
+				       __le32_to_cpu(fdiro->inode.size),
 					filename);
 			}
 			free(fdiro);
@@ -2006,6 +2028,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	char *symlink;
 	struct ext2fs_node *diro = node;
 	int status;
+	loff_t actread;
 
 	if (!diro->inode_read) {
 		status = ext4fs_read_inode(diro->data, diro->ino, &diro->inode);
@@ -2022,8 +2045,8 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	} else {
 		status = ext4fs_read_file(diro, 0,
 					   __le32_to_cpu(diro->inode.size),
-					   symlink);
-		if (status == 0) {
+					   symlink, &actread);
+		if ((status < 0) || (actread == 0)) {
 			free(symlink);
 			return 0;
 		}
@@ -2156,11 +2179,10 @@ int ext4fs_find_file(const char *path, struct ext2fs_node *rootnode,
 	return 1;
 }
 
-int ext4fs_open(const char *filename)
+int ext4fs_open(const char *filename, loff_t *len)
 {
 	struct ext2fs_node *fdiro = NULL;
 	int status;
-	int len;
 
 	if (ext4fs_root == NULL)
 		return -1;
@@ -2177,10 +2199,10 @@ int ext4fs_open(const char *filename)
 		if (status == 0)
 			goto fail;
 	}
-	len = __le32_to_cpu(fdiro->inode.size);
+	*len = __le32_to_cpu(fdiro->inode.size);
 	ext4fs_file = fdiro;
 
-	return len;
+	return 0;
 fail:
 	ext4fs_free_node(fdiro, &ext4fs_root->diropen);
 

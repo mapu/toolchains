@@ -113,7 +113,7 @@ int init_sata(int dev)
 	/* Save the private struct to block device struct */
 	sata_dev_desc[dev].priv = (void *)sata;
 
-	sprintf(sata->name, "SATA%d", dev);
+	snprintf(sata->name, 12, "SATA%d", dev);
 
 	/* Set the controller register base address to device struct */
 	reg = (fsl_sata_reg_t *)(fsl_sata_info[dev].sata_reg_base);
@@ -252,6 +252,11 @@ int init_sata(int dev)
 	else if ((val32 & SSTATUS_SPD_MASK) == SSTATUS_SPD_GEN2)
 		printf("(3 Gbps)\n\r");
 
+	return 0;
+}
+
+int reset_sata(int dev)
+{
 	return 0;
 }
 

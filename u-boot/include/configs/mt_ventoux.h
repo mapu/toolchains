@@ -30,12 +30,6 @@
 #define CONFIG_HOSTNAME mt_ventoux
 
 /*
- * Miscellaneous configurable options
- */
-#define V_PROMPT			"mt_ventoux => "
-#define CONFIG_SYS_PROMPT		V_PROMPT
-
-/*
  * Set its own mtdparts, different from common
  */
 #undef MTDIDS_DEFAULT
@@ -48,7 +42,7 @@
 /*
  * FPGA
  */
-#define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_SPARTAN3

@@ -10,11 +10,11 @@
 
 #undef DEBUG
 
-#define CONFIG_RMOBILE
 #define CONFIG_SH73A0
 #define CONFIG_KZM_A9_GT
 #define CONFIG_RMOBILE_BOARD_STRING	"KMC KZM-A9-GT"
 #define CONFIG_MACH_TYPE MACH_TYPE_KZM9G
+#define CONFIG_SYS_GENERIC_BOARD
 
 #include <asm/arch/rmobile.h>
 
@@ -24,7 +24,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_OF_LIBFDT
 
-#include <config_cmd_default.h>
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
@@ -54,7 +53,6 @@
 
 /* prompt */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"KZM-A9-GT# "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
@@ -88,7 +86,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	(KZM_FLASH_BASE)
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 #define CONFIG_SYS_TEXT_BASE		0x00000000
@@ -128,7 +125,6 @@
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* Ether */
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_SMC911X

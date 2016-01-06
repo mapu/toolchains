@@ -11,17 +11,15 @@
  * Common configurations used for both spear3xx as well as spear6xx
  */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* U-boot Load Address */
 #define CONFIG_SYS_TEXT_BASE			0x00700000
 
 /* Ethernet driver configuration */
 #define CONFIG_MII
-#define CONFIG_DESIGNWARE_ETH
-#define CONFIG_DW_SEARCH_PHY
-#define CONFIG_DW0_PHY				1
-#define CONFIG_NET_MULTI
+#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 
 /* USBD driver configuration */
@@ -39,8 +37,17 @@
 #define CONFIG_EXTRA_ENV_USBTTY			"usbtty=cdc_acm\0"
 
 /* I2C driver configuration */
-#define CONFIG_HARD_I2C
-#define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
+#if defined(CONFIG_SPEAR600)
+#define CONFIG_SYS_I2C_BASE			0xD0200000
+#elif defined(CONFIG_SPEAR300)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR310)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR320)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#endif
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 
@@ -90,7 +97,6 @@
 #define CONFIG_NAND_FSMC
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_NAND_QUIET_TEST
 
 /*
  * Command support defines
@@ -98,16 +104,10 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
 
 /*
  * Default Environment Varible definitions
@@ -194,17 +194,12 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR		" "
-#define CONFIG_AUTOBOOT_PROMPT			\
-		"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(1024*1024)
 #define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"u-boot> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \

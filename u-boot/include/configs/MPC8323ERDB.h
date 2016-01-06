@@ -9,12 +9,14 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
@@ -333,8 +335,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_EEPROM
@@ -342,10 +342,6 @@
 
 #if defined(CONFIG_PCI)
 	#define CONFIG_CMD_PCI
-#endif
-#if defined(CONFIG_SYS_RAMBOOT)
-	#undef CONFIG_CMD_SAVEENV
-	#undef CONFIG_CMD_LOADS
 #endif
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */

@@ -76,13 +76,13 @@ static void configure_mr(int nr, u32 cs)
 }
 
 /*
- * Configure EMIF4D5 registers and MR registers
+ * Configure EMIF4D5 registers and MR registers For details about these magic
+ * values please see the EMIF registers section of the TRM.
  */
 void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 {
-	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
-	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
-	writel(0x1, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
+	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
 	writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 
 	writel(regs->temp_alert_config, &emif_reg[nr]->emif_temp_alert_config);
@@ -94,10 +94,62 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 	writel(regs->emif_rd_wr_exec_thresh,
 	       &emif_reg[nr]->emif_rd_wr_exec_thresh);
 
-	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
-	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
+	/*
+	 * for most SOCs these registers won't need to be changed so only
+	 * write to these registers if someone explicitly has set the
+	 * register's value.
+	 */
+	if(regs->emif_cos_config) {
+		writel(regs->emif_prio_class_serv_map, &emif_reg[nr]->emif_prio_class_serv_map);
+		writel(regs->emif_connect_id_serv_1_map, &emif_reg[nr]->emif_connect_id_serv_1_map);
+		writel(regs->emif_connect_id_serv_2_map, &emif_reg[nr]->emif_connect_id_serv_2_map);
+		writel(regs->emif_cos_config, &emif_reg[nr]->emif_cos_config);
+	}
 
-	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2) {
+	/*
+	 * Sequence to ensure that the PHY is in a known state prior to
+	 * startting hardware leveling.  Also acts as to latch some state from
+	 * the EMIF into the PHY.
+	 */
+	writel(0x2011, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(0x2411, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(0x2011, &emif_reg[nr]->emif_iodft_tlgc);
+
+	clrbits_le32(&emif_reg[nr]->emif_sdram_ref_ctrl,
+			EMIF_REG_INITREF_DIS_MASK);
+
+	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
+	writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
+	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
+	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
+
+	/* Perform hardware leveling for DDR3 */
+	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3) {
+		udelay(1000);
+		writel(readl(&emif_reg[nr]->emif_ddr_ext_phy_ctrl_36) |
+		       0x100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
+		writel(readl(&emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw) |
+		       0x100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
+
+		writel(0x80000000, &emif_reg[nr]->emif_rd_wr_lvl_rmp_ctl);
+
+		/* Enable read leveling */
+		writel(0x80000000, &emif_reg[nr]->emif_rd_wr_lvl_ctl);
+
+		/*
+		 * Enable full read and write leveling.  Wait for read and write
+		 * leveling bit to clear RDWRLVLFULL_START bit 31
+		 */
+		while ((readl(&emif_reg[nr]->emif_rd_wr_lvl_ctl) & 0x80000000)
+		      != 0)
+			;
+
+		/* Check the timeout register to see if leveling is complete */
+		if ((readl(&emif_reg[nr]->emif_status) & 0x70) != 0)
+			puts("DDR3 H/W leveling incomplete with errors\n");
+
+	} else {
+		/* DDR2 */
 		configure_mr(nr, 0);
 		configure_mr(nr, 1);
 	}
@@ -109,12 +161,6 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 void config_sdram(const struct emif_regs *regs, int nr)
 {
 	if (regs->zq_config) {
-		/*
-		 * A value of 0x2800 for the REF CTRL will give us
-		 * about 570us for a delay, which will be long enough
-		 * to configure things.
-		 */
-		writel(0x2800, &emif_reg[nr]->emif_sdram_ref_ctrl);
 		writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 		writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
 		writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
@@ -139,20 +185,16 @@ void set_sdram_timings(const struct emif_regs *regs, int nr)
 	writel(regs->sdram_tim3, &emif_reg[nr]->emif_sdram_tim_3_shdw);
 }
 
-void __weak emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
-{
-}
-
 /*
- * Configure EXT PHY registers
+ * Configure EXT PHY registers for software leveling
  */
-static void ext_phy_settings(const struct emif_regs *regs, int nr)
+static void ext_phy_settings_swlvl(const struct emif_regs *regs, int nr)
 {
 	u32 *ext_phy_ctrl_base = 0;
 	u32 *emif_ext_phy_ctrl_base = 0;
-	const u32 *ext_phy_ctrl_const_regs;
+	__maybe_unused const u32 *ext_phy_ctrl_const_regs;
 	u32 i = 0;
-	u32 size;
+	__maybe_unused u32 size;
 
 	ext_phy_ctrl_base = (u32 *)&(regs->emif_ddr_ext_phy_ctrl_1);
 	emif_ext_phy_ctrl_base =
@@ -165,9 +207,10 @@ static void ext_phy_settings(const struct emif_regs *regs, int nr)
 		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
 	}
 
+#ifdef CONFIG_AM43XX
 	/*
-	 * external phy 6-24 registers do not change with
-	 * ddr frequency
+	 * External phy 6-24 registers do not change with ddr frequency.
+	 * These only need to be set on DDR2 on AM43xx.
 	 */
 	emif_get_ext_phy_ctrl_const_regs(&ext_phy_ctrl_const_regs, &size);
 
@@ -179,6 +222,58 @@ static void ext_phy_settings(const struct emif_regs *regs, int nr)
 		/* Update shadow registers */
 		writel(ext_phy_ctrl_const_regs[i], emif_ext_phy_ctrl_base++);
 	}
+#endif
+}
+
+/*
+ * Configure EXT PHY registers for hardware leveling
+ */
+static void ext_phy_settings_hwlvl(const struct emif_regs *regs, int nr)
+{
+	/*
+	 * Enable hardware leveling on the EMIF.  For details about these
+	 * magic values please see the EMIF registers section of the TRM.
+	 */
+	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22_shdw);
+	writel(0x00600020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_23);
+	writel(0x00600020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_23_shdw);
+	writel(0x40010080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_24);
+	writel(0x40010080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_24_shdw);
+	writel(0x08102040, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_25);
+	writel(0x08102040, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_25_shdw);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_26);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_26_shdw);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_27);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_27_shdw);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_28);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_28_shdw);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_29);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_29_shdw);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_30);
+	writel(0x00200020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_30_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_31);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_31_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_32);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_32_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_33);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_33_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_34);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_34_shdw);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35);
+	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35_shdw);
+	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
+	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
+
+	/*
+	 * Sequence to ensure that the PHY is again in a known state after
+	 * hardware leveling.
+	 */
+	writel(0x2011, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(0x2411, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(0x2011, &emif_reg[nr]->emif_iodft_tlgc);
 }
 
 /**
@@ -187,19 +282,29 @@ static void ext_phy_settings(const struct emif_regs *regs, int nr)
 void config_ddr_phy(const struct emif_regs *regs, int nr)
 {
 	/*
-	 * disable initialization and refreshes for now until we
+	 * Disable initialization and refreshes for now until we
 	 * finish programming EMIF regs.
+	 * Also set time between rising edge of DDR_RESET to rising
+	 * edge of DDR_CKE to > 500us per memory spec.
 	 */
+#ifndef CONFIG_AM43XX
 	setbits_le32(&emif_reg[nr]->emif_sdram_ref_ctrl,
 		     EMIF_REG_INITREF_DIS_MASK);
+#endif
+	if (regs->zq_config)
+		writel(0x80003100, &emif_reg[nr]->emif_sdram_ref_ctrl);
 
 	writel(regs->emif_ddr_phy_ctlr_1,
 		&emif_reg[nr]->emif_ddr_phy_ctrl_1);
 	writel(regs->emif_ddr_phy_ctlr_1,
 		&emif_reg[nr]->emif_ddr_phy_ctrl_1_shdw);
 
-	if (get_emif_rev((u32)emif_reg[nr]) == EMIF_4D5)
-		ext_phy_settings(regs, nr);
+	if (get_emif_rev((u32)emif_reg[nr]) == EMIF_4D5) {
+		if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3)
+			ext_phy_settings_hwlvl(regs, nr);
+		else
+			ext_phy_settings_swlvl(regs, nr);
+	}
 }
 
 /**

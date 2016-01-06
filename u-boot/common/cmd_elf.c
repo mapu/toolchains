@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <command.h>
 #include <linux/ctype.h>
 #include <net.h>
@@ -28,8 +29,7 @@ static unsigned long load_elf_image_phdr(unsigned long addr);
 static unsigned long load_elf_image_shdr(unsigned long addr);
 
 /* Allow ports to override the default behavior */
-__attribute__((weak))
-unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
+static unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
 			       int argc, char * const argv[])
 {
 	unsigned long ret;
@@ -77,10 +77,12 @@ int valid_elf_image(unsigned long addr)
 		return 0;
 	}
 
-	if (ehdr->e_machine != EM_ARM) {
-		printf("## Not a ARM elf image at address 0x%08lx\n", addr);
+#if 0
+	if (ehdr->e_machine != EM_PPC) {
+		printf("## Not a PowerPC elf image at address 0x%08lx\n", addr);
 		return 0;
 	}
+#endif
 
 	return 1;
 }
@@ -93,6 +95,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr;		/* Address of the ELF image     */
 	unsigned long rc;		/* Return value from user code  */
 	char *sload, *saddr;
+	const char *ep = getenv("autostart");
 
 	/* -------------------------------------------------- */
 	int rcode = 0;
@@ -120,6 +123,9 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		addr = load_elf_image_phdr(addr);
 	else
 		addr = load_elf_image_shdr(addr);
+
+	if (ep && !strcmp(ep, "no"))
+		return rcode;
 
 	printf("## Starting application at 0x%08lx ...\n", addr);
 
@@ -164,7 +170,7 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Check to see if we need to tftp the image ourselves before starting
 	 */
 	if ((argc == 2) && (strcmp(argv[1], "tftp") == 0)) {
-		if (NetLoop(TFTPGET) <= 0)
+		if (net_loop(TFTPGET) <= 0)
 			return 1;
 		printf("Automatic boot of VxWorks image at address 0x%08lx ...\n",
 			addr);
@@ -208,9 +214,9 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	bootline = getenv("bootargs");
 	if (bootline) {
-		memcpy((void *) bootaddr, bootline,
-			max(strlen(bootline), 255));
-		flush_cache(bootaddr, max(strlen(bootline), 255));
+		memcpy((void *)bootaddr, bootline,
+		       max(strlen(bootline), (size_t)255));
+		flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
 	} else {
 		sprintf(build_buf, CONFIG_SYS_VXWORKS_BOOT_DEVICE);
 		tmp = getenv("bootfile");
@@ -238,9 +244,9 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			 CONFIG_SYS_VXWORKS_ADD_PARAMS);
 #endif
 
-		memcpy((void *) bootaddr, build_buf,
-			max(strlen(build_buf), 255));
-		flush_cache(bootaddr, max(strlen(build_buf), 255));
+		memcpy((void *)bootaddr, build_buf,
+		       max(strlen(build_buf), (size_t)255));
+		flush_cache(bootaddr, max(strlen(build_buf), (size_t)255));
 	}
 
 	/*

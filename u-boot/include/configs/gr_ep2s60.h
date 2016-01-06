@@ -20,8 +20,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 /* Altera NIOS Development board, Stratix II board */
 #define CONFIG_GR_EP2S60	1
 
@@ -55,8 +53,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_AMBAPP
 #define CONFIG_CMD_PING
@@ -261,17 +257,8 @@
 
 /* USE GRETH Ethernet Driver */
 #define CONFIG_GRETH	1
-
-/* Default GRETH Ethernet HARDWARE address */
-#define GRETH_HWADDR_0 0x00
-#define GRETH_HWADDR_1 0x00
-#define GRETH_HWADDR_2 0x7a
-#define GRETH_HWADDR_3 0xcc
-#define GRETH_HWADDR_4 0x00
-#define GRETH_HWADDR_5 0x13
 #endif
 
-#define CONFIG_ETHADDR   00:00:7a:cc:00:13
 #define CONFIG_PHY_ADDR	 0x00
 
 /*

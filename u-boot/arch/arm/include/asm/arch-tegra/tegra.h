@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010,2011
+ * (C) Copyright 2010-2015
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -34,7 +34,12 @@
 #define NV_PA_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
 #define NV_PA_EMC_BASE		(NV_PA_APB_MISC_BASE + 0xF400)
 #define NV_PA_FUSE_BASE		(NV_PA_APB_MISC_BASE + 0xF800)
+#if defined(CONFIG_TEGRA20) || defined(CONFIG_TEGRA30) || \
+	defined(CONFIG_TEGRA114)
 #define NV_PA_CSITE_BASE	0x70040000
+#else
+#define NV_PA_CSITE_BASE	0x70800000
+#endif
 #define TEGRA_USB_ADDR_MASK	0xFFFFC000
 
 #define NV_PA_SDRC_CS0		NV_PA_SDRAM_BASE
@@ -51,6 +56,8 @@ struct timerus {
 /* Address at which WB code runs, it must not overlap Bootrom's IRAM usage */
 #define NV_WB_RUN_ADDRESS	0x40020000
 
+#define NVBOOTTYPE_RECOVERY	2	/* BR entered RCM */
+#define NVBOOTINFOTABLE_BOOTTYPE 0xC	/* Boot type in BIT in IRAM */
 #define NVBOOTINFOTABLE_BCTSIZE	0x38	/* BCT size in BIT in IRAM */
 #define NVBOOTINFOTABLE_BCTPTR	0x3C	/* BCT pointer in BIT in IRAM */
 
@@ -68,6 +75,8 @@ enum {
 	SKU_ID_TM30MQS_P_A3	= 0xb1,
 	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
 	SKU_ID_T114_1		= 0x01,
+	SKU_ID_T124_ENG		= 0x00, /* Venice2 value, unfused */
+	SKU_ID_T210_ENG		= 0x00, /* unfused value TBD */
 };
 
 /*
@@ -81,6 +90,8 @@ enum {
 	TEGRA_SOC_T25,
 	TEGRA_SOC_T30,
 	TEGRA_SOC_T114,
+	TEGRA_SOC_T124,
+	TEGRA_SOC_T210,
 
 	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,

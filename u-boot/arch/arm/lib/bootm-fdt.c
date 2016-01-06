@@ -17,20 +17,36 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#ifdef CONFIG_ARMV7_NONSEC
+#include <asm/armv7.h>
+#endif
+#include <asm/psci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int arch_fixup_memory_node(void *blob)
+int arch_fixup_fdt(void *blob)
 {
 	bd_t *bd = gd->bd;
-	int bank;
+	int bank, ret;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		start[bank] = bd->bi_dram[bank].start;
 		size[bank] = bd->bi_dram[bank].size;
+#ifdef CONFIG_ARMV7_NONSEC
+		ret = armv7_apply_memory_carveout(&start[bank], &size[bank]);
+		if (ret)
+			return ret;
+#endif
 	}
 
-	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+#ifdef CONFIG_ARMV7_NONSEC
+	if (ret)
+		return ret;
+
+	ret = psci_update_dt(blob);
+#endif
+	return ret;
 }

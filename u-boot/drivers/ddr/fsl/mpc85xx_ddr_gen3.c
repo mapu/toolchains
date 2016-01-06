@@ -15,7 +15,6 @@
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
 #endif
 
-
 /*
  * regs has the to-be-set values for DDR controller registers
  * ctrl_num is the DDR controller number
@@ -38,6 +37,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
 	unsigned int csn_bnds_backup = 0, cs_sa, cs_ea, *csn_bnds_t;
 	int csn = -1;
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003
+	u32 save1, save2;
 #endif
 
 	switch (ctrl_num) {
@@ -116,7 +118,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->timing_cfg_0, regs->timing_cfg_0);
 	out_be32(&ddr->timing_cfg_1, regs->timing_cfg_1);
 	out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2);
-	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
 	out_be32(&ddr->sdram_mode_3, regs->ddr_sdram_mode_3);
@@ -129,9 +130,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 	out_be32(&ddr->sdram_data_init, regs->ddr_data_init);
 	out_be32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
-	out_be32(&ddr->init_addr, regs->ddr_init_addr);
-	out_be32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
-
 	out_be32(&ddr->timing_cfg_4, regs->timing_cfg_4);
 	out_be32(&ddr->timing_cfg_5, regs->timing_cfg_5);
 	out_be32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
@@ -152,7 +150,24 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
 	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
 	out_be32(&ddr->ddr_cdr1, regs->ddr_cdr1);
-	out_be32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		out_be32(&ddr->sdram_cfg_2,
+			 regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
+		out_be32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		out_be32(&ddr->init_ext_addr, DDR_INIT_ADDR_EXT_UIA);
+
+		/* DRAM VRef will not be trained */
+		out_be32(&ddr->ddr_cdr2,
+			 regs->ddr_cdr2 & ~DDR_CDR2_VREF_TRAIN_EN);
+	} else
+#endif
+	{
+		out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
+		out_be32(&ddr->init_addr, regs->ddr_init_addr);
+		out_be32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
+		out_be32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+	}
 	out_be32(&ddr->err_disable, regs->err_disable);
 	out_be32(&ddr->err_int_en, regs->err_int_en);
 	for (i = 0; i < 32; i++) {
@@ -197,6 +212,8 @@ step2:
 		out_be32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl & 0x7fffffff);
 		out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2 & 0xffffffeb);
 		out_be32(&ddr->mtcr, 0);
+		save1 = in_be32(&ddr->debug[12]);
+		save2 = in_be32(&ddr->debug[21]);
 		out_be32(&ddr->debug[12], 0x00000015);
 		out_be32(&ddr->debug[21], 0x24000000);
 		out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval & 0xffff);
@@ -214,6 +231,18 @@ step2:
 				0x04000000		|
 				MD_CNTL_WRCW		|
 				MD_CNTL_MD_VALUE(0x02));
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+			if (!(regs->cs[2].config & SDRAM_CS_CONFIG_EN))
+				break;
+			while (in_be32(&ddr->sdram_md_cntl) & MD_CNTL_MD_EN)
+				;
+			out_be32(&ddr->sdram_md_cntl,
+				 MD_CNTL_MD_EN		|
+				 MD_CNTL_CS_SEL_CS2_CS3	|
+				 0x04000000		|
+				 MD_CNTL_WRCW		|
+				 MD_CNTL_MD_VALUE(0x02));
+#endif
 			break;
 		case 0x00100000:
 			out_be32(&ddr->sdram_md_cntl,
@@ -222,6 +251,18 @@ step2:
 				0x04000000		|
 				MD_CNTL_WRCW		|
 				MD_CNTL_MD_VALUE(0x0a));
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+			if (!(regs->cs[2].config & SDRAM_CS_CONFIG_EN))
+				break;
+			while (in_be32(&ddr->sdram_md_cntl) & MD_CNTL_MD_EN)
+				;
+			out_be32(&ddr->sdram_md_cntl,
+				 MD_CNTL_MD_EN		|
+				 MD_CNTL_CS_SEL_CS2_CS3	|
+				 0x04000000		|
+				 MD_CNTL_WRCW		|
+				 MD_CNTL_MD_VALUE(0x0a));
+#endif
 			break;
 		case 0x00200000:
 			out_be32(&ddr->sdram_md_cntl,
@@ -230,6 +271,18 @@ step2:
 				0x04000000		|
 				MD_CNTL_WRCW		|
 				MD_CNTL_MD_VALUE(0x12));
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+			if (!(regs->cs[2].config & SDRAM_CS_CONFIG_EN))
+				break;
+			while (in_be32(&ddr->sdram_md_cntl) & MD_CNTL_MD_EN)
+				;
+			out_be32(&ddr->sdram_md_cntl,
+				 MD_CNTL_MD_EN		|
+				 MD_CNTL_CS_SEL_CS2_CS3	|
+				 0x04000000		|
+				 MD_CNTL_WRCW		|
+				 MD_CNTL_MD_VALUE(0x12));
+#endif
 			break;
 		case 0x00300000:
 			out_be32(&ddr->sdram_md_cntl,
@@ -238,6 +291,18 @@ step2:
 				0x04000000		|
 				MD_CNTL_WRCW		|
 				MD_CNTL_MD_VALUE(0x1a));
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+			if (!(regs->cs[2].config & SDRAM_CS_CONFIG_EN))
+				break;
+			while (in_be32(&ddr->sdram_md_cntl) & MD_CNTL_MD_EN)
+				;
+			out_be32(&ddr->sdram_md_cntl,
+				 MD_CNTL_MD_EN		|
+				 MD_CNTL_CS_SEL_CS2_CS3	|
+				 0x04000000		|
+				 MD_CNTL_WRCW		|
+				 MD_CNTL_MD_VALUE(0x1a));
+#endif
 			break;
 		default:
 			out_be32(&ddr->sdram_md_cntl,
@@ -246,6 +311,18 @@ step2:
 				0x04000000		|
 				MD_CNTL_WRCW		|
 				MD_CNTL_MD_VALUE(0x02));
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+			if (!(regs->cs[2].config & SDRAM_CS_CONFIG_EN))
+				break;
+			while (in_be32(&ddr->sdram_md_cntl) & MD_CNTL_MD_EN)
+				;
+			out_be32(&ddr->sdram_md_cntl,
+				 MD_CNTL_MD_EN		|
+				 MD_CNTL_CS_SEL_CS2_CS3	|
+				 0x04000000		|
+				 MD_CNTL_WRCW		|
+				 MD_CNTL_MD_VALUE(0x02));
+#endif
 			printf("Unsupported RC10\n");
 			break;
 		}
@@ -259,8 +336,8 @@ step2:
 		out_be32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
 		out_be32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
 		out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
-		out_be32(&ddr->debug[12], 0x0);
-		out_be32(&ddr->debug[21], 0x0);
+		out_be32(&ddr->debug[12], save1);
+		out_be32(&ddr->debug[21], save2);
 		out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 
 	}
@@ -309,8 +386,18 @@ step2:
 	udelay(500);
 	asm volatile("sync;isync");
 
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* enter self-refresh */
+		setbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
+		/* do board specific memory setup */
+		board_mem_sleep_setup();
+		temp_sdram_cfg = (in_be32(&ddr->sdram_cfg) | SDRAM_CFG_BI);
+	} else
+#endif
+		temp_sdram_cfg = (in_be32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI);
+
 	/* Let the controller go */
-	temp_sdram_cfg = in_be32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	asm volatile("sync;isync");
 
@@ -339,7 +426,7 @@ step2:
 	bus_width = 3 - ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
-		(get_ddr_freq(0) >> 20)) << 1;
+		(get_ddr_freq(ctrl_num) >> 20)) << 1;
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	timeout_save = timeout;
 #endif
@@ -451,14 +538,21 @@ step2:
 		case 1:
 			out_be32(&ddr->cs1_bnds, regs->cs[csn].bnds);
 			break;
+#if CONFIG_CHIP_SELECTS_PER_CTRL > 2
 		case 2:
 			out_be32(&ddr->cs2_bnds, regs->cs[csn].bnds);
 			break;
 		case 3:
 			out_be32(&ddr->cs3_bnds, regs->cs[csn].bnds);
 			break;
+#endif
 		}
 		clrbits_be32(&ddr->sdram_cfg, 0x2);
 	}
 #endif /* CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134 */
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot())
+		/* exit self-refresh */
+		clrbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_FRC_SR);
+#endif
 }

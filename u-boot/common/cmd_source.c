@@ -19,6 +19,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/io.h>
 #if defined(CONFIG_8xx)
@@ -29,8 +30,10 @@ int
 source (ulong addr, const char *fit_uname)
 {
 	ulong		len;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *hdr;
-	ulong		*data;
+#endif
+	u32		*data;
 	int		verify;
 	void *buf;
 #if defined(CONFIG_FIT)
@@ -44,6 +47,7 @@ source (ulong addr, const char *fit_uname)
 
 	buf = map_sysmem(addr, 0);
 	switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	case IMAGE_FORMAT_LEGACY:
 		hdr = buf;
 
@@ -70,7 +74,7 @@ source (ulong addr, const char *fit_uname)
 		}
 
 		/* get length of script */
-		data = (ulong *)image_get_data (hdr);
+		data = (u32 *)image_get_data (hdr);
 
 		if ((len = uimage_to_cpu (*data)) == 0) {
 			puts ("Empty Script\n");
@@ -84,6 +88,7 @@ source (ulong addr, const char *fit_uname)
 		 */
 		while (*data++);
 		break;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		if (fit_uname == NULL) {
@@ -123,7 +128,7 @@ source (ulong addr, const char *fit_uname)
 			return 1;
 		}
 
-		data = (ulong *)fit_data;
+		data = (u32 *)fit_data;
 		len = (ulong)fit_len;
 		break;
 #endif
@@ -138,8 +143,7 @@ source (ulong addr, const char *fit_uname)
 
 /**************************************************/
 #if defined(CONFIG_CMD_SOURCE)
-int
-do_source (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 	int rcode;

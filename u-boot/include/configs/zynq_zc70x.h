@@ -2,7 +2,7 @@
  * (C) Copyright 2013 Xilinx, Inc.
  *
  * Configuration settings for the Xilinx Zynq ZC702 and ZC706 boards
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -19,10 +19,10 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_ZYNQ_SDHCI0
+#define CONFIG_ZYNQ_USB
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_EEPROM
 #define CONFIG_ZYNQ_BOOT_FREEBSD
-#define CONFIG_DEFAULT_DEVICE_TREE	zynq-zc702
 
 #include <configs/zynq-common.h>
 

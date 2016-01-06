@@ -18,10 +18,11 @@
  */
 
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_PLU405		1	/* ...on a PLU405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -60,8 +61,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
@@ -136,15 +135,6 @@
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
-
-/* Only interrupt boot if space is pressed */
-/* If a long serial cable is connected but */
-/* other end is dead, garbage will be read */
-#define CONFIG_AUTOBOOT_KEYED	1
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#define CONFIG_AUTOBOOT_STOP_STR " "
 
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 

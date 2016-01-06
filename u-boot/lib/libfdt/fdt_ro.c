@@ -44,7 +44,7 @@ static int _fdt_string_eq(const void *fdt, int stroffset,
 {
 	const char *p = fdt_string(fdt, stroffset);
 
-	return (strlen(p) == len) && (memcmp(p, s, len) == 0);
+	return (strnlen(p, len + 1) == len) && (memcmp(p, s, len) == 0);
 }
 
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
@@ -113,6 +113,25 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
 	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
+/*
+ * Find the next of path seperator, note we need to search for both '/' and ':'
+ * and then take the first one so that we do the rigth thing for e.g.
+ * "foo/bar:option" and "bar:option/otheroption", both of which happen, so
+ * first searching for either ':' or '/' does not work.
+ */
+static const char *fdt_path_next_seperator(const char *path)
+{
+	const char *sep1 = strchr(path, '/');
+	const char *sep2 = strchr(path, ':');
+
+	if (sep1 && sep2)
+		return (sep1 < sep2) ? sep1 : sep2;
+	else if (sep1)
+		return sep1;
+	else
+		return sep2;
+}
+
 int fdt_path_offset(const void *fdt, const char *path)
 {
 	const char *end = path + strlen(path);
@@ -123,7 +142,7 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	/* see if we have an alias */
 	if (*path != '/') {
-		const char *q = strchr(path, '/');
+		const char *q = fdt_path_next_seperator(path);
 
 		if (!q)
 			q = end;
@@ -141,9 +160,9 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 		while (*p == '/')
 			p++;
-		if (! *p)
+		if (*p == '\0' || *p == ':')
 			return offset;
-		q = strchr(p, '/');
+		q = fdt_path_next_seperator(p);
 		if (! q)
 			q = end;
 
@@ -489,6 +508,82 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
 		strlist = p + 1;
 	}
 	return 0;
+}
+
+int fdt_count_strings(const void *fdt, int node, const char *property)
+{
+	int length, i, count = 0;
+	const char *list;
+
+	list = fdt_getprop(fdt, node, property, &length);
+	if (!list)
+		return length;
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		list += len + 1;
+		i += len;
+		count++;
+	}
+
+	return count;
+}
+
+int fdt_find_string(const void *fdt, int node, const char *property,
+		    const char *string)
+{
+	const char *list, *end;
+	int len, index = 0;
+
+	list = fdt_getprop(fdt, node, property, &len);
+	if (!list)
+		return len;
+
+	end = list + len;
+	len = strlen(string);
+
+	while (list < end) {
+		int l = strlen(list);
+
+		if (l == len && memcmp(list, string, len) == 0)
+			return index;
+
+		list += l + 1;
+		index++;
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_string_index(const void *fdt, int node, const char *property,
+			 int index, const char **output)
+{
+	const char *list;
+	int length, i;
+
+	list = fdt_getprop(fdt, node, property, &length);
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		if (index == 0) {
+			*output = list;
+			return 0;
+		}
+
+		list += len + 1;
+		i += len;
+		index--;
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_string(const void *fdt, int node, const char *property,
+		   const char **output)
+{
+	return fdt_get_string_index(fdt, node, property, 0, output);
 }
 
 int fdt_node_check_compatible(const void *fdt, int nodeoffset,

@@ -16,9 +16,10 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU)	*/
-#define CONFIG_INKA4X0		1	/* INKA4x0 board			*/
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU	*/
+#define CONFIG_INKA4X0		1	/* INKA4x0 board		*/
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:
@@ -81,14 +82,11 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
@@ -110,9 +108,6 @@
 	"echo"
 
 #undef	CONFIG_BOOTARGS
-
-#define	CONFIG_ETHADDR		00:a0:a4:03:00:00
-#define	CONFIG_OVERWRITE_ETHADDR_ONCE
 
 #define	CONFIG_IPADDR		192.168.100.2
 #define	CONFIG_SERVERIP		192.168.100.1

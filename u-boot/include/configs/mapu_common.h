@@ -162,13 +162,15 @@
 #define CONFIG_CMD_BOOTMENU
 #define CONFIG_MENU
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
+/*#define CONFIG_CMD_FLASH*/
 #define CONFIG_CMD_MTDPARTS
+/*
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NET
+*/
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_RUN
+/*#define CONFIG_CMD_RUN*/
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
@@ -225,13 +227,13 @@
 		"dram=512M\0" \
 		"root=/dev/mtdblock4 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=jffs2 "\
+    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=ext4 "\
     "console=tty0\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
 			"bootm ${loadaddr}\0" \
     "bootmenu_1=Boot 2. linux 3.4.85=run bootflash\0" \
-    "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x80000;cp.l 0x80000 0x60000000 0x1000;" \
+    "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x240000;cp.l 0x80000 0x60000000 0x1000;" \
     "bootm 0x60007fc0 - 0x60000000\0" \
     "bootmenu_0=Boot 1. linux 3.4.85 (Nor Flash)=run bootnor\0"\
     "initapclib=mtdparts;chpart nor0,2;apclib sinit;apclib minit;"\
@@ -251,7 +253,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
 
 /* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
-//#define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */
+/*#define CONFIG_SYS_MAX_FLASH_SECT	259		 Max sectors */
 #define CONFIG_SYS_MAX_FLASH_SECT	2048		/* Max sectors */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000	/* 256 KB sectors */
 
@@ -280,13 +282,13 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PROMPT		"MaPU# "
+/*#define CONFIG_SYS_PROMPT		"MaPU# "*/
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Boot args buffer */
-#define CONFIG_CMD_SOURCE
+/*#define CONFIG_CMD_SOURCE*/
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
 #define CONFIG_CMDLINE_EDITING		1

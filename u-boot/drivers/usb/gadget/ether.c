@@ -15,7 +15,9 @@
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
 #include <net.h>
+#include <usb.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <linux/ctype.h>
 
 #include "gadget_chips.h"
@@ -25,14 +27,9 @@
 
 #define atomic_read
 extern struct platform_data brd;
-#define spin_lock(x)
-#define spin_unlock(x)
 
 
 unsigned packet_received, packet_sent;
-
-#define GFP_ATOMIC ((gfp_t) 0)
-#define GFP_KERNEL ((gfp_t) 0)
 
 /*
  * Ethernet gadget driver -- with CDC and non-CDC options
@@ -73,7 +70,6 @@ unsigned packet_received, packet_sent;
 #define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
 #define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
 #define ETH_FRAME_LEN	PKTSIZE_ALIGN	/* Max. octets in frame sans FCS */
-#define ETH_FCS_LEN	4		/* Octets in the FCS		 */
 
 #define DRIVER_DESC		"Ethernet Gadget"
 /* Based on linux 2.6.27 version */
@@ -857,30 +853,6 @@ DEFINE_CACHE_ALIGN_BUFFER(u8, control_req, USB_BUFSIZ);
 DEFINE_CACHE_ALIGN_BUFFER(u8, status_req, STATUS_BYTECOUNT);
 #endif
 
-
-/**
- * strlcpy - Copy a %NUL terminated string into a sized buffer
- * @dest: Where to copy the string to
- * @src: Where to copy the string from
- * @size: size of destination buffer
- *
- * Compatible with *BSD: the result is always a valid
- * NUL-terminated string that fits in the buffer (unless,
- * of course, the buffer size is zero). It does not pad
- * out the result like strncpy() does.
- */
-size_t strlcpy(char *dest, const char *src, size_t size)
-{
-	size_t ret = strlen(src);
-
-	if (size) {
-		size_t len = (ret >= size) ? size - 1 : ret;
-		memcpy(dest, src, len);
-		dest[len] = '\0';
-	}
-	return ret;
-}
-
 /*============================================================================*/
 
 /*
@@ -1278,6 +1250,7 @@ eth_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		switch (wValue >> 8) {
 
 		case USB_DT_DEVICE:
+			device_desc.bMaxPacketSize0 = gadget->ep0->maxpacket;
 			value = min(wLength, (u16) sizeof device_desc);
 			memcpy(req->buf, &device_desc, value);
 			break;
@@ -1551,7 +1524,7 @@ static int rx_submit(struct eth_dev *dev, struct usb_request *req,
 	 * RNDIS headers involve variable numbers of LE32 values.
 	 */
 
-	req->buf = (u8 *) NetRxPackets[0];
+	req->buf = (u8 *)net_rx_packets[0];
 	req->length = size;
 	req->complete = rx_complete;
 
@@ -1674,13 +1647,13 @@ static int eth_start_xmit (struct sk_buff *skb, struct net_device *net)
 	if (!eth_is_promisc (dev)) {
 		u8		*dest = skb->data;
 
-		if (is_multicast_ether_addr(dest)) {
+		if (is_multicast_ethaddr(dest)) {
 			u16	type;
 
 			/* ignores USB_CDC_PACKET_TYPE_MULTICAST and host
 			 * SET_ETHERNET_MULTICAST_FILTERS requests
 			 */
-			if (is_broadcast_ether_addr(dest))
+			if (is_broadcast_ethaddr(dest))
 				type = USB_CDC_PACKET_TYPE_BROADCAST;
 			else
 				type = USB_CDC_PACKET_TYPE_ALL_MULTICAST;
@@ -1936,7 +1909,7 @@ static int eth_stop(struct eth_dev *dev)
 		/* Wait until host receives OID_GEN_MEDIA_CONNECT_STATUS */
 		ts = get_timer(0);
 		while (get_timer(ts) < timeout)
-			usb_gadget_handle_interrupts();
+			usb_gadget_handle_interrupts(0);
 #endif
 
 		rndis_uninit(dev->rndis_config);
@@ -1971,7 +1944,7 @@ static int is_eth_addr_valid(char *str)
 		}
 
 		/* Now check the contents. */
-		return is_valid_ether_addr(ea);
+		return is_valid_ethaddr(ea);
 	}
 	return 0;
 }
@@ -2000,7 +1973,7 @@ static int get_ether_addr(const char *str, u8 *dev_addr)
 			num |= (nibble(*str++));
 			dev_addr[i] = num;
 		}
-		if (is_valid_ether_addr(dev_addr))
+		if (is_valid_ethaddr(dev_addr))
 			return 0;
 	}
 	return 1;
@@ -2162,7 +2135,6 @@ autoconf_fail:
 		hs_subset_descriptors();
 	}
 
-	device_desc.bMaxPacketSize0 = gadget->ep0->maxpacket;
 	usb_gadget_set_selfpowered(gadget);
 
 	/* For now RNDIS is always a second config */
@@ -2342,6 +2314,8 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		goto fail;
 	}
 
+	board_usb_init(0, USB_INIT_DEVICE);
+
 	/* Configure default mac-addresses for the USB ethernet device */
 #ifdef CONFIG_USBNET_DEV_ADDR
 	strlcpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
@@ -2388,7 +2362,7 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 			error("The remote end did not respond in time.");
 			goto fail;
 		}
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 
 	packet_received = 0;
@@ -2456,7 +2430,7 @@ static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
 			printf("timeout sending packets to usb ethernet\n");
 			return -1;
 		}
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 	if (rndis_pkt)
 		free(rndis_pkt);
@@ -2471,12 +2445,13 @@ static int usb_eth_recv(struct eth_device *netdev)
 {
 	struct eth_dev *dev = &l_ethdev;
 
-	usb_gadget_handle_interrupts();
+	usb_gadget_handle_interrupts(0);
 
 	if (packet_received) {
 		debug("%s: packet received\n", __func__);
 		if (dev->rx_req) {
-			NetReceive(NetRxPackets[0], dev->rx_req->length);
+			net_process_received_packet(net_rx_packets[0],
+						    dev->rx_req->length);
 			packet_received = 0;
 
 			rx_submit(dev, dev->rx_req, 0);
@@ -2516,11 +2491,12 @@ void usb_eth_halt(struct eth_device *netdev)
 
 	/* Clear pending interrupt */
 	if (dev->network_started) {
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 		dev->network_started = 0;
 	}
 
 	usb_gadget_unregister_driver(&eth_driver);
+	board_usb_cleanup(0, USB_INIT_DEVICE);
 }
 
 static struct usb_gadget_driver eth_driver = {
@@ -2530,6 +2506,7 @@ static struct usb_gadget_driver eth_driver = {
 	.unbind		= eth_unbind,
 
 	.setup		= eth_setup,
+	.reset		= eth_disconnect,
 	.disconnect	= eth_disconnect,
 
 	.suspend	= eth_suspend,

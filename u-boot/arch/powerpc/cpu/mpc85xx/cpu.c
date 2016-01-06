@@ -73,9 +73,38 @@ int checkcpu (void)
 	unsigned int i, core, nr_cores = cpu_numcores();
 	u32 mask = cpu_mask();
 
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	unsigned int j, dsp_core, dsp_numcores = cpu_num_dspcores();
+	u32 dsp_mask = cpu_dsp_mask();
+#endif
+
 	svr = get_svr();
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
+
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
+	if (SVR_SOC_VER(svr) == SVR_T4080) {
+		ccsr_rcpm_t *rcpm =
+			(void __iomem *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+
+		setbits_be32(&gur->devdisr2, FSL_CORENET_DEVDISR2_DTSEC1_6 ||
+			     FSL_CORENET_DEVDISR2_DTSEC1_9);
+		setbits_be32(&gur->devdisr3, FSL_CORENET_DEVDISR3_PCIE3);
+		setbits_be32(&gur->devdisr5, FSL_CORENET_DEVDISR5_DDR3);
+
+		/* It needs SW to disable core4~7 as HW design sake on T4080 */
+		for (i = 4; i < 8; i++)
+			cpu_disable(i);
+
+		/* request core4~7 into PH20 state, prior to entering PCL10
+		 * state, all cores in cluster should be placed in PH20 state.
+		 */
+		setbits_be32(&rcpm->pcph20setr, 0xf0);
+
+		/* put the 2nd cluster into PCL10 state */
+		setbits_be32(&rcpm->clpcl10setr, 1 << 1);
+	}
+#endif
 
 	if (cpu_numcores() > 1) {
 #ifndef CONFIG_MP
@@ -130,6 +159,11 @@ int checkcpu (void)
 
 	get_sys_info(&sysinfo);
 
+#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	if (sysinfo.diff_sysclk == 1)
+		puts("Single Source Clock Configuration\n");
+#endif
+
 	puts("Clock Configuration:");
 	for_each_cpu(i, core, nr_cores, mask) {
 		if (!(i & 3))
@@ -137,6 +171,16 @@ int checkcpu (void)
 		printf("CPU%d:%-4s MHz, ", core,
 			strmhz(buf1, sysinfo.freq_processor[core]));
 	}
+
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	for_each_cpu(j, dsp_core, dsp_numcores, dsp_mask) {
+		if (!(j & 3))
+			printf("\n       ");
+		printf("DSP CPU%d:%-4s MHz, ", j,
+		       strmhz(buf1, sysinfo.freq_processor_dsp[dsp_core]));
+	}
+#endif
+
 	printf("\n       CCB:%-4s MHz,", strmhz(buf1, sysinfo.freq_systembus));
 	printf("\n");
 
@@ -193,6 +237,19 @@ int checkcpu (void)
 
 #ifdef CONFIG_QE
 	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freq_qe));
+#endif
+
+#if defined(CONFIG_SYS_CPRI)
+	printf("       ");
+	printf("CPRI:%-4s MHz", strmhz(buf1, sysinfo.freq_cpri));
+#endif
+
+#if defined(CONFIG_SYS_MAPLE)
+	printf("\n       ");
+	printf("MAPLE:%-4s MHz, ", strmhz(buf1, sysinfo.freq_maple));
+	printf("MAPLE-ULB:%-4s MHz, ", strmhz(buf1, sysinfo.freq_maple_ulb));
+	printf("MAPLE-eTVPE:%-4s MHz\n",
+	       strmhz(buf1, sysinfo.freq_maple_etvpe));
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -272,7 +329,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifndef CONFIG_SYS_FSL_TBCLK_DIV
 #define CONFIG_SYS_FSL_TBCLK_DIV 8
 #endif
-unsigned long get_tbclk (void)
+__weak unsigned long get_tbclk (void)
 {
 	unsigned long tbclk_div = CONFIG_SYS_FSL_TBCLK_DIV;
 
@@ -281,6 +338,14 @@ unsigned long get_tbclk (void)
 
 
 #if defined(CONFIG_WATCHDOG)
+#define WATCHDOG_MASK (TCR_WP(63) | TCR_WRC(3) | TCR_WIE)
+void
+init_85xx_watchdog(void)
+{
+	mtspr(SPRN_TCR, (mfspr(SPRN_TCR) & ~WATCHDOG_MASK) |
+	      TCR_WP(CONFIG_WATCHDOG_PRESC) | TCR_WRC(CONFIG_WATCHDOG_RC));
+}
+
 void
 reset_85xx_watchdog(void)
 {
@@ -338,7 +403,8 @@ void mpc85xx_reginfo(void)
 	!defined(CONFIG_SYS_INIT_L2_ADDR)
 phys_size_t initdram(int board_type)
 {
-#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
+	defined(CONFIG_QEMU_E500)
 	return fsl_ddr_sdram_size();
 #else
 	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
@@ -403,7 +469,7 @@ phys_size_t initdram(int board_type)
 
 /* Board-specific functions defined in each board's ddr.c */
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
-	unsigned int ctrl_num);
+	unsigned int ctrl_num, unsigned int dimm_slots_per_ctrl);
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn);
 unsigned int
@@ -421,7 +487,7 @@ static void dump_spd_ddr_reg(void)
 		spd[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR];
 
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
-		fsl_ddr_get_spd(spd[i], i);
+		fsl_ddr_get_spd(spd[i], i, CONFIG_DIMM_SLOTS_PER_CTLR);
 
 	puts("SPD data of all dimms (zero vaule is omitted)...\n");
 	puts("Byte (hex)  ");

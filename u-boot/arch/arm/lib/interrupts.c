@@ -21,18 +21,46 @@
 
 #include <common.h>
 #include <asm/proc-armv/ptrace.h>
+#include <asm/u-boot-arm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_USE_IRQ
 int interrupt_init (void)
 {
+	unsigned long cpsr;
+
 	/*
 	 * setup up stacks if necessary
 	 */
 	IRQ_STACK_START = gd->irq_sp - 4;
 	IRQ_STACK_START_IN = gd->irq_sp + 8;
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
+
+
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     : "=r" (cpsr)
+			     :
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0\n"
+			     "mov sp, %1\n"
+			     :
+			     : "r" (IRQ_MODE | I_BIT | F_BIT | (cpsr & ~FIQ_MODE)),
+			       "r" (IRQ_STACK_START)
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0\n"
+			     "mov sp, %1\n"
+			     :
+			     : "r" (FIQ_MODE | I_BIT | F_BIT | (cpsr & ~IRQ_MODE)),
+			       "r" (FIQ_STACK_START)
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0"
+			     :
+			     : "r" (cpsr)
+			     : "memory");
 
 	return arch_interrupt_init();
 }
@@ -95,24 +123,29 @@ void bad_mode (void)
 
 void show_regs (struct pt_regs *regs)
 {
-	unsigned long flags;
-	const char *processor_modes[] = {
+	unsigned long __maybe_unused flags;
+	const char __maybe_unused *processor_modes[] = {
 	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
 	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
 	"UK8_26",	"UK9_26",	"UK10_26",	"UK11_26",
 	"UK12_26",	"UK13_26",	"UK14_26",	"UK15_26",
 	"USER_32",	"FIQ_32",	"IRQ_32",	"SVC_32",
 	"UK4_32",	"UK5_32",	"UK6_32",	"ABT_32",
-	"UK8_32",	"UK9_32",	"UK10_32",	"UND_32",
+	"UK8_32",	"UK9_32",	"HYP_32",	"UND_32",
 	"UK12_32",	"UK13_32",	"UK14_32",	"SYS_32",
 	};
 
 	flags = condition_codes (regs);
 
-	printf ("pc : [<%08lx>]	   lr : [<%08lx>]\n"
-		"sp : %08lx  ip : %08lx	 fp : %08lx\n",
-		instruction_pointer (regs),
-		regs->ARM_lr, regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
+	printf("pc : [<%08lx>]	   lr : [<%08lx>]\n",
+	       instruction_pointer(regs), regs->ARM_lr);
+	if (gd->flags & GD_FLG_RELOC) {
+		printf("reloc pc : [<%08lx>]	   lr : [<%08lx>]\n",
+		       instruction_pointer(regs) - gd->reloc_off,
+		       regs->ARM_lr - gd->reloc_off);
+	}
+	printf("sp : %08lx  ip : %08lx	 fp : %08lx\n",
+	       regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
 	printf ("r10: %08lx  r9 : %08lx	 r8 : %08lx\n",
 		regs->ARM_r10, regs->ARM_r9, regs->ARM_r8);
 	printf ("r7 : %08lx  r6 : %08lx	 r5 : %08lx  r4 : %08lx\n",
@@ -153,7 +186,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
 
 void do_data_abort (struct pt_regs *pt_regs)
 {
-	printf ("data abort\n\n    MAYBE you should read doc/README.arm-unaligned-accesses\n\n");
+	printf ("data abort\n");
 	show_regs (pt_regs);
 	bad_mode ();
 }

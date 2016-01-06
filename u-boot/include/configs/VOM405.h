@@ -16,10 +16,11 @@
  * (easy to change)
  */
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_VOM405		1	/* ...on a VOM405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC8000
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
@@ -58,8 +59,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_IRQ

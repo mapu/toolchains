@@ -14,8 +14,6 @@
 #include <asm/io.h>
 #include <fdtdec.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #undef DEBUG
 
 #define ENET_ADDR_LENGTH	6
@@ -324,7 +322,7 @@ static int emaclite_recv(struct eth_device *dev)
 	out_be32 (baseaddress + XEL_RSR_OFFSET, reg);
 
 	debug("Packet receive from 0x%x, length %dB\n", baseaddress, length);
-	NetReceive((uchar *) etherrxbuff, length);
+	net_process_received_packet((uchar *)etherrxbuff, length);
 	return length;
 
 }
@@ -363,25 +361,28 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 	return 1;
 }
 
-#ifdef CONFIG_OF_CONTROL
-int xilinx_emaclite_init(bd_t *bis)
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+int xilinx_emaclite_of_init(const void *blob)
 {
 	int offset = 0;
 	u32 ret = 0;
 	u32 reg;
 
 	do {
-		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
+		offset = fdt_node_offset_by_compatible(blob, offset,
 					"xlnx,xps-ethernetlite-1.00.a");
 		if (offset != -1) {
-			reg = fdtdec_get_addr(gd->fdt_blob, offset, "reg");
+			reg = fdtdec_get_addr(blob, offset, "reg");
 			if (reg != FDT_ADDR_T_NONE) {
-				u32 rxpp = fdtdec_get_int(gd->fdt_blob, offset,
+				u32 rxpp = fdtdec_get_int(blob, offset,
 							"xlnx,rx-ping-pong", 0);
-				u32 txpp = fdtdec_get_int(gd->fdt_blob, offset,
+				u32 txpp = fdtdec_get_int(blob, offset,
 							"xlnx,tx-ping-pong", 0);
-				ret |= xilinx_emaclite_initialize(bis, reg,
+				ret |= xilinx_emaclite_initialize(NULL, reg,
 								txpp, rxpp);
+			} else {
+				debug("EMACLITE: Can't get base address\n");
+				return -1;
 			}
 		}
 	} while (offset != -1);

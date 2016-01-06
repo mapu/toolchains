@@ -25,9 +25,6 @@
  */
 #include "o2dnt-common.h"
 
-/* additional commands */
-#define CONFIG_CMD_ITEST
-
 /*
  * GPIO configuration:
  * CS1 SDRAM activate + no CAN + no PCI
@@ -43,8 +40,8 @@
 
 #define CONFIG_BOARD_NAME		"o2d"
 #define CONFIG_BOARD_BOOTCMD		"run dhcp_boot"
-#define CONFIG_BOARD_MEM_LIMIT		xstr(126)
-#define BOARD_POST_CRC32_END		xstr(0x01000000)
+#define CONFIG_BOARD_MEM_LIMIT		__stringify(126)
+#define BOARD_POST_CRC32_END		__stringify(0x01000000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_IFM_DEFAULT_ENV_SETTINGS					\
@@ -56,7 +53,7 @@
 	"ramtop=fc55ffff\0"						\
 	"jffbot=fc560000\0"						\
 	"jfftop=fcffffff\0"						\
-	"ubobot=" xstr(CONFIG_SYS_FLASH_BASE) "\0"			\
+	"ubobot=" __stringify(CONFIG_SYS_FLASH_BASE) "\0"		\
 	"ubotop=fc03ffff\0"						\
 	"kernel_addr=0xfc060000\0"					\
 	"ramdisk_addr=0xfc160000\0"					\

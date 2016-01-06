@@ -12,9 +12,10 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
 #define CONFIG_V38B			1	/* ...on V38B board */
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE		0xFF000000
 
@@ -86,8 +87,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
@@ -149,7 +148,6 @@
 	"netmask=255.255.0.0\0"						\
 	"ipaddr=192.168.160.18\0"					\
 	"serverip=192.168.1.1\0"					\
-	"ethaddr=00:e0:ee:00:05:2e\0"					\
 	"bootfile=/tftpboot/v38b/uImage\0"				\
 	"u-boot=/tftpboot/v38b/u-boot.bin\0"				\
 	""

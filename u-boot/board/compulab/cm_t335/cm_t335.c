@@ -47,7 +47,7 @@ static void cpsw_control(int enabled)
 static struct cpsw_slave_data cpsw_slave = {
 	.slave_reg_ofs	= 0x208,
 	.sliver_reg_ofs	= 0xd80,
-	.phy_id		= 0,
+	.phy_addr	= 0,
 	.phy_if		= PHY_INTERFACE_MODE_RGMII,
 };
 
@@ -110,11 +110,11 @@ static int handle_mac_address(void)
 	if (rv)
 		return 0;
 
-	rv = cl_eeprom_read_mac_addr(enetaddr);
+	rv = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
 	if (rv)
 		get_efuse_mac_addr(enetaddr);
 
-	if (!is_valid_ether_addr(enetaddr))
+	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
 	return eth_setenv_enetaddr("ethaddr", enetaddr);

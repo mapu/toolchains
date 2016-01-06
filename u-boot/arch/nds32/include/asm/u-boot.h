@@ -23,7 +23,6 @@
 #include <environment.h>
 
 typedef struct bd_info {
-	unsigned int	bi_baudrate;	/* serial console baudrate */
 	unsigned long	bi_arch_number;	/* unique id for this board */
 	unsigned long	bi_boot_params;	/* where this board expects params */
 	unsigned long	bi_memstart;	/* start of DRAM memory */
@@ -31,6 +30,7 @@ typedef struct bd_info {
 	unsigned long	bi_flashstart;	/* start of FLASH memory */
 	unsigned long	bi_flashsize;	/* size	 of FLASH memory */
 	unsigned long	bi_flashoffset; /* reserved area for startup monitor */
+	unsigned char	bi_enetaddr[6];
 
 	struct				/* RAM configuration */
 	{

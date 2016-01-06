@@ -20,6 +20,8 @@
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* We got removed from Linux mach-types.h */
 #define MACH_TYPE_KM_KIRKWOOD          2255
 
@@ -28,7 +30,6 @@
  */
 #define CONFIG_MARVELL
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_MACH_KM_KIRKWOOD		/* Machine type */
 
@@ -70,7 +71,8 @@
 #define CONFIG_KM_PHRAM		0x17F000
 
 #define CONFIG_KM_CRAMFS_ADDR	0x2400000
-#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
+#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 3098KBytes */
+#define CONFIG_KM_FDT_ADDR	0x23E0000	/*  128KBytes */
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
@@ -78,14 +80,16 @@
 		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"boot=bootm ${load_addr_r} - -\0"				\
-	"cramfsloadfdt=true\0"						\
 	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
+	"set_fdthigh=setenv fdt_high ${kernelmem}\0"			\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_MISC_INIT_R
+
+/* Pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT
 
 /*
  * NS16550 Configuration
@@ -120,14 +124,11 @@
  */
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_NFS
 
 /*
  * Without NOR FLASH we need this
  */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 
 /*
  * NAND Flash configuration
@@ -191,7 +192,7 @@
 				}
 
 #ifndef __ASSEMBLY__
-#include <asm/arch-kirkwood/gpio.h>
+#include <asm/arch/gpio.h>
 extern void __set_direction(unsigned pin, int high);
 void set_sda(int state);
 void set_scl(int state);
@@ -249,7 +250,6 @@ int get_scl(void);
 
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
 /* SPI bus claim MPP configuration */
@@ -289,10 +289,15 @@ int get_scl(void);
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET_REDUND) " 4\0"
 #endif
 
+#ifndef CONFIG_KM_BOARD_EXTRA_ENV
+#define CONFIG_KM_BOARD_EXTRA_ENV       ""
+#endif
+
 /*
  * Default environment variables
  */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\

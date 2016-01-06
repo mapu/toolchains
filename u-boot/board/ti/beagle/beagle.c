@@ -14,6 +14,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
@@ -70,6 +72,17 @@ static struct {
 	char env_setting[64];
 } expansion_config;
 
+static const struct ns16550_platdata beagle_serial = {
+	OMAP34XX_UART3,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(beagle_uart) = {
+	"serial_omap",
+	&beagle_serial
+};
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -103,22 +116,22 @@ int board_init(void)
  */
 static int get_board_revision(void)
 {
-	int revision;
+	static int revision = -1;
 
-	if (!gpio_request(171, "") &&
-	    !gpio_request(172, "") &&
-	    !gpio_request(173, "")) {
+	if (revision == -1) {
+		if (!gpio_request(171, "rev0") &&
+		    !gpio_request(172, "rev1") &&
+		    !gpio_request(173, "rev2")) {
+			gpio_direction_input(171);
+			gpio_direction_input(172);
+			gpio_direction_input(173);
 
-		gpio_direction_input(171);
-		gpio_direction_input(172);
-		gpio_direction_input(173);
-
-		revision = gpio_get_value(173) << 2 |
-			   gpio_get_value(172) << 1 |
-			   gpio_get_value(171);
-	} else {
-		printf("Error: unable to acquire board revision GPIOs\n");
-		revision = -1;
+			revision = gpio_get_value(173) << 2 |
+				gpio_get_value(172) << 1 |
+				gpio_get_value(171);
+		} else {
+			printf("Error: unable to acquire board revision GPIOs\n");
+		}
 	}
 
 	return revision;
@@ -258,7 +271,7 @@ static void beagle_dvi_pup(void)
 	case REVISION_AXBX:
 	case REVISION_CX:
 	case REVISION_C4:
-		gpio_request(170, "");
+		gpio_request(170, "dvi");
 		gpio_direction_output(170, 0);
 		gpio_set_value(170, 1);
 		break;
@@ -293,12 +306,12 @@ static struct omap_musb_board_data musb_board_data = {
 };
 
 static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_MUSB_HOST)
+#if defined(CONFIG_USB_MUSB_HOST)
 	.mode           = MUSB_HOST,
-#elif defined(CONFIG_MUSB_GADGET)
+#elif defined(CONFIG_USB_MUSB_GADGET)
 	.mode		= MUSB_PERIPHERAL,
 #else
-#error "Please define either CONFIG_MUSB_HOST or CONFIG_MUSB_GADGET"
+#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
 #endif
 	.config         = &musb_config,
 	.power          = 100,
@@ -316,9 +329,13 @@ int misc_init_r(void)
 	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
 	struct control_prog_io *prog_io_base = (struct control_prog_io *)OMAP34XX_CTRL_BASE;
+	bool generate_fake_mac = false;
+	u32 value;
 
 	/* Enable i2c2 pullup resisters */
-	writel(~(PRG_I2C2_PULLUPRESX), &prog_io_base->io1);
+	value = readl(&prog_io_base->io1);
+	value &= ~(PRG_I2C2_PULLUPRESX);
+	writel(value, &prog_io_base->io1);
 
 	switch (get_board_revision()) {
 	case REVISION_AXBX:
@@ -349,6 +366,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 		break;
 	case REVISION_XM_C:
 		printf("Beagle xM Rev C\n");
@@ -359,6 +377,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 		break;
 	default:
 		printf("Beagle unknown 0x%02x\n", get_board_revision());
@@ -368,6 +387,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 	}
 
 	switch (get_expansion_id()) {
@@ -486,6 +506,13 @@ int misc_init_r(void)
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
 
+	if (generate_fake_mac) {
+		u32 id[4];
+
+		get_dieid(id);
+		usb_fake_mac_from_die_id(id);
+	}
+
 	return 0;
 }
 
@@ -504,6 +531,13 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+#endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif
 
@@ -534,7 +568,7 @@ int ehci_hcd_stop(int index)
 
 #endif /* CONFIG_USB_EHCI */
 
-#if defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)
+#if defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)
 int board_eth_init(bd_t *bis)
 {
 	return usb_eth_initialize(bis);

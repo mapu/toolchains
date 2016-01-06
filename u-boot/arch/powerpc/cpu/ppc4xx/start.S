@@ -31,8 +31,6 @@
 #include <asm/ppc4xx.h>
 #include <version.h>
 
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 
@@ -184,16 +182,13 @@
 
 
 	.extern ext_bus_cntlr_init
-#ifdef CONFIG_NAND_U_BOOT
-	.extern reconfig_tlb0
-#endif
 
 /*
  * Set up GOT: Global Offset Table
  *
  * Use r12 to access the GOT
  */
-#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_BUILD)
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -207,22 +202,7 @@
 	GOT_ENTRY(__bss_end)
 	GOT_ENTRY(__bss_start)
 	END_GOT
-#endif /* CONFIG_NAND_SPL */
-
-#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) && \
-	!defined(CONFIG_SPL_BUILD)
-	/*
-	 * NAND U-Boot image is started from offset 0
-	 */
-	.text
-#if defined(CONFIG_440)
-	bl	reconfig_tlb0
-#endif
-	GET_GOT
-	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-	bl	board_init_f
-	/* NOTREACHED - board_init_f() does not return */
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 #if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_BOOT_FROM_XMD)
 	/*
@@ -257,9 +237,7 @@
  */
 
 #if defined(CONFIG_440)
-#if !defined(CONFIG_NAND_SPL)
     .section .bootpg,"ax"
-#endif
     .globl _start_440
 
 /**************************************************************************/
@@ -513,7 +491,7 @@ tlbnx2:	addi	r4,r4,1		/* Next TLB */
  * r3 - 1st arg to board_init(): IMMP pointer
  * r4 - 2nd arg to board_init(): boot flag
  */
-#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_BUILD)
 	.text
 	.long	0x27051956		/* U-Boot Magic Number			*/
 	.globl	version_string
@@ -686,8 +664,7 @@ _start:
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460SX)
 	mtdcr	L2_CACHE_CFG,r0		/* Ensure L2 Cache is off */
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-      defined(CONFIG_APM821XX)
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	lis	r1, 0x0000
 	ori	r1,r1,0x0008		/* Set L2_CACHE_CFG[RDBW]=1 */
 	mtdcr	L2_CACHE_CFG,r1
@@ -716,7 +693,7 @@ _start:
 	ori	r1,r1, 0x0980		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
 #elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || \
-      defined(CONFIG_460GT) || defined(CONFIG_APM821XX)
+      defined(CONFIG_460GT)
 	lis	r1,0x0000		/* BAS = X_0000_0000 */
 	ori	r1,r1,0x0984		/* first 64k */
 	mtdcr	ISRAM0_SB0CR,r1
@@ -729,8 +706,7 @@ _start:
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_APM821XX)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
 	mfdcr	r1,ISRAM1_DPC
@@ -779,17 +755,22 @@ _start:
 	stwu	r1,-8(r1)		/* Save back chain and move SP */
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
 
-#ifdef CONFIG_NAND_SPL
-	bl	nand_boot_common	/* will not return */
-#else
 #ifndef CONFIG_SPL_BUILD
 	GET_GOT
 #endif
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
+#ifdef CONFIG_SYS_GENERIC_BOARD
+	mr	r3, r1
+	bl	board_init_f_mem
+	mr	r1, r3
+	li	r0,0
+	stwu	r0, -4(r1)
+	stwu	r0, -4(r1)
+#endif
+	li	r3, 0
 	bl	board_init_f
 	/* NOTREACHED - board_init_f() does not return */
-#endif
 
 #endif /* CONFIG_440 */
 
@@ -1052,23 +1033,25 @@ _start:
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
-#ifdef CONFIG_NAND_SPL
-	bl	nand_boot_common	/* will not return */
-#else
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
-
+#ifdef CONFIG_SYS_GENERIC_BOARD
+	mr	r3, r1
+	bl	board_init_f_mem
+	mr	r1, r3
+	stwu	r0, -4(r1)
+	stwu	r0, -4(r1)
+#endif
+	li	r3, 0
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
 	/* NOTREACHED - board_init_f() does not return */
-
-#endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
 
 
-#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_BUILD)
 /*
  * This code finishes saving the registers to the exception frame
  * and jumps to the appropriate handler for the exception.
@@ -1634,7 +1617,7 @@ __440_msr_continue:
 	blr
 	function_epilog(dcbz_area)
 #endif /* CONFIG_440 */
-#endif /* CONFIG_NAND_SPL */
+#endif /* CONFIG_SPL_BUILD */
 
 /*------------------------------------------------------------------------------- */
 /* Function:	 in8 */
@@ -1822,21 +1805,6 @@ ppc405ep_init:
 	bne	_pci_66mhz
 #endif /* CONFIG_TAIHU */
 
-#if defined(CONFIG_ZEUS)
-	mfdcr	r4, CPC0_BOOT
-	andi.	r5, r4, CPC0_BOOT_SEP@l
-	bne	strap_1			/* serial eeprom present */
-	lis	r3,0x0000
-	addi	r3,r3,0x3030
-	lis	r4,0x8042
-	addi	r4,r4,0x223e
-	b	1f
-strap_1:
-	mfdcr	r3, CPC0_PLLMR0
-	mfdcr	r4, CPC0_PLLMR1
-	b	1f
-#endif
-
 	addis	r3,0,PLLMR0_DEFAULT@h	/* PLLMR0 default value */
 	ori	r3,r3,PLLMR0_DEFAULT@l	/* */
 	addis	r4,0,PLLMR1_DEFAULT@h	/* PLLMR1 default value */
@@ -1983,75 +1951,3 @@ pll_wait:
 	blr
 	function_epilog(mftlb1)
 #endif /* CONFIG_440 */
-
-#if defined(CONFIG_NAND_SPL)
-/*
- * void nand_boot_relocate(dst, src, bytes)
- *
- * r3 = Destination address to copy code to (in SDRAM)
- * r4 = Source address to copy code from
- * r5 = size to copy in bytes
- */
-nand_boot_relocate:
-	mr	r6,r3
-	mr	r7,r4
-	mflr	r8
-
-	/*
-	 * Copy SPL from icache into SDRAM
-	 */
-	subi	r3,r3,4
-	subi	r4,r4,4
-	srwi	r5,r5,2
-	mtctr	r5
-..spl_loop:
-	lwzu	r0,4(r4)
-	stwu	r0,4(r3)
-	bdnz	..spl_loop
-
-	/*
-	 * Calculate "corrected" link register, so that we "continue"
-	 * in execution in destination range
-	 */
-	sub	r3,r7,r6	/* r3 = src - dst */
-	sub	r8,r8,r3	/* r8 = link-reg - (src - dst) */
-	mtlr	r8
-	blr
-
-nand_boot_common:
-	/*
-	 * First initialize SDRAM. It has to be available *before* calling
-	 * nand_boot().
-	 */
-	lis	r3,CONFIG_SYS_SDRAM_BASE@h
-	ori	r3,r3,CONFIG_SYS_SDRAM_BASE@l
-	bl	initdram
-
-	/*
-	 * Now copy the 4k SPL code into SDRAM and continue execution
-	 * from there.
-	 */
-	lis	r3,CONFIG_SYS_NAND_BOOT_SPL_DST@h
-	ori	r3,r3,CONFIG_SYS_NAND_BOOT_SPL_DST@l
-	lis	r4,CONFIG_SYS_NAND_BOOT_SPL_SRC@h
-	ori	r4,r4,CONFIG_SYS_NAND_BOOT_SPL_SRC@l
-	lis	r5,CONFIG_SYS_NAND_BOOT_SPL_SIZE@h
-	ori	r5,r5,CONFIG_SYS_NAND_BOOT_SPL_SIZE@l
-	bl	nand_boot_relocate
-
-	/*
-	 * We're running from SDRAM now!!!
-	 *
-	 * It is necessary for 4xx systems to relocate from running at
-	 * the original location (0xfffffxxx) to somewhere else (SDRAM
-	 * preferably). This is because CS0 needs to be reconfigured for
-	 * NAND access. And we can't reconfigure this CS when currently
-	 * "running" from it.
-	 */
-
-	/*
-	 * Finally call nand_boot() to load main NAND U-Boot image from
-	 * NAND and jump to it.
-	 */
-	bl	nand_boot		/* will not return */
-#endif /* CONFIG_NAND_SPL */

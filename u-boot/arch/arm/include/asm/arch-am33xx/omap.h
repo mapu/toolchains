@@ -29,5 +29,19 @@
 #define SRAM_SCRATCH_SPACE_ADDR	0x40337C00
 #define AM4372_BOARD_NAME_START	SRAM_SCRATCH_SPACE_ADDR
 #define AM4372_BOARD_NAME_END	SRAM_SCRATCH_SPACE_ADDR + 0xC
+#define AM4372_BOARD_VERSION_START	SRAM_SCRATCH_SPACE_ADDR + 0xD
+#define AM4372_BOARD_VERSION_END	SRAM_SCRATCH_SPACE_ADDR + 0x14
+#define QSPI_BASE              0x47900000
 #endif
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int reserved;
+	unsigned int boot_device_descriptor;
+	unsigned char boot_device;
+	unsigned char reset_reason;
+};
+#endif
+
 #endif

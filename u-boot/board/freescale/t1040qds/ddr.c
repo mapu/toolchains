@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,6 +11,7 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 #include <asm/fsl_law.h>
+#include <asm/mpc85xx_gpio.h>
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,14 +40,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		if (pbsp->n_ranks == pdimm->n_ranks &&
 		    (pdimm->rank_density >> 30) >= pbsp->rank_gb) {
 			if (ddr_freq <= pbsp->datarate_mhz_high) {
-				popts->cpo_override = pbsp->cpo;
-				popts->write_data_delay =
-					pbsp->write_data_delay;
 				popts->clk_adjust = pbsp->clk_adjust;
 				popts->wrlvl_start = pbsp->wrlvl_start;
 				popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
 				popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
-				popts->twot_en = pbsp->force_2t;
 				goto found;
 			}
 			pbsp_highest = pbsp;
@@ -59,13 +56,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		printf("for data rate %lu MT/s\n", ddr_freq);
 		printf("Trying to use the highest speed (%u) parameters\n",
 		       pbsp_highest->datarate_mhz_high);
-		popts->cpo_override = pbsp_highest->cpo;
-		popts->write_data_delay = pbsp_highest->write_data_delay;
 		popts->clk_adjust = pbsp_highest->clk_adjust;
 		popts->wrlvl_start = pbsp_highest->wrlvl_start;
 		popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
 		popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
-		popts->twot_en = pbsp_highest->force_2t;
 	} else {
 		panic("DIMM is not supported by this board");
 	}
@@ -81,7 +75,7 @@ found:
 	 * Factors to consider for half-strength driver enable:
 	 *	- number of DIMMs installed
 	 */
-	popts->half_strength_driver_enable = 0;
+	popts->half_strength_driver_enable = 1;
 	/*
 	 * Write leveling override
 	 */
@@ -97,9 +91,28 @@ found:
 	popts->zq_en = 1;
 
 	/* DHC_EN =1, ODT = 75 Ohm */
+#ifdef CONFIG_SYS_FSL_DDR4
+	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
+	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm) |
+			  DDR_CDR2_VREF_OVRD(70);	/* Vref = 70% */
+#else
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_75ohm);
 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_75ohm);
+#endif
 }
+
+#if defined(CONFIG_DEEP_SLEEP)
+void board_mem_sleep_setup(void)
+{
+	void __iomem *qixis_base = (void *)QIXIS_BASE;
+
+	/* does not provide HW signals for power management */
+	clrbits_8(qixis_base + 0x21, 0x2);
+	/* Disable MCKE isolation */
+	gpio_set_value(2, 0);
+	udelay(1);
+}
+#endif
 
 phys_size_t initdram(int board_type)
 {
@@ -113,5 +126,10 @@ phys_size_t initdram(int board_type)
 	dram_size *= 0x100000;
 
 	puts("    DDR: ");
+
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+	fsl_dp_resume();
+#endif
+
 	return dram_size;
 }

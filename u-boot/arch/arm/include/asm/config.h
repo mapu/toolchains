@@ -15,4 +15,15 @@
 #define CONFIG_STATIC_RELA
 #endif
 
+#ifdef CONFIG_FSL_LSCH3
+#include <asm/arch-fsl-lsch3/config.h>
+#endif
+
+#if defined(CONFIG_LS102XA) || \
+	defined(CONFIG_CPU_PXA27X) || \
+	defined(CONFIG_CPU_MONAHANS) || \
+	defined(CONFIG_CPU_PXA25X)
+#include <asm/arch/config.h>
+#endif
+
 #endif

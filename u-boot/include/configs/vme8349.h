@@ -18,6 +18,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * Top level Makefile configuration choices
  */
@@ -29,7 +32,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_VME8349		1	/* ESD VME8349 board specific */
@@ -296,7 +298,6 @@
  * TSEC configuration
  */
 #ifdef VME_CADDY2
-#define CONFIG_E1000
 #else
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 #endif
@@ -355,8 +356,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
@@ -372,7 +371,6 @@
 
 #if defined(CONFIG_SYS_RAMBOOT)
     #undef CONFIG_CMD_ENV
-    #undef CONFIG_CMD_LOADS
 #endif
 
 #define CONFIG_CMD_ELF

@@ -16,8 +16,6 @@
 
 #define CONFIG_MACRESET_TIMEOUT	(3 * CONFIG_SYS_HZ)
 #define CONFIG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
-#define CONFIG_PHYRESET_TIMEOUT	(3 * CONFIG_SYS_HZ)
-#define CONFIG_AUTONEG_TIMEOUT	(5 * CONFIG_SYS_HZ)
 
 struct eth_mac_regs {
 	u32 conf;		/* 0x00 */
@@ -70,7 +68,9 @@ struct eth_dma_regs {
 	u32 status;		/* 0x14 */
 	u32 opmode;		/* 0x18 */
 	u32 intenable;		/* 0x1c */
-	u8 reserved[40];
+	u32 reserved1[2];
+	u32 axibus;		/* 0x28 */
+	u32 reserved2[7];
 	u32 currhosttxdesc;	/* 0x48 */
 	u32 currhostrxdesc;	/* 0x4c */
 	u32 currhosttxbuffaddr;	/* 0x50 */
@@ -79,18 +79,18 @@ struct eth_dma_regs {
 
 #define DW_DMA_BASE_OFFSET	(0x1000)
 
+/* Default DMA Burst length */
+#ifndef CONFIG_DW_GMAC_DEFAULT_DMA_PBL
+#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL 8
+#endif
+
 /* Bus mode register definitions */
 #define FIXEDBURST		(1 << 16)
 #define PRIORXTX_41		(3 << 14)
 #define PRIORXTX_31		(2 << 14)
 #define PRIORXTX_21		(1 << 14)
 #define PRIORXTX_11		(0 << 14)
-#define BURST_1			(1 << 8)
-#define BURST_2			(2 << 8)
-#define BURST_4			(4 << 8)
-#define BURST_8			(8 << 8)
-#define BURST_16		(16 << 8)
-#define BURST_32		(32 << 8)
+#define DMA_PBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<8)
 #define RXHIGHPRIO		(1 << 1)
 #define DMAMAC_SRST		(1 << 0)
 
@@ -112,7 +112,7 @@ struct dmamacdescr {
 	u32 dmamac_cntl;
 	void *dmamac_addr;
 	struct dmamacdescr *dmamac_next;
-} __aligned(16);
+} __aligned(ARCH_DMA_MINALIGN);
 
 /*
  * txrx_status definitions
@@ -217,34 +217,22 @@ struct dmamacdescr {
 #endif
 
 struct dw_eth_dev {
-	u32 address;
-	u32 interface;
-	u32 speed;
-	u32 duplex;
-	u32 tx_currdescnum;
-	u32 rx_currdescnum;
-	u32 phy_configured;
-	u32 link_printed;
-
 	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
 	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
+	char txbuffs[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
+	char rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 
-	char txbuffs[TX_TOTAL_BUFSIZE];
-	char rxbuffs[RX_TOTAL_BUFSIZE];
+	u32 interface;
+	u32 tx_currdescnum;
+	u32 rx_currdescnum;
 
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
-
+#ifndef CONFIG_DM_ETH
 	struct eth_device *dev;
+#endif
+	struct phy_device *phydev;
+	struct mii_dev *bus;
 };
-
-/* Speed specific definitions */
-#define SPEED_10M		1
-#define SPEED_100M		2
-#define SPEED_1000M		3
-
-/* Duplex mode specific definitions */
-#define HALF_DUPLEX		1
-#define FULL_DUPLEX		2
 
 #endif

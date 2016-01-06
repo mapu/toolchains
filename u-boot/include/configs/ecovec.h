@@ -30,18 +30,13 @@
 #define CONFIG_ECOVEC_ROMIMAGE_ADDR 0xA0040000
 #define CONFIG_SYS_TEXT_BASE 0x8FFC0000
 
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
-#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
@@ -158,8 +153,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(256 * 1024)
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024)
-/* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* ENV setting */

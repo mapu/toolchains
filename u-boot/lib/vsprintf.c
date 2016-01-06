@@ -25,20 +25,6 @@
 #include <div64.h>
 #define noinline __attribute__((noinline))
 
-/* some reluctance to put this into a new limits.h, so it is here */
-#define INT_MAX		((int)(~0U>>1))
-
-static const char hex_asc[] = "0123456789abcdef";
-#define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
-#define hex_asc_hi(x)   hex_asc[((x) & 0xf0) >> 4]
-
-static inline char *pack_hex_byte(char *buf, u8 byte)
-{
-	*buf++ = hex_asc_hi(byte);
-	*buf++ = hex_asc_lo(byte);
-	return buf;
-}
-
 unsigned long simple_strtoul(const char *cp, char **endp,
 				unsigned int base)
 {
@@ -61,8 +47,8 @@ unsigned long simple_strtoul(const char *cp, char **endp,
 
 	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
 	    ? toupper(*cp) : *cp)-'A'+10) < base) {
-				result = result*base + value;  /* trun *cp to its decimal digit */
-				cp++;
+		result = result*base + value;
+		cp++;
 	}
 
 	if (endp)
@@ -180,6 +166,25 @@ unsigned long long simple_strtoull(const char *cp, char **endp,
 	return result;
 }
 
+long trailing_strtoln(const char *str, const char *end)
+{
+	const char *p;
+
+	if (!end)
+		end = str + strlen(str);
+	for (p = end - 1; p > str; p--) {
+		if (!isdigit(*p))
+			return simple_strtoul(p + 1, NULL, 10);
+	}
+
+	return -1;
+}
+
+long trailing_strtol(const char *str)
+{
+	return trailing_strtoln(str, NULL);
+}
+
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
 
@@ -281,7 +286,7 @@ static char *put_dec_full(char *buf, unsigned q)
 	return buf;
 }
 /* No inlining helps gcc to use registers better */
-static noinline char *put_dec(char *buf, u64 num)
+static noinline char *put_dec(char *buf, uint64_t num)
 {
 	while (1) {
 		unsigned rem;
@@ -434,6 +439,17 @@ static char *string(char *buf, char *end, char *s, int field_width,
 }
 
 #ifdef CONFIG_CMD_NET
+static const char hex_asc[] = "0123456789abcdef";
+#define hex_asc_lo(x)	hex_asc[((x) & 0x0f)]
+#define hex_asc_hi(x)	hex_asc[((x) & 0xf0) >> 4]
+
+static inline char *pack_hex_byte(char *buf, u8 byte)
+{
+	*buf++ = hex_asc_hi(byte);
+	*buf++ = hex_asc_lo(byte);
+	return buf;
+}
+
 static char *mac_address_string(char *buf, char *end, u8 *addr, int field_width,
 				int precision, int flags)
 {
@@ -518,6 +534,8 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
 {
+	u64 num = (uintptr_t)ptr;
+
 	/*
 	 * Being a boot loader, we explicitly allow pointers to
 	 * (physical) address null.
@@ -530,6 +548,17 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 
 #ifdef CONFIG_CMD_NET
 	switch (*fmt) {
+	case 'a':
+		flags |= SPECIAL | ZEROPAD;
+
+		switch (fmt[1]) {
+		case 'p':
+		default:
+			field_width = sizeof(phys_addr_t) * 2 + 2;
+			num = *(phys_addr_t *)ptr;
+			break;
+		}
+		break;
 	case 'm':
 		flags |= SPECIAL;
 		/* Fallthrough */
@@ -555,8 +584,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		field_width = 2*sizeof(void *);
 		flags |= ZEROPAD;
 	}
-	return number(buf, end, (unsigned long)ptr, 16, field_width,
-		      precision, flags);
+	return number(buf, end, num, 16, field_width, precision, flags);
 }
 
 static int vsnprintf_internal(char *buf, size_t size, const char *fmt,
@@ -750,6 +778,7 @@ repeat:
 		ADDCH(str, '\0');
 		if (str > end)
 			end[-1] = '\0';
+		--str;
 	}
 #else
 	*str = '\0';
@@ -832,13 +861,11 @@ int sprintf(char *buf, const char *fmt, ...)
 	return i;
 }
 
-void panic(const char *fmt, ...)
+static void panic_finish(void) __attribute__ ((noreturn));
+
+static void panic_finish(void)
 {
-	va_list args;
-	va_start(args, fmt);
-	vprintf(fmt, args);
 	putc('\n');
-	va_end(args);
 #if defined(CONFIG_PANIC_HANG)
 	hang();
 #else
@@ -847,6 +874,21 @@ void panic(const char *fmt, ...)
 #endif
 	while (1)
 		;
+}
+
+void panic_str(const char *str)
+{
+	puts(str);
+	panic_finish();
+}
+
+void panic(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+	panic_finish();
 }
 
 void __assert_fail(const char *assertion, const char *file, unsigned line,
@@ -885,4 +927,20 @@ void print_grouped_ull(unsigned long long int_val, int digits)
 		printf("%.*s", grab, s);
 		grab = 3;
 	}
+}
+
+bool str2off(const char *p, loff_t *num)
+{
+	char *endptr;
+
+	*num = simple_strtoull(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
+}
+
+bool str2long(const char *p, ulong *num)
+{
+	char *endptr;
+
+	*num = simple_strtoul(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
 }

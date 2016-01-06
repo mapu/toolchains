@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
  *
- * Copyright (C) 2012 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2012, 2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -16,6 +16,8 @@
  */
 #define CONFIG_SPEAR600				/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_THUMB_BUILD
 
 #include <asm/arch/hardware.h>
 
@@ -29,6 +31,7 @@
 #define CONFIG_SYS_SPL_LEN			CONFIG_SPL_PAD_TO
 #define CONFIG_SYS_UBOOT_BASE			(CONFIG_SYS_FLASH_BASE + \
 						 CONFIG_SYS_SPL_LEN)
+#define CONFIG_SYS_UBOOT_START			CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN			0x60000
 
@@ -65,6 +68,8 @@
 #define CONFIG_MTD_ECC_SOFT
 #define CONFIG_SYS_FSMC_NAND_8BIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
 
 /* UBI/UBI config options */
 #define CONFIG_MTD_DEVICE
@@ -73,19 +78,17 @@
 
 /* Ethernet config options */
 #define CONFIG_MII
-#define CONFIG_DESIGNWARE_ETH
-#define CONFIG_DW_SEARCH_PHY
-#define CONFIG_NET_MULTI
+#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_ADDR		0	/* PHY address */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 
 #define CONFIG_SPEAR_GPIO
 
 /* I2C config options */
-#define CONFIG_HARD_I2C
-#define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
+#define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 #define CONFIG_I2C_CHIPADDRESS			0x50
@@ -99,6 +102,12 @@
 #define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 
+/* USB EHCI options */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_SPEAR
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+
 /*
  * Command support defines
  */
@@ -106,23 +115,24 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FPGA_LOADMK
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#define CONFIG_CMD_USB
 #define CONFIG_LZO
 
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
+/* Filesystem support (for USB key) */
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_BOOTDELAY			3
 
@@ -152,18 +162,14 @@
 #define CONFIG_LOOPW			/* enable loopw command         */
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR		" "
-#define CONFIG_AUTOBOOT_PROMPT			\
-		"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
-#define CONFIG_SYS_MALLOC_LEN			(1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN			(8 << 20)
 #define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"X600> "
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -171,36 +177,34 @@
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_64BIT_VSPRINTF
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xd2801ff8
+#define CONFIG_SYS_BOOTCOUNT_ADDR		(CONFIG_SRAM_BASE + \
+						 CONFIG_SRAM_SIZE)
 
 #define CONFIG_HOSTNAME				x600
 #define CONFIG_UBI_PART				ubi0
 #define CONFIG_UBIFS_VOLUME			rootfs
-
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define MTDIDS_DEFAULT		"nand0=nand"
 #define MTDPARTS_DEFAULT	"mtdparts=nand:64M(ubi0),64M(ubi1)"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr=1000000\0"						\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.spr\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.spr\0"		\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
-	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " +${filesize};"\
-		"erase " xstr(CONFIG_SYS_MONITOR_BASE) " +${filesize};"	\
-		"cp.b ${u-boot_addr} " xstr(CONFIG_SYS_MONITOR_BASE)	\
+	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
+		" +${filesize};"					\
+		"erase " __stringify(CONFIG_SYS_MONITOR_BASE) " +${filesize};" \
+		"cp.b ${u-boot_addr} " __stringify(CONFIG_SYS_MONITOR_BASE) \
 		" ${filesize};"						\
-		"protect on " xstr(CONFIG_SYS_MONITOR_BASE)		\
+		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
 		" +${filesize}\0"					\
 	"upd=run load update\0"						\
-	"ubifs=" xstr(CONFIG_HOSTNAME) "/ubifs.img\0"			\
-	"part=" xstr(CONFIG_UBI_PART) "\0"				\
-	"vol=" xstr(CONFIG_UBIFS_VOLUME) "\0"				\
+	"ubifs=" __stringify(CONFIG_HOSTNAME) "/ubifs.img\0"		\
+	"part=" __stringify(CONFIG_UBI_PART) "\0"			\
+	"vol=" __stringify(CONFIG_UBIFS_VOLUME) "\0"			\
 	"load_ubifs=tftp ${kernel_addr} ${ubifs}\0"			\
 	"update_ubifs=ubi part ${part};ubi write ${kernel_addr} ${vol}"	\
 		" ${filesize}\0"					\
@@ -223,11 +227,12 @@
 		"saveenv;boot\0"					\
 	"ubifsargs=set bootargs ubi.mtd=ubi${boot_part} "		\
 		"root=ubi0:rootfs rootfstype=ubifs\0"			\
-	"kernel=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
 	"kernel_fs=/boot/uImage \0"					\
 	"kernel_addr=1000000\0"						\
-	"dtb=" xstr(CONFIG_HOSTNAME) "/" xstr(CONFIG_HOSTNAME) ".dtb\0"	\
-	"dtb_fs=/boot/" xstr(CONFIG_HOSTNAME) ".dtb\0"			\
+	"dtb=" __stringify(CONFIG_HOSTNAME) "/"				\
+		__stringify(CONFIG_HOSTNAME) ".dtb\0"			\
+	"dtb_fs=/boot/" __stringify(CONFIG_HOSTNAME) ".dtb\0"		\
 	"dtb_addr=1800000\0"						\
 	"load_kernel=tftp ${kernel_addr} ${kernel}\0"			\
 	"load_dtb=tftp ${dtb_addr} ${dtb}\0"				\
@@ -253,17 +258,17 @@
 	"bootcmd=run nand_ubifs\0"					\
 	"\0"
 
-/* Stack sizes */
-#define CONFIG_STACKSIZE			(512 * 1024)
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
 #define PHYS_SDRAM_1_MAXSIZE			0x40000000
 
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR		0xD2800000
-#define CONFIG_SYS_INIT_RAM_SIZE		0x2000
+#define CONFIG_SRAM_BASE			0xd2800000
+/* Preserve the last 2 lwords for the boot-counter */
+#define CONFIG_SRAM_SIZE			((8 << 10) - 0x8)
+#define CONFIG_SYS_INIT_RAM_ADDR		CONFIG_SRAM_BASE
+#define CONFIG_SYS_INIT_RAM_SIZE		CONFIG_SRAM_SIZE
 
 #define CONFIG_SYS_INIT_SP_OFFSET		\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
@@ -274,15 +279,16 @@
 /*
  * SPL related defines
  */
-#define CONFIG_SPL
-#define CONFIG_SPL_TEXT_BASE	0xd2800b00
+#define CONFIG_SPL_TEXT_BASE		0xd2800b00
+#define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"
 
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
-#define CONFIG_SPL_NO_PRINTF
 
 /*
  * Please select/define only one of the following

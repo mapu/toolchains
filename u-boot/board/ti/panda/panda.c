@@ -180,6 +180,22 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	else
 		*regs = &emif_regs_elpida_400_mhz_1cs;
 }
+
+void emif_get_dmm_regs(const struct dmm_lisa_map_regs
+						**dmm_lisa_regs)
+{
+	u32 omap_rev = omap_revision();
+
+	if (omap_rev == OMAP4430_ES1_0)
+		*dmm_lisa_regs = &lisa_map_2G_x_1_x_2;
+	else if (omap_rev == OMAP4430_ES2_3)
+		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
+	else if (omap_rev < OMAP4460_ES1_0)
+		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
+	else
+		*dmm_lisa_regs = &ma_lisa_map_2G_x_2_x_2;
+}
+
 #endif
 
 /**
@@ -193,7 +209,7 @@ int misc_init_r(void)
 {
 	int phy_type;
 	u32 auxclk, altclksrc;
-	uint8_t device_mac[6];
+	u32 id[4];
 
 	/* EHCI is not supported on ES1.0 */
 	if (omap_revision() == OMAP4430_ES1_0)
@@ -247,20 +263,11 @@ int misc_init_r(void)
 
 	writel(altclksrc, &scrm->altclksrc);
 
-	if (!getenv("usbethaddr")) {
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = readl(STD_FUSE_DIE_ID_3) & 0xff;
-		device_mac[2] = readl(STD_FUSE_DIE_ID_2) & 0xff;
-		device_mac[3] = readl(STD_FUSE_DIE_ID_1) & 0xff;
-		device_mac[4] = readl(STD_FUSE_DIE_ID_0) & 0xff;
-		device_mac[5] = (readl(STD_FUSE_DIE_ID_0) >> 8) & 0xff;
-
-		eth_setenv_enetaddr("usbethaddr", device_mac);
-	}
+	id[0] = readl(STD_FUSE_DIE_ID_0);
+	id[1] = readl(STD_FUSE_DIE_ID_1);
+	id[2] = readl(STD_FUSE_DIE_ID_2);
+	id[3] = readl(STD_FUSE_DIE_ID_3);
+	usb_fake_mac_from_die_id(id);
 
 	return 0;
 }
@@ -281,36 +288,6 @@ void set_muxconf_regs_essential(void)
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
 			   wkup_padconf_array_essential_4460,
 			   sizeof(wkup_padconf_array_essential_4460) /
-			   sizeof(struct pad_conf_entry));
-}
-
-void set_muxconf_regs_non_essential(void)
-{
-	do_set_mux((*ctrl)->control_padconf_core_base,
-		   core_padconf_array_non_essential,
-		   sizeof(core_padconf_array_non_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	if (omap_revision() < OMAP4460_ES1_0)
-		do_set_mux((*ctrl)->control_padconf_core_base,
-			   core_padconf_array_non_essential_4430,
-			   sizeof(core_padconf_array_non_essential_4430) /
-			   sizeof(struct pad_conf_entry));
-	else
-		do_set_mux((*ctrl)->control_padconf_core_base,
-			   core_padconf_array_non_essential_4460,
-			   sizeof(core_padconf_array_non_essential_4460) /
-			   sizeof(struct pad_conf_entry));
-
-	do_set_mux((*ctrl)->control_padconf_wkup_base,
-		   wkup_padconf_array_non_essential,
-		   sizeof(wkup_padconf_array_non_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	if (omap_revision() < OMAP4460_ES1_0)
-		do_set_mux((*ctrl)->control_padconf_wkup_base,
-			   wkup_padconf_array_non_essential_4430,
-			   sizeof(wkup_padconf_array_non_essential_4430) /
 			   sizeof(struct pad_conf_entry));
 }
 
@@ -338,7 +315,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	/* Now we can enable our port clocks */
 	utmi_clk = readl((void *)CM_L3INIT_HSUSBHOST_CLKCTRL);
 	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
-	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
+	setbits_le32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, utmi_clk);
 
 	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0)

@@ -20,6 +20,11 @@
  * include/asm-ppc/u-boot.h
  */
 
+#ifdef CONFIG_SYS_GENERIC_BOARD
+/* Use the generic board which requires a unified bd_info */
+#include <asm-generic/u-boot.h>
+#else
+
 #ifndef __ASSEMBLY__
 
 typedef struct bd_info {
@@ -44,10 +49,12 @@ typedef struct bd_info {
 	unsigned long bi_vcofreq;	/* vco Freq in MHz */
 	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
 #endif
-	unsigned int bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
 #endif				/* __ASSEMBLY__ */
+
+#endif				/* !CONFIG_SYS_GENERIC_BOARD */
+
 
 /* For image.h:image_check_target_arch() */
 #define IH_ARCH_DEFAULT IH_ARCH_M68K
