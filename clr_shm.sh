@@ -3,4 +3,10 @@ for i in `ipcs | awk '/553648128/{print $2}'`
 do
 ipcrm -m $i
 done
+for i in `ipcs | awk '/555741184/{print $2}'`
+do
+ipcrm -m $i
+done
+
+
 echo -e "\n\tDone!\n\n"
