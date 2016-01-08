@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import*
-from PyQt4.QtCore import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtGui import QLineEdit, QItemDelegate
+from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL
 
 class CellDelegate(QItemDelegate):
     floatDialogShowSignal = pyqtSignal(int, int, str)

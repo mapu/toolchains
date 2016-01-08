@@ -1,8 +1,6 @@
 # -*- coding = utf-8 -*-
-from PyQt4.QtCore import*
-from PyQt4.QtGui import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt4.QtGui import QDialog, QGroupBox, QRadioButton, QPushButton, QHBoxLayout, QVBoxLayout
 
 class DeleteDialog(QDialog):
     deleteOperateSignal = pyqtSignal(int)

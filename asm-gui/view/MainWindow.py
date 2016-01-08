@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import*  
-from PyQt4.QtCore import*  
-import res.qrc_resources 
-from MicrocodeTable.MicrocodeTable import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
+from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit
+from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot
+from res import qrc_resources 
+from MicrocodeTable.MicrocodeTable import MicrocodeTable
+from Utils import warning
 
 class MainWindow(QMainWindow):  
     def __init__(self, parent = None):  
@@ -146,18 +145,24 @@ class MainWindow(QMainWindow):
         self.closeWindow()
 	
     def register0Slot(self, checkState):
+        color = Qt.red
         if checkState == Qt.Checked:
-            color = Qt.red
-            self.microcodeTable.paintRect(0, color) 
+            re = self.microcodeTable.paintRect(0, color) 
+            if re == 0:
+                self.register0Check.setCheckState(Qt.Unchecked)
+                warning("Please select one column")
         else:
-            self.microcodeTable.eraserRect(0)  
+            self.microcodeTable.eraserRect(0, color)
 
     def register1Slot(self, checkState):
+        color = Qt.green
         if checkState == Qt.Checked:
-            color = Qt.green
-            self.microcodeTable.paintRect(1, color)        
+            re = self.microcodeTable.paintRect(1, color)   
+            if re == 0:
+                self.register1Check.setCheckState(Qt.Unchecked)   
+                warning("Please select one column")  
         else:
-            self.microcodeTable.eraserRect(1) 
+            self.microcodeTable.eraserRect(1, color) 
 
 
 

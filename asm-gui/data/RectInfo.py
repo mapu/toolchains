@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import*
-from PyQt4.QtCore import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtCore import Qt
 
 class RectInfo:
     def __init__(self):

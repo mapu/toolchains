@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import*
-from PyQt4.QtCore import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtGui import QListWidget
+from PyQt4.QtCore import Qt
 
 class FloatDialog(QListWidget):
     def __init__(self, parent = None):

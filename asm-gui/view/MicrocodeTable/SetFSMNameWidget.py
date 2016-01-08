@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import*  
-from PyQt4.QtCore import* 
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtGui import QDialog, QRegExpValidator, QPushButton, QHBoxLayout, QVBoxLayout, QLineEdit
+from PyQt4.QtCore import pyqtSignal, pyqtSlot, SIGNAL, Qt
 
 class SetFSMNameWidget(QDialog):  
     setFSMNameSignal = pyqtSignal(int, str)
