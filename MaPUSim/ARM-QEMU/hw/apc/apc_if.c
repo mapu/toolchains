@@ -398,6 +398,8 @@ static int apc_if_listen_init(void* opaque, int port)
     exit(1);
   }
   fprintf(infoout, "\nListening for system.realview.apc connection on port %d\n", port);
+  fprintf(stderr, "\nListening for system.realview.apc connection on port %d\n", port);
+
   //fclose(infoout);
 
   ret = listen(fd, 0);
