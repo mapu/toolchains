@@ -62,8 +62,6 @@ class Simulation(QObject):
                 args = ["-M", "mapu", "-m", "512", "-pflash", image,
                         "-serial", "stdio", ""]
                 self.ARMProcess.start(ARMSimulatorFile, args)
-                if not self.ARMProcess.waitForStarted():
-                    return False
                 
             elif self.config.getConfig("ARMSimType") == "GEM5":
                 ARMSimulatorFile = path + "/arm/gem5.opt"

@@ -95,7 +95,7 @@ class ARMQemuProcess(QObject):
                                 int(apcport.group(0))]
             else:
                 # wait for the ARM simulator starting 
-                self.waitForReadyRead(1000)
+                self.qemu.waitForReadyRead(1000)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(
@@ -124,7 +124,7 @@ class ARMQemuProcess(QObject):
             return
         wait = 50
         while self.qemu.state() == QProcess.Running:
-            self.waitForFinished(1000)
+            self.qemu.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 ret = QMessageBox.warning(view.Utils.mainWindow,
@@ -144,7 +144,7 @@ class ARMQemuProcess(QObject):
             return
         wait = 50
         while self.qemu.state() == QProcess.Running:
-            self.waitForFinished(1000)
+            self.qemu.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 ret = fatal(self.tr("Cannot kill ARM simulator. "
