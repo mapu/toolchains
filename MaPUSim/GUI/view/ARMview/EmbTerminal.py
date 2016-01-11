@@ -76,6 +76,7 @@ class EmbTerminal(QWidget):
         self.termWidget.setShellProgram(command)
         self.termWidget.setArgs(args)
         self.termWidget.startShellProgram()
+        self.control.ARMProcess.signalStarted.emit()
     
         #self.watcher = QFileSystemWatcher()
         #self.watcher.addPath(self.errorFile)

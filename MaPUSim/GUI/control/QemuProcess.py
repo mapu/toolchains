@@ -4,9 +4,8 @@ Created on Dec 21, 2015
 @author: wangl
 '''
 from PyQt4.QtCore import QObject, QString, pyqtSignal, QProcess,\
-    QCoreApplication, SIGNAL
+    QCoreApplication, SIGNAL, QEventLoop
 from PyQt4.QtGui import QMessageBox
-from time import sleep
 from view.Utils import fatal
 import view.Utils
 import re
@@ -17,6 +16,7 @@ class ARMQemuProcess(QObject):
     '''
 
     signalUARTStart = pyqtSignal(QString, list)
+    signalStarted = pyqtSignal()
     updateLog = pyqtSignal(QString)
     stateChanged = pyqtSignal(int)
 
@@ -55,8 +55,9 @@ class ARMQemuProcess(QObject):
         '''
         self.qemu = None
         self.signalUARTStart.emit(command, args)
-        while self.qemu == None:
-            QCoreApplication.processEvents()
+        loop = QEventLoop()
+        loop.connect(self, SIGNAL("signalStarted()"), loop.quit())
+        loop.exec_()
         
     def state(self):
         '''
