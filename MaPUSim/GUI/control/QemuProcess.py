@@ -8,6 +8,7 @@ from PyQt4.QtCore import QObject, QString, pyqtSignal, QProcess,\
 from PyQt4.QtGui import QMessageBox
 from time import sleep
 from view.Utils import fatal
+import view.Utils
 import re
 
 class ARMQemuProcess(QObject):
@@ -94,11 +95,11 @@ class ARMQemuProcess(QObject):
                                 int(apcport.group(0))]
             else:
                 # wait for the ARM simulator starting 
-                sleep(0.5)
+                self.waitForReadyRead(1000)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(
-                        self, self.tr("ARM simulator has no output"),
+                        view.Utils.mainWindow, self.tr("ARM simulator has no output"),
                         self.tr("Cannot get proper standard error output from"
                            "ARM simulator. Do you want to keep on waiting?"),
                         buttons = QMessageBox.Yes | QMessageBox.No,
@@ -123,10 +124,10 @@ class ARMQemuProcess(QObject):
             return
         wait = 50
         while self.qemu.state() == QProcess.Running:
-            sleep(1)
+            self.waitForFinished(1000)
             wait -= 1
             if wait == 0:
-                ret = QMessageBox.warning(self,
+                ret = QMessageBox.warning(view.Utils.mainWindow,
                                           self.tr("ARM simulator has no response"),
                                           self.tr("Cannot stop ARM simulator. "
                                              "Do you want to kill it?"),
@@ -143,7 +144,7 @@ class ARMQemuProcess(QObject):
             return
         wait = 50
         while self.qemu.state() == QProcess.Running:
-            sleep(1)
+            self.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 ret = fatal(self.tr("Cannot kill ARM simulator. "

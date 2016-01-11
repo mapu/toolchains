@@ -89,9 +89,7 @@ class APCViewWidget(QWidget):
         for j in range (0, stringFile.count()):
             if stringFile[j].indexOf(".bin") > 0:
                 filename = stringFile[j]
-                self.APE0Widget.MPUWidget.coreWidget.setHexFileStart(filename, 0)
-                self.APE1Widget.MPUWidget.coreWidget.setHexFileStart(filename, 16 * 1024 * 1024)
-                self.APE2Widget.MPUWidget.coreWidget.setHexFileStart(filename, 32 * 1024 * 1024)
-                self.APE3Widget.MPUWidget.coreWidget.setHexFileStart(filename, 48 * 1024 * 1024)
+		for ape in self.APETabWidget:
+                    ape.MPUWidget.coreWidget.setHexFileStart(filename,  16 * 1024 * 1024 * self.APETabWidget.index(ape))
                 break
 

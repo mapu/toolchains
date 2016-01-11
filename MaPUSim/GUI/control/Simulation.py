@@ -50,7 +50,7 @@ class Simulation(QObject):
         if self.config.getConfig("isFullsystem") == "True":
             image = self.config.getConfig("flashimage")
             if not os.path.isfile(image):
-                    fatal(self.tr("Cannot find flash image %s!" % ARMSimulatorFile),
+                    fatal(self.tr("Cannot find flash image %s!" % image),
                           self.tr("Failed to launch the simulation"))
                     return False
             if self.config.getConfig("ARMSimType") == "QEMU":
@@ -62,6 +62,8 @@ class Simulation(QObject):
                 args = ["-M", "mapu", "-m", "512", "-pflash", image,
                         "-serial", "stdio", ""]
                 self.ARMProcess.start(ARMSimulatorFile, args)
+                if not self.ARMProcess.waitForStarted():
+                    return False
                 
             elif self.config.getConfig("ARMSimType") == "GEM5":
                 ARMSimulatorFile = path + "/arm/gem5.opt"

@@ -138,7 +138,7 @@ class ARMGem5Process(Gem5Process):
             return
         wait = 50
         while self.state() == QProcess.Running:
-            sleep(1)
+            self.waitForFinished(1000)
             wait -= 1
             if wait == 0:
                 fatal(self.tr("Cannot kill ARM simulator. "
