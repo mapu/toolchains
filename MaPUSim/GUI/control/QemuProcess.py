@@ -53,7 +53,10 @@ class ARMQemuProcess(QObject):
         '''
         Start qemu process in a qterminal
         '''
+        self.qemu = None
         self.signalUARTStart.emit(command, args)
+        while self.qemu == None:
+            QCoreApplication.processEvents()
         
     def state(self):
         '''
@@ -68,13 +71,13 @@ class ARMQemuProcess(QObject):
         Slot function for dealing with the process exit
         '''
         self.cleanup()
-        self.disconnect(self.qemu, SIGNAL("readyReadStandardOutput()"),
+        self.qemu.disconnect(self.qemu, SIGNAL("readyReadStandardOutput()"),
                         self.ARMQemuProcess.ReadStdOutput)
-        self.disconnect(self.qemu, SIGNAL("readyReadStandardError()"),
+        self.qemu.disconnect(self.qemu, SIGNAL("readyReadStandardError()"),
                         self.ARMQemuProcess.ReadErrOutput)
-        self.disconnect(self.qemu, SIGNAL("finished(int, QProcess::ExitStatus)"), 
+        self.qemu.disconnect(self.qemu, SIGNAL("finished(int, QProcess::ExitStatus)"), 
                         self.ARMQemuProcess.FinishProcess)
-        self.disconnect(self.qemu, SIGNAL("stateChanged(int)"), 
+        self.qemu.disconnect(self.qemu, SIGNAL("stateChanged(int)"), 
                         self.ARMQemuProcess.stateChanged)
         self.qemu = None
         if exitstatus == QProcess.CrashExit:

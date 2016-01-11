@@ -87,6 +87,7 @@ class Simulation(QObject):
                 fatal(self.tr("Unknown ARM simulator type!"),
                       self.tr("Failed to launch the simulation"))
                 return False
+            
             # Prepare to run APC simulator
             tracefile = self.config.getConfig("fulltrace")
             if ((tracefile == "") or (tracefile == None)):

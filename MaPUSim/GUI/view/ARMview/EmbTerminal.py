@@ -1,13 +1,9 @@
 #!/usr/bin/env python 
 #-*- coding:utf-8 -*- 
-from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QVBoxLayout, QFont, QWidget
 from QTermWidget import QTermWidget
 
 class EmbTerminal(QWidget):
-    ARMSimulatorStatusSignal = pyqtSignal(bool)
-    ARMSimulatorShowSignal = pyqtSignal(int, str)
-    APCSimulatorSignal = pyqtSignal(str, str)
     def __init__(self, config, control, parent = None):
         super(EmbTerminal, self).__init__(parent)
 
@@ -48,7 +44,6 @@ class EmbTerminal(QWidget):
         '''
         self.lay.removeWidget(self.termWidget)
         self.termWidget.close()
-        del self.termWidget
         self.termWidget = QTermWidget(0)
         self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
         font = QFont("Monospace")
@@ -61,14 +56,11 @@ class EmbTerminal(QWidget):
         self.termWidget.startShellProgram()
 
     def startProcess(self, command, args):
-        self.ARMSimulatorStatusSignal.emit(True)
         self.lay.removeWidget(self.termWidget)
         self.termWidget.close()
-        del self.termWidget
-        self.termWidget = 0
         self.termWidget = QTermWidget(0)
+        self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
         self.control.bindARMQemuProcess(self.termWidget.getProcess())
-        self.termWidget.setScrollBarPosition(2)
         font = QFont("Monospace")
         self.termWidget.setTerminalFont(font)
         self.lay.addWidget(self.termWidget)
