@@ -354,7 +354,7 @@ void MpuRfsUnit::execute(int slot_idx) {
                       inst->readIntResult(mr_idx),
                       tid);
 
-      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx\n", tid,
+      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx\n", /*tid*/0,
               inst->seqNum, reg_idx - Ctrl_Base_DepTag, inst->readIntResult(mr_idx));
       break;
 
