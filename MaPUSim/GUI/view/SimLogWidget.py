@@ -29,6 +29,7 @@ class SimLogWidget(QTextEdit):
         Refresh the TextEdit every 1000ms for updated log
         '''
         string = self.log
+        self.clear()
         defaultColor = self.textColor()
         num = string.count("\n")
         while num != 0:

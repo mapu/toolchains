@@ -26,10 +26,10 @@ class MPUCoreWidget(QWidget):
         ["IMAC", [20, 36, 5, 5], QPushButton],
         ["FALU", [30, 36, 5, 5], QPushButton],
         ["FMAC", [40, 36, 5, 5], QPushButton],
-        ["I0", [16, 30, 3, 1], QPushButton],
-        ["I1", [26, 30, 3, 1], QPushButton],
-        ["I2", [36, 30, 3, 1], QPushButton],
-        ["O", [26, 46, 3, 1], QPushButton]
+        ["I0", [16, 30, 3, 1], QLabel],
+        ["I1", [26, 30, 3, 1], QLabel],
+        ["I2", [36, 30, 3, 1], QLabel],
+        ["O", [26, 46, 3, 1], QLabel]
     ]
     
     # the in/out ports on components
@@ -348,7 +348,18 @@ class MPUCoreWidget(QWidget):
             elif com[2] is QLabel:
                 label = com[2](self.tr(com[0]))
                 label.setMargin(0)
-                self.gridLayout.addWidget(com[2](self.tr(com[0])), *com[1])
+                label.setStyleSheet('''
+                    background: qradialgradient(cx:0, cy:0, radius: 1,
+                                                fx:0.5, fy:0.5, stop:0 white,
+                                                stop:1 lightblue);
+                    border-style: solid;
+                    border-width: 1px;
+                    border-radius: 0px;
+                    border-color: blue;
+                    margin: 0px;
+                    padding: 0px;
+                ''')
+                self.gridLayout.addWidget(label, *com[1])
         
         self.connect(self.comGroup, SIGNAL("buttonPressed(int)"), self.comBtnSlot)
                 
@@ -393,7 +404,6 @@ class MPUCoreWidget(QWidget):
         
     def timeChangedSlot(self, time):
         self.instList = self.instTable.getInstSrcDest(time)
-        print self.instList
 
     def setHexFileStart(self, fileName, start):
         self.hexFile = fileName

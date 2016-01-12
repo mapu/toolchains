@@ -125,8 +125,6 @@ class RegfileWidget(QTableWidget):
             for cl in self.classes:
                 if idx + regcl >= cl[1]:
                     regcl += 1
-            if self.item(idx + regcl, 2) == None:
-                print idx + regcl
             if op[0] == "R":
                 self.item(idx + regcl, 2).op |= 1
             elif op[0] == "W":

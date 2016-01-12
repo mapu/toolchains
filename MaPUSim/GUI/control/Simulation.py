@@ -105,7 +105,7 @@ class Simulation(QObject):
                 return False
             
             commkeys = self.ARMProcess.getCommKeys()
-            print commkeys
+            print "comm: ",commkeys
             if commkeys == None:
                 self.ARMProcess.tryTerminate()
                 fatal(self.tr("Cannot get communication keys from ARM simulator"),
@@ -192,14 +192,17 @@ class Simulation(QObject):
     
     def bindARMQemuProcess(self, process):
         self.ARMQemuProcess.qemu = process
-        self.connect(process, SIGNAL("readyReadStandardOutput()"),
-                     self.ARMQemuProcess.ReadStdOutput)
-        self.connect(process, SIGNAL("readyReadStandardError()"),
-                     self.ARMQemuProcess.ReadErrOutput)
-        self.connect(process, SIGNAL("finished(int, QProcess::ExitStatus)"), 
-                     self.ARMQemuProcess.FinishProcess)
-        self.connect(process, SIGNAL("stateChanged(int)"), 
-                     self.ARMQemuProcess.stateChanged)
+        process.readyReadStandardOutput.connect(self.ARMQemuProcess.ReadStdOutput)
+        process.readyReadStandardError.connect(self.ARMQemuProcess.ReadErrOutput)
+        process.finished.connect(self.ARMQemuProcess.FinishProcess)
+        process.stateChanged.connect(self.ARMQemuProcess.stateChanged)
+    
+    def unbindARMQemuProcess(self, process):
+        self.ARMQemuProcess.qemu = None
+        process.readyReadStandardOutput.disconnect(self.ARMQemuProcess.ReadStdOutput)
+        process.readyReadStandardError.disconnect(self.ARMQemuProcess.ReadErrOutput)
+        process.finished.disconnect(self.ARMQemuProcess.FinishProcess)
+        process.stateChanged.disconnect(self.ARMQemuProcess.stateChanged)
         
     def analyzeTrace(self, exitcode, exitstatus):
         if self.config.getConfig("isFullsystem") == "True":

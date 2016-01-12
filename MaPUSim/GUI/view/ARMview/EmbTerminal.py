@@ -13,7 +13,7 @@ class EmbTerminal(QWidget):
         self.lay = QVBoxLayout()
         self.setLayout(self.lay)
         self.termWidget = QTermWidget(0)
-        self.termWidget.setScrollBarPosition(2)
+        self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
         font = QFont("Monospace")
         self.termWidget.setTerminalFont(font)
         self.lay.addWidget(self.termWidget)
@@ -25,6 +25,7 @@ class EmbTerminal(QWidget):
         if buttonid == 0:
             self.control.ARMQemuProcess.signalUARTStart.connect(
                 self.startProcess)
+            self.control.bindARMQemuProcess(self.termWidget.getProcess())
             try:
                 self.control.ARMGem5Process.signalUARTStart.disconnect(
                     self.startm5term)
@@ -35,6 +36,7 @@ class EmbTerminal(QWidget):
             try:
                 self.control.ARMQemuProcess.signalUARTStart.disconnect(
                     self.startProcess)
+                self.control.unbindARMQemuProcess(self.termWidget.getProcess())
             except Exception: pass
         return
     
@@ -42,13 +44,13 @@ class EmbTerminal(QWidget):
         '''
         Start UART simulation for Gem5 mode
         '''
-        self.lay.removeWidget(self.termWidget)
-        self.termWidget.close()
-        self.termWidget = QTermWidget(0)
-        self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
-        font = QFont("Monospace")
-        self.termWidget.setTerminalFont(font)
-        self.lay.addWidget(self.termWidget)
+        #self.lay.removeWidget(self.termWidget)
+        #self.termWidget.close()
+        #self.termWidget = QTermWidget(0)
+        #self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
+        #font = QFont("Monospace")
+        #self.termWidget.setTerminalFont(font)
+        #self.lay.addWidget(self.termWidget)
         self.termWidget.setShellProgram(self.config.getConfig("simulatorpath") +
                                         "/arm/utils/m5term")
         args = ["localhost", ("%d" % port)]
@@ -56,14 +58,6 @@ class EmbTerminal(QWidget):
         self.termWidget.startShellProgram()
 
     def startProcess(self, command, args):
-        self.lay.removeWidget(self.termWidget)
-        self.termWidget.close()
-        self.termWidget = QTermWidget(0)
-        self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
-        self.control.bindARMQemuProcess(self.termWidget.getProcess())
-        font = QFont("Monospace")
-        self.termWidget.setTerminalFont(font)
-        self.lay.addWidget(self.termWidget)
 
         # ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"  # -gdb tcp::1234 -S
         # self.termWidget.sendText(ARMCommand)
@@ -76,7 +70,7 @@ class EmbTerminal(QWidget):
         self.termWidget.setShellProgram(command)
         self.termWidget.setArgs(args)
         self.termWidget.startShellProgram()
-        self.control.ARMProcess.signalStarted.emit()
+        self.control.ARMQemuProcess.signalStarted.emit()
     
         #self.watcher = QFileSystemWatcher()
         #self.watcher.addPath(self.errorFile)

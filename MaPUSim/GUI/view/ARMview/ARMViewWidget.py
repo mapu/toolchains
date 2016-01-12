@@ -11,7 +11,11 @@ class ARMViewWidget(QWidget):
         self.config = config
         self.control = control
         self.UART0Widget = EmbTerminal(config, control)
-        self.UART0Widget.switchMode(1)
+        if self.config.getConfig("ARMSimType") == "QEMU":
+            self.UART0Widget.switchMode(0)
+        else:
+            self.UART0Widget.switchMode(1)
+            
         self.UART1Widget = EmbTerminal(config, control)
         self.LCDWidget = QWidget()
         self.logWidget = SimLogWidget()

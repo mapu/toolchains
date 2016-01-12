@@ -45,7 +45,8 @@ class MainWindow(QMainWindow):
         self.perspTabs.addTab(self.apcViewWidget, self.tr("APC Perspective"))
         self.perspTabs.addTab(self.configWidget, self.tr("Configuration"))
         
-        self.control.ARMProcess.stateChanged.connect(self.ARMStatus)
+        self.control.ARMGem5Process.stateChanged.connect(self.ARMStatus)
+        self.control.ARMQemuProcess.stateChanged.connect(self.ARMStatus)
         self.control.APCProcess.stateChanged.connect(self.APCStatus)
         
         #self.configWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    

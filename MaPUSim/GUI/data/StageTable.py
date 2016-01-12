@@ -156,7 +156,6 @@ class StageTable(QObject):
                                   "%s" % instList[-1][self.disIdx]))
             
         prePage = (instList[0][self.snIdx], instList[0][self.disIdx])
-        print self.pageList
         for page in self.pageList[:]:
             points = (page[0] - prePage[0]) >> 14
             for i in xrange(1, points):

@@ -101,7 +101,6 @@ class VectorRegfileTableItem(QTableWidgetItem):
             value = [(self.value[i * 2 + 1] << 8) | self.value[i * 2] for i in xrange(32)]
             return " ".join(["0x%04x" % v for v in value])
         if datatype == "4 bytes":
-            print self.value
             value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
                      (self.value[i * 4 + 1] << 8) | self.value[i * 4]
                       for i in xrange(16)]

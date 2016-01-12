@@ -4,7 +4,7 @@ Created on Dec 21, 2015
 @author: wangl
 '''
 from PyQt4.QtCore import QObject, QString, pyqtSignal, QProcess,\
-    QCoreApplication, SIGNAL, QEventLoop
+    QCoreApplication, SIGNAL, QEventLoop, pyqtSlot
 from PyQt4.QtGui import QMessageBox
 from view.Utils import fatal
 import view.Utils
@@ -18,7 +18,7 @@ class ARMQemuProcess(QObject):
     signalUARTStart = pyqtSignal(QString, list)
     signalStarted = pyqtSignal()
     updateLog = pyqtSignal(QString)
-    stateChanged = pyqtSignal(int)
+    stateChanged = pyqtSignal(QProcess.ProcessState)
 
     def __init__(self, parent = None):
         '''
@@ -53,11 +53,7 @@ class ARMQemuProcess(QObject):
         '''
         Start qemu process in a qterminal
         '''
-        self.qemu = None
         self.signalUARTStart.emit(command, args)
-        loop = QEventLoop()
-        loop.connect(self, SIGNAL("signalStarted()"), loop.quit())
-        loop.exec_()
         
     def state(self):
         '''
@@ -72,18 +68,8 @@ class ARMQemuProcess(QObject):
         Slot function for dealing with the process exit
         '''
         self.cleanup()
-        self.qemu.disconnect(self.qemu, SIGNAL("readyReadStandardOutput()"),
-                        self.ARMQemuProcess.ReadStdOutput)
-        self.qemu.disconnect(self.qemu, SIGNAL("readyReadStandardError()"),
-                        self.ARMQemuProcess.ReadErrOutput)
-        self.qemu.disconnect(self.qemu, SIGNAL("finished(int, QProcess::ExitStatus)"), 
-                        self.ARMQemuProcess.FinishProcess)
-        self.qemu.disconnect(self.qemu, SIGNAL("stateChanged(int)"), 
-                        self.ARMQemuProcess.stateChanged)
-        self.qemu = None
         if exitstatus == QProcess.CrashExit:
             fatal("ARM simulator exits abnormally!")
-        
         
     def getCommKeys(self):
         '''
@@ -99,7 +85,7 @@ class ARMQemuProcess(QObject):
                                 int(apcport.group(0))]
             else:
                 # wait for the ARM simulator starting 
-                self.qemu.waitForReadyRead(1000)
+                self.qemu.waitForReadyRead(100)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(
@@ -120,14 +106,12 @@ class ARMQemuProcess(QObject):
         and then send SIGKILL in case of the failure of SIGTERM. If both are 
         failed, it will quit the entire application. 
         '''
-        if self.qemu == None:
-            return
-        if self.qemu.state() == QProcess.Running:
+        if self.state() == QProcess.Running:
             self.qemu.terminate()
         else:
             return
-        wait = 50
-        while self.qemu.state() == QProcess.Running:
+        wait = 10
+        while self.state() == QProcess.Running:
             self.qemu.waitForFinished(1000)
             wait -= 1
             if wait == 0:
@@ -138,16 +122,16 @@ class ARMQemuProcess(QObject):
                                           buttons = QMessageBox.Yes |
                                                     QMessageBox.No,
                                           defaultButton = QMessageBox.No)
-            if ret == QMessageBox.No:
-                wait = 50
-            else:
-                break
-        if self.qemu.state() == QProcess.Running:
+                if ret == QMessageBox.No:
+                    wait = 50
+                else:
+                    break
+        if self.state() == QProcess.Running:
             self.qemu.kill()
         else:
             return
-        wait = 50
-        while self.qemu.state() == QProcess.Running:
+        wait = 10
+        while self.state() == QProcess.Running:
             self.qemu.waitForFinished(1000)
             wait -= 1
             if wait == 0:
