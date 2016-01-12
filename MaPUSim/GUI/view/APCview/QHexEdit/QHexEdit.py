@@ -242,11 +242,11 @@ class QHexEdit(QAbstractScrollArea):
     	self.viewport().update()
 
     def indexOf(self,ba):
-	self.addressSearch=ba
-    try:
-        pos=int(str(ba),16)
-    except Exception:
-        return -1
+        self.addressSearch=ba
+        try:
+            pos=int(str(ba),16)
+        except Exception:
+            return -1
 	if pos%16==0:
 	    lineCount = (int)(self._chunks.size() / BYTES_PER_LINE)
 	    if (pos/16)<lineCount:
