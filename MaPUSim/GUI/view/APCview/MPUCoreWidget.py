@@ -400,6 +400,8 @@ class MPUCoreWidget(QWidget):
         if self.comGroup.button(idx).isChecked():
             self.buttonDialogs[idx].hide()
         else:
+            if idx == 0:
+                self.buttonDialogs[idx].loadFile(self.hexFile, self.start)
             self.buttonDialogs[idx].show()
         
     def timeChangedSlot(self, time):
