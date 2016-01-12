@@ -45,7 +45,8 @@ class StageDialog(QDialog):
         upLay = QHBoxLayout()
         upLay.addWidget(self.pageCombo)
         upLay.addWidget(blank)
-        self.searchWidget = SearchWidget(["pc", "dis"], inst_table)
+        self.searchWidget = SearchWidget(["pc", "dis"], inst_table,
+                                         self.tableView, self.tableModel)
         upLay.addWidget(self.searchWidget)
         
         blank1 = QLabel()
@@ -61,7 +62,7 @@ class StageDialog(QDialog):
         mainLay.addLayout(midLay)
         mainLay.addWidget(self.tableView)
         self.setLayout(mainLay)
-
+        
     @pyqtSlot(int)
     def updateTimePoint(self, index):
         column = index

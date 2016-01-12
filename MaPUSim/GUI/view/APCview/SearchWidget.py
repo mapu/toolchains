@@ -13,13 +13,15 @@ class SearchWidget(QWidget):
     '''
 
 
-    def __init__(self, attributes, table, parent = None):
+    def __init__(self, attributes, table, view, model, parent = None):
         '''
         Constructor
         '''
         super(SearchWidget, self).__init__(parent)
         self.attributes = attributes
         self.table = table
+        self.tableView = view
+        self.tableModel = model
         
         self.searchLabel = QLabel(self.tr("Search text:"))
         self.searchLabel.setFixedSize(30, 25)
@@ -68,7 +70,7 @@ class SearchWidget(QWidget):
             self.currentResult = 0
             self.tableModel.refrushModel()
         else:
-            warning("Cannot find %s!", key)
+            warning("Cannot find %s!" % key)
 
     def previousSlot(self):
         if self.currentResult > 0:
