@@ -409,7 +409,7 @@ void UseDefUnit::execute(int slot_idx) {
         DPRINTF(InOrderUseDef, "[tid:%i]: [sn:%i]: Writing Int. Result "
                 "0x%x to register idx %i (%i).\n", tid, seq_num,
                 inst->readIntResult(ud_idx), reg_idx, flat_idx);
-        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
+        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x \n", tid,
                 seq_num, flat_idx, inst->readIntResult(ud_idx));
 
         // Remove Dependencies
@@ -426,7 +426,7 @@ void UseDefUnit::execute(int slot_idx) {
         DPRINTF(InOrderUseDef, "[tid:%i]: [sn:%i]: Writing Int. Result "
                 "0x%x to J register idx %i (%i).\n", tid, seq_num,
                 inst->readIntResult(ud_idx), reg_idx, flat_idx);
-        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W J Reg %i : 0x%x.\n", tid,
+        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W J Reg %i : 0x%x \n", tid,
                 seq_num, flat_idx, inst->readIntResult(ud_idx));
 
         // Remove Dependencies
@@ -449,10 +449,10 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readDoubleResult(ud_idx),
                   inst->readDoubleBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx \n", tid,
                   seq_num, flat_idx * 2,
                   inst->readDoubleBitsResult(ud_idx) & 0xFFFFFFFFF);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx \n", tid,
                   seq_num, flat_idx * 2 + 1,
                   (inst->readDoubleBitsResult(ud_idx) >> 32) & 0xFFFFFFFFF);
 
@@ -465,10 +465,10 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readDoubleResult(ud_idx),
                   inst->readDoubleBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx \n", tid,
                   seq_num, flat_idx * 2,
                   inst->readDoubleBitsResult(ud_idx) & 0xFFFFFFFFF);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%lx \n", tid,
                   seq_num, flat_idx * 2 + 1,
                   (inst->readDoubleBitsResult(ud_idx) >> 32) & 0xFFFFFFFFF);
 
@@ -496,7 +496,7 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readFloatResult(ud_idx),
                   inst->readFloatBitsResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x \n", tid,
                   seq_num, flat_idx, inst->readFloatBitsResult(ud_idx));
 
           // Check for FloatRegBits Here
@@ -508,7 +508,7 @@ void UseDefUnit::execute(int slot_idx) {
                   tid, seq_num, inst->readFloatResult(ud_idx),
                   inst->readIntResult(ud_idx),
                   reg_idx - FP_Base_DepTag, flat_idx);
-          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x.\n", tid,
+          DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W R Reg %i : 0x%x \n", tid,
                   seq_num, flat_idx, inst->readFloatBitsResult(ud_idx));
 
           cpu->setFloatReg(flat_idx, inst->readFloatResult(ud_idx),
@@ -528,7 +528,7 @@ void UseDefUnit::execute(int slot_idx) {
         DPRINTF(InOrderUseDef, "[tid:%i]: [sn:%i]: Writing Misc. 0x%x "
                 "to register idx %i.\n", tid, inst->readIntResult(ud_idx),
                 reg_idx - Ctrl_Base_DepTag);
-        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W Misc Reg %i : 0x%x.\n", tid,
+        DPRINTF(MapuReg, "[tid:%i]: [sn:%i]: W Misc Reg %i : 0x%x \n", tid,
                 seq_num, reg_idx - Ctrl_Base_DepTag,
                 inst->readIntResult(ud_idx));
 
