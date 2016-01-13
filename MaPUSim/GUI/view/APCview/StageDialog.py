@@ -100,9 +100,6 @@ class StageDialog(QDialog):
         return QDialog.show(self)
 
     def closeEvent(self, event):
-        self.hexEdit._cursorTimer.stop()
-        self.optionsDialog.close()
-        self.searchDialog.close()
         self.hide()
         event.ignore()
 
