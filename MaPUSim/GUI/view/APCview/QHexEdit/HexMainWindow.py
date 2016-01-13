@@ -144,7 +144,8 @@ class HexMainWindow(QMainWindow):
         self.hexEdit._cursorTimer.stop()
         self.optionsDialog.close()
         self.searchDialog.close()
-        self.flag = -1
+        self.hide()
+        event.ignore()
 
 
 

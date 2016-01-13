@@ -77,10 +77,10 @@ class StageTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                if len(self.hHeaderList) > section:
-                    return self.hHeaderList[section]
-                else:
-                    return QVariant()
+                #if len(self.hHeaderList) > section:
+                #    return self.hHeaderList[section]
+                #else:
+                return QVariant()
             else:
                 if len(self.vHeaderList) > section:
                     return self.vHeaderList[section]
@@ -112,7 +112,11 @@ class StageTableModel(QAbstractTableModel):
         '''
         Get the start column index of the given inst at the "row"
         '''
-        return self.stageTable.getStart(row) - self.curMin
+        start = self.stageTable.getStart(row) - self.curMin
+        while self.stages[row][start] != "" and self.stages[row][start] != "RR":
+            start += 1
+        return start
+        
 
     def refrushModel(self):
         self.beginResetModel()
