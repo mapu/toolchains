@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtCore import SIGNAL, pyqtSlot, QModelIndex, pyqtSignal
+from PyQt4.QtCore import SIGNAL, pyqtSlot, QModelIndex, pyqtSignal, Qt
 from PyQt4.QtGui import QDialog, QTableView, QAbstractItemView, QHeaderView,\
     QFont, QComboBox, QLabel, QHBoxLayout, QVBoxLayout
 from data.StageTableModel import StageTableModel
 from view.APCview.LegendWidget import LegendWidget
 from view.APCview.SearchWidget import SearchWidget
+from view.APCview.HeaderView import HeaderView
 
 class StageDialog(QDialog):
     updateTimePointSignal = pyqtSignal(int)
@@ -15,8 +16,14 @@ class StageDialog(QDialog):
         self.resize(1500, 800)
         self.setMinimumSize(400, 600)
         self.tableModel = StageTableModel(stage_table, reg_table, self)
+
         self.tableView = QTableView()
         self.tableView.setModel(self.tableModel)
+
+        self.headerView = HeaderView(self.tableModel, Qt.Horizontal)
+        self.headerView.setDefaultAlignment(Qt.AlignHCenter)
+        self.tableView.setHorizontalHeader(self.headerView)
+
         self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
         self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
