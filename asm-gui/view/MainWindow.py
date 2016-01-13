@@ -151,6 +151,9 @@ class MainWindow(QMainWindow):
             if re == 0:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one column")
+            if re == 1:
+                self.register0Check.setCheckState(Qt.Unchecked)
+                warning("Please select one or more cells")       
         else:
             self.microcodeTable.eraserRect(0, color)
 
@@ -161,6 +164,9 @@ class MainWindow(QMainWindow):
             if re == 0:
                 self.register1Check.setCheckState(Qt.Unchecked)   
                 warning("Please select one column")  
+            if re == 1:
+                self.register1Check.setCheckState(Qt.Unchecked)
+                warning("Please select one or more cells")  
         else:
             self.microcodeTable.eraserRect(1, color) 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-   
 import sys
-from PyQt4.QtGui import QTableWidget, QAbstractItemView, QTableWidgetItem, QApplication, QPainter, QPen
+from PyQt4.QtGui import QTableWidget, QAbstractItemView, QTableWidgetItem, QApplication, QPainter, QPen, QTableWidgetSelectionRange, QBrush
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from SetFSMNameWidget import SetFSMNameWidget
 from InsertDialog import InsertDialog
@@ -42,6 +42,9 @@ class MicrocodeTable(QTableWidget):
         self.setAttribute(Qt.WA_PaintOutsidePaintEvent)
         self.rectFrame = []
 
+        #record the previous point row
+        self.previousPointRow = -1
+
     def itemClickedSlot(self, item):
         self.repaint()
 
@@ -51,8 +54,24 @@ class MicrocodeTable(QTableWidget):
         self.CurrentRow = previousRow
         self.CurrentColumn = previousColumn
 
+        item = self.item(currentRow, currentColumn)
+        if item != None:
+            if self.previousPointRow != -1:
+                self.earserWholeRowColor(self.previousPointRow)
+            #check microcode is legal?
+
+
+            self.setWholeRowColor(currentRow, Qt.blue) 
+            self.previousPointRow = currentRow     
+
     def scrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
+
+    def getRowCount(self):
+        return self.rowCount()
+
+    def getColumnCount(self):
+        return self.columnCount()
 
     def clearTable(self):
         self.clear()
@@ -389,6 +408,8 @@ class MicrocodeTable(QTableWidget):
         selRange = self.selectedRange()
         self.currentRowNum = selRange.rowCount()
         self.currentColumnNum = selRange.columnCount()
+        if self.currentColumnNum == 0:
+            return -1
         if self.currentColumnNum > 1:
             return 0
         self.currentTopRow = selRange.topRow()
@@ -415,8 +436,8 @@ class MicrocodeTable(QTableWidget):
 
     def paintRect(self, check, color):
         rectInfo = self.getRectInfo(check, color)
-        if rectInfo == 0:
-            return 0
+        if rectInfo == 0 or rectInfo == -1:
+            return rectInfo
         #add rectFrame list
         self.rectFrame.append(rectInfo)
         self.viewport().update()
@@ -455,5 +476,23 @@ class MicrocodeTable(QTableWidget):
             self.paintLine(rectInfo.bottomLeft_x, rectInfo.bottomLeft_y, rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.color)
 
         QTableWidget.paintEvent(self, event)
+
+    def setWholeRowColor(self, row, color):
+        count = self.getColumnCount()
+        for i in range(0, count):
+            item = self.item(row, i)
+            if item == None:
+                item = QTableWidgetItem("")
+                self.setItem(row, i, item)
+            item.setBackground(QBrush(color))
+        
+    def earserWholeRowColor(self, row):
+        count = self.getColumnCount()
+        for i in range(0, count):
+            item = self.item(row, i)
+            if item == None:
+                item = QTableWidgetItem("")
+                self.setItem(row, i, item)
+            item.setBackground(Qt.white)
 
 
