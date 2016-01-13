@@ -296,10 +296,12 @@ class MPUCoreWidget(QWidget):
                  "I0": SHU0ToI0, "I1": SHU0ToI1, "I2": SHU0ToI2,},
         "SHU1": {"BIU0": SHU1toBIU0, "BIU1": SHU1toBIU1, "BIU2": SHU1toBIU2, "M": SHU1ToM,
                  "I0": SHU1ToI0, "I1": SHU1ToI1, "I2": SHU1ToI2,},
-        "M" : {"BIU0": MtoBIU0, "BIU1": MtoBIU1, "BIU2": MtoBIU2},
+        "MR3" : {"BIU0": MtoBIU0, "BIU1": MtoBIU1, "BIU2": MtoBIU2},
+        "MR3K" : {"BIU0": MtoBIU0, "BIU1": MtoBIU1, "BIU2": MtoBIU2},
         "MR0": {"SHU0": MR0toSHU0, "SHU1": MR0toSHU1, "I0": MR0toI0, "I1": MR0toI1, "I2": MR0toI2, },
         "MR1": {"SHU0": MR1toSHU0, "SHU1": MR1toSHU1, "I0": MR1toI0, "I1": MR1toI1, "I2": MR1toI2, },
         "MR2": {"I0": MR2toI0, "I1": MR2toI1, "I2": MR2toI2, },
+        "MR2W": {"I0": MR2toI0, "I1": MR2toI1, "I2": MR2toI2, },
         "IALU": {"IMAC": IALUToIMAC, "FALU": IALUToFALU, "O": IALUToO},
         "IMAC": {"IALU": IMACToIALU, "FALU": IMACToFALU, "O": IMACToO},
         "FALU": {"IMAC": FALUToIMAC, "FMAC": FALUToFMAC, "IALU": FALUToIALU, "O": FALUToO},
@@ -498,6 +500,8 @@ class MPUCoreWidget(QWidget):
                 self.painter.drawPolyline(*rline)
         
     def resizeEvent(self, event):
+        if event.oldSize() == event.size():
+            return
         self.redraw(self.gridLayout.contentsRect().size())
 
     def paintEvent(self, event):

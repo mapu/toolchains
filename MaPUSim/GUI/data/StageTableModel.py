@@ -116,7 +116,7 @@ class StageTableModel(QAbstractTableModel):
         while self.stages[row][start] != "" and self.stages[row][start].find("RR"):
             start += 1
         if self.stages[row][start] == "":
-            self.stageTable.getStart(row) - self.curMin
+            return self.stageTable.getStart(row) - self.curMin
         else:
             return start
         
