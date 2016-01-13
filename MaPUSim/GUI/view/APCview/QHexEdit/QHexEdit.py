@@ -1,8 +1,8 @@
 #-*- coding utf-8 -*-
-from PyQt4.QtGui import QKeySequence, QAbstractScrollArea, QFont, QColor, QBrush, QPen, QPalette
-from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSlot, QString, QByteArray, QTimer, QRect
+from PyQt4.QtGui import QKeySequence, QAbstractScrollArea, QFont, QColor, QBrush, QPen, QPalette, QPainter
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSlot, QString, QByteArray, QTimer, QRect, QChar
 from Chunks import Chunks
-from UndoStack import UndoStack
+from UndoStack import UndoStack, CCmd
 
 HEXCHARS_IN_LINE = 47
 BYTES_PER_LINE = 16

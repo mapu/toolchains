@@ -1,62 +1,60 @@
 #-*- coding: utf-8 -*-
-from PyQt4.QtGui import*
-from PyQt4.QtCore import*
-from QHexEdit import*
-
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from PyQt4.QtGui import QDialog, QMessageBox, QGroupBox, QLabel, QLineEdit, QHBoxLayout, QPushButton, QVBoxLayout
+from PyQt4.QtCore import SIGNAL
+from QHexEdit import QHexEdit
 
 class SearchDialog(QDialog):
-    def __init__(self,hexEdit,parent=None):
-	super(SearchDialog,self).__init__(parent)
+    def __init__(self, hexEdit, parent = None):
+        super(SearchDialog, self).__init__(parent)
 
-	self.setWindowTitle("Find")	
-	self.resize(300,150)
-  	self._hexEdit = hexEdit
-	gbFind=QGroupBox()
-	self.cbFindLabel=QLabel("Find")
-	self.cbFindLabel.setFixedWidth(50)
-	self.cbFind=QLineEdit()
-	findLay=QHBoxLayout()
-	findLay.addWidget(self.cbFindLabel)
-	findLay.addWidget(self.cbFind)
-	gbFind.setLayout(findLay)
+        self.setWindowTitle("Find")	
+        self.resize(300, 150)
+        self._hexEdit = hexEdit
+        gbFind = QGroupBox()
+        self.cbFindLabel = QLabel("Find")
+        self.cbFindLabel.setFixedWidth(50)
+        self.cbFind = QLineEdit()
+        findLay = QHBoxLayout()
+        findLay.addWidget(self.cbFindLabel)
+        findLay.addWidget(self.cbFind)
+        gbFind.setLayout(findLay)
 
-	#gbOptions=QGroupBox("Options")
-	#self.cbBackwards=QCheckBox("Backwards")
-	#self.cbPrompt=QCheckBox("Prompt on replace")
-	#optionLay=QVBoxLayout()
-	#optionLay.addWidget(self.cbBackwards)
-	#optionLay.addWidget(self.cbPrompt)
-	#gbOptions.setLayout(optionLay)
+        #gbOptions = QGroupBox("Options")
+        #self.cbBackwards = QCheckBox("Backwards")
+        #self.cbPrompt = QCheckBox("Prompt on replace")
+        #optionLay = QVBoxLayout()
+        #optionLay.addWidget(self.cbBackwards)
+        #optionLay.addWidget(self.cbPrompt)
+        #gbOptions.setLayout(optionLay)
 
-	self.pbFind=QPushButton("Find")
-	self.pbFind.setFixedWidth(100)
-	self.pbCancel=QPushButton("Close")
-	self.pbCancel.setFixedWidth(100)
-	buttonLay=QHBoxLayout()
-	buttonLay.addWidget(self.pbFind)
-	buttonLay.addWidget(self.pbCancel)
+        self.pbFind = QPushButton("Find")
+        self.pbFind.setFixedWidth(100)
+        self.pbCancel = QPushButton("Close")
+        self.pbCancel.setFixedWidth(100)
+        buttonLay = QHBoxLayout()
+        buttonLay.addWidget(self.pbFind)
+        buttonLay.addWidget(self.pbCancel)
 
-	mainLay=QVBoxLayout()
-	mainLay.addWidget(gbFind)
-	mainLay.addLayout(buttonLay)
-	self.setLayout(mainLay)
+        mainLay = QVBoxLayout()
+        mainLay.addWidget(gbFind)
+        mainLay.addLayout(buttonLay)
+        self.setLayout(mainLay)
 
-	self.connect(self.pbFind,SIGNAL("clicked()"),self.on_pbFind_clicked)
-	self.connect(self.pbCancel,SIGNAL("clicked()"),self.closeDialog)
+        self.connect(self.pbFind, SIGNAL("clicked()"), self.on_pbFind_clicked)
+        self.connect(self.pbCancel, SIGNAL("clicked()"), self.closeDialog)
 
     def findNext(self):
-    	self._findBa=self.cbFind.text()
-    	idx = -1
-    	if self._findBa.length() > 0:
+        self._findBa = self.cbFind.text()
+        idx = -1
+        if self._findBa.length() > 0:
             idx = self._hexEdit.indexOf(self._findBa)
-    	return idx
+        return idx
 
     def on_pbFind_clicked(self):
-    	idx=self.findNext()
-	if idx==-1:
-	    QMessageBox.warning(self,self.tr("QHexEdit"),self.tr("Cannot find %1.").arg(self._findBa))
+        idx = self.findNext()
+        if idx == -1:
+            QMessageBox.warning(self, self.tr("QHexEdit"), self.tr("Cannot find %1.").arg(self._findBa))
 
     def closeDialog(self):
-	self.close()
+        self.close()
 
