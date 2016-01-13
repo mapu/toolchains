@@ -19,7 +19,6 @@ class StageDialog(QDialog):
         self.tableView.setModel(self.tableModel)
         self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
         self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        # self.tableView.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
         self.tableView.verticalHeader().setHighlightSections(False)
         self.tableView.verticalHeader().setFont(QFont("Monospace"))

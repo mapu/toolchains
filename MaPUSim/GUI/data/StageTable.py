@@ -69,6 +69,10 @@ class StageTable(QObject):
         sql_query = "DROP TABLE IF EXISTS " + self.Name
         self.DBConn.execute(sql_query)
         self.createTable()
+        
+        self.pageList = []
+        self.startPoint = sys.maxint
+        self.endPoint = 0
             
     def traceAnalyze(self, lines):
         '''

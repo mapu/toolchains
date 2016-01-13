@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from FloatDialog import FloatDialog
-from PyQt4.QtCore import QPointF, SIGNAL, Qt
+from PyQt4.QtCore import QPointF, SIGNAL, Qt, QRectF, QSizeF
 from PyQt4.QtGui import QSizePolicy, QPainterPath, QButtonGroup, QWidget,\
-    QPushButton, QGridLayout, QLabel, QColor, QPainter, QBrush, QPen
+    QPushButton, QGridLayout, QLabel, QColor, QPainter, QBrush, QPen, QPixmap
 from QHexEdit.HexMainWindow import HexMainWindow
 from nose.util import src
 
@@ -347,7 +347,8 @@ class MPUCoreWidget(QWidget):
                 self.gridLayout.addWidget(self.comButtons[-1], *com[1])
             elif com[2] is QLabel:
                 label = com[2](self.tr(com[0]))
-                label.setMargin(0)
+                label.setAlignment(Qt.AlignCenter)
+                label.setSizePolicy(sizePolicy)
                 label.setStyleSheet('''
                     background: qradialgradient(cx:0, cy:0, radius: 1,
                                                 fx:0.5, fy:0.5, stop:0 white,
@@ -393,7 +394,6 @@ class MPUCoreWidget(QWidget):
             self.buttonDialogs[-1].setWindowTitle("%s stages" %
                                                   self.components[i][0])
             self.buttonDialogs[-1].hide()
-            
         
         
     def comBtnSlot(self, idx):
@@ -412,7 +412,6 @@ class MPUCoreWidget(QWidget):
         self.start = start
             
     def drawOnePort(self, x, y, direction, color):
-        painter = QPainter(self)
         path = QPainterPath();
         if direction == 'R':
             sx = x + self.edge / 2
@@ -448,10 +447,32 @@ class MPUCoreWidget(QWidget):
         path.lineTo(ex1, ey1)
         path.lineTo(sx, sy)
 
-        painter.setPen(Qt.SolidLine);
-        painter.fillPath(path, QBrush(color));
-        painter.end()
+        self.painter.setPen(Qt.SolidLine);
+        self.painter.fillPath(path, QBrush(color));
+    
+    def redraw(self, size):
+        self.paintBuffer = QPixmap(size)
+        self.painter = QPainter(self.paintBuffer)
+        self.painter.fillRect(QRectF(QPointF(0, 0), QSizeF(size)),
+                              QBrush(QColor("white")))
+        self.rowUnit = size.height() / 55.0
+        self.colUnit = size.width() / 47.0
+        self.edge = self.rowUnit / 0.8
+        self.drawGrid()
+        self.drawConnections()
+        self.drawPorts()
+        self.painter.end()
         
+    def drawGrid(self):
+        brush = QBrush(QColor("grey"))
+        pen = QPen(brush, 1.0, Qt.DotLine)
+        self.painter.setPen(pen)
+        for i in xrange(47):
+            self.painter.drawLine(QPointF(self.colUnit * i, 0),
+                                  QPointF(self.colUnit * i, self.paintBuffer.height()))
+        for i in xrange(55):
+            self.painter.drawLine(QPointF(0, self.rowUnit * i),
+                                  QPointF(self.paintBuffer.width(), self.rowUnit * i))
             
     def drawPorts(self):
         for i in xrange(len(self.ports)):
@@ -465,48 +486,33 @@ class MPUCoreWidget(QWidget):
                                  port[2], self.inPortColor)
                 
     def drawConnections(self):
-        qp = QPainter()
-        qp.begin(self)
         brush = QBrush(QColor("gray"))
         pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-        qp.setPen(pen)
-        activeLines = []
+        self.painter.setPen(pen)
         for (src, end) in self.connections.iteritems():
-            for (dest, line) in end.iteritems():
-                if (src, dest) in self.instList:
-                    activeLines.append((src, dest))
-                    continue
+            for (_, line) in end.iteritems():
                 rline = line[:]
                 for i in xrange(len(line)):
-                    rline[i] = QPointF(line[i].x() * self.colUnit, line[i].y() * self.rowUnit)
-                qp.drawPolyline(*rline)
+                    rline[i] = QPointF(line[i].x() * self.colUnit,
+                                       line[i].y() * self.rowUnit)
+                self.painter.drawPolyline(*rline)
+        
+    def resizeEvent(self, event):
+        self.redraw(self.gridLayout.contentsRect().size())
+
+    def paintEvent(self, event):
+        qp = QPainter()
+        qp.begin(self)
+        qp.drawPixmap(self.gridLayout.contentsRect(), self.paintBuffer)
         brush = QBrush(QColor("yellow"))
         pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         qp.setPen(pen)
-        for line in activeLines:
+        for line in self.instList:
             rline = self.connections[line[0]][line[1]][:]
             for i in xrange(len(rline)):
-                rline[i] = QPointF(rline[i].x() * self.colUnit, rline[i].y() * self.rowUnit)
+                rline[i] = QPointF(rline[i].x() * self.colUnit,
+                                   rline[i].y() * self.rowUnit)
             qp.drawPolyline(*rline)
         qp.end()
-
-    def paintEvent(self, event):
-        self.drawRect = self.gridLayout.contentsRect()
-        self.rowUnit = self.drawRect.height() / 55.0
-        self.colUnit = self.drawRect.width() / 47.0
-        self.edge = self.rowUnit / 0.8
-        qp = QPainter()
-        qp.begin(self)
-        brush = QBrush(QColor("grey"))
-        pen = QPen(brush, 1.0, Qt.DotLine)
-        qp.setPen(pen)
-        for i in xrange(47):
-            qp.drawLine(QPointF(self.colUnit * i, 0), QPointF(self.colUnit * i, self.drawRect.height()))
-        for i in xrange(55):
-            qp.drawLine(QPointF(0, self.rowUnit * i), QPointF(self.drawRect.width(), self.rowUnit * i))
-        qp.end()
-        self.drawConnections()
-        self.drawPorts()
-
 
 

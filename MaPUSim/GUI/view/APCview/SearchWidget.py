@@ -70,7 +70,7 @@ class SearchWidget(QWidget):
             self.currentResult = 0
             self.tableModel.refrushModel()
         else:
-            warning("Cannot find %s!" % key)
+            warning("Cannot find \"%s\"!" % key)
 
     def previousSlot(self):
         if self.currentResult > 0:

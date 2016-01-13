@@ -45,8 +45,8 @@ class InstTable(QObject):
         
     def searchRecord(self, text, attributes):
         attribute_exps = ["%s LIKE '%s'" % (attr, text) for attr in attributes]
-        self.search_template += ' OR '.join(attribute_exps)
-        cur = self.DBConn.execute(self.search_template)
+        query = self.search_template + ' OR '.join(attribute_exps)
+        cur = self.DBConn.execute(query)
         return cur.fetchall()
         
     def clearTable(self):

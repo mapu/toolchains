@@ -20,7 +20,7 @@ class StageTableModel(QAbstractTableModel):
                          "W" : QColor(255, 0, 0),
                          "RW" : QColor(255, 153, 18),
                          "WR" : QColor(255, 153, 18),
-                         "Fetch" : QColor("gray"),
+                         "Fetch" : QColor("light gray"),
                          "Ex" : QColor(193, 210, 255),
                          "Matched": QColor(255, 153, 18)}
     
