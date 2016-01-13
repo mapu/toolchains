@@ -4,7 +4,7 @@ Created on Dec 21, 2015
 @author: wangl
 '''
 from PyQt4.QtCore import QObject, QString, pyqtSignal, QProcess,\
-    QCoreApplication, SIGNAL, QEventLoop, pyqtSlot
+    QCoreApplication
 from PyQt4.QtGui import QMessageBox
 from view.Utils import fatal
 import view.Utils

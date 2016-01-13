@@ -75,14 +75,14 @@ class StageDialog(QDialog):
         column = index
         text = self.tableModel.hHeaderList[column]
         text = text.replace('\n', "")
-        self.updateTimePointSignal.emit(int(text))
+        #self.updateTimePointSignal.emit(int(text))
 
     @pyqtSlot(QModelIndex)
     def updateTimePoint(self, index):
         column = index.column()
         text = self.tableModel.hHeaderList[column]
         text = text.replace('\n', "")
-        self.updateTimePointSignal.emit(int(text))
+        #self.updateTimePointSignal.emit(int(text))
 
     @pyqtSlot(int)
     def scrollToStage(self, value):
