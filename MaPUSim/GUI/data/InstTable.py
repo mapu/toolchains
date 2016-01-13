@@ -93,6 +93,8 @@ class InstTable(QObject):
                 continue
             dest = dest.groups()[0]
             src = inst[0].upper()
+            if dest == src:
+                continue
             if ((src in acc) and (not (dest in acc))):
                 retList.extend([(src, "O"), ("O", dest)])
                 continue

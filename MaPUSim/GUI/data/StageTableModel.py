@@ -113,9 +113,12 @@ class StageTableModel(QAbstractTableModel):
         Get the start column index of the given inst at the "row"
         '''
         start = self.stageTable.getStart(row) - self.curMin
-        while self.stages[row][start] != "" and self.stages[row][start] != "RR":
+        while self.stages[row][start] != "" and self.stages[row][start].find("RR"):
             start += 1
-        return start
+        if self.stages[row][start] == "":
+            self.stageTable.getStart(row) - self.curMin
+        else:
+            return start
         
 
     def refrushModel(self):
