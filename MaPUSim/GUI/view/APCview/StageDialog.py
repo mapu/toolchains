@@ -99,4 +99,11 @@ class StageDialog(QDialog):
                                  for i in range(len(self.tableModel.stageTable.pageList))])
         return QDialog.show(self)
 
+    def closeEvent(self, event):
+        self.hexEdit._cursorTimer.stop()
+        self.optionsDialog.close()
+        self.searchDialog.close()
+        self.hide()
+        event.ignore()
+
 
