@@ -32,6 +32,7 @@ class StageTable(QObject):
         self.startIdx = self.itemsid.index("start")
         self.endIdx = self.itemsid.index("end")
         self.stagesIdx = self.itemsid.index("stages")
+        self.stageSnIdx = self.itemsid.index("sn")
         
         self.stageCycle = 0
         self.stages = []
@@ -125,12 +126,15 @@ class StageTable(QObject):
             for stage in inst[self.stageStartIdx + 1: self.stageLastIdx + 1]:
                 if stage == 0:
                     break;
-                stages.extend(["%s" % self.stages[idx - 1]] * (stage - laststage - 1))
-                if stage in rwFlags:
-                    stages.append("%s.%s" % (self.stages[idx],
-                                             "".join(set(rwFlags[stage]))))
+                if stage == laststage:
+                    stages[-1] = self.stages[idx]
                 else:
-                    stages.append("%s" % self.stages[idx])
+                    stages.extend([self.stages[idx - 1]] * (stage - laststage - 1))
+                    if stage in rwFlags:
+                        stages.append("%s.%s" % (self.stages[idx],
+                                                 "".join(set(rwFlags[stage]))))
+                    else:
+                        stages.append(self.stages[idx])
                 laststage = stage
                 idx += 1
             # Update the time zone upper boundary
@@ -186,7 +190,7 @@ class StageTable(QObject):
         cursor = self.DBConn.execute(sql_query)
         self.instList = cursor.fetchall()
             
-        sql_query = "SELECT pc, dis FROM " + self.instTableName
+        sql_query = "SELECT pc, dis, sn FROM " + self.instTableName
         sql_query += " WHERE sn >= " + str(sp) + " AND sn <= " + str(ep)
         sql_query += " ORDER BY sn ASC"
         cursor.execute(sql_query)
@@ -206,13 +210,16 @@ class StageTable(QObject):
         vHeader = []
         headerList = cursor.fetchall()
         for inst in headerList:
-            vHeader.append(str(inst[0] + ": " + inst[1]))
+            vHeader.append(inst[0] + ": " + inst[1] + ": " + str(inst[2]))
         
         cursor.close()
         return (minTime, maxTime, vHeader, expandedTable)
     
     def getStart(self, row):
         return self.instList[row][self.startIdx]
+    
+    def getSn(self, row):
+        return self.instList[row][self.stageSnIdx]
         
         
 class SPUStageTable(StageTable):

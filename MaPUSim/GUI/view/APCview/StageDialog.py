@@ -13,14 +13,14 @@ class StageDialog(QDialog):
     def __init__(self, inst_table, stage_table, reg_table, parent = None):
         super(StageDialog, self).__init__(parent)
 
-        self.resize(1500, 800)
-        self.setMinimumSize(400, 600)
+        #self.resize(1500, 800)
+        #self.setMinimumSize(400, 600)
         self.tableModel = StageTableModel(stage_table, reg_table, self)
 
         self.tableView = QTableView()
         self.tableView.setModel(self.tableModel)
         self.tableView.setFont(QFont("Monospace", 8))
-
+        
         self.headerView = HeaderView(self.tableModel, Qt.Horizontal)
         self.headerView.setDefaultAlignment(Qt.AlignHCenter)
         self.tableView.setHorizontalHeader(self.headerView)
@@ -29,10 +29,10 @@ class StageDialog(QDialog):
         self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
         self.tableView.verticalHeader().setHighlightSections(False)
-        self.tableView.verticalHeader().setFont(QFont("Monospace"))
-        self.rowHeight = 23
+        self.tableView.verticalHeader().setFont(QFont("Monospace", 10))
+        self.rowHeight = 20
         self.tableView.verticalHeader().setDefaultSectionSize(self.rowHeight)
-        self.columnWidth = 32
+        self.columnWidth = 22
         self.tableView.horizontalHeader().setDefaultSectionSize(self.columnWidth)
         
         self.connect(self.tableView.horizontalHeader(),

@@ -38,4 +38,13 @@ def initRegName():
     SPURegNames.extend(["MPUCondition"])
     SPURegNames.extend(["MPU_Loop%d_%s" % (i, n) for n in ["Start", "End", "Number"]
                         for i in range(4)])
-    
+
+def getRegName(cl, no):
+    if cl == "R":
+        return SPURegNames[no]
+    if cl == "J":
+        return SPURegNames[no + 32]
+    if cl == "Misc":
+        return SPURegNames[no + 64]
+    if cl == "MPU":
+        return MPURegNames[no]

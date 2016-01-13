@@ -8,7 +8,7 @@ class HeaderView(QHeaderView):
         self.orientation = orientation
         self.model = model
         self.height = 20
-        self.setFont(QFont("Monospace"))
+        self.setFont(QFont("Monospace", 8))
         
     def paintSection(self, painter, rect, logicalIndex):
         QHeaderView.paintSection(self, painter, rect, logicalIndex)
