@@ -19,6 +19,7 @@ class StageDialog(QDialog):
 
         self.tableView = QTableView()
         self.tableView.setModel(self.tableModel)
+        self.tableView.setFont(QFont("Monospace", 8))
 
         self.headerView = HeaderView(self.tableModel, Qt.Horizontal)
         self.headerView.setDefaultAlignment(Qt.AlignHCenter)
