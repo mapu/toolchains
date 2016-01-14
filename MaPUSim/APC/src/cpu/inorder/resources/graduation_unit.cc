@@ -139,7 +139,7 @@ GraduationUnit::execute(int slot_num)
             }
             if (inst->traceData->getAddrValid()) {
               if (inst->traceData->getDataStatus() != 9/*custom*/)
-                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: %c Mem : 0x%x @A=0x08x\n", tid,
+                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: %c Mem : 0x%x @A=0x%08x\n", tid,
                         inst->seqNum, inst->isStore() ? 'W' : 'R',
                         inst->traceData->getIntData(),
                         inst->traceData->getAddr());
@@ -149,7 +149,7 @@ GraduationUnit::execute(int slot_num)
                 TheISA::MPUReg *mr = (TheISA::MPUReg *)inst->traceData->getCustomData();
                 for (int i = 0; i < 64; i++)
                   DPRINTFR(MapuMem, "%#02x ", ((uint8_t *)(*mr))[i]);
-                DPRINTFR(MapuPipeStages, "@A=0x08x\n", inst->traceData->getAddr());
+                DPRINTFR(MapuPipeStages, "@A=0x%08x\n", inst->traceData->getAddr());
               }
             }
 #endif
