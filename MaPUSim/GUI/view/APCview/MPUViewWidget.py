@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSlot
-from PyQt4.QtGui import QMainWindow, QSplitter, QPushButton, QWidget,\
-    QHBoxLayout, QLabel, QVBoxLayout, QTabWidget, QTableWidget, \
-    QScrollArea
+from PyQt4.QtGui import QSplitter, QPushButton, QWidget, QVBoxLayout, \
+    QTabWidget, QTableWidget
 from view.APCview.MPUCoreWidget import MPUCoreWidget
 from view.APCview.RegfileWidget import MRegfileWidget, MPURegfileWidget
 from view.APCview.StageDialog import StageDialog
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
-class MPUViewWidget(QMainWindow):
+class MPUViewWidget(QWidget):
     def __init__(self, config, control, idx, parent = None):
         super(MPUViewWidget, self).__init__(parent)
 
-        centralWidget = QSplitter(Qt.Horizontal)
-        self.setCentralWidget(centralWidget)
+        #centralWidget = QSplitter(Qt.Horizontal)
+        #self.setCentralWidget(centralWidget)
         widget = QSplitter(Qt.Horizontal)
         widget.setMinimumSize(1400, 600)
 
@@ -39,20 +38,11 @@ class MPUViewWidget(QMainWindow):
         # define left Widget
         self.leftWidget = QWidget()
         # layout left Widget
-        self.leftupLay = QHBoxLayout()
-        blank = QLabel()
-        blank.setFixedSize(500, 30)
-        self.leftupLay.addWidget(blank)
-        self.leftupLay.addWidget(self.stageButton)
-        self.leftLay = QVBoxLayout()
-        self.leftLay.addLayout(self.leftupLay)
+        self.leftLayout = QVBoxLayout()
+        self.leftLayout.addWidget(self.stageButton)
         # scroll
-        scroll = QScrollArea()
-        scroll.setWidget(self.coreWidget)
-        scroll.setAutoFillBackground(True)
-        scroll.setWidgetResizable(True)
-        self.leftLay.addWidget(scroll)
-        self.leftWidget.setLayout(self.leftLay)
+        self.leftLayout.addWidget(self.coreWidget)
+        self.leftWidget.setLayout(self.leftLayout)
 
         # define rightTab
         self.rightTab = QTabWidget()
@@ -62,8 +52,8 @@ class MPUViewWidget(QMainWindow):
                                          control.simDB.Tables[idx * 8 + 6])
         self.MPURegWidget = MPURegfileWidget(control.simDB.Tables[idx * 8 + 5],
                                              control.simDB.Tables[idx * 8 + 6])
-        control.simDB.timeChanged.connect(self.MRegWidget.timeChangedSlot)
-        control.simDB.timeChanged.connect(self.MPURegWidget.timeChangedSlot)
+        #control.simDB.timeChanged.connect(self.MRegWidget.timeChangedSlot)
+        #control.simDB.timeChanged.connect(self.MPURegWidget.timeChangedSlot)
         
         self.traceWidget = QTableWidget()
         self.rightTab.addTab(self.MRegWidget, self.tr("M RF"))
@@ -80,14 +70,14 @@ class MPUViewWidget(QMainWindow):
         
         vbox = QVBoxLayout()
         vbox.addWidget(splitter)
-        centralWidget.setLayout(vbox)
+        self.setLayout(vbox)
 
     @pyqtSlot()
     def stageButtonSlot(self):
         self.stageDialog.show()
+        self.stageDialog.raise_()
+        self.stageDialog.activateWindow()
         
     @pyqtSlot()
     def timeChangedSlot(self):
         self.stageButton.setEnabled(True)
-
-

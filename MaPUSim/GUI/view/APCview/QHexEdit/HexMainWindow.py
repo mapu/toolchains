@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
-from PyQt4.QtGui import QMainWindow, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel
+from PyQt4.QtGui import QMainWindow, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel,\
+    QMessageBox
 from PyQt4.QtCore import Qt, QFile, SIGNAL, QFileInfo, QString
 from SearchDialog import SearchDialog
 from OptionsDialog import OptionsDialog
@@ -118,6 +119,8 @@ class HexMainWindow(QMainWindow):
         self.editToolBar.addAction(self.findAct)
 
     def loadFile(self, fileName, start):
+        if fileName == "":
+            return
         self.file.setFileName(fileName)
         if not self.hexEdit.setData(self.file, start):
             QMessageBox.warning(self, self.tr("QHexEdit"), self.tr("Cannot read file %1:\n%2.").arg(fileName).arg(self.file.errorString()))

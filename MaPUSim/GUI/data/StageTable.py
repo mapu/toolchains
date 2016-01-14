@@ -190,7 +190,7 @@ class StageTable(QObject):
         cursor = self.DBConn.execute(sql_query)
         self.instList = cursor.fetchall()
             
-        sql_query = "SELECT pc, dis, sn FROM " + self.instTableName
+        sql_query = "SELECT pc, dis FROM " + self.instTableName
         sql_query += " WHERE sn >= " + str(sp) + " AND sn <= " + str(ep)
         sql_query += " ORDER BY sn ASC"
         cursor.execute(sql_query)
@@ -210,7 +210,7 @@ class StageTable(QObject):
         vHeader = []
         headerList = cursor.fetchall()
         for inst in headerList:
-            vHeader.append(inst[0] + ": " + inst[1] + ": " + str(inst[2]))
+            vHeader.append(inst[0] + ": " + inst[1])
         
         cursor.close()
         return (minTime, maxTime, vHeader, expandedTable)

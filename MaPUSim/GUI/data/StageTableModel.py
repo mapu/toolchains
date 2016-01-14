@@ -40,10 +40,10 @@ class StageTableModel(QAbstractTableModel):
                                          self.columnCount() - 1))
         self.refrushModel()
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent = None):
         return len(self.stages)
 
-    def columnCount(self, parent=None):
+    def columnCount(self, parent = None):
         return len(self.stages[0])
 
     def data(self, index, role):
@@ -90,9 +90,6 @@ class StageTableModel(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                #if len(self.hHeaderList) > section:
-                #    return self.hHeaderList[section]
-                #else:
                 return QVariant()
             else:
                 if len(self.vHeaderList) > section:
@@ -138,6 +135,12 @@ class StageTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.endResetModel()
 
+    def searchHeader(self, key):
+        result = []
+        for item in self.vHeaderList:
+            if item.find(key):
+                result.append(self.vHeaderList.index(item))
+        return result
 
 
 

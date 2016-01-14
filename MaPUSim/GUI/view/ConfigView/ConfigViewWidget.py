@@ -1,11 +1,11 @@
 # -*- coding =utf-8 -*-
 from PyQt4.QtCore import pyqtSignal, Qt, QProcess
-from PyQt4.QtGui import QMainWindow, QWidget, QPushButton, QLabel, QLineEdit,\
+from PyQt4.QtGui import QWidget, QPushButton, QLabel, QLineEdit,\
     QHBoxLayout, QVBoxLayout, QCheckBox, QGroupBox, QRadioButton, QScrollArea,\
     QBoxLayout, QGridLayout, QFileDialog, QButtonGroup
 from view.Utils import warning
 
-class ConfigViewWidget(QMainWindow):
+class ConfigViewWidget(QWidget):
     #define signal
     APCSimulatorDoneSignal = pyqtSignal(int, str)
     APCSimulatorShowSignal = pyqtSignal(int, str)
@@ -16,12 +16,9 @@ class ConfigViewWidget(QMainWindow):
     ARMProcessEndSignal = pyqtSignal()
     
     def __init__(self, config, control, parent = None):
-        QMainWindow.__init__(self, parent)
+        super(ConfigViewWidget, self).__init__(parent)
         self.config = config
         self.control = control
-
-        self.centralWidget = QWidget()
-        self.setCentralWidget(self.centralWidget)
 
         # Group for APC standalone mode
         #=======================================================================
@@ -185,7 +182,7 @@ class ConfigViewWidget(QMainWindow):
         self.scroll.setWidgetResizable(True)
         self.vbox = QGridLayout()
         self.vbox.addWidget(self.scroll, 0, 0)  
-        self.centralWidget.setLayout(self.vbox)
+        self.setLayout(self.vbox)
 
         self.fullGroup.clicked.connect(self.modeSwitchSlot)
         self.APCGroup.clicked.connect(self.modeSwitchSlot)

@@ -13,13 +13,11 @@ class SearchWidget(QWidget):
     '''
 
 
-    def __init__(self, attributes, table, view, model, parent = None):
+    def __init__(self, view, model, parent = None):
         '''
         Constructor
         '''
         super(SearchWidget, self).__init__(parent)
-        self.attributes = attributes
-        self.table = table
         self.tableView = view
         self.tableModel = model
         
@@ -62,7 +60,7 @@ class SearchWidget(QWidget):
             return
         self.tableView.setStyleSheet("QHeaderView.section{color: black;}")
         self.tableModel.key = key
-        self.searchResult = self.table.searchRecord(key, self.attributes)
+        self.searchResult = self.tableModel.searchHeader(key)
         if len(self.searchResult) != 0:
             if len(self.searchResult) > 1:
                 self.nextButton.setEnabled(True)
@@ -76,16 +74,16 @@ class SearchWidget(QWidget):
         if self.currentResult > 0:
             self.currentResult -= 1
             self.nextButton.setEnabled(True)
-            self.tableView.verticalScrollBar().setValue(self.searchList[self.currentResult])
+            self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
             if self.searchValue == 0:
                 self.preButton.setEnabled(False)
 
     def nextSlot(self):
-        if self.currentResult < len(self.searchList) - 1:
+        if self.currentResult < len(self.searchResult) - 1:
             self.currentResult += 1
             self.preButton.setEnabled(True)
-            self.tableView.verticalScrollBar().setValue(self.searchList[self.currentResult])
-            if self.currentResult == len(self.searchList) - 1:
+            self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            if self.currentResult == len(self.searchResult) - 1:
                 self.nextButton.setEnabled(False)
         
         

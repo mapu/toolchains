@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import SIGNAL, pyqtSlot, QModelIndex, pyqtSignal, Qt
 from PyQt4.QtGui import QDialog, QTableView, QAbstractItemView, QHeaderView,\
-    QFont, QComboBox, QLabel, QHBoxLayout, QVBoxLayout
+    QFont, QComboBox, QHBoxLayout, QVBoxLayout
 from data.StageTableModel import StageTableModel
 from view.APCview.LegendWidget import LegendWidget
 from view.APCview.SearchWidget import SearchWidget
@@ -42,33 +42,28 @@ class StageDialog(QDialog):
         self.connect(self.tableView.verticalScrollBar(),
                      SIGNAL("valueChanged(int)"), self.scrollToStage)
         
-        self.slider = 0
         self.pageCombo = QComboBox()
         self.pageCombo.setFixedSize(100, 25)
         self.connect(self.pageCombo, SIGNAL("currentIndexChanged(int)"),
                      self.tableModel.switchPageSlot)
-        blank = QLabel()
-        blank.setFixedSize(300, 25)
-        upLay = QHBoxLayout()
-        upLay.addWidget(self.pageCombo)
-        upLay.addWidget(blank)
-        self.searchWidget = SearchWidget(["pc", "dis"], inst_table,
-                                         self.tableView, self.tableModel)
-        upLay.addWidget(self.searchWidget)
+        # blank = QLabel()
+        # blank.setFixedSize(300, 25)
+        self.upLayout = QHBoxLayout()
+        self.upLayout.addWidget(self.pageCombo)
+        # upLay.addWidget(blank)
+        self.searchWidget = SearchWidget(self.tableView, self.tableModel)
+        self.upLayout.addWidget(self.searchWidget)
         
-        blank1 = QLabel()
-        blank1.setFixedSize(500, 20)
+        # blank1 = QLabel()
+        # blank1.setFixedSize(500, 20)
         self.legendWidget = LegendWidget()
+        # midLayout.addWidget(blank1)
         
-        midLay = QHBoxLayout()
-        midLay.addWidget(self.legendWidget)
-        midLay.addWidget(blank1)
-        
-        mainLay = QVBoxLayout()
-        mainLay.addLayout(upLay)
-        mainLay.addLayout(midLay)
-        mainLay.addWidget(self.tableView)
-        self.setLayout(mainLay)
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.addLayout(self.upLayout)
+        self.mainLayout.addWidget(self.legendWidget)
+        self.mainLayout.addWidget(self.tableView)
+        self.setLayout(self.mainLayout)
         
     @pyqtSlot(int)
     def updateTimePoint(self, index):

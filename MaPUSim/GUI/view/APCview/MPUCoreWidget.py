@@ -333,17 +333,28 @@ class MPUCoreWidget(QWidget):
                 self.comButtons.append(com[2](self.tr(com[0])))
                 self.comButtons[-1].setCheckable(True)
                 self.comButtons[-1].setSizePolicy(sizePolicy)
-                #self.comButtons[-1].setFlat(True)
-                self.comButtons[-1].setStyleSheet('''
-                    background: qradialgradient(cx:0, cy:0, radius: 1,
-                                                fx:0.5, fy:0.5, stop:0 white,
-                                                stop:1 lightblue);
-                    border-style: solid;
-                    border-width: 1px;
-                    border-radius: 0px;
-                    border-color: blue;
-                    margin: 0px;
-                    padding: 0px;
+                self.comButtons[-1].setStyleSheet('''QPushButton {
+                        background: qradialgradient(cx:0, cy:0, radius: 1,
+                                                    fx:0.5, fy:0.5, stop:0 white,
+                                                    stop:1 lightblue);
+                        border-style: solid;
+                        border-width: 1px;
+                        border-radius: 0px;
+                        border-color: blue;
+                        margin: 0px;
+                        padding: 0px;
+                    }
+                    QPushButton:checked {
+                        background: qradialgradient(cx:0, cy:0, radius: 1,
+                                                    fx:0.5, fy:0.5, stop:0 lightblue,
+                                                    stop:1 white);
+                        border-style: solid;
+                        border-width: 2px;
+                        border-radius: 0px;
+                        border-color: darkblue;
+                        margin: 0px;
+                        padding: 0px;
+                    };
                 ''')
                 self.comGroup.addButton(self.comButtons[-1], len(self.comButtons) - 1)
                 self.gridLayout.addWidget(self.comButtons[-1], *com[1])
@@ -365,6 +376,7 @@ class MPUCoreWidget(QWidget):
                 self.gridLayout.addWidget(label, *com[1])
         
         self.connect(self.comGroup, SIGNAL("buttonPressed(int)"), self.comBtnSlot)
+        self.comGroup.setExclusive(False)
                 
         #=======================================================================
         # Here constrains the gridlayout to help calulate the relative
@@ -396,6 +408,9 @@ class MPUCoreWidget(QWidget):
             self.buttonDialogs[-1].setWindowTitle("%s stages" %
                                                   self.components[i][0])
             self.buttonDialogs[-1].hide()
+            
+        self.hexFile = ""
+        self.start = 0
         
         
     def comBtnSlot(self, idx):
