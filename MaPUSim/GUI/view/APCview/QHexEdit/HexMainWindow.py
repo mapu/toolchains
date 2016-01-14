@@ -1,12 +1,12 @@
 #-*- coding: utf-8 -*-
-from PyQt4.QtGui import QWidget, QToolBar, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel, QVBoxLayout, QHBoxLayout, QMessageBox
+from PyQt4.QtGui import QDialog, QToolBar, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel, QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt4.QtCore import Qt, QFile, SIGNAL, QFileInfo, QString
 from SearchDialog import SearchDialog
 from OptionsDialog import OptionsDialog
 from QHexEdit import QHexEdit
 from res import qrc_resources 
 
-class HexMainWindow(QWidget):
+class HexMainWindow(QDialog):
     def __init__(self, parent = None):
         super(HexMainWindow,self).__init__(parent)
         self.setAcceptDrops(True)
@@ -18,7 +18,6 @@ class HexMainWindow(QWidget):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.accept()
-            string = event.mimeData().urls().at(0).toLocalFile()
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():

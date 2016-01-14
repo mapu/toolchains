@@ -49,38 +49,37 @@ class StageTableModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        if 1 or self.curValue <= index.row() <= self.curValue + 40:
-            if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole:
+            text = self.stages[index.row()][index.column()].split(".")
+            return QVariant(text[0])
+        elif role == Qt.TextAlignmentRole:
+            return int(Qt.AlignCenter)
+        elif role == Qt.BackgroundRole:
+            if self.stages[index.row()][index.column()] != "":
                 text = self.stages[index.row()][index.column()].split(".")
-                return QVariant(text[0])
-            elif role == Qt.TextAlignmentRole:
-                return int(Qt.AlignCenter)
-            elif role == Qt.BackgroundRole:
-                if self.stages[index.row()][index.column()] != "":
-                    text = self.stages[index.row()][index.column()].split(".")
-                    if len(text) > 1:
-                        return self.rwColors[text[1]]
-                    elif text[0] in ["FG", "FS", "FW", "FR", "DP"]:
-                        return self.rwColors["Fetch"]
-                    else:
-                        return self.rwColors["Ex"]
-            elif role == Qt.FontRole:
+                if len(text) > 1:
+                    return self.rwColors[text[1]]
+                elif text[0] in ["FG", "FS", "FW", "FR", "DP"]:
+                    return self.rwColors["Fetch"]
+                else:
+                    return self.rwColors["Ex"]
+        elif role == Qt.FontRole:
+            text = self.stages[index.row()][index.column()].split(".")
+            if len(text[0]) > 2:
+                return QFont("Monospace", 7)
+        elif role == Qt.ToolTipRole:
+            if self.stages[index.row()][index.column()] != "":
                 text = self.stages[index.row()][index.column()].split(".")
-                if len(text[0]) > 2:
-                    return QFont("Monospace", 7)
-            elif role == Qt.ToolTipRole:
-                if self.stages[index.row()][index.column()] != "":
-                    text = self.stages[index.row()][index.column()].split(".")
-                    if len(text) > 1:
-                        sn = self.stageTable.getSn(index.row())
-                        time = index.column() + self.curMin
-                        condition = "sn == %s" % sn
-                        regOps = self.regTable.getOperations(time, condition)
-                        tip = "Regster operations:\n"
-                        for op in regOps:
-                            name = getRegName(op[1], op[2])
-                            tip += op[0] + " " + name + "\n"
-                        return QString(tip)
+                if len(text) > 1:
+                    sn = self.stageTable.getSn(index.row())
+                    time = index.column() + self.curMin
+                    condition = "sn == %s" % sn
+                    regOps = self.regTable.getOperations(time, condition)
+                    tip = "Regster operations:\n"
+                    for op in regOps:
+                        name = getRegName(op[1], op[2])
+                        tip += op[0] + " " + name + "\n"
+                    return QString(tip)
 
     def flags(self, index):
         if not index.isValid():

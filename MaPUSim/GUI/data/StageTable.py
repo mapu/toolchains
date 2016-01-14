@@ -201,10 +201,10 @@ class StageTable(QObject):
         expandedTable = []
         for inst in self.instList:
             rela_start = inst[self.startIdx] - minTime
-            rela_end = inst[self.endIdx] - minTime
+            end = inst[self.endIdx]
             record = [""] * rela_start
             record.extend(inst[self.stagesIdx].split(","))
-            record.extend([""] * (maxTime - rela_end))
+            record.extend([""] * (maxTime - end))
             expandedTable.append(record)
         
         vHeader = []

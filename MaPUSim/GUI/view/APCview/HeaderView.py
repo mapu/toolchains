@@ -27,3 +27,6 @@ class HeaderView(QHeaderView):
             return QSize(self.width(), self.minimumHeight())
         else:
             return QHeaderView.sizeHint(self)
+        
+    def count(self):
+        return len(self.model.hHeaderList)
