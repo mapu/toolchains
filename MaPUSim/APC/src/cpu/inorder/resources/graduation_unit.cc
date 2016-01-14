@@ -32,6 +32,7 @@
 #include "cpu/inorder/resources/graduation_unit.hh"
 #include "debug/InOrderGraduation.hh"
 #include "debug/MapuPipeStages.hh"
+#include "debug/MapuMem.hh"
 
 using namespace ThePipeline;
 
@@ -135,6 +136,21 @@ GraduationUnit::execute(int slot_num)
             for (int i = 0; i < inst->traceData->stageCycle.size(); i++)
               DPRINTFR(MapuPipeStages, " %lld", inst->traceData->stageCycle[i]);
             DPRINTFR(MapuPipeStages, "\n");
+            }
+            if (inst->traceData->getAddrValid()) {
+              if (inst->traceData->getDataStatus() != 9/*custom*/)
+                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: %c Mem : 0x%x @A=0x08x\n", tid,
+                        inst->seqNum, inst->isStore() ? 'W' : 'R',
+                        inst->traceData->getIntData(),
+                        inst->traceData->getAddr());
+              else {
+                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: W Mem : ", tid,
+                        inst->seqNum, inst->isStore() ? 'W' : 'R');
+                TheISA::MPUReg *mr = (TheISA::MPUReg *)inst->traceData->getCustomData();
+                for (int i = 0; i < 64; i++)
+                  DPRINTFR(MapuMem, "%#02x ", ((uint8_t *)(*mr))[i]);
+                DPRINTFR(MapuPipeStages, "@A=0x08x\n", inst->traceData->getAddr());
+              }
             }
 #endif
             cpu->instDone(inst, tid);

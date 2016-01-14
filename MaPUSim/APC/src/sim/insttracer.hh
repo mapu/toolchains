@@ -152,6 +152,7 @@ class InstRecord
     uint64_t getIntData() { return data.as_int; }
     double getFloatData() { return data.as_double; }
     float getSingleData() { return data.as_single; }
+    void *getCustomData() { return data.as_custom; }
     int getDataStatus() { return data_status; }
 
     InstSeqNum getFetchSeq() { return fetch_seq; }

@@ -66,6 +66,7 @@ if 'InOrderCPU' in env['CPU_MODELS']:
         DebugFlag('MapuPipeStages')
         DebugFlag('MapuDisasm')
         DebugFlag('MapuReg')
+        DebugFlag('MapuMem')
 
         CompoundFlag('InOrderCPUAll', [ 'InOrderStage', 'InOrderStall', 'InOrderCPU',
                'InOrderMDU', 'InOrderAGEN', 'InOrderFetchSeq', 'InOrderTLB', 'InOrderBPred',
@@ -73,7 +74,7 @@ if 'InOrderCPU' in env['CPU_MODELS']:
                'InOrderGraduation', 'InOrderCachePort', 'RegDepMap', 'Resource',
                'InOrderStall','ThreadModel', 'AddrDep'])
                
-        CompoundFlag('MapuGUI', ['MapuReg', 'MapuPipeStages'])
+        CompoundFlag('MapuGUI', ['MapuReg', 'MapuPipeStages', 'MapuMem'])
 
         Source('inorder_dyn_inst.cc')
         Source('inorder_cpu_builder.cc')
