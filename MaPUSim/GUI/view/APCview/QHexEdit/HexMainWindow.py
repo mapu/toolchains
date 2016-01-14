@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from PyQt4.QtGui import QWidget, QToolBar, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt4.QtGui import QWidget, QToolBar, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel, QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt4.QtCore import Qt, QFile, SIGNAL, QFileInfo, QString
 from SearchDialog import SearchDialog
 from OptionsDialog import OptionsDialog
