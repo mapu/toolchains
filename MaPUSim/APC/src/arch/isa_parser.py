@@ -1368,10 +1368,10 @@ class DMemEASrcOperand(Operand):
         c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 1;' % \
              (idx, idx)
         idx += 1
-        c += '\n\t_srcRegIdx[%d] =  %s * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag;' % \
+        c += '\n\t_srcRegIdx[%d] =  %s * 4 + MISCREG_KM_BASE + Ctrl_Base_DepTag + 1;' % \
              (idx, self.reg_spec)
         idx += 1
-        c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 2;' % \
+        c += '\n\t_srcRegIdx[%d] = _srcRegIdx[%d - 1] + 1;' % \
              (idx, idx)
         idx += 1
         c += '\n\t_srcRegIdx[%d] = %s * 4 + MISCREG_KG_BASE + Ctrl_Base_DepTag;' % \
