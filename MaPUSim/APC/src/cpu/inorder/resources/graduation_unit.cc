@@ -144,7 +144,7 @@ GraduationUnit::execute(int slot_num)
                         inst->traceData->getIntData(),
                         inst->traceData->getAddr());
               else {
-                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: W Mem : ", tid,
+                DPRINTF(MapuMem, "[tid:%i]: [sn:%i]: %c Mem : ", tid,
                         inst->seqNum, inst->isStore() ? 'W' : 'R');
                 TheISA::MPUReg *mr = (TheISA::MPUReg *)inst->traceData->getCustomData();
                 for (int i = 0; i < 64; i++)
