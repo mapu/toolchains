@@ -1,25 +1,24 @@
 #-*- coding: utf-8 -*-
-from PyQt4.QtGui import QMainWindow, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel,\
-    QMessageBox
+from PyQt4.QtGui import QWidget, QToolBar, QFileDialog, QColor, QFont, QKeySequence, QIcon, QFrame, QAction, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt4.QtCore import Qt, QFile, SIGNAL, QFileInfo, QString
 from SearchDialog import SearchDialog
 from OptionsDialog import OptionsDialog
 from QHexEdit import QHexEdit
 from res import qrc_resources 
 
-class HexMainWindow(QMainWindow):
+class HexMainWindow(QWidget):
     def __init__(self, parent = None):
         super(HexMainWindow,self).__init__(parent)
         self.setAcceptDrops(True)
         self.file = QFile()
         self.init()
         self.setCurrentFile("QHexEdit")
+        self.start = 0
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.accept()
             string = event.mimeData().urls().at(0).toLocalFile()
-            self.statusBar().showMessage(self.tr("Drop File: ")+string, 2000)
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
@@ -55,10 +54,11 @@ class HexMainWindow(QMainWindow):
         self.optionsDialog = OptionsDialog()
         self.isUntitled = True
         self.hexEdit = QHexEdit()
-        self.setCentralWidget(self.hexEdit)
-        self.searchDialog = SearchDialog(self.hexEdit, self)
+        self.lay = QVBoxLayout(self)
         self.createActions()
         self.createToolBars()
+        self.lay.addWidget(self.hexEdit)
+        self.searchDialog = SearchDialog(self.hexEdit, self)
         self.createStatusBar()
 
         self.move(725, 200)                                 
@@ -73,7 +73,6 @@ class HexMainWindow(QMainWindow):
         self.hexEdit.setFont(QFont("Monospace", 10))
         self.hexEdit.setAddressWidth(4)
 
-        self.setUnifiedTitleAndToolBarOnMac(True)
         self.connect(self.hexEdit, SIGNAL("dataChanged()"), self.dataChanged)
 
     def createActions(self):
@@ -88,45 +87,46 @@ class HexMainWindow(QMainWindow):
         self.connect(self.findAct, SIGNAL("triggered()"), self.showSearchDialog)
 
     def createStatusBar(self):
+        statusLay=QHBoxLayout()
         #Address Label
         self.lbAddressName = QLabel()
         self.lbAddressName.setText(self.tr("Address:"))
-        self.statusBar().addPermanentWidget(self.lbAddressName)
+        self.lbAddressName.setFixedWidth(60)
+        statusLay.addWidget(self.lbAddressName)
         self.lbAddress = QLabel("0")
         self.lbAddress.setFrameShape(QFrame.Panel)
         self.lbAddress.setFrameShadow(QFrame.Sunken)
-        self.lbAddress.setMinimumWidth(70)
-        self.statusBar().addPermanentWidget(self.lbAddress)
+        self.lbAddress.setFixedWidth(70)
+        statusLay.addWidget(self.lbAddress)
         self.connect(self.hexEdit, SIGNAL("currentAddressChanged(int)"), self.setAddress)
 
         # Size Label
         self.lbSizeName = QLabel()
         self.lbSizeName.setText(self.tr("Size:"))
-        self.statusBar().addPermanentWidget(self.lbSizeName)
+        self.lbSizeName.setFixedWidth(40)
+        statusLay.addWidget(self.lbSizeName)
         self.lbSize = QLabel("0")
         self.lbSize.setFrameShape(QFrame.Panel)
         self.lbSize.setFrameShadow(QFrame.Sunken)
-        self.lbSize.setMinimumWidth(70)
-        self.statusBar().addPermanentWidget(self.lbSize)
+        self.lbSize.setFixedWidth(70)
+        statusLay.addWidget(self.lbSize)
+        statusLay.addStretch(1)
         self.connect(self.hexEdit, SIGNAL("currentSizeChanged(int)"), self.setSize)
-        
-        self.statusBar().showMessage(self.tr("Ready"), 2000)
+        self.lay.addLayout(statusLay)
 
     def createToolBars(self):
-        self.fileToolBar = self.addToolBar(self.tr("File"))
+        self.fileToolBar = QToolBar()
         self.fileToolBar.addAction(self.openAct)
-        self.editToolBar = self.addToolBar(self.tr("Edit"))
-        self.editToolBar.addAction(self.findAct)
+        self.fileToolBar.addAction(self.findAct)
+        self.lay.addWidget(self.fileToolBar)
+        
 
     def loadFile(self, fileName, start):
-        if fileName == "":
-            return
         self.file.setFileName(fileName)
         if not self.hexEdit.setData(self.file, start):
             QMessageBox.warning(self, self.tr("QHexEdit"), self.tr("Cannot read file %1:\n%2.").arg(fileName).arg(self.file.errorString()))
             return
         self.setCurrentFile(fileName)
-        self.statusBar().showMessage(self.tr("File loaded"), 2000)
 
     def setCurrentFile(self, fileName):
         self.curFile = QFileInfo(fileName).canonicalFilePath()
@@ -148,7 +148,6 @@ class HexMainWindow(QMainWindow):
         self.optionsDialog.close()
         self.searchDialog.close()
         self.hide()
-        event.ignore()
 
 
 
