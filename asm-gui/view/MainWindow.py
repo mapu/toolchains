@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit
+from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog
 from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot
 from res import qrc_resources 
-from MicrocodeTable.MicrocodeTable import MicrocodeTable
+from view.MicrocodeTable.MicrocodeTable import MicrocodeTable
 from Utils import warning
 
 class MainWindow(QMainWindow):  
@@ -13,12 +13,15 @@ class MainWindow(QMainWindow):
         self.resize(800, 600)
 
         self.microcodeTable = MicrocodeTable()
+
         self.setCentralWidget(self.microcodeTable)
 
         self.createAction()
         self.createContextMenu()
         self.createToolBars()
         self.createMenus()
+
+        self.microcodeTable.itemRegStateSignal.connect(self.itemRegStateSlot)
 
     def createAction(self):
         self.newAction = QAction(self.tr('New'), self)
@@ -122,8 +125,11 @@ class MainWindow(QMainWindow):
         registerToolBar=self.addToolBar("Register")
         self.register0Check=QCheckBox("Reg0") 
         self.register1Check=QCheckBox("Reg1") 
-        self.connect(self.register0Check, SIGNAL("stateChanged(int)"), self.register0Slot)
-        self.connect(self.register1Check, SIGNAL("stateChanged(int)"), self.register1Slot)
+        self.registerCheck = []
+        self.registerCheck.append(self.register0Check)
+        self.registerCheck.append(self.register1Check)
+        self.connect(self.register0Check, SIGNAL("clicked(bool)"), self.register0Slot)
+        self.connect(self.register1Check, SIGNAL("clicked(bool)"), self.register1Slot)
         registerToolBar.addWidget(self.register0Check)
         registerToolBar.addWidget(self.register1Check)
 
@@ -135,7 +141,9 @@ class MainWindow(QMainWindow):
         print "openFile"
 
     def saveFile(self):
-        #fileName = QFileDialog::getSaveFileName(this, self.tr("Save File"), "untitled.png");
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
+        fp = open(fileName, "w")
+        fp.close()
         print "saveFile"
 
     def closeWindow(self):
@@ -146,29 +154,43 @@ class MainWindow(QMainWindow):
 	
     def register0Slot(self, checkState):
         color = Qt.red
-        if checkState == Qt.Checked:
+        if checkState == True:
             re = self.microcodeTable.paintRect(0, color) 
             if re == 0:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one column")
-            if re == 1:
+            if re == -1:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one or more cells")       
         else:
-            self.microcodeTable.eraserRect(0, color)
+            self.microcodeTable.eraserRect(0)
 
     def register1Slot(self, checkState):
         color = Qt.green
-        if checkState == Qt.Checked:
+        if checkState == True:
             re = self.microcodeTable.paintRect(1, color)   
             if re == 0:
                 self.register1Check.setCheckState(Qt.Unchecked)   
                 warning("Please select one column")  
-            if re == 1:
+            if re == -1:
                 self.register1Check.setCheckState(Qt.Unchecked)
                 warning("Please select one or more cells")  
         else:
-            self.microcodeTable.eraserRect(1, color) 
+            self.microcodeTable.eraserRect(1) 
+
+    def setAllCheckStatus(self, status):
+        num = len(self.registerCheck)
+        for i in range(0, num):
+            self.registerCheck[i].setCheckState(status)
+
+    def itemRegStateSlot(self, reg):
+        self.setAllCheckStatus(Qt.Unchecked)
+        num = len(reg)
+        for i in range(0, num):
+            self.registerCheck[reg[i]].setCheckState(Qt.Checked)
+
+                
+
 
 
 

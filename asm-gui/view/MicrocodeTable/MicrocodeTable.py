@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-   
 import sys
-from PyQt4.QtGui import QTableWidget, QAbstractItemView, QTableWidgetItem, QApplication, QPainter, QPen, QTableWidgetSelectionRange, QBrush
+from PyQt4.QtGui import QTableWidget, QAbstractItemView, QApplication, QPainter, QPen, QTableWidgetSelectionRange, QBrush
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from SetFSMNameWidget import SetFSMNameWidget
-from InsertDialog import InsertDialog
-from DeleteDialog import DeleteDialog
-from FloatDialog import FloatDialog
-from CellDelegate import CellDelegate
+from view.MicrocodeTable.InsertDialog import InsertDialog
+from view.MicrocodeTable.DeleteDialog import DeleteDialog
+from view.MicrocodeTable.FloatDialog import FloatDialog
+from view.MicrocodeTable.CellDelegate import CellDelegate
+from view.MicrocodeTable.TableWidgetItem import TableWidgetItem
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
 
 class MicrocodeTable(QTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
+    itemRegStateSignal = pyqtSignal(list)
     def __init__(self, parent = None):  
         super(MicrocodeTable, self).__init__(parent)   
 
@@ -35,37 +37,42 @@ class MicrocodeTable(QTableWidget):
         self.floatDialog = 0
         self.floatDialogFocus = 0
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
-        self.connect(self, SIGNAL("itemClicked(QTableWidgetItem)"), self.itemClickedSlot)
         self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarChangedSlot)
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarChangedSlot)
 
         self.setAttribute(Qt.WA_PaintOutsidePaintEvent)
-        self.rectFrame = []
+        self.loopBodyList = [[]for i in range(self.ColumnCount)]
 
         #record the previous point row
         self.previousPointRow = -1
 
-    def itemClickedSlot(self, item):
-        self.repaint()
-
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
-        self.viewport().update()
         self.floatDialogCloseSlot()
         self.CurrentRow = previousRow
         self.CurrentColumn = previousColumn
-
+        if self.previousPointRow != -1:
+            self.earserWholeRowColor(self.previousPointRow)   
         item = self.item(currentRow, currentColumn)
         if item != None:
-            if self.previousPointRow != -1:
-                self.earserWholeRowColor(self.previousPointRow)
+            #show reg info
+            if len(item.reg) > 0:
+                self.itemRegStateSignal.emit(item.reg)        
+
             #check microcode is legal?
 
-
+            if item.text() == "":
+                return
+             
             self.setWholeRowColor(currentRow, Qt.blue) 
             self.previousPointRow = currentRow     
+        else:
+            self.previousPointRow = -1 
+            self.itemRegStateSignal.emit([])  
+        self.viewport().update()   
 
     def scrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
+        self.viewport().update()
 
     def getRowCount(self):
         return self.rowCount()
@@ -88,7 +95,7 @@ class MicrocodeTable(QTableWidget):
         setFSMNameWidget.exec_()
 
     def setFSMNameSlot(self, column, string):
-        item = QTableWidgetItem(string)
+        item = TableWidgetItem(string)
         self.setHorizontalHeaderItem(column, item)
 
     def cut(self):
@@ -126,7 +133,7 @@ class MicrocodeTable(QTableWidget):
                 row = selRange.topRow()+i
                 column = selRange.leftColumn()+j
                 if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.setItem(row, column, TableWidgetItem(columns[j]))
 
     def delete(self):
         items = self.selectedItems()
@@ -201,7 +208,7 @@ class MicrocodeTable(QTableWidget):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j+self.currentColumnNum
                 if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.setItem(row, column, TableWidgetItem(columns[j]))
 
     def insertUpCell(self):
         self.insertRow(self.RowCount)
@@ -229,7 +236,7 @@ class MicrocodeTable(QTableWidget):
                 row = self.currentTopRow+i+self.currentRowNum
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.setItem(row, column, TableWidgetItem(columns[j]))
   
     def insertRows(self):
         for i in range(self.currentRowNum):
@@ -272,7 +279,7 @@ class MicrocodeTable(QTableWidget):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))	
+                    self.setItem(row, column, TableWidgetItem(columns[j]))	
 
     def deleteCellUp(self):
         string = QString()
@@ -297,7 +304,7 @@ class MicrocodeTable(QTableWidget):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
-                     self.setItem(row, column, QTableWidgetItem(columns[j]))
+                     self.setItem(row, column, TableWidgetItem(columns[j]))
 
     def deleteRows(self):
         for i in range(self.currentRowNum):
@@ -346,9 +353,9 @@ class MicrocodeTable(QTableWidget):
         else:
             string = ""
         if row == self.CurrentRow and column == self.CurrentColumn:
-            self.setItem(row, column, QTableWidgetItem(string+event.text()))
+            self.setItem(row, column, TableWidgetItem(string+event.text()))
         else:
-            self.setItem(row, column, QTableWidgetItem(event.text()))
+            self.setItem(row, column, TableWidgetItem(event.text()))
         self.CurrentRow = row
         self.CurrentColumn = column
         self.floatDialogShow(row, column, stringList)
@@ -363,7 +370,7 @@ class MicrocodeTable(QTableWidget):
             if row+4 < self.RowCount:
                 item = self.item(row+1, column)
                 if item == None:
-                    item = QTableWidgetItem("")
+                    item = TableWidgetItem("")
                     self.setItem(row+1, column, item)
                 rect = self.visualItemRect(item)
                 floatDialog_x = rect.topLeft().x()+self.verticalHeader().sizeHint().width()
@@ -371,7 +378,7 @@ class MicrocodeTable(QTableWidget):
             else:
                 item = self.item(row-1, column)
                 if item == None:
-                    item = QTableWidgetItem("")
+                    item = TableWidgetItem("")
 		    self.setItem(row-1, column, item)	
                 rect = self.visualItemRect(item)
                 floatDialog_x = rect.topLeft().x()+self.verticalHeader().sizeHint().width()
@@ -400,13 +407,14 @@ class MicrocodeTable(QTableWidget):
             self.floatDialog.setVisible(False)
             self.floatDialogFocus = 0	
 
-    def getRectInfo(self, check, color):
+    def getRectInfo(self, reg, color):
         rectInfo = RectInfo()
-        rectInfo.check = check
+        rectInfo.reg = reg
         rectInfo.color = color
 
         selRange = self.selectedRange()
         self.currentRowNum = selRange.rowCount()
+        rectInfo.num = self.currentRowNum
         self.currentColumnNum = selRange.columnCount()
         if self.currentColumnNum == 0:
             return -1
@@ -414,43 +422,61 @@ class MicrocodeTable(QTableWidget):
             return 0
         self.currentTopRow = selRange.topRow()
         self.currentLeftColumn = selRange.leftColumn()  
+        rectInfo.startRow = self.currentTopRow
+        rectInfo.endRow = self.currentTopRow + self.currentRowNum - 1
+        rectInfo.column = self.currentLeftColumn
         item = self.item(self.currentTopRow, self.currentLeftColumn)
         if item == None:
-            item = QTableWidgetItem("")
+            item = TableWidgetItem("")
             self.setItem(self.currentTopRow, self.currentLeftColumn, item)
         rect = self.visualItemRect(item)
         rectInfo.topLeft_x = rect.topLeft().x()
         rectInfo.topLeft_y = rect.topLeft().y()
-        rectInfo.topRight_x = rect.topRight().x()
-        rectInfo.topRight_y = rect.topRight().y()  
         item = self.item(self.currentTopRow + self.currentRowNum - 1, self.currentLeftColumn + self.currentColumnNum - 1)
         if item == None:
-           item = QTableWidgetItem("")
+           item = TableWidgetItem("")
            self.setItem(self.currentTopRow + self.currentRowNum - 1, self.currentLeftColumn + self.currentColumnNum - 1,item)  
         rect = self.visualItemRect(item)
-        rectInfo.bottomLeft_x = rect.bottomLeft().x()
-        rectInfo.bottomLeft_y = rect.bottomLeft().y()
         rectInfo.bottomRight_x = rect.bottomRight().x()
         rectInfo.bottomRight_y = rect.bottomRight().y() 
         return rectInfo   
 
-    def paintRect(self, check, color):
-        rectInfo = self.getRectInfo(check, color)
+    def paintRect(self, reg, color):
+        rectInfo = self.getRectInfo(reg, color)
         if rectInfo == 0 or rectInfo == -1:
             return rectInfo
-        #add rectFrame list
-        self.rectFrame.append(rectInfo)
+        #add loopBodyList
+        self.loopBodyList[rectInfo.column].append(rectInfo)
+        #update the items reg info
+        for i in range(rectInfo.startRow, rectInfo.endRow + 1):
+            item = self.item(i, rectInfo.column)  
+            if item == None:
+                item = TableWidgetItem("")
+                self.setItem(i, rectInfo.column, item) 
+            item.reg.append(reg)            
         self.viewport().update()
         return 1
 
-    def eraserRect(self,check, color):
-        num = len(self.rectFrame)
+    def eraserRect(self, reg):
+        selRange = self.selectedRange()
+        self.currentTopRow = selRange.topRow()
+        self.currentLeftColumn = selRange.leftColumn()
+        columnList = self.loopBodyList[self.currentLeftColumn]
+        num = len(columnList)
         if num == 0:
-            return
+            return              
         for i in range(num, 0, -1):
-           rectInfo = self.rectFrame[i-1]
-           if rectInfo.check == check and rectInfo.color == color:
-                self.rectFrame.remove(rectInfo)
+           rectInfo = columnList[i-1]
+           if rectInfo.reg == reg and rectInfo.startRow <= self.currentTopRow and rectInfo.endRow >= self.currentTopRow and rectInfo.column == self.currentLeftColumn:
+                columnList.remove(rectInfo)
+                #remove item reg info  
+                for i in range(rectInfo.startRow, rectInfo.endRow + 1):
+                    item = self.item(i, rectInfo.column)  
+                    if item == None:
+                        item = TableWidgetItem("")
+                        self.setItem(i, rectInfo.column, item) 
+                    item.reg.remove(reg)    
+            
                 self.viewport().update()
 
     def paintLine(self, x1, y1, x2, y2, color):
@@ -462,27 +488,12 @@ class MicrocodeTable(QTableWidget):
         qp.drawLine(x1, y1, x2, y2)
         qp.end()
 
-    def paintEvent(self,event):
-        #draw rect
-        num = len(self.rectFrame)
-        if num == 0:
-            QTableWidget.paintEvent(self, event)
-            return
-        for i in range(num):
-            rectInfo = self.rectFrame[i]
-            self.paintLine(rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.topRight_x, rectInfo.topRight_y, rectInfo.color)
-            self.paintLine(rectInfo.topRight_x, rectInfo.topRight_y, rectInfo.bottomRight_x, rectInfo.bottomRight_y, rectInfo.color)
-            self.paintLine(rectInfo.bottomRight_x, rectInfo.bottomRight_y, rectInfo.bottomLeft_x, rectInfo.bottomLeft_y, rectInfo.color)
-            self.paintLine(rectInfo.bottomLeft_x, rectInfo.bottomLeft_y, rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.color)
-
-        QTableWidget.paintEvent(self, event)
-
     def setWholeRowColor(self, row, color):
         count = self.getColumnCount()
         for i in range(0, count):
             item = self.item(row, i)
             if item == None:
-                item = QTableWidgetItem("")
+                item = TableWidgetItem("")
                 self.setItem(row, i, item)
             item.setBackground(QBrush(color))
         
@@ -491,8 +502,23 @@ class MicrocodeTable(QTableWidget):
         for i in range(0, count):
             item = self.item(row, i)
             if item == None:
-                item = QTableWidgetItem("")
+                item = TableWidgetItem("")
                 self.setItem(row, i, item)
             item.setBackground(Qt.white)
 
+    def paintEvent(self,event):
+        #draw rect
+        for j in range(0, self.ColumnCount):
+            columnList = self.loopBodyList[j]
+            num = len(columnList)
+            if num == 0:
+                continue
+            for i in range(num):
+                rectInfo = columnList[i]
+                self.paintLine(rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.bottomRight_x, rectInfo.topLeft_y, rectInfo.color)
+                self.paintLine(rectInfo.bottomRight_x, rectInfo.topLeft_y, rectInfo.bottomRight_x, rectInfo.bottomRight_y, rectInfo.color)
+                self.paintLine(rectInfo.bottomRight_x, rectInfo.bottomRight_y, rectInfo.topLeft_x, rectInfo.bottomRight_y, rectInfo.color)
+                self.paintLine(rectInfo.topLeft_x, rectInfo.bottomRight_y, rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.color)
+
+        QTableWidget.paintEvent(self, event) 
 
