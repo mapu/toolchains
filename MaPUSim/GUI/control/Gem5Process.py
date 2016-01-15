@@ -90,7 +90,7 @@ class ARMGem5Process(Gem5Process):
                                 int(uartport.group(3))]
             else:
                 # wait for the ARM simulator starting 
-                self.waitForReadyRead(1000)
+                self.waitForReadyRead(100)
                 retry -= 1
                 if retry == 0:
                     ret = QMessageBox.warning(

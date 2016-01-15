@@ -75,7 +75,7 @@ class StageTable(QObject):
         self.startPoint = sys.maxint
         self.endPoint = 0
             
-    def traceAnalyze(self, lines):
+    def traceAnalyze(self, lines_wrapper):
         '''
         Analyze the trace in instTableName and regTableName,
         and build the stage table

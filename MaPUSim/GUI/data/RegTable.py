@@ -50,24 +50,27 @@ class RegTable(QObject):
         self.DBConn.execute(sql_query)
         self.createTable()
             
-    def traceAnalyze(self, lines):
+    def traceAnalyze(self, lines_wrapper):
         '''
         Analyze the trace in 'lines', and create the record if it is matched
         the pattern
         '''
-        #=======================================================================
-        # Note that [:] will make a copy of lines, which is nessecary 
-        # because items are deleted during loop
-        #=======================================================================
+        if len(lines_wrapper[0]) == 0:
+            return
         text = ""
+        lines = lines_wrapper[0]
+        rest = []
         for i in xrange(len(lines)):
             if self.key in lines[i]:
                 text += lines[i]
-                lines[i] = ""
+            else:
+                rest.append(lines[i]) 
         records = self.pattern.findall(text)
         if records != []:
             self.DBConn.executemany(self.insert_template, records)
             self.DBConn.commit()
+        lines_wrapper[0] = rest
+            
             
     def getOperations(self, time, condition):
         '''

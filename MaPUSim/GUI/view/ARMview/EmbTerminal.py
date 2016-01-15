@@ -36,6 +36,8 @@ class EmbTerminal(QWidget):
             try:
                 self.control.ARMQemuProcess.signalUARTStart.disconnect(
                     self.startProcess)
+            except Exception: pass
+            try:
                 self.control.unbindARMQemuProcess(self.termWidget.getProcess())
             except Exception: pass
         return

@@ -90,7 +90,7 @@ class ARMQemuProcess(QObject):
                 if retry == 0:
                     ret = QMessageBox.warning(
                         view.Utils.mainWindow, self.tr("ARM simulator has no output"),
-                        self.tr("Cannot get proper standard error output from"
+                        self.tr("Cannot get proper standard error output from "
                            "ARM simulator. Do you want to keep on waiting?"),
                         buttons = QMessageBox.Yes | QMessageBox.No,
                         defaultButton = QMessageBox.No)

@@ -61,16 +61,16 @@ class MPUViewWidget(QWidget):
         self.rightTab.addTab(self.traceWidget, self.tr("Trace"))
         self.traceWidget.horizontalHeader().setStretchLastSection(True)
 
-        splitter = QSplitter(Qt.Horizontal, widget)
-        splitter.setChildrenCollapsible(False)
-        splitter.addWidget(self.leftWidget)
-        splitter.addWidget(self.rightTab)
-        splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 1)
+        self.splitter = QSplitter(Qt.Horizontal, widget)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(self.leftWidget)
+        self.splitter.addWidget(self.rightTab)
+        self.splitter.setStretchFactor(0, 2)
+        self.splitter.setStretchFactor(1, 1)
         
-        vbox = QVBoxLayout()
-        vbox.addWidget(splitter)
-        self.setLayout(vbox)
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.splitter)
+        self.setLayout(self.vbox)
 
     @pyqtSlot()
     def stageButtonSlot(self):

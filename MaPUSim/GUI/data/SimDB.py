@@ -37,11 +37,12 @@ class TraceAnalyzeThread(QThread):
             DBConn = sqlite3.connect(self.simDB.DBName)
             trace = open(self.traceFile, "r")
             lines = trace.readlines()
+            lines_wrapper = [lines]
             for i in range(self.numOfCores * 8):
                 print "table", i
                 self.simDB.Tables[i].DBConn = DBConn
                 self.simDB.Tables[i].clearTable()
-                t = Timer(lambda: self.simDB.Tables[i].traceAnalyze(lines))
+                t = Timer(lambda: self.simDB.Tables[i].traceAnalyze(lines_wrapper))
                 print t.timeit(number = 1)
                 self.simDB.Tables[i].DBConn = self.simDB.DBConn
             DBConn.close()

@@ -112,7 +112,7 @@ class VectorRegfileTableItem(QTableWidgetItem):
             return " ".join(["%f" % 
                              ctypes.cast(ctypes.pointer(ctypes.c_uint32(v)),
                              ctypes.POINTER(ctypes.c_float)).contents.value
-                             for v in self.value])
+                             for v in value])
         if datatype == "double":
             value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) | 
                      (self.value[i * 4 + 1] << 8) | self.value[i * 4]
@@ -120,7 +120,7 @@ class VectorRegfileTableItem(QTableWidgetItem):
             return " ".join(["%f" %
                              ctypes.cast(ctypes.pointer(ctypes.c_uint64(v)),
                              ctypes.POINTER(ctypes.c_double)).contents.value
-                             for v in self.value])
+                             for v in value])
     
     def data(self, role):
         '''

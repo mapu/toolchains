@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.configWidget = ConfigViewWidget(config, control)
         
         # Fix me: this is ugly...
-        self.configWidget.ARMmodeGroup.buttonClicked.connect(self.armViewWidget.UART0Widget.switchMode)
+        self.configWidget.ARMmodeGroup.buttonClicked[int].connect(self.armViewWidget.UART0Widget.switchMode)
         #======================================================================
         # Simulator information is currently removed
         #======================================================================
@@ -48,20 +48,6 @@ class MainWindow(QMainWindow):
         self.control.ARMGem5Process.stateChanged.connect(self.ARMStatus)
         self.control.ARMQemuProcess.stateChanged.connect(self.ARMStatus)
         self.control.APCProcess.stateChanged.connect(self.APCStatus)
-        
-        #self.configWidget.APCSimulatorDoneSignal.connect(self.apcViewWidget.simulatorDoneSlot)    
-        #self.configWidget.APCSimulatorShowSignal.connect(self.apcViewWidget.statusWidget.simulatorShowText) 
-        #self.configControlWidget.ARMSimulatorShowSignal.connect(self.armViewWidget.statusWidget.simulatorShowText) 
-        #self.configControlWidget.ARMUart0StartProcess.connect(self.armViewWidget.UART0Widget.m5termProcessStart)
-        #self.configControlWidget.ARMProcessEndSignal.connect(self.armViewWidget.UART0Widget.embTerminal.stopProcess)
-        #self.armViewWidget.UART0Widget.embTerminal.APCSimulatorSignal.connect(self.configControlWidget.ARMAPCSimulator)
-        #self.armViewWidget.UART0Widget.embTerminal.ARMSimulatorStatusSignal.connect(self.ARMStatus)
-        #self.configWidget.ARMSimulatorStatusSignal.connect(self.ARMStatus)
-        #self.configWidget.APCSimulatorStatusSignal.connect(self.APCStatus)        
-        #self.closeChildDialogAPE0.connect(self.apcViewWidget.APE0Widget.closeChildDialogSlot)
-        #self.closeChildDialogAPE1.connect(self.apcViewWidget.APE1Widget.closeChildDialogSlot)
-        #self.closeChildDialogAPE2.connect(self.apcViewWidget.APE2Widget.closeChildDialogSlot)
-        #self.closeChildDialogAPE3.connect(self.apcViewWidget.APE3Widget.closeChildDialogSlot)
     
         self.perspTabs.setCurrentIndex(2)
       
@@ -147,7 +133,7 @@ class MainWindow(QMainWindow):
         self.statusBar().addWidget(self.statusLabel)
 
     def fileOpenSlot(self):
-        tracefile = QFileDialog.getOpenFileName(self, self.tr("select file"), "/home/wangl/toolchains/trunk/MaPUSim/GUI/test/SPUTime.out")
+        tracefile = QFileDialog.getOpenFileName(self, self.tr("select file"), os.getcwd())
         if ((tracefile != None) and os.path.isfile(tracefile)):
             self.control.simDB.analyzeTraceFile(4, tracefile)
 
@@ -156,7 +142,7 @@ class MainWindow(QMainWindow):
         self.setDialog.setWindowTitle(self.tr("Setting"))
         self.setDialog.setFixedSize(400, 200)
         path, ok = QInputDialog.getText(self, self.tr("Simulator path setting"), 
-                                        self.tr("Simulator path setting"), 
+                                        self.tr("Simulator path:"), 
                                         mode = QLineEdit.Normal, 
                                         text = self.config.
                                         getConfig("simulatorpath"))

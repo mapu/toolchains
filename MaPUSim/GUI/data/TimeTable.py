@@ -50,7 +50,7 @@ class TimeTable(QObject):
         self.DBConn.execute(sql_query)
         self.createTable()
             
-    def traceAnalyze(self, lines):
+    def traceAnalyze(self, lines_wrapper):
         '''
         Analyze the trace in regTableName and build the timing table
         '''
