@@ -148,3 +148,4 @@ class VectorRegfileTableItem(QTableWidgetItem):
         '''
         strlist = value.split()
         self.value = [int(s, 16) for s in strlist]
+        

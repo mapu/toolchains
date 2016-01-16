@@ -250,7 +250,8 @@ void MpuRfsUnit::execute(int slot_idx) {
       inst->setMPUSrc(mr_idx, cpu->readMPUReg(flat_idx, tid));
 
       // For MaPU GUI trace
-      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, flat_idx);
+      DPRINTFR(MapuReg, "%d: ape%d.mrf: [tid:%i]: [sn:%i]: R MPU Reg %i : ",
+               curTick(), cpu->cpuId(), tid, inst->seqNum, flat_idx);
 #if TRACING_ON
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(flat_idx, tid)[i]);
@@ -279,7 +280,8 @@ void MpuRfsUnit::execute(int slot_idx) {
     inst->setMPUSrc(mr_idx, cpu->readMPUReg(reg_idx, tid));
 
     // For MaPU GUI trace
-    DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : R MPU Reg %i : ", tid, inst->seqNum, reg_idx);
+    DPRINTFR(MapuReg, "%d: ape%d.mrf: [tid:%i]: [sn:%i]: R MPU Reg %i : ",
+             curTick(), cpu->cpuId(), tid, inst->seqNum, reg_idx);
 #if TRACING_ON
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", cpu->readMPUReg(reg_idx, tid)[i]);
@@ -313,7 +315,8 @@ void MpuRfsUnit::execute(int slot_idx) {
               reg_idx, flat_idx);
 
       // For MaPU GUI trace
-      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, flat_idx);
+      DPRINTFR(MapuReg, "%d: ape%d.mrf: [tid:%i]: [sn:%i]: W MPU Reg %i : ",
+               curTick(), cpu->cpuId(), tid, inst->seqNum, flat_idx);
 #if TRACING_ON
       for (int i = 0; i < 64; i++)
         DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);
@@ -354,8 +357,9 @@ void MpuRfsUnit::execute(int slot_idx) {
                       inst->readIntResult(mr_idx),
                       tid);
 
-      DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W Misc Reg %i : %#llx\n", /*tid*/0,
-              inst->seqNum, reg_idx - Ctrl_Base_DepTag, inst->readIntResult(mr_idx));
+      DPRINTFR(MapuReg, "%d: ape%d.srf: [tid:%i]: [sn:%i]: W Misc Reg %i : 0x%x \n",
+               curTick(), cpu->cpuId(), tid, inst->seqNum, reg_idx - Ctrl_Base_DepTag,
+               inst->readIntResult(mr_idx));
       break;
 
     }
@@ -375,7 +379,8 @@ void MpuRfsUnit::execute(int slot_idx) {
             reg_idx, reg_idx);
 
     // For MaPU GUI trace
-    DPRINTF(MapuReg, "[tid:%i]: [sn:%lli] : W MPU Reg %i : ", tid, inst->seqNum, reg_idx);
+    DPRINTFR(MapuReg, "%d: ape%d.mrf: [tid:%i]: [sn:%i]: W MPU Reg %i : ",
+             curTick(), cpu->cpuId(), tid, inst->seqNum, reg_idx);
 #if TRACING_ON
     for (int i = 0; i < 64; i++)
       DPRINTFR(MapuReg, "%#02x ", inst->readMPURegResult(mr_idx)[i]);

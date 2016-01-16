@@ -106,16 +106,11 @@ class SPURegTable(RegTable):
         self.getop_template = "SELECT op, class, no FROM " + self.Name + " "
         self.getop_template += "WHERE time = "
         
-        self.key = "regfile_manager: [tid:0]"
+        self.key = "ape" + str(idx) + ".srf:"
         
-        if idx == 0:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu[0]?\.regfile_manager: \[tid:0\]: "
-                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
-        else:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.regfile_manager: \[tid:0\]: "
-                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+        self.pattern = re.compile(
+            "(\d+)000: ape" + str(idx) + "\.srf: \[tid:0\]: "
+            "\[sn:(\d+)\]: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
         
 
 class MPURegTable(RegTable):
@@ -139,15 +134,10 @@ class MPURegTable(RegTable):
         self.getop_template = "SELECT op, class, no FROM " + self.Name + " "
         self.getop_template += "WHERE time = "
         
-        self.key = "mpurf_manager: [tid:1]"
+        self.key = "ape" + str(idx) + ".mrf:"
         
-        if idx == 0:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu[0]?\.mpurf_manager: \[tid:1\]: "
-                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
-        else:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.mpurf_manager: \[tid:1\]: "
-                "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
+        self.pattern = re.compile(
+            "(\d+)000: ape" + str(idx) + "\.mrf: \[tid:1\]: "
+            "\[sn:(\d+)\]\s?: (\w) (\w+) Reg (\d+) :\s+(.+)", re.MULTILINE)
             
             

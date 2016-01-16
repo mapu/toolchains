@@ -4,6 +4,7 @@ from PyQt4.QtGui import QWidget, QPushButton, QLabel, QLineEdit,\
     QHBoxLayout, QVBoxLayout, QCheckBox, QGroupBox, QRadioButton, QScrollArea,\
     QBoxLayout, QGridLayout, QFileDialog, QButtonGroup
 from view.Utils import warning
+import os
 
 class ConfigViewWidget(QWidget):
     #define signal
@@ -267,7 +268,7 @@ class ConfigViewWidget(QWidget):
             self.config.setConfig("numberofAPEs", "3")   
 
     def imageBrowseSlot(self):
-        path = QFileDialog.getOpenFileName(self, self.tr("Select image file"), "/")
+        path = QFileDialog.getOpenFileName(self, self.tr("Select image file"), os.getcwd())
         if path == None:
             return
         if self.sender() in self.browseBotton:

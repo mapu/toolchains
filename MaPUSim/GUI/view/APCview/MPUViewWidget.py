@@ -22,17 +22,17 @@ class MPUViewWidget(QWidget):
         self.stageButton.setEnabled(False)
         self.connect(self.stageButton, SIGNAL("clicked()"), self.stageButtonSlot)
         
-        # No. 7 is the stage table, and No. 5 is the register table 
-        # No. 4 is the inst table 
-        self.stageDialog = StageDialog(control.simDB.Tables[idx * 8 + 4],
-                                       control.simDB.Tables[idx * 8 + 7],
-                                       control.simDB.Tables[idx * 8 + 5],
-                                       self)
+        # Get tables
+        inst_table = control.simDB.getTable("APE%dMPUInstTable" % idx)
+        stage_table = control.simDB.getTable("APE%dMPUStageTable" % idx)
+        reg_table = control.simDB.getTable("APE%dMPURegTable" % idx)
+        time_table = control.simDB.getTable("APE%dMPUTimeTable" % idx)
+        self.stageDialog = StageDialog(inst_table, stage_table, reg_table, self)
         self.stageDialog.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
         self.stageDialog.setWindowTitle(self.tr("MPU Instruction Pipeline Diagram"))
         control.simDB.timeChanged.connect(self.timeChangedSlot)
         
-        self.coreWidget = MPUCoreWidget(control.simDB.Tables[idx * 8 + 4])
+        self.coreWidget = MPUCoreWidget(inst_table)
         control.simDB.timeChanged.connect(self.coreWidget.timeChangedSlot)
 
         # define left Widget
@@ -48,12 +48,10 @@ class MPUViewWidget(QWidget):
         self.rightTab = QTabWidget()
         self.rightTab.setMinimumWidth(100)
         
-        self.MRegWidget = MRegfileWidget(control.simDB.Tables[idx * 8 + 5],
-                                         control.simDB.Tables[idx * 8 + 6])
-        self.MPURegWidget = MPURegfileWidget(control.simDB.Tables[idx * 8 + 5],
-                                             control.simDB.Tables[idx * 8 + 6])
-        #control.simDB.timeChanged.connect(self.MRegWidget.timeChangedSlot)
-        #control.simDB.timeChanged.connect(self.MPURegWidget.timeChangedSlot)
+        self.MRegWidget = MRegfileWidget(reg_table, time_table)
+        self.MPURegWidget = MPURegfileWidget(reg_table, time_table)
+        control.simDB.timeChanged.connect(self.MRegWidget.timeChangedSlot)
+        control.simDB.timeChanged.connect(self.MPURegWidget.timeChangedSlot)
         
         self.traceWidget = QTableWidget()
         self.rightTab.addTab(self.MRegWidget, self.tr("M RF"))

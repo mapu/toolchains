@@ -20,12 +20,12 @@ class SPUViewWidget(QWidget):
         leftLay.addWidget(self.stageButton)
         self.leftWidget.setLayout(leftLay)
         
-        # No. 3 is the stage table, and No. 1 is the register table
-        # No. 0 is the inst table 
-        self.stageDialog = StageDialog(control.simDB.Tables[idx * 8 + 0],
-                                       control.simDB.Tables[idx * 8 + 3],
-                                       control.simDB.Tables[idx * 8 + 1],
-                                       self)
+        # Get tables
+        inst_table = control.simDB.getTable("APE%dMPUInstTable" % idx)
+        stage_table = control.simDB.getTable("APE%dMPUStageTable" % idx)
+        reg_table = control.simDB.getTable("APE%dMPURegTable" % idx)
+        time_table = control.simDB.getTable("APE%dMPUTimeTable" % idx)
+        self.stageDialog = StageDialog(inst_table, stage_table, reg_table, self)
         self.stageDialog.setWindowTitle(self.tr("SPU Instruction Pipeline Diagram"))
         self.stageDialog.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
         control.simDB.timeChanged.connect(self.timeChangedSlot)
@@ -33,10 +33,8 @@ class SPUViewWidget(QWidget):
         self.rightTab = QTabWidget()
 
         # define rightTab
-        self.genRegWidget = SPURegfileWidget(control.simDB.Tables[idx * 8 + 1],
-                                             control.simDB.Tables[idx * 8 + 2])
-        self.specRegWidget = SpecialRegfileWidget(control.simDB.Tables[idx * 8 + 1],
-                                                  control.simDB.Tables[idx * 8 + 2])
+        self.genRegWidget = SPURegfileWidget(reg_table, time_table)
+        self.specRegWidget = SpecialRegfileWidget(reg_table, time_table)
         control.simDB.timeChanged.connect(self.genRegWidget.timeChangedSlot)
         control.simDB.timeChanged.connect(self.genRegWidget.timeChangedSlot)
         

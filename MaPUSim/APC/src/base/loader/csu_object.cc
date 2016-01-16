@@ -469,7 +469,7 @@ void CsuObject::processFrontDMA(int cpuid, PortProxy &extProxy,
 
   struct dma_if *dma_conf = queue_head->Next;
 
-  /*std::cout << "DMA conf.:\n"
+  std::cerr << "DMA conf.:\n"
             << "Cmd: " << std::hex << dma_conf->DMACmd << "\n"
             << "LocalAddr: " << dma_conf->DMALocalAddr << "\n"
             << "LocalXNum: " << dma_conf->DMALocalXNum << "\n"
@@ -483,7 +483,7 @@ void CsuObject::processFrontDMA(int cpuid, PortProxy &extProxy,
             << "GlobalYStep: " << dma_conf->DMAGlobalYStep << "\n"
             << "GlobalYAllNum: " << dma_conf->DMAGlobalYAllNum << "\n"
             << "GlobalZStep: " << dma_conf->DMAGlobalZStep << "\n"
-            << "GroupNum: " << dma_conf->DMAGroupNum << "\n";*/
+            << "GroupNum: " << dma_conf->DMAGroupNum << "\n";
   bool isSend = dma_conf->DMACmd & 0x1;
   bool isLXExt = dma_conf->DMALocalXNum % 64 ? (dma_conf->DMACmd & 0x4) : false;
   bool isLYExt = dma_conf->DMALocalYAllNum % dma_conf->DMALocalYNum ? (dma_conf->DMACmd & 0x8) : false;

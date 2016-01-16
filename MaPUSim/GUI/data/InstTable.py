@@ -131,18 +131,12 @@ class SPUInstTable(InstTable):
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
         
-        self.key = "graduation_unit: [tid:0]"
+        self.key = "ape" + str(idx) + ".stage: [tid:0]:"
         
-        if idx == 0:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu[0]?\.graduation_unit: \[tid:0\]: "
-                "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): "
-                "(.*) :((?: \d+)+)", re.MULTILINE)
-        else:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.graduation_unit: \[tid:0\]: "
-                "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): "
-                "(.*) :((?: \d+)*)", re.MULTILINE)
+        self.pattern = re.compile(
+            "(\d+)000: ape" + str(idx) + "\.stage: \[tid:0\]: "
+            "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): "
+            "(.*) :((?: \d+)*)", re.MULTILINE)
         
         self.search_template = "SELECT * FROM " + self.Name + " WHERE "
     
@@ -187,20 +181,14 @@ class MPUInstTable(InstTable):
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
         
-        self.key = "graduation_unit: [tid:1]"
+        self.key = "ape" + str(idx) + ".stage: [tid:1]:"
         
         self.srcdest_template = "SELECT src, dest FROM " + self.Name + " WHERE time = "
         
-        if idx == 0:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu[0]?\.graduation_unit: \[tid:1\]: "
-                "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): \(memo:(\S{1,4})\S*\s*\) "
-                "(.*->(.+)|.*) :((?: \d+)+)", re.MULTILINE)
-        else:
-            self.pattern = re.compile(
-                "(\d+)000\[\d+\]: system\.cpu" + str(idx) + "\.graduation_unit: \[tid:1\]: "
-                "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): \(memo:(\S{1,4})\S*\s*\) "
-                "(.*->(.+)|.*) :((?: \d+)+)", re.MULTILINE)
+        self.pattern = re.compile(
+            "(\d+)000: ape" + str(idx) + "\.stage: \[tid:1\]: "
+            "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): \(memo:(\S{1,4})\S*\s*\) "
+            "(.*->(.+)|.*) :((?: \d+)+)", re.MULTILINE)
         
         self.search_template = "SELECT * FROM " + self.Name + " WHERE "
         

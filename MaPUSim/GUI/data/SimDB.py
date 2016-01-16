@@ -13,6 +13,7 @@ from view.Utils import fatal
 import os
 import sqlite3
 import sys
+from data.MemTable import SPUMemTable, MPUMemTable
 
 class TraceAnalyzeThread(QThread):
     '''
@@ -33,12 +34,12 @@ class TraceAnalyzeThread(QThread):
         Generate trace database from trace file
         '''
         self.simDB.lock.lock()
-        try:
+        if 1:#try:
             DBConn = sqlite3.connect(self.simDB.DBName)
             trace = open(self.traceFile, "r")
             lines = trace.readlines()
             lines_wrapper = [lines]
-            for i in range(self.numOfCores * 8):
+            for i in xrange(len(self.simDB.Tables)):
                 print "table", i
                 self.simDB.Tables[i].DBConn = DBConn
                 self.simDB.Tables[i].clearTable()
@@ -46,15 +47,21 @@ class TraceAnalyzeThread(QThread):
                 print t.timeit(number = 1)
                 self.simDB.Tables[i].DBConn = self.simDB.DBConn
             DBConn.close()
-            for i in xrange(self.numOfCores * 2):
-                if self.simDB.Tables[i * 4 + 3].startPoint < self.simDB.startPoint:
-                    self.simDB.startPoint = self.simDB.Tables[i * 4 + 3].startPoint
-                if self.simDB.Tables[i * 4 + 3].endPoint > self.simDB.endPoint:
-                    self.simDB.endPoint = self.simDB.Tables[i * 4 + 3].endPoint
+            for i in xrange(self.numOfCores):
+                table = self.simDB.getTable("APE%dSPUStageTable" % i)
+                if table.startPoint < self.simDB.startPoint:
+                    self.simDB.startPoint = table.startPoint
+                if table.endPoint > self.simDB.endPoint:
+                    self.simDB.endPoint = table.endPoint
+                table = self.simDB.getTable("APE%dMPUStageTable" % i)
+                if table.startPoint < self.simDB.startPoint:
+                    self.simDB.startPoint = table.startPoint
+                if table.endPoint > self.simDB.endPoint:
+                    self.simDB.endPoint = table.endPoint
             self.simDB.curTime = -1
             self.simDB.setTimePointSlot(self.simDB.startPoint)
-        except Exception:
-            self.simDB.analyzeFailed.emit()
+        #except Exception:
+        #    self.simDB.analyzeFailed.emit()
         self.simDB.lock.unlock()
     
 
@@ -77,17 +84,23 @@ class SimDB(QObject):
         if (os.path.exists(self.DBName) and os.path.isfile(self.DBName)):
             os.remove(self.DBName)
         self.DBConn = sqlite3.connect(self.DBName)
-        self.Tables = [None] * 32
+        self.Tables = [None] * (4 * 10)
+        self.tableIdx = {}
         for i in range(4):
-            self.Tables[i * 8] = SPUInstTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 1] = SPURegTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 2] = SPUTimeTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 3] = SPUStageTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 4] = MPUInstTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 5] = MPURegTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 6] = MPUTimeTable(i, self.DBConn, parent)
-            self.Tables[i * 8 + 7] = MPUStageTable(i, self.DBConn, parent)
+            self.Tables[i * 10] = SPUInstTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 1] = SPURegTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 2] = SPUTimeTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 3] = SPUStageTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 4] = SPUMemTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 5] = MPUInstTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 6] = MPURegTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 7] = MPUTimeTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 8] = MPUStageTable(i, self.DBConn, parent)
+            self.Tables[i * 10 + 9] = MPUMemTable(i, self.DBConn, parent)
             
+        for table in self.Tables:
+            self.tableIdx[table.Name] = self.Tables.index(table)
+                        
         self.curTime = -1
         self.startPoint = sys.maxint
         self.endPoint = 0
@@ -116,5 +129,8 @@ class SimDB(QObject):
     @pyqtSlot()
     def analyzeFailedSlot(self):
         fatal("Broken trace file!")
+        
+    def getTable(self, name):
+        return self.Tables[self.tableIdx[name]]
             
         
