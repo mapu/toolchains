@@ -77,13 +77,14 @@ class VectorRegfileTableItem(QTableWidgetItem):
     '''
 
 
-    def __init__(self, typecombo, itemtype = QTableWidgetItem.Type):
+    def __init__(self, typecombo, idxcombo, itemtype = QTableWidgetItem.Type):
         '''
         Constructor
         '''
         super(VectorRegfileTableItem, self).__init__(itemtype)
         self.value = [0] * 64
         self.typeCombo = typecombo
+        self.idxCombo = idxcombo
         self.op = 0 # 00: None 01: Read 10: Write 11: RW
         self.readColor = QColor(0, 255, 0)
         self.writeColor = QColor(255, 0, 0)
@@ -95,32 +96,55 @@ class VectorRegfileTableItem(QTableWidgetItem):
         Format the value string
         '''
         datatype = self.typeCombo.currentText()
-        if datatype == "1 byte":
-            return " ".join(["0x%02x" % v for v in self.value])
-        if datatype == "2 bytes":
-            value = [(self.value[i * 2 + 1] << 8) | self.value[i * 2] for i in xrange(32)]
-            return " ".join(["0x%04x" % v for v in value])
-        if datatype == "4 bytes":
-            value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
-                     (self.value[i * 4 + 1] << 8) | self.value[i * 4]
-                      for i in xrange(16)]
-            return " ".join(["0x%08x" % v for v in value])
-        if datatype == "float":
-            value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
-                     (self.value[i * 4 + 1] << 8) | self.value[i * 4]
-                      for i in xrange(16)]
-            return " ".join(["%f" % 
-                             ctypes.cast(ctypes.pointer(ctypes.c_uint32(v)),
-                             ctypes.POINTER(ctypes.c_float)).contents.value
-                             for v in value])
-        if datatype == "double":
-            value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) | 
-                     (self.value[i * 4 + 1] << 8) | self.value[i * 4]
-                      for i in xrange(16)]
-            return " ".join(["%f" %
-                             ctypes.cast(ctypes.pointer(ctypes.c_uint64(v)),
-                             ctypes.POINTER(ctypes.c_double)).contents.value
-                             for v in value])
+        if self.idxCombo.currentIndex() == 0:
+            if datatype == "1 byte":
+                return " ".join(["0x%02x" % v for v in self.value])
+            if datatype == "2 bytes":
+                value = [(self.value[i * 2 + 1] << 8) | self.value[i * 2] for i in xrange(32)]
+                return " ".join(["0x%04x" % v for v in value])
+            if datatype == "4 bytes":
+                value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4]
+                          for i in xrange(16)]
+                return " ".join(["0x%08x" % v for v in value])
+            if datatype == "float":
+                value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4]
+                          for i in xrange(16)]
+                return " ".join(["%f" % 
+                                 ctypes.cast(ctypes.pointer(ctypes.c_uint32(v)),
+                                 ctypes.POINTER(ctypes.c_float)).contents.value
+                                 for v in value])
+            if datatype == "double":
+                value = [(self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) | 
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4]
+                          for i in xrange(16)]
+                return " ".join(["%f" %
+                                 ctypes.cast(ctypes.pointer(ctypes.c_uint64(v)),
+                                 ctypes.POINTER(ctypes.c_double)).contents.value
+                                 for v in value])
+        else:
+            i = self.idxCombo.currentIndex() - 1
+            if datatype == "1 byte":
+                return "0x%02x" % self.value[i]
+            if datatype == "2 bytes":
+                value = (self.value[i * 2 + 1] << 8) | self.value[i * 2]
+                return "0x%04x" % value
+            if datatype == "4 bytes":
+                value = ((self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4])
+                return "0x%08x" % value
+            if datatype == "float":
+                value = ((self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) |
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4])
+                return "%f" % ctypes.cast(ctypes.pointer(ctypes.c_uint32(value)),
+                            ctypes.POINTER(ctypes.c_float)).contents.value
+            if datatype == "double":
+                value = ((self.value[i * 4 + 3] << 24) | (self.value[i * 4 + 2] << 16) | 
+                         (self.value[i * 4 + 1] << 8) | self.value[i * 4])
+                return "%f" % ctypes.cast(ctypes.pointer(ctypes.c_uint64(value)),
+                            ctypes.POINTER(ctypes.c_double)).contents.value
+            
     
     def data(self, role):
         '''

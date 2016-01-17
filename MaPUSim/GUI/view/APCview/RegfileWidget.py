@@ -10,6 +10,7 @@ from data import RegNames
 from view.APCview.RegfileTableWidgetItem import ScalarRegfileTableItem,\
     VectorRegfileTableItem
 import re
+from view.APCview.IndexComboBox import IndexComboBox
 
 class RegfileWidget(QTableWidget):
     '''
@@ -31,7 +32,6 @@ class RegfileWidget(QTableWidget):
         self.horizontalHeader().setVisible(False)
         self.verticalHeader().setVisible(False)
         self.setShowGrid(True)
-        self.setColumnCount(3)
         self.verticalHeader().setDefaultSectionSize(16)
         self.setFont(QFont("Monospace", 10))
         self.horizontalHeader().setStretchLastSection(True)
@@ -66,6 +66,7 @@ class RegfileWidget(QTableWidget):
         self.setRowCount(len(self.regNames) + len(self.classes))
         i = 0
         j = 0
+        valueIdx = self.columnCount() - 1
         for name in self.regNames:
             if j < len(self.classes) and i == self.classes[j][1]:
                 self.setClassItem(i, 0, QTableWidgetItem(self.classes[j][0]))
@@ -85,11 +86,25 @@ class RegfileWidget(QTableWidget):
                          self.typeChangedSlot)
             self.setCellWidget(i, 1, typeComboBox)
             
-            self.setItem(i, 2, self.itemType(typeComboBox))
+            if valueIdx == 3:
+                idxComboBox = IndexComboBox()
+            
+                self.connect(typeComboBox, SIGNAL("currentIndexChanged(int)"),
+                             idxComboBox.typeChangedSlot)
+                self.connect(idxComboBox, SIGNAL("currentIndexChanged(int)"),
+                             self.typeChangedSlot)
+                idxComboBox.typeChangedSlot(0)
+                
+                self.setCellWidget(i, 2, idxComboBox)
+                
+                self.setItem(i, valueIdx, self.itemType(typeComboBox, idxComboBox))
+            else:
+                self.setItem(i, valueIdx, self.itemType(typeComboBox))
+                
             if "NA" in name:
                 self.setRowHidden(i, True)
             i += 1
-        self.resizeColumnToContents(2)
+        self.resizeColumnToContents(valueIdx)
         
     @pyqtSlot(int)
     def timeChangedSlot(self, time):
@@ -106,15 +121,16 @@ class RegfileWidget(QTableWidget):
             values = [[0] + self.initValues] 
         j = 0  # The class No.
         i = 0  # The item row No. = register No. + class No.
+        valueIdx = self.columnCount() - 1
         for value in values[0][(1 + self.regOffset):self.regEnd + 1]:
             if j < len(self.classes) and i == self.classes[j][1]:
                 j += 1
                 i += 1
             if value != "N/A":
-                self.item(i, 2).setValueByString(value)
+                self.item(i, valueIdx).setValueByString(value)
             else:
-                self.item(i, 2).value = self.getInitValue(i - j)
-            self.item(i, 2).op = 0
+                self.item(i, valueIdx).value = self.getInitValue(i - j)
+            self.item(i, valueIdx).op = 0
             i += 1
         
         ops = self.regTable.getOperations(time, self.condition)
@@ -126,9 +142,9 @@ class RegfileWidget(QTableWidget):
                 if idx + regcl >= cl[1]:
                     regcl += 1
             if op[0] == "R":
-                self.item(idx + regcl, 2).op |= 1
+                self.item(idx + regcl, valueIdx).op |= 1
             elif op[0] == "W":
-                self.item(idx + regcl, 2).op |= 2
+                self.item(idx + regcl, valueIdx).op |= 2
         self.resizeColumnToContents(2)
         self.viewport().update()
                 
@@ -163,6 +179,7 @@ class SPURegfileWidget(RegfileWidget):
         Constructor
         '''
         super(SPURegfileWidget, self).__init__(reg_table, time_table, parent)
+        self.setColumnCount(3)
         self.setColumnWidth(0, 40)
         self.regNames = RegNames.SPURegNames[:64]
         self.regOffset = 0
@@ -187,6 +204,7 @@ class SpecialRegfileWidget(RegfileWidget):
         Constructor
         '''
         super(SpecialRegfileWidget, self).__init__(reg_table, time_table, parent)
+        self.setColumnCount(3)
         self.setColumnWidth(0, 150)
         self.regNames = RegNames.SPURegNames[64:]
         self.regOffset = 64
@@ -216,6 +234,7 @@ class MRegfileWidget(RegfileWidget):
         Constructor
         '''
         super(MRegfileWidget, self).__init__(reg_table, time_table, parent)
+        self.setColumnCount(4)
         self.setColumnWidth(0, 50)
         self.classes = [(self.tr("M register"), 0)]
         self.regNames = RegNames.MPURegNames[:128]
@@ -245,6 +264,7 @@ class MPURegfileWidget(RegfileWidget):
         Constructor
         '''
         super(MPURegfileWidget, self).__init__(reg_table, time_table, parent)
+        self.setColumnCount(4)
         self.setColumnWidth(0, 50)
         self.regNames = RegNames.MPURegNames[128:]
         self.regOffset = 128
