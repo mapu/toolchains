@@ -14,7 +14,7 @@ class SplashScreen(QSplashScreen):
                                            Qt.WindowStaysOnTopHint)
 
     def fadein(self):
-        #self.setWindowOpacity(0)
+        self.setWindowOpacity(0)
         self.show()
         t = 0
         while t <= 50:
@@ -22,7 +22,7 @@ class SplashScreen(QSplashScreen):
             if newOpacity > 1:
                 break
 
-            #self.setWindowOpacity(newOpacity)
+            self.setWindowOpacity(newOpacity)
             t += 1
             time.sleep(0.01)
 
