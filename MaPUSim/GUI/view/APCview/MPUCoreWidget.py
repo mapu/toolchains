@@ -412,6 +412,7 @@ class MPUCoreWidget(QWidget):
             
         self.hexFile = ""
         self.start = 0
+        self.painter = QPainter()
         
         
     def comBtnSlot(self, idx):
@@ -424,6 +425,7 @@ class MPUCoreWidget(QWidget):
         
     def timeChangedSlot(self, time):
         self.instList = self.instTable.getInstSrcDest(time)
+        self.redrawActiveConnections()
 
     def setHexFileStart(self, fileName, start):
         self.hexFile = fileName
@@ -469,16 +471,30 @@ class MPUCoreWidget(QWidget):
         self.painter.fillPath(path, QBrush(color));
     
     def redraw(self, size):
-        self.paintBuffer = QPixmap(size)
-        self.painter = QPainter(self.paintBuffer)
-        self.painter.fillRect(QRectF(QPointF(0, 0), QSizeF(size)),
-                              QBrush(QColor("white")))
         self.rowUnit = size.height() / 55.0
         self.colUnit = size.width() / 47.0
         self.edge = self.rowUnit / 0.8
+        self.paintBuffer = [QPixmap(size), QPixmap(size), QPixmap(size)]
+        self.painter.begin(self.paintBuffer[0])
+        self.painter.fillRect(QRectF(QPointF(0, 0), QSizeF(size)),
+                              QBrush(QColor("white")))
         self.drawGrid()
         self.drawConnections()
+        self.painter.end()
+        self.paintBuffer[1].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[1])
+        self.drawActiveConnections()
+        self.painter.end()
+        
+        self.paintBuffer[2].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[2])
         self.drawPorts()
+        self.painter.end()
+        
+    def redrawActiveConnections(self):
+        self.paintBuffer[1].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[1])
+        self.drawActiveConnections()
         self.painter.end()
         
     def drawGrid(self):
@@ -487,10 +503,10 @@ class MPUCoreWidget(QWidget):
         self.painter.setPen(pen)
         for i in xrange(47):
             self.painter.drawLine(QPointF(self.colUnit * i, 0),
-                                  QPointF(self.colUnit * i, self.paintBuffer.height()))
+                                  QPointF(self.colUnit * i, self.paintBuffer[0].height()))
         for i in xrange(55):
             self.painter.drawLine(QPointF(0, self.rowUnit * i),
-                                  QPointF(self.paintBuffer.width(), self.rowUnit * i))
+                                  QPointF(self.paintBuffer[0].width(), self.rowUnit * i))
             
     def drawPorts(self):
         for i in xrange(len(self.ports)):
@@ -514,6 +530,17 @@ class MPUCoreWidget(QWidget):
                     rline[i] = QPointF(line[i].x() * self.colUnit,
                                        line[i].y() * self.rowUnit)
                 self.painter.drawPolyline(*rline)
+
+    def drawActiveConnections(self):
+        brush = QBrush(QColor("yellow"))
+        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.painter.setPen(pen)
+        for line in self.instList:
+            rline = self.connections[line[0]][line[1]][:]
+            for i in xrange(len(rline)):
+                rline[i] = QPointF(rline[i].x() * self.colUnit,
+                                   rline[i].y() * self.rowUnit)
+            self.painter.drawPolyline(*rline)
         
     def resizeEvent(self, event):
         if event.oldSize() == event.size():
@@ -523,16 +550,9 @@ class MPUCoreWidget(QWidget):
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
-        qp.drawPixmap(self.gridLayout.contentsRect(), self.paintBuffer)
-        brush = QBrush(QColor("yellow"))
-        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-        qp.setPen(pen)
-        for line in self.instList:
-            rline = self.connections[line[0]][line[1]][:]
-            for i in xrange(len(rline)):
-                rline[i] = QPointF(rline[i].x() * self.colUnit,
-                                   rline[i].y() * self.rowUnit)
-            qp.drawPolyline(*rline)
+        qp.drawPixmap(self.gridLayout.contentsRect(), self.paintBuffer[0])
+        qp.drawPixmap(self.gridLayout.contentsRect(), self.paintBuffer[1])
+        qp.drawPixmap(self.gridLayout.contentsRect(), self.paintBuffer[2])
         qp.end()
 
 

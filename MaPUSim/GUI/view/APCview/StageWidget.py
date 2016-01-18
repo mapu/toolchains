@@ -26,6 +26,7 @@ class StageWidget(QWidget):
         self.tableView.setHorizontalHeader(self.headerView)
 
         self.tableView.setSelectionBehavior(QAbstractItemView.SelectColumns)
+        self.tableView.setCornerButtonEnabled(False)
         self.tableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableView.verticalHeader().setResizeMode(QHeaderView.Fixed)
         self.tableView.verticalHeader().setHighlightSections(False)

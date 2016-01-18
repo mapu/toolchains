@@ -54,7 +54,7 @@ class RegfileWidget(QTableWidget):
         '''
         self.setItem(row, col, item)
         self.item(row, col).setBackgroundColor(self.classColor)
-        self.setSpan(row, col, 1, 3)
+        self.setSpan(row, col, 1, self.columnCount())
         font = QFont()
         font.setBold(True)
         self.item(row, col).setFont(font)
@@ -289,19 +289,21 @@ class MPURegfileWidget(RegfileWidget):
         self.regNames = RegNames.MPURegNames[128:]
         self.regOffset = 128
         self.regEnd = len(time_table.itemsid)
-        self.classes = [[self.tr("SHU0 T register"), 0, False],
-                        [self.tr("SHU1 T register"), 
-                         RegNames.MPURegNames.index("SHU1_T0") + 1 - self.regOffset, False],
-                        [self.tr("IALU T register"), 
-                         RegNames.MPURegNames.index("IALU_T0") + 2 - self.regOffset, False],
-                        [self.tr("IMAC T register"), 
-                         RegNames.MPURegNames.index("IMAC_T0") + 3 - self.regOffset, False],
-                        [self.tr("FALU T register"), 
-                         RegNames.MPURegNames.index("FALU_T0") + 4 - self.regOffset, False],
-                        [self.tr("FMAC T register"), 
-                         RegNames.MPURegNames.index("FMAC_T0") + 5 - self.regOffset, False],
-                        [self.tr("Other register"), 
-                         RegNames.MPURegNames.index("IMRL") + 6 - self.regOffset, False]]
+        self.classes = [
+            [self.tr("SHU0 T register"), 0, False],
+            [self.tr("SHU1 T register"), 
+             RegNames.MPURegNames.index("SHU1_T0") + 1 - self.regOffset, False],
+            [self.tr("IALU T register"), 
+             RegNames.MPURegNames.index("IALU_T0") + 2 - self.regOffset, False],
+            [self.tr("IMAC T register"), 
+             RegNames.MPURegNames.index("IMAC_T0") + 3 - self.regOffset, False],
+            [self.tr("FALU T register"), 
+             RegNames.MPURegNames.index("FALU_T0") + 4 - self.regOffset, False],
+            [self.tr("FMAC T register"), 
+             RegNames.MPURegNames.index("FMAC_T0") + 5 - self.regOffset, False],
+            [self.tr("Other register"), 
+             RegNames.MPURegNames.index("IMRL") + 6 - self.regOffset, False]
+        ]
         self.initValues = ["0x00 " * 64] * (self.regEnd - self.regOffset)
         self.condition = "class == 'MPU' AND no >= %d " % self.regOffset
         self.itemType = VectorRegfileTableItem
