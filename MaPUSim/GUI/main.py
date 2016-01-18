@@ -8,14 +8,13 @@ from view.MainWindow import MainWindow
 from view.Splash import SplashScreen
 from view.Utils import initParent
 import sys
-import time
 from data import StageNames, RegNames
 
 app = QApplication(sys.argv)
 
 splash = SplashScreen()
-splash.fadein()
 app.processEvents()
+splash.show()
 splash.showMessage("Loading global constants ...", Qt.AlignBottom | Qt.AlignLeft,
                    Qt.white)
 StageNames.initStageName()
@@ -64,7 +63,6 @@ elif SimulationArgs.tracefile != None:
     splash.showMessage("Analyzing trace ...", Qt.AlignBottom | Qt.AlignLeft,
                        Qt.white)
 # Keep splash screen for a certain period
-time.sleep(1)
 
-splash.fadeout(mainWindow)
+splash.finish(mainWindow)
 sys.exit(app.exec_())
