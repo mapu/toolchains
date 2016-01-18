@@ -34,7 +34,7 @@ class TraceAnalyzeThread(QThread):
         Generate trace database from trace file
         '''
         self.simDB.lock.lock()
-        if 1:#try:
+        try:
             DBConn = sqlite3.connect(self.simDB.DBName)
             trace = open(self.traceFile, "r")
             lines = trace.readlines()
@@ -58,10 +58,10 @@ class TraceAnalyzeThread(QThread):
                     self.simDB.startPoint = table.startPoint
                 if table.endPoint > self.simDB.endPoint:
                     self.simDB.endPoint = table.endPoint
-            self.simDB.curTime = -1
             self.simDB.setTimePointSlot(self.simDB.startPoint)
-        #except Exception:
-        #    self.simDB.analyzeFailed.emit()
+            self.simDB.traceAnalyzeDone.emit()
+        except Exception:
+            self.simDB.analyzeFailed.emit()
         self.simDB.lock.unlock()
     
 
@@ -71,6 +71,7 @@ class SimDB(QObject):
     '''
 
     timeChanged = pyqtSignal(int)
+    traceAnalyzeDone = pyqtSignal()
     
     analyzeFailed = pyqtSignal()
 
@@ -113,6 +114,9 @@ class SimDB(QObject):
         '''
         Generate trace database from trace file
         '''
+        self.curTime = -1
+        self.startPoint = sys.maxint
+        self.endPoint = 0
         thread = TraceAnalyzeThread(self, num_of_cores, tracefile, self)
         thread.start()
             

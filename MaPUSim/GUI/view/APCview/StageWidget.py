@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import SIGNAL, pyqtSlot, QModelIndex, pyqtSignal, Qt
-from PyQt4.QtGui import QDialog, QTableView, QAbstractItemView, QHeaderView,\
-    QFont, QComboBox, QHBoxLayout, QVBoxLayout
+from PyQt4.QtGui import QTableView, QAbstractItemView, QHeaderView,\
+    QFont, QComboBox, QHBoxLayout, QVBoxLayout, QWidget
 from data.StageTableModel import StageTableModel
 from view.APCview.LegendWidget import LegendWidget
 from view.APCview.SearchWidget import SearchWidget
 from view.APCview.HeaderView import HeaderView
 
-class StageDialog(QDialog):
+class StageWidget(QWidget):
     updateTimePointSignal = pyqtSignal(int)
     
     def __init__(self, inst_table, stage_table, reg_table, parent = None):
-        super(StageDialog, self).__init__(parent)
+        super(StageWidget, self).__init__(parent)
 
         #self.resize(1500, 800)
         #self.setMinimumSize(400, 600)
@@ -69,14 +69,12 @@ class StageDialog(QDialog):
     def updateTimePoint(self, index):
         column = index
         text = self.tableModel.hHeaderList[column]
-        text = text.replace('\n', "")
         self.updateTimePointSignal.emit(int(text))
 
     @pyqtSlot(QModelIndex)
     def updateTimePoint(self, index):
         column = index.column()
         text = self.tableModel.hHeaderList[column]
-        text = text.replace('\n', "")
         self.updateTimePointSignal.emit(int(text))
 
     @pyqtSlot(int)
@@ -88,11 +86,17 @@ class StageDialog(QDialog):
         self.tableView.horizontalScrollBar().setValue(self.tableModel.getStart(value))
 
     @pyqtSlot()        
+    def updatePageListSlot(self):
+        self.pageCombo.clear()
+        self.pageCombo.addItems([self.tableModel.stageTable.pageList[i][1]
+                                 for i in range(len(self.tableModel.stageTable.pageList))])
+
+    @pyqtSlot()        
     def show(self):
         self.pageCombo.clear()
         self.pageCombo.addItems([self.tableModel.stageTable.pageList[i][1]
                                  for i in range(len(self.tableModel.stageTable.pageList))])
-        return QDialog.show(self)
+        return QWidget.show(self)
 
     def closeEvent(self, event):
         self.hide()

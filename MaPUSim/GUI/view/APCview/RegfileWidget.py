@@ -40,7 +40,7 @@ class RegfileWidget(QTableWidget):
         
         self.classColor = QColor(192, 192, 192)
         
-        self.classes = [("name", 0)]
+        self.classes = [["name", 0, False]]  # [name, row, isfolded]
         self.regNames = [""]
         self.regOffset = 0
 
@@ -105,6 +105,26 @@ class RegfileWidget(QTableWidget):
                 self.setRowHidden(i, True)
             i += 1
         self.resizeColumnToContents(valueIdx)
+        self.cellDoubleClicked.connect(self.classFoldSlot)
+        
+    @pyqtSlot(int, int)
+    def classFoldSlot(self, row, column):
+        classes = iter(self.classes)
+        for cl in classes:
+            if cl[1] == row:
+                begin = cl[1] + 1
+                if cl != self.classes[-1]:
+                    end = next(classes)[1]
+                else:
+                    end = self.rowCount()
+                if cl[2]:
+                    cl[2] = False
+                    for i in xrange(begin, end):
+                        self.showRow(i)
+                else:
+                    cl[2] = True
+                    for i in xrange(begin, end):
+                        self.hideRow(i)
         
     @pyqtSlot(int)
     def timeChangedSlot(self, time):
@@ -184,8 +204,8 @@ class SPURegfileWidget(RegfileWidget):
         self.regNames = RegNames.SPURegNames[:64]
         self.regOffset = 0
         self.regEnd = 64
-        self.classes = [(self.tr("R register file"), 0),
-                        (self.tr("J register file"), 33)]
+        self.classes = [[self.tr("R register file"), 0, False],
+                        [self.tr("J register file"), 33, False]]
         self.initValues = ["0x0"] * 64
         self.condition = "(class == 'R' OR class == 'J')"
         self.itemType = ScalarRegfileTableItem
@@ -209,13 +229,13 @@ class SpecialRegfileWidget(RegfileWidget):
         self.regNames = RegNames.SPURegNames[64:]
         self.regOffset = 64
         self.regEnd = len(time_table.itemsid)
-        self.classes = [(self.tr("SPU special registers"), 0),
-                        (self.tr("M RF port control register"),
-                         RegNames.SPURegNames.index("MC_r0") + 1 - 64),
-                        (self.tr("K registers"),
-                         RegNames.SPURegNames.index("KB0") + 2 - 64),
-                        (self.tr("MPU control registers"),
-                         RegNames.SPURegNames.index("MPUCondition") + 3 - 64)]
+        self.classes = [[self.tr("SPU special registers"), 0, False],
+                        [self.tr("M RF port control register"),
+                         RegNames.SPURegNames.index("MC_r0") + 1 - 64, False],
+                        [self.tr("K registers"),
+                         RegNames.SPURegNames.index("KB0") + 2 - 64, False],
+                        [self.tr("MPU control registers"),
+                         RegNames.SPURegNames.index("MPUCondition") + 3 - 64, False]]
         self.initValues = ["0x0"] * (self.regEnd - self.regOffset)
         self.condition = "(class == 'Misc')"
         self.itemType = ScalarRegfileTableItem
@@ -236,7 +256,7 @@ class MRegfileWidget(RegfileWidget):
         super(MRegfileWidget, self).__init__(reg_table, time_table, parent)
         self.setColumnCount(4)
         self.setColumnWidth(0, 50)
-        self.classes = [(self.tr("M register"), 0)]
+        self.classes = [[self.tr("M register"), 0, False]]
         self.regNames = RegNames.MPURegNames[:128]
         self.regOffset = 0
         self.regEnd = 64
@@ -269,19 +289,19 @@ class MPURegfileWidget(RegfileWidget):
         self.regNames = RegNames.MPURegNames[128:]
         self.regOffset = 128
         self.regEnd = len(time_table.itemsid)
-        self.classes = [(self.tr("SHU0 T register"), 0),
-                        (self.tr("SHU1 T register"), 
-                         RegNames.MPURegNames.index("SHU1_T0") + 1 - self.regOffset),
-                        (self.tr("IALU T register"), 
-                         RegNames.MPURegNames.index("IALU_T0") + 2 - self.regOffset),
-                        (self.tr("IMAC T register"), 
-                         RegNames.MPURegNames.index("IMAC_T0") + 3 - self.regOffset),
-                        (self.tr("FALU T register"), 
-                         RegNames.MPURegNames.index("FALU_T0") + 4 - self.regOffset),
-                        (self.tr("FMAC T register"), 
-                         RegNames.MPURegNames.index("FMAC_T0") + 5 - self.regOffset),
-                        (self.tr("Other register"), 
-                         RegNames.MPURegNames.index("IMRL") + 6 - self.regOffset)]
+        self.classes = [[self.tr("SHU0 T register"), 0, False],
+                        [self.tr("SHU1 T register"), 
+                         RegNames.MPURegNames.index("SHU1_T0") + 1 - self.regOffset, False],
+                        [self.tr("IALU T register"), 
+                         RegNames.MPURegNames.index("IALU_T0") + 2 - self.regOffset, False],
+                        [self.tr("IMAC T register"), 
+                         RegNames.MPURegNames.index("IMAC_T0") + 3 - self.regOffset, False],
+                        [self.tr("FALU T register"), 
+                         RegNames.MPURegNames.index("FALU_T0") + 4 - self.regOffset, False],
+                        [self.tr("FMAC T register"), 
+                         RegNames.MPURegNames.index("FMAC_T0") + 5 - self.regOffset, False],
+                        [self.tr("Other register"), 
+                         RegNames.MPURegNames.index("IMRL") + 6 - self.regOffset, False]]
         self.initValues = ["0x00 " * 64] * (self.regEnd - self.regOffset)
         self.condition = "class == 'MPU' AND no >= %d " % self.regOffset
         self.itemType = VectorRegfileTableItem

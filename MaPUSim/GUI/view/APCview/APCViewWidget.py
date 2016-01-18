@@ -84,12 +84,12 @@ class APCViewWidget(QWidget):
             self.timeSpinBox.setEnabled(False)
 
         # update DM bin file
-        dirpath = QDir(".")
-        stringFile = dirpath.entryList(QDir.Files, QDir.Time)
-        for j in range (0, stringFile.count()):
-            if stringFile[j].indexOf(".bin") > 0:
-                filename = stringFile[j]
-		for ape in self.APETabWidget:
-                    ape.MPUWidget.coreWidget.setHexFileStart(filename,  16 * 1024 * 1024 * self.APETabWidget.index(ape))
-                break
+        #dirpath = QDir(".")
+        #stringFile = dirpath.entryList(QDir.Files, QDir.Time)
+        #for j in range (0, stringFile.count()):
+        #    if stringFile[j].indexOf(".bin") > 0:
+        #        filename = stringFile[j]
+        #        for ape in self.APETabWidget:
+        #            ape.MPUWidget.coreWidget.setHexFileStart(filename,  16 * 1024 * 1024 * self.APETabWidget.index(ape))
+        #        break
 

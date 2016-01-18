@@ -2,8 +2,8 @@
 from PyQt4.QtCore import SIGNAL, pyqtSlot
 from PyQt4.QtGui import QWidget, QPushButton, QVBoxLayout, QTabWidget,\
     QTableWidget, QHBoxLayout
-from view.APCview.StageDialog import StageDialog
 from view.APCview.RegfileWidget import SPURegfileWidget, SpecialRegfileWidget
+from view.APCview.StageWidget import StageWidget
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -12,23 +12,18 @@ class SPUViewWidget(QWidget):
         super(SPUViewWidget, self).__init__(parent)
 
         self.leftWidget = QWidget()
-        self.stageButton = QPushButton(self.tr("Instruction Pipeline Diagram"))
-        self.stageButton.setFixedSize(200, 40)
-        self.stageButton.setEnabled(False)
-        self.connect(self.stageButton, SIGNAL("clicked()"), self.stageButtonSlot)
-        leftLay = QVBoxLayout()
-        leftLay.addWidget(self.stageButton)
-        self.leftWidget.setLayout(leftLay)
+        self.leftLayout = QVBoxLayout()
+        self.leftWidget.setLayout(self.leftLayout)
         
         # Get tables
-        inst_table = control.simDB.getTable("APE%dMPUInstTable" % idx)
-        stage_table = control.simDB.getTable("APE%dMPUStageTable" % idx)
-        reg_table = control.simDB.getTable("APE%dMPURegTable" % idx)
-        time_table = control.simDB.getTable("APE%dMPUTimeTable" % idx)
-        self.stageDialog = StageDialog(inst_table, stage_table, reg_table, self)
-        self.stageDialog.setWindowTitle(self.tr("SPU Instruction Pipeline Diagram"))
-        self.stageDialog.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
-        control.simDB.timeChanged.connect(self.timeChangedSlot)
+        inst_table = control.simDB.getTable("APE%dSPUInstTable" % idx)
+        stage_table = control.simDB.getTable("APE%dSPUStageTable" % idx)
+        reg_table = control.simDB.getTable("APE%dSPURegTable" % idx)
+        time_table = control.simDB.getTable("APE%dSPUTimeTable" % idx)
+        self.stageWidget = StageWidget(inst_table, stage_table, reg_table, self)
+        self.stageWidget.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
+        control.simDB.traceAnalyzeDone.connect(self.stageWidget.updatePageListSlot)
+        self.leftLayout.addWidget(self.stageWidget)
 
         self.rightTab = QTabWidget()
 
@@ -50,12 +45,4 @@ class SPUViewWidget(QWidget):
         mainLayout.setStretchFactor(self.leftWidget, 5)
         mainLayout.setStretchFactor(self.rightTab, 2)
         self.setLayout(mainLayout)
-
-    @pyqtSlot()
-    def stageButtonSlot(self):
-        self.stageDialog.show()
-        
-    @pyqtSlot(int)
-    def timeChangedSlot(self, time):
-        self.stageButton.setEnabled(True)
 
