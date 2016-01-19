@@ -1,508 +1,231 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import*
-from PyQt4.QtCore import*
-import math
+from PyQt4.QtGui import QWidget, QPushButton, QLabel, QButtonGroup, QSizePolicy,\
+    QGridLayout, QColor, QPixmap, QBrush, QPen, QPainter, QPainterPath
+from PyQt4.QtCore import Qt, QRectF, QPointF, QSizeF
 
-QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+
+#QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class APCMutiCoreWidget(QWidget):
-    def __init__(self,parent=None):
-        super(APCMutiCoreWidget,self).__init__(parent)
+    # The gridlayout size is 9 x 9
+    
+    # All components info
+    components = [
+        # ["name", [row, col, row span, col span], class]
+        ["ARM", [20, 0, 5, 5], QLabel],
+        ["APE0", [10, 10, 5, 5], QPushButton],
+        ["APE1", [30, 10, 5, 5], QPushButton],
+        ["APE2", [30, 30, 5, 5], QPushButton],
+        ["APE3", [10, 30, 5, 5], QPushButton],
+        ["CDDR", [20, 40, 5, 5], QLabel],
+        ["PDDR0", [0, 20, 5, 5], QLabel],
+        ["PDDR1", [40, 20, 5, 5], QLabel]
+    ]
+    ports = [ #[outs, ins]
+
+    ]
+    connections = {
+    }
+    
+    def __init__(self, parent = None):
+        super(APCMutiCoreWidget, self).__init__(parent)
 
         #define left Widget
-        self.APCScheme=QWidget()
+        self.APCSchemeLayout = QGridLayout() 
         
         self.APEButton = []
         self.APEButtonGroup = QButtonGroup()
-        for i in range(4):        
-            self.APEButton.append(QPushButton(("APE%d" % i)))
-            self.APEButtonGroup.addButton(self.APEButton[i], i)
-        self.ARMButton=QPushButton("ARM")
-        self.ARMButton.setEnabled(False)
-        self.DDR0Button=QPushButton("DDR0")
-        self.DDR0Button.setEnabled(False)
-        self.DDR1Button=QPushButton("DDR1")
-        self.DDR1Button.setEnabled(False)
-        self.CDDRButton=QPushButton("CDDR")
-        self.CDDRButton.setEnabled(False)
+        
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum);
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        
+        for com in self.components:       
+            if com[2] is QPushButton:
+                self.APEButton.append(com[2](self.tr(com[0])))
+                self.APEButton[-1].setSizePolicy(sizePolicy)
+                self.APEButton[-1].setStyleSheet('''
+                    background: qradialgradient(cx:0, cy:0, radius: 1,
+                                                fx:0.5, fy:0.5, stop:0 white,
+                                                stop:1 lightblue);
+                    border-style: solid;
+                    border-width: 1.5px;
+                    border-radius: 0px;
+                    border-color: steelblue;
+                    margin: 0px;
+                    padding: 0px;
+                ''')
+                self.APEButtonGroup.addButton(self.APEButton[-1], len(self.APEButton) - 1)
+                self.APCSchemeLayout.addWidget(self.APEButton[-1], *com[1])
+            elif com[2] is QLabel:
+                label = com[2](self.tr(com[0]))
+                label.setAlignment(Qt.AlignCenter)
+                label.setSizePolicy(sizePolicy)
+                label.setStyleSheet('''
+                    background: qradialgradient(cx:0, cy:0, radius: 1,
+                                                fx:0.5, fy:0.5, stop:0 white,
+                                                stop:1 lightblue);
+                    border-width: 0px;
+                    margin: 0px;
+                    padding: 0px;
+                ''')
+                self.APCSchemeLayout.addWidget(label, *com[1])
 
-        self.APCSchemeLayout=QGridLayout() 
-        self.APCSchemeLayout.setSpacing(40)
-        self.APCSchemeLayout.addWidget(self.DDR0Button,2,0)
-        self.APCSchemeLayout.addWidget(self.APEButton[0],1,1)          
-        self.APCSchemeLayout.addWidget(self.APEButton[1],3,1) 
-        self.APCSchemeLayout.addWidget(self.ARMButton,0,2)
-        self.APCSchemeLayout.addWidget(self.CDDRButton,4,2)
-        self.APCSchemeLayout.addWidget(self.APEButton[3],1,3) 
-        self.APCSchemeLayout.addWidget(self.APEButton[2],3,3)
-        self.APCSchemeLayout.addWidget(self.DDR1Button,2,4)
+        for i in xrange(self.APCSchemeLayout.columnCount()):
+            self.APCSchemeLayout.setColumnStretch(i, 1)
+        for i in xrange(self.APCSchemeLayout.rowCount()):
+            self.APCSchemeLayout.setRowStretch(i, 1)
+            
+        self.APCSchemeLayout.setHorizontalSpacing(0)
+        self.APCSchemeLayout.setVerticalSpacing(0)
+        self.APCSchemeLayout.setMargin(0)
+        self.APCSchemeLayout.setContentsMargins(0, 0, 0, 0)
 
         self.APCSchemeLayout.setAlignment(Qt.AlignCenter)
-        self.APCScheme.setLayout(self.APCSchemeLayout)
-         
-        #define right tab
-        self.rightTab=QTabWidget()
-        self.outDMAWidget=QTableWidget()
-        self.inDMAWidget=QTableWidget()
-        self.statusWidget=QTableWidget()
-        self.rightTab.addTab(self.outDMAWidget,self.tr("External DMA"))
-        self.rightTab.addTab(self.inDMAWidget,self.tr("Internal DMA"))
-        self.rightTab.addTab(self.statusWidget,self.tr("Status"))
-        self.outDMAWidget.horizontalHeader().setStretchLastSection(True)
-        self.inDMAWidget.horizontalHeader().setStretchLastSection(True)
-        self.statusWidget.horizontalHeader().setStretchLastSection(True)
-          
-        #define outDMAWidget
-        self.outDMAWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.outDMAWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.outDMAWidget.horizontalHeader().setVisible(False)
-        self.outDMAWidget.verticalHeader().setVisible(False)
-        self.outDMAWidget.setShowGrid(False)
-        self.outDMAWidget.setColumnCount(2)
-        self.outDMAWidget.setRowCount(60)
-        self.outDMAWidget.verticalHeader().setDefaultSectionSize(25)
-        self.outDMAWidget.setColumnWidth(0,122)
-        #define outDMAWidget channel 0
-        self.outDMAWidget.setItem(0,0,QTableWidgetItem(self.tr("channel 0")))
-        self.outDMAWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
-        self.outDMAWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.setItem(1,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.outDMAWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(2,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.outDMAWidget.setItem(2,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(3,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.outDMAWidget.setItem(3,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(4,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.outDMAWidget.setItem(4,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(5,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.outDMAWidget.setItem(5,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(6,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.outDMAWidget.setItem(6,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(7,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.outDMAWidget.setItem(7,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(8,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.outDMAWidget.setItem(8,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(9,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.outDMAWidget.setItem(9,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(10,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.outDMAWidget.setItem(10,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(11,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.outDMAWidget.setItem(11,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(12,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.outDMAWidget.setItem(12,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(13,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.outDMAWidget.setItem(13,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(14,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.outDMAWidget.setItem(14,1,QTableWidgetItem(self.tr("0")))
-        #define outDMAWidget channel 1
-        self.outDMAWidget.setItem(15,0,QTableWidgetItem(self.tr("channel 1")))
-        self.outDMAWidget.setItem(15,1,QTableWidgetItem(self.tr("")))
-        self.outDMAWidget.item(15,0).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.item(15,1).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.setItem(16,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.outDMAWidget.setItem(16,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(17,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.outDMAWidget.setItem(17,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(18,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.outDMAWidget.setItem(18,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(19,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.outDMAWidget.setItem(19,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(20,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.outDMAWidget.setItem(20,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(21,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.outDMAWidget.setItem(21,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(22,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.outDMAWidget.setItem(22,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(23,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.outDMAWidget.setItem(23,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(24,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.outDMAWidget.setItem(24,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(25,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.outDMAWidget.setItem(25,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(26,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.outDMAWidget.setItem(26,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(27,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.outDMAWidget.setItem(27,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(28,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.outDMAWidget.setItem(28,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(29,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.outDMAWidget.setItem(29,1,QTableWidgetItem(self.tr("0")))
-        #define outDMAWidget channel 2
-        self.outDMAWidget.setItem(30,0,QTableWidgetItem(self.tr("channel 2")))
-        self.outDMAWidget.setItem(30,1,QTableWidgetItem(self.tr("")))
-        self.outDMAWidget.item(30,0).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.item(30,1).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.setItem(31,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.outDMAWidget.setItem(31,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(32,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.outDMAWidget.setItem(32,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(33,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.outDMAWidget.setItem(33,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(34,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.outDMAWidget.setItem(34,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(35,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.outDMAWidget.setItem(35,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(36,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.outDMAWidget.setItem(36,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(37,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.outDMAWidget.setItem(37,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(38,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.outDMAWidget.setItem(38,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(39,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.outDMAWidget.setItem(39,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(40,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.outDMAWidget.setItem(40,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(41,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.outDMAWidget.setItem(41,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(42,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.outDMAWidget.setItem(42,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(43,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.outDMAWidget.setItem(43,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(44,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.outDMAWidget.setItem(44,1,QTableWidgetItem(self.tr("0")))
-        #define outDMAWidget channel 3
-        self.outDMAWidget.setItem(45,0,QTableWidgetItem(self.tr("channel 3")))
-        self.outDMAWidget.setItem(45,1,QTableWidgetItem(self.tr("")))
-        self.outDMAWidget.item(45,0).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.item(45,1).setBackgroundColor(QColor(192,192,192))
-        self.outDMAWidget.setItem(46,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.outDMAWidget.setItem(46,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(47,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.outDMAWidget.setItem(47,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(48,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.outDMAWidget.setItem(48,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(49,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.outDMAWidget.setItem(49,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(50,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.outDMAWidget.setItem(50,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(51,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.outDMAWidget.setItem(51,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(52,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.outDMAWidget.setItem(52,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(53,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.outDMAWidget.setItem(53,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(54,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.outDMAWidget.setItem(54,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(55,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.outDMAWidget.setItem(55,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(56,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.outDMAWidget.setItem(56,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(57,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.outDMAWidget.setItem(57,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(58,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.outDMAWidget.setItem(58,1,QTableWidgetItem(self.tr("0")))
-        self.outDMAWidget.setItem(59,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.outDMAWidget.setItem(59,1,QTableWidgetItem(self.tr("0")))
+        self.setLayout(self.APCSchemeLayout)
+        
+        self.painter = QPainter()
+            
+    def drawOnePort(self, x, y, direction, color):
+        path = QPainterPath()
+        if direction == 'R':
+            sx = x + self.edge / 2
+            sy = y
+            ex0 = sx - self.edge
+            ey0 = sy + self.edge / 2
+            ex1 = ex0
+            ey1 = ey0 - self.edge
+        elif direction == 'L':
+            sx = x - self.edge / 2
+            sy = y
+            ex0 = sx + self.edge
+            ey0 = sy + self.edge / 2
+            ex1 = ex0
+            ey1 = ey0 - self.edge
+        elif direction == 'U':
+            sx = x
+            sy = y - self.edge / 2
+            ex0 = sx + self.edge / 2
+            ey0 = sy + self.edge
+            ex1 = ex0 - self.edge
+            ey1 = ey0
+        elif direction == 'D':
+            sx = x
+            sy = y + self.edge / 2
+            ex0 = sx + self.edge / 2
+            ey0 = sy - self.edge
+            ex1 = ex0 - self.edge
+            ey1 = ey0
+            
+        path.moveTo(sx, sy)
+        path.lineTo(ex0, ey0)
+        path.lineTo(ex1, ey1)
+        path.lineTo(sx, sy)
 
-        #define inDMAWidget
-        self.inDMAWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.inDMAWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.inDMAWidget.horizontalHeader().setVisible(False)
-        self.inDMAWidget.verticalHeader().setVisible(False)
-        self.inDMAWidget.setShowGrid(False)
-        self.inDMAWidget.setColumnCount(2)
-        self.inDMAWidget.setRowCount(120)
-        self.inDMAWidget.verticalHeader().setDefaultSectionSize(25)
-        self.inDMAWidget.setColumnWidth(0,122)
-        #define inDMAWidget channel 0
-        self.inDMAWidget.setItem(0,0,QTableWidgetItem(self.tr("channel 0")))
-        self.inDMAWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(1,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(2,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(2,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(3,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(3,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(4,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(4,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(5,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(5,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(6,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(6,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(7,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(7,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(8,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(8,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(9,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(9,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(10,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(10,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(11,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(11,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(12,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(12,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(13,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(13,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(14,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(14,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 1
-        self.inDMAWidget.setItem(15,0,QTableWidgetItem(self.tr("channel 1")))
-        self.inDMAWidget.setItem(15,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(15,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(15,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(16,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(16,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(17,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(17,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(18,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(18,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(19,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(19,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(20,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(20,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(21,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(21,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(22,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(22,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(23,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(23,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(24,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(24,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(25,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(25,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(26,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(26,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(27,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(27,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(28,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(28,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(29,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(29,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 2
-        self.inDMAWidget.setItem(30,0,QTableWidgetItem(self.tr("channel 2")))
-        self.inDMAWidget.setItem(30,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(30,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(30,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(31,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(31,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(32,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(32,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(33,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(33,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(34,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(34,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(35,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(35,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(36,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(36,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(37,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(37,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(38,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(38,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(39,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(39,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(40,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(40,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(41,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(41,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(42,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(42,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(43,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(43,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(44,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(44,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 3
-        self.inDMAWidget.setItem(45,0,QTableWidgetItem(self.tr("channel 3")))
-        self.inDMAWidget.setItem(45,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(45,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(45,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(46,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(46,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(47,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(47,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(48,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(48,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(49,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(49,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(50,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(50,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(51,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(51,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(52,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(52,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(53,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(53,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(54,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(54,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(55,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(55,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(56,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(56,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(57,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(57,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(58,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(58,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(59,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(59,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 4
-        self.inDMAWidget.setItem(60,0,QTableWidgetItem(self.tr("channel 4")))
-        self.inDMAWidget.setItem(60,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(60,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(60,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(61,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(61,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(62,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(62,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(63,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(63,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(64,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(64,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(65,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(65,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(66,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(66,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(67,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(67,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(68,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(68,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(69,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(69,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(70,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(70,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(71,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(71,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(72,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(72,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(73,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(73,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(74,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(74,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 5
-        self.inDMAWidget.setItem(75,0,QTableWidgetItem(self.tr("channel 5")))
-        self.inDMAWidget.setItem(75,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(75,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(75,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(76,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(76,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(77,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(77,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(78,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(78,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(79,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(79,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(80,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(80,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(81,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(81,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(82,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(82,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(83,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(83,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(84,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(84,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(85,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(85,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(86,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(86,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(87,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(87,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(88,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(88,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(89,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(89,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 6
-        self.inDMAWidget.setItem(90,0,QTableWidgetItem(self.tr("channel 6")))
-        self.inDMAWidget.setItem(90,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(90,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(90,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(91,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(91,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(92,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(92,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(93,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(93,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(94,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(94,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(95,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(95,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(96,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(96,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(97,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(97,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(98,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(98,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(99,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(99,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(100,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(100,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(101,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(101,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(102,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(102,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(103,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(103,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(104,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(104,1,QTableWidgetItem(self.tr("0")))
-        #define inDMAWidget channel 7
-        self.inDMAWidget.setItem(105,0,QTableWidgetItem(self.tr("channel 7")))
-        self.inDMAWidget.setItem(105,1,QTableWidgetItem(self.tr("")))
-        self.inDMAWidget.item(105,0).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.item(105,1).setBackgroundColor(QColor(192,192,192))
-        self.inDMAWidget.setItem(106,0,QTableWidgetItem(self.tr("DMALSAddress")))
-        self.inDMAWidget.setItem(106,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(107,0,QTableWidgetItem(self.tr("DMALSXNum")))
-        self.inDMAWidget.setItem(107,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(108,0,QTableWidgetItem(self.tr("DMALSYStep")))
-        self.inDMAWidget.setItem(108,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(109,0,QTableWidgetItem(self.tr("DMALSYNum")))
-        self.inDMAWidget.setItem(109,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(110,0,QTableWidgetItem(self.tr("DMALSZStep")))
-        self.inDMAWidget.setItem(110,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(111,0,QTableWidgetItem(self.tr("DMALSYAllNum")))
-        self.inDMAWidget.setItem(111,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(112,0,QTableWidgetItem(self.tr("DMAGDAddress")))
-        self.inDMAWidget.setItem(112,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(113,0,QTableWidgetItem(self.tr("DMAGDXNum")))
-        self.inDMAWidget.setItem(113,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(114,0,QTableWidgetItem(self.tr("DMAGDYStep")))
-        self.inDMAWidget.setItem(114,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(115,0,QTableWidgetItem(self.tr("DMAGDYSNum")))
-        self.inDMAWidget.setItem(115,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(116,0,QTableWidgetItem(self.tr("DMAGDZStep")))
-        self.inDMAWidget.setItem(116,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(117,0,QTableWidgetItem(self.tr("DMAGDYAllNum")))
-        self.inDMAWidget.setItem(117,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(118,0,QTableWidgetItem(self.tr("DMAGroupNum")))
-        self.inDMAWidget.setItem(118,1,QTableWidgetItem(self.tr("0")))
-        self.inDMAWidget.setItem(119,0,QTableWidgetItem(self.tr("DMACmd")))
-        self.inDMAWidget.setItem(119,1,QTableWidgetItem(self.tr("0")))
+        self.painter.setPen(Qt.SolidLine);
+        self.painter.fillPath(path, QBrush(color));
+    
+    def redraw(self, size):
+        '''
+        Redraw the scheme due to resizing or time changing
+        '''
+        self.rowUnit = size.height() / 45.0
+        self.colUnit = size.width() / 45.0
+        self.edge = self.rowUnit / 0.8
+        self.paintBuffer = [QPixmap(size), QPixmap(size), QPixmap(size)]
+        self.painter.begin(self.paintBuffer[0])
+        self.painter.fillRect(QRectF(QPointF(0, 0), QSizeF(size)),
+                              QBrush(QColor("lightskyblue")))
+        self.drawGrid()
+        self.drawConnections()
+        self.painter.end()
+        self.paintBuffer[1].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[1])
+        #self.drawActiveConnections()
+        self.painter.end()
+        
+        self.paintBuffer[2].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[2])
+        self.drawPorts()
+        self.painter.end()
+        
+    def redrawActiveConnections(self):
+        '''
+        Redraw the buffer due to the changed active connections 
+        '''
+        self.paintBuffer[1].fill(Qt.transparent)
+        self.painter.begin(self.paintBuffer[1])
+        self.drawActiveConnections()
+        self.painter.end()
+        
+    def drawGrid(self):
+        '''
+        Redraw the grid on the background
+        '''
+        brush = QBrush(QColor("lightgray"))
+        pen = QPen(brush, 1.0, Qt.DotLine)
+        self.painter.setPen(pen)
+        for i in xrange(47):
+            self.painter.drawLine(QPointF(self.colUnit * i, 0),
+                                  QPointF(self.colUnit * i, self.paintBuffer[0].height()))
+        for i in xrange(55):
+            self.painter.drawLine(QPointF(0, self.rowUnit * i),
+                                  QPointF(self.paintBuffer[0].width(), self.rowUnit * i))
+            
+    def drawPorts(self):
+        '''
+        Draw the ports on all components
+        '''
+        for i in xrange(len(self.ports)):
+            for port in self.ports[i][0]:
+                self.drawOnePort((self.components[i][1][1] + port[0]) * self.colUnit,
+                                 (self.components[i][1][0] + port[1]) * self.rowUnit,
+                                 port[2], self.outPortColor)
+            for port in self.ports[i][1]:
+                self.drawOnePort((self.components[i][1][1] + port[0]) * self.colUnit,
+                                 (self.components[i][1][0] + port[1]) * self.rowUnit,
+                                 port[2], self.inPortColor)
+                
+    def drawConnections(self):
+        '''
+        Draw all connections between components as inactive mode
+        '''
+        brush = QBrush(QColor("lightgray"))
+        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.painter.setPen(pen)
+        for (_, end) in self.connections.iteritems():
+            for (_, line) in end.iteritems():
+                rline = line[:]
+                for i in xrange(len(line)):
+                    rline[i] = QPointF(line[i].x() * self.colUnit,
+                                       line[i].y() * self.rowUnit)
+                self.painter.drawPolyline(*rline)
 
-        #define statusWidget
-        self.statusWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.statusWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.statusWidget.horizontalHeader().setVisible(False)
-        self.statusWidget.verticalHeader().setVisible(False)
-        self.statusWidget.setShowGrid(False)
-        self.statusWidget.setColumnCount(2)
-        self.statusWidget.setRowCount(7)
-        self.statusWidget.verticalHeader().setDefaultSectionSize(25)
-        self.statusWidget.setColumnWidth(0,138)
-        #define inDMAWidget channel 0
-        self.statusWidget.setItem(0,0,QTableWidgetItem(self.tr("status")))
-        self.statusWidget.setItem(0,1,QTableWidgetItem(self.tr("")))
-        self.statusWidget.item(0,0).setBackgroundColor(QColor(192,192,192))
-        self.statusWidget.item(0,1).setBackgroundColor(QColor(192,192,192))
-        self.statusWidget.setItem(1,0,QTableWidgetItem(self.tr("APE No.")))
-        self.statusWidget.setItem(1,1,QTableWidgetItem(self.tr("0")))
-        self.statusWidget.setItem(2,0,QTableWidgetItem(self.tr("SPU Status")))
-        self.statusWidget.setItem(2,1,QTableWidgetItem(self.tr("0")))
-        self.statusWidget.setItem(3,0,QTableWidgetItem(self.tr("MPU Status")))
-        self.statusWidget.setItem(3,1,QTableWidgetItem(self.tr("0")))
-        self.statusWidget.setItem(4,0,QTableWidgetItem(self.tr("External DMA Status")))
-        self.statusWidget.setItem(4,1,QTableWidgetItem(self.tr("0")))
-        self.statusWidget.setItem(5,0,QTableWidgetItem(self.tr("Internal DMA Status")))
-        self.statusWidget.setItem(5,1,QTableWidgetItem(self.tr("0")))
-        self.statusWidget.setItem(6,0,QTableWidgetItem(self.tr("Event Status")))
-        self.statusWidget.setItem(6,1,QTableWidgetItem(self.tr("0")))
+    def drawActiveConnections(self):
+        '''
+        Draw the active connections between components
+        '''
+        brush = QBrush(QColor("aqua"))
+        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        self.painter.setPen(pen)
+        for line in self.instList:
+            rline = self.connections[line[0]][line[1]][:]
+            for i in xrange(len(rline)):
+                rline[i] = QPointF(rline[i].x() * self.colUnit,
+                                   rline[i].y() * self.rowUnit)
+            self.painter.drawPolyline(*rline)
+        
+    def resizeEvent(self, event):
+        if event.oldSize() == event.size():
+            return
+        self.redraw(self.APCSchemeLayout.contentsRect().size())
 
-        mainLayout=QHBoxLayout()
-        mainLayout.addWidget(self.APCScheme)
-        mainLayout.addWidget(self.rightTab)
-        mainLayout.setStretchFactor(self.APCScheme,5)
-        mainLayout.setStretchFactor(self.rightTab,2)
-        self.setLayout(mainLayout)
+    def paintEvent(self, event):
+        qp = QPainter()
+        qp.begin(self)
+        qp.drawPixmap(self.APCSchemeLayout.contentsRect(), self.paintBuffer[0])
+        qp.drawPixmap(self.APCSchemeLayout.contentsRect(), self.paintBuffer[1])
+        qp.drawPixmap(self.APCSchemeLayout.contentsRect(), self.paintBuffer[2])
+        qp.end()
 
 

@@ -121,9 +121,11 @@ class MPUCoreWidget(QWidget):
                QPointF(19.0, 39.5 + 5.0/3), QPointF(19.0, 30.5 + 5.0/3),
                QPointF(19.25, 30.0 + 5.0/3), QPointF(20.0, 30.0 + 5.0/3)]
     
-    MtoBIU0 = [QPointF(15.0, 10.0 + 10.0/3), QPointF(20.0, 25.0 + 10.0/3)]
+    MtoBIU0 = [QPointF(15.0, 10.0 + 10.0/3), QPointF(15.5, 10.0 + 10.0/3),
+               QPointF(19.75, 25.0 + 10.0/3), QPointF(20.0, 25.0 + 10.0/3)]
     MtoBIU1 = [QPointF(15.0, 25.0 + 10.0/3), QPointF(20.0, 25.0 + 10.0/3)]
-    MtoBIU2 = [QPointF(15.0, 40.0 + 10.0/3), QPointF(20.0, 25.0 + 10.0/3)]
+    MtoBIU2 = [QPointF(15.0, 40.0 + 10.0/3), QPointF(15.5, 40.0 + 10.0/3),
+               QPointF(19.75, 25.0 + 10.0/3), QPointF(20.0, 25.0 + 10.0/3)]
     
     SHU0ToM = [QPointF(20.0 + 5.0/4, 5.0), QPointF(20.0 + 5.0/4, 15.0)]
     SHU1ToM = [QPointF(20.0 + 5.0/4, 50.0), QPointF(20.0 + 5.0/4, 40.0)]
@@ -339,9 +341,9 @@ class MPUCoreWidget(QWidget):
                                                     fx:0.5, fy:0.5, stop:0 white,
                                                     stop:1 lightblue);
                         border-style: solid;
-                        border-width: 1px;
+                        border-width: 1.5px;
                         border-radius: 0px;
-                        border-color: blue;
+                        border-color: steelblue;
                         margin: 0px;
                         padding: 0px;
                     }
@@ -350,9 +352,9 @@ class MPUCoreWidget(QWidget):
                                                     fx:0.5, fy:0.5, stop:0 lightblue,
                                                     stop:1 white);
                         border-style: solid;
-                        border-width: 2px;
+                        border-width: 2.5px;
                         border-radius: 0px;
-                        border-color: darkblue;
+                        border-color: deepskyblue;
                         margin: 0px;
                         padding: 0px;
                     };
@@ -367,10 +369,7 @@ class MPUCoreWidget(QWidget):
                     background: qradialgradient(cx:0, cy:0, radius: 1,
                                                 fx:0.5, fy:0.5, stop:0 white,
                                                 stop:1 lightblue);
-                    border-style: solid;
-                    border-width: 1px;
-                    border-radius: 0px;
-                    border-color: blue;
+                    border-width: 0px;
                     margin: 0px;
                     padding: 0px;
                 ''')
@@ -404,7 +403,7 @@ class MPUCoreWidget(QWidget):
         self.buttonDialogs.append(HexMainWindow(self))
         self.buttonDialogs[0].setWindowTitle("Local memory")
         
-        for i in xrange(1, len(self.comButtons) - 1):
+        for i in xrange(1, len(self.comButtons)):
             self.buttonDialogs.append(FloatDialog(self))
             self.buttonDialogs[-1].setWindowTitle("%s stages" %
                                                   self.components[i][0])
@@ -471,13 +470,16 @@ class MPUCoreWidget(QWidget):
         self.painter.fillPath(path, QBrush(color));
     
     def redraw(self, size):
+        '''
+        Redraw the scheme due to resizing or time changing
+        '''
         self.rowUnit = size.height() / 55.0
         self.colUnit = size.width() / 47.0
         self.edge = self.rowUnit / 0.8
         self.paintBuffer = [QPixmap(size), QPixmap(size), QPixmap(size)]
         self.painter.begin(self.paintBuffer[0])
         self.painter.fillRect(QRectF(QPointF(0, 0), QSizeF(size)),
-                              QBrush(QColor("white")))
+                              QBrush(QColor("lightskyblue")))
         self.drawGrid()
         self.drawConnections()
         self.painter.end()
@@ -492,13 +494,19 @@ class MPUCoreWidget(QWidget):
         self.painter.end()
         
     def redrawActiveConnections(self):
+        '''
+        Redraw the buffer due to the changed active connections 
+        '''
         self.paintBuffer[1].fill(Qt.transparent)
         self.painter.begin(self.paintBuffer[1])
         self.drawActiveConnections()
         self.painter.end()
         
     def drawGrid(self):
-        brush = QBrush(QColor("grey"))
+        '''
+        Redraw the grid on the background
+        '''
+        brush = QBrush(QColor("lightgray"))
         pen = QPen(brush, 1.0, Qt.DotLine)
         self.painter.setPen(pen)
         for i in xrange(47):
@@ -509,6 +517,9 @@ class MPUCoreWidget(QWidget):
                                   QPointF(self.paintBuffer[0].width(), self.rowUnit * i))
             
     def drawPorts(self):
+        '''
+        Draw the ports on all components
+        '''
         for i in xrange(len(self.ports)):
             for port in self.ports[i][0]:
                 self.drawOnePort((self.components[i][1][1] + port[0]) * self.colUnit,
@@ -520,10 +531,13 @@ class MPUCoreWidget(QWidget):
                                  port[2], self.inPortColor)
                 
     def drawConnections(self):
-        brush = QBrush(QColor("gray"))
-        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        '''
+        Draw all connections between components as inactive mode
+        '''
+        brush = QBrush(QColor("lightgray"))
+        pen = QPen(brush, self.edge / 4.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         self.painter.setPen(pen)
-        for (src, end) in self.connections.iteritems():
+        for (_, end) in self.connections.iteritems():
             for (_, line) in end.iteritems():
                 rline = line[:]
                 for i in xrange(len(line)):
@@ -532,8 +546,11 @@ class MPUCoreWidget(QWidget):
                 self.painter.drawPolyline(*rline)
 
     def drawActiveConnections(self):
-        brush = QBrush(QColor("yellow"))
-        pen = QPen(brush, self.edge / 4, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        '''
+        Draw the active connections between components
+        '''
+        brush = QBrush(QColor("aqua"))
+        pen = QPen(brush, self.edge / 4.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         self.painter.setPen(pen)
         for line in self.instList:
             rline = self.connections[line[0]][line[1]][:]
