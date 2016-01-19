@@ -197,12 +197,12 @@ class Simulation(QObject):
         process.finished.connect(self.ARMQemuProcess.FinishProcess)
         process.stateChanged.connect(self.ARMQemuProcess.stateChanged)
     
-    def unbindARMQemuProcess(self, process):
+    def unbindARMQemuProcess(self):
+        self.ARMQemuProcess.qemu.readyReadStandardOutput.disconnect(self.ARMQemuProcess.ReadStdOutput)
+        self.ARMQemuProcess.qemu.readyReadStandardError.disconnect(self.ARMQemuProcess.ReadErrOutput)
+        self.ARMQemuProcess.qemu.finished.disconnect(self.ARMQemuProcess.FinishProcess)
+        self.ARMQemuProcess.qemu.stateChanged.disconnect(self.ARMQemuProcess.stateChanged)
         self.ARMQemuProcess.qemu = None
-        process.readyReadStandardOutput.disconnect(self.ARMQemuProcess.ReadStdOutput)
-        process.readyReadStandardError.disconnect(self.ARMQemuProcess.ReadErrOutput)
-        process.finished.disconnect(self.ARMQemuProcess.FinishProcess)
-        process.stateChanged.disconnect(self.ARMQemuProcess.stateChanged)
         
     def analyzeTrace(self, exitcode, exitstatus):
         if self.config.getConfig("isFullsystem") == "True":

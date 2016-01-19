@@ -1,16 +1,14 @@
 #!/usr/bin/env python 
 #-*- coding:utf-8 -*- 
-from PyQt4.QtGui import QVBoxLayout, QFont, QWidget
+from PyQt4.QtGui import QFont
 from QTermWidget import QTermWidget
 
 class EmbTerminal(QTermWidget):
     def __init__(self, config, control, parent = None):
-        super(EmbTerminal, self).__init__(parent)
+        super(QTermWidget, self).__init__()
 
         self.config = config
         self.control = control
-
-        self.setLayout(self.lay)
         self.setScrollBarPosition(QTermWidget.ScrollBarRight)
         font = QFont("Monospace")
         self.setTerminalFont(font)
@@ -22,7 +20,7 @@ class EmbTerminal(QTermWidget):
         if buttonid == 0:
             self.control.ARMQemuProcess.signalUARTStart.connect(
                 self.startProcess)
-            self.control.bindARMQemuProcess(self.termWidget.getProcess())
+            self.control.bindARMQemuProcess(self.getProcess())
             try:
                 self.control.ARMGem5Process.signalUARTStart.disconnect(
                     self.startm5term)
@@ -35,7 +33,7 @@ class EmbTerminal(QTermWidget):
                     self.startProcess)
             except Exception: pass
             try:
-                self.control.unbindARMQemuProcess(self.termWidget.getProcess())
+                self.control.unbindARMQemuProcess()
             except Exception: pass
         return
     
