@@ -20,7 +20,7 @@ class MemTable(QObject):
         self.DBConn = conn
         self.Name = ""
         self.key = ""
-        self.itemsid = ["id", "time", "sn", "op"]
+        self.itemsid = ["id", "time", "sn", "op", "value", "addr"]
         self.itemstype = ["integer primary key autoincrement",
                           "integer", "integer", "varchar(2)"]
         
@@ -80,8 +80,6 @@ class SPUMemTable(MemTable):
         Constructor
         '''
         super(SPUMemTable, self).__init__(conn, parent)
-        self.itemsid.append("value")
-        self.itemsid.append("addr")
         self.itemstype.append("integer")
         self.itemstype.append("integer")
         self.Name = "APE%dSPUMemTable" % idx
@@ -94,7 +92,7 @@ class SPUMemTable(MemTable):
         self.key = "ape" + str(idx) + ".mem: [tid:0]:"
         self.pattern = re.compile(
             "(\d+)000: ape" + str(idx) + "\.mem: \[tid:0\]: "
-            "\[sn:(\d+)\]: (\s+) Mem : (0x[0-9a-fA-F]+) @A=(0x[0-9a-fA-F]+)",
+            "\[sn:(\d+)\]: (\w+) Mem : (0x[0-9a-fA-F]+) @A=(0x[0-9a-fA-F]+)",
             re.MULTILINE)
         
 class MPUMemTable(MemTable):
@@ -107,9 +105,7 @@ class MPUMemTable(MemTable):
         Constructor
         '''
         super(MPUMemTable, self).__init__(conn, parent)
-        self.itemsid.extend(["value%d" % i for i in xrange(64)])
-        self.itemsid.append("addr")
-        self.itemstype.extend(["integer"] * 64)
+        self.itemstype.append("varchar(128)")
         self.itemstype.append("integer")
         self.Name = "APE%dSPUMemTable" % idx
         
@@ -121,6 +117,6 @@ class MPUMemTable(MemTable):
         self.key = "ape" + str(idx) + ".mem: [tid:1]:"
         self.pattern = re.compile(
             "(\d+)000: ape" + str(idx) + "\.mem: \[tid:1\]: "
-            "\[sn:(\d+)\]: (\s+) Mem : (0x[0-9a-fA-F]+ ){64} @A=(0x[0-9a-fA-F]+)",
+            "\[sn:(\d+)\]: (\w+) Mem : (0x[0-9a-fA-F]+ {64})@A=(0x[0-9a-fA-F]+)",
             re.MULTILINE)
             
