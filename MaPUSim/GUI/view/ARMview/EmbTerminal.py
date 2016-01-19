@@ -3,20 +3,17 @@
 from PyQt4.QtGui import QVBoxLayout, QFont, QWidget
 from QTermWidget import QTermWidget
 
-class EmbTerminal(QWidget):
+class EmbTerminal(QTermWidget):
     def __init__(self, config, control, parent = None):
         super(EmbTerminal, self).__init__(parent)
 
         self.config = config
         self.control = control
 
-        self.lay = QVBoxLayout()
         self.setLayout(self.lay)
-        self.termWidget = QTermWidget(0)
-        self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
+        self.setScrollBarPosition(QTermWidget.ScrollBarRight)
         font = QFont("Monospace")
-        self.termWidget.setTerminalFont(font)
-        self.lay.addWidget(self.termWidget)
+        self.setTerminalFont(font)
         
     def switchMode(self, buttonid):
         '''
@@ -46,18 +43,11 @@ class EmbTerminal(QWidget):
         '''
         Start UART simulation for Gem5 mode
         '''
-        #self.lay.removeWidget(self.termWidget)
-        #self.termWidget.close()
-        #self.termWidget = QTermWidget(0)
-        #self.termWidget.setScrollBarPosition(QTermWidget.ScrollBarRight)
-        #font = QFont("Monospace")
-        #self.termWidget.setTerminalFont(font)
-        #self.lay.addWidget(self.termWidget)
-        self.termWidget.setShellProgram(self.config.getConfig("simulatorpath") +
-                                        "/arm/utils/m5term")
+        self.setShellProgram(self.config.getConfig("simulatorpath") +
+                             "/arm/utils/m5term")
         args = ["localhost", ("%d" % port)]
-        self.termWidget.setArgs(args)
-        self.termWidget.startShellProgram()
+        self.setArgs(args)
+        self.startShellProgram()
 
     def startProcess(self, command, args):
 
@@ -69,12 +59,7 @@ class EmbTerminal(QWidget):
         #image = self.config.getConfig("flashimage")
         #self.termWidget.setShellProgram(path + "/arm/bin/qemu-system-arm")
         #args = ["-M", "mapu", "-m", "512", "-pflash", image, "-serial", "stdio", ""]
-        self.termWidget.setShellProgram(command)
-        self.termWidget.setArgs(args)
-        self.termWidget.startShellProgram()
+        self.setShellProgram(command)
+        self.setArgs(args)
+        self.startShellProgram()
         self.control.ARMQemuProcess.signalStarted.emit()
-    
-        #self.watcher = QFileSystemWatcher()
-        #self.watcher.addPath(self.errorFile)
-        #self.connect(self.watcher, SIGNAL("fileChanged(QString)"), self.fileChangedSlot)
-        # self.fileChangedSlot()
