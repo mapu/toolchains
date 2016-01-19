@@ -48,7 +48,7 @@ class InstTable(QObject):
         query = self.search_template + ' OR '.join(attribute_exps)
         cur = self.DBConn.execute(query)
         return cur.fetchall()
-        
+    
     def clearTable(self):
         '''
         Drop the table first if it exists, and then create a new one
@@ -108,7 +108,12 @@ class InstTable(QObject):
                 continue
             retList.append((src, dest))
         return retList
-                    
+  
+    def getInstPcDis(self, time, sn):
+        sql_query = "time = %s and sn = %s" %(time, sn) 
+        sql_query = self.search_template + sql_query
+        cur = self.DBConn.execute(sql_query)
+        return cur.fetchall()                      
 
 class SPUInstTable(InstTable):
     '''
