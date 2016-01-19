@@ -3,18 +3,19 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QSplitter, QWidget, QVBoxLayout, QTabWidget, QTableWidget
 from view.APCview.RegfileWidget import MRegfileWidget, MPURegfileWidget
 from view.APCview.StageWidget import StageWidget
+from view.APCview.MemTableWidget import MPUMemTableWidget
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
 class MPUViewWidget(QWidget):
     def __init__(self, config, control, idx, parent = None):
         super(MPUViewWidget, self).__init__(parent)
-        
         # Get tables
         inst_table = control.simDB.getTable("APE%dMPUInstTable" % idx)
         stage_table = control.simDB.getTable("APE%dMPUStageTable" % idx)
         reg_table = control.simDB.getTable("APE%dMPURegTable" % idx)
         time_table = control.simDB.getTable("APE%dMPUTimeTable" % idx)
+        mem_table = control.simDB.getTable("APE%dMPUMemTable" %idx)
         self.stageWidget = StageWidget(inst_table, stage_table, reg_table, self)
         self.stageWidget.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
         control.simDB.traceAnalyzeDone.connect(self.stageWidget.updatePageListSlot)
@@ -33,12 +34,15 @@ class MPUViewWidget(QWidget):
         
         self.MRegWidget = MRegfileWidget(reg_table, time_table)
         self.MPURegWidget = MPURegfileWidget(reg_table, time_table)
+        self.memTableWidget = MPUMemTableWidget(mem_table, inst_table)
         control.simDB.timeChanged.connect(self.MRegWidget.timeChangedSlot)
         control.simDB.timeChanged.connect(self.MPURegWidget.timeChangedSlot)
+        control.simDB.traceAnalyzeDone.connect(self.memTableWidget.updateTableSlot)
         
         self.traceWidget = QTableWidget()
         self.rightTab.addTab(self.MRegWidget, self.tr("M RF"))
         self.rightTab.addTab(self.MPURegWidget, self.tr("MPU Registers"))
+        self.rightTab.addTab(self.memTableWidget, self.tr("Mem Info"))
         self.rightTab.addTab(self.traceWidget, self.tr("Trace"))
         self.traceWidget.horizontalHeader().setStretchLastSection(True)
 
