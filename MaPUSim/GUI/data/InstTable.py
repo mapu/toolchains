@@ -111,7 +111,7 @@ class InstTable(QObject):
   
     def getInstPcDis(self, time, sn):
         sql_query = "time = %s and sn = %s" %(time, sn) 
-        sql_query = self.search_template + sql_query
+        sql_query = self.search_pcdis + sql_query
         cur = self.DBConn.execute(sql_query)
         return cur.fetchall()                      
 
@@ -143,7 +143,7 @@ class SPUInstTable(InstTable):
             "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): "
             "(.*) :((?: \d+)*)", re.MULTILINE)
         
-        self.search_template = "SELECT * FROM " + self.Name + " WHERE "
+        self.search_pcdis = "SELECT pc, dis FROM " + self.Name + " WHERE "
     
     def fixupRecord(self, records):
         '''
@@ -187,7 +187,6 @@ class MPUInstTable(InstTable):
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
         
         self.key = "ape" + str(idx) + ".stage: [tid:1]:"
-        
         self.srcdest_template = "SELECT src, dest FROM " + self.Name + " WHERE time = "
         
         self.pattern = re.compile(
@@ -195,7 +194,7 @@ class MPUInstTable(InstTable):
             "\[sn:(\d+)\]: \[sln:(\d+)\]: (0x[0-9a-fA-F]+): \(memo:(\S{1,4})\S*\s*\) "
             "(.*->(.+)|.*) :((?: \d+)+)", re.MULTILINE)
         
-        self.search_template = "SELECT * FROM " + self.Name + " WHERE "
+        self.search_pcdis = "SELECT pc, dis FROM " + self.Name + " WHERE "
         
         self.destpattern = re.compile("(M(?=\[\d+\])|DM|BIU[0-2]|SHU[01]|IALU|IMAC|FALU|FMAC)")
         self.pathpattern = re.compile("\((I[0-2])\)")
