@@ -22,7 +22,7 @@ class SearchWidget(QWidget):
         self.tableModel = model
         
         self.searchLabel = QLabel(self.tr("Search text:"))
-        self.searchLabel.setFixedSize(30, 25)
+        self.searchLabel.setFixedSize(80, 25)
         self.searchEdit = QLineEdit()
         self.searchLabel.setBuddy(self.searchEdit)
         self.searchEdit.setFixedSize(200, 25)
