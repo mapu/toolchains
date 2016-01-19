@@ -49,7 +49,7 @@ class MemTableWidget(QTableView):
         Initialize the table content
         '''
         self.memModel = QStandardItemModel(self)
-        header = ["time", "op", "value", "address", "pc", "dis"]
+        header = ["Time", "PC", "Disassemble", "OP", "Value", "Address"]
         self.memModel.setHorizontalHeaderLabels(header)
 
         self.setModel(self.memModel)
@@ -64,11 +64,11 @@ class MemTableWidget(QTableView):
             return
         textList = []
         for record in records:
-            textList = [str(record[1]), record[3], record[4], record[5]]
+            textList = [str(record[1]), "", "", record[3], record[4], record[5]]
             sears = self.instTable.getInstPcDis(record[1], record[2])
             sear = sears[0]
-            textList.append(sear[4])
-            textList.append(sear[5])
+            textList[1] = sear[4]
+            textList[2] = sear[6]
             self.appendRow(textList)
 
 class SPUMemTableWidget(MemTableWidget):
