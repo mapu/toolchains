@@ -31,6 +31,7 @@ class ARMQemuProcess(QObject):
         self.shmem_pat = re.compile("(?<=Share memory key is )\d+")
         self.apcport_pat = re.compile(
             "(?<=Listening for system\.realview\.apc connection on port )\d+")
+        self.gdbport = 1234
         
     def ReadStdOutput(self):
         '''

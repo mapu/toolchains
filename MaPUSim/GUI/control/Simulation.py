@@ -3,20 +3,22 @@ Created on Dec 17, 2015
 
 @author: wangl
 '''
-from PyQt4.QtCore import QObject, QProcess, SIGNAL
+from PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 from control.Gem5Process import ARMGem5Process, APCGem5Process
 from control.QemuProcess import ARMQemuProcess
 from view.Utils import fatal, warning
 import os
 import shutil
 from data.SimDB import SimDB
+import socket
+from time import sleep
 
 
 class Simulation(QObject):
     '''
     This module controls the entire simulation process 
     '''
-
+    signalGDBStart = pyqtSignal(int)
 
     def __init__(self, config):
         '''
@@ -59,8 +61,25 @@ class Simulation(QObject):
                     fatal(self.tr("Cannot find ARM simulator %s!" % ARMSimulatorFile),
                           self.tr("Failed to launch the simulation"))
                     return False
-                args = ["-M", "mapu", "-m", "512", "-pflash", image,
-                        "-serial", "stdio", ""]
+                args = ["-no-user-config", "-M", "mapu", "-m", "512", "-pflash",
+                        image, "-serial", "stdio"]
+                # GDB port testing
+                if self.config.getConfig("ARMGDB") == "True":
+                    gdb = self.config.getConfig("ARMGDBpath")
+                    if not os.path.isfile(gdb):
+                        fatal(self.tr("Cannot find ARM GDB %s but ARM GDB is enabled!" % gdb),
+                              self.tr("Failed to launch the simulation"))
+                        return False
+                    result = 0
+                    while 1:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        result = sock.connect_ex(('127.0.0.1', self.ARMProcess.gdbport))
+                        if result == 0:
+                            self.ARMProcess.gdbport += 1
+                        else:
+                            break
+                    sock.close()
+                    args += ["-S", "-gdb", "tcp::%d" % self.ARMProcess.gdbport, ""]
                 self.ARMProcess.start(ARMSimulatorFile, args)
                 
             elif self.config.getConfig("ARMSimType") == "GEM5":
@@ -171,6 +190,9 @@ class Simulation(QObject):
                   self.tr("Failed to launch the simulation"))
             self.ARMProcess.tryTerminate()
             return False
+        if ((self.config.getConfig("ARMGDB") == "True") and
+            (self.config.getConfig("ARMSimType") == "QEMU")):
+            self.signalGDBStart.emit(self.ARMProcess.gdbport)
         return True
             
     

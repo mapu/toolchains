@@ -27,17 +27,27 @@ class SimConfig(QObject):
         #=======================================================================
         if self.xmlfile.open(QIODevice.ReadOnly | QIODevice.Text):
             if self.readXML():
+                if environ.get("MAPU_HOME") != None:
+                    if not "simulatorpaht" in self.simconfig:
+                        self.simconfig["simulatorpath"] = environ["MAPU_HOME"] + "/simulator"
+                    if not "ARMGDBpath" in self.simconfig:
+                        self.simconfig["ARMGDBpath"] = \
+                        environ["MAPU_HOME"] + "/arm-none-eabi/bin/arm-none-eabi-gdb"
                 self.xmlfile.close()
                 return
             self.xmlfile.close()
         #---Try the environment variable "MAPU_HOME" first----------------------
         if environ.get("MAPU_HOME") != None:
             self.simconfig["simulatorpath"] = environ["MAPU_HOME"] + "/simulator"
+            self.simconfig["ARMGDBpath"] = \
+                environ["MAPU_HOME"] + "/arm-none-eabi/bin/arm-none-eabi-gdb"
         else:
             self.simconfig["simulatorpath"] = ""
+            self.simconfig["ARMGDBpath"] = ""
         self.simconfig["isFullsystem"] = "True"
         self.simconfig["ARMSimType"] = "QEMU"
         self.simconfig["fulltrace"] = "full.trace"
+        self.simconfig["ARMGDB"] = "False"
         self.simconfig["flashimage"] = "image.bin"
         self.simconfig["standalonetrace"] = "sa.trace"
         self.simconfig["numberofAPEs"] = "1"
@@ -87,8 +97,6 @@ class SimConfig(QObject):
                 qDebug("XML file has broken element beginning!")
                 return False
         return True
-        #self.configControlWidget.fullCheckedSlot()
-        #self.configControlWidget.APCCheckedSlot()
 
  
     def writeXML(self):

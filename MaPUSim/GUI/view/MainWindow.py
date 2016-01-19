@@ -55,14 +55,17 @@ class MainWindow(QMainWindow):
         fileMenu = self.menuBar().addMenu(self.tr("File"))
         fileMenu.addAction(self.fileOpenAction)
         setMenu = self.menuBar().addMenu(self.tr("Settings"))
-        setMenu.addAction(self.setAction)
+        setMenu.addAction(self.setSimAction)
+        setMenu.addAction(self.setARMGDBAction)
     
     def createActions(self):
         self.fileOpenAction = QAction(QIcon(":/open.png"), self.tr("&Open"), self)
         self.fileOpenAction.setToolTip(self.tr("Open trace file"))
         self.connect(self.fileOpenAction, SIGNAL("triggered()"), self.fileOpenSlot)
-        self.setAction = QAction(self.tr("&Simulator path ..."), self)
-        self.connect(self.setAction, SIGNAL("triggered()"), self.setSimulatorPath)
+        self.setSimAction = QAction(self.tr("&Simulator path ..."), self)
+        self.connect(self.setSimAction, SIGNAL("triggered()"), self.setSimulatorPath)
+        self.setARMGDBAction = QAction(self.tr("&Set ARM GDB ..."), self)
+        self.connect(self.setARMGDBAction, SIGNAL("triggered()"), self.setARMGDBPath)
     
         self.startAction = QAction(self.tr("Start"), self)
         self.startAction.setToolTip(self.tr("Start the simulation"))
@@ -148,6 +151,15 @@ class MainWindow(QMainWindow):
                                         getConfig("simulatorpath"))
         if ok:
             self.config.setConfig("simulatorpath", path)
+
+    def setARMGDBPath(self):
+        path = self.config.getConfig("ARMGDBpath")
+        if path != None:
+            path = QFileDialog.getOpenFileName(self, self.tr("Select ARM GDB"), path)
+        else:
+            path = QFileDialog.getOpenFileName(self, self.tr("Select ARM GDB"), os.getcwd())
+        if path != None:
+            self.config.setConfig("ARMGDBpath", path)
  
     def closeEvent(self, event):
         self.config.writeXML()

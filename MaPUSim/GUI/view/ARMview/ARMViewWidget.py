@@ -2,6 +2,7 @@
 from PyQt4.QtGui import QWidget, QTabWidget, QVBoxLayout
 from EmbTerminal import EmbTerminal
 from view.SimLogWidget import SimLogWidget
+from view.ARMview.ARMGDBWidget import ARMGDBWidget
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))  
 
@@ -30,7 +31,7 @@ class ARMViewWidget(QWidget):
         self.topTabWidget.addTab(self.LCDWidget, "LCD")
         self.topTabWidget.addTab(self.logWidget, self.tr("Simulator log"))
 
-        self.GDBWidget = QWidget()
+        self.GDBWidget = ARMGDBWidget(config, control)
         self.ConsoleWidget = QWidget()
         self.bottomTabWidget = QTabWidget()
         self.bottomTabWidget.setTabPosition(QTabWidget.South)

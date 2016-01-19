@@ -1,5 +1,5 @@
 # -*- coding =utf-8 -*-
-from PyQt4.QtCore import pyqtSignal, Qt, QProcess
+from PyQt4.QtCore import pyqtSignal, Qt, QProcess, pyqtSlot
 from PyQt4.QtGui import QWidget, QPushButton, QLabel, QLineEdit,\
     QHBoxLayout, QVBoxLayout, QCheckBox, QGroupBox, QRadioButton, QScrollArea,\
     QBoxLayout, QGridLayout, QFileDialog, QButtonGroup
@@ -35,9 +35,6 @@ class ConfigViewWidget(QWidget):
         self.saTraceLayout = QHBoxLayout()
         self.saTraceLayout.addWidget(self.saTraceLabel)
         self.saTraceLayout.addWidget(self.saTraceEdit)
-        blank = QLabel()
-        blank.setFixedSize(520, 25)
-        self.saTraceLayout.addWidget(blank)
         
         self.APCLayout = QVBoxLayout()
         self.APCLayout.addLayout(self.saTraceLayout)
@@ -113,6 +110,17 @@ class ConfigViewWidget(QWidget):
             self.qemuRadio.setChecked(True)
         else:
             self.gem5Radio.setChecked(True)
+        self.ARMGDBCheck = QCheckBox("Use ARM GDB")
+        if self.config.getConfig("ARMGDB") == "False":
+            self.ARMGDBCheck.setChecked(False)
+        elif self.config.getConfig("ARMGDB") == "True":
+            self.ARMGDBCheck.setChecked(True)
+        else:
+            self.ARMGDBCheck.setChecked(False)
+            self.config.setConfig("ARMGDB", "False")
+            
+        self.ARMGDBCheck.clicked.connect(self.ARMGDBEnableSlot)
+        
         self.flashImageLabel = QLabel(self.tr("Flash image file:"))
         self.flashImageLabel.setFixedSize(110, 25)
         self.flashImageBrowseButton = QPushButton(self.tr("Browse ..."))
@@ -130,18 +138,19 @@ class ConfigViewWidget(QWidget):
         self.fullGroup = QGroupBox(self.tr("Full system"))
         self.fullGroup.setAlignment(Qt.AlignLeft)
         self.fullGroup.setCheckable(True)
-        self.fullGroup.setStyleSheet("""
+        self.fullGroup.setStyleSheet('''
         .QWidget {
             border: 2px solid gray;
             border-radius: 6px;
             }
-        """)
+        ''')
         
         self.fullLayout = QVBoxLayout()
         self.ARMmodeLayout = QHBoxLayout()
         self.ARMmodeLayout.addWidget(self.gem5Radio)
         self.ARMmodeLayout.addWidget(self.qemuRadio)
         self.fullLayout.addLayout(self.ARMmodeLayout)
+        self.fullLayout.addWidget(self.ARMGDBCheck)
 
         self.flashImageLayout = QHBoxLayout()
         self.flashImageLayout.setAlignment(Qt.AlignLeft)
@@ -220,6 +229,16 @@ class ConfigViewWidget(QWidget):
             warning(self.tr("Unknown signal sender!"), self.tr("Invalid configuration"))
             return
         self.modeSwitch()
+    
+    @pyqtSlot()
+    def ARMGDBEnableSlot(self):
+        '''
+        Change the ARM GDB config
+        '''
+        if self.ARMGDBCheck.isChecked():
+            self.config.setConfig("ARMGDB", "True")
+        else:
+            self.config.setConfig("ARMGDB", "False")
 
     def APE1CheckSlot(self):
         if self.APECheckBox[0].isChecked():

@@ -48,15 +48,9 @@ class EmbTerminal(QTermWidget):
         self.startShellProgram()
 
     def startProcess(self, command, args):
-
-        # ARMCommand=self.simulatorPath+"/arm/bin/qemu-system-arm -M mapu -m 512 -pflash "+path+" -serial stdio 2>"+self.errorFile+"\n"  # -gdb tcp::1234 -S
-        # self.termWidget.sendText(ARMCommand)
-    
-        # qemu-system-arm -M mapu -m 512 -pflash /home/litt/simulator/sim_dmac.bin -serial stdio
-        #path = self.config.getConfig("simulatorpath")
-        #image = self.config.getConfig("flashimage")
-        #self.termWidget.setShellProgram(path + "/arm/bin/qemu-system-arm")
-        #args = ["-M", "mapu", "-m", "512", "-pflash", image, "-serial", "stdio", ""]
+        '''
+        Start ARM QEMU process in terminal
+        '''
         self.setShellProgram(command)
         self.setArgs(args)
         self.startShellProgram()

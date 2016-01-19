@@ -412,7 +412,7 @@ class MPUCoreWidget(QWidget):
         self.hexFile = ""
         self.start = 0
         self.painter = QPainter()
-        
+        self.paintBuffer = None
         
     def comBtnSlot(self, idx):
         if self.comGroup.button(idx).isChecked():
@@ -424,7 +424,8 @@ class MPUCoreWidget(QWidget):
         
     def timeChangedSlot(self, time):
         self.instList = self.instTable.getInstSrcDest(time)
-        self.redrawActiveConnections()
+        if (self.paintBuffer != None):
+            self.redrawActiveConnections()
 
     def setHexFileStart(self, fileName, start):
         self.hexFile = fileName
