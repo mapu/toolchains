@@ -69,7 +69,12 @@ class MemTable(QObject):
             self.DBConn.executemany(self.insert_template, records)
             self.DBConn.commit()
         lines_wrapper[0] = rest
-        
+ 
+    def getAll(self):
+        query = self.search_template
+        cur = self.DBConn.execute(query)
+        return cur.fetchall()   
+       
 class SPUMemTable(MemTable):
     '''
     SPU instruction table
@@ -88,6 +93,7 @@ class SPUMemTable(MemTable):
         self.insert_template += ", ".join(self.itemsid[1:])
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
+        self.search_template = "SELECT * FROM " + self.Name
         
         self.key = "ape" + str(idx) + ".mem: [tid:0]:"
         self.pattern = re.compile(
@@ -107,16 +113,17 @@ class MPUMemTable(MemTable):
         super(MPUMemTable, self).__init__(conn, parent)
         self.itemstype.append("varchar(128)")
         self.itemstype.append("integer")
-        self.Name = "APE%dSPUMemTable" % idx
+        self.Name = "APE%dMPUMemTable" % idx
         
         self.insert_template = "INSERT INTO " + self.Name + " ("
         self.insert_template += ", ".join(self.itemsid[1:])
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
+        self.search_template = "SELECT * FROM " + self.Name
         
         self.key = "ape" + str(idx) + ".mem: [tid:1]:"
         self.pattern = re.compile(
             "(\d+)000: ape" + str(idx) + "\.mem: \[tid:1\]: "
-            "\[sn:(\d+)\]: (\w+) Mem : (0x[0-9a-fA-F]+ {64})@A=(0x[0-9a-fA-F]+)",
+            "\[sn:(\d+)\]: (\w+) Mem : ((?:0x[0-9a-fA-F]+ ){64})@A=(0x[0-9a-fA-F]+)",
             re.MULTILINE)
             
