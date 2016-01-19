@@ -67,8 +67,8 @@ class MemTableWidget(QTableView):
             textList = [str(record[1]), "", "", record[3], record[4], record[5]]
             sears = self.instTable.getInstPcDis(record[1], record[2])
             sear = sears[0]
-            textList[1] = sear[4]
-            textList[2] = sear[6]
+            textList[1] = sear[0]
+            textList[2] = sear[1]
             self.appendRow(textList)
 
 class SPUMemTableWidget(MemTableWidget):
