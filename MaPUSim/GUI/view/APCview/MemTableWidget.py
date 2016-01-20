@@ -5,7 +5,8 @@ Created on Jan 18, 2016
 '''
 from PyQt4.QtCore import pyqtSlot, SIGNAL, Qt
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor,\
-    QStandardItemModel, QFont, QStandardItem, QHeaderView
+    QFont, QHeaderView
+from data.MemTableModel import MemTableModel
 import re
 
 class MemTableWidget(QTableView):
@@ -20,38 +21,25 @@ class MemTableWidget(QTableView):
         
         self.memTable = mem_table
         self.instTable = inst_table
-        
+        self.mem = [[]]
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.horizontalHeader().setVisible(True)
-        self.verticalHeader().setVisible(False)
         self.setShowGrid(True)
         self.verticalHeader().setDefaultSectionSize(16)
         self.setFont(QFont("Monospace", 10))
         self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
+        #self.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
         self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        
-    def appendRow(self, record):
-        '''
-        Set the item as a register file class name
-        '''
-        num = len(record)
-        itemList = []
-        for i in range(0, num):
-            item = QStandardItem(record[i])
-            itemList.append(item)
-        self.memModel.appendRow(itemList)
         
     def initTable(self):
         '''
         Initialize the table content
         '''
-        self.memModel = QStandardItemModel(self)
-        header = ["Time", "PC", "Disassemble", "OP", "Value", "Address"]
-        self.memModel.setHorizontalHeaderLabels(header)
-
+        self.memModel = MemTableModel(self.mem, self)
+        self.header = ["Time", "PC", "Disassemble", "OP", "Address", "Value"]
+        self.memModel.setHorizontalHeader(self.header)
+        self.mem = [[]]
         self.setModel(self.memModel)
 
     @pyqtSlot()
@@ -59,17 +47,22 @@ class MemTableWidget(QTableView):
         '''
         update mem table by analysis trace signal
         '''
+        self.initTable()
+
         records = self.memTable.getAll()
         if len(records) == 0:
             return
         textList = []
+        self.mem = []
         for record in records:
-            textList = [str(record[1]), "", "", record[3], record[4], record[5]]
+            textList = [str(record[1]), "", "", record[3], record[5], record[4]]
             sears = self.instTable.getInstPcDis(record[1], record[2])
             sear = sears[0]
             textList[1] = sear[0]
             textList[2] = sear[1]
-            self.appendRow(textList)
+            self.mem.append(textList)
+        self.memModel.setModelData(self.mem)
+        self.memModel.refrushModel()
 
 class SPUMemTableWidget(MemTableWidget):
     '''
@@ -83,7 +76,6 @@ class SPUMemTableWidget(MemTableWidget):
         '''
         super(SPUMemTableWidget, self).__init__(mem_table, inst_table, parent)
        
-        self.initTable()
 
 class MPUMemTableWidget(MemTableWidget):
     '''
@@ -97,5 +89,4 @@ class MPUMemTableWidget(MemTableWidget):
         '''
         super(MPUMemTableWidget, self).__init__(mem_table, inst_table, parent)
        
-        self.initTable()
 
