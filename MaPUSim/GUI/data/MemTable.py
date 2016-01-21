@@ -69,11 +69,6 @@ class MemTable(QObject):
             self.DBConn.executemany(self.insert_template, records)
             self.DBConn.commit()
         lines_wrapper[0] = rest
- 
-    def getAll(self):
-        query = self.search_template
-        cur = self.DBConn.execute(query)
-        return cur.fetchall()   
        
 class SPUMemTable(MemTable):
     '''
@@ -93,7 +88,6 @@ class SPUMemTable(MemTable):
         self.insert_template += ", ".join(self.itemsid[1:])
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
-        self.search_template = "SELECT * FROM " + self.Name
         
         self.key = "ape" + str(idx) + ".mem: [tid:0]:"
         self.pattern = re.compile(
@@ -119,7 +113,6 @@ class MPUMemTable(MemTable):
         self.insert_template += ", ".join(self.itemsid[1:])
         self.insert_template += ") VALUES("
         self.insert_template += ", ".join(["?"] * (len(self.itemsid) - 1)) + ")"
-        self.search_template = "SELECT * FROM " + self.Name
         
         self.key = "ape" + str(idx) + ".mem: [tid:1]:"
         self.pattern = re.compile(
