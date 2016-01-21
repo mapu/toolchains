@@ -14,7 +14,7 @@ class MPUAllWidget(QWidget):
         self.splitter.setChildrenCollapsible(False)
         self.splitter.addWidget(self.leftWidget)
         self.splitter.addWidget(self.rightWidget)
-        self.splitter.setStretchFactor(0, 12)
+        self.splitter.setStretchFactor(0, 15)
         self.splitter.setStretchFactor(1, 1)
 
         self.vbox = QVBoxLayout()
