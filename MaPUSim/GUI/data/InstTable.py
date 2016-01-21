@@ -107,13 +107,7 @@ class InstTable(QObject):
                 retList.append(("DM", dest))
                 continue
             retList.append((src, dest))
-        return retList
-  
-    def getInstPcDis(self, time, sn):
-        sql_query = "time = %s and sn = %s" %(time, sn) 
-        sql_query = self.search_pcdis + sql_query
-        cur = self.DBConn.execute(sql_query)
-        return cur.fetchall()                      
+        return retList                   
 
 class SPUInstTable(InstTable):
     '''
