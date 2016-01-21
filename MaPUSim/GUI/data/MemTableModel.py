@@ -3,10 +3,12 @@ from PyQt4.QtCore import Qt, QAbstractTableModel, QVariant, QString
 from PyQt4.QtGui import QFont
 
 class MemTableModel(QAbstractTableModel):
-    def __init__(self, mem, parent = None):
+    def __init__(self, mem_table, inst_table, parent = None):
         QAbstractTableModel.__init__(self, parent)
 
-        self.mem = mem
+        self.memTable = mem_table
+        self.instTable = inst_table
+        self.mem = [[]]
         self.hHeaderList = []
         self.vHeaderList = []
 
@@ -22,8 +24,15 @@ class MemTableModel(QAbstractTableModel):
     def setVerticalHeader(self, headerList):
         self.vHeaderList = headerList
 
-    def setModelData(self, array):
-        self.mem = array
+    def getMemData(self):
+        sql_query = "select " + self.memTable.Name + ".time, pc, dis, op, addr, value from " + self.memTable.Name + " , "\
+                     + self.instTable.Name + " where " + self.memTable.Name + ".sn = " + self.instTable.Name + ".sn"
+        cur = self.instTable.DBConn.execute(sql_query)
+        self.mem = cur.fetchall() 
+        if len(self.mem) == 0:
+            return
+        self.refrushModel()
+
 
     def data(self, index, role):
         if not index.isValid():
