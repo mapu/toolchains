@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QWidget, QTabWidget, QHBoxLayout
+from PyQt4.QtGui import QWidget, QTabWidget, QHBoxLayout, QVBoxLayout, QSplitter
 from view.APCview.SPUViewWidget import SPUViewWidget
 from view.APCview.MPUViewWidget import MPUViewWidget
-from view.APCview.MPUCoreWidget import MPUCoreWidget
+from view.APCview.MPUAllWidget import MPUAllWidget
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -15,8 +15,8 @@ class APECoreWidget(QWidget):
         self.MPUWidget = MPUViewWidget(config, control, idx)
         ProcUnitTab.addTab(self.SPUWidget, self.tr("SPU"))
         inst_table = control.simDB.getTable("APE%dMPUInstTable" % idx)
-        self.coreWidget = MPUCoreWidget(inst_table)
-        control.simDB.timeChanged.connect(self.coreWidget.timeChangedSlot)
+        self.coreWidget = MPUAllWidget(inst_table)
+        control.simDB.timeChanged.connect(self.coreWidget.leftWidget.timeChangedSlot)
         ProcUnitTab.addTab(self.coreWidget, self.tr("MPU"))
         
         ProcUnitTab.addTab(self.MPUWidget, self.tr("MPU Trace"))
