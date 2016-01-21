@@ -156,8 +156,8 @@ ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
     printk(KERN_ERR "Insufficent memory for copying value.\n");
     return -ENOMEM; // Operating more than one csu once is not allowed
   }
-  for (i = 0; i < (count << 2); ++i)
-    reg_copy[i] = readl(apc_data.ape_info[ape_id].membase + (offset << 2));
+  for (i = 0; i < (count >> 2); ++i)
+    reg_copy[i] = readl(apc_data.ape_info[ape_id].membase + offset + i); 
   if (copy_to_user(buf, reg_copy, count)) {
     vfree(reg_copy);
     printk(KERN_ERR "Error when copying value to user space.\n");
@@ -349,8 +349,8 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
     printk(KERN_ERR "Error when copying value from user space.\n");
     return -ENOMEM;
   }
-  for (i = 0; i < (count << 2); ++i)
-    writel(reg_copy[i], apc_data.ape_info[ape_id].membase + (offset << 2));
+  for (i = 0; i < (count >> 2); ++i)
+    writel(reg_copy[i], apc_data.ape_info[ape_id].membase + offset + i);
   *f_pos += count;
   vfree(reg_copy);
   return count;
