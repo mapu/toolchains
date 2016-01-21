@@ -37,7 +37,6 @@ class ARMQemuProcess(QObject):
         '''
         Slot function for reading stdout of process
         '''
-        print QString(self.qemu.readAllStandardOutput().data())
         return
         
     def ReadErrOutput(self):

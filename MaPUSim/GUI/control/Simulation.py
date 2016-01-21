@@ -93,7 +93,7 @@ class Simulation(QObject):
                              path + "/arm/system/fs.py"),
                           self.tr("Failed to launch the simulation"))
                     return False
-                sim_command = ARMSimulatorFile + " " + "--debug-file=arm.out --debug-flags=Exec "
+                sim_command = ARMSimulatorFile + " " # + "--debug-file=arm.out --debug-flags=Exec "
                 sim_command += path + "/arm/system/fs.py --bare-metal "
                 sim_command += "--machine-type=MaPU_Board"
                 if not os.path.exists("./images"):

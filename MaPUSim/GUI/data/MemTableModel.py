@@ -37,11 +37,11 @@ class MemTableModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-	else:
+        else:
             if role == Qt.DisplayRole:
-		text = self.mem[index.row()][index.column()]
+                text = self.mem[index.row()][index.column()]
                 return QVariant(text)
-    	    elif role == Qt.TextAlignmentRole:
+            elif role == Qt.TextAlignmentRole:
                 return int(Qt.AlignHCenter)
 
     def headerData(self,section,orientation,role):
@@ -57,7 +57,7 @@ class MemTableModel(QAbstractTableModel):
                 else:
                     return QVariant()
 
-    	return QVariant()
+        return QVariant()
 
     def refrushModel(self):
         self.beginResetModel()
