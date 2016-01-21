@@ -9,4 +9,5 @@ ipcrm -m $i
 done
 
 
+
 echo -e "\n\tDone!\n\n"

@@ -61,7 +61,7 @@ class Simulation(QObject):
                     fatal(self.tr("Cannot find ARM simulator %s!" % ARMSimulatorFile),
                           self.tr("Failed to launch the simulation"))
                     return False
-                args = ["-no-user-config", "-M", "mapu", "-m", "512", "-pflash",
+                args = ["-no-user-config", "-M", "mapu", "-pflash",
                         image, "-serial", "stdio"]
                 # GDB port testing
                 if self.config.getConfig("ARMGDB") == "True":
@@ -93,7 +93,7 @@ class Simulation(QObject):
                              path + "/arm/system/fs.py"),
                           self.tr("Failed to launch the simulation"))
                     return False
-                sim_command = ARMSimulatorFile + " " # "--debug-file=arm.out --debug-flags=Exec "
+                sim_command = ARMSimulatorFile + " " + "--debug-file=arm.out --debug-flags=Exec "
                 sim_command += path + "/arm/system/fs.py --bare-metal "
                 sim_command += "--machine-type=MaPU_Board"
                 if not os.path.exists("./images"):

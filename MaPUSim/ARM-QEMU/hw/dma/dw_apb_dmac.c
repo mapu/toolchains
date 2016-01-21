@@ -125,15 +125,15 @@ static void dmaStart(void *opaque)
 {
   DwApbDmacChannel *s = opaque;
   uint32_t num = (s->chnRegs[COFS2R(CTL)] >> 32) & 0xfff;
-  uint32_t swidth = (s->chnRegs[COFS2R(CTL)] >> 6) & 7;
-  uint32_t dwidth = (s->chnRegs[COFS2R(CTL)] >> 3) & 7;
+  uint32_t swidth = (s->chnRegs[COFS2R(CTL)] >> 4) & 7;
+  uint32_t dwidth = (s->chnRegs[COFS2R(CTL)] >> 1) & 7;
   uint32_t width = swidth > dwidth ? swidth : dwidth;
   uint32_t pt = 0;
   uint8_t buf[1024*1024];
 
   width = 1 << width;
 
-  DPRINTF("Starting DMA for addr: %#x size: %d \n", s->chnRegs[COFS2R(SAR)], num * width);
+  DPRINTF("Starting DMA for addr: %#x to addr: %#x, size: %d \n", s->chnRegs[COFS2R(SAR)], s->chnRegs[COFS2R(DAR)], num * width);
 
   cpu_physical_memory_read( s->chnRegs[COFS2R(SAR)], buf, width*num);
   cpu_physical_memory_write( s->chnRegs[COFS2R(DAR)], buf, width*num);
@@ -152,11 +152,11 @@ static void dmaRun(void *opaque, int i)
 {
   DwApbDmacState *s = opaque;
   uint32_t num = (s->channel[i].chnRegs[COFS2R(CTL)] >> 32) & 0xfff;
-  uint32_t swidth = (s->channel[i].chnRegs[COFS2R(CTL)] >> 6) & 7;
-  uint32_t dwidth = (s->channel[i].chnRegs[COFS2R(CTL)] >> 3) & 7;
+  uint32_t swidth = (s->channel[i].chnRegs[COFS2R(CTL)] >> 4) & 7;
+  uint32_t dwidth = (s->channel[i].chnRegs[COFS2R(CTL)] >> 1) & 7;
   uint32_t width = swidth > dwidth ? swidth : dwidth;
 
-  width = ((width + 1) & 0b110) ? 32: (1 << width);
+  width = 1 << width;
 
   timer_mod(s->channel[i].timer, TRTIME(num * width));
 }
