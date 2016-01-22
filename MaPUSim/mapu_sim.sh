@@ -114,5 +114,6 @@ then
   echo "Error: cannot find gui/main."
   exit 1
 fi
-${MAPU_HOME}/simulator/gui/main --image=$PWD/image.bin --trace=apc.out
+#${MAPU_HOME}/simulator/gui/main --image=$PWD/image.bin --trace=apc.out
+${MAPU_HOME}/simulator/gui/main
 
