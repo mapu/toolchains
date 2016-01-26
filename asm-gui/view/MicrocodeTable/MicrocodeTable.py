@@ -24,8 +24,8 @@ class MicrocodeTable(QTableWidget):
         self.setItemDelegate(cellDelegate)
         cellDelegate.floatDialogShowSignal.connect(self.floatDialogShowSlot)
         cellDelegate.floatDialogCloseSignal.connect(self.floatDialogCloseSlot)
-        self.RowCount = 10
-        self.ColumnCount = 5
+        self.RowCount = 100
+        self.ColumnCount = 100
         self.currentRowNum = 0
         self.currentColumnNum = 0
         self.currentTopRow = 0
@@ -573,4 +573,6 @@ class MicrocodeTable(QTableWidget):
 
         fp.close()
 
+    def mouseEvent(self, event):
+        print "mouse"
 
