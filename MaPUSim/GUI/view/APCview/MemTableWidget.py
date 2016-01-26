@@ -3,11 +3,9 @@ Created on Jan 18, 2016
 
 @author: litt
 '''
-from PyQt4.QtCore import pyqtSlot, SIGNAL, Qt, pyqtSignal
-from PyQt4.QtGui import QTableView, QAbstractItemView, QColor,\
-    QFont, QHeaderView
+from PyQt4.QtCore import pyqtSlot, pyqtSignal
+from PyQt4.QtGui import QTableView, QAbstractItemView, QFont
 from data.MemTableModel import MemTableModel
-import re
 
 class MemTableWidget(QTableView):
     updateMemTableSignal = pyqtSignal()
@@ -52,7 +50,7 @@ class MemTableWidget(QTableView):
 
 class SPUMemTableWidget(MemTableWidget):
     '''
-    This widget is used for showing Mem reg.
+    This widget is used for showing memory access.
     '''
 
 
@@ -65,7 +63,7 @@ class SPUMemTableWidget(MemTableWidget):
 
 class MPUMemTableWidget(MemTableWidget):
     '''
-    This widget is used for showing Mem reg.
+    This widget is used for showing memory access.
     '''
 
 

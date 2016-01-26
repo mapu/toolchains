@@ -108,7 +108,7 @@ do
 done
 
 # Define multi-core option
-MCFLAG='-j 64'
+MCFLAG=''
 
 # Switch debug mode
 if [ "$debug_mode" -eq 1 ]

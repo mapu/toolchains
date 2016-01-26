@@ -399,15 +399,15 @@ class MPUCoreWidget(QWidget):
         self.outPortColor = QColor("green")
         self.setLayout(self.gridLayout)
         
-        self.buttonDialogs = []
-        self.buttonDialogs.append(HexMainWindow(self))
-        self.buttonDialogs[0].setWindowTitle("Local memory")
-        
-        for i in xrange(1, len(self.comButtons)):
-            self.buttonDialogs.append(FloatDialog(self))
-            self.buttonDialogs[-1].setWindowTitle("%s stages" %
-                                                  self.components[i][0])
-            self.buttonDialogs[-1].hide()
+        self.buttonDialogs = [None] * len(self.comButtones)
+#         self.buttonDialogs.append(HexMainWindow(self))
+#         self.buttonDialogs[0].setWindowTitle("Local memory")
+#         
+#         for i in xrange(1, len(self.comButtons)):
+#             self.buttonDialogs.append(FloatDialog(self))
+#             self.buttonDialogs[-1].setWindowTitle("%s stages" %
+#                                                   self.components[i][0])
+#             self.buttonDialogs[-1].hide()
             
         self.hexFile = ""
         self.start = 0
@@ -416,11 +416,13 @@ class MPUCoreWidget(QWidget):
         
     def comBtnSlot(self, idx):
         if self.comGroup.button(idx).isChecked():
-            self.buttonDialogs[idx].hide()
+            if idx == 0:
+                self.buttonDialogs[idx].close()
         else:
             if idx == 0:
+                self.buttonDialogs[idx] = HexMainWindow(self)
                 self.buttonDialogs[idx].loadFile(self.hexFile, self.start)
-            self.buttonDialogs[idx].show()
+                self.buttonDialogs[idx].show()
         
     def timeChangedSlot(self, time):
         self.instList = self.instTable.getInstSrcDest(time)

@@ -201,6 +201,7 @@ class Simulation(QObject):
         Terminate the simulation
         '''
         self.ARMProcess.tryTerminate()
+        self.APCProcess.waitForFinished()
         self.APCProcess.tryTerminate()
         
     def ARMSimulatorSwitch(self):
