@@ -64,8 +64,8 @@ class MicrocodeTable(QTableWidget):
             if item.text() == "":
                 return
              
-            self.setWholeRowColor(currentRow, Qt.blue) 
-            self.previousPointRow = currentRow     
+            #self.setWholeRowColor(currentRow, Qt.blue) 
+            #self.previousPointRow = currentRow     
         else:
             self.previousPointRow = -1 
             self.itemRegStateSignal.emit([])  
