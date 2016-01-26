@@ -42,7 +42,7 @@ class MicrocodeTable(QTableWidget):
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
 
         self.setAttribute(Qt.WA_PaintOutsidePaintEvent)
-        self.loopBodyList = [[]for i in range(self.ColumnCount)]
+        self.loopBodyList = [[]for i in xrange(self.ColumnCount)]
 
         #record the previous point row
         self.previousPointRow = -1
@@ -72,13 +72,13 @@ class MicrocodeTable(QTableWidget):
         self.viewport().update()   
 
     def horizontalScrollBarChangedSlot(self, i):
-        print "horizontal", i
         self.floatDialogCloseSlot()
+        self.updateLoopBodyList()
         self.viewport().update()
 
     def verticalScrollBarChangedSlot(self, i):
-        print "vertical", i
         self.floatDialogCloseSlot()
+        self.updateLoopBodyList()
         self.viewport().update()
 
     def getRowCount(self):
@@ -92,7 +92,7 @@ class MicrocodeTable(QTableWidget):
         self.setRowCount(self.RowCount)
         self.setColumnCount(self.ColumnCount)
         self.headerList.clear()
-        for i in range(0, self.ColumnCount):
+        for i in xrange(0, self.ColumnCount):
             self.headerList.append(QString("nonameFSM"+str(i)))
         self.setHorizontalHeaderLabels(self.headerList)
 
@@ -112,10 +112,10 @@ class MicrocodeTable(QTableWidget):
     def copy(self):	
         selRange = self.selectedRange()
         string = QString()
-        for i in range(0, selRange.rowCount()):
+        for i in xrange(0, selRange.rowCount()):
             if i> 0:
                 string += '\n'
-            for j in range(0, selRange.columnCount()):
+            for j in xrange(0, selRange.columnCount()):
                 if j > 0:
                     string += '\t'
                 item = self.item(selRange.topRow()+i, selRange.leftColumn()+j)
@@ -134,9 +134,9 @@ class MicrocodeTable(QTableWidget):
         if selRange.rowCount()*selRange.columnCount()!= 1 and (selRange.rowCount()!= numRows or selRange.columnCount()!= numColumns):
             QMessageBox.information(self, 'MicrocodeTable', "The information cannot be passted because the copy and paste areas aren't the same size.")
             return
-        for i in range(0, numRows):
+        for i in xrange(0, numRows):
             columns = rows[i].split('\t')
-            for j in range(0, numColumns):
+            for j in xrange(0, numColumns):
                 row = selRange.topRow()+i
                 column = selRange.leftColumn()+j
                 if row < self.RowCount and column < self.ColumnCount:
@@ -144,7 +144,7 @@ class MicrocodeTable(QTableWidget):
 
     def delete(self):
         items = self.selectedItems()
-        for i in range(len(items)):
+        for i in xrange(len(items)):
             items[i].setText("")
 
     def selectCurrentRow(self):
@@ -194,10 +194,10 @@ class MicrocodeTable(QTableWidget):
         self.ColumnCount += 1
 
         string = QString()
-        for i in range(0, self.currentRowNum):
+        for i in xrange(0, self.currentRowNum):
             if i> 0:
                 string += '\n'
-            for j in range(0, self.ColumnCount-self.currentLeftColumn):
+            for j in xrange(0, self.ColumnCount-self.currentLeftColumn):
                 if j > 0:
                     string += '\t'
                 item = self.item(self.currentTopRow+i, self.currentLeftColumn+j)
@@ -209,9 +209,9 @@ class MicrocodeTable(QTableWidget):
         rows = string.split('\n')
         numRows = rows.count()
         numColumns = rows.first().count('\t')+1
-        for i in range(0, numRows):
+        for i in xrange(0, numRows):
             columns = rows[i].split('\t')
-            for j in range(0, numColumns):
+            for j in xrange(0, numColumns):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j+self.currentColumnNum
                 if row < self.RowCount and column < self.ColumnCount:
@@ -222,10 +222,10 @@ class MicrocodeTable(QTableWidget):
         self.RowCount += 1
 
         string = QString()
-        for i in range(0, self.ColumnCount-self.currentTopRow):
+        for i in xrange(0, self.ColumnCount-self.currentTopRow):
             if i> 0:
                 string += '\n'
-            for j in range(0, self.currentColumnNum):
+            for j in xrange(0, self.currentColumnNum):
                 if j > 0:
                     string += '\t'
                 item = self.item(self.currentTopRow+i, self.currentLeftColumn+j)
@@ -237,20 +237,20 @@ class MicrocodeTable(QTableWidget):
         rows = string.split('\n')
         numRows = rows.count()
         numColumns = rows.first().count('\t')+1
-        for i in range(0, numRows):
+        for i in xrange(0, numRows):
             columns = rows[i].split('\t')
-            for j in range(0, numColumns):
+            for j in xrange(0, numColumns):
                 row = self.currentTopRow+i+self.currentRowNum
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, TableWidgetItem(columns[j]))
   
     def insertRows(self):
-        for i in range(self.currentRowNum):
+        for i in xrange(self.currentRowNum):
             self.insertRow(self.currentTopRow+i)
 
     def insertColumns(self):
-        for i in range(self.currentColumnNum):
+        for i in xrange(self.currentColumnNum):
             self.insertColumn(self.currentLeftColumn+i)
 
     def deleteOperateSlot(self, index):
@@ -265,10 +265,10 @@ class MicrocodeTable(QTableWidget):
 
     def deleteCellLeft(self):
         string = QString()
-        for i in range(0, self.currentRowNum):
+        for i in xrange(0, self.currentRowNum):
             if i> 0:
                 string += '\n'
-            for j in range(0, self.ColumnCount-self.currentLeftColumn-self.currentColumnNum):
+            for j in xrange(0, self.ColumnCount-self.currentLeftColumn-self.currentColumnNum):
                 if j > 0:
                     string += '\t'
                 item = self.item(self.currentTopRow+i, self.currentLeftColumn+self.currentColumnNum+j)
@@ -280,9 +280,9 @@ class MicrocodeTable(QTableWidget):
         rows = string.split('\n')
         numRows = rows.count()
         numColumns = rows.first().count('\t')+1
-        for i in range(0, numRows):
+        for i in xrange(0, numRows):
             columns = rows[i].split('\t')
-            for j in range(0, numColumns):
+            for j in xrange(0, numColumns):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
@@ -290,10 +290,10 @@ class MicrocodeTable(QTableWidget):
 
     def deleteCellUp(self):
         string = QString()
-        for i in range(0, self.RowCount-self.currentTopRow-self.currentRowNum):
+        for i in xrange(0, self.RowCount-self.currentTopRow-self.currentRowNum):
             if i > 0:
                 string += '\n'
-            for j in range(0, self.currentColumnNum):
+            for j in xrange(0, self.currentColumnNum):
                 if j > 0:
                     string += '\t'
                 item = self.item(self.currentTopRow+self.currentRowNum+i, self.currentLeftColumn+j)
@@ -305,20 +305,20 @@ class MicrocodeTable(QTableWidget):
         rows = string.split('\n')
         numRows = rows.count()
         numColumns = rows.first().count('\t')+1
-        for i in range(0, numRows):
+        for i in xrange(0, numRows):
             columns = rows[i].split('\t')
-            for j in range(0, numColumns):
+            for j in xrange(0, numColumns):
                 row = self.currentTopRow+i
                 column = self.currentLeftColumn+j
                 if row < self.RowCount and column < self.ColumnCount:
                      self.setItem(row, column, TableWidgetItem(columns[j]))
 
     def deleteRows(self):
-        for i in range(self.currentRowNum):
+        for i in xrange(self.currentRowNum):
             self.removeRow(self.currentTopRow)
 
     def deleteColumns(self):
-        for i in range(self.currentColumnNum):
+        for i in xrange(self.currentColumnNum):
             self.removeColumn(self.currentLeftColumn)		
 
     def keyPressEvent(self, event):
@@ -455,7 +455,7 @@ class MicrocodeTable(QTableWidget):
         #add loopBodyList
         self.loopBodyList[rectInfo.column].append(rectInfo)
         #update the items reg info
-        for i in range(rectInfo.startRow, rectInfo.endRow + 1):
+        for i in xrange(rectInfo.startRow, rectInfo.endRow + 1):
             item = self.item(i, rectInfo.column)  
             if item == None:
                 item = TableWidgetItem("")
@@ -472,12 +472,12 @@ class MicrocodeTable(QTableWidget):
         num = len(columnList)
         if num == 0:
             return              
-        for i in range(num, 0, -1):
+        for i in xrange(num, 0, -1):
            rectInfo = columnList[i-1]
            if rectInfo.reg == reg and rectInfo.startRow <= self.currentTopRow and rectInfo.endRow >= self.currentTopRow and rectInfo.column == self.currentLeftColumn:
                 columnList.remove(rectInfo)
                 #remove item reg info  
-                for i in range(rectInfo.startRow, rectInfo.endRow + 1):
+                for i in xrange(rectInfo.startRow, rectInfo.endRow + 1):
                     item = self.item(i, rectInfo.column)  
                     if item == None:
                         item = TableWidgetItem("")
@@ -497,7 +497,7 @@ class MicrocodeTable(QTableWidget):
 
     def setWholeRowColor(self, row, color):
         count = self.getColumnCount()
-        for i in range(0, count):
+        for i in xrange(0, count):
             item = self.item(row, i)
             if item == None:
                 item = TableWidgetItem("")
@@ -506,7 +506,7 @@ class MicrocodeTable(QTableWidget):
         
     def earserWholeRowColor(self, row):
         count = self.getColumnCount()
-        for i in range(0, count):
+        for i in xrange(0, count):
             item = self.item(row, i)
             if item == None:
                 item = TableWidgetItem("")
@@ -515,12 +515,12 @@ class MicrocodeTable(QTableWidget):
 
     def paintEvent(self,event):
         #draw rect
-        for j in range(0, self.ColumnCount):
+        for j in xrange(0, self.ColumnCount):
             columnList = self.loopBodyList[j]
             num = len(columnList)
             if num == 0:
                 continue
-            for i in range(num):
+            for i in xrange(num):
                 rectInfo = columnList[i]
                 self.paintLine(rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.bottomRight_x, rectInfo.topLeft_y, rectInfo.color)
                 self.paintLine(rectInfo.bottomRight_x, rectInfo.topLeft_y, rectInfo.bottomRight_x, rectInfo.bottomRight_y, rectInfo.color)
@@ -531,12 +531,12 @@ class MicrocodeTable(QTableWidget):
 
     def saveFile(self, fileName):
         fp = open(fileName, "w")
-        for column in range(self.ColumnCount):
+        for column in xrange(self.ColumnCount):
             line = ".hmacro "
             item = self.horizontalHeaderItem(column)
             line += item.text()
             line += " "
-            for row in range(self.RowCount): 
+            for row in xrange(self.RowCount): 
                 item = self.item(row, column)
                 if item == None:
                     line += " "
@@ -557,7 +557,7 @@ class MicrocodeTable(QTableWidget):
         column = len(stringList)
         if column > self.ColumnCount:
             self.setColumnCount(column)     
-        for i in range(column):
+        for i in xrange(column):
             string = stringList[i]
             record = pattern.findall(string)
             if len(record) == 0:
@@ -568,11 +568,28 @@ class MicrocodeTable(QTableWidget):
             row = len(codeList)
             if row > self.RowCount:
                 self.setRowCount(row)
-            for j in range(row):
+            for j in xrange(row):
                 self.setItem(j, i, TableWidgetItem(codeList[j]))           
 
         fp.close()
 
-    def mouseEvent(self, event):
-        print "mouse"
+    def updateLoopBodyList(self):
+        columnNum = len(self.loopBodyList)
+        for column in xrange(columnNum):
+            columnList = self.loopBodyList[column]
+            num = len(columnList)
+            if num == 0:
+                continue
+            for i in xrange(num):
+                info = columnList[i]
+                start = info.startRow
+                end = info.endRow
+                item = self.item(start, column)
+                rect = self.visualItemRect(item)
+                info.topLeft_x = rect.topLeft().x()
+                info.topLeft_y = rect.topLeft().y()             
+                item = self.item(end, column)
+                rect = self.visualItemRect(item)
+                info.bottomRight_x = rect.bottomRight().x()
+                info.bottomRight_y = rect.bottomRight().y()                    
 

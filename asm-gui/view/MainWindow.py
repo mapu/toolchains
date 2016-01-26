@@ -178,13 +178,13 @@ class MainWindow(QMainWindow):
 
     def setAllCheckStatus(self, status):
         num = len(self.registerCheck)
-        for i in range(0, num):
+        for i in xrange(0, num):
             self.registerCheck[i].setCheckState(status)
 
     def itemRegStateSlot(self, reg):
         self.setAllCheckStatus(Qt.Unchecked)
         num = len(reg)
-        for i in range(0, num):
+        for i in xrange(0, num):
             self.registerCheck[reg[i]].setCheckState(Qt.Checked)
 
                 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QLineEdit, QItemDelegate
+from PyQt4.QtGui import QLineEdit, QItemDelegate, QPainter, QPen
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL
 
 class CellDelegate(QItemDelegate):
