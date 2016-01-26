@@ -137,14 +137,12 @@ class MainWindow(QMainWindow):
         self.microcodeTable.clearTable()
 
     def openFile(self):
-        path = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
-        print "openFile"
+        fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
+        self.microcodeTable.openFile(fileName)
 
     def saveFile(self):
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
-        fp = open(fileName, "w")
-        fp.close()
-        print "saveFile"
+        self.microcodeTable.saveFile(fileName)
 
     def closeWindow(self):
         print "closeWindow"

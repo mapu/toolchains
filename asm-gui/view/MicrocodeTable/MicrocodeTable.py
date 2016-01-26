@@ -11,6 +11,7 @@ from view.MicrocodeTable.TableWidgetItem import TableWidgetItem
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
+import re
 
 class MicrocodeTable(QTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
@@ -23,8 +24,8 @@ class MicrocodeTable(QTableWidget):
         self.setItemDelegate(cellDelegate)
         cellDelegate.floatDialogShowSignal.connect(self.floatDialogShowSlot)
         cellDelegate.floatDialogCloseSignal.connect(self.floatDialogCloseSlot)
-        self.RowCount = 100
-        self.ColumnCount = 100
+        self.RowCount = 10
+        self.ColumnCount = 5
         self.currentRowNum = 0
         self.currentColumnNum = 0
         self.currentTopRow = 0
@@ -37,8 +38,8 @@ class MicrocodeTable(QTableWidget):
         self.floatDialog = 0
         self.floatDialogFocus = 0
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
-        self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarChangedSlot)
-        self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.scrollBarChangedSlot)
+        self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.horizontalScrollBarChangedSlot)
+        self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
 
         self.setAttribute(Qt.WA_PaintOutsidePaintEvent)
         self.loopBodyList = [[]for i in range(self.ColumnCount)]
@@ -63,14 +64,20 @@ class MicrocodeTable(QTableWidget):
             if item.text() == "":
                 return
              
-            self.setWholeRowColor(currentRow, Qt.blue) 
-            self.previousPointRow = currentRow     
+            #self.setWholeRowColor(currentRow, Qt.blue) 
+            #self.previousPointRow = currentRow     
         else:
             self.previousPointRow = -1 
             self.itemRegStateSignal.emit([])  
         self.viewport().update()   
 
-    def scrollBarChangedSlot(self, i):
+    def horizontalScrollBarChangedSlot(self, i):
+        print "horizontal", i
+        self.floatDialogCloseSlot()
+        self.viewport().update()
+
+    def verticalScrollBarChangedSlot(self, i):
+        print "vertical", i
         self.floatDialogCloseSlot()
         self.viewport().update()
 
@@ -521,4 +528,49 @@ class MicrocodeTable(QTableWidget):
                 self.paintLine(rectInfo.topLeft_x, rectInfo.bottomRight_y, rectInfo.topLeft_x, rectInfo.topLeft_y, rectInfo.color)
 
         QTableWidget.paintEvent(self, event) 
+
+    def saveFile(self, fileName):
+        fp = open(fileName, "w")
+        for column in range(self.ColumnCount):
+            line = ".hmacro "
+            item = self.horizontalHeaderItem(column)
+            line += item.text()
+            line += " "
+            for row in range(self.RowCount): 
+                item = self.item(row, column)
+                if item == None:
+                    line += " "
+                else:
+                    line += item.text()
+                line += ";"
+            line = line[:len(line)-1]
+            line += "\n"         
+            fp.write(line)
+
+        fp.close()
+
+    def openFile(self, fileName): 
+        pattern = re.compile(
+            "\.hmacro ([a-zA-Z]+[0-9]*) (.+)")
+        fp = open(fileName, "r")
+        stringList = fp.readlines()  
+        column = len(stringList)
+        if column > self.ColumnCount:
+            self.setColumnCount(column)     
+        for i in range(column):
+            string = stringList[i]
+            record = pattern.findall(string)
+            if len(record) == 0:
+                return
+            item = TableWidgetItem(record[0][0])
+            self.setHorizontalHeaderItem(i, item)
+            codeList = record[0][1].split(";")
+            row = len(codeList)
+            if row > self.RowCount:
+                self.setRowCount(row)
+            for j in range(row):
+                self.setItem(j, i, TableWidgetItem(codeList[j]))           
+
+        fp.close()
+
 
