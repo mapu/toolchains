@@ -399,7 +399,7 @@ class MPUCoreWidget(QWidget):
         self.outPortColor = QColor("green")
         self.setLayout(self.gridLayout)
         
-        self.buttonDialogs = [None] * len(self.comButtones)
+        self.buttonDialogs = [None] * len(self.comButtons)
 #         self.buttonDialogs.append(HexMainWindow(self))
 #         self.buttonDialogs[0].setWindowTitle("Local memory")
 #         
