@@ -90,6 +90,6 @@ class APCViewWidget(QWidget):
             if stringFile[j].indexOf(".bin") > 0:
                 filename = stringFile[j]
                 for ape in self.APETabWidget:
-                    ape.coreWidget.setHexFileStart(filename,  16 * 1024 * 1024 * self.APETabWidget.index(ape))
+                    ape.coreWidget.leftWidget.setHexFileStart(filename,  16 * 1024 * 1024 * self.APETabWidget.index(ape))
                 break
 
