@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*_
-from PyQt4.QtGui import QWidget, QVBoxLayout, QSplitter
+from PyQt4.QtGui import QWidget, QSplitter
 from PyQt4.QtCore import Qt
 from view.APCview.MPUCoreWidget import MPUCoreWidget
 

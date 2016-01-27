@@ -57,7 +57,7 @@ def addCommonOptions(parser):
     parser.add_option("--cacheline_size", type="int", default=64)
     parser.add_option("--ruby", action="store_true")
     parser.add_option("--mem-size", action="store", type="string",
-                      default="16MB",
+                      default="256MB",
                       help="Specify the physical memory size (single memory)")
 
     # Run duration options
