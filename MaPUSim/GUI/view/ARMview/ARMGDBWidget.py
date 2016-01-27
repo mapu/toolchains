@@ -30,6 +30,7 @@ class ARMGDBWidget(QTermWidget):
         self.timer.start()
         self.connect(self.timer, SIGNAL("timeout()"), self.timeOut)
 
+    @pyqtSlot()
     def timeOut(self):
         self.timer.stop()
         self.setShellProgram(self.config.getConfig("ARMGDBpath"))
