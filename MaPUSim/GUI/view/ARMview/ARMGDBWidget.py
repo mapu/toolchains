@@ -5,7 +5,8 @@ Created on Jan 19, 2016
 '''
 from PyQt4.QtGui import QFont
 from QTermWidget import QTermWidget
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, QTimer, SIGNAL
+import time
 
 class ARMGDBWidget(QTermWidget):
     def __init__(self, config, control, parent = None):
@@ -23,7 +24,15 @@ class ARMGDBWidget(QTermWidget):
         '''
         Start ARM GDB process in terminal
         '''
+        self.port = port
+        self.timer = QTimer()
+        self.timer.setInterval(5000)#delay 5s
+        self.timer.start()
+        self.connect(self.timer, SIGNAL("timeout()"), self.timeOut)
+
+    def timeOut(self):
+        self.timer.stop()
         self.setShellProgram(self.config.getConfig("ARMGDBpath"))
         self.setArgs([])
         self.startShellProgram()
-        self.sendText("target remote localhost:%d\n" % port)
+        self.sendText("target remote localhost:%d\n" % self.port)
