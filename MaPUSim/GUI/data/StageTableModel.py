@@ -2,14 +2,14 @@
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, pyqtSlot
 from PyQt4.QtGui import QColor, QFont, QBrush
 from data.RegNames import getRegName
-
-#QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
+from view.APCview.CellDelegate import CellDelegate
 
 class StageTableModel(QAbstractTableModel):
-    def __init__(self, stage_table, reg_table, parent = None):
+    def __init__(self, stage_table, reg_table, delegate, parent = None):
         QAbstractTableModel.__init__(self, parent)
         self.stageTable = stage_table
         self.regTable = reg_table
+        self.itemDelegate = delegate
         self.hHeaderList = []
         self.vHeaderList = []
         self.stages = [[]]
@@ -34,6 +34,7 @@ class StageTableModel(QAbstractTableModel):
             return
         self.curMin, self.curMax, self.vHeaderList, self.stages = \
             self.stageTable.getTablePage(index)
+        self.itemDelegate.setStages(self.stages)
         self.hHeaderList = map(str, range(self.curMin, self.curMax + 1))
         self.dataChanged.emit(self.index(0, 0), 
                               self.index(self.rowCount() - 1, 
@@ -54,15 +55,6 @@ class StageTableModel(QAbstractTableModel):
             return QVariant(text[0])
         elif role == Qt.TextAlignmentRole:
             return int(Qt.AlignCenter)
-        elif role == Qt.BackgroundRole:
-            if self.stages[index.row()][index.column()] != "":
-                text = self.stages[index.row()][index.column()].split(".")
-                if len(text) > 1:
-                    return self.rwColors[text[1]]
-                elif text[0] in ["FG", "FS", "FW", "FR", "DP"]:
-                    return self.rwColors["Fetch"]
-                else:
-                    return self.rwColors["Ex"]
         elif role == Qt.FontRole:
             text = self.stages[index.row()][index.column()].split(".")
             if len(text[0]) > 2:
@@ -80,6 +72,18 @@ class StageTableModel(QAbstractTableModel):
                         name = getRegName(op[1], op[2])
                         tip += op[0] + " " + name + "\n"
                     return QString(tip)
+
+    '''
+        elif role == Qt.BackgroundRole:
+            if self.stages[index.row()][index.column()] != "":
+                text = self.stages[index.row()][index.column()].split(".")
+                if len(text) > 1:
+                    return self.rwColors[text[1]]
+                elif text[0] in ["FG", "FS", "FW", "FR", "DP"]:
+                    return self.rwColors["Fetch"]
+                else:
+                    return self.rwColors["Ex"]
+    '''
 
     def flags(self, index):
         if not index.isValid():
