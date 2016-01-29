@@ -3,7 +3,7 @@ Created on Dec 24, 2015
 
 @author: wangl
 '''
-from PyQt4.QtGui import QWidget, QLabel, QHBoxLayout
+from PyQt4.QtGui import QWidget, QLabel, QHBoxLayout, QPainter, QLinearGradient, QBrush
 
 class LegendWidget(QWidget):
     '''
@@ -11,26 +11,25 @@ class LegendWidget(QWidget):
     '''
 
 
-    def __init__(self, parent = None):
+    def __init__(self, row_color, parent = None):
         '''
         Constructor
         '''
         super(LegendWidget, self).__init__(parent)
+
+        self.rowColor = row_color
         self.legendLabel = QLabel(self.tr("Legend:"))
         self.legendLabel.setFixedSize(130, 25)
         self.redLabel = QLabel()
-        self.redLabel.setFixedSize(50, 20)
-        self.redLabel.setStyleSheet("QLabel{background:rgb(255,0,0)}")
+        self.redLabel.setFixedSize(40, 20)
         self.redTip = QLabel(self.tr("Register is written"))
         self.redTip.setFixedSize(130, 25)
         self.greenLabel = QLabel()
-        self.greenLabel.setFixedSize(50, 20)
-        self.greenLabel.setStyleSheet("QLabel{background:rgb(0,255,0)}")
+        self.greenLabel.setFixedSize(40, 20)
         self.greenTip = QLabel(self.tr("Register is read"))
         self.greenTip.setFixedSize(130, 25)
         self.yellowLabel = QLabel()
-        self.yellowLabel.setFixedSize(50, 20)
-        self.yellowLabel.setStyleSheet("QLabel{background:rgb(255,153,18)}")
+        self.yellowLabel.setFixedSize(40, 20)
         self.yellowTip = QLabel(self.tr("Register is read and written"))
         self.yellowTip.setFixedSize(180, 25)
         
@@ -45,4 +44,34 @@ class LegendWidget(QWidget):
         self.legendLayout.addWidget(self.yellowTip)
         
         self.setLayout(self.legendLayout)
+   
+    def paintEvent(self, event):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
         
+        rect = self.redLabel.geometry()
+        redGradient = self.rowColor["W"]
+        redGradient.setStart(rect.topLeft())
+        redGradient.setFinalStop(rect.bottomRight())
+        painter.setBrush(QBrush(redGradient)) 
+        painter.drawRect(rect)
+
+        rect = self.greenLabel.geometry()
+        greenGradient = self.rowColor["R"]
+        greenGradient.setStart(rect.topLeft())
+        greenGradient.setFinalStop(rect.bottomRight())
+
+        painter.setBrush(QBrush(greenGradient)) 
+        painter.drawRect(rect)
+
+        rect = self.yellowLabel.geometry()
+        yellowGradient = self.rowColor["RW"]
+        yellowGradient.setStart(rect.topLeft())
+        yellowGradient.setFinalStop(rect.bottomRight())
+        painter.setBrush(QBrush(yellowGradient)) 
+        painter.drawRect(rect)
+
+        painter.end()
+     
