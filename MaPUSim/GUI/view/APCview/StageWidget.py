@@ -6,6 +6,7 @@ from data.StageTableModel import StageTableModel
 from view.APCview.LegendWidget import LegendWidget
 from view.APCview.SearchWidget import SearchWidget
 from view.APCview.HeaderView import HeaderView
+from view.APCview.CellDelegate import CellDelegate
 
 class StageWidget(QWidget):
     updateTimePointSignal = pyqtSignal(int)
@@ -15,9 +16,15 @@ class StageWidget(QWidget):
 
         #self.resize(1500, 800)
         #self.setMinimumSize(400, 600)
-        self.tableModel = StageTableModel(stage_table, reg_table, self)
+        #add delegate
+        self.delegate = CellDelegate()
+
+        self.tableModel = StageTableModel(stage_table, reg_table, self.delegate, self)
 
         self.tableView = QTableView()
+
+        self.tableView.setItemDelegate(self.delegate)        
+
         self.tableView.setModel(self.tableModel)
         self.tableView.setFont(QFont("Monospace", 8))
         
@@ -57,7 +64,7 @@ class StageWidget(QWidget):
         
         # blank1 = QLabel()
         # blank1.setFixedSize(500, 20)
-        self.legendWidget = LegendWidget()
+        self.legendWidget = LegendWidget(self.delegate.rwColors)
         # midLayout.addWidget(blank1)
         
         self.mainLayout = QVBoxLayout()
