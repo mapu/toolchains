@@ -77,5 +77,10 @@ class CellDelegate(QItemDelegate):
             linearGradient.setFinalStop(myOption.rect.bottomRight())
             painter.setBrush(linearGradient)
             painter.drawRect(option.rect)
-            QItemDelegate.paint(self, painter, myOption, index)        
+            QItemDelegate.paint(self, painter, myOption, index)   
+        else:
+            myOption = QStyleOptionViewItem(option)
+            painter.setBrush(Qt.white)
+            painter.drawRect(option.rect)
+            QItemDelegate.paint(self, painter, myOption, index)                 
 
