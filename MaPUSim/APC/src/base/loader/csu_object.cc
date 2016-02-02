@@ -158,8 +158,10 @@ void CsuObject::init() {
 }
 
 void CsuObject::init(int cpuid) {
-  for (int i = 0; i < cpuid; i++)
+  for (int i = 0; i < cpuid; i++) {
     ChangeStatus(i, 0xA0, extDMAStatus);
+    ChangeStatus(i, 0x88, 4 - extCsuCtx->dma_queue_len);
+  }
 }
 
 void CsuObject::sendData(int cpuid, const void *_data) {
@@ -657,7 +659,7 @@ dma_end:
   updateDMAStatus(isExternal, dma_conf->DMAGroupNum);
   if (isExternal) {
     extCsuCtx->dma_queue_len--;
-    ChangeStatus(cpuid, 0x88, extCsuCtx->dma_queue_len);
+    ChangeStatus(cpuid, 0x88, 4 - extCsuCtx->dma_queue_len);
     ChangeStatus(cpuid, 0xA0, extDMAStatus);
   } else {
     intCsuCtx->dma_queue_len--;
