@@ -94,7 +94,7 @@ static struct clk ref24_clk = {
 };
 
 static struct clk dw_timer_clk = {
-  .rate = 1000000,
+  .rate = 1000000000,
 };
 
 static struct clk dummy_apb_pclk;
@@ -169,7 +169,7 @@ void __init mapu_timer_init(unsigned int timer_irq)
   iobase = timer0_va_base;
 
   ced = dw_apb_clockevent_init(0, "dw_timer0", 300, iobase, timer_irq,
-                               1000000);
+                               100000000);
   if (!ced)
     panic("Unable to initialize clockevent device");
 
@@ -177,7 +177,7 @@ void __init mapu_timer_init(unsigned int timer_irq)
 
   iobase = timer1_va_base;
 
-  cs = dw_apb_clocksource_init(300, "dw_timer1", iobase, 1000000);
+  cs = dw_apb_clocksource_init(300, "dw_timer1", iobase, 100000000);
   if (!cs)
     panic("Unable to initialize clocksource device");
 

@@ -37,7 +37,7 @@
 #define CONFIG_MMC_TRACE
 #define CONFIG_CMD_MMC
 
-#define CONFIG_SYS_TIMER_RATE   100000ULL  // 1000*100 is suitable for simulator
+#define CONFIG_SYS_TIMER_RATE   100000000ULL  // 1000*100 is suitable for simulator
 
 #include "mapu_common.h"
 
