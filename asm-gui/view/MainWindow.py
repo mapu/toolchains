@@ -5,6 +5,7 @@ from res import qrc_resources
 from view.MicrocodeTable.MicrocodeTable import MicrocodeTable
 from Utils import warning
 
+
 class MainWindow(QMainWindow):  
     def __init__(self, parent = None):  
         super(MainWindow, self).__init__(parent)   
@@ -13,7 +14,6 @@ class MainWindow(QMainWindow):
         self.resize(800, 600)
 
         self.microcodeTable = MicrocodeTable()
-
         self.setCentralWidget(self.microcodeTable)
 
         self.createAction()
@@ -134,15 +134,18 @@ class MainWindow(QMainWindow):
         registerToolBar.addWidget(self.register1Check)
 
     def newFile(self):
+        self.microcodeTable.loopBodyList = [[]for i in xrange(self.microcodeTable.ColumnCount)]
         self.microcodeTable.clearTable()
 
     def openFile(self):
         fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
-        self.microcodeTable.openFile(fileName)
+        if fileName != "":
+            self.microcodeTable.openFile(fileName)
 
     def saveFile(self):
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
-        self.microcodeTable.saveFile(fileName)
+        if fileName != "":
+            self.microcodeTable.saveFile(fileName)
 
     def closeWindow(self):
         print "closeWindow"
@@ -151,28 +154,32 @@ class MainWindow(QMainWindow):
         self.closeWindow()
 	
     def register0Slot(self, checkState):
-        color = Qt.red
         if checkState == True:
-            re = self.microcodeTable.paintRect(0, color) 
+            re = self.microcodeTable.paintRect(0) 
             if re == 0:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one column")
             if re == -1:
                 self.register0Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells")       
+                warning("Please select one or more cells") 
+            if re == -2:
+                self.register0Check.setCheckState(Qt.Unchecked)
+                warning("Cannot set loop at the intersection of cells")      
         else:
             self.microcodeTable.eraserRect(0)
 
     def register1Slot(self, checkState):
-        color = Qt.green
         if checkState == True:
-            re = self.microcodeTable.paintRect(1, color)   
+            re = self.microcodeTable.paintRect(1)   
             if re == 0:
                 self.register1Check.setCheckState(Qt.Unchecked)   
                 warning("Please select one column")  
             if re == -1:
                 self.register1Check.setCheckState(Qt.Unchecked)
                 warning("Please select one or more cells")  
+            if re == -2:
+                self.register1Check.setCheckState(Qt.Unchecked)
+                warning("Cannot set loop at the intersection of cells")  
         else:
             self.microcodeTable.eraserRect(1) 
 
@@ -185,7 +192,7 @@ class MainWindow(QMainWindow):
         self.setAllCheckStatus(Qt.Unchecked)
         num = len(reg)
         for i in xrange(0, num):
-            self.registerCheck[reg[i]].setCheckState(Qt.Checked)
+            self.registerCheck[int(reg[i])].setCheckState(Qt.Checked)
 
                 
 
