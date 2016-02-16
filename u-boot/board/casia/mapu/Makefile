@@ -6,4 +6,3 @@
 #
 
 obj-y	:= mapu_common.o
-obj-$(CONFIG_PCI) += pci.o

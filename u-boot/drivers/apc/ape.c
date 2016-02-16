@@ -20,7 +20,7 @@ int ape_dma_request(struct dma_if *dma_conf, uint32_t cpuid) {
   if (dma_conf->DMAGroupNum >= MAX_NUM_GROUP)
     return -1;
   while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACommandStatus)) != 0 ||
-         readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueueNum)) == MAX_NUM_DMA);
+         readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueueNum)) == 0);
   writel(dma_conf->DMALocalAddr, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMALocalAddr));
   writel(dma_conf->DMALocalXNum, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMALocalXNum));
   writel(dma_conf->DMALocalYStep, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMALocalYStep));
@@ -41,6 +41,7 @@ int ape_dma_request(struct dma_if *dma_conf, uint32_t cpuid) {
 int32_t ape_dma_wait(uint32_t group, uint32_t cpuid) {
   if (group >= MAX_NUM_GROUP || cpuid >= num_cores)
     return -1;
+  while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACommandStatus)) != 0);
   uint32_t mask = ~(1UL << group);
   writel(mask, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryMask));
   do {

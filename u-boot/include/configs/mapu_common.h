@@ -225,9 +225,9 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		CONFIG_PLATFORM_ENV_SETTINGS \
 		"dram=512M\0" \
-		"root=/dev/mtdblock4 rw\0" \
+		"root=/dev/mmcblk0 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=ext4 "\
+    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=ext3 "\
     "console=tty0\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
@@ -236,14 +236,14 @@
     "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x240000;cp.l 0x80000 0x60000000 0x1000;" \
     "bootm 0x60007fc0 - 0x60000000\0" \
     "bootmenu_0=Boot 1. linux 3.4.85 (Nor Flash)=run bootnor\0"\
-    "initapclib=mtdparts;chpart nor0,2;apclib sinit;apclib minit;"\
+    "initapclib=mtdparts default;chpart nor0,2;apclib sinit;apclib minit;"\
     "apclib dbinit apclib_custom.db\0"
 
 /* FLASH and environment organization */
-#define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
+#define PHYS_FLASH_SIZE			0x80000000	/* 64MB */
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
-#define CONFIG_SYS_FLASH_SIZE		0x04000000
+#define CONFIG_SYS_FLASH_SIZE		0x80000000
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_FLASH_BASE0		V2M_NOR0
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE0
@@ -254,7 +254,7 @@
 
 /* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
 /*#define CONFIG_SYS_MAX_FLASH_SECT	259		 Max sectors */
-#define CONFIG_SYS_MAX_FLASH_SECT	2048		/* Max sectors */
+#define CONFIG_SYS_MAX_FLASH_SECT	8192		/* Max sectors */
 #define FLASH_MAX_SECTOR_SIZE		0x00040000	/* 256 KB sectors */
 
 /* Room required on the stack for the environment data */

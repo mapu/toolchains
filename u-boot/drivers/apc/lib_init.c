@@ -46,8 +46,6 @@ LIST_HEAD(mlib_db);
 /* keeps pointer to currentlu processed partition */
 static struct part_info *current_part;
 
-extern void dma_transfer(uint32_t src, uint32_t dst, uint32_t len,
-                         uint32_t size);
 
 #if defined(CONFIG_CMD_FLASH)
 /*
@@ -72,25 +70,6 @@ static inline void *get_fl_mem_nor(u32 off, u32 size, void *ext_buf)
 	return (void*)addr;
 }
 
-static inline void *get_fl_mem_nor_by_dma(u32 off, u32 size, void *ext_buf)
-{
-  u32 addr = off;
-  struct mtdids *id = current_part->dev->id;
-
-  extern flash_info_t flash_info[];
-  flash_info_t *flash = &flash_info[id->num];
-
-  addr += flash->start[0];
-  if (ext_buf) {
-    /* method 4 : 1'47'' */
-    if(size & 0xFFFFFF00) {
-      dma_transfer(addr, (uint32_t)ext_buf, size >> 2, 2);
-      size &= 0x3;
-    }
-    memcpy(ext_buf, (void *)addr, size);
-  }
-  return (void *)addr;
-}
 
 static inline void *get_node_mem_nor(u32 off, void *ext_buf, u8 dma)
 {
@@ -98,18 +77,11 @@ static inline void *get_node_mem_nor(u32 off, void *ext_buf, u8 dma)
 
 	/* pNode will point directly to flash - don't provide external buffer
 	   and don't care about size */
-	pNode = dma ? get_fl_mem_nor_by_dma(off, 0, NULL) : get_fl_mem_nor(off, 0, NULL);
-	if (!dma)
-	  return (void *)get_fl_mem_nor(off, pNode->magic == JFFS2_MAGIC_BITMASK ?
-			                                                 pNode->totlen :
-			                                                 sizeof(*pNode),
-			                            ext_buf);
-	else
-	  return (void *)get_fl_mem_nor_by_dma(off,
-	                                       pNode->magic == JFFS2_MAGIC_BITMASK ?
-	                                                       pNode->totlen :
-	                                                       sizeof(*pNode),
-	                                       ext_buf);
+	pNode = get_fl_mem_nor(off, 0, NULL);
+  return (void *)get_fl_mem_nor(off, pNode->magic == JFFS2_MAGIC_BITMASK ?
+		                                                 pNode->totlen :
+		                                                 sizeof(*pNode),
+		                            ext_buf);
 }
 #endif
 
@@ -125,8 +97,7 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf, u8 dma)
 	switch(id->type) {
 #if defined(CONFIG_CMD_FLASH)
 	case MTD_DEV_TYPE_NOR:
-		return dma ? get_fl_mem_nor_by_dma(off, size, ext_buf) :
-		             get_fl_mem_nor(off, size, ext_buf);
+		return get_fl_mem_nor(off, size, ext_buf);
 		break;
 #endif
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
@@ -789,345 +760,6 @@ jffs2_get_list(struct part_info * part, const char *who, u8 dma)
   return (struct b_lists *)part->jffs2_priv;
 }
 
-/* find the inode from the slashless name given a parent by dma */
-static u32
-jffs2_1pass_find_inode_by_dma(struct b_lists * pL, const char *name, u32 pino)
-{
-  struct b_node *b;
-  struct jffs2_raw_dirent *jDir;
-  int len;
-  u32 counter;
-  u32 version = 0;
-  u32 inode = 0;
-
-  /* name is assumed slash free */
-  len = strlen(name);
-
-  counter = 0;
-  /* we need to search all and return the inode with the highest version */
-  for(b = pL->dir.listHead; b; b = b->next, counter++) {
-    jDir = (struct jffs2_raw_dirent *)get_node_mem(b->offset, pL->readbuf, 1);
-    if ((pino == jDir->pino) && (len == jDir->nsize) &&
-        (jDir->ino) &&  /* 0 for unlink */
-        (!strncmp((char *)jDir->name, name, len))) {  /* a match */
-      if (jDir->version < version) {
-        put_fl_mem(jDir, pL->readbuf);
-        continue;
-      }
-
-      if (jDir->version == version && inode != 0) {
-        /* I'm pretty sure this isn't legal */
-        putstr(" ** ERROR ** ");
-        putnstr(jDir->name, jDir->nsize);
-        putLabeledWord(" has dup version =", version);
-      }
-      inode = jDir->ino;
-      version = jDir->version;
-    }
-#if 0
-    putstr("\r\nfind_inode:p&l ->");
-    putnstr(jDir->name, jDir->nsize);
-    putstr("\r\n");
-    putLabeledWord("pino = ", jDir->pino);
-    putLabeledWord("nsize = ", jDir->nsize);
-    putLabeledWord("b = ", (u32) b);
-    putLabeledWord("counter = ", counter);
-#endif
-    put_fl_mem(jDir, pL->readbuf);
-  }
-  return inode;
-}
-
-static u32
-jffs2_1pass_search_inode_by_dma(struct b_lists * pL, const char *fname, u32 pino)
-{
-  int i;
-  char tmp[256];
-  char working_tmp[256];
-  char *c;
-
-  /* discard any leading slash */
-  i = 0;
-  while (fname[i] == '/')
-    i++;
-  strcpy(tmp, &fname[i]);
-
-  while ((c = (char *) strchr(tmp, '/'))) /* we are still dired searching */
-  {
-    strncpy(working_tmp, tmp, c - tmp);
-    working_tmp[c - tmp] = '\0';
-#if 0
-    putstr("search_inode: tmp = ");
-    putstr(tmp);
-    putstr("\r\n");
-    putstr("search_inode: wtmp = ");
-    putstr(working_tmp);
-    putstr("\r\n");
-    putstr("search_inode: c = ");
-    putstr(c);
-    putstr("\r\n");
-#endif
-    for (i = 0; i < strlen(c) - 1; i++)
-      tmp[i] = c[i + 1];
-    tmp[i] = '\0';
-#if 1
-    putstr("search_inode: post tmp = ");
-    putstr(tmp);
-    putstr("\r\n");
-#endif
-
-    if (!(pino = jffs2_1pass_find_inode_by_dma(pL, working_tmp, pino))) {
-      putstr("find_inode failed for name=");
-      putstr(working_tmp);
-      putstr("\r\n");
-      return 0;
-    }
-  }
-  /* this is for the bare filename, directories have already been mapped */
-  if (!(pino = jffs2_1pass_find_inode_by_dma(pL, tmp, pino))) {
-    putstr("find_inode failed for name=");
-    putstr(tmp);
-    putstr("\r\n");
-    return 0;
-  }
-  return pino;
-}
-
-/* find the inode from the slashless name given a parent */
-static long
-jffs2_1pass_read_inode_by_dma(struct b_lists *pL, u32 inode, char *dest)
-{
-  struct b_node *b;
-  struct jffs2_raw_inode *jNode;
-  u32 totalSize = 0;
-  u32 latestVersion = 0;
-  uchar *lDest;
-  uchar *src;
-  int i;
-  u32 counter = 0;
-#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-  /* Find file size before loading any data, so fragments that
-   * start past the end of file can be ignored. A fragment
-   * that is partially in the file is loaded, so extra data may
-   * be loaded up to the next 4K boundary above the file size.
-   * This shouldn't cause trouble when loading kernel images, so
-   * we will live with it.
-   */
-  for (b = pL->frag.listHead; b != NULL; b = b->next) {
-    jNode = (struct jffs2_raw_inode *) get_fl_mem_by_dma(b->offset,
-      sizeof(struct jffs2_raw_inode), pL->readbuf);
-    if ((inode == jNode->ino)) {
-      /* get actual file length from the newest node */
-      if (jNode->version >= latestVersion) {
-        totalSize = jNode->isize;
-        latestVersion = jNode->version;
-      }
-    }
-    put_fl_mem(jNode, pL->readbuf);
-  }
-#endif
-
-  for (b = pL->frag.listHead; b != NULL; b = b->next) {
-    jNode = (struct jffs2_raw_inode *)get_node_mem(b->offset, pL->readbuf, 1);
-    if ((inode == jNode->ino)) {
-#if 0
-      putLabeledWord("\r\n\r\nread_inode: totlen = ", jNode->totlen);
-      putLabeledWord("read_inode: inode = ", jNode->ino);
-      putLabeledWord("read_inode: version = ", jNode->version);
-      putLabeledWord("read_inode: isize = ", jNode->isize);
-      putLabeledWord("read_inode: offset = ", jNode->offset);
-      putLabeledWord("read_inode: csize = ", jNode->csize);
-      putLabeledWord("read_inode: dsize = ", jNode->dsize);
-      putLabeledWord("read_inode: compr = ", jNode->compr);
-      putLabeledWord("read_inode: usercompr = ", jNode->usercompr);
-      putLabeledWord("read_inode: flags = ", jNode->flags);
-#endif
-
-#ifndef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-      /* get actual file length from the newest node */
-      if (jNode->version >= latestVersion) {
-        totalSize = jNode->isize;
-        latestVersion = jNode->version;
-      }
-#endif
-
-      if(dest) {
-        src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
-        /* ignore data behind latest known EOF */
-        if (jNode->offset > totalSize) {
-          put_fl_mem(jNode, pL->readbuf);
-          continue;
-        }
-        if (b->datacrc == CRC_UNKNOWN)
-          b->datacrc = data_crc(jNode) ?
-            CRC_OK : CRC_BAD;
-        if (b->datacrc == CRC_BAD) {
-          put_fl_mem(jNode, pL->readbuf);
-          continue;
-        }
-
-        lDest = (uchar *) (dest + jNode->offset);
-#if 0
-        putLabeledWord("read_inode: src = ", src);
-        putLabeledWord("read_inode: dest = ", lDest);
-#endif
-        //printf("jNode->compr is 0x%x\n",jNode->compr);
-
-        switch (jNode->compr) {
-        case JFFS2_COMPR_NONE:
-          ldr_memcpy(lDest, src, jNode->dsize);
-          break;
-        case JFFS2_COMPR_ZERO:
-          for (i = 0; i < jNode->dsize; i++)
-            *(lDest++) = 0;
-          break;
-        case JFFS2_COMPR_RTIME:
-          rtime_decompress(src, lDest, jNode->csize, jNode->dsize);
-          break;
-        case JFFS2_COMPR_DYNRUBIN:
-          /* this is slow but it works */
-          dynrubin_decompress(src, lDest, jNode->csize, jNode->dsize);
-          break;
-        case JFFS2_COMPR_ZLIB:
-          zlib_decompress(src, lDest, jNode->csize, jNode->dsize);
-          break;
-#if defined(CONFIG_JFFS2_LZO)
-        case JFFS2_COMPR_LZO:
-          lzo_decompress(src, lDest, jNode->csize, jNode->dsize);
-          break;
-#endif
-        default:
-          /* unknown */
-          putLabeledWord("UNKNOWN COMPRESSION METHOD = ", jNode->compr);
-          put_fl_mem(jNode, pL->readbuf);
-          return -1;
-          break;
-        }
-      }
-
-#if 0
-  putLabeledWord("read_inode: totalSize = ", totalSize);
-#endif
-    }
-    counter++;
-    put_fl_mem(jNode, pL->readbuf);
-  }
-
-#if 0
-  putLabeledWord("read_inode: returning = ", totalSize);
-#endif
-  return totalSize;
-}
-
-static u32
-jffs2_1pass_resolve_inode_by_dma(struct b_lists * pL, u32 ino)
-{
-  struct b_node *b;
-  struct b_node *b2;
-  struct jffs2_raw_dirent *jDir;
-  struct jffs2_raw_inode *jNode;
-  u8 jDirFoundType = 0;
-  u32 jDirFoundIno = 0;
-  u32 jDirFoundPino = 0;
-  char tmp[256];
-  u32 version = 0;
-  u32 pino;
-  unsigned char *src;
-
-  /* we need to search all and return the inode with the highest version */
-  for(b = pL->dir.listHead; b; b = b->next) {
-    jDir = (struct jffs2_raw_dirent *)get_node_mem(b->offset, pL->readbuf, 1);
-    if (ino == jDir->ino) {
-      if (jDir->version < version) {
-        put_fl_mem(jDir, pL->readbuf);
-        continue;
-      }
-
-      if (jDir->version == version && jDirFoundType) {
-        /* I'm pretty sure this isn't legal */
-        putstr(" ** ERROR ** ");
-        putnstr(jDir->name, jDir->nsize);
-        putLabeledWord(" has dup version (resolve) = ",
-          version);
-      }
-
-      jDirFoundType = jDir->type;
-      jDirFoundIno = jDir->ino;
-      jDirFoundPino = jDir->pino;
-      version = jDir->version;
-    }
-    put_fl_mem(jDir, pL->readbuf);
-  }
-  /* now we found the right entry again. (shoulda returned inode*) */
-  if (jDirFoundType != DT_LNK)
-    return jDirFoundIno;
-
-  /* it's a soft link so we follow it again. */
-  b2 = pL->frag.listHead;
-  while (b2) {
-    jNode = (struct jffs2_raw_inode *)get_node_mem(b2->offset, pL->readbuf, 1);
-    if (jNode->ino == jDirFoundIno) {
-      src = (unsigned char *)jNode + sizeof(struct jffs2_raw_inode);
-
-#if 1
-      putLabeledWord("\t\t dsize = ", jNode->dsize);
-      putstr("\t\t target = ");
-      putnstr(src, jNode->dsize);
-      putstr("\r\n");
-#endif
-      strncpy(tmp, (char *)src, jNode->dsize);
-      tmp[jNode->dsize] = '\0';
-      put_fl_mem(jNode, pL->readbuf);
-      break;
-    }
-    b2 = b2->next;
-    put_fl_mem(jNode, pL->readbuf);
-  }
-  /* ok so the name of the new file to find is in tmp */
-  /* if it starts with a slash it is root based else shared dirs */
-  if (tmp[0] == '/')
-    pino = 1;
-  else
-    pino = jDirFoundPino;
-
-  return jffs2_1pass_search_inode_by_dma(pL, tmp, pino);
-}
-
-/* Load a file from flash into memory. fname can be a full path */
-static u32
-jffs2_1pass_load_by_dma(char *dest, struct part_info * part, const char *fname)
-{
-  struct b_lists *pl;
-  long ret = 1;
-  u32 inode;
-
-  if (! (pl  = jffs2_get_list(part, "load", 1)))
-    return 0;
-
-  if (! (inode = jffs2_1pass_search_inode_by_dma(pl, fname, 1))) {
-    putstr("load: Failed to find inode\r\n");
-    return 0;
-  }
-
-  /* Resolve symlinks */
-  if (! (inode = jffs2_1pass_resolve_inode_by_dma(pl, inode))) {
-    putstr("load: Failed to resolve inode structure\r\n");
-    return 0;
-  }
-
-  putstr("Loading by dma ...\n");
-
-  if ((ret = jffs2_1pass_read_inode_by_dma(pl, inode, dest)) < 0) {
-    putstr("load: Failed to read inode\r\n");
-    return 0;
-  }
-
-  DEBUGF ("load: loaded '%s' to 0x%lx (%ld bytes)\n", fname,
-        (unsigned long) dest, ret);
-
-  return ret;
-}
-
 static u32 jffs2_1pass_list_inodes(char* const command_name, uint32_t dst,
                                    const char *fname, struct part_info * part,
                                    struct b_lists * pL, u32 pino, u8 dma) {
@@ -1145,8 +777,7 @@ static u32 jffs2_1pass_list_inodes(char* const command_name, uint32_t dst,
   slib_t *slib_list_new;
   mlib_t *mlib_text_list_new;
 
-  if (!dma) pass_load_ptr = &jffs2_1pass_load;
-  else pass_load_ptr = &jffs2_1pass_load_by_dma;
+  pass_load_ptr = &jffs2_1pass_load;
 
   /* discard any leading slash */
   while (fname[i] == '/') i++;
@@ -1620,31 +1251,3 @@ inline u32 jffs2_lib_load_by_ndma(char* const command_name, uint32_t dst,
 	return ret;
 }
 
-/****************** if define(MAPU_DMA_JFFS2) then transfer the data by dma ******************/
-
-#if defined(MAPU_DMA_JFFS2)
-
-inline u32 jffs2_lib_load_by_dma(char* const command_name, uint32_t dst,
-                                 struct part_info * part, const char *fname) {
-	struct b_lists *pl;
-	long ret = 1;
-	u32 inode;
-
-	if (! (pl = jffs2_get_list(part, "dma_ls", 1)))
-		return 0;
-
-	if (! (inode = jffs2_1pass_search_list_inodes(command_name, dst, part, pl,
-	                                              fname, 1, 1))) {
-		putstr("dma_ls: Failed to scan jffs2 file structure\r\n");
-		return 0;
-	}
-
-	#if 0
-		putLabeledWord("found file at inode = ", inode);
-		putLabeledWord("read_inode returns = ", ret);
-	#endif
-
-	return ret;
-}
-
-#endif

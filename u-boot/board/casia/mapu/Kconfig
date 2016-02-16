@@ -10,7 +10,7 @@ config SYS_VENDOR
 	default "casia"
 
 config SYS_CONFIG_NAME
-	default "mapu_sim"
+	default "mapu_a8"
 
 endif
 

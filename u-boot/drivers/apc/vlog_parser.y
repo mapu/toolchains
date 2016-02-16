@@ -20,7 +20,7 @@ static unsigned char *vlog_buf = 0;
 %token <val> VALUE
 %token <addr> ADDR
 
-%type <addr> loads confs conf data
+%type <addr> loads confs conf_wo_addr conf data
 
 %start loads
 
@@ -29,16 +29,14 @@ extern int vloglex(YYSTYPE * yylval, struct pos_strt *position);
 }
 
 %%
-loads : confs { } | { $$ = 0; };
-confs: conf {
-}|
-       confs conf {
-};
+loads : confs | conf_wo_addr | { $$ = 0; };
+confs: conf | confs conf ;
 conf: ADDR data {
   send_vector($1 + param->dst, param->src, vlog_buf - (unsigned char *)param->src, 0,
               param->cpuid);
-}|
-      data {
+  param->src = (unsigned int)vlog_buf;
+};
+conf_wo_addr: data {
   send_vector(param->dst, param->src, vlog_buf - (unsigned char *)param->src, 0,
               param->cpuid);
 };

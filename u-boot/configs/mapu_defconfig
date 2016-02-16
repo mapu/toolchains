@@ -24,7 +24,7 @@ CONFIG_SYS_ARCH="arm"
 CONFIG_SYS_CPU="armv7"
 CONFIG_SYS_VENDOR="casia"
 CONFIG_SYS_BOARD="mapu"
-CONFIG_SYS_CONFIG_NAME="mapu_sim"
+CONFIG_SYS_CONFIG_NAME="mapu_a8"
 
 #
 # ARM architecture
@@ -170,7 +170,7 @@ CONFIG_SYS_EXTRA_OPTIONS=""
 # Command line interface
 #
 # CONFIG_HUSH_PARSER is not set
-CONFIG_SYS_PROMPT="=> "
+CONFIG_SYS_PROMPT="MaPU# "
 
 #
 # Autoboot options

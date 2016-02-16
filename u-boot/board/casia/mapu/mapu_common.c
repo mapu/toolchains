@@ -109,22 +109,12 @@ int board_init(void)
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
-#ifdef CONFIG_SMC911X
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
-#endif
-
-#ifdef MAPU_SIM
-#if defined(CONFIG_E1000) && defined(CONFIG_PCI)
-	rc += pci_eth_init(bis);
-#endif
-#else
 #ifdef CONFIG_DESIGNWARE_ETH
 	setenv("ethaddr", "74:D4:35:C0:C5:C9");
 	u32 interface = PHY_INTERFACE_MODE_MII;
 	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
 				interface) >= 0)
 		rc++;
-#endif
 #endif
 	return rc;
 }
