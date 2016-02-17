@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
             self.microcodeTable.saveFile(fileName)
 
     def closeWindow(self):
-        print "closeWindow"
+        self.close()
 
     def closeEvent(self, event):
         self.closeWindow()

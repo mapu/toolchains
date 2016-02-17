@@ -423,7 +423,6 @@ class MicrocodeTable(InitTableWidget):
                 lines.append(line)
             lines.append(".endhmacro\n\n")
             fp.writelines(lines)
-
         fp.close()                
 
     def openFile(self, fileName): 
@@ -445,8 +444,13 @@ class MicrocodeTable(InitTableWidget):
                 record = endPattern.search(string)
                 column += 1
                 if column > self.ColumnCount:
+                    self.ColumnCount = column
                     self.setColumnCount(column)
                     self.loopBodyList.append([])
+                    num = len(self.array)
+                    for i in xrange(num):
+                        data = self.array[i]
+                        data.append("....")
                 row = 0
             elif startLPPattern.search(string) != None:
                 if string.find("||") >= 0:
@@ -469,6 +473,10 @@ class MicrocodeTable(InitTableWidget):
                                 text = record[0]
                             self.setItem(row, column, QTableWidgetItem(text))
                             row += 1
+                            if row > self.RowCount:
+                                self.RowCount = row
+                                self.setRowCount(row)
+                                self.array.append(["...."]*(self.ColumnCount))
                 else:
                     record = startLPPattern.match(string)        
                     info = RectInfo()
@@ -487,9 +495,6 @@ class MicrocodeTable(InitTableWidget):
                         info.endRow = (row - 1)
                         self.setItemInfo(info)
                         break
-                #set item reg value
-                for i in range(info.startRow, info.endRow + 1):
-                    item = self.item(i, column)
             elif rowPattern.search(string) != None:
                 record = rowPattern.search(string)
                 text = record.group(1)
@@ -497,6 +502,9 @@ class MicrocodeTable(InitTableWidget):
                     text = ""
                 self.setItem(row, column, QTableWidgetItem(text))
                 row += 1
-
+                if row > self.RowCount:
+                    self.RowCount = row
+                    self.setRowCount(row)
+                    self.array.append(["...."]*(self.ColumnCount))
         fp.close()
 
