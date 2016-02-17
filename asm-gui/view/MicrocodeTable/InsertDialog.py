@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL, pyqtSlot
-from PyQt4.QtGui import QDialog, QGroupBox, QRadioButton, QVBoxLayout, QHBoxLayout
+from PyQt4.QtGui import QDialog, QGroupBox, QRadioButton, QVBoxLayout, QHBoxLayout, QPushButton
 
 class InsertDialog(QDialog):
     insertOperateSignal = pyqtSignal(int)

@@ -7,11 +7,9 @@ import data.RegColor
 class CellDelegate(QItemDelegate):
     floatDialogShowSignal = pyqtSignal(int, int, str)
     floatDialogCloseSignal = pyqtSignal()
-    def __init__(self, array, loopBodyList, parent = None):
+    def __init__(self, parent = None):
         super(CellDelegate, self).__init__(parent)
         self.regColor = data.RegColor.initRegColor()
-        self.array = array
-        self.loopBodyList = loopBodyList
         self.flagList = [[1, 1, 0, 0],
                          [0, 0, 1, 1],
                          [0, 0, 0, 0]]
@@ -32,6 +30,10 @@ class CellDelegate(QItemDelegate):
 
     def lineEditClear(self):
         self.lineEdit.clear()
+
+    def setArray(self, array, loopList):
+        self.array = array
+        self.loopBodyList = loopList
 
     def paint(self, painter, option, index):
         myOption = QStyleOptionViewItem(option)
@@ -76,7 +78,7 @@ class CellDelegate(QItemDelegate):
                     regList = textList[3].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]), \
-                                     option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))        
+                                     option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))       
         QItemDelegate.paint(self, painter, myOption, index)   
 
 

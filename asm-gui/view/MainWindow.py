@@ -135,11 +135,12 @@ class MainWindow(QMainWindow):
 
     def newFile(self):
         self.microcodeTable.loopBodyList = [[]for i in xrange(self.microcodeTable.ColumnCount)]
-        self.microcodeTable.clearTable()
+        self.microcodeTable.initTable()
 
     def openFile(self):
         fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
         if fileName != "":
+            self.microcodeTable.initTable()
             self.microcodeTable.openFile(fileName)
 
     def saveFile(self):

@@ -1,57 +1,29 @@
 # -*- coding: utf-8 -*-   
 import sys
-from PyQt4.QtGui import QTableWidget, QAbstractItemView, QApplication, QPainter, QPen, QTableWidgetSelectionRange, QBrush, QTableWidgetItem
+from PyQt4.QtGui import QTableWidgetItem, QBrush
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
-from SetFSMNameWidget import SetFSMNameWidget
-from view.MicrocodeTable.InsertDialog import InsertDialog
-from view.MicrocodeTable.DeleteDialog import DeleteDialog
+from view.MicrocodeTable.InitTableWidget import InitTableWidget
 from view.MicrocodeTable.FloatDialog import FloatDialog
-from view.MicrocodeTable.CellDelegate import CellDelegate
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
 import re
 
-class MicrocodeTable(QTableWidget):  
+class MicrocodeTable(InitTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
     itemRegStateSignal = pyqtSignal(list)
     def __init__(self, parent = None):  
         super(MicrocodeTable, self).__init__(parent)   
 
-        self.setSelectionMode(QAbstractItemView.ContiguousSelection)
-
-        self.RowCount = 100
-        self.ColumnCount = 10
-        self.currentRowNum = 0
-        self.currentColumnNum = 0
-        self.currentTopRow = 0
-        self.currentLeftColumn = 0
-        self.CurrentRow = -1
-        self.CurrentColumn = -1
-        self.headerList = QStringList()
-        self.clearTable()
-        self.connect(self.horizontalHeader(), SIGNAL("sectionDoubleClicked(int)"), self.setHeader)
         self.floatDialog = 0
         self.floatDialogFocus = 0
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
         self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.horizontalScrollBarChangedSlot)
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
 
-        self.setAttribute(Qt.WA_PaintOutsidePaintEvent)
         #record the previous point row
         self.previousPointRow = -1
-
-        #get default background
-        item = QTableWidgetItem("")
-        self.defaultBackgroundColor = item.background()
-        #init array data
-        self.array = [x[:] for x in [["...."]*(self.ColumnCount)]*(self.RowCount)]
-        self.loopBodyList = [[]for i in xrange(self.ColumnCount)]
-        cellDelegate = CellDelegate(self.array, self.loopBodyList)
-        self.setItemDelegate(cellDelegate)
-        cellDelegate.floatDialogShowSignal.connect(self.floatDialogShowSlot)
-        cellDelegate.floatDialogCloseSignal.connect(self.floatDialogCloseSlot)
-     
+    
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
         self.floatDialogCloseSlot()
         self.CurrentRow = previousRow
@@ -85,246 +57,6 @@ class MicrocodeTable(QTableWidget):
 
     def verticalScrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
-
-    def getRowCount(self):
-        return self.rowCount()
-
-    def getColumnCount(self):
-        return self.columnCount()
-
-    def clearTable(self):
-        self.clear()
-        self.setRowCount(self.RowCount)
-        self.setColumnCount(self.ColumnCount)
-        self.headerList.clear()
-        for i in xrange(0, self.ColumnCount):
-            self.headerList.append(QString("nonameFSM" + str(i)))
-        self.setHorizontalHeaderLabels(self.headerList)
-
-    def setHeader(self, column):
-        setFSMNameWidget = SetFSMNameWidget(column, self)
-        setFSMNameWidget.setFSMNameSignal.connect(self.setFSMNameSlot)
-        setFSMNameWidget.exec_()
-
-    def setFSMNameSlot(self, column, string):
-        item = QTableWidgetItem(string)
-        self.setHorizontalHeaderItem(column, item)
-
-    def cut(self):
-        self.copy()
-        self.delete()
-
-    def copy(self):	
-        selRange = self.selectedRange()
-        string = QString()
-        for i in xrange(0, selRange.rowCount()):
-            if i> 0:
-                string += '\n'
-            for j in xrange(0, selRange.columnCount()):
-                if j > 0:
-                    string += '\t'
-                item = self.item(selRange.topRow() + i, selRange.leftColumn() + j)
-                if item == None:
-                    string += ""
-                else:
-                    string += self.item(selRange.topRow() + i, selRange.leftColumn() + j).text()
-        QApplication.clipboard().setText(string)
-
-    def paste(self):
-        selRange = self.selectedRange()
-        string = QApplication.clipboard().text()
-        rows = string.split('\n')
-        numRows = rows.count()
-        numColumns = rows.first().count('\t') + 1
-        if selRange.rowCount()*selRange.columnCount() != 1 and (selRange.rowCount() != numRows or selRange.columnCount() != numColumns):
-            QMessageBox.information(self, 'MicrocodeTable', "The information cannot be passted because the copy and paste areas aren't the same size.")
-            return
-        for i in xrange(0, numRows):
-            columns = rows[i].split('\t')
-            for j in xrange(0, numColumns):
-                row = selRange.topRow() + i
-                column = selRange.leftColumn() + j
-                if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
-
-    def delete(self):
-        items = self.selectedItems()
-        for i in xrange(len(items)):
-            items[i].setText("")
-
-    def selectCurrentRow(self):
-        self.selectRow(self.currentRow())
-
-    def selectCurrentColumn(self):
-        self.selectColumn(self.currentColumn())
-
-    def insertDialogShow(self):
-        selRange = self.selectedRange()
-        self.currentRowNum = selRange.rowCount()
-        self.currentColumnNum = selRange.columnCount()
-        self.currentTopRow = selRange.topRow()
-        self.currentLeftColumn = selRange.leftColumn()
-        insertDialog = InsertDialog(self)
-        insertDialog.insertOperateSignal.connect(self.insertOperateSlot)
-        insertDialog.exec_()
-
-    def deleteDialogShow(self):
-        selRange = self.selectedRange()
-        self.currentRowNum = selRange.rowCount()
-        self.currentColumnNum = selRange.columnCount()
-        self.currentTopRow = selRange.topRow()
-        self.currentLeftColumn = selRange.leftColumn()
-        deleteDialog = DeleteDialog(self)
-        deleteDialog.deleteOperateSignal.connect(self.deleteOperateSlot)
-        deleteDialog.exec_()
-
-    def selectedRange(self):
-        ranges = self.selectedRanges()
-        if len(ranges) == 0:
-            return QTableWidgetSelectionRange()
-        return ranges[0]
-		    
-    def insertOperateSlot(self, index):
-        if index == 0:
-            self.insertLeftCell()
-        elif index == 1:
-            self.insertUpCell()
-        elif index == 2:
-            self.insertRows()
-        elif index == 3:
-            self.insertColumns()
-
-    def insertLeftCell(self):
-        self.insertColumn(self.ColumnCount)
-        self.ColumnCount += 1
-
-        string = QString()
-        for i in xrange(0, self.currentRowNum):
-            if i> 0:
-                string += '\n'
-            for j in xrange(0, self.ColumnCount - self.currentLeftColumn):
-                if j > 0:
-                    string += '\t'
-                item = self.item(self.currentTopRow + i, self.currentLeftColumn + j)
-                if item == None:
-                    string += ""
-                else:
-                    string += item.text()
-        self.delete()
-        rows = string.split('\n')
-        numRows = rows.count()
-        numColumns = rows.first().count('\t') + 1
-        for i in xrange(0, numRows):
-            columns = rows[i].split('\t')
-            for j in xrange(0, numColumns):
-                row = self.currentTopRow + i
-                column = self.currentLeftColumn + j + self.currentColumnNum
-                if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
-
-    def insertUpCell(self):
-        self.insertRow(self.RowCount)
-        self.RowCount += 1
-
-        string = QString()
-        for i in xrange(0, self.ColumnCount - self.currentTopRow):
-            if i> 0:
-                string += '\n'
-            for j in xrange(0, self.currentColumnNum):
-                if j > 0:
-                    string += '\t'
-                item = self.item(self.currentTopRow + i, self.currentLeftColumn + j)
-                if item == None:
-                    string += ""
-                else:
-                    string += item.text()
-        self.delete()
-        rows = string.split('\n')
-        numRows = rows.count()
-        numColumns = rows.first().count('\t') + 1
-        for i in xrange(0, numRows):
-            columns = rows[i].split('\t')
-            for j in xrange(0, numColumns):
-                row = self.currentTopRow + i + self.currentRowNum
-                column = self.currentLeftColumn + j
-                if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))
-  
-    def insertRows(self):
-        for i in xrange(self.currentRowNum):
-            self.insertRow(self.currentTopRow + i)
-
-    def insertColumns(self):
-        for i in xrange(self.currentColumnNum):
-            self.insertColumn(self.currentLeftColumn + i)
-
-    def deleteOperateSlot(self, index):
-        if index == 0:
-            self.deleteCellLeft()
-        elif index == 1:
-            self.deleteCellUp()
-        elif index == 2:
-            self.deleteRows()
-        elif index == 3:
-            self.deleteColumns()
-
-    def deleteCellLeft(self):
-        string = QString()
-        for i in xrange(0, self.currentRowNum):
-            if i> 0:
-                string += '\n'
-            for j in xrange(0, self.ColumnCount - self.currentLeftColumn - self.currentColumnNum):
-                if j > 0:
-                    string += '\t'
-                item = self.item(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j)
-                if item == None:
-                    string += ""
-                else:
-                    string += item.text()
-        self.delete()
-        rows = string.split('\n')
-        numRows = rows.count()
-        numColumns = rows.first().count('\t') + 1
-        for i in xrange(0, numRows):
-            columns = rows[i].split('\t')
-            for j in xrange(0, numColumns):
-                row = self.currentTopRow + i
-                column = self.currentLeftColumn + j
-                if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))	
-
-    def deleteCellUp(self):
-        string = QString()
-        for i in xrange(0, self.RowCount - self.currentTopRow - self.currentRowNum):
-            if i > 0:
-                string += '\n'
-            for j in xrange(0, self.currentColumnNum):
-                if j > 0:
-                    string += '\t'
-                item = self.item(self.currentTopRow + self.currentRowNum + i, self.currentLeftColumn + j)
-                if item == None:
-                    string += ""
-                else:
-                    string += item.text()
-        self.delete()
-        rows = string.split('\n')
-        numRows = rows.count()
-        numColumns = rows.first().count('\t') + 1
-        for i in xrange(0, numRows):
-            columns = rows[i].split('\t')
-            for j in xrange(0, numColumns):
-                row = self.currentTopRow + i
-                column = self.currentLeftColumn + j
-                if row < self.RowCount and column < self.ColumnCount:
-                     self.setItem(row, column, QTableWidgetItem(columns[j]))
-
-    def deleteRows(self):
-        for i in xrange(self.currentRowNum):
-            self.removeRow(self.currentTopRow)
-
-    def deleteColumns(self):
-        for i in xrange(self.currentColumnNum):
-            self.removeColumn(self.currentLeftColumn)		
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Down:
@@ -610,88 +342,96 @@ class MicrocodeTable(QTableWidget):
                 self.setItem(row, i, item)
             item.setBackground(self.defaultBackgroundColor)
 
-    def searchLPStart(self, columnList, startRow):
-        num = len(columnList)
-        regList = []
-        for i in xrange(num):
-            info = columnList[i]
-            if info.startRow == startRow:
-                regList.append(info)
-        return regList
+    def searchLPStart(self, rectList, row):
+        cmpList = []
+        n = 0
+        for info in rectList:
+            info.num = n
+            n += 1
+            if info.startRow == row:
+                if cmpList != []:
+                    tmp = cmpList[-1]
+                    if tmp.endRow < info.endRow:
+                        cmpList.insert(-2, info)
+                    else:
+                        cmpList.append(info)
+                else:
+                    cmpList.append(info)
+        return cmpList
 
-    def searchLPEnd(self, columnList, endRow):
-        num = len(columnList)
-        regList = []
-        for i in xrange(num):
-            info = columnList[i]
-            if info.endRow == endRow:
-                regList.append(info)
-        return regList
+    def searchLPEnd(self, rectList, row):
+        cmpList = []
+        for info in rectList:
+            if info.endRow == row:
+                if cmpList != []:
+                    tmp = cmpList[-1]
+                    if tmp.startRow < info.startRow:
+                        cmpList.insert(-2, info)
+                    else:
+                        cmpList.append(info)
+                else:
+                    cmpList.append(info)
+        return cmpList
 
     def saveFile(self, fileName):
         fp = open(fileName, "w")
         for column in xrange(self.ColumnCount):
-            columnList = self.loopBodyList[column]
+            rectList = self.loopBodyList[column]
             lines = []
-            line = ".hmacro "
             item = self.horizontalHeaderItem(column)
-            line += item.text()
-            line += "\n"
+            line = ".hmacro %s\n" % (item.text())
             lines.append(line)
-            for row in xrange(self.RowCount): 
+            line = ""
+            for row in xrange(self.RowCount):
+                text = self.array[row][column]
+                textList = text.split(".")
                 #get loop start info
-                regList = self.searchLPStart(columnList, row)
-                num = len(regList)
-                if num == 0 and row != 0:
-                    if str(line).find(":") < 0:
-                        line += ";"
-                    line += "\n"
-                    lines.append(line)               
-                for i in xrange(num):
-                    if row != 0 and str(line).find(":") < 0:
-                        line += " || " 
-                    elif str(line).find(":") >= 0:
-                        line += "\n"
-                        lines.append(line)
-                        line = ""
-                    else:
-                        line = ""
-                    loop = "LPTO (%df ) @ (%s)"%(regList[i].num, str(regList[i].reg))   
-                    line += loop                
+                if textList[0] != "": 
+                    cmpList = [] 
+                    if row == 0:
+                        line = "" 
+                    elif line != "": 
+                        line += " || "
+                    cmpList = self.searchLPStart(rectList, row)
+                    for info in cmpList:   
+                        loop = "LPTO (%df ) @ (%d) || "%(info.num, info.reg)
+                        line += loop
+                    line = line[:-4]
                     line += ";\n"
-                    lines.append(line)                     
+                    lines.append(line) 
+                else:
+                    if line != "":
+                        line += ";\n"
+                        lines.append(line)
+                #get item text    
                 item = self.item(row, column)
                 if item == None or item.text() == "":
                     line = "NOP"
                 else:
-                    line = item.text()
+                    line = item.text()    
                 #get loop end info
-                regList = self.searchLPEnd(columnList, row)
-                num = len(regList)
-                if num > 0:
+                if textList[2] != "":
                     line += ";\n"
                     lines.append(line)
-                else:
-                    continue       
-                for i in xrange(num):                  
-                    line = str(regList[i].num) + ":"
-            if num == 0:
-                line += ";"
-            line += "\n"
-            lines.append(line)
+                    cmpList = self.searchLPEnd(rectList, row)
+                    for info in cmpList:              
+                        line = str(info.num) + ":\n" 
+                        lines.append(line) 
+                    line = ""    
+            if line != "":
+                line += ";\n"
+                lines.append(line)
             lines.append(".endhmacro\n\n")
             fp.writelines(lines)
 
-        fp.close()
+        fp.close()                
 
     def openFile(self, fileName): 
         headerPattern = re.compile("\.hmacro ([a-zA-Z]+[0-9]+)")
         endPattern = re.compile("\.endhmacro")
-        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+)\);")
+        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+)\)")
         endLPPattern = re.compile("(\d+):")
         rowPattern = re.compile("(.+);")
-
-        self.loopBodyList = [[]for i in xrange(self.ColumnCount)]
 
         fp = open(fileName, "r")
         stringList = fp.readlines()   
@@ -711,33 +451,45 @@ class MicrocodeTable(QTableWidget):
             elif startLPPattern.search(string) != None:
                 if string.find("||") >= 0:
                     record = string.split(" || ")
-                    if record[0] == "NOP":
-                        text = ""
-                    else:
-                        text = record[0]
-                    self.setItem(row, column, QTableWidgetItem(text))
-                    row += 1
-                    string = record[1]
-                record = startLPPattern.search(string)           
-                info = RectInfo()
-                info.startRow = row
-                info.num = int(record.group(1))
-                info.reg = int(record.group(2))
-                info.column = column
-                item = QTableWidgetItem("")
-                self.setItem(row, column, item)
-                self.loopBodyList[column].append(info)
+                    for lpto in record:
+                        if startLPPattern.match(lpto) != None:
+                            r = startLPPattern.match(lpto)        
+                            info = RectInfo()
+                            info.startRow = row
+                            info.num = int(r.group(1))
+                            info.reg = int(r.group(2))
+                            info.column = column
+                            item = QTableWidgetItem("")
+                            self.setItem(row, column, item)
+                            self.loopBodyList[column].append(info)
+                        else:
+                            if lpto == "NOP":
+                                text = ""
+                            else:
+                                text = record[0]
+                            self.setItem(row, column, QTableWidgetItem(text))
+                            row += 1
+                else:
+                    record = startLPPattern.match(string)        
+                    info = RectInfo()
+                    info.startRow = row
+                    info.num = int(record.group(1))
+                    info.reg = int(record.group(2))
+                    info.column = column
+                    item = QTableWidgetItem("")
+                    self.setItem(row, column, item)
+                    self.loopBodyList[column].append(info)
             elif endLPPattern.search(string) !=None:        
                 record = endLPPattern.search(string)
                 columnList = self.loopBodyList[column]
                 for info in columnList:
                     if info.num == int(record.group(1)):
                         info.endRow = (row - 1)
+                        self.setItemInfo(info)
                         break
                 #set item reg value
                 for i in range(info.startRow, info.endRow + 1):
                     item = self.item(i, column)
-                    item.reg.append(info.reg)
             elif rowPattern.search(string) != None:
                 record = rowPattern.search(string)
                 text = record.group(1)
