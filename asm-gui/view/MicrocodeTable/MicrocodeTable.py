@@ -365,7 +365,7 @@ class MicrocodeTable(InitTableWidget):
             if info.endRow == row:
                 if cmpList != []:
                     tmp = cmpList[-1]
-                    if tmp.startRow < info.startRow:
+                    if tmp.startRow <= info.startRow:
                         cmpList.insert(-2, info)
                     else:
                         cmpList.append(info)
