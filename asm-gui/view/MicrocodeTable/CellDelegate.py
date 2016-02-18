@@ -12,7 +12,8 @@ class CellDelegate(QItemDelegate):
         self.regColor = data.RegColor.initRegColor()
         self.flagList = [[1, 1, 0, 0],
                          [0, 0, 1, 1],
-                         [0, 0, 0, 0]]
+                         [0, 0, 0, 0],
+                         [1, 1, 1, 1]]
 
     def createEditor(self, parent, option, index):
         self.lineEdit = QLineEdit(parent)
@@ -50,7 +51,9 @@ class CellDelegate(QItemDelegate):
             textList = text.split(".")
             pen = QPen()
             for cmpInfo in cmpList:
-                if cmpInfo.startRow == index.row():
+                if cmpInfo.startRow == index.row() and cmpInfo.endRow == index.row():
+                    flag = self.flagList[3]
+                elif cmpInfo.startRow == index.row():
                     flag = self.flagList[0]
                 elif cmpInfo.endRow == index.row():
                     flag = self.flagList[1]

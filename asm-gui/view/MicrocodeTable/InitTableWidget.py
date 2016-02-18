@@ -156,7 +156,7 @@ class InitTableWidget(QTableWidget):
 
         string = QString()
         for i in xrange(0, self.currentRowNum):
-            if i> 0:
+            if i > 0:
                 string += '\n'
             for j in xrange(0, self.ColumnCount - self.currentLeftColumn):
                 if j > 0:
@@ -185,7 +185,7 @@ class InitTableWidget(QTableWidget):
 
         string = QString()
         for i in xrange(0, self.ColumnCount - self.currentTopRow):
-            if i> 0:
+            if i > 0:
                 string += '\n'
             for j in xrange(0, self.currentColumnNum):
                 if j > 0:
@@ -236,7 +236,7 @@ class InitTableWidget(QTableWidget):
     def deleteCellLeft(self):
         string = QString()
         for i in xrange(0, self.currentRowNum):
-            if i> 0:
+            if i > 0:
                 string += '\n'
             for j in xrange(0, self.ColumnCount - self.currentLeftColumn - self.currentColumnNum):
                 if j > 0:
@@ -258,7 +258,7 @@ class InitTableWidget(QTableWidget):
                 row = self.currentTopRow + i
                 column = self.currentLeftColumn + j
                 if row < self.RowCount and column < self.ColumnCount:
-                    self.setItem(row, column, QTableWidgetItem(columns[j]))	
+                    self.setItem(row, column, QTableWidgetItem(columns[j]))
 
     def deleteCellUp(self):
         string = QString()
