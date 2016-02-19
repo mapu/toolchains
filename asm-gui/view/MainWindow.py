@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog
+from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit
 from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot
 from res import qrc_resources 
 from view.MicrocodeTable.MicrocodeTable import MicrocodeTable
@@ -10,17 +10,15 @@ class MainWindow(QMainWindow):
     def __init__(self, parent = None):  
         super(MainWindow, self).__init__(parent)   
 
+        self.register = ["KI12", "KI13", "KI14", "KI15"]
         self.setWindowTitle("Graphic Microcode Editor")
         self.resize(800, 600)
-
-        self.microcodeTable = MicrocodeTable()
+        self.microcodeTable = MicrocodeTable(self.register)
         self.setCentralWidget(self.microcodeTable)
-
         self.createAction()
         self.createContextMenu()
         self.createToolBars()
         self.createMenus()
-
         self.microcodeTable.itemRegStateSignal.connect(self.itemRegStateSlot)
 
     def createAction(self):
@@ -122,16 +120,45 @@ class MainWindow(QMainWindow):
         editToolBar.addAction(self.copyAction)
         editToolBar.addAction(self.pasteAction)
 
-        registerToolBar=self.addToolBar("Register")
-        self.register0Check=QCheckBox("Reg0") 
-        self.register1Check=QCheckBox("Reg1") 
+        registerToolBar = self.addToolBar("Register")
+        self.register0Check = QCheckBox(self.register[0]) 
+        self.register0Text = QLineEdit("0")
+        self.register0Text.setFixedSize(40, 20)
+        #self.register0Text.setEnabled(False)
+        self.register1Check = QCheckBox(self.register[1]) 
+        self.register1Text = QLineEdit("0")
+        self.register1Text.setFixedSize(40, 20)
+        #self.register1Text.setEnabled(False)
+        self.register2Check = QCheckBox(self.register[2]) 
+        self.register2Text = QLineEdit("0")
+        self.register2Text.setFixedSize(40, 20)
+        #self.register2Text.setEnabled(False)
+        self.register3Check = QCheckBox(self.register[3])
+        self.register3Text =QLineEdit("0")
+        self.register3Text.setFixedSize(40, 20)
+        #self.register3Text.setEnabled(False)
         self.registerCheck = []
         self.registerCheck.append(self.register0Check)
         self.registerCheck.append(self.register1Check)
+        self.registerCheck.append(self.register2Check)
+        self.registerCheck.append(self.register3Check)
+        self.registerText = []
+        self.registerText.append(self.register0Text)
+        self.registerText.append(self.register1Text)
+        self.registerText.append(self.register2Text)
+        self.registerText.append(self.register3Text)
         self.connect(self.register0Check, SIGNAL("clicked(bool)"), self.register0Slot)
         self.connect(self.register1Check, SIGNAL("clicked(bool)"), self.register1Slot)
+        self.connect(self.register2Check, SIGNAL("clicked(bool)"), self.register2Slot)
+        self.connect(self.register3Check, SIGNAL("clicked(bool)"), self.register3Slot)
         registerToolBar.addWidget(self.register0Check)
+        registerToolBar.addWidget(self.register0Text)
         registerToolBar.addWidget(self.register1Check)
+        registerToolBar.addWidget(self.register1Text)
+        registerToolBar.addWidget(self.register2Check)
+        registerToolBar.addWidget(self.register2Text)
+        registerToolBar.addWidget(self.register3Check)
+        registerToolBar.addWidget(self.register3Text)
 
     def newFile(self):
         self.microcodeTable.loopBodyList = [[]for i in xrange(self.microcodeTable.ColumnCount)]
@@ -156,44 +183,100 @@ class MainWindow(QMainWindow):
 	
     def register0Slot(self, checkState):
         if checkState == True:
-            re = self.microcodeTable.paintRect(0) 
+            re = self.microcodeTable.paintRect(0, self.register0Text.text()) 
             if re == 0:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one column")
+                return
             if re == -1:
                 self.register0Check.setCheckState(Qt.Unchecked)
                 warning("Please select one or more cells") 
+                return
             if re == -2:
                 self.register0Check.setCheckState(Qt.Unchecked)
-                warning("Cannot set loop at the intersection of cells")      
+                warning("Cannot set loop at the intersection of cells")   
+                return
+            self.register0Text.setEnabled(True)   
         else:
             self.microcodeTable.eraserRect(0)
+            #self.register0Text.setEnabled(False)
 
     def register1Slot(self, checkState):
         if checkState == True:
-            re = self.microcodeTable.paintRect(1)   
+            re = self.microcodeTable.paintRect(1, self.register1Text.text())   
             if re == 0:
                 self.register1Check.setCheckState(Qt.Unchecked)   
                 warning("Please select one column")  
+                return
             if re == -1:
                 self.register1Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells")  
+                warning("Please select one or more cells") 
+                return 
             if re == -2:
                 self.register1Check.setCheckState(Qt.Unchecked)
                 warning("Cannot set loop at the intersection of cells")  
+                return
+            self.register1Text.setEnabled(True)
         else:
             self.microcodeTable.eraserRect(1) 
+            #self.register1Text.setEnabled(False)
+
+    def register2Slot(self, checkState):
+        if checkState == True:
+            re = self.microcodeTable.paintRect(2, self.register2Text.text())   
+            if re == 0:
+                self.register2Check.setCheckState(Qt.Unchecked)   
+                warning("Please select one column") 
+                return 
+            if re == -1:
+                self.register2Check.setCheckState(Qt.Unchecked)
+                warning("Please select one or more cells")  
+                return
+            if re == -2:
+                self.register2Check.setCheckState(Qt.Unchecked)
+                warning("Cannot set loop at the intersection of cells")  
+                return
+            self.register2Text.setEnabled(True)
+        else:
+            self.microcodeTable.eraserRect(2) 
+            #self.register2Text.setEnabled(False)
+
+    def register3Slot(self, checkState):
+        if checkState == True:
+            re = self.microcodeTable.paintRect(3, self.register3Text.text())   
+            if re == 0:
+                self.register3Check.setCheckState(Qt.Unchecked)   
+                warning("Please select one column")  
+                return
+            if re == -1:
+                self.register3Check.setCheckState(Qt.Unchecked)
+                warning("Please select one or more cells")  
+                return
+            if re == -2:
+                self.register3Check.setCheckState(Qt.Unchecked)
+                warning("Cannot set loop at the intersection of cells")
+                return
+            self.register3Text.setEnabled(True)  
+        else:
+            self.microcodeTable.eraserRect(3) 
+            #self.register3Text.setEnabled(False)
 
     def setAllCheckStatus(self, status):
         num = len(self.registerCheck)
         for i in xrange(0, num):
             self.registerCheck[i].setCheckState(status)
+            self.registerText[i].clear()
+            #self.registerText[i].setEnabled(False)
 
-    def itemRegStateSlot(self, reg):
+    def itemRegStateSlot(self, regList, textList):
         self.setAllCheckStatus(Qt.Unchecked)
-        num = len(reg)
+        num = len(regList)
         for i in xrange(0, num):
-            self.registerCheck[int(reg[i])].setCheckState(Qt.Checked)
+            self.registerCheck[int(regList[i])].setCheckState(Qt.Checked)
+            self.registerText[int(regList[i])].setEnabled(True)
+        num = len(textList)
+        for i in xrange(num):
+            self.registerText[i].setText(str(textList[i]))
 
                 
 

@@ -11,10 +11,11 @@ import re
 
 class MicrocodeTable(InitTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
-    itemRegStateSignal = pyqtSignal(list)
-    def __init__(self, parent = None):  
+    itemRegStateSignal = pyqtSignal(list, list)
+    def __init__(self, register, parent = None):  
         super(MicrocodeTable, self).__init__(parent)   
 
+        self.register = register
         self.floatDialog = 0
         self.floatDialogFocus = 0
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
@@ -29,14 +30,19 @@ class MicrocodeTable(InitTableWidget):
         self.CurrentRow = previousRow
         self.CurrentColumn = previousColumn
         #show reg info
-        text = self.array[currentRow][currentColumn]
-        textList = text.split(".")
-        regList = textList[1].split(",")
-        if len(regList) > 0:
-            del regList[-1]
-            self.itemRegStateSignal.emit(regList)   
-        else:
-            self.itemRegStateSignal.emit([])
+        regList = []
+        marginList = [0, 0, 0, 0]
+        if currentRow < len(self.array):
+            text = self.array[currentRow][currentColumn]
+            textList = text.split(".")
+            regList = textList[1].split(",")
+            if len(regList) > 0:
+                del regList[-1]
+            rectList = self.loopBodyList[currentColumn]
+            for info in rectList:
+                if info.startRow <= currentRow and info.endRow >= currentRow:
+                    marginList[info.reg] = info.margin 
+        self.itemRegStateSignal.emit(regList, marginList)   
         #show code input row
         if self.previousPointRow != -1:
             self.earserWholeRowColor(self.previousPointRow)   
@@ -221,10 +227,15 @@ class MicrocodeTable(InitTableWidget):
                 text = "%s.%s.%s.%s.%s"%(textList[0], textList[1], textList[2], textList[3], textList[4])  
                 self.array[i][info.column] = text                    
         
-    def paintRect(self, reg):
+    def paintRect(self, reg, text):
         rectInfo = self.setRectInfo(reg)
         if rectInfo == 0 or rectInfo == -1 or rectInfo == -2:
             return rectInfo
+        rectInfo.margin = int(text)
+        if rectInfo.endRow > self.loopEndRow:
+            for i in xrange(self.loopEndRow, rectInfo.endRow):
+                self.array.append(["...."]*(self.ColumnCount))
+            self.loopEndRow = rectInfo.endRow
         #add loopBodyList
         self.loopBodyList[rectInfo.column].append(rectInfo)
         self.setItemInfo(rectInfo) 
@@ -352,7 +363,7 @@ class MicrocodeTable(InitTableWidget):
                 if cmpList != []:
                     tmp = cmpList[-1]
                     if tmp.endRow < info.endRow:
-                        cmpList.insert(-2, info)
+                        cmpList.insert(0, info)
                     else:
                         cmpList.append(info)
                 else:
@@ -366,7 +377,7 @@ class MicrocodeTable(InitTableWidget):
                 if cmpList != []:
                     tmp = cmpList[-1]
                     if tmp.startRow <= info.startRow:
-                        cmpList.insert(-2, info)
+                        cmpList.insert(0, info)
                     else:
                         cmpList.append(info)
                 else:
@@ -382,7 +393,7 @@ class MicrocodeTable(InitTableWidget):
             line = ".hmacro %s\n" % (item.text())
             lines.append(line)
             line = ""
-            for row in xrange(self.RowCount):
+            for row in xrange(self.loopEndRow + 1):
                 text = self.array[row][column]
                 textList = text.split(".")
                 #get loop start info
@@ -394,7 +405,7 @@ class MicrocodeTable(InitTableWidget):
                         line += " || "
                     cmpList = self.searchLPStart(rectList, row)
                     for info in cmpList:   
-                        loop = "LPTO (%df ) @ (%d) || "%(info.num, info.reg)
+                        loop = "LPTO (%df ) @ (%s - %d) || "%(info.num, self.register[info.reg], info.margin)
                         line += loop
                     line = line[:-4]
                     line += ";\n"
@@ -428,7 +439,7 @@ class MicrocodeTable(InitTableWidget):
     def openFile(self, fileName): 
         headerPattern = re.compile("\.hmacro ([a-zA-Z]+[0-9]+)")
         endPattern = re.compile("\.endhmacro")
-        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+)\)")
+        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+) - (\d*)\)")
         endLPPattern = re.compile("(\d+):")
         rowPattern = re.compile("(.+);")
 
@@ -461,7 +472,8 @@ class MicrocodeTable(InitTableWidget):
                             info = RectInfo()
                             info.startRow = row
                             info.num = int(r.group(1))
-                            info.reg = int(r.group(2))
+                            info.reg = self.register.index(r.group(2))
+                            info.margin = int(r.group(3))
                             info.column = column
                             item = QTableWidgetItem("")
                             self.setItem(row, column, item)
@@ -482,17 +494,22 @@ class MicrocodeTable(InitTableWidget):
                     info = RectInfo()
                     info.startRow = row
                     info.num = int(record.group(1))
-                    info.reg = int(record.group(2))
+                    info.reg = self.register.index(record.group(2))
+                    info.margin = int(record.group(3))
                     info.column = column
                     item = QTableWidgetItem("")
                     self.setItem(row, column, item)
                     self.loopBodyList[column].append(info)
-            elif endLPPattern.search(string) !=None:        
+            elif endLPPattern.search(string) != None:        
                 record = endLPPattern.search(string)
                 columnList = self.loopBodyList[column]
                 for info in columnList:
                     if info.num == int(record.group(1)):
                         info.endRow = (row - 1)
+                        if info.endRow > self.loopEndRow:
+                            for i in xrange(self.loopEndRow, info.endRow):
+                                self.array.append(["...."]*(self.ColumnCount))
+                                self.loopEndRow = info.endRow
                         self.setItemInfo(info)
                         break
             elif rowPattern.search(string) != None:

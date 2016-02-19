@@ -5,7 +5,8 @@ def initRegColor():
     '''      
     RegColors = {"0" : Qt.red,
                  "1" : Qt.green,
-                 "2" : Qt.blue}
+                 "2" : Qt.blue,
+                 "3" : Qt.black}
 
     return RegColors
 

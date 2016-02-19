@@ -38,7 +38,10 @@ class CellDelegate(QItemDelegate):
 
     def paint(self, painter, option, index):
         myOption = QStyleOptionViewItem(option)
-        step = 2
+        step = 2 #indet
+        if index.row() >= len(self.array):
+            QItemDelegate.paint(self, painter, myOption, index) 
+            return
         if self.array[index.row()][index.column()] != "....":
             columnList = self.loopBodyList[index.column()]
             columnNum = len(columnList)
@@ -66,22 +69,22 @@ class CellDelegate(QItemDelegate):
                     regList = textList[0].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]), \
-                                     option.rect.topRight().x() - (reg * step), option.rect.topRight().y() + (reg * step * flag[1]))
+                                         option.rect.topRight().x() - (reg * step), option.rect.topRight().y() + (reg * step * flag[1]))
                 if textList[1] != "":
                     regList = textList[1].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.topRight().x() - (reg * step), option.rect.topRight().y() + (reg * step * flag[1]), \
-                                     option.rect.bottomRight().x() - (reg * step), option.rect.bottomRight().y() - (reg * step * flag[2])) 
+                                         option.rect.bottomRight().x() - (reg * step), option.rect.bottomRight().y() - (reg * step * flag[2])) 
                 if textList[2] != "":
                     regList = textList[2].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.bottomRight().x() - (reg * step), option.rect.bottomRight().y() - (reg * step * flag[2]), \
-                                     option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]))
+                                         option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]))
                 if textList[3] != "":
                     regList = textList[3].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]), \
-                                     option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))       
+                                         option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))       
         QItemDelegate.paint(self, painter, myOption, index)   
 
 

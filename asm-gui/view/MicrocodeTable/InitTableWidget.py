@@ -11,7 +11,7 @@ class InitTableWidget(QTableWidget):
     def __init__(self, parent = None):
         super(InitTableWidget, self).__init__(parent)
 
-        self.RowCount = 10
+        self.RowCount = 2000
         self.ColumnCount = 10
         self.currentRowNum = 0
         self.currentColumnNum = 0
@@ -41,7 +41,8 @@ class InitTableWidget(QTableWidget):
             self.headerList.append(QString("nonameFSM" + str(i)))
         self.setHorizontalHeaderLabels(self.headerList)
         #init array data
-        self.array = [x[:] for x in [["...."]*(self.ColumnCount)]*(self.RowCount)]
+        self.array = [["...."]*(self.ColumnCount)]
+        self.loopEndRow = 0
         self.loopBodyList = [[]for i in xrange(self.ColumnCount)]
         self.cellDelegate.setArray(self.array, self.loopBodyList)
 
@@ -180,7 +181,6 @@ class InitTableWidget(QTableWidget):
 
     def insertUpCell(self):
         self.insertRow(self.RowCount)
-        self.array.append(["...."]*(self.ColumnCount))
         self.RowCount += 1
 
         string = QString()
@@ -210,7 +210,9 @@ class InitTableWidget(QTableWidget):
     def insertRows(self):
         for i in xrange(self.currentRowNum):
             self.insertRow(self.currentTopRow + i)
-            self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
+            if self.loopEndRow >= (self.currentTopRow + i):
+                self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
+                self.loopEndRow += 1
 
     def insertColumns(self):
         for i in xrange(self.currentColumnNum):
@@ -290,7 +292,9 @@ class InitTableWidget(QTableWidget):
     def deleteRows(self):
         for i in xrange(self.currentRowNum):
             self.removeRow(self.currentTopRow)
-            del self.array[self.currentTopRow]
+            if self.loopEndRow >= self.currentTopRow:
+                del self.array[self.currentTopRow]
+                self.loopEndRow -= 1
 
     def deleteColumns(self):
         for i in xrange(self.currentColumnNum):
