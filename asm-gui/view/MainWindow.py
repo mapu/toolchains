@@ -147,10 +147,10 @@ class MainWindow(QMainWindow):
         self.registerText.append(self.register1Text)
         self.registerText.append(self.register2Text)
         self.registerText.append(self.register3Text)
-        self.connect(self.register0Check, SIGNAL("clicked(bool)"), self.register0Slot)
-        self.connect(self.register1Check, SIGNAL("clicked(bool)"), self.register1Slot)
-        self.connect(self.register2Check, SIGNAL("clicked(bool)"), self.register2Slot)
-        self.connect(self.register3Check, SIGNAL("clicked(bool)"), self.register3Slot)
+        self.connect(self.register0Check, SIGNAL("clicked(bool)"), self.registerCheckSlot)
+        self.connect(self.register1Check, SIGNAL("clicked(bool)"), self.registerCheckSlot)
+        self.connect(self.register2Check, SIGNAL("clicked(bool)"), self.registerCheckSlot)
+        self.connect(self.register3Check, SIGNAL("clicked(bool)"), self.registerCheckSlot)
         registerToolBar.addWidget(self.register0Check)
         registerToolBar.addWidget(self.register0Text)
         registerToolBar.addWidget(self.register1Check)
@@ -181,85 +181,27 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         self.closeWindow()
 	
-    def register0Slot(self, checkState):
-        if checkState == True:
-            re = self.microcodeTable.paintRect(0, self.register0Text.text()) 
-            if re == 0:
-                self.register0Check.setCheckState(Qt.Unchecked)
-                warning("Please select one column")
-                return
-            if re == -1:
-                self.register0Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells") 
-                return
-            if re == -2:
-                self.register0Check.setCheckState(Qt.Unchecked)
-                warning("Cannot set loop at the intersection of cells")   
-                return
-            self.register0Text.setEnabled(True)   
-        else:
-            self.microcodeTable.eraserRect(0)
-            #self.register0Text.setEnabled(False)
-
-    def register1Slot(self, checkState):
-        if checkState == True:
-            re = self.microcodeTable.paintRect(1, self.register1Text.text())   
-            if re == 0:
-                self.register1Check.setCheckState(Qt.Unchecked)   
-                warning("Please select one column")  
-                return
-            if re == -1:
-                self.register1Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells") 
-                return 
-            if re == -2:
-                self.register1Check.setCheckState(Qt.Unchecked)
-                warning("Cannot set loop at the intersection of cells")  
-                return
-            self.register1Text.setEnabled(True)
-        else:
-            self.microcodeTable.eraserRect(1) 
-            #self.register1Text.setEnabled(False)
-
-    def register2Slot(self, checkState):
-        if checkState == True:
-            re = self.microcodeTable.paintRect(2, self.register2Text.text())   
-            if re == 0:
-                self.register2Check.setCheckState(Qt.Unchecked)   
-                warning("Please select one column") 
-                return 
-            if re == -1:
-                self.register2Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells")  
-                return
-            if re == -2:
-                self.register2Check.setCheckState(Qt.Unchecked)
-                warning("Cannot set loop at the intersection of cells")  
-                return
-            self.register2Text.setEnabled(True)
-        else:
-            self.microcodeTable.eraserRect(2) 
-            #self.register2Text.setEnabled(False)
-
-    def register3Slot(self, checkState):
-        if checkState == True:
-            re = self.microcodeTable.paintRect(3, self.register3Text.text())   
-            if re == 0:
-                self.register3Check.setCheckState(Qt.Unchecked)   
-                warning("Please select one column")  
-                return
-            if re == -1:
-                self.register3Check.setCheckState(Qt.Unchecked)
-                warning("Please select one or more cells")  
-                return
-            if re == -2:
-                self.register3Check.setCheckState(Qt.Unchecked)
-                warning("Cannot set loop at the intersection of cells")
-                return
-            self.register3Text.setEnabled(True)  
-        else:
-            self.microcodeTable.eraserRect(3) 
-            #self.register3Text.setEnabled(False)
+    def registerCheckSlot(self, checkState):
+        if self.sender() in self.registerCheck:
+            idx = self.registerCheck.index(self.sender())
+            if checkState == True:
+                re = self.microcodeTable.paintRect(idx, self.registerText[idx].text()) 
+                if re == 0:
+                    self.registerCheck[idx].setCheckState(Qt.Unchecked)
+                    warning("Please select one column")
+                    return
+                if re == -1:
+                    self.registerCheck[idx].setCheckState(Qt.Unchecked)
+                    warning("Please select one or more cells") 
+                    return
+                if re == -2:
+                    self.registerCheck[idx].setCheckState(Qt.Unchecked)
+                    warning("Cannot set loop at the intersection of cells")   
+                    return
+                self.registerText[idx].setEnabled(True)   
+            else:
+                self.microcodeTable.eraserRect(idx)
+                #self.registerText[idx].setEnabled(False)
 
     def setAllCheckStatus(self, status):
         num = len(self.registerCheck)
