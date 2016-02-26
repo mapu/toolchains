@@ -58,10 +58,10 @@ class MainWindow(QMainWindow):
         self.pasteAction.setStatusTip("Paste the clipboard's contents into the current selection")
         self.connect(self.pasteAction, SIGNAL("triggered()"), self.microcodeTable.paste)
 
-        self.deleteAction = QAction(self.tr("Delete"), self)
-        self.deleteAction.setShortcut("Del")
-        self.deleteAction.setStatusTip("Delete the current selection's contents")
-        self.connect(self.deleteAction, SIGNAL("triggered()"), self.microcodeTable.delete)
+        self.clearAction = QAction(self.tr("Clear"), self)
+        self.clearAction.setShortcut("Del")
+        self.clearAction.setStatusTip("Delete the current selection's contents")
+        self.connect(self.clearAction, SIGNAL("triggered()"), self.microcodeTable.delete)
 
         self.selectRowAction = QAction(self.tr("Row"), self)
         self.selectRowAction.setStatusTip("Select all the cells in the current row")
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         editMenu.addAction(self.cutAction)
         editMenu.addAction(self.copyAction)
         editMenu.addAction(self.pasteAction)
-        editMenu.addAction(self.deleteAction)
+        editMenu.addAction(self.clearAction)
 
         selectSubMenu = editMenu.addMenu("Select")
         selectSubMenu.addAction(self.selectRowAction)
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         self.microcodeTable.addAction(self.cutAction)
         self.microcodeTable.addAction(self.copyAction)
         self.microcodeTable.addAction(self.pasteAction)
+        self.microcodeTable.addAction(self.clearAction)
         self.microcodeTable.addAction(self.insertCellAction)
         self.microcodeTable.addAction(self.deleteCellAction)
         self.microcodeTable.setContextMenuPolicy(Qt.ActionsContextMenu)

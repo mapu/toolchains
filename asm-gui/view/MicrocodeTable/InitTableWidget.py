@@ -1,18 +1,23 @@
 #from -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QTableWidget, QApplication, QTableWidgetItem, QMessageBox, QTableWidgetSelectionRange, QAbstractItemView
+from PyQt4.QtGui import QTableWidget, QApplication, QTableWidgetItem, QTableWidgetSelectionRange, QAbstractItemView, QFont
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from view.MicrocodeTable.SetFSMNameWidget import SetFSMNameWidget
 from view.MicrocodeTable.InsertDialog import InsertDialog
 from view.MicrocodeTable.DeleteDialog import DeleteDialog
 from view.MicrocodeTable.CellDelegate import CellDelegate
+import sys
+sys.path.append("..")
+from view.Utils import warning
 
 class InitTableWidget(QTableWidget):
     def __init__(self, parent = None):
         super(InitTableWidget, self).__init__(parent)
 
+        #self.setStyleSheet("QTableWidget::item{text-align: center;}")
+
         self.RowCount = 2000
-        self.ColumnCount = 10
+        self.ColumnCount = 20
         self.currentRowNum = 0
         self.currentColumnNum = 0
         self.currentTopRow = 0
@@ -26,6 +31,9 @@ class InitTableWidget(QTableWidget):
         #get default background
         item = QTableWidgetItem("")
         self.defaultBackgroundColor = item.background()
+        #set font
+        self.setFont(QFont("Monospace", 10))
+        self.horizontalHeader().setFont(QFont("Monospace", 10))
         #set Item delegate
         self.cellDelegate = CellDelegate()
         self.setItemDelegate(self.cellDelegate)
@@ -88,7 +96,7 @@ class InitTableWidget(QTableWidget):
         numRows = rows.count()
         numColumns = rows.first().count('\t') + 1
         if selRange.rowCount()*selRange.columnCount() != 1 and (selRange.rowCount() != numRows or selRange.columnCount() != numColumns):
-            QMessageBox.information(self, 'MicrocodeTable', "The information cannot be passted because the copy and paste areas aren't the same size.")
+            warning("The information cannot be pasted because the copy and paste areas aren't the same size.")
             return
         for i in xrange(0, numRows):
             columns = rows[i].split('\t')
