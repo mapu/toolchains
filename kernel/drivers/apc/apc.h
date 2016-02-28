@@ -86,7 +86,16 @@ union csu_mmap {
 };
 #pragma pack(pop)
 
+
+struct memalloc_args{
+  dma_addr_t phy;
+  void *virt;
+};
+
+
 #define APC_IOC_MAGIC 'M'
 #define APC_IOCWAITDMA _IOW(APC_IOC_MAGIC, 0, int)
+#define APC_IOCMEMALLOC _IO(APC_IOC_MAGIC, 1)
+#define APC_IOCMEMFREE _IO(APC_IOC_MAGIC, 2)
 
 #endif /* DRIVERS_APC_APC_H_ */

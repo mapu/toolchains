@@ -372,6 +372,7 @@ long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
   int ret = 0;
   unsigned int ape_id = filp->f_pos >> 24;
   union csu_mmap *ape;
+
   if (ape_id >= apc_data.num_of_apes) {
     printk(KERN_ERR "User program accessed unsupported number of APEs.\n");
     return -ENOMEM;
@@ -394,12 +395,30 @@ long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     writel(1, &(ape->csu_if.DMAQueryType));
     break;
 
+  /**
+   * must allocate pages that do not make use of cache and do not
+   */
+  case APC_IOCMEMALLOC:
+    if(!access_ok(VERIFY_WRITE, arg, sizeof(struct memalloc_args)))
+    {
+      printk(KERN_ERR "User address unaccessable!\n");
+      return -ENOMEM;
+    }
+
+    struct memalloc_args *tmp = (struct memalloc_args *)arg;
+     dma_alloc_coherent(dev, )
+
+    break;
+
+  case APC_IOCMEMFREE:
+    break;
+
   default:
     ret = -EFAULT;
     break;
   }
 
-  return -EFAULT;
+  return ret;
 }
 
 loff_t apc_llseek(struct file *filp, loff_t off, int whence) {
