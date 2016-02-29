@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-   
 from PyQt4.QtGui import QDialog, QRegExpValidator, QPushButton, QHBoxLayout, QVBoxLayout, QLineEdit
 from PyQt4.QtCore import pyqtSignal, pyqtSlot, SIGNAL, Qt, QRegExp
-from view.Utils import warning
 
 class SetFSMNameWidget(QDialog):  
     setFSMNameSignal = pyqtSignal(int, str)
@@ -35,7 +34,7 @@ class SetFSMNameWidget(QDialog):
             self.close()
             self.setFSMNameSignal.emit(self.column, text)
         else:
-            warning("Please set FSM name")
+            QMessageBox.warning(self, "Warning", "Please set FSM name")
 	
     def cancelButtonSlot(self):
         self.close()

@@ -50,6 +50,7 @@ void app_startup(char * const *);
 
 #endif    /* ifndef __ASSEMBLY__ */
 
+#include "apc/common.h"
 struct jt_funcs {
 #define EXPORT_FUNC(impl, res, func, ...) res(*func)(__VA_ARGS__);
 #include <_exports.h>
@@ -63,7 +64,6 @@ struct jt_funcs {
 extern gd_t *global_data;
 #endif
 
-struct dma_if;
 
 /* apc */
 /* ape.h */

@@ -4,6 +4,7 @@
  * use a dummyfunction as first parameter to EXPORT_FUNC.
  * As an example see the CONFIG_CMD_I2C section below
  */
+#include "apc/common.h"
 #ifndef EXPORT_FUNC
 #define EXPORT_FUNC(a, b, c, ...)
 #endif
@@ -86,3 +87,24 @@
 	EXPORT_FUNC(miiphy_set_current_dev, int, miiphy_set_current_dev,
 		    const char *devname)
 #endif
+		    /* apc */
+		  EXPORT_FUNC(ape_dma_request, int, ape_dma_request, struct dma_if *, unsigned int)
+		  EXPORT_FUNC(ape_dma_wait, int, ape_dma_wait, unsigned int, unsigned int)
+		  EXPORT_FUNC(ape_dma_status, int, ape_dma_status, unsigned int)
+		  EXPORT_FUNC(ape_mail_status, int, ape_mail_status, unsigned int)
+		  EXPORT_FUNC(ape_status, int, ape_status, unsigned int)
+		  EXPORT_FUNC(ape_stop, int, ape_stop, unsigned int)
+		  EXPORT_FUNC(ape_start, int, ape_start, unsigned int)
+		  EXPORT_FUNC(ape_wait, int, ape_wait, unsigned int)
+		  EXPORT_FUNC(apc_init, void, apc_init, void)
+		  EXPORT_FUNC(apcapi_core, int, apcapi_core, const char *, void *, unsigned int)
+		  EXPORT_FUNC(load_spu, int, load_spu, const char *, void *, unsigned int)
+		  EXPORT_FUNC(set_spu_section, int, set_spu_section, unsigned int, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(load_spu_section, int, load_spu_section, unsigned int, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(load_mpu_section, int, load_mpu_section, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(send_vector, int, send_vector, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(send_matrix, int, send_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(fetch_vector, int, fetch_vector, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+		  EXPORT_FUNC(fetch_matrix, int, fetch_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+
+

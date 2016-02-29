@@ -73,7 +73,6 @@ class TimeTable(QObject):
                 records.append(list(record)) # [:] makes a copy of record
                 record[0] = rec[0]
                 record[rec[2] + self.regOffset[rec[1]] + 1] = rec[3]
-        records.append(record)
         self.DBConn.executemany(self.insert_template, records)
         self.DBConn.commit()
             

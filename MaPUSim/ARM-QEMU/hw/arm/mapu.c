@@ -100,7 +100,6 @@ static void mapu_init(MachineState *mms)
 	DriveInfo *dinfo;
 	qemu_irq pic[160];
 	DeviceState *gicdev;
-	DeviceState *sdhcdev;
 	SysBusDevice *busdev;
 	int key;
 	void *ptr;
@@ -172,7 +171,7 @@ static void mapu_init(MachineState *mms)
         //fclose( infoout);
     }
     ptr = (uint8_t *)shmat(shmId, NULL, 0);
-    assert(ptr != (void*)-1);
+    assert(ptr != -1);
     memory_region_init_ram_ptr(share_mem, NULL, "share_memory", 0x1000000, ptr);
     vmstate_register_ram_global(share_mem);
     memory_region_init_ram_ptr(ddr3_sdram, NULL, "DDR3_sdram", 0x20000000, ptr+0x1000000);
@@ -237,14 +236,12 @@ static void mapu_init(MachineState *mms)
 			0x0, 0))
 	{
 		fprintf(stderr, "qemu: Error registering flash memory.\n");
-		exit(1);
 	}
-	else
-	  fprintf(stderr, "\tmapu pflash init done!\n");
-
+	fprintf(stderr, "\tmapu pflash init done!\n");
 	/* UART 0
 	 * Address: 0x5090 0000
 	 *  */
+
 	if (serial_hds[0])
 	{
 		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART0], 2, pic[2], 115200, serial_hds[0], DEVICE_NATIVE_ENDIAN);
@@ -289,12 +286,11 @@ static void mapu_init(MachineState *mms)
   sysbus_create_simple("pl050_keyboard", MaPUboard_map[MaPU_KEYBOARD], pic[26]);
   fprintf(stderr, "\tmapu keyboard init done!\n");
   sysbus_create_simple("pl050_mouse", MaPUboard_map[MaPU_MOUSE], pic[27]);
-  fprintf(stderr, "\tmapu mouse init done!\n");
 
-  sdhcdev = qdev_create(NULL, "generic-sdhci");
-  qdev_init_nofail(sdhcdev);
-  sysbus_mmio_map(SYS_BUS_DEVICE(sdhcdev), 0, MaPUboard_map[MaPU_SDC]);
-  sysbus_connect_irq(SYS_BUS_DEVICE(sdhcdev), 0, pic[31]);
+  busdev = qdev_create(NULL, "generic-sdhci");
+  qdev_init_nofail(busdev);
+  sysbus_mmio_map(SYS_BUS_DEVICE(busdev), 0, MaPUboard_map[MaPU_SDC]);
+  sysbus_connect_irq(SYS_BUS_DEVICE(busdev), 0, pic[31]);
   fprintf(stderr, "\tmapu sdhci init done!\n");
 
   if(nd_table[0].used)

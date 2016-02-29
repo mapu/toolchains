@@ -8,25 +8,7 @@
 #ifndef LOADER_H_
 #define LOADER_H_
 
-enum DMA_GROUPS {
-  SPU_LD_SECT_GP = 0,
-  MPU_LD_SECT_GP,
-  DATA_E2I_GP,
-  DATA_I2E_GP,
-  DATA_E2E_GP,
-};
-
-enum DATA_TYPE {
-  DT_BYTE = 0,
-  DT_HALF,
-  DT_WORD,
-  DT_DWORD,
-  DT_QWORD,
-};
-
-#define MIM_BASE 0x200000
-#define MC_LENGTH 41
-#define MAX_MC_NUM 16
+#include "apc/common.h"
 
 inline int32_t apcapi_core(const char *api_name, void *param, uint32_t cpuid);
 int32_t load_spu(const char *funcname, void *param, uint32_t cpuid);

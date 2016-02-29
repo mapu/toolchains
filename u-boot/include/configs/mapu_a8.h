@@ -11,7 +11,7 @@
 #ifndef __MAPU_A8_H
 #define __MAPU_A8_H
 
-#define CONFIG_SYS_TIMER_RATE   100000000ULL
+#define CONFIG_SYS_TIMER_RATE   41200000ULL
 
 #include "mapu_common.h"
 

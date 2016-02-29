@@ -157,7 +157,7 @@ ssize_t apc_read(struct file *filp, char __user *buf, size_t count,
     return -ENOMEM; // Operating more than one csu once is not allowed
   }
   for (i = 0; i < (count >> 2); ++i)
-    reg_copy[i] = readl(apc_data.ape_info[ape_id].membase + offset + (i<<2));
+    reg_copy[i] = readl(apc_data.ape_info[ape_id].membase + offset + i); 
   if (copy_to_user(buf, reg_copy, count)) {
     vfree(reg_copy);
     printk(KERN_ERR "Error when copying value to user space.\n");
@@ -350,7 +350,7 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count,
     return -ENOMEM;
   }
   for (i = 0; i < (count >> 2); ++i)
-    writel(reg_copy[i], apc_data.ape_info[ape_id].membase + offset + (i<<2));
+    writel(reg_copy[i], apc_data.ape_info[ape_id].membase + offset + i);
   *f_pos += count;
   vfree(reg_copy);
   return count;
@@ -372,7 +372,6 @@ long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
   int ret = 0;
   unsigned int ape_id = filp->f_pos >> 24;
   union csu_mmap *ape;
-
   if (ape_id >= apc_data.num_of_apes) {
     printk(KERN_ERR "User program accessed unsupported number of APEs.\n");
     return -ENOMEM;
@@ -395,30 +394,12 @@ long apc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     writel(1, &(ape->csu_if.DMAQueryType));
     break;
 
-  /**
-   * must allocate pages that do not make use of cache and do not
-   */
-  case APC_IOCMEMALLOC:
-    if(!access_ok(VERIFY_WRITE, arg, sizeof(struct memalloc_args)))
-    {
-      printk(KERN_ERR "User address unaccessable!\n");
-      return -ENOMEM;
-    }
-
-    struct memalloc_args *tmp = (struct memalloc_args *)arg;
-     dma_alloc_coherent(dev, )
-
-    break;
-
-  case APC_IOCMEMFREE:
-    break;
-
   default:
     ret = -EFAULT;
     break;
   }
 
-  return ret;
+  return -EFAULT;
 }
 
 loff_t apc_llseek(struct file *filp, loff_t off, int whence) {

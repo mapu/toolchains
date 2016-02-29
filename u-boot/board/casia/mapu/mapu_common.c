@@ -97,7 +97,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_MAPU;
 	gd->flags = 0;
 
-	icache_enable();
+	//icache_enable();
 	enable_vfp();
 	mapu_timer_init();
 	mapu_dma_init();  // dma init

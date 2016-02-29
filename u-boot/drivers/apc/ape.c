@@ -35,6 +35,7 @@ int ape_dma_request(struct dma_if *dma_conf, uint32_t cpuid) {
   writel(dma_conf->DMAGlobalYAllNum, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMAGlobalYAllNum));
   writel(dma_conf->DMAGroupNum, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMAGroupNum));
   writel(dma_conf->DMACmd, (uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACmd));
+  while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACommandStatus)) != 0);
   return 0;
 }
 
@@ -42,17 +43,17 @@ int32_t ape_dma_wait(uint32_t group, uint32_t cpuid) {
   if (group >= MAX_NUM_GROUP || cpuid >= num_cores)
     return -1;
   while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACommandStatus)) != 0);
-  uint32_t mask = ~(1UL << group);
+  uint32_t mask = 1UL << group;
   writel(mask, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryMask));
   do {
     writel(DMAQ_OR, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryType));
-  } while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus)) == 0);
+  } while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus)) & mask == 0);
   return 0;
 }
 
 int32_t ape_dma_status(uint32_t cpuid) {
   if (cpuid >= num_cores) return -1;
-  uint32_t mask = 0;
+  uint32_t mask = 0xFFFFFFFF;
   writel(mask, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryMask));
   return readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus));
 }
@@ -90,6 +91,10 @@ void apc_init(void) {
   int i = 0;
   num_cores = 4;
 
+  writel(0UL, MAPU_PRCM_BASE + APC_RESET_OFFSET);
+  writel(0xFUL, MAPU_PRCM_BASE + APC_PWSW_OFFSET);
+  writel(~0xFUL, MAPU_PRCM_BASE + APC_ISOSW_OFFSET);
+  writel(0xFUL, MAPU_PRCM_BASE + APC_RESET_OFFSET);
   for (i = 0; i < num_cores; i++) {
     ape_cores[i] = (union csu_mmap *)(APE0_REG_START + i * 0x400000);
     while ((readl((uint32_t)&(ape_cores[i]->csu_if.MailNum)) & 0xFF00FF) != 0) {

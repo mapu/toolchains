@@ -1,5 +1,5 @@
 # -*- coding = utf-8 -*-
-from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL, pyqtSlot
+from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QDialog, QGroupBox, QRadioButton, QPushButton, QHBoxLayout, QVBoxLayout
 
 class DeleteDialog(QDialog):

@@ -672,10 +672,10 @@ libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 
 libs-y := $(sort $(libs-y))
 
-u-boot-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y))) tools examples 
-
-ifeq ($(CONFIG_APP),y)
-  u-boot-dirs += app
+ifeq (${CONFIG_APP},y)
+  u-boot-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y))) tools examples app
+else
+  u-boot-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y))) tools examples
 endif
 
 u-boot-alldirs	:= $(sort $(u-boot-dirs) $(patsubst %/,%,$(filter %/, $(libs-))))
@@ -1199,8 +1199,7 @@ tools: prepare
 $(filter-out tools, $(u-boot-dirs)): tools
 # The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
 # is "yes"), so compile examples after U-Boot is compiled.
-
-ifeq ($(CONFIG_APP),y)
+ifeq (${CONFIG_APP}, y)
   examples app: $(filter-out app, $(filter-out examples, $(u-boot-dirs)))
 else
   examples: $(filter-out examples, $(u-boot-dirs))
