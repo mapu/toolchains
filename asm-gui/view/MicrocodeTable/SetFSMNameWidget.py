@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-   
 from PyQt4.QtGui import QDialog, QRegExpValidator, QPushButton, QHBoxLayout, QVBoxLayout, QLineEdit
 from PyQt4.QtCore import pyqtSignal, pyqtSlot, SIGNAL, Qt, QRegExp
+from view.Utils import warning
+import re
 
 class SetFSMNameWidget(QDialog):  
     setFSMNameSignal = pyqtSignal(int, str)
@@ -9,6 +11,7 @@ class SetFSMNameWidget(QDialog):
 
         self.lineEdit = QLineEdit()
         regx = QRegExp("[a-zA-Z]+[0-9]+$")
+        self.pattern = re.compile("[a-zA-Z]+[0-9]+$")
         validator = QRegExpValidator(regx, self.lineEdit)
         self.lineEdit.setValidator(validator)
 
@@ -30,11 +33,11 @@ class SetFSMNameWidget(QDialog):
 
     def OKButtonSlot(self):
         text = self.lineEdit.text()
-        if text != "":
+        if self.pattern.search(text) != None:
             self.close()
             self.setFSMNameSignal.emit(self.column, text)
         else:
-            QMessageBox.warning(self, "Warning", "Please set FSM name")
+            warning("Please set correct FSM name")
 	
     def cancelButtonSlot(self):
         self.close()

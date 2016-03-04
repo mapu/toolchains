@@ -10,11 +10,11 @@ class DeleteDialog(QDialog):
         self.setWindowTitle("Delete")
         self.setFixedSize(250, 200)
         groupBox = QGroupBox()
-        self.cellLeftRadio = QRadioButton("The active cell to the right")
+        self.cellLeftRadio = QRadioButton("The right cell to the left")
         self.cellLeftRadio.setChecked(True)
         self.connect(self.cellLeftRadio, SIGNAL("clicked(bool)"), self.cellLeftSlot)
         self.radioIndex = 0
-        self.cellUpRadio = QRadioButton("The active cell to the down")
+        self.cellUpRadio = QRadioButton("The below cell to the up")
         self.connect(self.cellUpRadio, SIGNAL("clicked(bool)"), self.cellUpSlot)
         self.wholeRowsRadio = QRadioButton("The whole rows")
         self.connect(self.wholeRowsRadio, SIGNAL("clicked(bool)"), self.wholeRowsSlot)
