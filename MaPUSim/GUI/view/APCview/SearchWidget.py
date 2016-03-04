@@ -83,7 +83,7 @@ class SearchWidget(QWidget):
             self.currentResult -= 1
             self.nextButton.setEnabled(True)
             self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
-            if self.searchValue == 0:
+            if self.currentResult == 0:
                 self.preButton.setEnabled(False)
 
     def nextSlot(self):
