@@ -259,7 +259,7 @@ class MRegfileWidget(RegfileWidget):
         self.classes = [[self.tr("M register"), 0, False]]
         self.regNames = RegNames.MPURegNames[:128]
         self.regOffset = 0
-        self.regEnd = 64
+        self.regEnd = 128
         self.initValues = ["0x00 " * 64] * (self.regEnd - self.regOffset)
         self.condition = "class == 'MPU' AND no < %d " % self.regEnd
         self.itemType = VectorRegfileTableItem
