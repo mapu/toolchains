@@ -214,7 +214,18 @@ class StageTable(QObject):
         
         cursor.close()
         return (minTime, maxTime, vHeader, expandedTable)
-    
+ 
+    def getVHeaderList(self):
+        sql_query = "SELECT pc, dis FROM " + self.instTableName
+        sql_query += " ORDER BY sn ASC"
+        cursor = self.DBConn.execute(sql_query)
+        vHeader = []
+        headerList = cursor.fetchall()
+        for inst in headerList:
+            vHeader.append(inst[0] + ": " + inst[1])
+        cursor.close()
+        return (vHeader, self.pageList)
+   
     def getStart(self, row):
         return self.instList[row][self.startIdx]
     

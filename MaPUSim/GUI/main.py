@@ -39,7 +39,6 @@ parser.add_argument("-i", "--image", dest="image",
                     help="Use IMAGE to run simulation immediately after GUI start",
                     metavar="IMAGE")
 SimulationArgs = parser.parse_args()
-
 # Window size adaption
 width = min(QApplication.desktop().width(), 1000)
 height = min(QApplication.desktop().height(), 600)

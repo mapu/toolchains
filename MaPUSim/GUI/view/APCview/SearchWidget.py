@@ -51,6 +51,7 @@ class SearchWidget(QWidget):
         
         self.searchResult = []
         self.currentResult = 0
+        self.currentPage = 0
 
     def searchSlot(self):
         self.preButton.setEnabled(False)
@@ -65,6 +66,13 @@ class SearchWidget(QWidget):
             if len(self.searchResult) > 1:
                 self.nextButton.setEnabled(True)
             self.tableView.verticalScrollBar().setValue(self.searchResult[0])
+            '''
+            if self.searchResult[0] <= self.tableModel.pageList[self.currentPage][0]:  
+                self.tableView.verticalScrollBar().setValue(self.searchResult[0])
+                self.currentPage = 0
+            else:
+                print "nextPage"
+            '''
             self.currentResult = 0
             self.tableModel.refrushModel()
         else:
@@ -83,6 +91,12 @@ class SearchWidget(QWidget):
             self.currentResult += 1
             self.preButton.setEnabled(True)
             self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            '''
+            if self.searchResult[self.currentResult] <= self.tableModel.pageList[self.currentPage][0]:
+                self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            else:
+                print "nextPage"
+            '''
             if self.currentResult == len(self.searchResult) - 1:
                 self.nextButton.setEnabled(False)
         

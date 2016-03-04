@@ -78,6 +78,7 @@ class ARMQemuProcess(QObject):
         '''
         retry = 100
         while self.commkey == None:
+            print type(self.stderr), self.stderr
             str_stderr = unicode(self.stderr)
             shmemkey = self.shmem_pat.search(str_stderr)
             apcport = self.apcport_pat.search(str_stderr)

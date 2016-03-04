@@ -54,18 +54,11 @@ class StageWidget(QWidget):
         self.pageCombo.setFixedSize(100, 25)
         self.connect(self.pageCombo, SIGNAL("currentIndexChanged(int)"),
                      self.tableModel.switchPageSlot)
-        # blank = QLabel()
-        # blank.setFixedSize(300, 25)
         self.upLayout = QHBoxLayout()
         self.upLayout.addWidget(self.pageCombo)
-        # upLay.addWidget(blank)
         self.searchWidget = SearchWidget(self.tableView, self.tableModel)
         self.upLayout.addWidget(self.searchWidget)
-        
-        # blank1 = QLabel()
-        # blank1.setFixedSize(500, 20)
         self.legendWidget = LegendWidget(self.delegate.rwColors)
-        # midLayout.addWidget(blank1)
         
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addLayout(self.upLayout)
@@ -98,6 +91,10 @@ class StageWidget(QWidget):
         self.pageCombo.clear()
         self.pageCombo.addItems([self.tableModel.stageTable.pageList[i][1]
                                  for i in range(len(self.tableModel.stageTable.pageList))])
+
+    @pyqtSlot()
+    def updateVHeaderListSlot(self):
+        self.tableModel.getAllVHeaderList()
 
     @pyqtSlot()        
     def show(self):

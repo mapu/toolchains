@@ -19,6 +19,7 @@ class MPUViewWidget(QWidget):
         self.stageWidget = StageWidget(inst_table, stage_table, reg_table, self)
         self.stageWidget.updateTimePointSignal.connect(control.simDB.setTimePointSlot)
         control.simDB.traceAnalyzeDone.connect(self.stageWidget.updatePageListSlot)
+        control.simDB.traceAnalyzeDone.connect(self.stageWidget.updateVHeaderListSlot)
         
         # define left Widget
         self.leftWidget = QWidget()

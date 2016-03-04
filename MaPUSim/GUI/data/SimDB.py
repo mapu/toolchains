@@ -8,12 +8,12 @@ from data.InstTable import SPUInstTable, MPUInstTable
 from data.RegTable import SPURegTable, MPURegTable
 from data.StageTable import SPUStageTable, MPUStageTable
 from data.TimeTable import SPUTimeTable, MPUTimeTable
+from data.MemTable import SPUMemTable, MPUMemTable
 from timeit import Timer
 from view.Utils import fatal
 import os
 import sqlite3
 import sys
-from data.MemTable import SPUMemTable, MPUMemTable
 
 class TraceAnalyzeThread(QThread):
     '''
