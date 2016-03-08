@@ -57,6 +57,7 @@ class StageWidget(QWidget):
         self.upLayout = QHBoxLayout()
         self.upLayout.addWidget(self.pageCombo)
         self.searchWidget = SearchWidget(self.tableView, self.tableModel)
+        self.searchWidget.pageChangedSignal.connect(self.pageChangedSlot)
         self.upLayout.addWidget(self.searchWidget)
         self.legendWidget = LegendWidget(self.delegate.rwColors)
         
@@ -102,6 +103,10 @@ class StageWidget(QWidget):
         self.pageCombo.addItems([self.tableModel.stageTable.pageList[i][1]
                                  for i in range(len(self.tableModel.stageTable.pageList))])
         return QWidget.show(self)
+
+    @pyqtSlot(int)
+    def pageChangedSlot(self, index):
+        self.pageCombo.setCurrentIndex(index)
 
     def closeEvent(self, event):
         self.hide()

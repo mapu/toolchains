@@ -223,8 +223,16 @@ class StageTable(QObject):
         headerList = cursor.fetchall()
         for inst in headerList:
             vHeader.append(inst[0] + ": " + inst[1])
+        idList = []
+        for page in self.pageList:
+            sql_query = "SELECT id FROM " + self.instTableName
+            sql_query += " WHERE sn = " + str(page[0])
+            sql_query += " ORDER BY sn ASC"
+            cursor = self.DBConn.execute(sql_query)
+            idx = cursor.fetchall()
+            idList.append(idx[0][0])
         cursor.close()
-        return (vHeader, self.pageList)
+        return (vHeader, idList)
    
     def getStart(self, row):
         return self.instList[row][self.startIdx]
@@ -237,8 +245,6 @@ class SPUStageTable(StageTable):
     '''
     SPU stage table
     '''
-
-
     def __init__(self, idx, conn, parent = None):
         '''
         Constructor

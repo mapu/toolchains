@@ -13,7 +13,7 @@ class StageTableModel(QAbstractTableModel):
         self.hHeaderList = []
         self.vHeaderList = []
         self.allVHeaderList = []
-        self.pageList = []
+        self.currentPage = 0
         self.stages = [[]]
         self.key = ""
         self.curValue = 0
@@ -84,6 +84,7 @@ class StageTableModel(QAbstractTableModel):
         '''
         if index == -1:
             return
+        self.currentPage = index
         self.curMin, self.curMax, self.vHeaderList, self.stages = \
             self.stageTable.getTablePage(index)
         self.itemDelegate.setStages(self.stages)
@@ -206,12 +207,12 @@ class StageTableModel(QAbstractTableModel):
     def searchHeader(self, key):
         result = []
         i = 0
-        for item in self.vHeaderList:
+        for item in self.allVHeaderList:
             if item.find(key) >= 0:
                 result.append(i)
             i += 1
         return result 
 
     def getAllVHeaderList(self):
-        self.allVHeaderList, self.pageList = self.stageTable.getVHeaderList()
+        self.allVHeaderList, self.idList = self.stageTable.getVHeaderList()
 

@@ -4,14 +4,14 @@ Created on Dec 24, 2015
 @author: wangl
 '''
 from PyQt4.QtGui import QWidget, QLabel, QLineEdit, QPushButton, QHBoxLayout
-from PyQt4.QtCore import SIGNAL
+from PyQt4.QtCore import SIGNAL, pyqtSignal, pyqtSlot
 from view.Utils import warning
 
 class SearchWidget(QWidget):
     '''
     Widget provide searching function with "Previous" and "Next" buttons
     '''
-
+    pageChangedSignal = pyqtSignal(int)
 
     def __init__(self, view, model, parent = None):
         '''
@@ -51,7 +51,6 @@ class SearchWidget(QWidget):
         
         self.searchResult = []
         self.currentResult = 0
-        self.currentPage = 0
 
     def searchSlot(self):
         self.preButton.setEnabled(False)
@@ -63,16 +62,20 @@ class SearchWidget(QWidget):
         self.tableModel.key = key
         self.searchResult = self.tableModel.searchHeader(key)
         if len(self.searchResult) != 0:
+            self.pageChangedSignal.emit(0)
             if len(self.searchResult) > 1:
                 self.nextButton.setEnabled(True)
-            self.tableView.verticalScrollBar().setValue(self.searchResult[0])
-            '''
-            if self.searchResult[0] <= self.tableModel.pageList[self.currentPage][0]:  
+            #self.tableView.verticalScrollBar().setValue(self.searchResult[0])
+            if self.searchResult[0] < self.tableModel.idList[self.tableModel.currentPage]:  
                 self.tableView.verticalScrollBar().setValue(self.searchResult[0])
-                self.currentPage = 0
             else:
-                print "nextPage"
-            '''
+                page = self.tableModel.currentPage
+                for i in xrange(page + 1, len(self.tableModel.idList)):
+                    page += 1
+                    if self.searchResult[0] < self.tableModel.idList[i]:
+                        break       
+                self.pageChangedSignal.emit(page)
+                self.tableView.verticalScrollBar().setValue(self.tableModel.idList[self.tableModel.currentPage] - self.tableModel.idList[self.tableModel.currentPage - 1] - 1)
             self.currentResult = 0
             self.tableModel.refrushModel()
         else:
@@ -82,7 +85,26 @@ class SearchWidget(QWidget):
         if self.currentResult > 0:
             self.currentResult -= 1
             self.nextButton.setEnabled(True)
-            self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            #self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            page = self.tableModel.currentPage
+            if self.searchResult[self.currentResult] < self.tableModel.idList[page]:
+                if page == 0:
+                    value = self.searchResult[self.currentResult]
+                else:
+                    if self.searchResult[self.currentResult] >= self.tableModel.idList[page - 1]:
+                        value = self.searchResult[self.currentResult] - self.tableModel.idList[page - 1]
+                    else:
+                        for i in xrange(self.tableModel.currentPage, 0, -1):
+                            page -= 1
+                            if page == 0:
+                                value = self.searchResult[self.currentResult]
+                                break
+                            else:
+                                if self.searchResult[self.currentResult] >= self.tableModel.idList[page - 1]:
+                                    value = self.searchResult[self.currentResult] - self.tableModel.idList[page - 1]
+                                    break   
+                        self.pageChangedSignal.emit(page)    
+                self.tableView.verticalScrollBar().setValue(value)                                                                                  
             if self.currentResult == 0:
                 self.preButton.setEnabled(False)
 
@@ -90,13 +112,21 @@ class SearchWidget(QWidget):
         if self.currentResult < len(self.searchResult) - 1:
             self.currentResult += 1
             self.preButton.setEnabled(True)
-            self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
-            '''
-            if self.searchResult[self.currentResult] <= self.tableModel.pageList[self.currentPage][0]:
-                self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            #self.tableView.verticalScrollBar().setValue(self.searchResult[self.currentResult])
+            page = self.tableModel.currentPage
+            if self.searchResult[self.currentResult] < self.tableModel.idList[page]:
+                if page == 0:
+                    value = self.searchResult[self.currentResult]
+                else:
+                    value = self.searchResult[self.currentResult] - self.tableModel.idList[page - 1]     
             else:
-                print "nextPage"
-            '''
+                for i in xrange(self.tableModel.currentPage + 1, len(self.tableModel.idList)):
+                    page += 1
+                    if self.searchResult[self.currentResult] < self.tableModel.idList[i]:
+                        break       
+                self.pageChangedSignal.emit(page)
+                value = self.searchResult[self.currentResult] - self.tableModel.idList[self.tableModel.currentPage - 1]
+            self.tableView.verticalScrollBar().setValue(value)
             if self.currentResult == len(self.searchResult) - 1:
                 self.nextButton.setEnabled(False)
         
