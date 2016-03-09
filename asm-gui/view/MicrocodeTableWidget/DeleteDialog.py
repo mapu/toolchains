@@ -1,5 +1,5 @@
 # -*- coding = utf-8 -*-
-from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt4.QtCore import Qt, pyqtSignal, SIGNAL, pyqtSlot
 from PyQt4.QtGui import QDialog, QGroupBox, QRadioButton, QPushButton, QHBoxLayout, QVBoxLayout
 
 class DeleteDialog(QDialog):
@@ -10,11 +10,11 @@ class DeleteDialog(QDialog):
         self.setWindowTitle("Delete")
         self.setFixedSize(250, 200)
         groupBox = QGroupBox()
-        self.cellLeftRadio = QRadioButton("The right cell to the left")
+        self.cellLeftRadio = QRadioButton("The active cell to the right")
         self.cellLeftRadio.setChecked(True)
         self.connect(self.cellLeftRadio, SIGNAL("clicked(bool)"), self.cellLeftSlot)
         self.radioIndex = 0
-        self.cellUpRadio = QRadioButton("The below cell to the up")
+        self.cellUpRadio = QRadioButton("The active cell to the down")
         self.connect(self.cellUpRadio, SIGNAL("clicked(bool)"), self.cellUpSlot)
         self.wholeRowsRadio = QRadioButton("The whole rows")
         self.connect(self.wholeRowsRadio, SIGNAL("clicked(bool)"), self.wholeRowsSlot)
@@ -39,26 +39,32 @@ class DeleteDialog(QDialog):
         mainLay.addWidget(groupBox)
         mainLay.addLayout(buttonLay)
 
+    @pyqtSlot(bool)
     def cellLeftSlot(self, flag):
         if flag == True:
             self.radioIndex = 0
 
+    @pyqtSlot(bool)
     def cellUpSlot(self, flag):
         if flag == True:
             self.radioIndex = 1
 
+    @pyqtSlot(bool)
     def wholeRowsSlot(self, flag):
         if flag == True:
             self.radioIndex = 2
 
+    @pyqtSlot(bool)
     def wholeColumnsSlot(self, flag):
         if flag == True:
             self.radioIndex = 3
 
+    @pyqtSlot()
     def OKSlot(self):
         self.deleteOperateSignal.emit(self.radioIndex)
         self.close()
 
+    @pyqtSlot()
     def cancelSlot(self):
         self.close()
 

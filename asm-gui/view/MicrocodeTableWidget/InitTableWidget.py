@@ -2,10 +2,10 @@
 
 from PyQt4.QtGui import QTableWidget, QApplication, QTableWidgetItem, QTableWidgetSelectionRange, QAbstractItemView, QFont
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
-from view.MicrocodeTable.SetFSMNameWidget import SetFSMNameWidget
-from view.MicrocodeTable.InsertDialog import InsertDialog
-from view.MicrocodeTable.DeleteDialog import DeleteDialog
-from view.MicrocodeTable.CellDelegate import CellDelegate
+from view.MicrocodeTableWidget.SetFSMNameWidget import SetFSMNameWidget
+from view.MicrocodeTableWidget.InsertDialog import InsertDialog
+from view.MicrocodeTableWidget.DeleteDialog import DeleteDialog
+from view.MicrocodeTableWidget.CellDelegate import CellDelegate
 import sys
 sys.path.append("..")
 from view.Utils import warning
@@ -24,6 +24,8 @@ class InitTableWidget(QTableWidget):
         self.currentLeftColumn = 0
         self.CurrentRow = -1
         self.CurrentColumn = -1
+        self.floatDialog = 0
+        self.floatDialogFocus = 0
         self.setRowCount(self.RowCount)
         self.setColumnCount(self.ColumnCount)
         self.connect(self.horizontalHeader(), SIGNAL("sectionDoubleClicked(int)"), self.setHeader)
@@ -123,6 +125,20 @@ class InitTableWidget(QTableWidget):
             return QTableWidgetSelectionRange()
         return ranges[0]
 
+    @pyqtSlot(int, int, str)
+    def floatDialogShowSlot(self, row, column, text):
+        stringList = []
+        stringList.append(text)
+        stringList.append(text)
+        stringList.append(text)
+        self.floatDialogShow(row, column, stringList)
+
+    @pyqtSlot()
+    def floatDialogCloseSlot(self):
+        if self.floatDialog != 0:
+            self.floatDialog.setVisible(False)
+            self.floatDialogFocus = 0	
+
     def insertDialogShow(self):
         selRange = self.selectedRange()
         self.currentRowNum = selRange.rowCount()
@@ -142,7 +158,8 @@ class InitTableWidget(QTableWidget):
         deleteDialog = DeleteDialog(self)
         deleteDialog.deleteOperateSignal.connect(self.deleteOperateSlot)
         deleteDialog.exec_()
-		    
+
+    @pyqtSlot(int)	    
     def insertOperateSlot(self, index):
         if index == 0:
             self.insertLeftCell()
@@ -233,6 +250,7 @@ class InitTableWidget(QTableWidget):
             for j in xrange(self.currentColumnNum):
                 data.append("....")
 
+    @pyqtSlot(int)
     def deleteOperateSlot(self, index):
         if index == 0:
             self.deleteCellLeft()

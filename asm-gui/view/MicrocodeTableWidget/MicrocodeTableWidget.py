@@ -2,36 +2,28 @@
 import sys
 from PyQt4.QtGui import QTableWidgetItem, QBrush
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
-from view.MicrocodeTable.InitTableWidget import InitTableWidget
-from view.MicrocodeTable.FloatDialog import FloatDialog
+from view.MicrocodeTableWidget.InitTableWidget import InitTableWidget
+from view.MicrocodeTableWidget.FloatDialog import FloatDialog
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
 import re
 
-class MicrocodeTable(InitTableWidget):  
+class MicrocodeTableWidget(InitTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
     itemRegStateSignal = pyqtSignal(list, list)
     def __init__(self, register, parent = None):  
-        super(MicrocodeTable, self).__init__(parent)   
+        super(MicrocodeTableWidget, self).__init__(parent)   
 
         self.register = register
-        self.floatDialog = 0
-        self.floatDialogFocus = 0
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
-        self.connect(self, SIGNAL("cellChanged(int, int)"), self.cellChangedSlot)
         self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.horizontalScrollBarChangedSlot)
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
 
         #record the previous point row
         self.previousPointRow = -1
-  
-    def cellChangedSlot(self, row, column):
-        if row > self.loopEndRow:
-            for i in xrange(self.loopEndRow, row):
-                self.array.append(["...."]*(self.ColumnCount))
-            self.loopEndRow = row
-  
+
+    @pyqtSlot(int, int, int, int)   
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
         self.floatDialogCloseSlot()
         self.CurrentRow = previousRow
@@ -65,9 +57,11 @@ class MicrocodeTable(InitTableWidget):
         else:
             self.previousPointRow = -1 
 
+    @pyqtSlot(int)
     def horizontalScrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
 
+    @pyqtSlot(int)
     def verticalScrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
 
@@ -151,18 +145,6 @@ class MicrocodeTable(InitTableWidget):
         self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, self.horizontalHeader().length()/self.ColumnCount, 80)
         self.floatDialog.initDialog(stringList)
         self.floatDialog.setVisible(True)
-
-    def floatDialogShowSlot(self, row, column, text):
-        stringList = []
-        stringList.append(text)
-        stringList.append(text)
-        stringList.append(text)
-        self.floatDialogShow(row, column, stringList)
-
-    def floatDialogCloseSlot(self):
-        if self.floatDialog != 0:
-            self.floatDialog.setVisible(False)
-            self.floatDialogFocus = 0	
 
     def setRectInfo(self, reg):
         rectInfo = RectInfo()
@@ -494,6 +476,7 @@ class MicrocodeTable(InitTableWidget):
                             row += 1
                             if row > self.RowCount:
                                 self.RowCount = row
+                                self.setRowCount(row)
                                 self.array.append(["...."]*(self.ColumnCount))
                 else:
                     record = startLPPattern.match(string)        
