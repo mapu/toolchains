@@ -7,6 +7,7 @@ make_bootrom=0
 make_uboot=0
 make_kernel=0
 output=
+sys=
 
 
 export PATH=$MAPU_HOME/arm-none-eabi/bin:$PATH
@@ -45,6 +46,26 @@ do
     echo -e "\n\tthe default make option will not compile anything if the file for image exist!\n\n"
     exit 0
   ;;
+  "--sim" )
+    if [ "$sys" = "" ]
+    then
+      sys="sim"
+    else
+      echo -e "\n\tConflict system type!\n\n\tSet --sim or --chip only!\n"
+      exit 1
+    fi
+    shift
+  ;;
+  "--chip" )
+    if [ "$sys" = "" ]
+    then
+      sys="chip"
+    else
+      echo -e "\n\tConflict system type!\n\n\tSet --sim or --chip only!\n"
+      exit 1
+    fi
+    shift
+  ;;
   * )
     if [ -n "$output" ]
     then
@@ -57,6 +78,13 @@ do
   esac
 done
 
+if [ "$sys" = "" ]
+then
+  sys="sim"
+fi
+
+kernel_err=0
+
 # Build kernel
 cd $root
 if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb -o "$make_kernel" -eq 1 ]
@@ -65,22 +93,29 @@ then
   if [ -e $root/kernel ]
   then
     cd $root/kernel
-    if [ -e $root/kernel/arch/arm/configs/mapu_defconfig ]
+    make clean
+    make distclean
+    if [ -e $root/kernel/arch/arm/configs/mapu_${sys}_defconfig ]
     then
-      make distclean
-      cp $root/kernel/arch/arm/configs/mapu_defconfig .config
-      make uImage dtbs ARCH=arm CROSS_COMPILE=$MAPU_HOME/arm-linux-gnueabi/bin/arm-linux-gnueabi- -j64
-      if [ ! -e $root/kernel/arch/arm/boot/uImage -o ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb ]
+      make mapu_${sys}_defconfig ARCH=arm || kernel_err=1
+      if [ $kernel_err -eq 0 ]
       then
-        echo -e "\n\n\n\nMake kernel fail: make uImage or dtb fail!\n"
-        exit
+        make uImage dtbs ARCH=arm CROSS_COMPILE=$MAPU_HOME/arm-linux-gnueabi/bin/arm-linux-gnueabi- -j64 || kernel_err=1
+        if [ $kernel_err -ne 0 ]
+        then
+          echo -e "\n\n\tError: Make uImage or dtb fail!\n\n"
+          exit 1
+        fi
+      else
+        echo -e "\n\n\tError: Make kernel mapu_${sys}_defconfig fail!\n\n"
+        exit 1
       fi
     else
-      echo -e "\n\n\n\nMake kernel fail: mapu_defconfig not exist!\n"
-      exit
+      echo -e "\n\n\tError: Kernel mapu_${sys}_defconfig not exist!\n\n"
+      exit 1
     fi
-  else 
-    echo -e "\n\n\n\nMake kernel fail: folder u-boot/ not exist!\n"
+  else
+    echo -e "\n\n\tError: Kernel folder ${root}/kernel/ not exist!\n\n"
     exit
   fi
 fi
@@ -97,19 +132,31 @@ then
   if [ -e $root/u-boot ]
   then
     cd $root/u-boot
+    make clean O=mapu
     make distclean O=mapu
     rm mapu/ -rf
-    cp -rf $root/arm $root/u-boot/app
-    make mapu_defconfig O=mapu 
-    make O=mapu CROSS_COMPILE=arm-none-eabi- || uboot_err=1
-    if [ "$uboot_err" -eq 1 ]
+    if [ -e $root/u-boot/configs/mapu_${sys}_defconfig ]
     then
-      echo -e "\n\n\n\nMake u-boot fail: make u-boot.bin fail!\n"
-      exit
+      make mapu_${sys}_defconfig O=mapu || uboot_err=1
+      if [ $uboot_err -eq 0 ]
+      then
+        make O=mapu CROSS_COMPILE=arm-none-eabi- || uboot_err=1
+        if [ "$uboot_err" -ne 0 ]
+        then
+          echo -e "\n\n\tError: Make u-boot.bin fail!\n\n"
+          exit 1
+        fi
+      else
+        echo -e "\n\n\tError: Make u-boot mapu_${sys}_defconfig fail!\n\n"
+        exit 1
+      fi
+    else
+      echo -e "\n\n\tError: u-boot mapu_${sys}_defconfig not exist!\n\n"
+      exit 1
     fi
   else 
     echo -e "\n\n\n\nMake u-boot fail: folder u-boot/ not exist!\n"
-    exit
+    exit 1
   fi
 fi
 
@@ -148,9 +195,9 @@ then
   exit
 fi
 
-if [ ! -e $root/kernel/arch/arm/boot/mapu_sim.dtb ]
+if [ ! -e $root/kernel/arch/arm/boot/mapu_${sys}.dtb ]
 then 
-  echo -e "\n\n\n\nMake image fail: mapu_sim.dtb not exist!\n"
+  echo -e "\n\n\n\nMake image fail: mapu_${sys}.dtb not exist!\n"
   exit
 fi
 
@@ -167,39 +214,44 @@ then
 fi
 
 
-dd if=boot_rom/main.bin of=${output:-sim.img}
+dd if=boot_rom/main.bin of=${output:-${sys}.img}
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd main.bin fail!\n\n"
   exit
 fi
-dd bs=1k seek=64 if=u-boot/mapu/u-boot.bin of=${output:-sim.img} oflag=append
+dd bs=1k seek=64 if=u-boot/mapu/u-boot.bin of=${output:-${sys}.img} oflag=append
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd u-boot.bin fail!\n\n"
   exit
 fi
-dd bs=1k seek=512 if=kernel/arch/arm/boot/mapu_sim.dtb of=${output:-sim.img}  oflag=append
+dd bs=1k seek=512 if=kernel/arch/arm/boot/mapu_${sys}.dtb of=${output:-${sys}.img}  oflag=append
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd mapu_sim.dtb fail!\n\n"
   exit
 fi
-dd bs=1k seek=1K if=kernel/arch/arm/boot/uImage of=${output:-sim.img}  oflag=append
+
+dd bs=1k seek=1K if=kernel/arch/arm/boot/uImage of=${output:-${sys}.img}  oflag=append
 if [ $? -ne 0 ]
 then
   echo -e "\n\n\tdd uImage fail!\n\n"
   exit
 fi
-dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-sim.img}  oflag=append
 
-if [ $? -ne 0 ]
+if [ "$sys" = "sim" ]
 then
-  echo -e "\n\n\tdd ubuntu.img fail!\n\n"
-  exit
-else
-  echo -e "\n\n\n\n\tMake image done!\n\n"
-  echo -e "\timage is stored at" ${output:-${root}/sim.img}
-  echo
+  dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-${sys}.img}  oflag=append
+  if [ $? -ne 0 ]
+  then
+    echo -e "\n\n\tdd ubuntu.img fail!\n\n"
+    exit 1
+  fi
 fi
+
+echo -e "\n\n\n\n\tMake image done!\n\n"
+echo -e "\timage is stored at" ${output:-${root}/${sys}.img}
+echo
+
 
