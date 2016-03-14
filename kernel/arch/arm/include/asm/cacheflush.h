@@ -196,7 +196,11 @@ extern void copy_to_user_page(struct vm_area_struct *, struct page *,
 #elif __LINUX_ARM_ARCH__ == 6 && defined(CONFIG_ARM_ERRATA_411920)
 #define __flush_icache_preferred	__cpuc_flush_icache_all
 #else
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 #define __flush_icache_preferred	__flush_icache_all_generic
+#else
+#define __flush_icache_preferred()
+#endif
 #endif
 
 static inline void __flush_icache_all(void)

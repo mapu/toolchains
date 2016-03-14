@@ -49,6 +49,7 @@ static void flush_icache_alias(unsigned long pfn, unsigned long vaddr, unsigned 
 
 void flush_cache_mm(struct mm_struct *mm)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	if (cache_is_vivt()) {
 		vivt_flush_cache_mm(mm);
 		return;
@@ -61,10 +62,12 @@ void flush_cache_mm(struct mm_struct *mm)
 		    : "r" (0)
 		    : "cc");
 	}
+#endif
 }
 
 void flush_cache_range(struct vm_area_struct *vma, unsigned long start, unsigned long end)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	if (cache_is_vivt()) {
 		vivt_flush_cache_range(vma, start, end);
 		return;
@@ -80,10 +83,12 @@ void flush_cache_range(struct vm_area_struct *vma, unsigned long start, unsigned
 
 	if (vma->vm_flags & VM_EXEC)
 		__flush_icache_all();
+#endif
 }
 
 void flush_cache_page(struct vm_area_struct *vma, unsigned long user_addr, unsigned long pfn)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	if (cache_is_vivt()) {
 		vivt_flush_cache_page(vma, user_addr, pfn);
 		return;
@@ -96,6 +101,7 @@ void flush_cache_page(struct vm_area_struct *vma, unsigned long user_addr, unsig
 
 	if (vma->vm_flags & VM_EXEC && icache_is_vivt_asid_tagged())
 		__flush_icache_all();
+#endif
 }
 
 #else
@@ -150,6 +156,7 @@ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
 		       unsigned long uaddr, void *dst, const void *src,
 		       unsigned long len)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 #ifdef CONFIG_SMP
 	preempt_disable();
 #endif
@@ -158,10 +165,12 @@ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
 #ifdef CONFIG_SMP
 	preempt_enable();
 #endif
+#endif
 }
 
 void __flush_dcache_page(struct address_space *mapping, struct page *page)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	/*
 	 * Writeback any data associated with the kernel mapping of this
 	 * page.  This ensures that data in the physical page is mutually
@@ -190,6 +199,7 @@ void __flush_dcache_page(struct address_space *mapping, struct page *page)
 	if (mapping && cache_is_vipt_aliasing())
 		flush_pfn_alias(page_to_pfn(page),
 				page->index << PAGE_CACHE_SHIFT);
+#endif
 }
 
 static void __flush_dcache_aliases(struct address_space *mapping, struct page *page)
@@ -227,6 +237,7 @@ static void __flush_dcache_aliases(struct address_space *mapping, struct page *p
 #if __LINUX_ARM_ARCH__ >= 6
 void __sync_icache_dcache(pte_t pteval)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	unsigned long pfn;
 	struct page *page;
 	struct address_space *mapping;
@@ -249,6 +260,7 @@ void __sync_icache_dcache(pte_t pteval)
 
 	if (pte_exec(pteval))
 		__flush_icache_all();
+#endif
 }
 #endif
 
@@ -273,6 +285,7 @@ void __sync_icache_dcache(pte_t pteval)
  */
 void flush_dcache_page(struct page *page)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	struct address_space *mapping;
 
 	/*
@@ -295,6 +308,7 @@ void flush_dcache_page(struct page *page)
 			__flush_icache_all();
 		set_bit(PG_dcache_clean, &page->flags);
 	}
+#endif
 }
 EXPORT_SYMBOL(flush_dcache_page);
 
@@ -309,6 +323,7 @@ EXPORT_SYMBOL(flush_dcache_page);
  */
 void flush_kernel_dcache_page(struct page *page)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	if (cache_is_vivt() || cache_is_vipt_aliasing()) {
 		struct address_space *mapping;
 
@@ -328,6 +343,7 @@ void flush_kernel_dcache_page(struct page *page)
 				__cpuc_flush_dcache_area(addr, PAGE_SIZE);
 		}
 	}
+#endif
 }
 EXPORT_SYMBOL(flush_kernel_dcache_page);
 
@@ -342,6 +358,7 @@ EXPORT_SYMBOL(flush_kernel_dcache_page);
  */
 void __flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vmaddr)
 {
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	unsigned long pfn;
 
 	/* VIPT non-aliasing caches need do nothing */
@@ -369,4 +386,5 @@ void __flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned l
 	 * since we actually ask for a write-back and invalidate.
 	 */
 	__cpuc_flush_dcache_area(page_address(page), PAGE_SIZE);
+#endif
 }

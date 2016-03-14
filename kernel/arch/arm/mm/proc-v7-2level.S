@@ -51,7 +51,11 @@ ENTRY(cpu_v7_switch_mm)
 #endif
 	mcr	p15, 0, r2, c13, c0, 1		@ set reserved context ID
 	isb
-1:	mcr	p15, 0, r0, c2, c0, 0		@ set TTB 0
+1:
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+	and	r0,	r0,	#0xffffffc6			@ luoxq disable cacheable m
+#endif
+	mcr	p15, 0, r0, c2, c0, 0		@ set TTB 0
 	isb
 #ifdef CONFIG_ARM_ERRATA_754322
 	dsb
@@ -152,6 +156,9 @@ ENDPROC(cpu_v7_set_pte_ext)
 	ALT_UP(orr	\ttbr0, \ttbr0, #TTB_FLAGS_UP)
 	ALT_SMP(orr	\ttbr1, \ttbr1, #TTB_FLAGS_SMP)
 	ALT_UP(orr	\ttbr1, \ttbr1, #TTB_FLAGS_UP)
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+	and	\ttbr1, \ttbr1, #0xffffffc6		@ luoxq
+#endif
 	mcr	p15, 0, \ttbr1, c2, c0, 1	@ load TTB1
 	.endm
 

@@ -699,6 +699,9 @@ __common_mmu_cache_on:
 		orr	r0, r0, #0x000d		@ Write buffer, mmu
 #endif
 		mov	r1, #-1
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+		and	r3,	r3,	#0xffffffc6		@ luoxq disable cacheable m
+#endif
 		mcr	p15, 0, r3, c2, c0, 0	@ load page table pointer
 		mcr	p15, 0, r1, c3, c0, 0	@ load domain access control
 		b	1f
@@ -723,8 +726,11 @@ __common_mmu_cache_on:
  *  r9  = corrupted
  *  r12 = corrupted
  */
-
-call_cache_fn:	adr	r12, proc_types
+call_cache_fn:
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+				mov     pc, lr
+#endif
+                adr	r12, proc_types
 #ifdef CONFIG_CPU_CP15
 		mrc	p15, 0, r9, c0, c0	@ get processor ID
 #else

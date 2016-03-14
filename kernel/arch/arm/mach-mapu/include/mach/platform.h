@@ -23,8 +23,8 @@
  *  DDR 3
  */
 
-#define MAPU_A8_DDR3_BANK0_BASE   0x70000000
-#define MAPU_A8_DDR3_BANK1_BASE   0x80000000
+#define MAPU_A8_DDR3_BANK0_BASE   0x60000000
+#define MAPU_A8_DDR3_BANK1_BASE   0x70000000
 
 /*
  *  Logic expansion modules
@@ -37,7 +37,11 @@
  * RealView common peripheral addresses
  */
 #define MAPU_A8_DMACTRL_BASE      0x50000000  /* DMA controller */
-#define MAPU_A8_UART0_BASE        0x50900000  /* UART 0 */
+#if (defined CONFIG_MAPU_CHIP)
+#define MAPU_A8_UART0_BASE        0x50920000  /* UART 0 for chip*/
+#elif (defined CONFIG_MAPU_SIM)
+#define MAPU_A8_UART0_BASE        0x50920000  /* UART 0 for sim, Match MaPU chip*/
+#endif
 #define MAPU_A8_UART1_BASE        0x50910000  /* UART 1 */
 #define MAPU_A8_UART2_BASE        0x50920000  /* UART 2 */
 #define MAPU_A8_TIMER0_BASE       0x50400000  /* Timer */

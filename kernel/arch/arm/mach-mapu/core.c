@@ -75,10 +75,10 @@ static struct map_desc mapu_a8_io_desc[] __initdata = {
 void mapu_fixup(struct tag *tags, char **from, struct meminfo *meminfo)
 {
   meminfo->bank[0].start = MAPU_A8_DDR3_BANK0_BASE;
-  meminfo->bank[0].size = SZ_256M;
-  meminfo->bank[1].start = MAPU_A8_DDR3_BANK1_BASE;
-  meminfo->bank[1].size = SZ_256M;
-  meminfo->nr_banks = 2;
+  meminfo->bank[0].size = SZ_512M;	//luoxq
+  //meminfo->bank[1].start = MAPU_A8_DDR3_BANK1_BASE;
+  //meminfo->bank[1].size = SZ_256M;
+  meminfo->nr_banks = 1;
 }
 
 static void __init mapu_a8_map_io(void)
@@ -90,11 +90,11 @@ static void __init mapu_a8_map_io(void)
  * These are fixed clocks.
  */
 static struct clk ref24_clk = {
-  .rate = 24000000,
+  .rate = 41200000,
 };
 
 static struct clk dw_timer_clk = {
-  .rate = 1000000000,
+  .rate = 41200000,
 };
 
 static struct clk dummy_apb_pclk;
@@ -115,13 +115,16 @@ static struct clk_lookup lookups[] = {
   }, {  /* DesignWare timers */
     .dev_id   = "dw_timer",
     .clk    = &dw_timer_clk,
-  }, {  /* Pl110 */
+  },
+#ifdef CONFIG_MAPU_SIM
+  {  /* Pl110 */
     .dev_id   = "clcd-pl110",
     .clk    = &ref24_clk,
   }, {  /* Pl050 */
     .dev_id   = "keyboard-pl050",
     .clk    = &ref24_clk,
   },
+#endif
 };
 
 static void __iomem *ctr;
@@ -169,7 +172,7 @@ void __init mapu_timer_init(unsigned int timer_irq)
   iobase = timer0_va_base;
 
   ced = dw_apb_clockevent_init(0, "dw_timer0", 300, iobase, timer_irq,
-                               100000000);
+                               41200000);
   if (!ced)
     panic("Unable to initialize clockevent device");
 
@@ -177,7 +180,7 @@ void __init mapu_timer_init(unsigned int timer_irq)
 
   iobase = timer1_va_base;
 
-  cs = dw_apb_clocksource_init(300, "dw_timer1", iobase, 100000000);
+  cs = dw_apb_clocksource_init(300, "dw_timer0", iobase, 41200000);
   if (!cs)
     panic("Unable to initialize clocksource device");
 
@@ -240,7 +243,11 @@ struct of_dev_auxdata mapu_auxdata_lookup[] __initdata = {
 static void __init mapu_a8_init(void)
 {
   int i;
+#if (defined CONFIG_MAPU_CHIP)
+  of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+#elif (defined CONFIG_MAPU_SIM)
   of_platform_populate(NULL, of_default_bus_match_table, mapu_auxdata_lookup, NULL);
+#endif
 }
 
 static void mapu_a8_restart(char mode, const char *cmd)
