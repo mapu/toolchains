@@ -4,7 +4,7 @@
 #include "partitions.h"
 
 #define UBOOT_LOAD_BASE 0x10000
-#define UBOOT_SIZE 0x70000
+#define UBOOT_SIZE 0x100000
 #define UBOOT_TEXT_BASE 0x60800000
 
 int main(void) {

@@ -17,7 +17,7 @@ SRC = $(TARGET).c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
-SRCARM = lowlevel_init.c exit.c dma_ctrl.c
+SRCARM = lowlevel_init.c exit.c dma_ctrl.c ddr_param.c
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s
