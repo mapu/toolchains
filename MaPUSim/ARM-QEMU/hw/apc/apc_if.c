@@ -426,6 +426,8 @@ static int apc_if_init(SysBusDevice *dev) {
   for(i=0; i<8; i++)
     sysbus_init_irq(dev, &s->irq[i]);
 
+  //memset(ape, 0, sizeof(ape));
+
 
   memory_region_init_io(&s->iomem, OBJECT(s), &apc_if_ops, s, "apc_if",
                         REGS_SIZE);

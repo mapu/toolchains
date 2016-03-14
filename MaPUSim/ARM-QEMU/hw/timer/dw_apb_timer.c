@@ -327,7 +327,7 @@ static void dw_apb_timer_reset(DeviceState *d)
     s->tris = 0;
     s->tcv = 0;
 //    s->freq = 200000000; //Set frequency to 200MHz
-    s->freq = 100000000;
+    s->freq = 41200000; //match the chip
     for (i = 0; i < 8; i++)
     {
         s->timer[i].lc = 0;

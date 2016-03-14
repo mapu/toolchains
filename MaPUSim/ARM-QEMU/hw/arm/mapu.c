@@ -73,7 +73,8 @@ static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
 		[MaPU_APC_REG] = 0x41000000, [MaPU_DMA] = 0x50000000,
 		[MaPU_TIMER] = 0x50400000, [MaPU_VIF] = 0x50500000,
-		[MaPU_UART0] = 0x50900000, [MaPU_UART1] = 0x50910000,
+		[MaPU_UART0] = 0x50920000, /*Match MaPU chip*/
+		[MaPU_UART1] = 0x50910000,
 		[MaPU_UART2] = 0x50920000, [MaPU_KEYBOARD] = 0x50a20000,
 		[MaPU_MOUSE] = 0x50a30000, [MaPU_GMAC] = 0x50c00000,
 		[MaPU_SDC] = 0x50d00000,
@@ -247,16 +248,16 @@ static void mapu_init(MachineState *mms)
 		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART0], 2, pic[2], 115200, serial_hds[0], DEVICE_NATIVE_ENDIAN);
 		fprintf(stderr, "\tmapu uart0 init done!\n");
 	}
-	if (serial_hds[1])
-	{
-		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART1], 2, pic[3], 115200, serial_hds[1], DEVICE_NATIVE_ENDIAN);
-		fprintf(stderr, "\tmapu uart1 init done!\n");
-	}
-	if (serial_hds[2])
-	{
-		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART2], 2, pic[4], 115200, serial_hds[2], DEVICE_NATIVE_ENDIAN);
-		fprintf(stderr, "\tmapu uart2 init done!\n");
-	}
+//	if (serial_hds[1])
+//	{
+//		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART1], 2, pic[3], 115200, serial_hds[1], DEVICE_NATIVE_ENDIAN);
+//		fprintf(stderr, "\tmapu uart1 init done!\n");
+//	}
+//	if (serial_hds[2])
+//	{
+//		serial_mm_init(get_system_memory(), MaPUboard_map[MaPU_UART2], 2, pic[4], 115200, serial_hds[2], DEVICE_NATIVE_ENDIAN);
+//		fprintf(stderr, "\tmapu uart2 init done!\n");
+//	}
 
   sysbus_create_varargs("dw_apb_timer", MaPUboard_map[MaPU_TIMER],
       pic[8], pic[9], pic[10], pic[11],
