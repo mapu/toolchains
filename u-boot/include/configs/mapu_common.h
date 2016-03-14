@@ -155,7 +155,7 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_CLK		41200000
-#define CONFIG_SYS_NS16550_COM1		0x50900000	/* Base EVM has UART0 */
+#define CONFIG_SYS_NS16550_COM1   0x50920000 /* Base EVM has UART0 */ /*Match MaPU chip*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
@@ -229,10 +229,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		CONFIG_PLATFORM_ENV_SETTINGS \
 		"dram=512M\0" \
-		"root=/dev/mmcblk0 rw\0" \
+		"root=/dev/mtdblock4 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=ext3 "\
-    "console=tty0\0" \
+    "root=${root} noinitrd vmalloc=768M init=/sbin/init rootfstype=jffs2 nocache "\
+    "console=ttyS0,115200n8\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
 			"bootm ${loadaddr}\0" \

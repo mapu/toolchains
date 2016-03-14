@@ -8,10 +8,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MAPU_SIM_H
-#define __MAPU_SIM_H
+#ifndef __MAPU_CHIP_H
+#define __MAPU_CHIP_H
 
 #define CONFIG_SYS_TIMER_RATE   41200000ULL
 #include "mapu_common.h"
 
-#endif /* MAPU_SIM_H */
+#endif /* MAPU_CHIP_H */

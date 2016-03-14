@@ -9,8 +9,27 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "casia"
 
+choice 
+  prompt "MaPU SOC Type"
+  config  MAPU_SIM
+    bool  "mapu_sim"
+    help  
+      This target is used for MaPU Simulator
+  config  MAPU_CHIP
+    bool  "mapu_chip"
+    help
+      This target is used for MaPU Physical chip
+endchoice
+
+if MAPU_SIM
 config SYS_CONFIG_NAME
-	default "mapu_a8"
+  default "mapu_sim"
+endif
+
+if MAPU_CHIP
+config SYS_CONFIG_NAME
+  default "mapu_chip"  
+endif
 
 endif
 

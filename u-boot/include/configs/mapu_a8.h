@@ -12,7 +12,7 @@
 #define __MAPU_A8_H
 
 #define CONFIG_SYS_TIMER_RATE   41200000ULL
-
+#define CONFIG_SYS_NS16550_COM1   0x50920000 /* Base EVM has UART0 */
 #include "mapu_common.h"
 
 #endif /* MAPU_A8_H */
