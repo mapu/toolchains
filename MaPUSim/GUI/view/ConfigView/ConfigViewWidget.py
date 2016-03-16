@@ -99,17 +99,20 @@ class ConfigViewWidget(QWidget):
         """)
 
         # Group for full system mode
-        self.gem5Radio = QRadioButton("GEM5")
+        #self.gem5Radio = QRadioButton("GEM5")
         self.qemuRadio = QRadioButton("QEMU")
         self.ARMmodeGroup = QButtonGroup(parent)
         self.ARMmodeGroup.setExclusive(True)
         self.ARMmodeGroup.addButton(self.qemuRadio, 0)
-        self.ARMmodeGroup.addButton(self.gem5Radio, 1)
+        #self.ARMmodeGroup.addButton(self.gem5Radio, 1)
         self.ARMmodeGroup.buttonClicked[int].connect(self.ARMSimulatorSwitchSlot)
+        self.qemuRadio.setChecked(True)
         if self.config.getConfig("ARMSimType") == "QEMU":
             self.qemuRadio.setChecked(True)
+        '''
         else:
             self.gem5Radio.setChecked(True)
+        '''
         self.ARMGDBCheck = QCheckBox("Use ARM GDB")
         if self.config.getConfig("ARMGDB") == "False":
             self.ARMGDBCheck.setChecked(False)
@@ -147,7 +150,7 @@ class ConfigViewWidget(QWidget):
         
         self.fullLayout = QVBoxLayout()
         self.ARMmodeLayout = QHBoxLayout()
-        self.ARMmodeLayout.addWidget(self.gem5Radio)
+        #self.ARMmodeLayout.addWidget(self.gem5Radio)
         self.ARMmodeLayout.addWidget(self.qemuRadio)
         self.fullLayout.addLayout(self.ARMmodeLayout)
         self.fullLayout.addWidget(self.ARMGDBCheck)
@@ -302,10 +305,13 @@ class ConfigViewWidget(QWidget):
             return
     
     def ARMSimulatorSwitchSlot(self, buttonid):
+        self.config.setConfig("ARMSimType", "QEMU")
+        '''
         if buttonid == 0:
             self.config.setConfig("ARMSimType", "QEMU")
         elif buttonid == 1:
             self.config.setConfig("ARMSimType", "GEM5")
+        '''
         self.control.ARMSimulatorSwitch()
         return
 
