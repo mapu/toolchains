@@ -38,6 +38,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QtDebug>
+#include <QFile>
 
 #include "Pty.h"
 //#include "kptyprocess.h"
@@ -970,6 +971,15 @@ void Session::onReceiveBlock( const char * buf, int len )
 {
     _emulation->receiveData( buf, len );
     emit receivedData( QString::fromLatin1( buf, len ) );
+    QFile file("a.out");
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        return;
+    }
+
+    QTextStream txtOutput(&file);
+    txtOutput << buf << endl;
+    file.close();
 }
 
 QSize Session::size()
