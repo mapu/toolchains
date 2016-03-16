@@ -75,6 +75,11 @@ public:
     virtual ~Session();
 
     /**
+     *input and output write in fileName
+     */
+    QString fileName;
+
+    /**
      * Returns true if the session is currently running.  This will be true
      * after run() has been called successfully.
      */

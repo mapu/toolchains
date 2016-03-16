@@ -122,6 +122,7 @@ Session::Session(QObject* parent) :
     _monitorTimer = new QTimer(this);
     _monitorTimer->setSingleShot(true);
     connect(_monitorTimer, SIGNAL(timeout()), this, SLOT(monitorTimerDone()));
+    fileName = "uart.out";
 }
 
 /*
@@ -301,6 +302,10 @@ void Session::removeView(TerminalDisplay * widget)
 
 void Session::run()
 {
+    if (QFile::remove(fileName) == true)
+    {
+        return;
+    }
     //check that everything is in place to run the session
     if (_program.isEmpty()) {
 
@@ -971,14 +976,14 @@ void Session::onReceiveBlock( const char * buf, int len )
 {
     _emulation->receiveData( buf, len );
     emit receivedData( QString::fromLatin1( buf, len ) );
-    QFile file("a.out");
+    QFile file(fileName);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Append))
     {
         return;
     }
 
     QTextStream txtOutput(&file);
-    txtOutput << buf << endl;
+    txtOutput << buf;
     file.close();
 }
 
