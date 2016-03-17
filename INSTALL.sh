@@ -8,6 +8,8 @@ llvm_en=1
 newlib_en=1
 openocd_en=1
 qemu_en=1
+res_en=1
+compiler_en=1
 debug_mode=0
 install_path=
 while (( $# != 0 ))
@@ -37,6 +39,14 @@ do
      qemu_en=0
      shift
   ;;
+  "--disable-res" )
+     res_en=0
+     shift
+  ;;
+  "--disable-compiler" )
+     compiler_en=0
+     shift
+  ;;
   "--disable-all" )
      gem5_en=0
      gold_en=0
@@ -44,6 +54,8 @@ do
      newlib_en=0
      openocd_en=0
      qemu_en=0
+     res_en=0
+     compiler_en=0
      shift
   ;;
   "--enable-gem5" )
@@ -70,6 +82,14 @@ do
      qemu_en=1
      shift
   ;;
+  "--enable-res" )
+     res_en=1
+     shift
+  ;;
+  "--enable-compiler" )
+     compiler_en=1
+     shift
+  ;;
   "--enable-debug" )
      debug_mode=1
      shift
@@ -83,6 +103,8 @@ do
     echo -e "\t--disable-newlib\t\tDo not install newlib"
     echo -e "\t--disable-openocd\t\tDo not install openocd"
     echo -e "\t--disable-qemu\t\tDo not install qemu"
+    echo -e "\t--disable-res\t\tDo not install res"
+    echo -e "\t--disable-compiler\t\tDo not install compiler"
     echo -e "\t--enable-xxx\t\tInstall xxx package"
     echo -e "\t--disable-all\t\tDo not install anything (used with following --enable-xxx)"
     echo -e "\t--enable-debug\t\tBuild in debug and incremental mode, and do not remove the building dirs"
@@ -127,6 +149,33 @@ gold_err=0
 newlib_err=0
 openocd_err=0
 qemu_err=0
+uboot_err=0
+bootrom_err=0
+if [ "$res_en" -eq 1 ]
+then
+  cd $source_path
+  if [ ! -e $install_path/res/u-boot ]
+  then
+    mkdir $install_path/res/u-boot --parents
+  fi
+  svn export u-boot $install_path/res/u-boot --force -q || uboot_err=1
+  if [ ! -e $install_path/res/boot_rom ]
+  then
+    mkdir $install_path/res/boot_rom --parents
+  fi
+  svn export boot_rom $install_path/res/boot_rom --force -q || bootrom_err=1
+fi
+
+compiler_err=0
+if [ "$compiler_en" -eq 1 ]
+then
+  cd $source_path
+  if [ ! -e $install_path/arm-none-eabi ]
+  then
+    mkdir $install_path/arm-none-eabi --parents
+  fi
+  svn export arm-none-eabi $install_path/arm-none-eabi --force -q || compiler_err=1
+fi
 
 # Install Gem5
 if [ "$gem5_en" -eq 1 ]
@@ -425,6 +474,7 @@ then
   fi
 fi
 
+
 # Clean up all temporary files
 cd $root
 if [ "$debug_mode" -eq 0 ]
@@ -471,7 +521,18 @@ then
   then rm -rf build_qemu
   else echo "Failed to install qemu"
   fi
-
+  if [ "$uboot_err" -eq 1 ]
+  then
+    echo -e "\nFailed to export u-boot\n"
+  fi
+  if [ "$bootrom_err" -eq 1 ]
+  then
+    echo -e "\nFailed to export boot_rom\n"
+  fi
+  if [ "$compiler_err" -eq 1 ]
+  then
+    echo -e "\nFailed to export arm-none-eabi\n"
+  fi
 fi
 
 
