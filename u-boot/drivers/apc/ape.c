@@ -45,9 +45,13 @@ int32_t ape_dma_wait(uint32_t group, uint32_t cpuid) {
   while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.dma.DMACommandStatus)) != 0);
   uint32_t mask = 1UL << group;
   writel(mask, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryMask));
+  // Mask query does not work well on real chip
+  /*
   do {
     writel(DMAQ_OR, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryType));
   } while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus)) & mask == 0);
+  */
+  while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueueNum)) != MAX_NUM_DMA);
   return 0;
 }
 
@@ -104,6 +108,5 @@ void apc_init(void) {
     if ((readl((uint32_t)&(ape_cores[i]->csu_if.MailNum)) & 0xFF00) !=
         (MAX_NUM_MAIL_SEND << 8))
       debug("warning: APE%d has pending incoming mails.\n", i);
-    writel(0xFFFFFFFF, (uint32_t)&(ape_cores[i]->csu_if.DMAGrpIntClr));
   }
 }
