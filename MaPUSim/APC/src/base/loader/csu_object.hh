@@ -142,9 +142,9 @@ public:
 
   void ChangeStatus(int cpuid, Addr addr, uint32_t val) const;
 
-  bool readByAPE(Addr chid, TheISA::IntReg &val);
+  bool readByAPE(int cpuid, Addr chid, TheISA::IntReg &val);
 
-  bool setByAPE(Addr chid, const TheISA::IntReg val);
+  bool setByAPE(int cpuid, Addr chid, const TheISA::IntReg val);
 
   uint32_t readCSUNum(Addr chid);
 

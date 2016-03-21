@@ -116,7 +116,7 @@ void ComSynUnit::execute(int slot_num) {
       csu_req->done();
       return;
     }
-    if (csu->readByAPE(chid, final_val)) {
+    if (csu->readByAPE(cpu->cpuId(), chid, final_val)) {
       DPRINTF(InOrderCSU, "[tid:%i]: [sn:%i] Reading CSU Register %u completed.\n",
               tid, seq_num, chid);
       inst->setIntRegOperand(inst->staticInst.get(), 0, final_val);
@@ -138,7 +138,7 @@ void ComSynUnit::execute(int slot_num) {
 
   case CsuWrite: {
     final_val = inst->readIntSrc(0);
-    if (csu->setByAPE(chid, final_val)) {
+    if (csu->setByAPE(cpu->cpuId(), chid, final_val)) {
       if (chid == 0x11) {
         // DMA cmd was issued, a DMA Event must be scheduled
         DPRINTF(InOrderCSU, "[tid:%i]: [sn:%i] CSU DMA request is issued.\n",

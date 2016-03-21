@@ -262,7 +262,7 @@ void CsuObject::ChangeStatus(int cpuid, Addr addr, uint32_t val) const {
   }
 }
 
-bool CsuObject::readByAPE(Addr chid, TheISA::IntReg &val) {
+bool CsuObject::readByAPE(int cpuid, Addr chid, TheISA::IntReg &val) {
   switch (chid) {
   case 0:
     if (intCsuCtx->EventStatus == NULL) {
@@ -306,7 +306,7 @@ bool CsuObject::readByAPE(Addr chid, TheISA::IntReg &val) {
       intCsuCtx->MailboxIn->ptr++;
       intCsuCtx->MailboxIn->queue_len--;
       if (MaPUSystem)
-        ChangeStatus(chid, 0xC0, intCsuCtx->MailboxIn->queue_len);
+        ChangeStatus(cpuid, 0xC0, intCsuCtx->MailboxIn->queue_len);
       if (intCsuCtx->MailboxIn->queue_len == 0) {
         pendingEventStatus &= ~(1 << InMailEvent);
         updateStatus();
@@ -342,7 +342,7 @@ uint32_t CsuObject::readCSUNum(Addr chid) {
   }
 }
 
-bool CsuObject::setByAPE(Addr chid, const TheISA::IntReg val) {
+bool CsuObject::setByAPE(int cpuid, Addr chid, const TheISA::IntReg val) {
   struct dma_if *p = NULL;
   switch (chid) {
   case 0x1:
@@ -429,7 +429,7 @@ bool CsuObject::setByAPE(Addr chid, const TheISA::IntReg val) {
     else {
       intCsuCtx->MailboxOut = new uint32_t(val);
       if (MaPUSystem)
-        ChangeStatus(chid, 0xC0, 1);
+        ChangeStatus(cpuid, 0xC0, 1);
       //pendingEventStatus &= ~(1 << 3);
       updateStatus();
       return true;
@@ -440,7 +440,7 @@ bool CsuObject::setByAPE(Addr chid, const TheISA::IntReg val) {
     else {
       intCsuCtx->MailboxOutInt = new uint32_t(val);
       if (MaPUSystem)
-        ChangeStatus(chid, 0xC0, 1);
+        ChangeStatus(cpuid, 0xC0, 1);
       pendingEventStatus &= ~(1 << OutMailEvent);
       updateStatus();
       return true;
@@ -664,7 +664,7 @@ dma_end:
   } else {
     intCsuCtx->dma_queue_len--;
     if (intCsuCtx->GroupStatusUpdate != 0)
-      setByAPE(0x14, intCsuCtx->GroupStatusUpdate);
+      setByAPE(cpuid, 0x14, intCsuCtx->GroupStatusUpdate);
   }
   delete dma_conf;
 }
