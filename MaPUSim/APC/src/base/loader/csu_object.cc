@@ -429,7 +429,7 @@ bool CsuObject::setByAPE(int cpuid, Addr chid, const TheISA::IntReg val) {
     else {
       intCsuCtx->MailboxOut = new uint32_t(val);
       if (MaPUSystem)
-        ChangeStatus(cpuid, 0xC0, 1);
+        ChangeStatus(cpuid, 0xB0, val);
       //pendingEventStatus &= ~(1 << 3);
       updateStatus();
       return true;
@@ -440,7 +440,7 @@ bool CsuObject::setByAPE(int cpuid, Addr chid, const TheISA::IntReg val) {
     else {
       intCsuCtx->MailboxOutInt = new uint32_t(val);
       if (MaPUSystem)
-        ChangeStatus(cpuid, 0xC0, 1);
+        ChangeStatus(cpuid, 0xB8, val);
       pendingEventStatus &= ~(1 << OutMailEvent);
       updateStatus();
       return true;
