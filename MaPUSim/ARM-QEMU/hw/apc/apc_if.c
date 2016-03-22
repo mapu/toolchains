@@ -157,7 +157,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
       break;
   }
   if (core_off == 0xB0) {
-    ape[core_id].csu_if.MailNum &= 0xFFFFFF00;
+    ape[core_id].csu_if.MailNum &= 0xFF00FFFF;
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
     if (s->fd < 0)
@@ -171,7 +171,7 @@ static uint64_t apc_if_read(void *opaque, hwaddr offset, unsigned size) {
     }
     ape[core_id].csu_if.dma.DMACommandStatus = saved_cmd_status;
   } else if (core_off == 0xB8) {
-    ape[core_id].csu_if.MailNum &= 0xFF00FFFF;
+    ape[core_id].csu_if.MailNum &= 0xFFFFFF00;
     clearIntr(s, core_id, 1);
     uint32_t saved_cmd_status = ape[core_id].csu_if.dma.DMACommandStatus;
     ape[core_id].csu_if.dma.DMACommandStatus = 0;
@@ -328,9 +328,9 @@ static void apc_if_socket_send(void *opaque){
       assert(pkt[1] < sizeof(union csu_mmap));
       ape[pkt[0]].mem[pkt[1] / 4] = pkt[2];
       if ((pkt[1]) == 0xB0) {
-        ape[pkt[0]].csu_if.MailNum |= 0x1;
-      } else if ((pkt[1]) == 0xB8) {
         ape[pkt[0]].csu_if.MailNum |= 0x10000;
+      } else if ((pkt[1]) == 0xB8) {
+        ape[pkt[0]].csu_if.MailNum |= 0x1;
         // sendIntr(pkt[0], mail)
         fprintf(stderr, "Raise irq %d for Mail\n", ((pkt[0] << 1) + 1));
         qemu_irq_raise(s->irq[(pkt[0] << 1) + 1]);
