@@ -235,13 +235,13 @@ void CsuObject::update(int cpuid) {
     }
   }
   num = (uint8_t*)(&income.csu_if.MailNum);
-  if (num == 0 && intCsuCtx->MailboxOutInt) {
+  if (*num == 0 && intCsuCtx->MailboxOutInt) {
     delete intCsuCtx->MailboxOutInt;
     intCsuCtx->MailboxOutInt = NULL;
     pendingEventStatus |= 1 << OutMailEvent;
   }
   num = (uint8_t*)(&income.csu_if.MailNum) + 2;
-  if (num == 0 && intCsuCtx->MailboxOut) {
+  if (*num == 0 && intCsuCtx->MailboxOut) {
     delete intCsuCtx->MailboxOut;
     intCsuCtx->MailboxOut = NULL;
     //pendingEventStatus |= 1 << 3;
