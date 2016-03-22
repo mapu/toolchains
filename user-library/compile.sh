@@ -1,0 +1,1 @@
+arm-linux-gnueabihf-g++ test.cpp csu.cpp apc.cpp elf_object.cpp -I./libelf/include -g3 -L./libelf/lib -lelf -lpthread
