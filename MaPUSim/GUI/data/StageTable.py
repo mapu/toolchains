@@ -230,7 +230,8 @@ class StageTable(QObject):
             sql_query += " ORDER BY sn ASC"
             cursor = self.DBConn.execute(sql_query)
             idx = cursor.fetchall()
-            idList.append(idx[0][0])
+	    if len(idx) > 0:
+                idList.append(idx[0][0])
         cursor.close()
         return (vHeader, idList)
    
