@@ -13,7 +13,7 @@
 #include "apc_if.h"
 #include "sys/ioctl.h"
 
-#define DEBUG_APC_IF
+//#define DEBUG_APC_IF
 
 #ifdef DEBUG_APC_IF
 #define DPRINTF(fmt, ...) \
@@ -110,7 +110,7 @@ static void updateIntr(void * opaque, unsigned core_id) {
 //           ape[core_id].csu_if.DMAGrpIntClr) == 0){
       if (ape[core_id].csu_if.DMAQueryMask){
         // sendIntr(core_id, dma)
-        fprintf(stderr, "Raise irq %d for DMAQueryType = 0x4\n", (core_id << 1));
+        //fprintf(stderr, "Raise irq %d for DMAQueryType = 0x4\n", (core_id << 1));
         qemu_irq_raise(s->irq[(core_id << 1) + 0]);
       } else clearIntr(s, core_id, 0);
     else clearIntr(s, core_id, 0);
@@ -122,7 +122,7 @@ static void updateIntr(void * opaque, unsigned core_id) {
     if ((ape[core_id].csu_if.DMAQueryStatus & 
          ape[core_id].csu_if.DMAQueryMask ) != 0) {
       // sendIntr(core_id, dma)
-      fprintf(stderr, "Raise irq %d for DMAQueryType = 0x5\n", (core_id << 1));
+      //fprintf(stderr, "Raise irq %d for DMAQueryType = 0x5\n", (core_id << 1));
       qemu_irq_raise(s->irq[(core_id << 1) + 0]);
     } else clearIntr(s, core_id, 0);
   } else clearIntr(s, core_id, 0);
@@ -332,7 +332,7 @@ static void apc_if_socket_send(void *opaque){
       } else if ((pkt[1]) == 0xB8) {
         ape[pkt[0]].csu_if.MailNum |= 0x1;
         // sendIntr(pkt[0], mail)
-        fprintf(stderr, "Raise irq %d for Mail\n", ((pkt[0] << 1) + 1));
+        //printf(stderr, "Raise irq %d for Mail\n", ((pkt[0] << 1) + 1));
         qemu_irq_raise(s->irq[(pkt[0] << 1) + 1]);
       } else if ((pkt[1]) == 0xA0) {
         updateIntr(s, pkt[0]);
