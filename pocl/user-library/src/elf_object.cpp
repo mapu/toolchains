@@ -221,9 +221,3 @@ bool ElfObject::loadSection(Section *sec, Csu& csu) {
   }
   return true;
 }
-
-bool ElfObject::copySections(uint8_t* start, Csu& csu) {
-  if (text.size != 0) memcpy(start, text.fileImage, text.size);
-
-  return true;
-}

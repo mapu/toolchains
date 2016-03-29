@@ -27,8 +27,7 @@ void *thread(void *threadid) {
 
   Apc *apc = Apc::tryFile("/dev/apc", -1);
 
-  while (!apc->acquireApe(0))
-    ;
+  while (!apc->acquireApe(0)) ;
 
   Csu *csu = apc->getCsu(0);
 

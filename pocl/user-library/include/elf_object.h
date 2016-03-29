@@ -108,8 +108,6 @@ public:
       Arch _arch,
       OpSys _opSys);
 
-  void getSections();
-  bool sectionExists(std::string sec);
   std::vector<Section> loadableSegments;
 
 public:
@@ -123,7 +121,6 @@ public:
 
   bool loadSections(Csu& csu);
   bool loadSection(Section *sec, Csu& csu);
-  bool copySections(uint8_t* start, Csu& csu);
 
   bool setParameters(void* data);
 
