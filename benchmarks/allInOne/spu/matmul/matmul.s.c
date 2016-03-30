@@ -6,6 +6,8 @@
 #include <mspu-intrin.h>
 #include <mlib_mgr.h>
 
+#define BS 16
+
 extern void Mat_Mul_SF_Test();
 // begin program code */
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +42,6 @@ int main() {
   int SDA2DM0_START = 0xc00000;
   int SDASize = 0x40000;
 
-  const int BS = 16;
   int HalfBS = (BS / 2);
   int BSGran = 4;
   int BankNum = BS;
