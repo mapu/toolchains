@@ -1,4 +1,3 @@
-LIB:=mapu
-lib_exclude_dirs:= testbench
+LIB_NAME:=mapu
 
 include $(TOPDIR)/Makefile.env
