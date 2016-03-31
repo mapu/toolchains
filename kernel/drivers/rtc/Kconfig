@@ -828,6 +828,15 @@ config RTC_DRV_PL031
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called rtc-pl031.
+config RTC_DRV_DWRTC
+	tristate "DW APB RTC"
+	depends on ARM_AMBA
+	help
+	  If you say Y here you will get access to DW AMBA
+	  PrimeCell dw RTC found on certain ARM SOCs.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called rtc-dw_apb_rtc.
 
 config RTC_DRV_AT32AP700X
 	tristate "AT32AP700X series RTC"
