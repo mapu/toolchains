@@ -7,21 +7,25 @@ from view.MicrocodeTableWidget.FloatDialog import FloatDialog
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
+from data.MMPULite import MMPULite
 import re
 
 class MicrocodeTableWidget(InitTableWidget):  
     floatDialogShowSignal = pyqtSignal(int, int, list)
     itemRegStateSignal = pyqtSignal(list, list)
-    def __init__(self, register, parent = None):  
+    def __init__(self, register, database, parent = None):  
         super(MicrocodeTableWidget, self).__init__(parent)   
 
         self.register = register
+        self.database = database
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
         self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.horizontalScrollBarChangedSlot)
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
 
         #record the previous point row
         self.previousPointRow = -1
+        #MMPULite parser
+	self.mmpulite = MMPULite()
 
     @pyqtSlot(int, int, int, int)   
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
@@ -44,16 +48,23 @@ class MicrocodeTableWidget(InitTableWidget):
         self.itemRegStateSignal.emit(regList, marginList)   
         #show code input row
         if self.previousPointRow != -1:
-            self.earserWholeRowColor(self.previousPointRow)   
+	    for i in self.previousPointRow:
+                self.earserWholeRowColor(i)   
         item = self.item(currentRow, currentColumn)
-        if item != None:
-            #check microcode is legal?
-
+        if item != None:	    
             if item.text() == "":
                 return
-             
-            self.setWholeRowColor(currentRow, Qt.blue) 
-            self.previousPointRow = currentRow     
+            #check microcode is legal?
+	    self.mmpulite.run(str(item.text()))	    
+	    text = self.mmpulite.result
+	    if text == 0:
+	        return
+	    out = self.database.searchMcc(text).split("-")
+	    self.previousPointRow = []   
+	    for i in out:
+	        outRow = currentRow + int(i)	  
+                self.setWholeRowColor(outRow, Qt.blue) 
+                self.previousPointRow.append(outRow)
         else:
             self.previousPointRow = -1 
 

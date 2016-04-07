@@ -4,16 +4,20 @@ from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot
 from res import qrc_resources 
 from view.MicrocodeTableWidget.MicrocodeTableWidget import MicrocodeTableWidget
 from Utils import warning
-
+from data.MicrocodeDB import MicrocodeDB
 
 class MainWindow(QMainWindow):  
     def __init__(self, parent = None):  
         super(MainWindow, self).__init__(parent)   
 
+	#create data base
+	database = MicrocodeDB()
+	database.createTable()
+	
         self.register = ["KI12", "KI13", "KI14", "KI15"]
         self.setWindowTitle("Graphic Microcode Editor")
         self.resize(800, 600)
-        self.microcodeTableWidget = MicrocodeTableWidget(self.register)
+        self.microcodeTableWidget = MicrocodeTableWidget(self.register, database)
         self.setCentralWidget(self.microcodeTableWidget)
         self.createAction()
         self.createContextMenu()
