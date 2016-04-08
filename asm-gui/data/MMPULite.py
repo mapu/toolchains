@@ -477,7 +477,7 @@ class MMPULite(Parser):
 	    tmp = "MR0"
 	elif p[1] == "r1":
 	    tmp = "MR1"
-	else:
+	elif p[1] == "r2":
 	    tmp = "MR2"
 	p[0] = tmp + p[3]
 	    
@@ -514,6 +514,9 @@ class MMPULite(Parser):
         """
         shu0code : SHU0 DOT shu0inst
                  | shu0ctrl
+                 | SHU0 error
+                 | SHU0 DOT error
+                 
         """
         if p[1] == "shu0":
 	    p[0] = "SHU" + p[3]
@@ -639,6 +642,7 @@ class MMPULite(Parser):
         """
         r3inst : mindexn ASSIGNTO r3dest _flag KG flag_ 
                | mindexn ASSIGNTO r3dest
+               | mindexn ASSIGNTO error
                | mindexn error
         """
         if len(p) > 4:
@@ -647,7 +651,12 @@ class MMPULite(Parser):
 	    p[0] = "To" + p[3]
 
     def p_shu0inst(self, p):
-        'shu0inst : shuexp ASSIGNTO shu0dest'
+        """
+        shu0inst : shuexp ASSIGNTO shu0dest
+		 | shuexp error
+		 | shuexp ASSIGNTO error
+        """
+	
         p[0] = p[1] + "To" + p[3]
 
     def p_shu1inst(self, p):

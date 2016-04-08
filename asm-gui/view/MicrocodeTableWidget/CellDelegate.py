@@ -38,7 +38,7 @@ class CellDelegate(QItemDelegate):
 
     def paint(self, painter, option, index):
         myOption = QStyleOptionViewItem(option)
-        step = 2 #indet
+        step = 2 #indent
         if index.row() >= len(self.array):
             QItemDelegate.paint(self, painter, myOption, index) 
             return

@@ -6,6 +6,7 @@ from view.MicrocodeTableWidget.SetFSMNameWidget import SetFSMNameWidget
 from view.MicrocodeTableWidget.InsertDialog import InsertDialog
 from view.MicrocodeTableWidget.DeleteDialog import DeleteDialog
 from view.MicrocodeTableWidget.CellDelegate import CellDelegate
+from view.MicrocodeTableWidget.FloatDialog import FloatDialog
 import sys
 sys.path.append("..")
 from view.Utils import warning
@@ -139,6 +140,43 @@ class InitTableWidget(QTableWidget):
             self.floatDialog.setVisible(False)
             self.floatDialogFocus = 0	
 
+    def floatDialogShow(self, row, column, stringList):
+        if row > self.loopEndRow:
+	    self.loopEndRow = row
+        self.floatDialogCloseSlot()
+        self.floatDialog = FloatDialog(self)
+        item = self.item(row, column)
+        floatDialog_x = 0
+        floatDialog_y = 0
+        if item == None:
+            if row + 4 < self.RowCount:
+                item = self.item(row + 1, column)
+                if item == None:
+                    item = QTableWidgetItem("")
+                    self.setItem(row + 1, column, item)
+                rect = self.visualItemRect(item)
+                floatDialog_x = rect.topLeft().x() + self.verticalHeader().sizeHint().width()
+                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height()  
+            else:
+                item = self.item(row - 1, column)
+                if item == None:
+                    item = QTableWidgetItem("")
+		    self.setItem(row - 1, column, item)	
+                rect = self.visualItemRect(item)
+                floatDialog_x = rect.topLeft().x() + self.verticalHeader().sizeHint().width()
+                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height() - 80		    	
+        else:
+            rect = self.visualItemRect(item)
+            if row + 4 < self.RowCount:
+                floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
+                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height()
+            else:
+                floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
+                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height() - 80
+        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, self.horizontalHeader().length()/self.ColumnCount, 80)
+        self.floatDialog.initDialog(stringList)
+        self.floatDialog.setVisible(True)
+        
     def insertDialogShow(self):
         selRange = self.selectedRange()
         self.currentRowNum = selRange.rowCount()

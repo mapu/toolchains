@@ -3,7 +3,6 @@ import sys
 from PyQt4.QtGui import QTableWidgetItem, QBrush
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from view.MicrocodeTableWidget.InitTableWidget import InitTableWidget
-from view.MicrocodeTableWidget.FloatDialog import FloatDialog
 from view.Utils import warning
 sys.path.append("../..")
 from data.RectInfo import RectInfo
@@ -29,6 +28,7 @@ class MicrocodeTableWidget(InitTableWidget):
 
     @pyqtSlot(int, int, int, int)   
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
+	self.dataParser(previousRow, previousColumn)
         self.floatDialogCloseSlot()
         self.CurrentRow = previousRow
         self.CurrentColumn = previousColumn
@@ -53,13 +53,10 @@ class MicrocodeTableWidget(InitTableWidget):
         item = self.item(currentRow, currentColumn)
         if item != None:	    
             if item.text() == "":
-                return
-            #check microcode is legal?
-	    self.mmpulite.run(str(item.text()))	    
-	    text = self.mmpulite.result
-	    if text == 0:
-	        return
-	    out = self.database.searchMcc(text).split("-")
+                return  
+	    if item.whatsThis() == "":
+		return
+	    out = item.whatsThis().split("-")
 	    self.previousPointRow = []   
 	    for i in out:
 	        outRow = currentRow + int(i)	  
@@ -76,6 +73,20 @@ class MicrocodeTableWidget(InitTableWidget):
     def verticalScrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
 
+    def dataParser(self, row, column):
+        item = self.item(row, column)
+        if item != None:
+	    if item.whatsThis() == "":
+                if item.text() == "":
+		    item.setWhatsThis("")
+		else:
+		    #check microcode is legal?
+		    self.mmpulite.run(str(item.text()))	    
+		    text = self.mmpulite.result
+		    if text != 0:
+		        out = self.database.searchMcc(text)
+		        item.setWhatsThis(out)	
+      
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Down:
             if self.floatDialog.isVisible() == True:
@@ -121,41 +132,6 @@ class MicrocodeTableWidget(InitTableWidget):
         self.CurrentRow = row
         self.CurrentColumn = column
         self.floatDialogShow(row, column, stringList)
-
-    def floatDialogShow(self, row, column, stringList):
-        self.floatDialogCloseSlot()
-        self.floatDialog = FloatDialog(self)
-        item = self.item(row, column)
-        floatDialog_x = 0
-        floatDialog_y = 0
-        if item == None:
-            if row + 4 < self.RowCount:
-                item = self.item(row + 1, column)
-                if item == None:
-                    item = QTableWidgetItem("")
-                    self.setItem(row + 1, column, item)
-                rect = self.visualItemRect(item)
-                floatDialog_x = rect.topLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height()  
-            else:
-                item = self.item(row - 1, column)
-                if item == None:
-                    item = QTableWidgetItem("")
-		    self.setItem(row - 1, column, item)	
-                rect = self.visualItemRect(item)
-                floatDialog_x = rect.topLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height() - 80		    	
-        else:
-            rect = self.visualItemRect(item)
-            if row + 4 < self.RowCount:
-                floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height()
-            else:
-                floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height() - 80
-        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, self.horizontalHeader().length()/self.ColumnCount, 80)
-        self.floatDialog.initDialog(stringList)
-        self.floatDialog.setVisible(True)
 
     def setRectInfo(self, reg):
         rectInfo = RectInfo()
@@ -393,9 +369,14 @@ class MicrocodeTableWidget(InitTableWidget):
             line = ".hmacro %s\n" % (item.text())
             lines.append(line)
             line = ""
+            arrayLen = len(self.array)
             for row in xrange(self.loopEndRow + 1):
-                text = self.array[row][column]
-                textList = text.split(".")
+	        if row < arrayLen:
+                    text = self.array[row][column]
+                    textList = text.split(".")
+                else:
+		    textList[0] = ""
+		    textList[2] = ""
                 #get loop start info
                 if textList[0] != "": 
                     cmpList = [] 
@@ -477,6 +458,7 @@ class MicrocodeTableWidget(InitTableWidget):
                             info.column = column
                             item = QTableWidgetItem("")
                             self.setItem(row, column, item)
+                            self.dataParser(row, column)
                             self.loopBodyList[column].append(info)
                         else:
                             if lpto == "NOP":
@@ -484,6 +466,7 @@ class MicrocodeTableWidget(InitTableWidget):
                             else:
                                 text = record[0]
                             self.setItem(row, column, QTableWidgetItem(text))
+                            self.dataParser(row, column)
                             row += 1
                             if row > self.RowCount:
                                 self.RowCount = row
@@ -499,6 +482,7 @@ class MicrocodeTableWidget(InitTableWidget):
                     info.column = column
                     item = QTableWidgetItem("")
                     self.setItem(row, column, item)
+                    self.dataParser(row, column)
                     self.loopBodyList[column].append(info)
             elif endLPPattern.search(string) != None:        
                 record = endLPPattern.search(string)
@@ -518,6 +502,7 @@ class MicrocodeTableWidget(InitTableWidget):
                 if text == "NOP":
                     text = ""
                 self.setItem(row, column, QTableWidgetItem(text))
+                self.dataParser(row, column)
                 row += 1
                 if row > self.RowCount:
                     self.RowCount = row
