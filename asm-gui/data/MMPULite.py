@@ -30,7 +30,7 @@ class Parser:
                   tabmodule = self.tabmodule)
 
     def run(self, s):
-        self.result = 0
+        self.result = -1
         yacc.parse(s)
     
 class MMPULite(Parser):
@@ -421,17 +421,20 @@ class MMPULite(Parser):
         mcodeline : slots
         """
         p[0] = p[1]
-        self.result = p[0]
+        if p[0] != None:
+            self.result = p[0]
 
     def p_slots(self, p):
         """        
         slots : slotref
         """
-        p[0] = p[1]
+        if p[0] != None:
+            p[0] = p[1]
 
     def p_slotref(self, p):
         'slotref : slot'
-        p[0] = p[1]
+        if p[0] != None:
+            p[0] = p[1]
 	    
     def p_slot(self, p):
         """
@@ -453,9 +456,12 @@ class MMPULite(Parser):
              | biuslot
              | seqslot
              | hmacro
-             | error
         """
-	p[0] = p[1]
+        if p[1] != None:
+	    p[0] = p[1]
+	
+    def p_slot_error(self, p):
+	'slot : error'
 
     def p_hmacro(self, p):
         """
@@ -469,9 +475,6 @@ class MMPULite(Parser):
                   | R1 DOT r1inst
                   | R2 DOT r2inst
                   | R2 DOT r2instw
-                  | R0 DOT error
-                  | R1 DOT error
-                  | R2 DOT error
         """
 	if p[1] == "r0":
 	    tmp = "MR0"
@@ -479,29 +482,46 @@ class MMPULite(Parser):
 	    tmp = "MR1"
 	elif p[1] == "r2":
 	    tmp = "MR2"
-	p[0] = tmp + p[3]
-	    
-	
+	if p[3] != None:
+	    p[0] = tmp + p[3]
+
+    def p_mr012slot_error(self, p):
+        """
+        mr012slot : R0 DOT error
+                  | R1 DOT error
+                  | R2 DOT error
+        """
+
     def p_mr3slot(self, p):
         """
         mr3slot : mr3slot_
                 | r3inst
                 | R3 DOT r3inst
         """
-        if p[1] == "r3":
+        if p[1] == "r3" and p[3] != None:
 	    p[0] = "MR3" + p[3]
-	else:
+	elif p[1] != None:
 	    p[0] = "MR3" + p[1]
+	    
+    def p_mr3slot_error(self, p):
+        """
+        mr3slot : R3 DOT error
+        """
 
     def p_mr3slot_(self, p):
         """
         mr3slot_ : r3inst
                  | R3 DOT r3inst
         """
-        if p[1] == "r3":
+        if p[1] == "r3" and p[3] != None:
 	    p[0] = "MR3" + p[3]
-	else:
+	elif p[1] != None:
 	    p[0] = "MR3" + p[1]
+	    
+    def p_mr3slot__error(self, p):
+        """
+        mr3slot_ : R3 DOT error
+        """
 	
     def p_shuslot(self, p):
         """
@@ -513,34 +533,44 @@ class MMPULite(Parser):
     def p_shu0code(self, p):
         """
         shu0code : SHU0 DOT shu0inst
-                 | shu0ctrl
-                 | SHU0 error
-                 | SHU0 DOT error
-                 
+                 | shu0ctrl                
         """
-        if p[1] == "shu0":
+        if p[1] == "shu0" and p[3] != None:
 	    p[0] = "SHU" + p[3]
-	else:
+	elif p[1] != None:
 	    p[0] = p[1]
 
+    def p_shu0code_error(self, p):
+        """
+        shu0code : SHU0 error
+                 | SHU0 DOT error             
+        """
+        
     def p_shu1code(self, p):
         """
         shu1code : SHU1 DOT shu1inst
                  | shu1ctrl
         """
-        if p[1] == "shu1":
+        if p[1] == "shu1" and p[3] != None:
 	    p[0] = "SHU" + p[3]
-	else:
+	elif p[1] != None:
 	    p[0] = p[1]
 
+    def p_shu1code_error(self, p):
+        """
+        shu1code : SHU1 error
+                 | SHU1 DOT error
+        """
+        
     def p_biuslot(self, p):
         """
         biuslot : biuheader biucode
                 | ldinst
         """
         if len(p) > 2:
-	    p[0] = p[1] + p[2]
-	else:
+	    if p[1] != None and p[2] != None:
+	        p[0] = p[1] + p[2]
+	elif p[1] != None:
 	    p[0] = p[1]
 
     def p_biuheader(self, p):
@@ -550,6 +580,11 @@ class MMPULite(Parser):
                   | BIU2
         """
 	p[0] = "BIU"
+
+    def p_biuheader_error(self, p):
+        """
+        biuheader : error
+        """
 	
     def p_biucode(self, p):
         """
@@ -557,41 +592,51 @@ class MMPULite(Parser):
                 | stinst 
                 | kginst
         """
-        if p[1] == ".":
+        if p[1] == "." and p[2] != None:
 	    p[0] = p[2]
-	else:
+	elif p[1] != None:
 	    p[0] = p[1]
 
+    def p_biucode_error(self, p):
+        """
+        biucode : DOT error
+		| error
+        """
+        
     def p_ialuslot(self, p):
         """
         ialuslot : ialuinst
                  | divinst
                  | ialuctrl
         """
-        p[0] = "IALU" + p[1]
+        if p[1] != None:
+            p[0] = "IALU" + p[1]
    
     def p_imacslot(self, p):
         """
         imacslot : imacinst
                  | imacctrl
                  | mrinst 
-        """     
-        p[0] = "IMAC" + p[1]
+        """   
+        if p[1] != None:
+            p[0] = "IMAC" + p[1]
 
     def p_faluslot(self, p):
         """
         faluslot : faluinst
                  | faluctrl 
         """
-        p[0] = "FALU" +p[1]
-
+        if p[1] != None:
+            p[0] = "FALU" +p[1]
+        
     def p_fmacslot(self, p):
         """
         fmacslot : fmacinst
                  | fmacctrl
                  | fmrinst
         """
-        p[0] = "FMAC" + p[1]
+        if p[1] != None:
+            p[0] = "FMAC" + p[1]
 
     def p_seqslot(self, p):
         """
@@ -613,6 +658,14 @@ class MMPULite(Parser):
         if p[1] != None:
 	    p[0] = p[1]
 
+    def p_r0inst_error(self, p):
+        """
+        r0inst : mindexn ASSIGNTO error
+               | mindexi ASSIGNTO error
+               | mindexs ASSIGNTO error  
+               | error
+        """
+        
     def p_r1inst(self, p):
         """
         r1inst : r2inst
@@ -624,56 +677,112 @@ class MMPULite(Parser):
         """
         if p[1] != None:
             p[0] = p[1]
-        else:
+        elif p[3] != None:
 	    p[0] = "To" + p[3]
 
+    def p_r1inst_error(self, p):
+        """
+        r1inst : mindexn ASSIGNTO error
+               | mindexi ASSIGNTO error
+               | mindexs ASSIGNTO error
+               | error
+        """
+        
     def p_r2inst(self, p):
         'r2inst : mindexn ASSIGNTO r2destp'
-        p[0] = "To" + p[3]
+        if p[3] != None:
+            p[0] = "To" + p[3]
 
+    def p_r2inst_error(self, p):
+        """
+        r2inst : mindexn ASSIGNTO error
+	       | error
+        """
+        
     def p_r2instw(self, p):
         """
         r2instw : mindexn _flag WFLAG_1 flag_  ASSIGNTO r2destp
                 | mindexn _flag WFLAG_2 flag_  ASSIGNTO r2destp
         """
-        p[0] = "WTo" + p[6]
+        if p[6] != None:
+            p[0] = "WTo" + p[6]
 
+    def p_r2instw_error(self, p):
+        """
+        r2instw : mindexn _flag WFLAG_1 flag_  ASSIGNTO error
+                | mindexn _flag WFLAG_2 flag_  ASSIGNTO error
+                | error
+        """
+        
     def p_r3inst(self, p):
         """
         r3inst : mindexn ASSIGNTO r3dest _flag KG flag_ 
                | mindexn ASSIGNTO r3dest
-               | mindexn ASSIGNTO error
-               | mindexn error
         """
-        if len(p) > 4:
-	    p[0] = "To%sKG"%(p[3])
-	else:
-	    p[0] = "To" + p[3]
+        if p[3] != None:
+            if len(p) > 4:
+	        p[0] = "To%sKG"%(p[3])
+	    else:
+	        p[0] = "To" + p[3]
 
+    def p_r3inst_error(self, p):
+        """
+        r3inst : mindexn ASSIGNTO error
+               | mindexn error
+               | error
+        """
+        
     def p_shu0inst(self, p):
         """
         shu0inst : shuexp ASSIGNTO shu0dest
-		 | shuexp error
-		 | shuexp ASSIGNTO error
         """
-	
-        p[0] = p[1] + "To" + p[3]
+        if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
+        
+    def p_shu0inst_error(self, p):
+        """
+        shu0inst : shuexp error
+		 | shuexp ASSIGNTO error
+		 | error
+        """
 
     def p_shu1inst(self, p):
-        'shu1inst : shuexp ASSIGNTO shu1dest'
-        p[0] = p[1] + "To" + p[3]
+        """
+        shu1inst : shuexp ASSIGNTO shu1dest
+        """
+        if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
+
+    def p_shu1inst_error(self, p):
+        """
+        shu1inst : shuexp error
+		 | shuexp ASSIGNTO error
+		 | error
+        """
         
     def p_shuexp(self, p):
         """
         shuexp : indexp
                | byexp
-               | error
         """
 	p[0] = p[1]
 
+    def p_shuexp_error(self, p):
+        """
+        shuexp : error
+        """
+
     def p_indexp(self, p):
         'indexp : shusrct IND indclause'
-        p[0] = "Ind" + p[3]
+        if p[3] != None:
+            p[0] = "Ind" + p[3]
+
+    def p_indexp_error(self, p):
+        """
+        indexp : shusrct IND error
+	       | shusrct error
+	       | error
+        """
 
     def p_indclause(self, p):
         """
@@ -682,16 +791,28 @@ class MMPULite(Parser):
         """
 	p[0] = p[1]
 	
+    def p_indclause_error(self, p):
+        """
+        indclause : error 
+        """
+	
     def p_indtnclause(self, p):
         """
         indtnclause : shusrct _flag TB ACC2 IMM3_1 flag_ 
 		    | shusrct _flag TB ACC2 IMM3_2 flag_ 
 		    | shusrct _flag TB ACC2 IMM3_3 flag_ 
                     | shusrct
-                    | shusrct _flag error flag_ 
-                    | TB _flag error flag_
         """
-	p[0] = p[1].upper()
+        if p[1] != None:
+	    p[0] = p[1].upper()
+	
+    def p_indtnclause_error(self, p):
+        """
+        indtnclause : shusrct _flag error flag_ 
+                    | TB _flag error flag_
+                    | shusrct error
+                    | error
+        """
 
     def p_indtbclause(self, p):
         """
@@ -700,14 +821,36 @@ class MMPULite(Parser):
 		    | TB _flag TB ACC1 IMM3_3 flag_ 
                     | TB
         """
-	p[0] = p[1].upper()
+        if p[1] != None:
+	    p[0] = p[1].upper()
 	
+    def p_indtbclause_error(self, p):
+        """
+        indtbclause : TB _flag TB error flag_ 
+		    | TB error
+		    | error
+        """
+        
     def p_byclause(self, p):
         'byclause : BY _flag shudupara flag_'
         p[0] = "Comb"
 
+    def p_byclause_error(self, p):
+        """
+        byclause : BY _flag error flag_
+		 | BY error
+		 | error
+        """
+        
     def p_shudupara(self, p):
         'shudupara : shusrct COMMA shusrct'
+        
+    def p_shudupara_error(self, p):
+        """
+        shudupara : shusrct COMMA error
+		  | shusrct error
+		  | error
+        """
 
     def p_byexp(self, p):
         """
@@ -716,29 +859,66 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_byexp_error(self, p):
+        """
+        byexp : byclause _flag error flag_ 
+              | byclause error
+              | error
+        """
+        
     def p_shu0ctrl(self, p):
         'shu0ctrl : SHU0 DOT ctrl'
-        p[0] = "SHU" + p[3]
+        if p[3] != None:
+            p[0] = "SHU" + p[3]
 
+    def p_shu0ctrl_error(self, p):
+        """
+        shu0ctrl : SHU0 DOT error
+		 | SHU0 error
+		 | error
+	"""
+        
     def p_shu1ctrl(self, p):
         'shu1ctrl : SHU1 DOT ctrl'
-        p[0] = "SHU" + p[3]
+        if p[3] != None:
+            p[0] = "SHU" + p[3]
 
+    def p_shu1ctrl_error(self, p):
+        """
+        shu1ctrl : SHU1 DOT error
+		 | SHU1 error
+		 | error
+	"""
+	
     def p_ldinst(self, p):
         'ldinst : ldop lddest'
-        p[0] = p[1] + p[2]
+        if p[1] != None and p[2] != None:
+            p[0] = p[1] + p[2]
 
+    def p_ldinst_error(self, p):
+        'ldinst : ldop error'
+        
     def p_ldop(self, p):
         """
         ldop : DM _flag ldflag flag_ ASSIGNTO
              | DM ASSIGNTO
         """
         p[0] = "LdTo"
-   
+
+    def p_ldop_error(self, p):
+        """
+        ldop : DM _flag error flag_ ASSIGNTO
+             | DM error
+             | error
+        """
+        
     def p_stinst(self, p):
         'stinst : storeop' 
         p[0] = p[1]
 
+    def p_stinst_error(self, p):
+        'stinst : error' 
+        
     def p_storeop(self, p):
         """
         storeop : ASSIGNTO DM 
@@ -746,10 +926,27 @@ class MMPULite(Parser):
         """
         p[0] = "St"
 
+    def p_storeop_error(self, p):
+        """
+        storeop : ASSIGNTO error
+                | ASSIGNTO DM _flag error flag_
+                | ASSIGNTO DM error
+                | error
+        """
+        
     def p_kginst(self, p):
         'kginst : _flag KG flag_ ASSIGNTO mindex'
         p[0] = "KG"
 
+    def p_kginst_error(self, p):
+        """
+        kginst : _flag KG flag_ ASSIGNTO error
+	       | _flag KG flag_ error
+	       | _flag KG error
+	       | _flag error
+	       | error
+        """		
+        
     def p_ialuinst(self, p):
         """
         ialuinst : ialuclause ASSIGNTO ialudest
@@ -758,8 +955,16 @@ class MMPULite(Parser):
         """   
         if p[3] == "cond":
 	    p[3] = "Cond"
-        p[0] = p[1] + "To" + p[3]
+	if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
 
+    def p_ialuinst_error(self, p):
+        """
+        ialuinst : ialuclause ASSIGNTO error
+                 | condclause error
+                 | error
+        """ 
+        
     def p_ialuclause(self, p):
         """
         ialuclause : utbclause
@@ -770,7 +975,12 @@ class MMPULite(Parser):
                    | uthclause
         """
         p[0] = p[1]
-	  
+
+    def p_ialuclause_error(self, p):
+        """
+        ialuclause : error
+        """
+        
     def p_utbclause(self, p):
         """
         utbclause : iaddclause
@@ -778,30 +988,61 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_utbclause_error(self, p):
+        """
+        utbclause : error
+        """
+        
     def p_iaddclause(self, p):
         """
         iaddclause : addexp _flag utbflag flag_
                    | addexp
-                   | addexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_iaddclause_error(self, p):
+        """
+        iaddclause : addexp _flag error flag_
+                   | addexp error
+                   | error
+        """
+        
     def p_isubclause(self, p):
         """
         isubclause : subexp _flag utbflag flag_
                    | subexp
-                   | subexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_isubclause_error(self, p):
+        """
+        isubclause : subexp _flag error flag_
+                   | subexp error
+                   | error
+        """
+        
     def p_addexp(self, p):
         'addexp : t ADD t'
 	p[0] = "Add"
-	
+
+    def p_addexp_error(self, p):
+        """
+        addexp : t ADD error
+	       | t error
+	       | error
+        """
+        
     def p_subexp(self, p):
         'subexp : t SUB t'
         p[0] = "Sub"
 
+    def p_subexp_error(self, p):
+        """
+        subexp : t SUB error
+	       | t error
+	       | error
+        """
+        
     def p_ubclause(self, p):
         """
         ubclause : imaxclause
@@ -812,6 +1053,11 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_ubclause_error(self, p):
+        """
+        ubclause : error
+        """
+        
     def p_condclause(self, p):
         """
         condclause : iltclause
@@ -823,102 +1069,210 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_condclause_error(self, p):
+        """
+        condclause : error
+        """
+        
     def p_imaxclause(self, p):
         """
         imaxclause : maxexp _flag ubflag flag_
                    | maxexp
-                   | maxexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_imaxclause_error(self, p):
+        """
+        imaxclause : maxexp _flag error flag_
+                   | maxexp error
+                   | error
+        """
+        
     def p_maxexp(self, p):
-        'maxexp : MAX _flag dupara  flag_'
+        'maxexp : MAX _flag dupara flag_'
         p[0] = "Max"
 
+    def p_maxexp_error(self, p):
+        """
+        maxexp : MAX _flag error flag_
+	       | MAX error
+	       | error
+        """
+        
     def p_iminclause(self, p):
         """
         iminclause : minexp _flag ubflag flag_
                    | minexp
-                   | minexp _flag error flag_
         """
         p[0] = p[1]
+
+    def p_iminclause_error(self, p):
+        """
+        iminclause : minexp _flag error flag_
+                   | minexp error
+                   | error
+        """
 
     def p_minexp(self, p):
         'minexp : MIN _flag dupara  flag_'
         p[0] = "Min"
 
+    def p_minexp_error(self, p):
+        """
+        minexp : MIN _flag error  flag_
+	       | MIN error
+	       | error
+        """
+        
     def p_iabsclause(self, p):
         """
         iabsclause : abssexp _flag ubflag flag_
                    | abssexp
-                   | abssexp _flag error flag_
         """
         p[0] = p[1]
- 
+
+    def p_iabsclause_error(self, p):
+        """
+        iabsclause : abssexp _flag error flag_
+                   | abssexp error
+                   | error
+        """
+        
     def p_abssexp(self, p):
         'abssexp : ABS _flag dupara  flag_'
 	p[0] = "Abs"
-	
+
+    def p_abssexp_error(self, p):
+        """
+        abssexp : ABS _flag error  flag_
+	        | ABS error
+		| error
+        """
+        
     def p_iexpdclause(self, p):
         """
         iexpdclause : expdexp _flag ubflag flag_
                     | expdexp
-                    | expdexp _flag error flag_
         """
         p[0] = p[1]
-  
+        
+    def p_iexpdclause_error(self, p):
+        """
+        iexpdclause : expdexp _flag error flag_
+                    | expdexp error
+                    | error
+        """
+        
     def p_expdexp(self, p):
         'expdexp : EXPD t'
         p[0] = "Expd"
 
+    def p_expdexp_error(self, p):
+        """
+        expdexp : EXPD error
+	        | error
+        """
+        
     def p_iltclause(self, p):
         """
         iltclause : ltexp _flag ubflag flag_
                   | ltexp
-                  | ltexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_iltclause_error(self, p):
+        """
+        iltclause : ltexp _flag error flag_
+                  | ltexp error
+                  | error
+        """
+        
     def p_ltexp(self, p):
         'ltexp : t LT t'
         p[0] = "Lt"
+   
+    def p_ltexp_error(self, p):
+        """
+        ltexp : t LT error
+	      | t error
+	      | error
+        """
 
     def p_instclause(self, p):
         """
         instclause : nstexp _flag ubflag flag_
                    | nstexp
-                   | nstexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_instclause_error(self, p):
+        """
+        instclause : nstexp _flag error flag_
+                   | nstexp error
+                   | error
+        """
+        
     def p_nstexp(self, p):
         'nstexp : t NST t'
         p[0] = "Nst"
 
+    def p_nstexp_error(self, p):
+        """
+        nstexp : t NST error
+	       | t error
+	       | error
+        """
+        
     def p_istclause(self, p):
         """
         istclause : stexp _flag ubflag flag_
                   | stexp
-                  | stexp _flag error flag_
         """
 	p[0] = p[1]
-	
+
+    def p_istclause_error(self, p):
+        """
+        istclause : stexp _flag error flag_
+                  | stexp error
+                  | error
+        """
+        
     def p_stexp(self, p):
         'stexp : t ST t'
         p[0] = "St"
 
+    def p_stexp_error(self, p):
+        """
+        stexp : t ST error
+	      | t error
+	      | error
+        """
+        
     def p_inltclause(self, p):
         """
         inltclause : nltexp _flag ubflag flag_
                    | nltexp
-                   | nltexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_inltclause_error(self, p):
+        """
+        inltclause : nltexp _flag error flag_
+                   | nltexp error
+                   | error
+        """
+        
     def p_nltexp(self, p):
         'nltexp : t NLT t'
         p[0] = "Nlt"
 
+    def p_nltexp_error(self, p):
+        """
+        nltexp : t NLT error
+	       | t error
+	       | error
+        """
+        
     def p_bclause(self, p):
         """
         bclause : mrgclause
@@ -926,50 +1280,99 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_bclause_error(self, p):
+        """
+        bclause : error    
+        """
+        
     def p_mrgclause(self, p):
         """
         mrgclause : mrgexp _flag bflag flag_
                   | mrgexp
-                  | mrgexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_mrgclause_error(self, p):
+        """
+        mrgclause : mrgexp _flag error flag_
+                  | mrgexp error
+                  | error
+        """
+        
     def p_mrgexp(self, p):
-        'mrgexp : MERGE  _flag tripara flag_'
+        'mrgexp : MERGE _flag tripara flag_'
         p[0] = "Merge"
 
+    def p_mrgexp_error(self, p):
+        """
+        mrgexp : MERGE _flag error flag_
+               | error
+        """
+        
     def p_iequclause(self, p):
         """
         iequclause : equexp _flag bflag flag_
                    | equexp
-                   | equexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_iequclause_error(self, p):
+        """
+        iequclause : equexp _flag error flag_
+                   | equexp error
+                   | error
+        """
+        
     def p_equexp(self, p):
         'equexp : t EQU t'
         p[0] = "Equ"
 
+    def p_equexp_error(self, p):
+        """
+        equexp : t EQU error
+	       | t error
+	       | error
+        """
+        
     def p_ineqclause(self, p):
         """
         ineqclause : neqexp _flag bflag flag_
                    | neqexp
-                   | neqexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_ineqclause_error(self, p):
+        """
+        ineqclause : neqexp _flag error flag_
+                   | neqexp error
+                   | error
+        """
+        
     def p_neqexp(self, p):
         'neqexp : t NEQ t'
         p[0] = "Neq"
 
+    def p_neqexp_error(self, p):
+        """
+        neqexp : t NEQ error
+	       | t error
+	       | error
+        """
+        
     def p_rshtclause(self, p):
         """
         rshtclause : rshtexp _flag ubflag flag_
                    | rshtexp
-                   | rshtexp _flag error flag_
         """
 	p[0] = p[1]
-	
+
+    def p_rshtclause_error(self, p):
+        """
+        rshtclause : rshtexp _flag error flag_
+                   | rshtexp error
+                   | error
+        """
+        
     def p_rshtexp(self, p):
         """
         rshtexp : t rshtt
@@ -977,27 +1380,54 @@ class MMPULite(Parser):
         """
         p[0] = p[2]
 
+    def p_rshtexp_error(self, p):
+        """
+        rshtexp : t error
+                | error
+        """
+
     def p_rshtt(self, p):
         'rshtt : RSHT t'
         p[0] = "Rsh"
 
+    def p_rshtt_error(self, p):
+        """
+        rshtt : RSHT error
+	      | error
+        """
+        
     def p_rshti(self, p):
         'rshti : RSHT imm5'
         p[0] = "Rshi"
 
+    def p_rshti_error(self, p):
+        """
+        rshti : RSHT error
+	      | error
+        """
+        
     def p_inoflagclause(self, p):
         'inoflagclause : inoflagexp'
         p[0] = p[1]
 
+    def p_inoflagclause_error(self, p):
+        'inoflagclause : error'
+        
     def p_inoflagexp(self, p):
         """
         inoflagexp : divrop
                    | uaryexp
-                   | binaryexp
-                   | inoflagexp _flag error flag_      
+                   | binaryexp 
         """
         p[0] = p[1]
 
+    def p_inoflagexp_error(self, p):
+        """
+        inoflagexp : error
+                   | inoflagexp _flag error flag_    
+                   | inoflagexp error
+        """
+        
     def p_divrop(self, p):
         'divrop : DIVR'
         p[0] = "Divr"
@@ -1006,10 +1436,23 @@ class MMPULite(Parser):
         'uaryexp : NOT t'
         p[0] = "Not"
 
+    def p_uaryexp_error(self, p):
+        """
+        uaryexp : NOT error
+		| error
+        """
+        
     def p_binaryexp(self, p):
         'binaryexp : t binaryop t'
         p[0] = p[2]
 
+    def p_binaryexp_error(self, p):
+        """
+        binaryexp : t binaryop error
+		  | t error
+		  | error
+        """
+        
     def p_binaryop(self, p):
         """
         binaryop : AND
@@ -1030,6 +1473,13 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_lshtclause_error(self, p):
+        """
+        lshtclause : lshtexp _flag error flag_
+                   | lshtexp error
+                   | error
+        """
+        
     def p_lshtexp(self, p):
         """
         lshtexp : t LSHT t
@@ -1037,30 +1487,63 @@ class MMPULite(Parser):
         """
         p[0] = "Lsh"
 
+    def p_lshtexp_error(self, p):
+        """
+        lshtexp : t LSHT error
+                | t error
+                | error
+        """
+        
     def p_uthclause(self, p):
         """
         uthclause : cprsexp _flag uthflag flag_
                   | cprsexp    
-                  | cprsexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_uthclause_error(self, p):
+        """
+        uthclause : cprsexp _flag error flag_
+                  | cprsexp error    
+                  | error
+        """
 
     def p_cprsexp(self, p):
         'cprsexp : CPRS _flag dupara flag_'
         p[0] = "Cprs"
 
+    def p_cprsexp_error(self, p):
+        """
+        cprsexp : CPRS _flag error flag_
+                | CPRS error
+                | error
+        """
+        
     def p_b_uclause(self, p):
         'b_uclause : reduceexp _flag b__uflag flag_'
         p[0] = p[1]
-   
+
+    def p_b_uclause_error(self, p):
+        """
+        b_uclause : reduceexp _flag error flag_
+	          | reduceexp error
+	          | error
+        """
+        
     def p_reduceexp(self, p):
         """
         reduceexp : RMAX t
                   | RMIN t
         """
-        p[0] = p[1].capitalize()
+        if p[1] != None:
+            p[0] = p[1].capitalize()
 
+    def p_reduceexp_error(self, p):
+        """
+        reduceexp : RMAX error
+                  | error
+        """
+        
     def p_divinst(self, p):
         """
         divinst : divexp ASSIGNTO DIVR
@@ -1068,6 +1551,15 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_divinst_error(self, p):
+        """
+        divinst : divexp ASSIGNTO error
+		| divexp error
+                | divsexp ASSIGNTO error
+                | divsexp error
+                | error
+        """
+        
     def p_divexp(self, p):
         """
         divexp : divqop
@@ -1076,6 +1568,11 @@ class MMPULite(Parser):
         """
 	p[0] = p[1]
 	
+    def p_divexp_error(self, p):
+        """
+        divexp : error    
+        """
+        
     def p_divsexp(self, p):
         """
         divsexp : t DIVS t _flag uflag flag_
@@ -1083,6 +1580,15 @@ class MMPULite(Parser):
         """
         p[0] = "Divs"
 
+    def p_divsexp_error(self, p):
+        """
+        divsexp : t DIVS t _flag error flag_
+                | t DIVS t error
+                | t DIVS error
+                | t error
+                | error
+        """
+        
     def p_divqop(self, p):
         'divqop : DIVQ'
         p[0] = "Divq"
@@ -1099,10 +1605,25 @@ class MMPULite(Parser):
         'ialuctrl : ialu DOT ctrl'
         p[0] = p[1]
 
+    def p_ialuctrl_error(self, p):
+        """
+        ialuctrl : ialu DOT error
+		 | ialu error
+		 | error
+        """
+        
     def p_imacinst(self, p):
         'imacinst : imacclause ASSIGNTO imacdest'  
-        p[0] = p[1] + "To" + p[3]
+        if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
 
+    def p_imacinst_error(self, p):
+        """
+        imacinst : imacclause ASSIGNTO error
+	         | imacclause error
+	         | error
+        """
+        
     def p_imacclause(self, p):
         """
         imacclause : imulclause
@@ -1112,40 +1633,74 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_imacclause_error(self, p):
+        """
+        imacclause : error
+        """
+        
     def p_mulexp(self, p):
         'mulexp : t MUL t'
         p[0] = "Mul"
 
+    def p_mulexp_error(self, p):
+        """
+        mulexp : t MUL error
+	       | t error
+	       | error
+        """
+        
     def p_imulclause(self, p):
         """
         imulclause : mulexp _flag t_uibflag flag_
                    | mulexp _flag b_uiflag flag_
                    | mulexp _flag uiflag flag_
                    | mulexp
-                   | mulexp _flag error flag_
         """
-        if len(p) > 2:
-	    if p[3] == "T":
-		p[0] = p[1] + p[3]
+        if p[1] != None:
+            if len(p) > 2:
+	        if p[3] == "T":
+		    p[0] = p[1] + p[3]
+	        else:
+		    p[0] = p[1]
 	    else:
-		p[0] = p[1]
-	else:
-            p[0] = p[1]
+                p[0] = p[1]
 
+    def p_imulclause_error(self, p):
+        """
+        imulclause : mulexp _flag error flag_
+                   | mulexp error
+                   | error
+        """
+        
     def p_muladsbexp(self, p):
         """
         muladsbexp : t ADDSUB mulexp _flag hflag flag_
                    | t ADDSUB mulexp
-                   | t ADDSUB mulexp _flag error flag_   
         """
         p[0] = "MAS"
 
+    def p_muladsbexp_error(self, p):
+        """
+        muladsbexp : t ADDSUB mulexp _flag error flag_
+                   | t ADDSUB mulexp error
+                   | t ADDSUB error
+                   | t error
+                   | error
+        """
+        
     def p_mrclause(self, p):
         """
         mrclause : MR _flag lubflag flag_
                  | MR
         """
 
+    def p_mrclause_error(self, p):
+        """
+        mrclause : MR _flag error flag_
+                 | MR error
+                 | error
+        """
+        
     def p_mrinst(self, p):
         """
         mrinst : exmacexp iexmacclause
@@ -1155,50 +1710,112 @@ class MMPULite(Parser):
                | accexp tregclause
                | accexp
         """
-        if len(p) > 2:
-	    if p[2] == "L":
-		p[0] = p[1] + p[2]
+        if p[1] != None:
+            if len(p) > 2:
+	        if p[2] == "L":
+		    p[0] = p[1] + p[2]
+	        else:
+		    p[0] = p[1]
 	    else:
-		p[0] = p[1]
-	else:
-            p[0] = p[1]
+                p[0] = p[1]
 
+    def p_mrinst_error(self, p):
+        """
+        mrinst : exmacexp error
+               | inmacexp error
+               | accexp error
+               | error
+        """
+        
     def p_exmacexp(self, p):
         'exmacexp : MR ASSIGN t ADD mulexp'
         p[0] = "MA"
 
+    def p_exmacexp_error(self, p):
+        """
+        exmacexp : MR ASSIGN t ADD error
+	         | MR ASSIGN t error
+	         | MR ASSIGN error
+	         | MR error
+	         | error
+        """
+        
     def p_inmacexp(self, p):
         'inmacexp : MR ACC1 mulexp'
         p[0] = "MaC"
 
+    def p_inmacexp_error(self, p):
+        """
+        inmacexp : MR ACC1 error
+		 | MR error
+		 | error
+        """
+        
     def p_accexp(self, p):
        'accexp : MR ACC1 t' 
        p[0] = "Acc"
 
+    def p_accexp_error(self, p):
+       """
+       accexp : MR ACC1 error
+	      | MR error
+	      | error
+       """
+       
     def p_iexmacclause(self, p):
         'iexmacclause : _flag ubflag flag_'
 
+    def p_iexmacclause_error(self, p):
+        """
+        iexmacclause : _flag error flag_
+		     | error
+        """
+        
     def p_iinmacclause(self, p):
         """        
         iinmacclause : _flag crlubflag flag_
-                     | _flag error flag_
         """
         if p[2] == "L":
 	    p[0] = p[2]
 
+    def p_iinmacclause_error(self, p):
+        """        
+        iinmacclause : _flag error flag_
+                     | error
+        """
     def p_tregclause(self, p):
         """
         tregclause : _flag crlubflag flag_
-                   | _flag error flag_
         """
 
+    def p_tregclause_error(self, p):
+        """
+        tregclause : _flag error flag_
+                   | error
+        """
+        
     def p_imacctrl(self, p):
         'imacctrl : imac DOT ctrl'   
 
+    def p_imacctrl_error(self, p):
+        """
+        imacctrl : imac DOT error
+		 | imac error
+		 | error
+        """
+        
     def p_faluinst(self, p):
         'faluinst : faluclause ASSIGNTO faludest' 
-        p[0] = p[1] + "To" + p[3]
+        if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
 
+    def p_faluinst_error(self, p):
+        """
+        faluinst : faluclause ASSIGNTO error
+		 | faluclause error
+		 | error
+        """
+        
     def p_faluclause(self, p):
         """
         faluclause : tsdclause
@@ -1210,6 +1827,11 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_faluclause_error(self, p):
+        """
+        faluclause : error
+        """
+        
     def p_tsdclause(self, p):
         """
         tsdclause : faddclause
@@ -1217,14 +1839,33 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_tsdclause_error(self, p):
+        """
+        tsdclause : error
+        """
+        
     def p_faddclause(self, p):
         'faddclause : addexp _flag tsdflag flag_'
         p[0] = p[1] 
 
+    def p_faddclause_error(self, p):
+        """
+        faddclause : addexp _flag error flag_
+		   | addexp error
+		   | error
+        """
+        
     def p_fsubclause(self, p):
         'fsubclause : subexp _flag tsdflag flag_'
         p[0] = p[1] 
 
+    def p_fsubclause_error(self, p):
+        """
+        fsubclause : subexp _flag error flag_
+		   | subexp error
+		   | error
+        """
+        
     def p_sdclause(self, p):
         """
         sdclause : fmaxclause
@@ -1242,78 +1883,181 @@ class MMPULite(Parser):
         """  
         p[0] = p[1]
 
+    def p_sdclause_error(self, p):
+        """
+        sdclause : error
+        """ 
+        
     def p_fmaxclause(self, p):
         'fmaxclause : maxexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fmaxclause_error(self, p):
+        """
+        fmaxclause : maxexp _flag error flag_
+		   | maxexp error
+		   | error
+        """
+        
     def p_fminclause(self, p):
         'fminclause : minexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fminclause_error(self, p):
+        """
+        fminclause : minexp _flag error flag_
+		   | minexp error
+		   | error
+        """
+        
     def p_fabsclause(self, p):
         """
         fabsclause : absexp _flag sdflag flag_
-                   | absexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_fabsclause_error(self, p):
+        """
+        fabsclause : absexp _flag error flag_
+                   | absexp error
+                   | error
+        """
+        
     def p_absexp(self, p):
         'absexp : ABS t'
         p[0] = "Abs"
 
+    def p_absexp_error(self, p):
+        """
+        absexp : ABS error
+	       | error
+        """
+        
     def p_recipclause(self, p):
         """
         recipclause : recipexp _flag sdflag flag_
-                    | recipexp _flag error flag_
         """
         p[0] = p[1]
-  
+
+    def p_recipclause_error(self, p):
+        """
+        recipclause : recipexp _flag error flag_
+                    | recipexp error
+                    | error
+        """
+        
     def p_recipexp(self, p):
         'recipexp : RECIP t'
         p[0] = "Recip"
 
+    def p_recipexp_error(self, p):
+        """
+        recipexp : RECIP error
+		 | error
+        """
+        
     def p_rsqrtclause(self, p):
         """
         rsqrtclause : rsqrtexp _flag sdflag flag_
-                    | rsqrtexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_rsqrtclause_error(self, p):
+        """
+        rsqrtclause : rsqrtexp _flag error flag_
+                    | rsqrtexp error
+                    | error
+        """
+        
     def p_rsqrtexp(self, p):
         'rsqrtexp : RSQRT t'
         p[0] = "Rsqrt"
+    
+    def p_rsqrtexp_error(self, p):
+        """
+        rsqrtexp : RSQRT error
+	         | error
+        """
 
     def p_fequclause(self, p):
         'fequclause : equexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fequclause_error(self, p):
+        """
+        fequclause : equexp _flag error flag_
+		   | equexp error
+		   | error
+        """
+        
     def p_fneqclause(self, p):
         'fneqclause : neqexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fneqclause_error(self, p):
+        """
+        fneqclause : neqexp _flag error flag_
+		   | neqexp error
+		   | error
+        """
+        
     def p_fltclause(self, p):
         'fltclause : ltexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fltclause_error(self, p):
+        """
+        fltclause : ltexp _flag error flag_
+		  | ltexp error
+		  | error
+        """
+        
     def p_fnstclause(self, p):
         'fnstclause : nstexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fnstclause_error(self, p):
+        """
+        fnstclause : nstexp _flag error flag_
+		   | nstexp error
+		   | error
+        """
+        
     def p_fstclause(self, p):
         'fstclause : stexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fstclause_error(self, p):
+        """
+        fstclause : stexp _flag error flag_
+		  | stexp error
+		  | error
+        """
+        
     def p_fnltclause(self, p):
         'fnltclause : nltexp _flag sdflag flag_'
         p[0] = p[1]
 
+    def p_fnltclause_error(self, p):
+        """
+        fnltclause : nltexp _flag error flag_
+		   | nltexp error
+		   | error
+        """
+        
     def p_intclause(self, p):
         """
         intclause : intexp _flag tsdflag flag_
-                  | intexp _flag error flag_
         """
         p[0] = p[1]
-   
+
+    def p_intclause_error(self, p):
+        """
+        intclause : intexp _flag error flag_
+                  | intexp error
+                  | error
+        """
+        
     def p_intexp(self, p):
         """
         intexp : intop t
@@ -1321,6 +2065,13 @@ class MMPULite(Parser):
         """   
         p[0] = p[1]
 
+    def p_intexp_error(self, p):
+        """
+        intexp : intop error
+               | uintop error
+               | error
+        """  
+        
     def p_intop(self, p):
         'intop : INT'
         p[0] = "ToInt"
@@ -1333,35 +2084,74 @@ class MMPULite(Parser):
         """
         tclause : tosexp _flag utflag flag_
                 | tosexp
-                | tosexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_tclause_error(self, p):
+        """
+        tclause : tosexp _flag error flag_
+                | tosexp error
+                | error
+        """
+        
     def p_tdclause(self, p):
         'tdclause : tosexp _flag tdflag flag_'
         p[0] = p[1]
 
+    def p_tdclause_error(self, p):
+        """
+        tdclause : tosexp _flag error flag_
+		 | tosexp error
+		 | error
+        """
+        
     def p_tosexp(self, p):
         'tosexp : SINGLE t'
         p[0] = "ToSingle"
+
+    def p_tosexp_error(self, p):
+        """
+        tosexp : SINGLE error
+	       | error
+        """
         
     def p_sclause(self, p):
         """
         sclause : todexp _flag sflag flag_
                 | fasexp _flag sflag flag_
-                | todexp _flag error flag_
-                | fasexp _flag error flag_
         """
         p[0] = p[1]
 
+    def p_sclause_error(self, p):
+        """
+        sclause : todexp _flag error flag_
+                | fasexp _flag error flag_
+                | todexp error
+                | fasexp error
+                | error
+        """
+        
     def p_fasexp(self, p):
         'fasexp : t ADDSUB t'
         p[0] = "AddSub"
 
+    def p_fasexp_error(self, p):
+        """
+        fasexp : t ADDSUB error
+	       | t error
+	       | error
+        """
+        
     def p_todexp(self, p):
         'todexp : DOUBLE t'
         p[0] = "ToDouble"
 
+    def p_todexp_error(self, p):
+        """
+        todexp : DOUBLE error
+	       | error
+        """
+        
     def p_fuclause(self, p):
         """
         fuclause : todexp _flag uflag flag_
@@ -1369,14 +2159,36 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_fuclause_error(self, p):
+        """
+        fuclause : todexp _flag error flag_
+                 | todexp error
+                 | error
+        """
+        
     def p_faluctrl(self, p):
         'faluctrl : falu DOT ctrl'
         p[0] = p[1]
 
+    def p_faluctrl_error(self, p):
+        """
+        faluctrl : falu DOT error
+		 | falu error
+		 | error
+        """
+        
     def p_fmacinst(self, p):
         'fmacinst : fmacclause ASSIGNTO fmacdest'  
-        p[0] = p[1] + "To" + p[3]
+        if p[1] != None and p[3] != None:
+            p[0] = p[1] + "To" + p[3]
 
+    def p_fmacinst_error(self, p):
+        """
+        fmacinst : fmacclause ASSIGNTO error
+		 | fmacclause error
+		 | error
+        """
+        
     def p_fmacclause(self, p):
         """
         fmacclause : fmulclause
@@ -1385,6 +2197,11 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_fmacclause_error(self, p):
+        """
+        fmacclause : error
+        """
+        
     def p_fmulclause(self, p):
         """
         fmulclause : mulexp _flag tsdflag flag_
@@ -1392,14 +2209,37 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_fmulclause_error(self, p):
+        """
+        fmulclause : mulexp _flag error flag_
+                   | cmulexp _flag error flag_
+                   | mulexp error
+                   | cmulexp error
+                   | error
+        """
+        
     def p_cmulexp(self, p):
         'cmulexp : t CMUL t'
 	p[0] = "Cmul"
-	
+
+    def p_cmulexp_error(self, p):
+        """
+        cmulexp : t CMUL error
+	        | t error
+	        | error
+        """
+        
     def p_fmrclause(self, p):
         'fmrclause : MR _flag sdflag flag_'
         p[0] = "Mac"
 
+    def p_fmrclause_error(self, p):
+        """
+        fmrclause : MR _flag error flag_
+		  | MR error
+		  | error
+        """
+        
     def p_eapression_fmrinst(self, p):
         """
         fmrinst : exmacexp fexmacclause
@@ -1407,25 +2247,58 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_eapression_fmrinst_error(self, p):
+        """
+        fmrinst : exmacexp error
+                | inmacexp error
+                | error
+        """
+        
     def p_fexmacclause(self, p):
         'fexmacclause : _flag sdflag flag_'
 
+    def p_fexmacclause_error(self, p):
+        """
+        fexmacclause : _flag error flag_
+		     | error
+        """
+        
     def p_finmacclause(self, p):
         'finmacclause : _flag crsdflag flag_'
+        
+    def p_finmacclause_error(self, p):
+        """
+        finmacclause : _flag error flag_
+		     | error
+        """
 
     def p_fmacctrl(self, p):
         'fmacctrl : fmac DOT ctrl'
         p[0] = p[1]
 
+    def p_fmacctrl_error(self, p):
+        """
+        fmacctrl : fmac DOT error
+		 | fmac error
+		 | error
+        """
+        
     def p_reinst(self, p):
         """
         reinst : REPEAT ALPHA _flag repeatexp flag_
-               | REPEAT ALPHA _flag error flag_
-               | lpexp error
         """
-        if len(p) > 4:
+        if p[4] != None:
             p[0] = "Repeat" + p[4]
 
+    def p_reinst_error(self, p):
+        """
+        reinst : REPEAT ALPHA _flag error flag_
+               | REPEAT ALPHA error
+               | REPEAT error
+               | lpexp error
+               | error
+        """
+        
     def p_repeatexp(self, p):
         """
         repeatexp : immrep
@@ -1434,37 +2307,77 @@ class MMPULite(Parser):
         """
         p[0] = p[1]
 
+    def p_repeatexp_error(self, p):
+        """
+        repeatexp : error
+		  | regrep error
+                  | regrep SUB error
+        """
+        
     def p_immrep(self, p):
         'immrep : imm'
         p[0] = "Imm"
 
+    def p_immrep_errror(self, p):
+        'immrep : error'
+        
     def p_regrep(self, p):
         'regrep : loops' 
         p[0] = "KI"
 
+    def p_regrep_error(self, p):
+        'regrep : error' 
+        
     def p_loops(self, p):
         """
         loops : loop
               | loop andflag loops
         """
 
+    def p_loops_error(self, p):
+        """
+        loops : loop error
+              | loop andflag error
+              | error
+        """
+        
     def p_loop(self, p):
         """
         loop : negflag kiflag
              | kiflag
         """
 
+    def p_loop_error(self, p):
+        """
+        loop : negflag error
+             | error
+        """
+        
     def p_lpinst(self, p):
         'lpinst : lpexp lpcond'
         p[0] = "LpTo"
 
+    def p_lpinst_error(self, p):
+        """
+        lpinst : lpexp error
+	       | error
+        """
+        
     def p_lpexp(self, p):
         """
         lpexp : LOOP label ALPHA
 	      | LOOP imm ALPHA
-              | LOOP error ALPHA
         """
 
+    def p_lpexp_error(self, p):
+        """
+        lpexp : LOOP label error
+	      | LOOP imm error
+              | LOOP error ALPHA
+              | LOOP error
+              | error
+        """
+        
     def p_lpcond(self, p):
         """
         lpcond : _flag kiflag flag_
@@ -1472,16 +2385,41 @@ class MMPULite(Parser):
                | _flag imm flag_
         """
 
+    def p_lpcond_error(self, p):
+        """
+        lpcond : _flag kiflag SUB error flag_
+               | _flag error SUB imm flag_
+               | _flag error flag_
+               | _flag error
+               | error
+        """
+        
     def p_jmpinst(self, p):
         'jmpinst : JMP label ALPHA condexp'
         p[0] = "LpTo"
 
+    def p_jmpinst_error(self, p):
+        """
+        jmpinst : JMP label ALPHA error
+		| JMP label error
+		| JMP error ALPHA condexp
+		| JMP error
+		| error
+        """
+        
     def p_condexp(self, p):
         """
         condexp : _flag trueflag flag_
                 | regrep
         """
 
+    def p_condexp_error(self, p):
+        """
+        condexp : _flag error flag_
+		| _flag error
+                | error
+        """
+        
     def p_mpustop(self, p):
         'mpustop : MPUSTOP'
         p[0] = "MPUSTOP"
@@ -1490,6 +2428,12 @@ class MMPULite(Parser):
         'r2destp : r2dest LPAREN IPATH RPAREN'
         p[0] = p[1]
 
+    def p_r2destp_error(self, p):
+        """
+        r2destp : r2dest error
+		| error
+        """
+        
     def p_r2dest(self, p):
         """
         r2dest : ialut
@@ -1591,18 +2535,46 @@ class MMPULite(Parser):
         'ialut : ialu DOT t'
         p[0] = p[1]
 
+    def p_ialut_error(self, p):
+        """
+        ialut : ialu DOT error
+	      | ialu error
+	      | error
+        """
+        
     def p_imact(self, p):
         'imact : imac DOT t'
 	p[0] = p[1]
-	
+
+    def p_imact_error(self, p):
+        """
+        imact : imac DOT error
+	      | imac error
+	      | error
+        """
+        
     def p_falut(self, p):
         'falut : falu DOT t'
         p[0] = p[1]
 
+    def p_falut_error(self, p):
+        """
+        falut : falu DOT error
+	      | falu error
+	      | error
+        """
+        
     def p_fmact(self, p):
         'fmact : fmac DOT t'
         p[0] = p[1]
 
+    def p_fmact_error(self, p):
+        """
+        fmact : fmac DOT error
+	      | fmac error
+	      | error
+        """
+        
     def p_biu0(self, p):
         'biu0 : BIU0'
 
@@ -1616,9 +2588,23 @@ class MMPULite(Parser):
         'shu0t : SHU0 DOT t'
         p[0] = "SHU"
 
+    def p_shu0t_error(self, p):
+        """
+        shu0t : SHU0 DOT error
+	      | SHU0 error
+	      | error
+        """
+        
     def p_shu1t(self, p):
         'shu1t : SHU1 DOT t'
         p[0] = "SHU"
+  
+    def p_shu1t_error(self, p):
+        """
+        shu1t : SHU1 DOT error
+	      | SHU1 error
+	      | error
+        """
         
     def p_mindexs(self, p):
         'mindexs : MINDEXS'
@@ -1655,10 +2641,24 @@ class MMPULite(Parser):
 
     def p_tripara(self, p):
         'tripara : dupara COMMA t'
+        
+    def p_tripara_error(self, p):
+        """
+        tripara : dupara COMMA error
+		| dupara error
+		| error
+        """
 
     def p_dupara(self, p):
         'dupara : t COMMA t'
 
+    def p_dupara_error(self, p):
+        """
+        dupara : t COMMA error
+	       | t error
+	       | error
+        """
+        
     def p_imm(self, p):
         """
         imm : imm5
@@ -1694,6 +2694,21 @@ class MMPULite(Parser):
                    | kflag
         """
 
+    def p_imbrakflag_error(self, p):
+        """
+        imbrakflag : iflag COMMA error
+                   | iflag error
+                   | mflag COMMA error
+                   | mflag error
+                   | brflag COMMA error
+                   | brflag error
+                   | aflag COMMA error
+                   | aflag error
+                   | kflag COMMA error
+                   | kflag error
+                   | error
+        """
+        
     def p_ibrakflag(self, p):
         """
         ibrakflag : iflag COMMA brakflag
@@ -1704,6 +2719,19 @@ class MMPULite(Parser):
                   | aflag
                   | kflag COMMA ibraflag
                   | kflag
+        """
+        
+    def p_ibrakflag_error(self, p):
+        """
+        ibrakflag : iflag COMMA error
+                  | iflag error
+                  | brflag COMMA error
+                  | brflag error
+                  | aflag COMMA error
+                  | aflag error
+                  | kflag COMMA error
+                  | kflag error
+                  | error
         """
 
     def p_imakflag(self, p):
@@ -1718,6 +2746,19 @@ class MMPULite(Parser):
                  | kflag
         """
 
+    def p_imakflag_error(self, p):
+        """
+        imakflag : iflag COMMA error
+                 | iflag error
+                 | mflag COMMA error
+                 | mflag error
+                 | aflag COMMA error
+                 | aflag error
+                 | kflag COMMA error
+                 | kflag error
+                 | error
+        """
+        
     def p_imbrkflag(self, p):
         """
         imbrkflag : iflag COMMA mbrkflag
@@ -1730,6 +2771,19 @@ class MMPULite(Parser):
                   | kflag
         """
 
+    def p_imbrkflag_error(self, p):
+        """
+        imbrkflag : iflag COMMA error
+                  | iflag error
+                  | mflag COMMA error
+                  | mflag error
+                  | brflag COMMA error
+                  | brflag error
+                  | kflag COMMA error
+                  | kflag error
+                  | error
+        """
+        
     def p_imbraflag(self, p):
         """
         imbraflag : iflag COMMA mbraflag
@@ -1742,16 +2796,40 @@ class MMPULite(Parser):
                   | aflag
         """
 
-    def p_iakflag(self, p):
+    def p_imbraflag_error(self, p):
         """
-        iakflag : iflag COMMA akflag
-                | iflag
-                | aflag COMMA ikflag
-                | aflag
-                | kflag COMMA iaflag
-                | kflag
+        imbraflag : iflag COMMA error
+                  | iflag error
+                  | mflag COMMA error
+                  | mflag error
+                  | brflag COMMA error
+                  | brflag error
+                  | aflag COMMA error
+                  | aflag error
+                  | error
         """
 
+    def p_iakflag(self, p):
+	"""
+	iakflag : iflag COMMA akflag
+		| iflag
+		| aflag COMMA ikflag
+		| aflag
+		| kflag COMMA iaflag
+		| kflag
+	"""
+
+    def p_iakflag_error(self, p):
+	"""
+	iakflag : iflag COMMA error
+		| iflag error
+		| aflag COMMA error
+		| aflag error
+		| kflag COMMA error
+		| kflag error
+		| error
+	"""
+	
     def p_ibrkflag(self, p):
         """
         ibrkflag : iflag COMMA brkflag
@@ -1762,6 +2840,17 @@ class MMPULite(Parser):
                  | kflag
         """
 
+    def p_ibrkflag_error(self, p):
+        """
+        ibrkflag : iflag COMMA error
+                 | iflag error
+                 | brflag COMMA error
+                 | brflag error
+                 | kflag COMMA error
+                 | kflag error
+                 | error
+        """
+        
     def p_ibraflag(self, p):
         """
         ibraflag : iflag COMMA braflag
@@ -1772,6 +2861,18 @@ class MMPULite(Parser):
                  | aflag        
         """
 
+
+    def p_ibraflag_error(self, p):
+        """
+        ibraflag : iflag COMMA error
+                 | iflag error
+                 | brflag COMMA error
+                 | brflag error
+                 | aflag COMMA error
+                 | aflag error
+                 | error
+        """
+        
     def p_imkflag(self, p):
         """
         imkflag : iflag COMMA mkflag
@@ -1782,6 +2883,17 @@ class MMPULite(Parser):
                 | kflag
         """
 
+    def p_imkflag_error(self, p):
+        """
+        imkflag : iflag COMMA error
+                | iflag error
+                | mflag COMMA error 
+                | mflag error
+                | kflag COMMA error 
+                | kflag error
+                | error
+        """
+        
     def p_imaflag(self, p):
         """
         imaflag : iflag COMMA maflag
@@ -1792,6 +2904,17 @@ class MMPULite(Parser):
                 | aflag
         """
 
+    def p_imaflag_error(self, p):
+        """
+        imaflag : iflag COMMA error
+                | iflag error
+                | mflag COMMA error 
+                | mflag error
+                | aflag COMMA error 
+                | aflag error
+                | error
+        """
+        
     def p_imbrflag(self, p):
         """
         imbrflag : iflag COMMA mbrflag 
@@ -1802,6 +2925,17 @@ class MMPULite(Parser):
                  | brflag
         """
 
+    def p_imbrflag_error(self, p):
+        """
+        imbrflag : iflag COMMA error 
+                 | iflag error
+                 | mflag COMMA error 
+                 | mflag error
+                 | brflag COMMA error
+                 | brflag error
+                 | error
+        """
+        
     def p_ikflag(self, p):
         """
         ikflag : iflag COMMA kflag
@@ -1810,6 +2944,15 @@ class MMPULite(Parser):
                | kflag
         """
 
+    def p_ikflag_error(self, p):
+        """
+        ikflag : iflag COMMA error
+               | iflag error
+               | kflag COMMA error 
+               | kflag error
+               | error
+        """
+        
     def p_iaflag(self, p):
         """
         iaflag : iflag COMMA aflag
@@ -1818,6 +2961,15 @@ class MMPULite(Parser):
                | aflag
         """
 
+    def p_iaflag_error(self, p):
+        """
+        iaflag : iflag COMMA error
+               | iflag error
+               | aflag COMMA error 
+               | aflag error
+               | error
+        """
+        
     def p_ibrflag(self, p):
         """
         ibrflag : iflag COMMA brflag
@@ -1826,6 +2978,15 @@ class MMPULite(Parser):
                 | brflag
         """
 
+    def p_ibrflag_error(self, p):
+        """
+        ibrflag : iflag COMMA error
+                | iflag error
+                | brflag COMMA error 
+                | brflag error
+                | error
+        """
+        
     def p_imflag(self, p):
         """
         imflag : iflag COMMA mflag 
@@ -1834,6 +2995,15 @@ class MMPULite(Parser):
                | mflag      
         """
 
+    def p_imflag_error(self, p):
+        """
+        imflag : iflag COMMA error 
+               | iflag error
+               | mflag COMMA error 
+               | mflag error
+               | error
+        """
+        
     def p_mbrakflag(self, p):
         """
         mbrakflag : mflag COMMA brakflag 
@@ -1846,6 +3016,19 @@ class MMPULite(Parser):
                   | kflag
         """
 
+    def p_mbrakflag_error(self, p):
+        """
+        mbrakflag : mflag COMMA error 
+                  | mflag error
+                  | brflag COMMA error
+                  | brflag error
+                  | aflag COMMA error
+                  | aflag error
+                  | kflag COMMA error
+                  | kflag error
+                  | error
+        """
+        
     def p_brakflag(self, p):
         """
         brakflag : brflag COMMA akflag
@@ -1856,6 +3039,17 @@ class MMPULite(Parser):
                  | kflag
         """
 
+    def p_brakflag_error(self, p):
+        """
+        brakflag : brflag COMMA error
+                 | brflag error
+                 | aflag COMMA error
+                 | aflag error
+                 | kflag COMMA error
+                 | kflag error
+                 | error
+        """
+        
     def p_makflag(self, p):
         """
         makflag : mflag COMMA akflag
@@ -1866,6 +3060,17 @@ class MMPULite(Parser):
                 | kflag
         """
 
+    def p_makflag_error(self, p):
+        """
+        makflag : mflag COMMA error
+                | mflag error
+                | aflag COMMA error
+                | aflag error
+                | kflag COMMA error
+                | kflag error
+                | error
+        """
+        
     def p_mbrkflag(self, p):
         """
         mbrkflag : mflag COMMA brkflag
@@ -1876,6 +3081,17 @@ class MMPULite(Parser):
                  | kflag
         """
 
+    def p_mbrkflag_error(self, p):
+        """
+        mbrkflag : mflag COMMA error
+                 | mflag error
+                 | brflag COMMA error 
+                 | brflag error
+                 | kflag COMMA error
+                 | kflag error
+                 | error
+        """
+        
     def p_mbraflag(self, p):
         """
         mbraflag : mflag COMMA braflag
@@ -1886,6 +3102,17 @@ class MMPULite(Parser):
                  | aflag
         """
 
+    def p_mbraflag_error(self, p):
+        """
+        mbraflag : mflag COMMA error
+                 | mflag error
+                 | brflag COMMA error
+                 | brflag error
+                 | aflag COMMA error
+                 | aflag error
+                 | error
+        """
+        
     def p_akflag(self, p):
         """
         akflag : aflag COMMA kflag
@@ -1894,6 +3121,15 @@ class MMPULite(Parser):
                | kflag COMMA aflag
         """
 
+    def p_akflag_error(self, p):
+        """
+        akflag : aflag COMMA error
+               | aflag error
+               | kflag error
+               | kflag COMMA error
+               | error
+        """
+        
     def p_mkflag(self, p):
         """
         mkflag : mflag COMMA kflag 
@@ -1902,6 +3138,15 @@ class MMPULite(Parser):
                | kflag COMMA mflag
         """
 
+    def p_mkflag_error(self, p):
+        """
+        mkflag : mflag COMMA error 
+               | mflag error
+               | kflag error
+               | kflag COMMA error
+               | error
+        """
+        
     def p_brkflag(self, p):
         """
         brkflag : brflag COMMA kflag 
@@ -1910,6 +3155,15 @@ class MMPULite(Parser):
                 | kflag COMMA brflag
         """
 
+    def p_brkflag_error(self, p):
+        """
+        brkflag : brflag COMMA error 
+                | brflag error
+                | kflag error
+                | kflag COMMA error
+                | error
+        """
+        
     def p_maflag(self, p):
         """
         maflag : mflag COMMA aflag 
@@ -1918,6 +3172,15 @@ class MMPULite(Parser):
                | aflag COMMA mflag
         """
 
+    def p_maflag_error(self, p):
+        """
+        maflag : mflag COMMA error 
+               | mflag error
+               | aflag error
+               | aflag COMMA error
+               | error
+        """
+        
     def p_mbrflag(self, p):
         """
         mbrflag : mflag COMMA brflag
@@ -1926,6 +3189,15 @@ class MMPULite(Parser):
                 | brflag COMMA mflag
         """
 
+    def p_mbrflag_error(self, p):
+        """
+        mbrflag : mflag COMMA error
+                | mflag error
+                | brflag error
+                | brflag COMMA error
+                | error
+        """
+        
     def p_braflag(self, p):
         """
         braflag : brflag COMMA aflag 
@@ -1934,6 +3206,15 @@ class MMPULite(Parser):
                 | aflag COMMA brflag
         """
 
+    def p_braflag_error(self, p):
+        """
+        braflag : brflag COMMA error 
+                | brflag error
+                | aflag error
+                | aflag COMMA error
+                | error
+        """
+        
     def p_uthflag(self, p):
         """
         uthflag : uflag COMMA thflag
@@ -1944,6 +3225,17 @@ class MMPULite(Parser):
                 | hflag
         """
 
+    def p_uthflag_error(self, p):
+        """
+        uthflag : uflag COMMA error
+                | uflag error
+                | tflag COMMA error 
+                | tflag error
+                | hflag COMMA error 
+                | hflag error
+                | error
+        """
+        
     def p_thflag(self, p):
         """
         thflag : tflag COMMA hflag 
@@ -1952,6 +3244,15 @@ class MMPULite(Parser):
                | hflag COMMA tflag
         """
 
+    def p_thflag_error(self, p):
+        """
+        thflag : tflag COMMA error 
+               | tflag error
+               | hflag error
+               | hflag COMMA error
+               | error
+        """
+        
     def p_uhflag(self, p):
         """
         uhflag : uflag COMMA hflag
@@ -1960,12 +3261,26 @@ class MMPULite(Parser):
                | hflag COMMA uflag
         """
 
+    def p_uhflag_error(self, p):
+        """
+        uhflag : uflag COMMA error
+               | uflag error
+               | hflag error
+               | hflag COMMA error
+               | error
+        """
+        
     def p_utbflag(self, p):
         """
         utbflag : t_ubflag 
                 | ubflag
         """
 
+    def p_utbflag_error(self, p):
+        """
+        utbflag : error
+        """
+        
     def p_t_bflag(self, p):
         """
         t_bflag : tflag COMMA bflag 
@@ -1973,12 +3288,26 @@ class MMPULite(Parser):
                 | bflag COMMA tflag
         """
 
+    def p_t_bflag_error(self, p):
+        """
+        t_bflag : tflag COMMA error 
+                | tflag error
+                | bflag COMMA error
+                | bflag error
+                | error
+        """
+        
     def p_ubflag(self, p):
         """
         ubflag : b_uflag 
                | uflag
         """    
 
+    def p_ubflag_error(self, p):
+        """
+        ubflag : error
+        """
+        
     def p_b__uflag(self, p):
         """
         b__uflag : b_flag COMMA uflag
@@ -1986,6 +3315,15 @@ class MMPULite(Parser):
                  | uflag COMMA b_flag
         """ 
 
+    def p_b__uflag_error(self, p):
+        """
+        b__uflag : b_flag COMMA error
+                 | b_flag error
+                 | uflag COMMA error
+                 | uflag error
+                 | error
+        """ 
+        
     def p_b_uflag(self, p):
         """
         b_uflag : bflag COMMA uflag 
@@ -1993,12 +3331,26 @@ class MMPULite(Parser):
                 | uflag COMMA bflag
         """
 
+    def p_b_uflag_error(self, p):
+        """
+        b_uflag : bflag COMMA error 
+                | bflag error
+                | uflag COMMA error
+                | uflag error
+                | error
+        """
+        
     def p_utflag(self, p):
         """
         utflag : t_uflag 
                | uflag
         """
 
+    def p_utflag_error(self, p):
+        """
+        utflag : error
+        """
+        
     def p_t_uflag(self, p):
         """
         t_uflag : uflag COMMA tflag
@@ -2006,6 +3358,15 @@ class MMPULite(Parser):
                 | tflag COMMA uflag
         """
 
+    def p_t_uflag_error(self, p):
+        """
+        t_uflag : uflag COMMA error
+                | tflag error
+                | tflag COMMA error
+                | uflag error
+                | error
+        """
+        
     def p_t_uibflag(self, p):
         """
         t_uibflag : tflag COMMA uibflag 
@@ -2016,12 +3377,30 @@ class MMPULite(Parser):
         """
         p[0] = "T"
 
+    def p_t_uibflag_error(self, p):
+        """
+        t_uibflag : tflag COMMA error 
+                  | tflag error
+                  | uflag COMMA error
+                  | iflag COMMA error
+                  | bflag COMMA error  
+                  | uflag error
+                  | iflag error
+                  | bflag error
+                  | error
+        """
+        
     def p_uibflag(self, p):
         """
         uibflag : b_uiflag 
                 | uiflag
         """
 
+    def p_uibflag_error(self, p):
+        """
+        uibflag : error
+        """
+        
     def p_b_uiflag(self, p):
         """
         b_uiflag : bflag COMMA uiflag 
@@ -2030,6 +3409,17 @@ class MMPULite(Parser):
                  | iflag COMMA b_uflag
         """
 
+    def p_b_uiflag_error(self, p):
+        """
+        b_uiflag : bflag COMMA error 
+                 | bflag error
+                 | uflag COMMA error 
+                 | iflag COMMA error
+                 | uflag error
+                 | iflag error
+                 | error
+        """
+        
     def p_t_ubflag(self, p):
         """
         t_ubflag : tflag COMMA ubflag   
@@ -2038,6 +3428,17 @@ class MMPULite(Parser):
                  | bflag COMMA t_uflag
         """
 
+    def p_t_ubflag_error(self, p):
+        """
+        t_ubflag : tflag COMMA error   
+                 | tflag error
+                 | uflag COMMA error
+                 | bflag COMMA error
+                 | uflag error
+                 | bflag error
+                 | error
+        """
+        
     def p_t_ibflag(self, p):
         """
         t_ibflag : tflag COMMA ibflag
@@ -2046,6 +3447,17 @@ class MMPULite(Parser):
                  | bflag COMMA t_iflag
         """
 
+    def p_t_ibflag_error(self, p):
+        """
+        t_ibflag : tflag COMMA error
+                 | tflag error
+                 | iflag COMMA error
+                 | bflag COMMA error
+                 | iflag error
+                 | bflag error
+                 | error
+        """
+        
     def p_t_uiflag(self, p):
         """
         t_uiflag : tflag COMMA uiflag
@@ -2054,12 +3466,28 @@ class MMPULite(Parser):
                  | iflag COMMA t_uflag
         """
 
+    def p_t_uiflag_error(self, p):
+        """
+        t_uiflag : tflag COMMA error
+                 | tflag error
+                 | uflag COMMA error
+                 | iflag COMMA error
+                 | uflag error
+                 | iflag error
+                 | error
+        """
+        
     def p_ibflag(self, p):
         """
         ibflag : b_iflag
                | iflag
         """
 
+    def p_ibflag_error(self, p):
+        """
+        ibflag : error
+        """
+        
     def p_b_iflag(self, p):
         """
         b_iflag : bflag COMMA iflag
@@ -2067,6 +3495,15 @@ class MMPULite(Parser):
                 | iflag COMMA bflag
         """
 
+    def p_b_iflag_error(self, p):
+        """
+        b_iflag : bflag COMMA error
+                | bflag error
+                | iflag COMMA error
+                | iflag error
+                | error
+        """
+        
     def p_t_iflag(self, p):
         """
         t_iflag : tflag COMMA iflag
@@ -2074,6 +3511,15 @@ class MMPULite(Parser):
                 | iflag COMMA tflag
         """
 
+    def p_t_iflag_error(self, p):
+        """
+        t_iflag : tflag COMMA error
+                | tflag error
+                | iflag COMMA error
+                | iflag error
+                | error
+        """
+        
     def p_uiflag(self, p):
         """
         uiflag : iflag COMMA uflag
@@ -2082,6 +3528,15 @@ class MMPULite(Parser):
                | uflag COMMA iflag
         """
 
+    def p_uiflag_error(self, p):
+        """
+        uiflag : iflag COMMA error
+               | iflag error
+               | uflag error
+               | uflag COMMA error
+               | error
+        """
+        
     def p_crlubflag(self, p):
         """
         crlubflag : crflag COMMA lubflag
@@ -2100,6 +3555,19 @@ class MMPULite(Parser):
 	    if p[3] == "L":
 	      	p[0] = p[3]
 
+    def p_crlubflag_error(self, p):
+        """
+        crlubflag : crflag COMMA error
+                  | crflag error
+                  | lflag COMMA error
+                  | lflag error
+                  | uflag COMMA error
+                  | uflag error
+                  | bflag COMMA error
+                  | bflag error
+                  | error
+        """
+        
     def p_crlbflag(self, p):
         """
         crlbflag : crflag COMMA lbflag
@@ -2116,6 +3584,17 @@ class MMPULite(Parser):
 	    if p[3] == "L":
 	      	p[0] = p[3]        
 
+    def p_crlbflag_error(self, p):
+        """
+        crlbflag : crflag COMMA error
+                 | crflag error
+                 | lflag COMMA error
+                 | lflag error
+                 | bflag COMMA error
+                 | bflag error
+                 | error
+        """
+        
     def p_crluflag(self, p):
         """     
         crluflag : crflag COMMA luflag
@@ -2132,6 +3611,17 @@ class MMPULite(Parser):
 	    if p[3] == "L":
 	      	p[0] = p[3]
 
+    def p_crluflag_error(self, p):
+        """     
+        crluflag : crflag COMMA error
+                 | crflag error
+                 | lflag COMMA error
+                 | lflag error
+                 | uflag COMMA error
+                 | uflag error
+                 | error
+        """
+        
     def p_crlflag(self, p):
         """
         crlflag : crflag COMMA lflag
@@ -2140,6 +3630,15 @@ class MMPULite(Parser):
                 | lflag COMMA crflag
         """
 
+    def p_crlflag_error(self, p):
+        """
+        crlflag : crflag COMMA error
+                | crflag error
+                | lflag error
+                | lflag COMMA error
+                | error
+        """
+        
     def p_crubflag(self, p):
         """
         crubflag : crflag COMMA ubflag
@@ -2150,6 +3649,17 @@ class MMPULite(Parser):
                  | bflag
         """
 
+    def p_crubflag_error(self, p):
+        """
+        crubflag : crflag COMMA error
+                 | crflag error
+                 | uflag COMMA error
+                 | uflag error
+                 | bflag COMMA error
+                 | bflag error
+                 | error
+        """
+        
     def p_crbflag(self, p):
         """
         crbflag : crflag COMMA bflag
@@ -2158,6 +3668,15 @@ class MMPULite(Parser):
                 | bflag COMMA crflag
         """
 
+    def p_crbflag_error(self, p):
+        """
+        crbflag : crflag COMMA error
+                | crflag error
+                | bflag error
+                | bflag COMMA error
+                | error
+        """
+        
     def p_cruflag(self, p):
         """
         cruflag : crflag COMMA uflag 
@@ -2166,6 +3685,15 @@ class MMPULite(Parser):
                 | uflag COMMA crflag
         """
 
+    def p_cruflag_error(self, p):
+        """
+        cruflag : crflag COMMA error 
+                | crflag error
+                | uflag error
+                | uflag COMMA error
+                | error
+        """
+        
     def p_lbflag(self, p):
         """
         lbflag : lflag COMMA bflag 
@@ -2174,6 +3702,15 @@ class MMPULite(Parser):
                | bflag COMMA lflag
         """
 
+    def p_lbflag_error(self, p):
+        """
+        lbflag : lflag COMMA error 
+               | lflag error
+               | bflag error
+               | bflag COMMA error
+               | error
+        """
+        
     def p_luflag(self, p):
         """
         luflag : lflag COMMA uflag 
@@ -2188,6 +3725,15 @@ class MMPULite(Parser):
 	    if p[3] == "L":
 		p[0] = p[3]
 
+    def p_luflag_error(self, p):
+        """
+        luflag : lflag COMMA error 
+               | lflag error
+               | uflag error
+               | uflag COMMA error
+               | error
+        """
+        
     def p_lubflag(self, p):
         """
         lubflag : lflag COMMA ubflag 
@@ -2198,6 +3744,17 @@ class MMPULite(Parser):
                 | bflag
         """
 
+    def p_lubflag_error(self, p):
+        """
+        lubflag : lflag COMMA error 
+                | lflag error
+                | uflag COMMA error 
+                | uflag error
+                | bflag COMMA error 
+                | bflag error
+                | error
+        """
+        
     def p_tsdflag(self, p):
         """
         tsdflag : tflag COMMA sdflag
@@ -2205,12 +3762,26 @@ class MMPULite(Parser):
                 | sdflag COMMA tflag
         """
 
+    def p_tsdflag_error(self, p):
+        """
+        tsdflag : tflag COMMA error
+	        | tflag error
+                | sdflag error
+                | sdflag COMMA error
+                | error
+        """
+        
     def p_sdflag(self, p):
         """
         sdflag : sflag 
                | dflag
         """
 
+    def p_sdflag_error(self, p):
+        """
+        sdflag : error
+        """
+        
     def p_tdflag(self, p):
         """
         tdflag : tflag COMMA dflag 
@@ -2218,12 +3789,26 @@ class MMPULite(Parser):
                | dflag COMMA tflag
         """
 
+    def p_tdflag_error(self, p):
+        """
+        tdflag : tflag COMMA error 
+	       | tflag error
+               | dflag error
+               | dflag COMMA error
+               | error
+        """
+        
     def p_bflag(self, p):
         """
         bflag : b_flag
               | hflag
         """
 
+    def p_bflag_error(self, p):
+        """
+        bflag : error
+        """
+        
     def p_crsdflag(self, p):
         """
         crsdflag : crflag COMMA sdflag
@@ -2231,6 +3816,15 @@ class MMPULite(Parser):
                  | sdflag COMMA crflag
         """ 
 
+    def p_crsdflag_error(self, p):
+        """
+        crsdflag : crflag COMMA error
+		 | crflag error
+                 | sdflag error
+                 | sdflag COMMA error
+                 | error
+        """ 
+        
     def p_byflag(self, p):
         """
         byflag : tcflag COMMA bflag
@@ -2240,9 +3834,19 @@ class MMPULite(Parser):
                | tcflag COMMA lflag
                | lflag COMMA tcflag 
                | lflag
-               | error
         """
 
+    def p_byflag_error(self, p):
+        """
+        byflag : tcflag COMMA error
+               | bflag COMMA error
+               | bflag error
+               | tcflag error
+               | lflag COMMA error 
+               | lflag error
+               | error
+        """
+        
     def p_b_flag(self, p):
         'b_flag : B'
 
@@ -2311,6 +3915,13 @@ class MMPULite(Parser):
                  | ALPHA _flag ncflag flag_
         """
 
+    def p_condflag_error(self, p):
+        """
+        condflag : ALPHA _flag error flag_
+                 | ALPHA error
+                 | error
+        """
+        
     def p__flag(self, p):
         '_flag : LPAREN'
 

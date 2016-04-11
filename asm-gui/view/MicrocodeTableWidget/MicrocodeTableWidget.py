@@ -54,7 +54,7 @@ class MicrocodeTableWidget(InitTableWidget):
         if item != None:	    
             if item.text() == "":
                 return  
-	    if item.whatsThis() == "":
+	    if item.whatsThis() == "" or item.whatsThis() == "-1":
 		return
 	    out = item.whatsThis().split("-")
 	    self.previousPointRow = []   
@@ -83,9 +83,11 @@ class MicrocodeTableWidget(InitTableWidget):
 		    #check microcode is legal?
 		    self.mmpulite.run(str(item.text()))	    
 		    text = self.mmpulite.result
-		    if text != 0:
+		    if text != -1:
 		        out = self.database.searchMcc(text)
 		        item.setWhatsThis(out)	
+		    else:
+			item.setWhatsThis(str(text))
       
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Down:
