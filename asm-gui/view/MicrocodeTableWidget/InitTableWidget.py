@@ -300,17 +300,6 @@ class InitTableWidget(QTableWidget):
             self.deleteColumns()
 
     def deleteCellLeft(self):
-        self.removeColumn(self.ColumnCount - 1)
-        #self.setHorizontalHeaderItem(self.ColumnCount, QTableWidgetItem("nonameFSM" + str(self.ColumnCount)))
-        num = len(self.array)
-        for i in xrange(num):
-            data = self.array[i]
-            del data[self.ColumnCount - 1]
-        del self.loopBodyList[self.ColumnCount - 1]
-            #data.append("....")
-        #self.loopBodyList.append([])
-        self.ColumnCount -= 1
-
         string = QString()
         for i in xrange(0, self.currentRowNum):
             if i > 0:
@@ -324,7 +313,7 @@ class InitTableWidget(QTableWidget):
                     self.setItem(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j, QTableWidgetItem(""))
                 else:
                     string += item.text()
-                #item.setText("")
+                item.setText("")
         self.delete()
         rows = string.split('\n')
         numRows = rows.count()
@@ -338,9 +327,6 @@ class InitTableWidget(QTableWidget):
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
 
     def deleteCellUp(self):
-        self.removeRow(self.RowCount - 1)
-        self.RowCount -= 1
-
         string = QString()
         for i in xrange(0, self.RowCount - self.currentTopRow - self.currentRowNum):
             if i > 0:
@@ -354,7 +340,7 @@ class InitTableWidget(QTableWidget):
                     self.setItem(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j, QTableWidgetItem(""))
                 else:
                     string += item.text()
-                #item.setText("")
+                item.setText("")
         self.delete()
         rows = string.split('\n')
         numRows = rows.count()
