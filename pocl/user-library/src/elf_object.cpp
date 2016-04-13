@@ -72,7 +72,7 @@ ElfObject::tryFile(const std::string &fname, int fd, Apc& apc) {
       opSys = ElfObject::UnknownOpSys;
     }
 
-    ElfObject * result = new ElfObject(fname, fd, len, fileData, arch, opSys);
+    ElfObject * result = new ElfObject(fname, fd, len, fileData, arch, opSys, &apc);
 
     //The number of headers in the file
     result->_programHeaderCount = ehdr.e_phnum;
@@ -101,8 +101,8 @@ ElfObject::tryFile(const std::string &fname, int fd, Apc& apc) {
   }
 }
 
-ElfObject::ElfObject(const std::string &_filename, int _fd, size_t _len, uint8_t *_data, Arch _arch, OpSys _opSys)
-    : filename(_filename), descriptor(_fd), fileData(_data), len(_len), arch(_arch), opSys(_opSys) {
+ElfObject::ElfObject(const std::string &_filename, int _fd, size_t _len, uint8_t *_data, Arch _arch, OpSys _opSys, Apc* _apc)
+    : filename(_filename), descriptor(_fd), fileData(_data), len(_len), arch(_arch), opSys(_opSys), apc(_apc) {
   Elf *elf;
   Elf32_Ehdr *p_ehdr, ehdr;
 
@@ -211,13 +211,20 @@ bool ElfObject::loadSections(Csu& csu) {
 }
 
 bool ElfObject::loadSection(Section *sec, Csu& csu) {
+  bool shouldRelease = false;
   if (sec->size != 0) {
     if (!sec->fileImage) { // bss
+      shouldRelease = true;
       sec->fileImage = (uint8_t *) csu.cmalloc(sec->size);
       memset(sec->fileImage, 0, sec->size);
     }
 
-    return csu.sendData(sec->fileImage, sec->size, sec->baseAddr);
+    bool result = csu.sendData(sec->fileImage, sec->size, sec->baseAddr);
+
+    if(shouldRelease)
+      csu.cfree(sec->fileImage);
+
+    return result;
   }
   return true;
 }

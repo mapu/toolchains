@@ -15,7 +15,7 @@
 class Apc;
 class MemPool {
 public:
-  MemPool(Apc* _apc, unsigned _incremental = 4096*1024);
+  MemPool(Apc* _apc, unsigned _incremental = 4096*16);
   ~MemPool();
 
   void *alloc(int size);

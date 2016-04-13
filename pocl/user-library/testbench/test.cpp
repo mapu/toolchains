@@ -39,17 +39,22 @@ void *thread(void *threadid) {
   csu->sendData(mem, DataSize, 0x400000L + dataoffset);
   cout << "end send: " << tid << endl;
 
-  for (int j = 0; j < 0; ++j)
+  for (int j = 0; j < 10; ++j)
     if (j % 2) csu->sendData(mem, DataSize, 0x400000L + dataoffset);
     else csu->getData(mmm, DataSize, 0x400000L + dataoffset);
 
+  cout << "begin cfree(mem): " << tid << endl;
   apc->cfree(mem);
+  cout << "begin cfree(mmm): " << tid << endl;
   apc->cfree(mmm);
 
+  cout << "begin releaseApe: " << tid << endl;
   apc->releaseApe(0);
 
+  cout << "begin delete: " << tid << endl;
   delete apc;
 
+  cout << "begin pthread_exit: " << tid << endl;
   pthread_exit(NULL);
 }
 
@@ -70,8 +75,8 @@ int main() {
 
   cout << "****testing mem" << endl;
   cout << "*******allocating mem" << endl;
-  int* mem = (int*) apc->cmalloc(DataSize), *mmm = (int*) apc->cmalloc(DataSize);
-  cout << mem << ' ' << mmm << ' ' << endl;
+  int *mem = (int*) apc->cmalloc(DataSize), *mmm = (int*) apc->cmalloc(DataSize);
+  cout << (unsigned long) mem << ' ' << (unsigned long)mmm << ' ' << endl;
 
   cout << "*******writing mem" << endl;
   for (i = 0; i < DataSize / 4; ++i) {
@@ -83,13 +88,22 @@ int main() {
   for (int i = 0; i < DataSize / 4; ++i) {
     if (mem[i] != i) cout << "mem[" << i << "] = " << mem[i] << endl;
   }
-  cout << "*******checking mem done" << endl;
   cout << "****testing mem done" << endl;
+
+  cout << "****checking dma"<< endl;
+  cout << "*******invoking send dma"<< endl;
+  csu->sendData(mem, DataSize, 0x400000L);
+  cout << "*******invoking read dma"<< endl;
+  csu->getData(mmm, DataSize, 0x400000L);
+  cout << "*******testing fetched data"<< endl;
+  for (int i = 0; i < DataSize / 4; ++i)
+    if (mmm[i] != i) cout << "mem[" <<i << "] = " << mem[i] << ", mmm[" << i << "] = " << mmm[i] << endl;
+  cout << "****testing mem done" << endl;
+  getchar();
 
   cout << "****testing muti-task dma" << endl;
   apc->releaseApe(0);
   pthread_t id[task_num];
-  void *ret;
   int retv;
 
   for (int t = 0; t < task_num; ++t) {

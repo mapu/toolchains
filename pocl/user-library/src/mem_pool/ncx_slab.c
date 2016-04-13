@@ -118,7 +118,7 @@ void ncx_slab_init(ncx_slab_pool_t *pool) {
   }
 
   p += n * sizeof(ncx_slab_page_t);
-
+  pool->end = pool + pool->size;
   pool->end = (u_char *) ncx_align_ptr(pool->end - ncx_pagesize + 1, ncx_pagesize);   // 要把end对齐到页边界, 否则可能会多计入一个页
   size = pool->end - p;
 
@@ -1072,6 +1072,8 @@ static bool ncx_slab_empty(ncx_slab_pool_t *pool, ncx_slab_page_t *page) {
 
 // 判断整个pool是否empty
 bool ncx_slab_is_empty(ncx_slab_pool_t *pool) {
-  return pool->free.next->slab & ~NCX_SLAB_PAGE_START == (pool->end - pool->start) >> ncx_pagesize_shift;
+  debug("first free size: %u" , pool->free.next->slab & ~NCX_SLAB_PAGE_START);
+  debug("pool size: %u" , (pool->end - pool->start) >> ncx_pagesize_shift);
+  return (pool->free.next->slab & ~NCX_SLAB_PAGE_START) == ((pool->end - pool->start) >> ncx_pagesize_shift);
 }
 

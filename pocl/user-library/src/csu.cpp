@@ -295,9 +295,8 @@ bool Csu::launchAPE(ElfObject* spuImg, char* localDbPath, void* params) {
     // launch SPU lib
     bool result = spuImg->loadSections(*this);
     if (result) {
-      if (result = setAPEOn()) {
-        if (!result) cerr << "Launch APE failed! " << endl;
-      }
+      result = setAPEOn();
+      if (!result) cerr << "Launch APE failed! " << endl;
     } else cerr << "SPU load sections failed! " << endl;
 
     for (int j = 0; j < mnames.size(); ++j) {

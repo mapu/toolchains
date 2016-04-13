@@ -32,12 +32,13 @@ public:
 
   int getFd() const {return fd;}
 
-  void *cmalloc(unsigned int size);   // 用内存池
+  void raw_free(void *p, unsigned long size);
   void *raw_cmalloc(unsigned int size);  // 用驱动的mmap
+
+  void *cmalloc(unsigned int size);   // 用内存池
   void *pmalloc(unsigned int size, int region);
 
   void cfree(void *p);
-  void raw_free(void *p);
   void pfree(void *p, int region);
 
   Csu *getCsu(int id);

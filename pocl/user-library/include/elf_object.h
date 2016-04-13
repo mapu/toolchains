@@ -99,6 +99,7 @@ protected:
 
   Arch arch;
   OpSys opSys;
+  Apc *apc;
 
 public:
   ElfObject(const std::string &_filename,
@@ -106,14 +107,15 @@ public:
       size_t _len,
       uint8_t *_data,
       Arch _arch,
-      OpSys _opSys);
+      OpSys _opSys,
+      Apc *apc);
 
   std::vector<Section> loadableSegments;
 
 public:
   virtual ~ElfObject() {
     if (fileData) {
-      munmap(fileData, len);
+      apc->cfree(fileData);
     }
     if (descriptor >= 0)
     close(descriptor);

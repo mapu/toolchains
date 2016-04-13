@@ -28,7 +28,7 @@ typedef struct {
 
   ncx_shmtx_t mutex;
 
-  void *addr;
+  size_t size;
 } ncx_slab_pool_t;
 
 typedef struct {

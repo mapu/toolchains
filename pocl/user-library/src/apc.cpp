@@ -35,12 +35,18 @@ Apc::Apc(int _fd, int num)
 }
 
 Apc::~Apc() {
+  cout << "begin ~Apc" << endl;
   if (fd >= 0) close(fd);
 
-  if (csu) for (int i = 0; i < num_of_apes; ++i)
-    (csu + i)->~Csu();
+  if (csu) {
+    for (int i = 0; i < num_of_apes; ++i)
+      (csu + i)->~Csu();
 
-  free(csu);
+    cout << "begin free(csu): " << hex << csu << endl;
+    free(csu);
+    cout << "end free(csu)" << endl;
+  }
+  cout << "end ~Apc" << endl;
 }
 
 Apc *Apc::tryFile(const string &fname, int fd) {
@@ -59,22 +65,25 @@ Apc *Apc::tryFile(const string &fname, int fd) {
   return new Apc(fd, num);
 }
 
-// 这样不行, 应该管理已经分配的内存
 void *Apc::cmalloc(unsigned int size) {
   return mem_pool.alloc(size);
 }
 
 void *Apc::raw_cmalloc(unsigned int size) {
-  return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  cout << "Apc::raw_cmalloc:" << size << endl;
+  void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  cout << "Apc::raw_cmalloc result:" << p << endl;
+  return p;
 }
 
 void *Apc::pmalloc(unsigned int size, int region) {
   return NULL;   // TO-DO not implemented yet
 }
 
-void Apc::raw_free(void *p) {
-  munmap((void*) ((unsigned long) p - sizeof(unsigned int)), *(unsigned int*) ((unsigned long) p - sizeof(unsigned int)));
-  p = NULL;
+void Apc::raw_free(void *p, unsigned long size) {
+  cout << "Apc::raw_free: "  << p << " size: " << size << endl;
+  munmap(p, size);
+  cout << "end Apc::raw_free:" << p << endl;
 }
 
 void Apc::cfree(void *p) {
