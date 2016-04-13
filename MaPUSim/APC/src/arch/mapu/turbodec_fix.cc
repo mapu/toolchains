@@ -12,6 +12,9 @@
 #include "cpu.hh"
 #include "utility.hh"
 #include "turbodec_fix.hh"
+#include "vtophys.hh"
+
+using namespace MapuISA;
 
 const FixPointTurboDecoder::state_metric
 FixPointTurboDecoder::alpha_initial_value = {      0, MIN_EXT, MIN_EXT, MIN_EXT,
@@ -1136,16 +1139,16 @@ Tick FixPointTurboDecoder::write(PacketPtr pkt) {
 
   switch (daddr) {
   case TURBODEC_SYS_BASE:
-    conf_regs.p_sys_base = data;
+    conf_regs.p_sys_base = vtophys(cpu->cpuId(),data);
     break;
   case TURBODEC_PAR1_BASE:
-    conf_regs.p_par1_base = data;
+    conf_regs.p_par1_base = vtophys(cpu->cpuId(),data);
     break;
   case TURBODEC_PAR2_BASE:
-    conf_regs.p_par2_base = data;
+    conf_regs.p_par2_base = vtophys(cpu->cpuId(),data);
     break;
   case TURBODEC_OUTPUT_BASE:
-    conf_regs.p_output_base = data;
+    conf_regs.p_output_base = vtophys(cpu->cpuId(),data);
     break;
   case TURBODEC_CFG01:
     conf_regs.p_cfg01 = data;
