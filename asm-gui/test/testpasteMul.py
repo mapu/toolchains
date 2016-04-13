@@ -1,0 +1,128 @@
+#!/usr/bin/env python
+#encoding: utf-8
+
+from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTableWidgetSelectionRange,QAbstractItemView
+from PyQt4.QtCore import Qt, QString,QStringList
+from PyQt4.QtTest import QTest
+import unittest
+import main
+import sys
+import random
+from view.MainWindow import MainWindow
+from view.Utils import initParent
+
+class mytest(unittest.TestCase): 
+    def setUp(self):
+        self.main = MainWindow()
+        self.inittablewidget = self.main.microcodeTableWidget
+        self.inittablewidget.setSelectionMode(QAbstractItemView.ContiguousSelection)
+        
+    def tearDown(self):
+        self.main = None
+        self.inittablewidget = None
+
+    def testPaste(self):
+        selranges = QTableWidgetSelectionRange(0, 0, 1, 3)
+        self.inittablewidget.setRangeSelected(selranges, True)
+        #selRange = self.inittablewidget.selectedRange()
+        self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
+        self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
+        self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
+        self.inittablewidget.copy()
+        self.inittablewidget.setRangeSelected(selranges, False)
+        selrange = QTableWidgetSelectionRange(1,0,2,3)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.paste()
+        self.text = self.inittablewidget.item(1,0).text()
+        self.textfirst = self.inittablewidget.item(1,1).text()
+        self.textsecond = self.inittablewidget.item(1,2).text()
+        self.result = QString("hello")
+        self.resultfirst = QString("world")
+        self.resultsecond = QString("china")
+        self.assertTrue(self.inittablewidget.paste)
+        self.assertEqual(self.text ,self.result)
+        self.assertEqual(self.textfirst, self.resultfirst)
+        self.assertEqual(self.textsecond, self.resultsecond)
+
+    def testPastefirst(self):
+        #selRange = self.inittablewidget.selectedRange()
+        selranges = QTableWidgetSelectionRange(0, 0, 1, 3)
+        self.inittablewidget.setRangeSelected(selranges, True)
+        self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
+        self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
+        self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
+        self.inittablewidget.copy()
+        self.inittablewidget.setRangeSelected(selranges, False)
+        selrange = QTableWidgetSelectionRange(1,0,2,4)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.paste()
+        self.text = self.inittablewidget.item(1,0).text()
+        self.textfirst = self.inittablewidget.item(1,1).text()
+        self.textsecond = self.inittablewidget.item(1,2).text()
+        self.result = QString("hello")
+        self.resultfirst = QString("world")
+        self.resultsecond = QString("china")
+        self.assertTrue(self.inittablewidget.paste)
+        self.assertEqual(self.text ,self.result,'test fail')
+        self.assertEqual(self.textfirst, self.resultfirst,'test fail')
+        self.assertEqual(self.textsecond, self.resultsecond,'test fail')
+    count = 0
+    while (count < 9):
+        def testPastesecond(self):
+        #count = 0
+        #while (count < 9):
+            #selRange = self.inittablewidget.selectedRange()
+            selranges = QTableWidgetSelectionRange(0, 0, 1, 3)
+            self.inittablewidget.setRangeSelected(selranges, True)
+            self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
+            self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
+            self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
+            self.inittablewidget.copy()
+            self.inittablewidget.setRangeSelected(selranges, False)
+            row = random.randint(0,1999)
+            column = random.randint(0,19)
+            selrange = QTableWidgetSelectionRange(row, column, row + 1, column + 3)
+            self.inittablewidget.setRangeSelected(selrange, True)
+            self.inittablewidget.paste()
+            self.text = self.inittablewidget.item(row, column).text()
+            self.textfirst = self.inittablewidget.item(row, column + 1).text()
+            self.textsecond = self.inittablewidget.item(row, column + 2).text()
+            self.result = QString("hello")
+            self.resultfirst = QString("world")
+            self.resultsecond = QString("china")
+            self.assertTrue(self.inittablewidget.paste)
+            self.assertEqual(self.text ,self.result)
+            self.assertEqual(self.textfirst, self.resultfirst)
+            self.assertEqual(self.textsecond, self.resultsecond)
+        count += 1 
+   
+    def testPastethird(self):
+        #selRange = self.inittablewidget.selectedRange()
+        rows = random.randint(0,1999)
+        columns = random.randint(0,16)
+        selranges = QTableWidgetSelectionRange(rows, columns, rows + 1, columns + 3)
+        self.inittablewidget.setRangeSelected(selranges, True)
+        self.inittablewidget.setItem(rows,columns,QTableWidgetItem("hello"))
+        self.inittablewidget.setItem(rows,columns +1,QTableWidgetItem("world"))
+        self.inittablewidget.setItem(rows,columns +2,QTableWidgetItem("china"))
+        self.inittablewidget.copy()
+        self.inittablewidget.setRangeSelected(selranges, False)
+        row = random.randint(0,1999)
+        column = random.randint(0,16)
+        selranges = QTableWidgetSelectionRange(row, column, row + 1, column + 3)
+        self.inittablewidget.setRangeSelected(selranges, True)
+        self.inittablewidget.paste()
+        self.text = self.inittablewidget.item(row, column).text()
+        self.textfirst = self.inittablewidget.item(row, column + 1).text()
+        self.textsecond = self.inittablewidget.item(row, column + 2).text()
+        self.result = QString("hello")
+        self.resultfirst = QString("world")
+        self.resultsecond = QString("china")
+        self.assertTrue(self.inittablewidget.paste)
+        self.assertEqual(self.text ,self.result)
+        self.assertEqual(self.textfirst, self.resultfirst)
+        self.assertEqual(self.textsecond, self.resultsecond)  
+        
+
+suite = unittest.TestLoader().loadTestsFromTestCase(mytest)
+unittest.TextTestRunner(verbosity=2).run(suite)
