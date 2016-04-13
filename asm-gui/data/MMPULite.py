@@ -420,20 +420,19 @@ class MMPULite(Parser):
         """
         mcodeline : slots
         """
-        p[0] = p[1]
-        if p[0] != None:
-            self.result = p[0]
+        if p[1] != None:
+            self.result = p[1]
 
     def p_slots(self, p):
         """        
         slots : slotref
         """
-        if p[0] != None:
+        if p[1] != None:
             p[0] = p[1]
 
     def p_slotref(self, p):
         'slotref : slot'
-        if p[0] != None:
+        if p[1] != None:
             p[0] = p[1]
 	    
     def p_slot(self, p):
