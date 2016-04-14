@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-   
 import sys
-from PyQt4.QtGui import QTableWidgetItem, QBrush
+from PyQt4.QtGui import QTableWidgetItem, QBrush, QColor
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from view.MicrocodeTableWidget.InitTableWidget import InitTableWidget
 from view.Utils import warning
@@ -25,6 +25,7 @@ class MicrocodeTableWidget(InitTableWidget):
         self.previousPointRow = -1
         #MMPULite parser
 	self.mmpulite = MMPULite()
+	self.errorColor = QBrush(QColor(255, 99, 71))
 
     @pyqtSlot(int, int, int, int)   
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
@@ -76,7 +77,7 @@ class MicrocodeTableWidget(InitTableWidget):
     def dataParser(self, row, column):
         item = self.item(row, column)
         if item != None:
-	    if item.whatsThis() == "":
+	    if item.whatsThis() == "" or item.whatsThis() == "-1":
                 if item.text() == "":
 		    item.setWhatsThis("")
 		else:
@@ -85,8 +86,10 @@ class MicrocodeTableWidget(InitTableWidget):
 		    text = self.mmpulite.result
 		    if text != -1:
 		        out = self.database.searchMcc(text)
+		        item.setBackground(self.defaultBackgroundColor)
 		        item.setWhatsThis(out)	
 		    else:
+		        item.setBackground(self.errorColor)
 			item.setWhatsThis(str(text))
       
     def keyPressEvent(self, event):

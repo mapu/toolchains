@@ -412,7 +412,7 @@ class MMPULite(Parser):
         t.lexer.lineno += t.value.count("\n")
     
     def t_error(self, t):
-        print("Illegal character '%s'" % t.value[0])
+        #print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
 
     # Parsing rules	    
@@ -3951,8 +3951,11 @@ class MMPULite(Parser):
         'label : EXPR'
      
     def p_error(self, p):
+        self.result = -1
+	'''
         if p:
             print("Syntax error at '%s'" % p.value)
         else:
             print("Syntax error at EOF")  
+        '''
         
