@@ -204,13 +204,19 @@ class StageTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.endResetModel()
 
-    def searchHeader(self, key):
+    def searchHeader(self, key, mode):
         result = []
         i = 0
-        for item in self.allVHeaderList:
-            if item.find(key) >= 0:
-                result.append(i)
-            i += 1
+        if mode == 0:
+            for item in self.allVHeaderList:
+                if item.find(key) >= 0:
+                    result.append(i)
+                i += 1
+        else: 
+            for item in self.vHeaderList:
+                if item.find(key) >= 0:
+                    result.append(i)
+                i += 1	  
         return result 
 
     def getAllVHeaderList(self):
