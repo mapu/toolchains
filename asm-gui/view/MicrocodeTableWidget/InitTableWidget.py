@@ -1,12 +1,13 @@
 #from -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QTableWidget, QApplication, QTableWidgetItem, QTableWidgetSelectionRange, QAbstractItemView, QFont
+from PyQt4.QtGui import QTableWidget, QApplication, QTableWidgetItem, QTableWidgetSelectionRange, QAbstractItemView, QFont, QBrush, QColor
 from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL, QStringList, QString
 from view.MicrocodeTableWidget.SetFSMNameWidget import SetFSMNameWidget
 from view.MicrocodeTableWidget.InsertDialog import InsertDialog
 from view.MicrocodeTableWidget.DeleteDialog import DeleteDialog
 from view.MicrocodeTableWidget.CellDelegate import CellDelegate
 from view.MicrocodeTableWidget.FloatDialog import FloatDialog
+from data.MMPULite import MMPULite
 import sys
 sys.path.append("..")
 from view.Utils import warning
@@ -108,11 +109,13 @@ class InitTableWidget(QTableWidget):
                 column = selRange.leftColumn() + j
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.dataParser(row, column)
 
     def delete(self):
         items = self.selectedItems()
         for i in xrange(len(items)):
             items[i].setText("")
+            self.dataParser(items[i].row(), items[i].column())
 
     def selectCurrentRow(self):
         self.selectRow(self.currentRow())
@@ -247,7 +250,7 @@ class InitTableWidget(QTableWidget):
         self.RowCount += 1
 
         string = QString()
-        for i in xrange(0, self.ColumnCount - self.currentTopRow):
+        for i in xrange(0, self.RowCount - self.currentTopRow):
             if i > 0:
                 string += '\n'
             for j in xrange(0, self.currentColumnNum):
@@ -372,4 +375,37 @@ class InitTableWidget(QTableWidget):
             for j in xrange(self.currentColumnNum):
                 del data[self.currentLeftColumn]
 		
-
+    def dataParser(self, row, column):
+        item = self.item(row, column)
+        if item != None:
+	    if item.text() == "":
+	        item.setBackground(self.defaultBackgroundColor)
+		item.setWhatsThis("")
+            else:
+		#check microcode is legal?
+		self.mmpulite.run(str(item.text()))	    
+		text = self.mmpulite.result
+		if text != -1:
+		    out = self.database.searchMcc(text)
+		    item.setBackground(self.defaultBackgroundColor)
+		    item.setWhatsThis(out)	
+		else:
+		    item.setBackground(self.errorColor)
+		    item.setWhatsThis(str(text))
+	    '''
+	    if item.whatsThis() == "" or item.whatsThis() == "-1":
+                if item.text() == "":
+                    item.setBackground(self.defaultBackgroundColor)
+		    item.setWhatsThis("")
+		else:
+		    #check microcode is legal?
+		    self.mmpulite.run(str(item.text()))	    
+		    text = self.mmpulite.result
+		    if text != -1:
+		        out = self.database.searchMcc(text)
+		        item.setBackground(self.defaultBackgroundColor)
+		        item.setWhatsThis(out)	
+		    else:
+		        item.setBackground(self.errorColor)
+			item.setWhatsThis(str(text))
+	    '''

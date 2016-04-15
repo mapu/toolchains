@@ -73,24 +73,6 @@ class MicrocodeTableWidget(InitTableWidget):
     @pyqtSlot(int)
     def verticalScrollBarChangedSlot(self, i):
         self.floatDialogCloseSlot()
-
-    def dataParser(self, row, column):
-        item = self.item(row, column)
-        if item != None:
-	    if item.whatsThis() == "" or item.whatsThis() == "-1":
-                if item.text() == "":
-		    item.setWhatsThis("")
-		else:
-		    #check microcode is legal?
-		    self.mmpulite.run(str(item.text()))	    
-		    text = self.mmpulite.result
-		    if text != -1:
-		        out = self.database.searchMcc(text)
-		        item.setBackground(self.defaultBackgroundColor)
-		        item.setWhatsThis(out)	
-		    else:
-		        item.setBackground(self.errorColor)
-			item.setWhatsThis(str(text))
       
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Down:
