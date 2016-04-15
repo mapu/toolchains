@@ -244,6 +244,7 @@ class InitTableWidget(QTableWidget):
                 column = self.currentLeftColumn + j + self.currentColumnNum
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.dataParser(row, column)
 
     def insertUpCell(self):
         self.insertRow(self.RowCount)
@@ -272,6 +273,7 @@ class InitTableWidget(QTableWidget):
                 column = self.currentLeftColumn + j
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.dataParser(row, column)
   
     def insertRows(self):
         for i in xrange(self.currentRowNum):
@@ -361,7 +363,7 @@ class InitTableWidget(QTableWidget):
     def deleteRows(self):
         for i in xrange(self.currentRowNum):
             self.removeRow(self.currentTopRow)
-            if self.loopEndRow >= self.currentTopRow:
+            if len(self.array) > self.currentTopRow:
                 del self.array[self.currentTopRow]
                 self.loopEndRow -= 1
 
