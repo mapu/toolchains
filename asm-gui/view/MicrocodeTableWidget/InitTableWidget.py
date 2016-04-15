@@ -311,6 +311,7 @@ class InitTableWidget(QTableWidget):
                 if item == None:
                     string += ""
                     self.setItem(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j, QTableWidgetItem(""))
+                    item = self.item(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j)
                 else:
                     string += item.text()
                 item.setText("")
@@ -338,6 +339,7 @@ class InitTableWidget(QTableWidget):
                 if item == None:
                     string += ""
                     self.setItem(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j, QTableWidgetItem(""))
+                    item = self.item(self.currentTopRow + i, self.currentLeftColumn + self.currentColumnNum + j)
                 else:
                     string += item.text()
                 item.setText("")
