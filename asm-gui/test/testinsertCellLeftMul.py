@@ -22,14 +22,14 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testinsertLeftCellfirst(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,3)
+        selrange = QTableWidgetSelectionRange(0,0,0,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertLeftCell()
         self.headeritem = self.inittablewidget.horizontalHeaderItem(20).text()
@@ -66,14 +66,14 @@ class mytest(unittest.TestCase):
     def testinsertLeftCellsecond(self):
         rows = random.randint(0,1999)
         columns = random.randint(0,16)
-        selranges = QTableWidgetSelectionRange(rows, columns, rows + 1, columns + 3)
+        selranges = QTableWidgetSelectionRange(rows, columns, rows , columns + 2)
         self.inittablewidget.setRangeSelected(selranges, True)
         self.inittablewidget.setItem(rows,columns,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(rows,columns +1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(rows,columns +2,QTableWidgetItem("china"))
-        self.inittablewidget.currentRowNum = selranges.rowCount() - 1
+        self.inittablewidget.currentRowNum = selranges.rowCount() 
         self.inittablewidget.currentTopRow = selranges.topRow()
-        self.inittablewidget.currentColumnNum = selranges.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selranges.columnCount() 
         self.inittablewidget.currentLeftColumn = selranges.leftColumn()
         self.inittablewidget.insertLeftCell()
         self.headeritem = self.inittablewidget.horizontalHeaderItem(20).text()

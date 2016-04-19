@@ -22,12 +22,12 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testinsertLeftCellfirst(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertLeftCell()
         self.headeritem = self.inittablewidget.horizontalHeaderItem(20).text()
@@ -48,12 +48,12 @@ class mytest(unittest.TestCase):
     def testinsertLeftCellsecond(self):
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        selrange = QTableWidgetSelectionRange(row, column, row + 1, column + 1)
+        selrange = QTableWidgetSelectionRange(row, column, row , column )
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(row, column, QTableWidgetItem("hello"))
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertLeftCell()
         self.headeritem = self.inittablewidget.horizontalHeaderItem(20).text()
