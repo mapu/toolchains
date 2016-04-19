@@ -22,12 +22,12 @@ class mytest(unittest.TestCase):
 
     def testPaste(self):
         #selRange = self.inittablewidget.selectedRange()
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.copy()
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(2,2,3,3)
+        selrange = QTableWidgetSelectionRange(2,2,2,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.paste()
         self.text = self.inittablewidget.item(2,2).text()
@@ -37,12 +37,12 @@ class mytest(unittest.TestCase):
 
     def testPastefirst(self):
         #selRange = self.inittablewidget.selectedRange()
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("world"))
         self.inittablewidget.copy()
         self.inittablewidget.setRangeSelected(selrange,False)
-        selrange = QTableWidgetSelectionRange(0,1,1,2)
+        selrange = QTableWidgetSelectionRange(0,1,0,1)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.paste()
         self.text = self.inittablewidget.item(0,1).text()
@@ -51,7 +51,7 @@ class mytest(unittest.TestCase):
 
     def testPastesecond(self):
         #selRange = self.inittablewidget.selectedRange()
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.copy()

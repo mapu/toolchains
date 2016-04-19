@@ -23,7 +23,7 @@ class mytest(unittest.TestCase):
 
     def testDelete(self):
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.delete() 
         stringss = self.inittablewidget.item(0,0).text()
@@ -35,7 +35,7 @@ class mytest(unittest.TestCase):
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
-        selrange = QTableWidgetSelectionRange(0,0,1,3)
+        selrange = QTableWidgetSelectionRange(0,0,0,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.delete()
         string = self.inittablewidget.item(0,0).text()
@@ -52,7 +52,7 @@ class mytest(unittest.TestCase):
         self.inittablewidget.setItem(row, column, QTableWidgetItem("hello"))
         self.inittablewidget.setItem(row, column + 1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(row, column + 2,QTableWidgetItem("china"))
-        selrange = QTableWidgetSelectionRange(row, column, row + 1, column + 3)
+        selrange = QTableWidgetSelectionRange(row, column, row , column + 2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.delete()
         string = self.inittablewidget.item(row, column).text()
