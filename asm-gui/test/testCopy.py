@@ -22,45 +22,33 @@ class mytest(unittest.TestCase):
 
     def testCopy(self):
         #selRange = self.inittablewidget.selectedRange()
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,1)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
+        self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.copy()
         self.originalText = QApplication.clipboard().text()
-        self.result = QString("hello")
+        #print self.originalText
+        self.result = QString("hello\tworld")
         self.expectresult = QString("HELLO")
-        for i in xrange (0, 2):
-            if i > 0:
-                self.result += '\n'
-                self.expectresult += '\n'
-            for j in xrange (0, 2):
-                if j > 0:
-                    self.result += '\t'
-                    self.expectresult += '\t'
         self.assertTrue(self.inittablewidget.copy)
         self.assertEqual(self.originalText,self.result)
         #self.assertEqual(self.originalText,self.expectresult,"test copy fail")
 
     def testcopy(self):
         #selRange = self.inittablewidget.selectedRange()
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.copy()
         self.inittablewidget.setRangeSelected(selrange,False)
         self.txt = QApplication.clipboard().text()
-        selrange = QTableWidgetSelectionRange(0,1,1,2)
+        selrange = QTableWidgetSelectionRange(0,1,0,1)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.copy()
         self.originalText = QApplication.clipboard().text()
         self.result = QString("world")
-        for i in xrange (0, 2):
-            if i > 0:
-                self.result += '\n'
-            for j in xrange (0, 2):
-                if j > 0:
-                    self.result += '\t'
         self.assertEqual(self.originalText,self.result)
         self.assertTrue(self.inittablewidget.copy)
         
