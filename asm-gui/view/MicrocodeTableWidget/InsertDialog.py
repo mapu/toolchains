@@ -14,7 +14,7 @@ class InsertDialog(QDialog):
         self.connect(self.cellRightRadio, SIGNAL("clicked(bool)"), self.cellRightSlot)
         self.cellRightRadio.setChecked(True)
         self.radioIndex = 0
-        self.cellDownRadio = QRadioButton("The active cell to the down")
+        self.cellDownRadio = QRadioButton("The active cell to the bottom")
         self.connect(self.cellDownRadio, SIGNAL("clicked(bool)"), self.cellDownSlot)
         self.wholeRowsRadio = QRadioButton("The whole rows")
         self.connect(self.wholeRowsRadio, SIGNAL("clicked(bool)"), self.wholeRowsSlot)
