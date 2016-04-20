@@ -22,10 +22,10 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testinsertColumns(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.result = self.inittablewidget.item(0,1).text()
@@ -45,13 +45,13 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.headeritems,self.expectheaderitem)
 
     def testinsertColumnsfirst(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,2)
+        selrange = QTableWidgetSelectionRange(0,0,0,1)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(0,1,1,2)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        selrange = QTableWidgetSelectionRange(0,1,0,1)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.results = self.inittablewidget.item(0,0).text()
@@ -76,13 +76,13 @@ class mytest(unittest.TestCase):
     def testinsertColumnssecond(self):
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        selrange = QTableWidgetSelectionRange(row ,column , row + 1, column + 2)
+        selrange = QTableWidgetSelectionRange(row ,column , row , column + 1)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(row, column, QTableWidgetItem("hello"))
         self.inittablewidget.setItem(row, column + 1, QTableWidgetItem("world"))
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(row, column + 1,row + 1, column + 2)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        selrange = QTableWidgetSelectionRange(row, column + 1,row , column + 1)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.column = self.inittablewidget.columnCount()

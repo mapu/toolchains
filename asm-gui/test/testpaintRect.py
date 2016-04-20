@@ -23,26 +23,13 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testpaintRect(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,1)
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.main.register0Text.setText("3")
-        self.inittablewidget.currentRowNum = selrange.rowCount() 
-        self.inittablewidget.currentTopRow = selrange.topRow()
-        self.inittablewidget.currentColumnNum = selrange.columnCount() 
-        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
-        self.inittablewidget.startRow = self.inittablewidget.currentTopRow
-        self.inittablewidget.endRow = self.inittablewidget.currentTopRow + self.inittablewidget.currentRowNum - 1
-        self.inittablewidget.column = self.inittablewidget.currentLeftColumn
-        self.inittablewidget.startRow = self.inittablewidget.currentTopRow
-        self.inittablewidget.endRow = self.inittablewidget.currentTopRow + self.inittablewidget.currentRowNum - 1
-        self.inittablewidget.column = self.inittablewidget.currentLeftColumn
-        #self.inittablewidget.ColumnCount = selrange.columnCount() - 1
-        self.inittablewidget.paintRect(self.main.register[0], self.main.register0Text.text())
-        self.assertTrue(self.inittablewidget.paintRect(self.main.register[0], self.main.register0Text.text()))
-        #self.inittablewidget.setItemInfo(self.main.register[0])
-        #self.expectarray = "0.0.0.0."
-        #self.assertEqual(self.inittablewidget.array[0][0], self.expectarray)
-        print self.inittablewidget.array[0][0]
+        #self.inittablewidget.paintRect(self.main.register[0], self.main.register0Text.text())
+        self.inittablewidget.paintRect(self.main.registerCheck.index(self.main.registerCheck[0]), self.main.register0Text.text())
+        self.expectarray = "0,.0,.0,.0,."
+        self.assertEqual(self.inittablewidget.array[0][0], self.expectarray)
 
 suite = unittest.TestLoader().loadTestsFromTestCase(mytest)
 unittest.TextTestRunner(verbosity=2).run(suite)
