@@ -22,12 +22,13 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testinsertRows(self):
-        selrange = QTableWidgetSelectionRange(0,0,2,1)
+        selrange = QTableWidgetSelectionRange(0,0,1,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(1,0,QTableWidgetItem("world"))
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
+        #print self.inittablewidget.currentRowNum
         self.inittablewidget.insertRows()
         self.result = self.inittablewidget.item(2,0).text()
         self.results = self.inittablewidget.item(3,0).text()
@@ -40,14 +41,14 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.results,self.expectresults) 
 
     def testinsertRowsfirst(self):
-        selrange = QTableWidgetSelectionRange(0,0,3,1)
+        selrange = QTableWidgetSelectionRange(0,0,2,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(1,0,QTableWidgetItem("world"))
         self.inittablewidget.setItem(2,0,QTableWidgetItem("china"))
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(1,0,3,1)
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        selrange = QTableWidgetSelectionRange(1,0,2,0)
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
         self.inittablewidget.insertRows()
         self.results = self.inittablewidget.item(0,0).text()
@@ -66,14 +67,14 @@ class mytest(unittest.TestCase):
     def testinsertRowssecond(self):
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        selrange = QTableWidgetSelectionRange(row, column, row + 3, column + 1)
+        selrange = QTableWidgetSelectionRange(row, column, row + 2, column )
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(row, column, QTableWidgetItem("hello"))
         self.inittablewidget.setItem(row + 1, column, QTableWidgetItem("world"))
         self.inittablewidget.setItem(row + 2, column, QTableWidgetItem("china"))
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(row + 1, column, row + 3, column + 1)
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        selrange = QTableWidgetSelectionRange(row + 1, column, row + 2, column )
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
         self.inittablewidget.insertRows()
         self.result = self.inittablewidget.item(row, column).text()
@@ -94,9 +95,9 @@ class mytest(unittest.TestCase):
         column = random.randint(0,19)
         varRow = random.randint(1,2000)
         varColumn = random.randint(1,20)
-        selrange = QTableWidgetSelectionRange(row, column, row + varRow, column + varColumn)
+        selrange = QTableWidgetSelectionRange(row, column, row + varRow - 1, column + varColumn)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.currentRowNum = selrange.rowCount() - 1
+        self.inittablewidget.currentRowNum = selrange.rowCount() 
         self.inittablewidget.currentTopRow = selrange.topRow()
         self.inittablewidget.insertRows()
         self.row = self.inittablewidget.rowCount()

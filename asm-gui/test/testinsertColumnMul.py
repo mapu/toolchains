@@ -22,12 +22,12 @@ class mytest(unittest.TestCase):
         self.inittablewidget = None
 
     def testinsertColumns(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,3)
+        selrange = QTableWidgetSelectionRange(0,0,0,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.column = self.inittablewidget.columnCount()
@@ -64,18 +64,18 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.headerItemss,self.expectheaderitemss)
 
     def testinsertColumnsfirst(self):
-        selrange = QTableWidgetSelectionRange(0,0,1,3)
+        selrange = QTableWidgetSelectionRange(0,0,0,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(0,3,1,6)
+        selrange = QTableWidgetSelectionRange(0,3,0,5)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.column = self.inittablewidget.columnCount()
@@ -112,18 +112,18 @@ class mytest(unittest.TestCase):
     def testinsertColumnssecond(self):
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        selrange = QTableWidgetSelectionRange(row, column, row + 1, column + 3)
+        selrange = QTableWidgetSelectionRange(row, column, row , column + 2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.setItem(row, column,QTableWidgetItem("hello"))
         self.inittablewidget.setItem(row, column + 1,QTableWidgetItem("world"))
         self.inittablewidget.setItem(row, column + 2,QTableWidgetItem("china"))
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(row, column + 3, row + 1, column + 6)
+        selrange = QTableWidgetSelectionRange(row, column + 3, row , column + 5)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.column = self.inittablewidget.columnCount()
@@ -166,15 +166,15 @@ class mytest(unittest.TestCase):
         column = random.randint(0,19)
         varRow = random.randint(1,2000)
         varColumn = random.randint(1,20)
-        selrange = QTableWidgetSelectionRange(row, column, row + varRow, column + varColumn)
+        selrange = QTableWidgetSelectionRange(row, column, row + varRow, column + varColumn - 1)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.inittablewidget.setRangeSelected(selrange, False)
-        selrange = QTableWidgetSelectionRange(row, column + varColumn, row + varRow, column + varColumn * 2)
+        selrange = QTableWidgetSelectionRange(row, column + varColumn, row + varRow, column + varColumn * 2 - 1)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.currentColumnNum = selrange.columnCount() - 1
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.insertColumns()
         self.column = self.inittablewidget.columnCount()
@@ -190,7 +190,7 @@ class mytest(unittest.TestCase):
             self.horheaderitem = self.inittablewidget.horizontalHeaderItem(i).text()
             self.horexpectheaderitems = QString("nonameFSM" + str(i-varColumn * 2))
             self.assertEqual(self.horheaderitem,self.horexpectheaderitems)
-        #self.column = self.inittablewidget.columnCount()
+        self.column = self.inittablewidget.columnCount()
         self.Columncount = 20 + varColumn * 2
         self.assertEqual(self.column, self.Columncount)
         
