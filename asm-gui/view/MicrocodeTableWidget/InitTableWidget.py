@@ -145,7 +145,10 @@ class InitTableWidget(QTableWidget):
 
     def floatDialogShow(self, row, column, stringList):
         if row > self.loopEndRow:
+            for i in xrange(self.loopEndRow, row):
+                self.array.append(["...."]*(self.ColumnCount))
 	    self.loopEndRow = row
+	'''
         self.floatDialogCloseSlot()
         self.floatDialog = FloatDialog(self)
         item = self.item(row, column)
@@ -176,9 +179,10 @@ class InitTableWidget(QTableWidget):
             else:
                 floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
                 floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height() - 80
-        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, self.horizontalHeader().length()/self.ColumnCount, 80)
+        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, rect.width(), 80)
         self.floatDialog.initDialog(stringList)
         self.floatDialog.setVisible(True)
+        '''
         
     def insertDialogShow(self):
         selRange = self.selectedRange()

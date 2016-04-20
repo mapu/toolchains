@@ -314,7 +314,11 @@ class MicrocodeTableWidget(InitTableWidget):
             if item == None:
                 item = QTableWidgetItem("")
                 self.setItem(row, i, item)
-            item.setBackground(self.defaultBackgroundColor)
+                item.setBackground(self.defaultBackgroundColor)
+            else:
+	        self.dataParser(row, i)
+		
+            
 
     def searchLPStart(self, rectList, row):
         cmpList = []
