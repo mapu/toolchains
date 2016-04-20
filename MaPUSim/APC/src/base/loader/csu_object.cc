@@ -223,7 +223,7 @@ void CsuObject::update(int cpuid) {
     }
   }
   uint8_t *num = (uint8_t*)(&income.csu_if.MailNum) + 1;
-  if (*num != intCsuCtx->MailboxIn->queue_len) {
+  if ((4-*num) != intCsuCtx->MailboxIn->queue_len) {
     if (intCsuCtx->MailboxIn->queue_len < 4) {
       intCsuCtx->MailboxIn
         ->Message[(intCsuCtx->MailboxIn->ptr +

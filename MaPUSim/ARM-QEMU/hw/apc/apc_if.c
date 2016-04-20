@@ -431,6 +431,9 @@ static int apc_if_init(SysBusDevice *dev) {
   int port = 4000;
   int i;
 
+  for(i=0; i<4; i++)
+    ape[i].csu_if.MailNum = 0x400;
+
   //s->regs = (unsigned char*)malloc(REGS_SIZE);
   //memset(s->regs, 0, REGS_SIZE);
   for(i=0; i<8; i++)
