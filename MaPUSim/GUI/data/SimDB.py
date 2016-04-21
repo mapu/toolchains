@@ -34,6 +34,7 @@ class TraceAnalyzeThread(QThread):
         Generate trace database from trace file
         '''
         self.simDB.lock.lock()
+        self.simDB.traceAnalyzeStart.emit(0, len(self.simDB.Tables))
         try:
             DBConn = sqlite3.connect(self.simDB.DBName)
             trace = open(self.traceFile, "r")
@@ -41,6 +42,7 @@ class TraceAnalyzeThread(QThread):
             lines_wrapper = [lines]
             for i in xrange(len(self.simDB.Tables)):
                 print "table", i
+                self.simDB.traceAnalyzeProgress.emit("table %s"%i, i)
                 self.simDB.Tables[i].DBConn = DBConn
                 self.simDB.Tables[i].clearTable()
                 t = Timer(lambda: self.simDB.Tables[i].traceAnalyze(lines_wrapper))
@@ -72,8 +74,9 @@ class SimDB(QObject):
 
     timeChanged = pyqtSignal(int)
     traceAnalyzeDone = pyqtSignal()
-    
     analyzeFailed = pyqtSignal()
+    traceAnalyzeProgress = pyqtSignal(str, int)
+    traceAnalyzeStart = pyqtSignal(int, int)
 
     def __init__(self, parent = None):
         '''

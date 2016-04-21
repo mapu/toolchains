@@ -9,6 +9,7 @@ from PyQt4.QtGui import QMainWindow, QTabWidget, QAction, QIcon, \
 from view.Utils import warning
 from res import qrc_resources
 import os
+from ProgressDialog import ProgressDialog
 
 #QTextCodec.setCodecForTr(QTextCodec.codecForName("utf8"))
 
@@ -33,6 +34,7 @@ class MainWindow(QMainWindow):
         self.armViewWidget = ARMViewWidget(config, control)
         self.apcViewWidget = APCViewWidget(config, control)
         self.configWidget = ConfigViewWidget(config, control)
+        self.progressDialog = ProgressDialog(config, control, self)
         
         # Fix me: this is ugly...
         self.configWidget.ARMmodeGroup.buttonClicked[int].connect(self.armViewWidget.UART0Widget.switchMode)
