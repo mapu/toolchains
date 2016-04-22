@@ -411,6 +411,7 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
         instline.push_back(*(new use));
         instline.back() = instline[i];
         instline.back().MID++;
+        instline.back().Delay++;
         break;
       default: break;
       }
