@@ -84,7 +84,6 @@ class StageTable(QObject):
         sql_query += " ORDER BY sn ASC"
         cursor = self.DBConn.execute(sql_query)
         instList = cursor.fetchall()
-        
         if len(instList) == 0:
             return
             
@@ -92,7 +91,6 @@ class StageTable(QObject):
         sql_query += " ORDER BY sn ASC"
         cursor.execute(sql_query)
         regList = cursor.fetchall()
-        
         records = []
         reg_pointer = 0
         reg_end = len(regList)
@@ -145,7 +143,6 @@ class StageTable(QObject):
             
         self.DBConn.executemany(self.insert_template, records)
         self.DBConn.commit()
-        
         # Determine how to split the stage table -------------------------------
         # No splitting ---------------------------------------------------------
         if len(instList) <= 0x4000:
@@ -160,9 +157,8 @@ class StageTable(QObject):
         # Divide the blocks that are still larger than 16384 (0x4000) ----------
         if ((len(self.pageList) == 0) or
             (self.pageList[-1][0] != instList[-1][self.snIdx])):
-            self.PageList.append((instList[-1][self.snIdx],
+            self.pageList.append((instList[-1][self.snIdx],
                                   "%s" % instList[-1][self.disIdx]))
-            
         prePage = (instList[0][self.snIdx], instList[0][self.disIdx])
         for page in self.pageList[:]:
             points = (page[0] - prePage[0]) >> 14
