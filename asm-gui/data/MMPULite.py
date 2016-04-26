@@ -173,11 +173,11 @@ class MMPULite(Parser):
         return t
 
     def t_MINDEXS(self, t):
-        r'm\[S\+\+\]'
+        r'm\[s\+\+\]'
         return t
 
     def t_MINDEXI(self, t):
-        r'm\[I\+\+\]'
+        r'm\[i\+\+\]'
         return t
 
     def t_COND(self, t):

@@ -389,7 +389,8 @@ class InitTableWidget(QTableWidget):
 		item.setWhatsThis("")
             else:
 		#check microcode is legal?
-		self.mmpulite.run(str(item.text()))	    
+		text = str(item.text())
+		self.mmpulite.run(text.lower())	    
 		text = self.mmpulite.result
 		if text != -1:
 		    out = self.database.searchMcc(text)
