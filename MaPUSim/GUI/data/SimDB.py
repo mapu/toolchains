@@ -41,12 +41,11 @@ class TraceAnalyzeThread(QThread):
             lines = trace.readlines()
             lines_wrapper = [lines]
             for i in xrange(len(self.simDB.Tables)):
-                print "table", i
-                self.simDB.traceAnalyzeProgress.emit("table %s"%i, i)
                 self.simDB.Tables[i].DBConn = DBConn
                 self.simDB.Tables[i].clearTable()
                 t = Timer(lambda: self.simDB.Tables[i].traceAnalyze(lines_wrapper))
-                print t.timeit(number = 1)
+                text = t.timeit(number = 1)
+                self.simDB.traceAnalyzeProgress.emit("table %s : %s"%(i, text), i)
                 self.simDB.Tables[i].DBConn = self.simDB.DBConn
             DBConn.close()
             for i in xrange(self.numOfCores):
