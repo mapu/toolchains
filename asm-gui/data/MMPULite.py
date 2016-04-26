@@ -674,10 +674,12 @@ class MMPULite(Parser):
                | mindexs ASSIGNTO r1destp
                | mindexs ASSIGNTO r2destp
         """
-        if p[1] != None:
-            p[0] = p[1]
-        elif p[3] != None:
-	    p[0] = "To" + p[3]
+	if len(p) == 2:
+            if p[1] != None:
+                p[0] = p[1]
+        else:
+	    if p[3] != None:
+	        p[0] = "To" + p[3]
 
     def p_r1inst_error(self, p):
         """
