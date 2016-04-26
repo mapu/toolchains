@@ -56,9 +56,14 @@ class MicrocodeDB(QObject):
         
     def searchMcc(self, code):
 	search = "SELECT cyc from "+ self.name + " WHERE mc = '" + code + "'"
+	print code
 	cu = self.DBConn.execute(search)
 	out = cu.fetchall()
-	return out[0][0]
+	print out
+	if out != []:
+	    return out[0][0]
+	else:
+	    return 0
 
     def initMcc(self):
         self.mcc = [["MR0ToM", "3"],

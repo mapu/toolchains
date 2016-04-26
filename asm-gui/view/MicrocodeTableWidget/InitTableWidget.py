@@ -28,8 +28,6 @@ class InitTableWidget(QTableWidget):
         self.CurrentColumn = -1
         self.floatDialog = 0
         self.floatDialogFocus = 0
-        self.setRowCount(self.RowCount)
-        self.setColumnCount(self.ColumnCount)
         self.connect(self.horizontalHeader(), SIGNAL("sectionDoubleClicked(int)"), self.setHeader)
         self.setSelectionMode(QAbstractItemView.ContiguousSelection)
         #get default background
@@ -43,11 +41,11 @@ class InitTableWidget(QTableWidget):
         self.setItemDelegate(self.cellDelegate)
         self.cellDelegate.floatDialogShowSignal.connect(self.floatDialogShowSlot)
         self.cellDelegate.floatDialogCloseSignal.connect(self.floatDialogCloseSlot)
-        #init table
-        self.initTable()
 
     def initTable(self):
         self.clear()
+        self.setRowCount(self.RowCount)
+        self.setColumnCount(self.ColumnCount)
         self.headerList = QStringList()
         for i in xrange(0, self.ColumnCount):
             self.headerList.append(QString("nonameFSM" + str(i)))
@@ -394,8 +392,12 @@ class InitTableWidget(QTableWidget):
 		text = self.mmpulite.result
 		if text != -1:
 		    out = self.database.searchMcc(text)
-		    item.setBackground(self.defaultBackgroundColor)
-		    item.setWhatsThis(out)	
+		    if out != 0:
+		        item.setBackground(self.defaultBackgroundColor)
+		        item.setWhatsThis(out)	
+		    else:
+		        item.setBackground(self.errorColor)
+		        item.setWhatsThis("-1")
 		else:
 		    item.setBackground(self.errorColor)
 		    item.setWhatsThis(str(text))

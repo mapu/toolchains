@@ -322,7 +322,7 @@ class MicrocodeTableWidget(InitTableWidget):
 
     def searchLPStart(self, rectList, row):
         cmpList = []
-        n = 0
+        n = 1
         for info in rectList:
             info.num = n
             n += 1
@@ -371,13 +371,16 @@ class MicrocodeTableWidget(InitTableWidget):
                 #get loop start info
                 if textList[0] != "": 
                     cmpList = [] 
-                    if row == 0:
+                    if row == 0 or line == "NOP":
                         line = "" 
-                    elif line != "": 
+		    else:
                         line += " || "
                     cmpList = self.searchLPStart(rectList, row)
-                    for info in cmpList:   
-                        loop = "LPTO (%df ) @ (%s - %d) || "%(info.num, self.register[info.reg], info.margin)
+                    for info in cmpList:  
+			if info.margin == 0:
+			    loop = "LPTO (%df ) @ (%s) || "%(info.num, self.register[info.reg])
+			else:
+                            loop = "LPTO (%df ) @ (%s - %d) || "%(info.num, self.register[info.reg], info.margin)
                         line += loop
                     line = line[:-4]
                     line += ";\n"
@@ -411,7 +414,7 @@ class MicrocodeTableWidget(InitTableWidget):
     def openFile(self, fileName): 
         headerPattern = re.compile("\.hmacro ([a-zA-Z]+[0-9]+)")
         endPattern = re.compile("\.endhmacro")
-        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+) - (\d*)\)")
+        startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+)( - )?(\d*)\)")
         endLPPattern = re.compile("(\d+):")
         rowPattern = re.compile("(.+);")
 
@@ -419,6 +422,7 @@ class MicrocodeTableWidget(InitTableWidget):
         stringList = fp.readlines()   
         column = 0
         row = 0
+        previous = 0
         for string in stringList:
             if headerPattern.search(string) != None:        
                 record = headerPattern.search(string)
@@ -445,7 +449,10 @@ class MicrocodeTableWidget(InitTableWidget):
                             info.startRow = row
                             info.num = int(r.group(1))
                             info.reg = self.register.index(r.group(2))
-                            info.margin = int(r.group(3))
+                            if r.group(3) != None:
+                                info.margin = int(r.group(3))
+                            else:
+				info.margin = 0
                             info.column = column
                             item = QTableWidgetItem("")
                             self.setItem(row, column, item)
@@ -464,12 +471,23 @@ class MicrocodeTableWidget(InitTableWidget):
                                 self.setRowCount(row)
                                 self.array.append(["...."]*(self.ColumnCount))
                 else:
+		    if endPattern.search(previous) != None:
+                        self.setItem(row, column, QTableWidgetItem(""))
+                        self.dataParser(row, column)
+                        row += 1
+                        if row > self.RowCount:
+                            self.RowCount = row
+                            self.setRowCount(row)
+                            self.array.append(["...."]*(self.ColumnCount))			
                     record = startLPPattern.match(string)        
                     info = RectInfo()
                     info.startRow = row
                     info.num = int(record.group(1))
                     info.reg = self.register.index(record.group(2))
-                    info.margin = int(record.group(3))
+                    if record.group(3) != None:
+                        info.margin = int(record.group(3))
+                    else:
+		        info.margin = 0
                     info.column = column
                     item = QTableWidgetItem("")
                     self.setItem(row, column, item)
@@ -499,5 +517,7 @@ class MicrocodeTableWidget(InitTableWidget):
                     self.RowCount = row
                     self.setRowCount(row)
                     self.array.append(["...."]*(self.ColumnCount))
+            previous = string   
+                 
         fp.close()
 

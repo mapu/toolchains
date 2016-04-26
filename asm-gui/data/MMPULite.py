@@ -536,6 +536,8 @@ class MMPULite(Parser):
         """
         if p[1] == "shu0" and p[3] != None:
 	    p[0] = "SHU" + p[3]
+	elif p[3] == None:
+	    p[0] = None
 	elif p[1] != None:
 	    p[0] = p[1]
 
@@ -2588,7 +2590,8 @@ class MMPULite(Parser):
 
     def p_shu0t(self, p):
         'shu0t : SHU0 DOT t'
-        p[0] = "SHU"
+        if p[3] != None:
+            p[0] = "SHU"
 
     def p_shu0t_error(self, p):
         """
