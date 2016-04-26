@@ -68,7 +68,7 @@
 			reg = <0xa00000 0x1fd00000>;
 		};
 	};
-	
+
 	ahb {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -123,12 +123,6 @@
       compatible = "smsc,lan91c111";
       reg = <0x50c00000 0x10000>;
       interrupts = <0 0 0x4>;
-    };
-    
-    rtc@50480000 {
-      compatible = "arm,rtc-dw_apb_rtc", "arm,primecell";
-      reg = <0x50480000 0x1000>;
-      interrupts = <0 1 0x4>;
     };
 	};
 };

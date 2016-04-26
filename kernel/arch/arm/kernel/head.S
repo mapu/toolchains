@@ -428,9 +428,14 @@ __enable_mmu:
 		      domain_val(DOMAIN_IO, DOMAIN_CLIENT))
 	mcr	p15, 0, r5, c3, c0, 0		@ load domain access register
 #if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
-	and	r4,	r4,	#0xffffffc6			@ luoxq disable cacheable m
+	bic r4, r4, #0x1b			@ luoxq disable cacheable m
 #endif
 	mcr	p15, 0, r4, c2, c0, 0		@ load page table pointer
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  mrc p15, 0, r11, c2, c0, 2
+  bic r11, r11, #0x30
+  mcr p15, 0, r11, c2, c0, 2
+#endif
 #endif
 	b	__turn_mmu_on
 ENDPROC(__enable_mmu)

@@ -240,15 +240,15 @@ then
   exit
 fi
 
-if [ "$sys" = "sim" ]
-then
-  dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-${sys}.img}  oflag=append
-  if [ $? -ne 0 ]
-  then
-    echo -e "\n\n\tdd ubuntu.img fail!\n\n"
-    exit 1
-  fi
-fi
+#if [ "$sys" = "sim" ]
+#then
+#  dd bs=1k seek=10K if=ubuntu/ubuntu.img of=${output:-${sys}.img}  oflag=append
+#  if [ $? -ne 0 ]
+#  then
+#    echo -e "\n\n\tdd ubuntu.img fail!\n\n"
+#    exit 1
+#  fi
+#fi
 
 echo -e "\n\n\n\n\tMake image done!\n\n"
 echo -e "\timage is stored at" ${output:-${root}/${sys}.img}

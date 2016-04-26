@@ -27,8 +27,10 @@
  */
 ENTRY(v7_flush_icache_all)
 	mov	r0, #0
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	ALT_SMP(mcr	p15, 0, r0, c7, c1, 0)		@ invalidate I-cache inner shareable
 	ALT_UP(mcr	p15, 0, r0, c7, c5, 0)		@ I+BTB cache invalidate
+#endif
 	mov	pc, lr
 ENDPROC(v7_flush_icache_all)
 
@@ -82,7 +84,9 @@ loop3:
  ARM(	orr	r11, r11, r7, lsl r2	)	@ factor index number into r11
  THUMB(	lsl	r6, r7, r2		)
  THUMB(	orr	r11, r11, r6		)	@ factor index number into r11
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r11, c7, c14, 2		@ clean & invalidate by set/way
+#endif
 	subs	r9, r9, #1			@ decrement the way
 	bge	loop3
 	subs	r7, r7, #1			@ decrement the index
@@ -115,8 +119,10 @@ ENTRY(v7_flush_kern_cache_all)
  THUMB(	stmfd	sp!, {r4-r7, r9-r11, lr}	)
 	bl	v7_flush_dcache_all
 	mov	r0, #0
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	ALT_SMP(mcr	p15, 0, r0, c7, c1, 0)	@ invalidate I-cache inner shareable
 	ALT_UP(mcr	p15, 0, r0, c7, c5, 0)	@ I+BTB cache invalidate
+#endif
  ARM(	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}	)
  THUMB(	ldmfd	sp!, {r4-r7, r9-r11, lr}	)
 	mov	pc, lr
@@ -188,7 +194,9 @@ ENTRY(v7_coherent_user_range)
 	ALT_UP(W(nop))
 #endif
 1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
  USER(	mcr	p15, 0, r12, c7, c11, 1	)	@ clean D line to the point of unification
+#endif
 	add	r12, r12, r2
 	cmp	r12, r1
 	blo	1b
@@ -197,14 +205,18 @@ ENTRY(v7_coherent_user_range)
 	sub	r3, r2, #1
 	bic	r12, r0, r3
 2:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
  USER(	mcr	p15, 0, r12, c7, c5, 1	)	@ invalidate I line
+#endif
 	add	r12, r12, r2
 	cmp	r12, r1
 	blo	2b
 3:
 	mov	r0, #0
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	ALT_SMP(mcr	p15, 0, r0, c7, c1, 6)	@ invalidate BTB Inner Shareable
 	ALT_UP(mcr	p15, 0, r0, c7, c5, 6)	@ invalidate BTB
+#endif
 	dsb
 	isb
 	mov	pc, lr
@@ -244,7 +256,9 @@ ENTRY(v7_flush_kern_dcache_area)
 	ALT_UP(W(nop))
 #endif
 1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r0, c7, c14, 1		@ clean & invalidate D line / unified line
+#endif
 	add	r0, r0, r2
 	cmp	r0, r1
 	blo	1b
@@ -271,13 +285,18 @@ v7_dma_inv_range:
 	ALT_SMP(W(dsb))
 	ALT_UP(W(nop))
 #endif
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcrne	p15, 0, r0, c7, c14, 1		@ clean & invalidate D / U line
-
+#endif
 	tst	r1, r3
 	bic	r1, r1, r3
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcrne	p15, 0, r1, c7, c14, 1		@ clean & invalidate D / U line
+#endif
 1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r0, c7, c6, 1		@ invalidate D / U line
+#endif
 	add	r0, r0, r2
 	cmp	r0, r1
 	blo	1b
@@ -299,7 +318,9 @@ v7_dma_clean_range:
 	ALT_UP(W(nop))
 #endif
 1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r0, c7, c10, 1		@ clean D / U line
+#endif
 	add	r0, r0, r2
 	cmp	r0, r1
 	blo	1b
@@ -321,7 +342,9 @@ ENTRY(v7_dma_flush_range)
 	ALT_UP(W(nop))
 #endif
 1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r0, c7, c14, 1		@ clean & invalidate D / U line
+#endif
 	add	r0, r0, r2
 	cmp	r0, r1
 	blo	1b

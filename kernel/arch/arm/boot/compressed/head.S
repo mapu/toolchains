@@ -706,7 +706,13 @@ __common_mmu_cache_on:
 		mcr	p15, 0, r1, c3, c0, 0	@ load domain access control
 		b	1f
 		.align	5			@ cache line aligned
-1:		mcr	p15, 0, r0, c1, c0, 0	@ load control register
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+    bic r0, r0, #0x1 << 12
+    bic r0, r0, #0x1 << 2
+    bic r0, r0, #0x1 << 1
+#endif
+1:
+    mcr	p15, 0, r0, c1, c0, 0	@ load control register
 		mrc	p15, 0, r0, c1, c0, 0	@ and read it back to
 		sub	pc, lr, r0, lsr #32	@ properly flush pipeline
 #endif
@@ -1086,7 +1092,9 @@ loop3:
  THUMB(		orr	r11, r10, r6		) @ factor way and cache number into r11
  THUMB(		lsl	r6, r7, r2		)
  THUMB(		orr	r11, r11, r6		) @ factor index number into r11
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 		mcr	p15, 0, r11, c7, c14, 2	@ clean & invalidate by set/way
+#endif
 		subs	r9, r9, #1		@ decrement the way
 		bge	loop3
 		subs	r7, r7, #1		@ decrement the index

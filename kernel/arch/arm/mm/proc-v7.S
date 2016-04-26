@@ -77,7 +77,10 @@ ENDPROC(cpu_v7_do_idle)
 ENTRY(cpu_v7_dcache_clean_area)
 #ifndef TLB_CAN_READ_FROM_L1_CACHE
 	dcache_line_size r2, r3
-1:	mcr	p15, 0, r0, c7, c10, 1		@ clean D entry
+1:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  mcr	p15, 0, r0, c7, c10, 1		@ clean D entry
+#endif
 	add	r0, r0, r2
 	subs	r1, r1, r2
 	bhi	1b
@@ -128,6 +131,9 @@ ENTRY(cpu_v7_do_resume)
 #endif
 	mcr	p15, 0, r1, c2, c0, 0	@ TTB 0
 	mcr	p15, 0, r7, c2, c0, 1	@ TTB 1
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  bic r11, r11, #0x30
+#endif
 	mcr	p15, 0, r11, c2, c0, 2	@ TTB control register
 	mrc	p15, 0, r4, c1, c0, 1	@ Read Auxiliary control register
 	teq	r4, r9			@ Is it already set?
@@ -212,6 +218,11 @@ __v7_setup:
 	orreq	r10, r10, #(1 << 22)		@ set the Write Allocate disable bit
 	mcreq	p15, 1, r10, c9, c0, 2		@ write the L2 cache aux ctrl register
 #endif
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+    mrc p15, 0, r10, c1, c0, 1
+    bic r10, r10, #2            @ disable L2
+    mcr p15, 0, r10, c1, c0, 1
+#endif
 	b	3f
 
 	/* Cortex-A9 Errata */
@@ -248,13 +259,19 @@ __v7_setup:
 1:
 #endif
 
-3:	mov	r10, #0
+3:
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  mov	r10, #0
 	mcr	p15, 0, r10, c7, c5, 0		@ I+BTB cache invalidate
+#endif
 #ifdef CONFIG_MMU
 	mcr	p15, 0, r10, c8, c7, 0		@ invalidate I + D TLBs
 	v7_ttb_setup r10, r4, r8, r5		@ TTBCR, TTBRx setup
 	ldr	r5, =PRRR			@ PRRR
 	ldr	r6, =NMRR			@ NMRR
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  mov r6, #0
+#endif
 	mcr	p15, 0, r5, c10, c2, 0		@ write PRRR
 	mcr	p15, 0, r6, c10, c2, 1		@ write NMRR
 #endif

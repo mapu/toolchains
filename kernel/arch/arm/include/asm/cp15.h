@@ -54,6 +54,10 @@ static inline unsigned int get_cr(void)
 
 static inline void set_cr(unsigned int val)
 {
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  asm volatile("bic %0, %1, %2 @ set CR"
+    : : "r" (val), "r" (val), "r" (0x1006) : "cc");
+#endif
 	asm volatile("mcr p15, 0, %0, c1, c0, 0	@ set CR"
 	  : : "r" (val) : "cc");
 	isb();

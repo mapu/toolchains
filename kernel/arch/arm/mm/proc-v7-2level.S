@@ -44,7 +44,9 @@ ENTRY(cpu_v7_switch_mm)
 	ALT_SMP(orr	r0, r0, #TTB_FLAGS_SMP)
 	ALT_UP(orr	r0, r0, #TTB_FLAGS_UP)
 #ifdef CONFIG_ARM_ERRATA_430973
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r2, c7, c5, 6		@ flush BTAC/BTB
+#endif
 #endif
 #ifdef CONFIG_ARM_ERRATA_754322
 	dsb
@@ -53,7 +55,9 @@ ENTRY(cpu_v7_switch_mm)
 	isb
 1:
 #if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
-	and	r0,	r0,	#0xffffffc6			@ luoxq disable cacheable m
+	bic r0, r0, #3 << 3
+	bic r0, r0, #1
+	orr r0, r0, #1 << 1
 #endif
 	mcr	p15, 0, r0, c2, c0, 0		@ set TTB 0
 	isb
@@ -110,7 +114,10 @@ ENTRY(cpu_v7_set_pte_ext)
  ARM(	str	r3, [r0, #2048]! )
  THUMB(	add	r0, r0, #2048 )
  THUMB(	str	r3, [r0] )
+#if (!defined CONFIG_CPU_ICACHE_DISABLE) && (!defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
 	mcr	p15, 0, r0, c7, c10, 1		@ flush_pte
+#endif
+
 #endif
 	mov	pc, lr
 ENDPROC(cpu_v7_set_pte_ext)
@@ -151,6 +158,9 @@ ENDPROC(cpu_v7_set_pte_ext)
 	 * - \ttb0 and \ttb1 updated with the corresponding flags.
 	 */
 	.macro	v7_ttb_setup, zero, ttbr0, ttbr1, tmp
+#if (defined CONFIG_CPU_ICACHE_DISABLE) || (defined CONFIG_CPU_DCACHE_DISABLE)    /* luoxq for mapu disable cache */
+  bic \zero, \zero, #0x30
+#endif
 	mcr	p15, 0, \zero, c2, c0, 2	@ TTB control register
 	ALT_SMP(orr	\ttbr0, \ttbr0, #TTB_FLAGS_SMP)
 	ALT_UP(orr	\ttbr0, \ttbr0, #TTB_FLAGS_UP)
