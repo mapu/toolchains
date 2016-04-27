@@ -8,7 +8,7 @@ class DeleteDialog(QDialog):
         super(DeleteDialog, self).__init__(parent)
 
         self.setWindowTitle("Delete")
-        self.setFixedSize(250, 200)
+        self.setFixedSize(255, 200)
         groupBox = QGroupBox()
         self.cellLeftRadio = QRadioButton("The right cell to the left")
         self.cellLeftRadio.setChecked(True)

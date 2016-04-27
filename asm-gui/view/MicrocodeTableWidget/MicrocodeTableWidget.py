@@ -316,9 +316,7 @@ class MicrocodeTableWidget(InitTableWidget):
                 self.setItem(row, i, item)
                 item.setBackground(self.defaultBackgroundColor)
             else:
-	        self.dataParser(row, i)
-		
-            
+	        self.dataParser(row, i)	         
 
     def searchLPStart(self, rectList, row):
         cmpList = []
@@ -354,14 +352,14 @@ class MicrocodeTableWidget(InitTableWidget):
     def saveFile(self, fileName):
         fp = open(fileName, "w")
         endFlag = 0
-        allFSM = ""
+        self.startList = dict()
         for column in xrange(self.ColumnCount):
             rectList = self.loopBodyList[column]
             lines = []
             item = self.horizontalHeaderItem(column)
-            allFSM += item.text()
-            allFSM += " || "
-            line = ".hmacro %s\n" % (item.text())
+            headerText = str(item.text())
+            line = ".hmacro %s\n" % (headerText)
+            self.startList[headerText] = self.RowCount
             lines.append(line)
             line = ""
             arrayLen = len(self.array)
@@ -382,6 +380,9 @@ class MicrocodeTableWidget(InitTableWidget):
 		        endFlag = 0
                         line += " || "
                     cmpList = self.searchLPStart(rectList, row)
+                    if cmpList != []:
+		        if self.startList[headerText] > row:
+			    self.startList[headerText] = row
                     for info in cmpList:  
 			if info.margin == 0:
 			    loop = "LPTO (%df ) @ (%s) || "%(info.num, self.register[info.reg])
@@ -424,8 +425,13 @@ class MicrocodeTableWidget(InitTableWidget):
             lines.append(".endhmacro\n\n")
             fp.writelines(lines)
         #write all FSM
+        self.startList = sorted(self.startList.items(), key=lambda d:d[1], reverse = False)
         lines = []
         lines.append(".hmacro main\n")
+        allFSM = ""
+	for key in self.startList:
+	    allFSM += key[0]
+	    allFSM += " || "
         allFSM = allFSM[:-4]
         allFSM += ";\n"
         lines.append(allFSM)

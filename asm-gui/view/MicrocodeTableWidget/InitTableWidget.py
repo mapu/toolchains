@@ -19,7 +19,7 @@ class InitTableWidget(QTableWidget):
         #self.setStyleSheet("QTableWidget::item{text-align: center;}")
 
         self.RowCount = 2000
-        self.ColumnCount = 20
+        self.ColumnCount = 1
         self.currentRowNum = 0
         self.currentColumnNum = 0
         self.currentTopRow = 0
@@ -247,6 +247,12 @@ class InitTableWidget(QTableWidget):
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
                     self.dataParser(row, column)
+        for i in xrange(self.currentColumnNum):
+            self.loopBodyList.insert(self.currentLeftColumn + i, [])
+            num = len(self.array)
+            for j in xrange(num):
+                data = self.array[j]
+                data.insert(self.currentLeftColumn + i, "....")
 
     def insertUpCell(self):
         self.insertRow(self.RowCount)
@@ -276,24 +282,43 @@ class InitTableWidget(QTableWidget):
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
                     self.dataParser(row, column)
+        for i in xrange(self.currentRowNum):
+            if self.loopEndRow >= (self.currentTopRow + i):
+                self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
+                self.loopEndRow += 1                    
+        for columnList in self.loopBodyList:
+	    for i in columnList:
+		if self.currentTopRow <= i.startRow:
+                    i.startRow += self.currentRowNum
+                    i.endRow += self.currentRowNum
   
     def insertRows(self):
         for i in xrange(self.currentRowNum):
             self.insertRow(self.currentTopRow + i)
+            self.RowCount += 1
             if self.loopEndRow >= (self.currentTopRow + i):
                 self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
                 self.loopEndRow += 1
-
+        for columnList in self.loopBodyList:
+	    for i in columnList:
+		if self.currentTopRow <= i.startRow:
+                    i.startRow += self.currentRowNum
+                    i.endRow += self.currentRowNum
+                
     def insertColumns(self):
         for i in xrange(self.currentColumnNum):
             self.insertColumn(self.currentLeftColumn + i)
+            self.ColumnCount += 1
             self.setHorizontalHeaderItem(self.currentLeftColumn + i, QTableWidgetItem("nonameFSM" + str(self.currentLeftColumn + i)))
-            self.loopBodyList.append([])
-        num = len(self.array)
-        for i in xrange(num):
-            data = self.array[i]
-            for j in xrange(self.currentColumnNum):
-                data.append("....")
+            self.loopBodyList.insert(self.currentLeftColumn + i, [])
+            num = len(self.array)
+            for j in xrange(num):
+                data = self.array[j]
+                data.insert(self.currentLeftColumn + i, "....")
+        for i in xrange(self.currentLeftColumn + self.currentColumnNum, self.ColumnCount):
+	    item = self.horizontalHeaderItem(i)
+	    if item.text() == ("nonameFSM" + str(i - self.currentColumnNum)):
+		item.setText("nonameFSM" + str(i))
 
     @pyqtSlot(int)
     def deleteOperateSlot(self, index):
@@ -365,6 +390,7 @@ class InitTableWidget(QTableWidget):
     def deleteRows(self):
         for i in xrange(self.currentRowNum):
             self.removeRow(self.currentTopRow)
+            self.RowCount -= 1
             if len(self.array) > self.currentTopRow:
                 del self.array[self.currentTopRow]
                 self.loopEndRow -= 1
@@ -372,6 +398,7 @@ class InitTableWidget(QTableWidget):
     def deleteColumns(self):
         for i in xrange(self.currentColumnNum):
             self.removeColumn(self.currentLeftColumn)
+            self.ColumnCount -= 1
             del self.loopBodyList[self.currentLeftColumn]
         num = len(self.array)
         for i in xrange(num):

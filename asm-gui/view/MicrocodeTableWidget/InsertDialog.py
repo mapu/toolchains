@@ -8,7 +8,7 @@ class InsertDialog(QDialog):
         super(InsertDialog, self).__init__(parent)
 	
         self.setWindowTitle("Insert")
-        self.setFixedSize(250, 200)
+        self.setFixedSize(255, 200)
         groupBox = QGroupBox()
         self.cellRightRadio = QRadioButton("The active cell to the right")
         self.connect(self.cellRightRadio, SIGNAL("clicked(bool)"), self.cellRightSlot)
