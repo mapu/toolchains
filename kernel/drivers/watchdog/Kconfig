@@ -206,6 +206,14 @@ config DW_WATCHDOG
 	  watchdog timer found in many ARM chips.
 	  To compile this driver as a module, choose M here: the
 	  module will be called dw_wdt.
+config MAPU_DW_WATCHDOG
+    tristate "mapu DesignWare watchdog"
+    depends on ARM && HAVE_CLK
+    help
+      Say Y here if to include support for the Synopsys DesignWare
+      watchdog timer found in many ARM chips.
+      To compile this driver as a module, choose M here: the
+      module will be called dw_wdt.
 
 config MPCORE_WATCHDOG
 	tristate "MPcore watchdog"

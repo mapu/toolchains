@@ -115,7 +115,11 @@ static struct clk_lookup lookups[] = {
   }, {  /* DesignWare timers */
     .dev_id   = "dw_timer",
     .clk    = &dw_timer_clk,
-  },
+  },{  /* DesignWare wdt */
+	.dev_id   = "50440000.wdt",
+	.con_id   = "watchdog",
+	.clk    = &dw_timer_clk,
+},
 #ifdef CONFIG_MAPU_SIM
   {  /* Pl110 */
     .dev_id   = "clcd-pl110",
