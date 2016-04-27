@@ -55,6 +55,7 @@ enum
 	MaPU_APC_REG,
 	MaPU_DMA,
 	MaPU_TIMER,
+	MaPU_WDT,
 	MaPU_RTC,
 	MaPU_VIF,
 	MaPU_UART0,
@@ -73,7 +74,7 @@ enum
 static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
 		[MaPU_APC_REG] = 0x41000000, [MaPU_DMA] = 0x50000000,
-		[MaPU_TIMER] = 0x50400000, [MaPU_RTC] = 0x50480000,
+		[MaPU_TIMER] = 0x50400000, [MaPU_WDT] = 0x50440000,[MaPU_RTC] = 0x50480000,
 		[MaPU_VIF] = 0x50500000,
 		[MaPU_UART0] = 0x50920000, /*Match MaPU chip*/
 		[MaPU_UART1] = 0x50910000,
@@ -269,7 +270,9 @@ static void mapu_init(MachineState *mms)
 
   sysbus_create_varargs("dw_apb_rtc", MaPUboard_map[MaPU_RTC], pic[1], NULL);
   fprintf(stderr, "\tmapu dw_apb_rtc init done!\n");
-
+  sysbus_create_varargs("dw_apb_wdt", MaPUboard_map[MaPU_WDT],
+                  pic[30], NULL);
+          fprintf(stderr, "\tmapu dw_apb_wdt init done!\n");
   if (enAPC == 1)
   {
     sysbus_create_varargs("apc_if", MaPUboard_map[MaPU_APC_REG],
