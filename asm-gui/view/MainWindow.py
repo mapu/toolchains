@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-   
 from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit
-from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot
+from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot, QString
 from res import qrc_resources 
 from view.MicrocodeTableWidget.MicrocodeTableWidget import MicrocodeTableWidget
 from Utils import warning
@@ -197,14 +197,14 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def saveFile(self):
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")
         if fileName != "":
             self.microcodeTableWidget.saveFile(fileName)
 	    self.setWindowTitle(fileName)
 
     @pyqtSlot()
     def saveasFile(self):
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")
         if fileName != "":
             self.microcodeTableWidget.saveFile(fileName)
 	    self.setWindowTitle(fileName)      
