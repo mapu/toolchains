@@ -353,6 +353,7 @@ class MicrocodeTableWidget(InitTableWidget):
 
     def saveFile(self, fileName):
         fp = open(fileName, "w")
+        endFlag = 0
         for column in xrange(self.ColumnCount):
             rectList = self.loopBodyList[column]
             lines = []
@@ -373,8 +374,10 @@ class MicrocodeTableWidget(InitTableWidget):
                     cmpList = [] 
                     if row == 0 or line == "NOP":
                         line = "" 
-		    else:
+		    elif line != "":
+		        endFlag = 0
                         line += " || "
+                    else:
                     cmpList = self.searchLPStart(rectList, row)
                     for info in cmpList:  
 			if info.margin == 0:
@@ -384,8 +387,14 @@ class MicrocodeTableWidget(InitTableWidget):
                         line += loop
                     line = line[:-4]
                     line += ";\n"
-                    lines.append(line) 
+                    if endFlag != 0:
+		        del lines[0 - endFlag - 1]
+			lines.insert(0 - endFlag, line)
+			endFlag = 0
+		    else:
+                        lines.append(line) 
                 else:
+		    endFlag = 0
                     if line != "":
                         line += ";\n"
                         lines.append(line)
@@ -400,9 +409,11 @@ class MicrocodeTableWidget(InitTableWidget):
                     line += ";\n"
                     lines.append(line)
                     cmpList = self.searchLPEnd(rectList, row)
+                    endFlag = 0
                     for info in cmpList:              
                         line = str(info.num) + ":\n" 
                         lines.append(line) 
+                        endFlag += 1
                     line = ""    
             if line != "":
                 line += ";\n"
