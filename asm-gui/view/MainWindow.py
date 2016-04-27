@@ -189,14 +189,11 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def openFile(self):
-	fileName = self.windowTitle()
-        if fileName == self.newFileName:
-            fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
-            if fileName != "":
-	        self.setWindowTitle(fileName)
-                self.microcodeTableWidget.initTable()
-                self.microcodeTableWidget.openFile(fileName)
-	    
+        fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
+        if fileName != "":
+	    self.setWindowTitle(fileName)
+            self.microcodeTableWidget.initTable()
+            self.microcodeTableWidget.openFile(fileName)
 
     @pyqtSlot()
     def saveFile(self):
