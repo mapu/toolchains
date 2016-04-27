@@ -376,6 +376,7 @@ class MicrocodeTableWidget(InitTableWidget):
                 if textList[0] != "": 
                     cmpList = [] 
                     if row == 0 or line == "NOP":
+			endFlag = 0
                         line = "" 
 		    elif line != "":
 		        endFlag = 0
@@ -444,7 +445,7 @@ class MicrocodeTableWidget(InitTableWidget):
         column = 0
         row = 0
         previous = 0
-        for string in stringList:
+        for string in stringList[0 : -3]:
             if headerPattern.search(string) != None:        
                 record = headerPattern.search(string)
                 self.setHorizontalHeaderItem(column, QTableWidgetItem(record.group(1)))
