@@ -354,10 +354,13 @@ class MicrocodeTableWidget(InitTableWidget):
     def saveFile(self, fileName):
         fp = open(fileName, "w")
         endFlag = 0
+        allFSM = ""
         for column in xrange(self.ColumnCount):
             rectList = self.loopBodyList[column]
             lines = []
             item = self.horizontalHeaderItem(column)
+            allFSM += item.text()
+            allFSM += " || "
             line = ".hmacro %s\n" % (item.text())
             lines.append(line)
             line = ""
@@ -419,6 +422,10 @@ class MicrocodeTableWidget(InitTableWidget):
                 line += ";\n"
                 lines.append(line)
             lines.append(".endhmacro\n\n")
+            #write all FSM
+            lines.append(".hmacro main\n")
+            
+            lines.append(".endhmacro\n")
             fp.writelines(lines)
         fp.close()                
 
