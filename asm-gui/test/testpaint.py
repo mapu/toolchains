@@ -5,8 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -28,8 +29,6 @@ class mytest(unittest.TestCase):
         self.inittablewidget.paintRect(self.main.registerCheck.index(self.main.registerCheck[0]), self.main.register0Text.text())
         self.inittablewidget.setRangeSelected(selrange,False)
         selranges = QTableWidgetSelectionRange(0,2,0,2)
-        self.inittablewidget.setRangeSelected(selranges,True)
-        self.inittablewidget.paintRect(self.main.registerCheck.index(self.main.registerCheck[0]), self.main.register0Text.text())
         self.inittablewidget.setRangeSelected(selranges,False)
         selrange = QTableWidgetSelectionRange(0,1,0,1)
         self.inittablewidget.setRangeSelected(selrange,True)

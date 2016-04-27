@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.createToolBars()
         self.createMenus()
         self.microcodeTableWidget.itemRegStateSignal.connect(self.itemRegStateSlot)
+        self.newFileName = "New File*"
 
     def createAction(self):
         self.newAction = QAction(self.tr('New'), self)
@@ -41,6 +42,11 @@ class MainWindow(QMainWindow):
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.setStatusTip("Save the Microcode table to disk")
         self.connect(self.saveAction, SIGNAL("triggered()"), self.saveFile)
+	self.saveAction.setEnabled(False)
+	
+	self.saveasAction = QAction(QIcon(":/saveas.png"), self.tr("Save As"), self)
+	self.connect(self.saveasAction, SIGNAL("triggered()"), self.saveasFile)
+	self.saveasAction.setEnabled(False)
 
         self.exitAction = QAction(self.tr("Exit"), self)
         self.exitAction.setShortcut("Ctrl+Q")
@@ -51,17 +57,20 @@ class MainWindow(QMainWindow):
         self.cutAction.setShortcut("Ctrl+X")
         self.cutAction.setStatusTip("Cut the current selection's contents to the clipboard")
         self.connect(self.cutAction, SIGNAL("triggered()"), self.microcodeTableWidget.cut)
-
+	self.cutAction.setEnabled(False)
+	
         self.copyAction = QAction(QIcon(":/copy.png"), self.tr("Copy"), self)
         self.copyAction.setShortcut("Ctrl+C")
         self.copyAction.setStatusTip("Copy the current selection's contents to the clipboard")
         self.connect(self.copyAction, SIGNAL("triggered()"), self.microcodeTableWidget.copy)
-
+	self.copyAction.setEnabled(False)
+	
         self.pasteAction = QAction(QIcon(":/paste.png"), self.tr("Paste"), self)
         self.pasteAction.setShortcut("Ctrl+V")
         self.pasteAction.setStatusTip("Paste the clipboard's contents into the current selection")
         self.connect(self.pasteAction, SIGNAL("triggered()"), self.microcodeTableWidget.paste)
-
+	self.pasteAction.setEnabled(False)
+	
         self.clearAction = QAction(self.tr("Clear"), self)
         self.clearAction.setShortcut("Del")
         self.clearAction.setStatusTip("Delete the current selection's contents")
@@ -91,6 +100,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.newAction)
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.saveAction)
+        fileMenu.addAction(self.saveasAction)
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAction)
 
@@ -119,6 +129,7 @@ class MainWindow(QMainWindow):
         fileToolBar.addAction(self.newAction)
         fileToolBar.addAction(self.openAction)
         fileToolBar.addAction(self.saveAction)
+        fileToolBar.addAction(self.saveasAction)
 
         editToolBar = self.addToolBar("Edit")
         editToolBar.addAction(self.cutAction)
@@ -169,19 +180,37 @@ class MainWindow(QMainWindow):
     def newFile(self):
         self.microcodeTableWidget.loopBodyList = [[]for i in xrange(self.microcodeTableWidget.ColumnCount)]
         self.microcodeTableWidget.initTable()
+        self.setWindowTitle(self.newFileName)
+        self.saveAction.setEnabled(True)
+        self.saveasAction.setEnabled(True)
+        self.copyAction.setEnabled(True)
+        self.cutAction.setEnabled(True)
+        self.pasteAction.setEnabled(True)
 
     @pyqtSlot()
     def openFile(self):
-        fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
-        if fileName != "":
-            self.microcodeTableWidget.initTable()
-            self.microcodeTableWidget.openFile(fileName)
+	fileName = self.windowTitle()
+        if fileName == self.newFileName:
+            fileName = QFileDialog.getOpenFileName(self, self.tr("select file"), "/")
+            if fileName != "":
+	        self.setWindowTitle(fileName)
+                self.microcodeTableWidget.initTable()
+                self.microcodeTableWidget.openFile(fileName)
+	    
 
     @pyqtSlot()
     def saveFile(self):
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
         if fileName != "":
             self.microcodeTableWidget.saveFile(fileName)
+	    self.setWindowTitle(fileName)
+
+    @pyqtSlot()
+    def saveasFile(self):
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.png")
+        if fileName != "":
+            self.microcodeTableWidget.saveFile(fileName)
+	    self.setWindowTitle(fileName)      
 
     @pyqtSlot()
     def closeWindow(self):

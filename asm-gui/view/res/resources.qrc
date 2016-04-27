@@ -8,6 +8,7 @@
 <file alias="new.png">images/new.png</file>  
 <file alias="open.png">images/open.png</file>    
 <file alias="paste.png">images/paste.png</file>  
-<file alias="save.png">images/save.png</file>     
+<file alias="save.png">images/save.png</file>   
+<file alias="saveas.png">images/saveas.png</file>    
 </qresource>  
 </RCC>
