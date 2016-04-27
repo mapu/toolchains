@@ -380,7 +380,6 @@ class MicrocodeTableWidget(InitTableWidget):
 		    elif line != "":
 		        endFlag = 0
                         line += " || "
-                    else:
                     cmpList = self.searchLPStart(rectList, row)
                     for info in cmpList:  
 			if info.margin == 0:
@@ -422,11 +421,15 @@ class MicrocodeTableWidget(InitTableWidget):
                 line += ";\n"
                 lines.append(line)
             lines.append(".endhmacro\n\n")
-            #write all FSM
-            lines.append(".hmacro main\n")
-            
-            lines.append(".endhmacro\n")
             fp.writelines(lines)
+        #write all FSM
+        lines = []
+        lines.append(".hmacro main\n")
+        allFSM = allFSM[:-4]
+        allFSM += ";\n"
+        lines.append(allFSM)
+        lines.append(".endhmacro\n")
+        fp.writelines(lines)
         fp.close()                
 
     def openFile(self, fileName): 
