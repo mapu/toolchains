@@ -178,7 +178,6 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def newFile(self):
-        self.microcodeTableWidget.loopBodyList = [[]for i in xrange(self.microcodeTableWidget.ColumnCount)]
         self.microcodeTableWidget.initTable()
         self.setWindowTitle(self.newFileName)
         self.saveAction.setEnabled(True)
@@ -194,7 +193,12 @@ class MainWindow(QMainWindow):
 	    self.setWindowTitle(fileName)
             self.microcodeTableWidget.initTable()
             self.microcodeTableWidget.openFile(fileName)
-
+            self.saveAction.setEnabled(True)
+            self.saveasAction.setEnabled(True)
+            self.copyAction.setEnabled(True)
+            self.cutAction.setEnabled(True)
+            self.pasteAction.setEnabled(True)
+        
     @pyqtSlot()
     def saveFile(self):
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")

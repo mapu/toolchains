@@ -18,8 +18,8 @@ class InitTableWidget(QTableWidget):
 
         #self.setStyleSheet("QTableWidget::item{text-align: center;}")
 
-        self.RowCount = 2000
-        self.ColumnCount = 1
+        self.initRowCount = 2000
+        self.initColumnCount = 1
         self.currentRowNum = 0
         self.currentColumnNum = 0
         self.currentTopRow = 0
@@ -44,8 +44,10 @@ class InitTableWidget(QTableWidget):
 
     def initTable(self):
         self.clear()
-        self.setRowCount(self.RowCount)
-        self.setColumnCount(self.ColumnCount)
+        self.setRowCount(self.initRowCount)
+        self.setColumnCount(self.initColumnCount)
+        self.RowCount = self.initRowCount
+        self.ColumnCount = self.initColumnCount
         self.headerList = QStringList()
         for i in xrange(0, self.ColumnCount):
             self.headerList.append(QString("nonameFSM" + str(i)))

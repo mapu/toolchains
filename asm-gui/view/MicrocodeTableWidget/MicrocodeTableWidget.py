@@ -448,25 +448,23 @@ class MicrocodeTableWidget(InitTableWidget):
 
         fp = open(fileName, "r")
         stringList = fp.readlines()   
-        column = 0
+        column = -1
         row = 0
         previous = 0
         for string in stringList[0 : -3]:
             if headerPattern.search(string) != None:        
                 record = headerPattern.search(string)
-                self.setHorizontalHeaderItem(column, QTableWidgetItem(record.group(1)))
-            elif endPattern.search(string) != None:
-                record = endPattern.search(string)
                 column += 1
-                if column > self.ColumnCount:
-                    self.ColumnCount = column
-                    self.setColumnCount(column)
+                if column >= self.ColumnCount:
+                    self.ColumnCount = column + 1
+                    self.setColumnCount(self.ColumnCount)
                     self.loopBodyList.append([])
                     num = len(self.array)
                     for i in xrange(num):
                         data = self.array[i]
                         data.append("....")
                 row = 0
+                self.setHorizontalHeaderItem(column, QTableWidgetItem(record.group(1)))
             elif startLPPattern.search(string) != None:
                 if string.find("||") >= 0:
                     record = string.split(" || ")
