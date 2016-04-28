@@ -2632,10 +2632,11 @@ class MMPULite(Parser):
                 | TBD
                 | TSQ
         """
-        p[0] = p[1].upper()
+        p[0] = "T"
 
     def p_constt(self, p):
         'constt : _constt'
+        p[0] = p[1]
 
     def p_shusrct(self, p):
         """
@@ -2643,7 +2644,7 @@ class MMPULite(Parser):
                 | constt
         """
         p[0] = p[1]
-
+        
     def p_tripara(self, p):
         'tripara : dupara COMMA t'
         
