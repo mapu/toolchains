@@ -1,0 +1,896 @@
+
+SPULoad.s.elf:	file format ELF32-mspu
+
+Disassembly of section .text:
+_startup:
+       0:	1d 00 c2 30 ff 1f 00 d0                                                                                                    	m.s 	SP = 131056;;
+       8:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+       c:	00 00 c0 b0                                                                                                                	m.s 	R0 = 0;;
+      10:	01 00 c0 b0                                                                                                                	m.s 	R1 = 0;;
+      14:	02 00 c0 b0                                                                                                                	m.s 	R2 = 0;;
+      18:	80 00 40 08 91 00 00 d0                                                                                                    	m.s 	call 2324;;
+      20:	00 00 00 80                                                                                                                	m.s 	NOP;;
+      24:	00 00 00 80                                                                                                                	m.s 	NOP;;
+      28:	00 00 00 80                                                                                                                	m.s 	NOP;;
+      2c:	00 00 00 80                                                                                                                	m.s 	NOP;;
+      30:	00 00 00 81                                                                                                                	m.s 	SPU.Stop;;
+
+c_plus:
+      34:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+      38:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+      3c:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+      40:	1f fa c2 b0                                                                                                                	m.s 	J31 = -48;;
+      44:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+      48:	81 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R1;;
+      4c:	80 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R0;;
+      50:	83 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R3;;
+      54:	82 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R2;;
+      58:	84 93 1f a8                                                                                                                	m.s 	[FP + -28] = R4;;
+      5c:	85 a3 1f a0                                                                                                                	m.s 	R5 = [FP + -24];;
+      60:	86 c3 1f a0                                                                                                                	m.s 	R6 = [FP + -16];;
+      64:	87 00 00 b4                                                                                                                	m.s 	R7 = R4;;
+      68:	c5 14 94 90                                                                                                                	m.s 	R5 = R6 + R5 (S) (T);;
+      6c:	80 00 02 b4                                                                                                                	m.s 	J0 = R4;;
+      70:	05 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R5;;
+      74:	84 b3 1f a0                                                                                                                	m.s 	R4 = [FP + -20];;
+      78:	85 d3 1f a0                                                                                                                	m.s 	R5 = [FP + -12];;
+      7c:	86 93 1f a0                                                                                                                	m.s 	R6 = [FP + -28];;
+      80:	a4 10 94 90                                                                                                                	m.s 	R4 = R5 + R4 (S) (T);;
+      84:	c0 00 02 b4                                                                                                                	m.s 	J0 = R6;;
+      88:	04 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R4;;
+      8c:	80 83 1f a8                                                                                                                	m.s 	[FP + -32] = R0;;
+      90:	81 73 1f a8                                                                                                                	m.s 	[FP + -36] = R1;;
+      94:	83 63 1f a8                                                                                                                	m.s 	[FP + -40] = R3;;
+      98:	87 53 1f a8                                                                                                                	m.s 	[FP + -44] = R7;;
+      9c:	82 43 1f a8                                                                                                                	m.s 	[FP + -48] = R2;;
+      a0:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+      a4:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+      a8:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+      ac:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+c_mul:
+      b0:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+      b4:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+      b8:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+      bc:	1f f9 c2 b0                                                                                                                	m.s 	J31 = -56;;
+      c0:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+      c4:	88 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R8;;
+      c8:	81 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R1;;
+      cc:	80 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R0;;
+      d0:	83 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R3;;
+      d4:	82 93 1f a8                                                                                                                	m.s 	[FP + -28] = R2;;
+      d8:	84 83 1f a8                                                                                                                	m.s 	[FP + -32] = R4;;
+      dc:	85 a3 1f a0                                                                                                                	m.s 	R5 = [FP + -24];;
+      e0:	86 93 1f a0                                                                                                                	m.s 	R6 = [FP + -28];;
+      e4:	87 c3 1f a0                                                                                                                	m.s 	R7 = [FP + -16];;
+      e8:	8f b3 1f a0                                                                                                                	m.s 	R15 = [FP + -20];;
+      ec:	88 00 00 b4                                                                                                                	m.s 	R8 = R4;;
+      f0:	e5 14 94 91                                                                                                                	m.s 	R5 = R7 * R5 (S) (T);;
+      f4:	e6 19 94 91                                                                                                                	m.s 	R6 = R15 * R6 (S) (T);;
+      f8:	c5 14 14 91                                                                                                                	m.s 	R5 = R6 - R5 (S) (T);;
+      fc:	80 00 02 b4                                                                                                                	m.s 	J0 = R4;;
+     100:	05 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R5;;
+     104:	84 93 1f a0                                                                                                                	m.s 	R4 = [FP + -28];;
+     108:	85 c3 1f a0                                                                                                                	m.s 	R5 = [FP + -16];;
+     10c:	86 a3 1f a0                                                                                                                	m.s 	R6 = [FP + -24];;
+     110:	87 b3 1f a0                                                                                                                	m.s 	R7 = [FP + -20];;
+     114:	8f 83 1f a0                                                                                                                	m.s 	R15 = [FP + -32];;
+     118:	a4 10 94 91                                                                                                                	m.s 	R4 = R5 * R4 (S) (T);;
+     11c:	e5 18 94 91                                                                                                                	m.s 	R5 = R7 * R6 (S) (T);;
+     120:	a4 10 94 90                                                                                                                	m.s 	R4 = R5 + R4 (S) (T);;
+     124:	e0 01 02 b4                                                                                                                	m.s 	J0 = R15;;
+     128:	04 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R4;;
+     12c:	80 73 1f a8                                                                                                                	m.s 	[FP + -36] = R0;;
+     130:	81 63 1f a8                                                                                                                	m.s 	[FP + -40] = R1;;
+     134:	83 53 1f a8                                                                                                                	m.s 	[FP + -44] = R3;;
+     138:	88 43 1f a8                                                                                                                	m.s 	[FP + -48] = R8;;
+     13c:	82 33 1f a8                                                                                                                	m.s 	[FP + -52] = R2;;
+     140:	88 d3 1f a0                                                                                                                	m.s 	R8 = [FP + -12];;
+     144:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     148:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     14c:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     150:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+c_sub:
+     154:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+     158:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+     15c:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+     160:	1f fa c2 b0                                                                                                                	m.s 	J31 = -48;;
+     164:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+     168:	81 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R1;;
+     16c:	80 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R0;;
+     170:	83 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R3;;
+     174:	82 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R2;;
+     178:	84 93 1f a8                                                                                                                	m.s 	[FP + -28] = R4;;
+     17c:	85 a3 1f a0                                                                                                                	m.s 	R5 = [FP + -24];;
+     180:	86 c3 1f a0                                                                                                                	m.s 	R6 = [FP + -16];;
+     184:	87 00 00 b4                                                                                                                	m.s 	R7 = R4;;
+     188:	c5 14 14 91                                                                                                                	m.s 	R5 = R6 - R5 (S) (T);;
+     18c:	80 00 02 b4                                                                                                                	m.s 	J0 = R4;;
+     190:	05 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R5;;
+     194:	84 b3 1f a0                                                                                                                	m.s 	R4 = [FP + -20];;
+     198:	85 d3 1f a0                                                                                                                	m.s 	R5 = [FP + -12];;
+     19c:	86 93 1f a0                                                                                                                	m.s 	R6 = [FP + -28];;
+     1a0:	a4 10 14 91                                                                                                                	m.s 	R4 = R5 - R4 (S) (T);;
+     1a4:	c0 00 02 b4                                                                                                                	m.s 	J0 = R6;;
+     1a8:	04 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R4;;
+     1ac:	80 83 1f a8                                                                                                                	m.s 	[FP + -32] = R0;;
+     1b0:	81 73 1f a8                                                                                                                	m.s 	[FP + -36] = R1;;
+     1b4:	83 63 1f a8                                                                                                                	m.s 	[FP + -40] = R3;;
+     1b8:	87 53 1f a8                                                                                                                	m.s 	[FP + -44] = R7;;
+     1bc:	82 43 1f a8                                                                                                                	m.s 	[FP + -48] = R2;;
+     1c0:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     1c4:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     1c8:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     1cc:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+Wn_i:
+     1d0:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+     1d4:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+     1d8:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+     1dc:	1f f2 c2 b0                                                                                                                	m.s 	J31 = -112;;
+     1e0:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+     1e4:	90 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R16;;
+     1e8:	91 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R17;;
+     1ec:	92 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R18;;
+     1f0:	93 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R19;;
+     1f4:	94 93 1f a8                                                                                                                	m.s 	[FP + -28] = R20;;
+     1f8:	95 83 1f a8                                                                                                                	m.s 	[FP + -32] = R21;;
+     1fc:	96 73 1f a8                                                                                                                	m.s 	[FP + -36] = R22;;
+     200:	97 63 1f a8                                                                                                                	m.s 	[FP + -40] = R23;;
+     204:	98 53 1f a8                                                                                                                	m.s 	[FP + -44] = R24;;
+     208:	99 43 1f a8                                                                                                                	m.s 	[FP + -48] = R25;;
+     20c:	88 33 1f a8                                                                                                                	m.s 	[FP + -52] = R8;;
+     210:	89 23 1f a8                                                                                                                	m.s 	[FP + -56] = R9;;
+     214:	8a 13 1f a8                                                                                                                	m.s 	[FP + -60] = R10;;
+     218:	8b 03 1f a8                                                                                                                	m.s 	[FP + -64] = R11;;
+     21c:	8c f3 1e a8                                                                                                                	m.s 	[FP + -68] = R12;;
+     220:	8d e3 1e a8                                                                                                                	m.s 	[FP + -72] = R13;;
+     224:	8e d3 1e a8                                                                                                                	m.s 	[FP + -76] = R14;;
+     228:	80 c3 1e a8                                                                                                                	m.s 	[FP + -80] = R0;;
+     22c:	81 b3 1e a8                                                                                                                	m.s 	[FP + -84] = R1;;
+     230:	82 a3 1e a8                                                                                                                	m.s 	[FP + -88] = R2;;
+     234:	83 c3 1e a0                                                                                                                	m.s 	R3 = [FP + -80];;
+     238:	84 b3 1e a0                                                                                                                	m.s 	R4 = [FP + -84];;
+     23c:	00 01 c2 30 ca 00 00 d0                                                                                                    	m.s 	J0 = 3240;;
+     244:	01 00 c2 30 cb 00 00 d0                                                                                                    	m.s 	J1 = 3248;;
+     24c:	06 00 80 a0                                                                                                                	m.s 	DR3 = [J0 + 0];;
+     250:	68 00 80 92                                                                                                                	m.s 	DR4 = Double R3;;
+     254:	8a 00 80 92                                                                                                                	m.s 	DR5 = Double R4;;
+     258:	2c 00 80 a0                                                                                                                	m.s 	DR6 = [J1 + 0];;
+     25c:	00 01 c2 30 cb 00 00 d0                                                                                                    	m.s 	J0 = 3256;;
+     264:	01 00 c2 30 cc 00 00 d0                                                                                                    	m.s 	J1 = 3264;;
+     26c:	08 01 88 94                                                                                                                	m.s 	DR4 = RECIP DR4 (D);;
+     270:	46 19 8c 91                                                                                                                	m.s 	DR3 = DR5 * DR3 (D) (T);;
+     274:	0a 00 80 a0                                                                                                                	m.s 	DR5 = [J0 + 0];;
+     278:	8c 01 88 94                                                                                                                	m.s 	DR6 = RECIP DR6 (D);;
+     27c:	00 01 c2 30 cc 00 00 d0                                                                                                    	m.s 	J0 = 3272;;
+     284:	2e 00 80 a0                                                                                                                	m.s 	DR7 = [J1 + 0];;
+     288:	c6 20 8c 91                                                                                                                	m.s 	DR3 = DR3 * DR4 (D) (T);;
+     28c:	08 00 80 a0                                                                                                                	m.s 	DR4 = [J0 + 0];;
+     290:	4a 01 88 94                                                                                                                	m.s 	DR5 = RECIP DR5 (D);;
+     294:	00 00 c2 30 cd 00 00 d0                                                                                                    	m.s 	J0 = 3280;;
+     29c:	ce 01 88 94                                                                                                                	m.s 	DR7 = RECIP DR7 (D);;
+     2a0:	c3 00 08 92                                                                                                                	m.s 	R3 = Single DR3 (D);;
+     2a4:	06 00 80 a0                                                                                                                	m.s 	DR3 = [J0 + 0];;
+     2a8:	00 01 c2 30 cd 00 00 d0                                                                                                    	m.s 	J0 = 3288;;
+     2b0:	01 00 c2 30 ce 00 00 d0                                                                                                    	m.s 	J1 = 3296;;
+     2b8:	10 00 80 a0                                                                                                                	m.s 	DR8 = [J0 + 0];;
+     2bc:	64 0c 94 91                                                                                                                	m.s 	R4 = R3 * R3 (S) (T);;
+     2c0:	c6 00 88 94                                                                                                                	m.s 	DR3 = RECIP DR3 (D);;
+     2c4:	83 93 1e a8                                                                                                                	m.s 	[FP + -92] = R3;;
+     2c8:	32 00 80 a0                                                                                                                	m.s 	DR9 = [J1 + 0];;
+     2cc:	10 02 88 94                                                                                                                	m.s 	DR8 = RECIP DR8 (D);;
+     2d0:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     2d4:	00 01 c2 30 ce 00 00 d0                                                                                                    	m.s 	J0 = 3304;;
+     2dc:	94 00 90 92                                                                                                                	m.s 	DR10 = Double R4 (S);;
+     2e0:	16 00 80 a0                                                                                                                	m.s 	DR11 = [J0 + 0];;
+     2e4:	52 02 88 94                                                                                                                	m.s 	DR9 = RECIP DR9 (D);;
+     2e8:	00 00 c2 30 cf 00 00 d0                                                                                                    	m.s 	J0 = 3312;;
+     2f0:	a4 0c 94 91                                                                                                                	m.s 	R4 = R5 * R3 (S) (T);;
+     2f4:	18 00 80 a0                                                                                                                	m.s 	DR12 = [J0 + 0];;
+     2f8:	8c 32 8c 91                                                                                                                	m.s 	DR6 = DR10 * DR6 (D) (T);;
+     2fc:	00 01 c2 30 cf 00 00 d0                                                                                                    	m.s 	J0 = 3320;;
+     304:	d4 02 88 94                                                                                                                	m.s 	DR10 = RECIP DR11 (D);;
+     308:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     30c:	96 00 90 92                                                                                                                	m.s 	DR11 = Double R4 (S);;
+     310:	88 21 8c 90                                                                                                                	m.s 	DR4 = DR6 + DR4 (D) (T);;
+     314:	0c 00 80 a0                                                                                                                	m.s 	DR6 = [J0 + 0];;
+     318:	18 03 88 94                                                                                                                	m.s 	DR12 = RECIP DR12 (D);;
+     31c:	a4 0c 94 91                                                                                                                	m.s 	R4 = R5 * R3 (S) (T);;
+     320:	ca 2a 8c 91                                                                                                                	m.s 	DR5 = DR11 * DR5 (D) (T);;
+     324:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     328:	08 29 8c 90                                                                                                                	m.s 	DR4 = DR4 + DR5 (D) (T);;
+     32c:	8a 00 90 92                                                                                                                	m.s 	DR5 = Double R4 (S);;
+     330:	a3 0c 94 91                                                                                                                	m.s 	R3 = R5 * R3 (S) (T);;
+     334:	4a 39 8c 91                                                                                                                	m.s 	DR5 = DR5 * DR7 (D) (T);;
+     338:	6e 00 90 92                                                                                                                	m.s 	DR7 = Double R3 (S);;
+     33c:	08 29 8c 90                                                                                                                	m.s 	DR4 = DR4 + DR5 (D) (T);;
+     340:	c6 19 8c 91                                                                                                                	m.s 	DR3 = DR7 * DR3 (D) (T);;
+     344:	06 19 8c 90                                                                                                                	m.s 	DR3 = DR4 + DR3 (D) (T);;
+     348:	c3 00 08 92                                                                                                                	m.s 	R3 = Single DR3 (D);;
+     34c:	83 83 1e a8                                                                                                                	m.s 	[FP + -96] = R3;;
+     350:	84 a3 1e a0                                                                                                                	m.s 	R4 = [FP + -88];;
+     354:	80 00 02 b4                                                                                                                	m.s 	J0 = R4;;
+     358:	03 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R3;;
+     35c:	83 93 1e a0                                                                                                                	m.s 	R3 = [FP + -92];;
+     360:	64 0c 94 91                                                                                                                	m.s 	R4 = R3 * R3 (S) (T);;
+     364:	66 00 90 92                                                                                                                	m.s 	DR3 = Double R3 (S);;
+     368:	84 0c 94 91                                                                                                                	m.s 	R4 = R4 * R3 (S) (T);;
+     36c:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     370:	88 00 90 92                                                                                                                	m.s 	DR4 = Double R4 (S);;
+     374:	a4 0c 94 91                                                                                                                	m.s 	R4 = R5 * R3 (S) (T);;
+     378:	08 41 8c 91                                                                                                                	m.s 	DR4 = DR4 * DR8 (D) (T);;
+     37c:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     380:	c6 20 8c 90                                                                                                                	m.s 	DR3 = DR3 + DR4 (D) (T);;
+     384:	88 00 90 92                                                                                                                	m.s 	DR4 = Double R4 (S);;
+     388:	a4 0c 94 91                                                                                                                	m.s 	R4 = R5 * R3 (S) (T);;
+     38c:	08 49 8c 91                                                                                                                	m.s 	DR4 = DR4 * DR9 (D) (T);;
+     390:	85 0c 94 91                                                                                                                	m.s 	R5 = R4 * R3 (S) (T);;
+     394:	8a 00 90 92                                                                                                                	m.s 	DR5 = Double R4 (S);;
+     398:	c6 20 8c 90                                                                                                                	m.s 	DR3 = DR3 + DR4 (D) (T);;
+     39c:	a3 0c 94 91                                                                                                                	m.s 	R3 = R5 * R3 (S) (T);;
+     3a0:	48 51 8c 91                                                                                                                	m.s 	DR4 = DR5 * DR10 (D) (T);;
+     3a4:	6a 00 90 92                                                                                                                	m.s 	DR5 = Double R3 (S);;
+     3a8:	c6 20 8c 90                                                                                                                	m.s 	DR3 = DR3 + DR4 (D) (T);;
+     3ac:	48 61 8c 91                                                                                                                	m.s 	DR4 = DR5 * DR12 (D) (T);;
+     3b0:	c6 20 8c 90                                                                                                                	m.s 	DR3 = DR3 + DR4 (D) (T);;
+     3b4:	86 19 0c 91                                                                                                                	m.s 	DR3 = DR6 - DR3 (D) (T);;
+     3b8:	c3 00 08 92                                                                                                                	m.s 	R3 = Single DR3 (D);;
+     3bc:	83 73 1e a8                                                                                                                	m.s 	[FP + -100] = R3;;
+     3c0:	84 a3 1e a0                                                                                                                	m.s 	R4 = [FP + -88];;
+     3c4:	80 00 02 b4                                                                                                                	m.s 	J0 = R4;;
+     3c8:	03 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R3;;
+     3cc:	80 63 1e a8                                                                                                                	m.s 	[FP + -104] = R0;;
+     3d0:	82 53 1e a8                                                                                                                	m.s 	[FP + -108] = R2;;
+     3d4:	81 43 1e a8                                                                                                                	m.s 	[FP + -112] = R1;;
+     3d8:	8e d3 1e a0                                                                                                                	m.s 	R14 = [FP + -76];;
+     3dc:	8d e3 1e a0                                                                                                                	m.s 	R13 = [FP + -72];;
+     3e0:	8c f3 1e a0                                                                                                                	m.s 	R12 = [FP + -68];;
+     3e4:	8b 03 1f a0                                                                                                                	m.s 	R11 = [FP + -64];;
+     3e8:	8a 13 1f a0                                                                                                                	m.s 	R10 = [FP + -60];;
+     3ec:	89 23 1f a0                                                                                                                	m.s 	R9 = [FP + -56];;
+     3f0:	88 33 1f a0                                                                                                                	m.s 	R8 = [FP + -52];;
+     3f4:	99 43 1f a0                                                                                                                	m.s 	R25 = [FP + -48];;
+     3f8:	98 53 1f a0                                                                                                                	m.s 	R24 = [FP + -44];;
+     3fc:	97 63 1f a0                                                                                                                	m.s 	R23 = [FP + -40];;
+     400:	96 73 1f a0                                                                                                                	m.s 	R22 = [FP + -36];;
+     404:	95 83 1f a0                                                                                                                	m.s 	R21 = [FP + -32];;
+     408:	94 93 1f a0                                                                                                                	m.s 	R20 = [FP + -28];;
+     40c:	93 a3 1f a0                                                                                                                	m.s 	R19 = [FP + -24];;
+     410:	92 b3 1f a0                                                                                                                	m.s 	R18 = [FP + -20];;
+     414:	91 c3 1f a0                                                                                                                	m.s 	R17 = [FP + -16];;
+     418:	90 d3 1f a0                                                                                                                	m.s 	R16 = [FP + -12];;
+     41c:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     420:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     424:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     428:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+fft:
+     42c:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+     430:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+     434:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+     438:	1f f3 c2 b0                                                                                                                	m.s 	J31 = -104;;
+     43c:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+     440:	88 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R8;;
+     444:	80 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R0;;
+     448:	81 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R1;;
+     44c:	22 00 c0 b0                                                                                                                	m.s 	R2 = 1;;
+     450:	81 63 1f a8                                                                                                                	m.s 	[FP + -40] = R1;;
+     454:	82 03 1f a8                                                                                                                	m.s 	[FP + -64] = R2;;
+     458:	81 b3 1e a8                                                                                                                	m.s 	[FP + -84] = R1;;
+     45c:	80 a3 1e a8                                                                                                                	m.s 	[FP + -88] = R0;;
+     460:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_1:
+     464:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     468:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     46c:	02 7c e0 98                                                                                                                	m.s 	R2 = R0 >> 31 (U);;
+     470:	00 08 84 90                                                                                                                	m.s 	R0 = R0 + R2 (T);;
+     474:	00 04 c0 98                                                                                                                	m.s 	R0 = R0 >> 1;;
+     478:	01 04 00 9c                                                                                                                	m.s 	R1 = R0 == R1;;
+     47c:	80 63 1f a8                                                                                                                	m.s 	[FP + -40] = R0;;
+     480:	01 04 c0 84                                                                                                                	m.s 	if R1, jump 32;;
+     484:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_2:
+     488:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_3:
+     48c:	80 03 1f a0                                                                                                                	m.s 	R0 = [FP + -64];;
+     490:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     494:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     498:	80 03 1f a8                                                                                                                	m.s 	[FP + -64] = R0;;
+     49c:	00 f9 7f 84                                                                                                                	m.s 	jump -56;;
+
+.LBB4_4:
+     4a0:	20 00 c0 b0                                                                                                                	m.s 	R0 = 1;;
+     4a4:	80 63 1f a8                                                                                                                	m.s 	[FP + -40] = R0;;
+     4a8:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     4ac:	01 7c e0 98                                                                                                                	m.s 	R1 = R0 >> 31 (U);;
+     4b0:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     4b4:	00 04 c0 98                                                                                                                	m.s 	R0 = R0 >> 1;;
+     4b8:	80 53 1f a8                                                                                                                	m.s 	[FP + -44] = R0;;
+     4bc:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_5:
+     4c0:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     4c4:	81 63 1f a0                                                                                                                	m.s 	R1 = [FP + -40];;
+     4c8:	c2 ff c0 b0                                                                                                                	m.s 	R2 = -2;;
+     4cc:	00 08 84 90                                                                                                                	m.s 	R0 = R0 + R2 (T);;
+     4d0:	20 00 00 9d                                                                                                                	m.s 	R0 = R1 > R0;;
+     4d4:	00 25 c0 84                                                                                                                	m.s 	if R0, jump 296;;
+     4d8:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_6:
+     4dc:	80 53 1f a0                                                                                                                	m.s 	R0 = [FP + -44];;
+     4e0:	81 63 1f a0                                                                                                                	m.s 	R1 = [FP + -40];;
+     4e4:	20 00 80 9d                                                                                                                	m.s 	R0 = R1 >= R0;;
+     4e8:	00 13 c0 84                                                                                                                	m.s 	if R0, jump 152;;
+     4ec:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_7:
+     4f0:	80 53 1f a0                                                                                                                	m.s 	R0 = [FP + -44];;
+     4f4:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     4f8:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     4fc:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     500:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     504:	01 10 00 a0                                                                                                                	m.s 	R1 = [J0 + 4];;
+     508:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     50c:	00 00 00 a0                                                                                                                	m.s 	R0 = [J0 + 0];;
+     510:	81 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R1;;
+     514:	80 93 1f a8                                                                                                                	m.s 	[FP + -28] = R0;;
+     518:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     51c:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     520:	82 53 1f a0                                                                                                                	m.s 	R2 = [FP + -44];;
+     524:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     528:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     52c:	42 0c 40 98                                                                                                                	m.s 	R2 = R2 << 3;;
+     530:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     534:	03 10 00 a0                                                                                                                	m.s 	R3 = [J0 + 4];;
+     538:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     53c:	00 00 00 a0                                                                                                                	m.s 	R0 = [J0 + 0];;
+     540:	21 08 84 90                                                                                                                	m.s 	R1 = R1 + R2 (T);;
+     544:	20 00 02 b4                                                                                                                	m.s 	J0 = R1;;
+     548:	03 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R3;;
+     54c:	20 00 02 b4                                                                                                                	m.s 	J0 = R1;;
+     550:	00 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R0;;
+     554:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     558:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     55c:	82 a3 1f a0                                                                                                                	m.s 	R2 = [FP + -24];;
+     560:	83 93 1f a0                                                                                                                	m.s 	R3 = [FP + -28];;
+     564:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     568:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     56c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     570:	02 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R2;;
+     574:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     578:	03 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R3;;
+     57c:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_8:
+     580:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     584:	01 7c e0 98                                                                                                                	m.s 	R1 = R0 >> 31 (U);;
+     588:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     58c:	00 04 c0 98                                                                                                                	m.s 	R0 = R0 >> 1;;
+     590:	80 43 1f a8                                                                                                                	m.s 	[FP + -48] = R0;;
+     594:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_9:
+     598:	80 53 1f a0                                                                                                                	m.s 	R0 = [FP + -44];;
+     59c:	81 43 1f a0                                                                                                                	m.s 	R1 = [FP + -48];;
+     5a0:	20 00 00 9d                                                                                                                	m.s 	R0 = R1 > R0;;
+     5a4:	00 06 c0 84                                                                                                                	m.s 	if R0, jump 48;;
+     5a8:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_10:
+     5ac:	80 43 1f a0                                                                                                                	m.s 	R0 = [FP + -48];;
+     5b0:	81 53 1f a0                                                                                                                	m.s 	R1 = [FP + -44];;
+     5b4:	20 00 04 91                                                                                                                	m.s 	R0 = R1 - R0 (T);;
+     5b8:	80 53 1f a8                                                                                                                	m.s 	[FP + -44] = R0;;
+     5bc:	80 43 1f a0                                                                                                                	m.s 	R0 = [FP + -48];;
+     5c0:	01 7c e0 98                                                                                                                	m.s 	R1 = R0 >> 31 (U);;
+     5c4:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     5c8:	00 04 c0 98                                                                                                                	m.s 	R0 = R0 >> 1;;
+     5cc:	80 43 1f a8                                                                                                                	m.s 	[FP + -48] = R0;;
+     5d0:	00 f9 7f 84                                                                                                                	m.s 	jump -56;;
+
+.LBB4_11:
+     5d4:	80 43 1f a0                                                                                                                	m.s 	R0 = [FP + -48];;
+     5d8:	81 53 1f a0                                                                                                                	m.s 	R1 = [FP + -44];;
+     5dc:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     5e0:	80 53 1f a8                                                                                                                	m.s 	[FP + -44] = R0;;
+     5e4:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_12:
+     5e8:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     5ec:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     5f0:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     5f4:	80 63 1f a8                                                                                                                	m.s 	[FP + -40] = R0;;
+     5f8:	00 d9 7f 84                                                                                                                	m.s 	jump -312;;
+
+.LBB4_13:
+     5fc:	20 00 c0 b0                                                                                                                	m.s 	R0 = 1;;
+     600:	80 23 1f a8                                                                                                                	m.s 	[FP + -56] = R0;;
+     604:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_14:
+     608:	80 03 1f a0                                                                                                                	m.s 	R0 = [FP + -64];;
+     60c:	81 23 1f a0                                                                                                                	m.s 	R1 = [FP + -56];;
+     610:	20 00 00 9d                                                                                                                	m.s 	R0 = R1 > R0;;
+     614:	80 60 c0 84                                                                                                                	m.s 	if R0, jump 772;;
+     618:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_15:
+     61c:	80 23 1f a0                                                                                                                	m.s 	R0 = [FP + -56];;
+     620:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     624:	20 00 00 98                                                                                                                	m.s 	R0 = R1 << R0;;
+     628:	02 7c e0 98                                                                                                                	m.s 	R2 = R0 >> 31 (U);;
+     62c:	80 e3 1e a8                                                                                                                	m.s 	[FP + -72] = R0;;
+     630:	00 08 84 90                                                                                                                	m.s 	R0 = R0 + R2 (T);;
+     634:	00 04 c0 98                                                                                                                	m.s 	R0 = R0 >> 1;;
+     638:	80 d3 1e a8                                                                                                                	m.s 	[FP + -76] = R0;;
+     63c:	81 33 1f a8                                                                                                                	m.s 	[FP + -52] = R1;;
+     640:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_16:
+     644:	80 d3 1e a0                                                                                                                	m.s 	R0 = [FP + -76];;
+     648:	81 33 1f a0                                                                                                                	m.s 	R1 = [FP + -52];;
+     64c:	20 00 00 9d                                                                                                                	m.s 	R0 = R1 > R0;;
+     650:	00 56 c0 84                                                                                                                	m.s 	if R0, jump 688;;
+     654:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_17:
+     658:	80 23 1f a0                                                                                                                	m.s 	R0 = [FP + -56];;
+     65c:	81 03 1f a0                                                                                                                	m.s 	R1 = [FP + -64];;
+     660:	82 33 1f a0                                                                                                                	m.s 	R2 = [FP + -52];;
+     664:	e3 ff c0 b0                                                                                                                	m.s 	R3 = -1;;
+     668:	24 00 c0 b0                                                                                                                	m.s 	R4 = 1;;
+     66c:	20 00 04 91                                                                                                                	m.s 	R0 = R1 - R0 (T);;
+     670:	41 0c 84 90                                                                                                                	m.s 	R1 = R2 + R3 (T);;
+     674:	80 00 00 98                                                                                                                	m.s 	R0 = R4 << R0;;
+     678:	20 00 84 91                                                                                                                	m.s 	R0 = R1 * R0 (T);;
+     67c:	00 00 00 92                                                                                                                	m.s 	R0 = Single R0;;
+     680:	80 f3 1e a8                                                                                                                	m.s 	[FP + -68] = R0;;
+     684:	80 33 1f a0                                                                                                                	m.s 	R0 = [FP + -52];;
+     688:	00 0c 84 90                                                                                                                	m.s 	R0 = R0 + R3 (T);;
+     68c:	80 13 1f a8                                                                                                                	m.s 	[FP + -60] = R0;;
+     690:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_18:
+     694:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     698:	81 13 1f a0                                                                                                                	m.s 	R1 = [FP + -60];;
+     69c:	e2 ff c0 b0                                                                                                                	m.s 	R2 = -1;;
+     6a0:	00 08 84 90                                                                                                                	m.s 	R0 = R0 + R2 (T);;
+     6a4:	20 00 80 9d                                                                                                                	m.s 	R0 = R1 >= R0;;
+     6a8:	00 48 c0 84                                                                                                                	m.s 	if R0, jump 576;;
+     6ac:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_19:
+     6b0:	80 d3 1e a0                                                                                                                	m.s 	R0 = [FP + -76];;
+     6b4:	9f fb c2 b0                                                                                                                	m.s 	J31 = -36;;
+     6b8:	80 7f 06 b2                                                                                                                	m.s 	J0 = FP + J31;;
+     6bc:	81 13 1f a0                                                                                                                	m.s 	R1 = [FP + -60];;
+     6c0:	9f fc c2 b0                                                                                                                	m.s 	J31 = -28;;
+     6c4:	81 7f 06 b2                                                                                                                	m.s 	J1 = FP + J31;;
+     6c8:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     6cc:	80 c3 1e a8                                                                                                                	m.s 	[FP + -80] = R0;;
+     6d0:	80 f3 1e a0                                                                                                                	m.s 	R0 = [FP + -68];;
+     6d4:	81 b3 1f a0                                                                                                                	m.s 	R1 = [FP + -20];;
+     6d8:	00 00 10 93                                                                                                                	m.s 	R0 = Int R0 (S);;
+     6dc:	80 93 1e a8                                                                                                                	m.s 	[FP + -92] = R0;;
+     6e0:	20 00 00 b4                                                                                                                	m.s 	R0 = R1;;
+     6e4:	81 93 1e a0                                                                                                                	m.s 	R1 = [FP + -92];;
+     6e8:	02 00 04 b4                                                                                                                	m.s 	R2 = J0;;
+     6ec:	81 83 5e a8                                                                                                                	m.s 	[FP + -96] = J1;;
+     6f0:	00 5c 7f 88                                                                                                                	m.s 	call -1312;;
+     6f4:	80 c3 1e a0                                                                                                                	m.s 	R0 = [FP + -80];;
+     6f8:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     6fc:	83 83 1f a0                                                                                                                	m.s 	R3 = [FP + -32];;
+     700:	82 73 1f a0                                                                                                                	m.s 	R2 = [FP + -36];;
+     704:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     708:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     70c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     710:	01 0c 00 a5                                                                                                                	m.s 	R1 = [J0 + 3] (B) (U);;
+     714:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     718:	04 1c 00 a5                                                                                                                	m.s 	R4 = [J0 + 7] (B) (U);;
+     71c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     720:	05 14 00 a5                                                                                                                	m.s 	R5 = [J0 + 5] (B) (U);;
+     724:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     728:	06 18 00 a5                                                                                                                	m.s 	R6 = [J0 + 6] (B) (U);;
+     72c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     730:	07 08 00 a5                                                                                                                	m.s 	R7 = [J0 + 2] (B) (U);;
+     734:	21 20 40 98                                                                                                                	m.s 	R1 = R1 << 8;;
+     738:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     73c:	0f 04 00 a5                                                                                                                	m.s 	R15 = [J0 + 1] (B) (U);;
+     740:	84 20 40 98                                                                                                                	m.s 	R4 = R4 << 8;;
+     744:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     748:	08 10 00 a5                                                                                                                	m.s 	R8 = [J0 + 4] (B) (U);;
+     74c:	21 1c 80 9a                                                                                                                	m.s 	R1 = R1 | R7;;
+     750:	84 18 80 9a                                                                                                                	m.s 	R4 = R4 | R6;;
+     754:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     758:	00 00 00 a5                                                                                                                	m.s 	R0 = [J0 + 0] (B) (U);;
+     75c:	a5 20 40 98                                                                                                                	m.s 	R5 = R5 << 8;;
+     760:	e6 21 40 98                                                                                                                	m.s 	R6 = R15 << 8;;
+     764:	a5 20 80 9a                                                                                                                	m.s 	R5 = R5 | R8;;
+     768:	21 40 40 98                                                                                                                	m.s 	R1 = R1 << 16;;
+     76c:	c0 00 80 9a                                                                                                                	m.s 	R0 = R6 | R0;;
+     770:	84 40 40 98                                                                                                                	m.s 	R4 = R4 << 16;;
+     774:	20 00 80 9a                                                                                                                	m.s 	R0 = R1 | R0;;
+     778:	81 14 80 9a                                                                                                                	m.s 	R1 = R4 | R5;;
+     77c:	80 83 5e a0                                                                                                                	m.s 	J0 = [FP + -96];;
+     780:	04 00 04 b4                                                                                                                	m.s 	R4 = J0;;
+     784:	80 25 7f 88                                                                                                                	m.s 	call -1748;;
+     788:	80 13 1f a0                                                                                                                	m.s 	R0 = [FP + -60];;
+     78c:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     790:	82 c3 1e a0                                                                                                                	m.s 	R2 = [FP + -80];;
+     794:	83 93 1f a0                                                                                                                	m.s 	R3 = [FP + -28];;
+     798:	84 a3 1f a0                                                                                                                	m.s 	R4 = [FP + -24];;
+     79c:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     7a0:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     7a4:	42 0c 40 98                                                                                                                	m.s 	R2 = R2 << 3;;
+     7a8:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7ac:	05 0c 00 a5                                                                                                                	m.s 	R5 = [J0 + 3] (B) (U);;
+     7b0:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7b4:	06 1c 00 a5                                                                                                                	m.s 	R6 = [J0 + 7] (B) (U);;
+     7b8:	21 08 84 90                                                                                                                	m.s 	R1 = R1 + R2 (T);;
+     7bc:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7c0:	02 14 00 a5                                                                                                                	m.s 	R2 = [J0 + 5] (B) (U);;
+     7c4:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7c8:	07 18 00 a5                                                                                                                	m.s 	R7 = [J0 + 6] (B) (U);;
+     7cc:	a5 20 40 98                                                                                                                	m.s 	R5 = R5 << 8;;
+     7d0:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7d4:	0f 04 00 a5                                                                                                                	m.s 	R15 = [J0 + 1] (B) (U);;
+     7d8:	c6 20 40 98                                                                                                                	m.s 	R6 = R6 << 8;;
+     7dc:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7e0:	08 08 00 a5                                                                                                                	m.s 	R8 = [J0 + 2] (B) (U);;
+     7e4:	c6 1c 80 9a                                                                                                                	m.s 	R6 = R6 | R7;;
+     7e8:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7ec:	07 10 00 a5                                                                                                                	m.s 	R7 = [J0 + 4] (B) (U);;
+     7f0:	42 20 40 98                                                                                                                	m.s 	R2 = R2 << 8;;
+     7f4:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     7f8:	00 00 00 a5                                                                                                                	m.s 	R0 = [J0 + 0] (B) (U);;
+     7fc:	a5 20 80 9a                                                                                                                	m.s 	R5 = R5 | R8;;
+     800:	ef 21 40 98                                                                                                                	m.s 	R15 = R15 << 8;;
+     804:	42 1c 80 9a                                                                                                                	m.s 	R2 = R2 | R7;;
+     808:	a5 40 40 98                                                                                                                	m.s 	R5 = R5 << 16;;
+     80c:	e0 01 80 9a                                                                                                                	m.s 	R0 = R15 | R0;;
+     810:	c6 40 40 98                                                                                                                	m.s 	R6 = R6 << 16;;
+     814:	a0 00 80 9a                                                                                                                	m.s 	R0 = R5 | R0;;
+     818:	c2 08 80 9a                                                                                                                	m.s 	R2 = R6 | R2;;
+     81c:	81 73 1e a8                                                                                                                	m.s 	[FP + -100] = R1;;
+     820:	41 00 00 b4                                                                                                                	m.s 	R1 = R2;;
+     824:	62 00 00 b4                                                                                                                	m.s 	R2 = R3;;
+     828:	83 00 00 b4                                                                                                                	m.s 	R3 = R4;;
+     82c:	84 73 1e a0                                                                                                                	m.s 	R4 = [FP + -100];;
+     830:	80 24 7f 88                                                                                                                	m.s 	call -1756;;
+     834:	80 13 1f a0                                                                                                                	m.s 	R0 = [FP + -60];;
+     838:	81 c3 1f a0                                                                                                                	m.s 	R1 = [FP + -16];;
+     83c:	83 a3 1f a0                                                                                                                	m.s 	R3 = [FP + -24];;
+     840:	82 93 1f a0                                                                                                                	m.s 	R2 = [FP + -28];;
+     844:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     848:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     84c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     850:	01 0c 00 a5                                                                                                                	m.s 	R1 = [J0 + 3] (B) (U);;
+     854:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     858:	04 1c 00 a5                                                                                                                	m.s 	R4 = [J0 + 7] (B) (U);;
+     85c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     860:	05 14 00 a5                                                                                                                	m.s 	R5 = [J0 + 5] (B) (U);;
+     864:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     868:	06 18 00 a5                                                                                                                	m.s 	R6 = [J0 + 6] (B) (U);;
+     86c:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     870:	07 08 00 a5                                                                                                                	m.s 	R7 = [J0 + 2] (B) (U);;
+     874:	21 20 40 98                                                                                                                	m.s 	R1 = R1 << 8;;
+     878:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     87c:	0f 04 00 a5                                                                                                                	m.s 	R15 = [J0 + 1] (B) (U);;
+     880:	84 20 40 98                                                                                                                	m.s 	R4 = R4 << 8;;
+     884:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     888:	08 10 00 a5                                                                                                                	m.s 	R8 = [J0 + 4] (B) (U);;
+     88c:	21 1c 80 9a                                                                                                                	m.s 	R1 = R1 | R7;;
+     890:	84 18 80 9a                                                                                                                	m.s 	R4 = R4 | R6;;
+     894:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     898:	06 00 00 a5                                                                                                                	m.s 	R6 = [J0 + 0] (B) (U);;
+     89c:	a5 20 40 98                                                                                                                	m.s 	R5 = R5 << 8;;
+     8a0:	e7 21 40 98                                                                                                                	m.s 	R7 = R15 << 8;;
+     8a4:	a5 20 80 9a                                                                                                                	m.s 	R5 = R5 | R8;;
+     8a8:	21 40 40 98                                                                                                                	m.s 	R1 = R1 << 16;;
+     8ac:	e6 18 80 9a                                                                                                                	m.s 	R6 = R7 | R6;;
+     8b0:	84 40 40 98                                                                                                                	m.s 	R4 = R4 << 16;;
+     8b4:	21 18 80 9a                                                                                                                	m.s 	R1 = R1 | R6;;
+     8b8:	84 14 80 9a                                                                                                                	m.s 	R4 = R4 | R5;;
+     8bc:	80 63 1e a8                                                                                                                	m.s 	[FP + -104] = R0;;
+     8c0:	20 00 00 b4                                                                                                                	m.s 	R0 = R1;;
+     8c4:	81 00 00 b4                                                                                                                	m.s 	R1 = R4;;
+     8c8:	84 63 1e a0                                                                                                                	m.s 	R4 = [FP + -104];;
+     8cc:	00 ed 7e 88                                                                                                                	m.s 	call -2200;;
+     8d0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_20:
+     8d4:	80 e3 1e a0                                                                                                                	m.s 	R0 = [FP + -72];;
+     8d8:	81 13 1f a0                                                                                                                	m.s 	R1 = [FP + -60];;
+     8dc:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     8e0:	80 13 1f a8                                                                                                                	m.s 	[FP + -60] = R0;;
+     8e4:	00 b6 7f 84                                                                                                                	m.s 	jump -592;;
+
+.LBB4_21:
+     8e8:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_22:
+     8ec:	80 33 1f a0                                                                                                                	m.s 	R0 = [FP + -52];;
+     8f0:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     8f4:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     8f8:	80 33 1f a8                                                                                                                	m.s 	[FP + -52] = R0;;
+     8fc:	00 a9 7f 84                                                                                                                	m.s 	jump -696;;
+
+.LBB4_23:
+     900:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB4_24:
+     904:	80 23 1f a0                                                                                                                	m.s 	R0 = [FP + -56];;
+     908:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     90c:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     910:	80 23 1f a8                                                                                                                	m.s 	[FP + -56] = R0;;
+     914:	80 9e 7f 84                                                                                                                	m.s 	jump -780;;
+
+.LBB4_25:
+     918:	88 d3 1f a0                                                                                                                	m.s 	R8 = [FP + -12];;
+     91c:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     920:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     924:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     928:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+main:
+     92c:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+     930:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+     934:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+     938:	1f f5 c2 b0                                                                                                                	m.s 	J31 = -88;;
+     93c:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+     940:	00 00 c0 b0                                                                                                                	m.s 	R0 = 0;;
+     944:	01 08 c0 b0                                                                                                                	m.s 	R1 = 64;;
+     948:	80 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R0;;
+     94c:	81 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R1;;
+     950:	01 00 c0 30 00 00 04 d0                                                                                                    	m.s 	R1 = 4194304;;
+     958:	02 00 c0 30 00 00 06 d0                                                                                                    	m.s 	R2 = 6291456;;
+     960:	81 13 1f a8                                                                                                                	m.s 	[FP + -60] = R1;;
+     964:	82 03 1f a8                                                                                                                	m.s 	[FP + -64] = R2;;
+     968:	01 00 c0 30 00 00 08 d0                                                                                                    	m.s 	R1 = 8388608;;
+     970:	02 00 c0 30 00 00 0a d0                                                                                                    	m.s 	R2 = 10485760;;
+     978:	81 f3 1e a8                                                                                                                	m.s 	[FP + -68] = R1;;
+     97c:	82 e3 1e a8                                                                                                                	m.s 	[FP + -72] = R2;;
+     980:	01 00 c0 30 00 00 0c d0                                                                                                    	m.s 	R1 = 12582912;;
+     988:	02 00 c0 30 00 00 0e d0                                                                                                    	m.s 	R2 = 14680064;;
+     990:	81 d3 1e a8                                                                                                                	m.s 	[FP + -76] = R1;;
+     994:	82 c3 1e a8                                                                                                                	m.s 	[FP + -80] = R2;;
+     998:	80 83 1f a8                                                                                                                	m.s 	[FP + -32] = R0;;
+     99c:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_1:
+     9a0:	80 83 1f a0                                                                                                                	m.s 	R0 = [FP + -32];;
+     9a4:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     9a8:	00 04 00 9d                                                                                                                	m.s 	R0 = R0 > R1;;
+     9ac:	80 29 c0 84                                                                                                                	m.s 	if R0, jump 332;;
+     9b0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_2:
+     9b4:	00 00 c0 b0                                                                                                                	m.s 	R0 = 0;;
+     9b8:	80 73 1f a8                                                                                                                	m.s 	[FP + -36] = R0;;
+     9bc:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_3:
+     9c0:	80 73 1f a0                                                                                                                	m.s 	R0 = [FP + -36];;
+     9c4:	e1 03 c0 b0                                                                                                                	m.s 	R1 = 31;;
+     9c8:	00 04 00 9d                                                                                                                	m.s 	R0 = R0 > R1;;
+     9cc:	80 22 c0 84                                                                                                                	m.s 	if R0, jump 276;;
+     9d0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_4:
+     9d4:	80 73 1f a0                                                                                                                	m.s 	R0 = [FP + -36];;
+     9d8:	81 83 1f a0                                                                                                                	m.s 	R1 = [FP + -32];;
+     9dc:	82 13 1f a0                                                                                                                	m.s 	R2 = [FP + -60];;
+     9e0:	03 00 c0 b0                                                                                                                	m.s 	R3 = 0;;
+     9e4:	00 30 40 98                                                                                                                	m.s 	R0 = R0 << 12;;
+     9e8:	21 44 40 98                                                                                                                	m.s 	R1 = R1 << 17;;
+     9ec:	40 00 84 90                                                                                                                	m.s 	R0 = R2 + R0 (T);;
+     9f0:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     9f4:	80 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R0;;
+     9f8:	80 83 1f a0                                                                                                                	m.s 	R0 = [FP + -32];;
+     9fc:	00 0c 80 9c                                                                                                                	m.s 	R0 = R0 != R3;;
+     a00:	00 04 c0 84                                                                                                                	m.s 	if R0, jump 32;;
+     a04:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_5:
+     a08:	80 73 1f a0                                                                                                                	m.s 	R0 = [FP + -36];;
+     a0c:	81 d3 1e a0                                                                                                                	m.s 	R1 = [FP + -76];;
+     a10:	00 34 40 98                                                                                                                	m.s 	R0 = R0 << 13;;
+     a14:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     a18:	80 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R0;;
+     a1c:	80 03 40 84                                                                                                                	m.s 	jump 28;;
+
+.LBB5_6:
+     a20:	80 73 1f a0                                                                                                                	m.s 	R0 = [FP + -36];;
+     a24:	81 c3 1e a0                                                                                                                	m.s 	R1 = [FP + -80];;
+     a28:	00 34 40 98                                                                                                                	m.s 	R0 = R0 << 13;;
+     a2c:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     a30:	80 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R0;;
+     a34:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_7:
+     a38:	00 00 c0 b0                                                                                                                	m.s 	R0 = 0;;
+     a3c:	80 63 1f a8                                                                                                                	m.s 	[FP + -40] = R0;;
+     a40:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_8:
+     a44:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     a48:	e1 7f c0 b0                                                                                                                	m.s 	R1 = 1023;;
+     a4c:	00 04 00 9d                                                                                                                	m.s 	R0 = R0 > R1;;
+     a50:	00 0d c0 84                                                                                                                	m.s 	if R0, jump 104;;
+     a54:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_9:
+     a58:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     a5c:	81 a3 1f a0                                                                                                                	m.s 	R1 = [FP + -24];;
+     a60:	82 b3 1f a0                                                                                                                	m.s 	R2 = [FP + -20];;
+     a64:	03 00 c0 b0                                                                                                                	m.s 	R3 = 0;;
+     a68:	04 08 40 98                                                                                                                	m.s 	R4 = R0 << 2;;
+     a6c:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     a70:	21 10 84 90                                                                                                                	m.s 	R1 = R1 + R4 (T);;
+     a74:	40 00 84 90                                                                                                                	m.s 	R0 = R2 + R0 (T);;
+     a78:	20 00 02 b4                                                                                                                	m.s 	J0 = R1;;
+     a7c:	01 00 00 a0                                                                                                                	m.s 	R1 = [J0 + 0];;
+     a80:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     a84:	01 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R1;;
+     a88:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     a8c:	81 b3 1f a0                                                                                                                	m.s 	R1 = [FP + -20];;
+     a90:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     a94:	20 00 84 90                                                                                                                	m.s 	R0 = R1 + R0 (T);;
+     a98:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     a9c:	03 10 00 a8                                                                                                                	m.s 	[J0 + 4] = R3;;
+     aa0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_10:
+     aa4:	80 63 1f a0                                                                                                                	m.s 	R0 = [FP + -40];;
+     aa8:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     aac:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     ab0:	80 63 1f a8                                                                                                                	m.s 	[FP + -40] = R0;;
+     ab4:	00 f2 7f 84                                                                                                                	m.s 	jump -112;;
+
+.LBB5_11:
+     ab8:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     abc:	01 00 c0 30 40 00 00 d0                                                                                                    	m.s 	R1 = 1024;;
+     ac4:	00 2d 7f 88                                                                                                                	m.s 	call -1688;;
+     ac8:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_12:
+     acc:	80 73 1f a0                                                                                                                	m.s 	R0 = [FP + -36];;
+     ad0:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     ad4:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     ad8:	80 73 1f a8                                                                                                                	m.s 	[FP + -36] = R0;;
+     adc:	80 dc 7f 84                                                                                                                	m.s 	jump -284;;
+
+.LBB5_13:
+     ae0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB5_14:
+     ae4:	80 83 1f a0                                                                                                                	m.s 	R0 = [FP + -32];;
+     ae8:	21 00 c0 b0                                                                                                                	m.s 	R1 = 1;;
+     aec:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     af0:	80 83 1f a8                                                                                                                	m.s 	[FP + -32] = R0;;
+     af4:	80 d5 7f 84                                                                                                                	m.s 	jump -340;;
+
+.LBB5_15:
+     af8:	00 00 c0 b0                                                                                                                	m.s 	R0 = 0;;
+     afc:	80 b3 1e a8                                                                                                                	m.s 	[FP + -84] = R0;;
+     b00:	00 00 40 08 02 00 00 d0                                                                                                    	m.s 	call 32;;
+     b08:	01 00 c0 c0                                                                                                                	m.s 	CallM 0 (B);;
+     b0c:	80 b3 1e a0                                                                                                                	m.s 	R0 = [FP + -84];;
+     b10:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     b14:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     b18:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     b1c:	c0 03 00 84                                                                                                                	m.s 	jump J30;;
+
+load_mcode:
+     b20:	bc f3 5f a8                                                                                                                	m.s 	[SP + -4] = FP;;
+     b24:	be e3 5f a8                                                                                                                	m.s 	[SP + -8] = J30;;
+     b28:	bc 03 06 b4                                                                                                                	m.s 	FP = SP;;
+     b2c:	1f fc c2 b0                                                                                                                	m.s 	J31 = -32;;
+     b30:	bd 7f 06 b2                                                                                                                	m.s 	SP = SP + J31;;
+     b34:	00 00 c2 30 d0 00 00 d0                                                                                                    	m.s 	J0 = 3328;;
+     b3c:	80 d3 1f a8                                                                                                                	m.s 	[FP + -12] = R0;;
+     b40:	01 00 00 b4                                                                                                                	m.s 	R1 = R0;;
+     b44:	02 00 00 a0                                                                                                                	m.s 	R2 = [J0 + 0];;
+     b48:	40 00 80 9c                                                                                                                	m.s 	R0 = R2 != R0;;
+     b4c:	81 a3 1f a8                                                                                                                	m.s 	[FP + -24] = R1;;
+     b50:	80 01 c0 84                                                                                                                	m.s 	if R0, jump 12;;
+     b54:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_1:
+     b58:	80 27 40 84                                                                                                                	m.s 	jump 316;;
+
+.LBB0_2:
+     b5c:	80 d3 1f a0                                                                                                                	m.s 	R0 = [FP + -12];;
+     b60:	00 00 c2 30 d0 00 00 d0                                                                                                    	m.s 	J0 = 3328;;
+     b68:	81 00 c2 30 d0 00 00 d0                                                                                                    	m.s 	J1 = 3332;;
+     b70:	e1 ff c0 b0                                                                                                                	m.s 	R1 = -1;;
+     b74:	00 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R0;;
+     b78:	20 00 00 a0                                                                                                                	m.s 	R0 = [J1 + 0];;
+     b7c:	00 04 80 9c                                                                                                                	m.s 	R0 = R0 != R1;;
+     b80:	80 06 c0 84                                                                                                                	m.s 	if R0, jump 52;;
+     b84:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_3:
+     b88:	60 03 00 b9                                                                                                                	m.s 	R0 = CH[ 27 ];;
+     b8c:	80 00 c2 30 d0 00 00 d0                                                                                                    	m.s 	J0 = 3332;;
+     b94:	01 1c 40 98                                                                                                                	m.s 	R1 = R0 << 7;;
+     b98:	00 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R0;;
+     b9c:	00 01 c2 30 d0 00 00 d0                                                                                                    	m.s 	J0 = 3336;;
+     ba4:	00 00 00 a0                                                                                                                	m.s 	R0 = [J0 + 0];;
+     ba8:	00 04 84 90                                                                                                                	m.s 	R0 = R0 + R1 (T);;
+     bac:	00 00 00 a8                                                                                                                	m.s 	[J0 + 0] = R0;;
+     bb0:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_4:
+     bb4:	80 d3 1f a0                                                                                                                	m.s 	R0 = [FP + -12];;
+     bb8:	00 01 c2 30 d0 00 00 d0                                                                                                    	m.s 	J0 = 3336;;
+     bc0:	01 00 c0 30 00 00 02 d0                                                                                                    	m.s 	R1 = 2097152;;
+     bc8:	02 00 00 a0                                                                                                                	m.s 	R2 = [J0 + 0];;
+     bcc:	23 05 c0 b0                                                                                                                	m.s 	R3 = 41;;
+     bd0:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     bd4:	04 08 c0 b0                                                                                                                	m.s 	R4 = 64;;
+     bd8:	05 00 c0 b0                                                                                                                	m.s 	R5 = 0;;
+     bdc:	40 00 84 90                                                                                                                	m.s 	R0 = R2 + R0 (T);;
+     be0:	01 00 02 b4                                                                                                                	m.s 	J1 = R0;;
+     be4:	20 00 00 a0                                                                                                                	m.s 	R0 = [J1 + 0];;
+     be8:	80 b3 1f a8                                                                                                                	m.s 	[FP + -20] = R0;;
+     bec:	80 d3 1f a0                                                                                                                	m.s 	R0 = [FP + -12];;
+     bf0:	02 00 00 a0                                                                                                                	m.s 	R2 = [J0 + 0];;
+     bf4:	00 0c 40 98                                                                                                                	m.s 	R0 = R0 << 3;;
+     bf8:	40 00 84 90                                                                                                                	m.s 	R0 = R2 + R0 (T);;
+     bfc:	00 00 02 b4                                                                                                                	m.s 	J0 = R0;;
+     c00:	00 10 00 a0                                                                                                                	m.s 	R0 = [J0 + 4];;
+     c04:	80 c3 1f a8                                                                                                                	m.s 	[FP + -16] = R0;;
+     c08:	24 00 00 b8                                                                                                                	m.s 	CH[ 4 ] = R1;;
+     c0c:	65 00 00 b8                                                                                                                	m.s 	CH[ 5 ] = R3;;
+     c10:	86 00 00 b8                                                                                                                	m.s 	CH[ 6 ] = R4;;
+     c14:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c18:	07 00 00 b8                                                                                                                	m.s 	CH[ 7 ] = R0;;
+     c1c:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c20:	08 00 00 b8                                                                                                                	m.s 	CH[ 8 ] = R0;;
+     c24:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c28:	09 00 00 b8                                                                                                                	m.s 	CH[ 9 ] = R0;;
+     c2c:	80 b3 1f a0                                                                                                                	m.s 	R0 = [FP + -20];;
+     c30:	0a 00 00 b8                                                                                                                	m.s 	CH[ 10 ] = R0;;
+     c34:	6b 00 00 b8                                                                                                                	m.s 	CH[ 11 ] = R3;;
+     c38:	6c 00 00 b8                                                                                                                	m.s 	CH[ 12 ] = R3;;
+     c3c:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c40:	0d 00 00 b8                                                                                                                	m.s 	CH[ 13 ] = R0;;
+     c44:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c48:	0e 00 00 b8                                                                                                                	m.s 	CH[ 14 ] = R0;;
+     c4c:	80 c3 1f a0                                                                                                                	m.s 	R0 = [FP + -16];;
+     c50:	0f 00 00 b8                                                                                                                	m.s 	CH[ 15 ] = R0;;
+     c54:	b0 00 00 b8                                                                                                                	m.s 	CH[ 16 ] = R5;;
+     c58:	b1 00 00 b8                                                                                                                	m.s 	CH[ 17 ] = R5;;
+     c5c:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_5:
+     c60:	20 02 00 ba                                                                                                                	m.s 	R0 = CH[ 17 ] (N);;
+     c64:	e1 00 c0 b0                                                                                                                	m.s 	R1 = 7;;
+     c68:	00 04 00 9d                                                                                                                	m.s 	R0 = R0 > R1;;
+     c6c:	80 01 c0 84                                                                                                                	m.s 	if R0, jump 12;;
+     c70:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_6:
+     c74:	80 fd 7f 84                                                                                                                	m.s 	jump -20;;
+
+.LBB0_7:
+     c78:	e0 ff c0 b0                                                                                                                	m.s 	R0 = -1;;
+     c7c:	41 00 c0 b0                                                                                                                	m.s 	R1 = 2;;
+     c80:	12 00 00 b8                                                                                                                	m.s 	CH[ 18 ] = R0;;
+     c84:	34 00 00 b8                                                                                                                	m.s 	CH[ 20 ] = R1;;
+     c88:	a0 02 00 b9                                                                                                                	m.s 	R0 = CH[ 21 ];;
+     c8c:	80 93 1f a8                                                                                                                	m.s 	[FP + -28] = R0;;
+     c90:	80 00 40 84                                                                                                                	m.s 	jump 4;;
+
+.LBB0_8:
+     c94:	9d 03 06 b4                                                                                                                	m.s 	SP = FP;;
+     c98:	be e3 5f a0                                                                                                                	m.s 	J30 = [SP + -8];;
+     c9c:	bc f3 5f a0                                                                                                                	m.s 	FP = [SP + -4];;
+     ca0:	c0 03 00 84                                                                                                                	m.s 	jump J30;;

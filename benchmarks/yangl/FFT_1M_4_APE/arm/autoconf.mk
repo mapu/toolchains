@@ -1,0 +1,2 @@
+CONFIG_FFT_arm=y
+APPSUBDIRS-$(CONFIG_FFT_arm)+=FFT_arm
