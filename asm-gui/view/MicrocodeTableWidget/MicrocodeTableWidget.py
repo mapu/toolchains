@@ -20,7 +20,6 @@ class MicrocodeTableWidget(InitTableWidget):
         self.connect(self, SIGNAL("currentCellChanged(int, int, int, int)"), self.currentCellChangedSlot)
         self.connect(self.horizontalScrollBar(), SIGNAL("valueChanged(int)"), self.horizontalScrollBarChangedSlot)
         self.connect(self.verticalScrollBar(), SIGNAL("valueChanged(int)"), self.verticalScrollBarChangedSlot)
-
         #record the previous point row
         self.previousPointRow = -1
         #MMPULite parser

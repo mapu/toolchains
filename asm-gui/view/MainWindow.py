@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.createToolBars()
         self.createMenus()
         self.microcodeTableWidget.itemRegStateSignal.connect(self.itemRegStateSlot)
+        self.microcodeTableWidget.cellChanged.connect(self.fileContentChanged)
         self.newFileName = "New File*"
 
     def createAction(self):
@@ -198,14 +199,23 @@ class MainWindow(QMainWindow):
             self.copyAction.setEnabled(True)
             self.cutAction.setEnabled(True)
             self.pasteAction.setEnabled(True)
+            self.saveFile()
         
     @pyqtSlot()
     def saveFile(self):
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")
-        if fileName != "":
-            self.microcodeTableWidget.saveFile(fileName)
-	    self.setWindowTitle(fileName)
-
+        if self.windowTitle() == self.newFileName:
+            fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")
+            if fileName != "":
+                self.microcodeTableWidget.saveFile(fileName)
+	        self.setWindowTitle(fileName)
+	else:
+	    fileName = self.windowTitle()
+	    if fileName[-1] == "*":
+		fileName = fileName[ : len(fileName) - 1]
+            if fileName != "":
+                self.microcodeTableWidget.saveFile(fileName)
+	        self.setWindowTitle(fileName)
+	        
     @pyqtSlot()
     def saveasFile(self):
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save File"), "untitled.mpu.s")
@@ -262,7 +272,14 @@ class MainWindow(QMainWindow):
         for i in xrange(num):
             self.registerText[i].setText(str(textList[i]))
 
-                
+    @pyqtSlot(int, int)
+    def fileContentChanged(self, row, column):
+	name = self.windowTitle()
+	if name[-1] == "*":
+	    return
+	else:
+	    name += "*"
+	    self.setWindowTitle(name)
 
 
 
