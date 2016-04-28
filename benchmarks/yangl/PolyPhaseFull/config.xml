@@ -3,11 +3,11 @@
     <isFullsystem>True</isFullsystem>
     <standalonetrace>sa.trace</standalonetrace>
     <APE3SPUimage>app3.s.elf</APE3SPUimage>
-    <APE0MPUimage>app0.m.elf</APE0MPUimage>
-    <APE3MPUimage>app3.m.elf</APE3MPUimage>
     <APE2SPUimage>app2.s.elf</APE2SPUimage>
+    <APE3MPUimage>app3.m.elf</APE3MPUimage>
+    <APE0MPUimage>app0.m.elf</APE0MPUimage>
     <simulatorpath>/home/yangl/sdk/trunk/simulator</simulatorpath>
-    <flashimage>/home/yangl/temp/PolyPhaseFull/image.bin</flashimage>
+    <flashimage>/home/yangl/toolchains/trunk/benchmarks/yangl/PolyPhaseFull/image.bin</flashimage>
     <APE1MPUimage>app1.m.elf</APE1MPUimage>
     <fulltrace>full.trace</fulltrace>
     <ARMGDBpath>/home/yangl/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gdb</ARMGDBpath>

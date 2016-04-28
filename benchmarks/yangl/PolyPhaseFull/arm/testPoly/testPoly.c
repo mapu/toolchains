@@ -188,7 +188,22 @@ int FFT_arm(int argc, char * argv[]){
       printf("%d ",pppSectionResultMatrix[0][i][j]);
     printf("===\n");
   }
-  
+  printf("==========================================================\n");
+   for(i = 0; i < SectionOutH; i++) {
+    for(j = 0; j < SectionOutW; j++)
+      printf("%d ",pppSectionResultMatrix[1][i][j]);
+    printf("===\n");
+  }
+   for(i = 0; i < SectionOutH; i++) {
+    for(j = 0; j < SectionOutW; j++)
+      printf("%d ",pppSectionResultMatrix[2][i][j]);
+    printf("===\n");
+  }
+   for(i = 0; i < SectionOutH; i++) {
+    for(j = 0; j < SectionOutW; j++)
+      printf("%d ",pppSectionResultMatrix[3][i][j]);
+    printf("===\n");
+  }
   
   
   
