@@ -15,7 +15,7 @@
  
 unsigned int BuffIndex = 0;  // JPEGŒƒº˛µ±«∞∂¡»°µƒŒª÷√
 unsigned int BuffSize = 0;
-int i, j, k;
+int i, j, k, m;
 int readbmpheader(unsigned char* fileName, int* pImageW, int *pImageH);
 int readbmp(unsigned char* fileName, unsigned char* Buff, int* pImageW, int *pImageH);
 int clip(int n, int Min, int Max);
@@ -118,40 +118,76 @@ int FFT_arm(int argc, char * argv[]){
   int PadNum1 = nTap / 2 - 1;
   
   
-  for(k = 0; k < HSectionNum; k++){ //18 lines
-    //APE0
-    for(i = 0; i < HSectionPadLen; i++)
-      for(j = 0; j < WSectionPadLen; j++)
-        pppSectionMatrix[k + 0][i][j] = *(pPicBuff + (clip(i,PadNum1,inH+PadNum1-1) - PadNum1)*GinW
-                                    + (clip(j,PadNum1,inW+PadNum1-1) - PadNum1) );
+  for(k = 0; k < HSectionNum; k++) //18 lines
+    for(m = 0; m < WSectionNum / 4; m++) { //12/4=3 times
+      //APE0
+      for(i = 0; i < HSectionPadLen; i++)
+        for(j = 0; j < WSectionPadLen; j++)
+          pppSectionMatrix[12*k + 4*m][i][j] = *(pPicBuff + (clip(i,PadNum1,inH+PadNum1-1) - PadNum1 + k*inH)*GinW
+                                          + (clip(j,PadNum1,inW+PadNum1-1) - PadNum1) + (4*m)*inW );
+      printf("sending matrix...\n");
+      send_matrix(0x400000, (unsigned int)pppSectionMatrix[12*k + 4*m][0], WSectionPadLen, HSectionPadLen, DT_HALF, 0);
+      ape_dma_wait(DATA_E2I_GP, 0);
+      printf("calculating...\n");
+      PolyFull(NULL, 0);
+      ape_wait(0);
+      printf("calculated done!\n");
+      fetch_matrix((uint32_t)pppSectionResultMatrix[12*k + 4*m][0], 0xC00000, SectionOutW, SectionOutH, DT_HALF, 0);
+      ape_dma_wait(DATA_I2E_GP, 0);
+    
+      //APE1
+      for(i = 0; i < HSectionPadLen; i++)
+        for(j = 0; j < WSectionPadLen; j++)
+          pppSectionMatrix[12*k + 4*m+1][i][j] = *(pPicBuff + (clip(i,PadNum1,inH+PadNum1-1) - PadNum1 + k*inH)*GinW
+                                                + (clip(j,PadNum1,inW+PadNum1-1) - PadNum1) + (4*m+1)*inW );     
+      printf("sending matrix...\n");
+      send_matrix(0x400000, (unsigned int)pppSectionMatrix[12*k + 4*m+1][0], WSectionPadLen, HSectionPadLen, DT_HALF, 1);
+      ape_dma_wait(DATA_E2I_GP, 1);
+      printf("calculating...\n");
+      PolyFull(NULL, 1);
+      ape_wait(1);
+      printf("calculated done!\n");
+      fetch_matrix((uint32_t)pppSectionResultMatrix[12*k + 4*m+1][0], 0xC00000, SectionOutW, SectionOutH, DT_HALF, 1);
+      ape_dma_wait(DATA_I2E_GP, 1);
       
-    printf("sending matrix...\n");
-    send_matrix(0x400000, (unsigned int)pppSectionMatrix[0][0], WSectionPadLen, HSectionPadLen, DT_HALF, 0);
-    ape_dma_wait(DATA_E2I_GP, 0);
-    printf("calculating...\n");
-    PolyFull(NULL, 0);
-    ape_wait(0);
-    printf("calculated done!\n");
-    fetch_matrix((uint32_t)pppSectionResultMatrix[0][0], 0xC00000, SectionOutW, SectionOutH, DT_HALF, 0);
-    ape_dma_wait(DATA_I2E_GP, 0);
-    
-    //APE1
-    
-    //APE2
-    
-    //APE3
-    
-    
-    
-  }
+      //APE2
+      for(i = 0; i < HSectionPadLen; i++)
+        for(j = 0; j < WSectionPadLen; j++)
+          pppSectionMatrix[12*k + 4*m+2][i][j] = *(pPicBuff + (clip(i,PadNum1,inH+PadNum1-1) - PadNum1 + k*inH)*GinW
+                                                + (clip(j,PadNum1,inW+PadNum1-1) - PadNum1) + (4*m+2)*inW );     
+      printf("sending matrix...\n");
+      send_matrix(0x400000, (unsigned int)pppSectionMatrix[12*k + 4*m+2][0], WSectionPadLen, HSectionPadLen, DT_HALF, 2);
+      ape_dma_wait(DATA_E2I_GP, 2);
+      printf("calculating...\n");
+      PolyFull(NULL, 2);
+      ape_wait(2);
+      printf("calculated done!\n");
+      fetch_matrix((uint32_t)pppSectionResultMatrix[12*k + 4*m+2][0], 0xC00000, SectionOutW, SectionOutH, DT_HALF, 2);
+      ape_dma_wait(DATA_I2E_GP, 2);
+      
+      //APE3
+      for(i = 0; i < HSectionPadLen; i++)
+        for(j = 0; j < WSectionPadLen; j++)
+          pppSectionMatrix[12*k + 4*m+3][i][j] = *(pPicBuff + (clip(i,PadNum1,inH+PadNum1-1) - PadNum1 + k*inH)*GinW
+                                                + (clip(j,PadNum1,inW+PadNum1-1) - PadNum1) + (4*m+3)*inW );   
+      printf("sending matrix...\n");
+      send_matrix(0x400000, (unsigned int)pppSectionMatrix[12*k + 4*m+3][0], WSectionPadLen, HSectionPadLen, DT_HALF, 3);
+      ape_dma_wait(DATA_E2I_GP, 3);
+      printf("calculating...\n");
+      PolyFull(NULL, 3);
+      ape_wait(3);
+      printf("calculated done!\n");
+      fetch_matrix((uint32_t)pppSectionResultMatrix[12*k + 4*m+3][0], 0xC00000, SectionOutW, SectionOutH, DT_HALF, 3);
+      ape_dma_wait(DATA_I2E_GP, 3);
+    }
   
   
-  /*
+  
   for(i = 0; i < SectionOutH; i++) {
     for(j = 0; j < SectionOutW; j++)
       printf("%d ",pppSectionResultMatrix[0][i][j]);
     printf("===\n");
-  }*/
+  }
   
   
   
