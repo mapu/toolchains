@@ -136,7 +136,7 @@ static void __iomem *ctr;
 static u32 notrace mapu_read_sched_clock(void)
 {
   if (ctr)
-    return readl(ctr);
+    return 0xffffffffu-readl(ctr);
 
   return 0;
 }
