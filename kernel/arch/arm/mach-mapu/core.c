@@ -136,7 +136,7 @@ static void __iomem *ctr;
 static u32 notrace mapu_read_sched_clock(void)
 {
   if (ctr)
-    return 0xffffffffu-readl(ctr);
+    return readl(ctr);
 
   return 0;
 }
@@ -153,7 +153,7 @@ void __init mapu_init_early(void)
 
   clkdev_add_table(lookups, ARRAY_SIZE(lookups));
 
-  mapu_sched_clock_init(timer0 + 0x4, dw_timer_clk.rate);
+  mapu_sched_clock_init(timer0 + 0x18, dw_timer_clk.rate);
 }
 
 /*
