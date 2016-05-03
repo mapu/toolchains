@@ -1884,7 +1884,7 @@ class MMPULite(Parser):
                  | fnstclause
                  | fstclause
                  | fnltclause
-        """  
+        """ 
         p[0] = p[1]
 
     def p_sdclause_error(self, p):
@@ -2123,6 +2123,8 @@ class MMPULite(Parser):
         """
         sclause : todexp _flag sflag flag_
                 | fasexp _flag sflag flag_
+                | todexp _flag utflag flag_
+                | todexp _flag t_sflag flag_
         """
         p[0] = p[1]
 
@@ -2680,6 +2682,22 @@ class MMPULite(Parser):
              | IMM5_2
         """
 
+    def p_t_sflag(self, p):
+	"""
+        t_sflag : sflag COMMA tflag
+                | tflag 
+                | tflag COMMA sflag
+	"""
+
+    def p_t_sflag_error(self, p):
+        """
+        t_sflag : sflag COMMA error
+                | tflag error
+                | tflag COMMA error
+                | sflag error
+                | error
+        """
+        
     def p_stflag(self, p):
         'stflag : imbrakflag'  
 
