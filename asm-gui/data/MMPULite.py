@@ -1721,7 +1721,7 @@ class MMPULite(Parser):
             if len(p) > 2:
 	        if p[2] == "L":
 		    p[0] = p[1] + p[2]
-	        else:
+	        elif p[2] != None:
 		    p[0] = p[1]
 	    else:
                 p[0] = p[1]
@@ -1771,6 +1771,8 @@ class MMPULite(Parser):
        
     def p_iexmacclause(self, p):
         'iexmacclause : _flag ubflag flag_'
+        if p[2] != None:
+	    p[0] = ""
 
     def p_iexmacclause_error(self, p):
         """
@@ -1784,16 +1786,20 @@ class MMPULite(Parser):
         """
         if p[2] == "L":
 	    p[0] = p[2]
+	else:
+	    p[0] = ""
 
     def p_iinmacclause_error(self, p):
         """        
         iinmacclause : _flag error flag_
                      | error
         """
+        
     def p_tregclause(self, p):
         """
         tregclause : _flag crlubflag flag_
         """
+        p[0] = p[2]
 
     def p_tregclause_error(self, p):
         """
@@ -3328,7 +3334,8 @@ class MMPULite(Parser):
         """
         ubflag : b_uflag 
                | uflag
-        """    
+        """ 
+        p[0] = p[1]
 
     def p_ubflag_error(self, p):
         """
@@ -3357,6 +3364,11 @@ class MMPULite(Parser):
                 | bflag 
                 | uflag COMMA bflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0]= ""
 
     def p_b_uflag_error(self, p):
         """
@@ -3577,7 +3589,8 @@ class MMPULite(Parser):
         """
         if p[1] == "L":
 	    p[0] = p[1]
-	    return
+	elif p[1] != None:
+	    p[0] = ""
 	if len(p) > 2:
 	    if p[3] == "L":
 	      	p[0] = p[3]
@@ -3830,6 +3843,7 @@ class MMPULite(Parser):
         bflag : b_flag
               | hflag
         """
+        p[0] = p[1]
 
     def p_bflag_error(self, p):
         """
@@ -3876,33 +3890,43 @@ class MMPULite(Parser):
         
     def p_b_flag(self, p):
         'b_flag : B'
+        p[0] = "B"
 
     def p_hflag(self, p):    
         'hflag : H'
+        p[0] = "H"
 
     def p_brflag(self, p):
         'brflag : BR'
+        p[0] = "BR"
 
     def p_mflag(self, p):
         'mflag : M'
+        p[0] = "M"
 
     def p_aflag(self, p):
         'aflag : APP'
+        p[0] = "APP"
 
     def p_kflag(self, p):
         'kflag : KPP'
+        p[0] = "KPP"
 
     def p_tflag(self, p):
         'tflag : T'
+        p[0] = "T"
 
     def p_uflag(self, p):
         'uflag : U'
+	p[0] = "U"
 
     def p_sflag(self, p):
         'sflag : S'
+        p[0] = "S"
 
     def p_dflag(self, p):
         'dflag : D'
+        p[0] = "D"
 
     def p_lflag(self, p):
         'lflag : L'
@@ -3910,15 +3934,19 @@ class MMPULite(Parser):
 
     def p_crflag(self, p):
         'crflag : CR'
+        p[0] = "CR"
 
     def p_iflag(self, p):
         'iflag : I'
+        p[0] = "I"
 
     def p_tcflag(self, p):
         'tcflag : TC'
+        p[0] = "TC"
 
     def p_negflag(self, p):
         'negflag : NEG'
+        p[0] = "NEG"
 
     def p_andflag(self, p):
         'andflag : AND'
@@ -3926,15 +3954,19 @@ class MMPULite(Parser):
 
     def p_kiflag(self, p):
         'kiflag : KI'
+        p[0] = "KI"
 
     def p_trueflag(self, p):
         'trueflag : TRUE'
+        p[0] = "TRUE"
 
     def p_cflag(self, p):
         'cflag : C'
+        p[0] = "C"
 
     def p_ncflag(self, p):
         'ncflag : NEG C'
+        p[0] = "NEG C"
 
     def p_condflag(self, p):
         """
