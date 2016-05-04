@@ -34,17 +34,21 @@ class mytest(unittest.TestCase):
                     for m in xrange(0,4):
                         for n in xrange(0,4):
                             text = "%s(t%s,t%s)(%s)->%s"%(dp,m,n,pre,biu)
-                            text0 = "%s(t%s,t%s)(%s)->%s@(c|!c)"%(dp,m,n,pre,biu)
+                            text0 = "%s(t%s,t%s)(%s)->%s@(c)"%(dp,m,n,pre,biu)
+                            text1 = "%s(t%s,t%s)(%s)->%s@(!c)"%(dp,m,n,pre,biu)
                             #print text
                             selranges = QTableWidgetSelectionRange(row, column, row, column)
                             self.inittablewidget.setRangeSelected(selranges, True)
                             self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
                             #print self.inittablewidget.item(row,column).text()
-                            self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                            self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
+                            self.inittablewidget.setItem(row + 1, column + 1,QTableWidgetItem(text1))
                             self.inittablewidget.dataParser(row, column)
                             self.inittablewidget.dataParser(row + 1, column)
+                            self.inittablewidget.dataParser(row + 1, column + 1)
                             self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                            self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"6")
    
     def testfalu0(self):
@@ -60,16 +64,20 @@ class mytest(unittest.TestCase):
                     for n in xrange(0,4):
                         for t in xrange(0,127):
                             text = "%s(t%s,t%s)(%s)->m[%s]"%(dp,m,n,pre,t)
-                            text0 = "%s(t%s,t%s(%s)->m[%s]@(c|!c)"%(dp,m,n,pre,t)
-                            #print text
+                            text0 = "%s(t%s,t%s)(%s)->m[%s]@(c)"%(dp,m,n,pre,t)
+                            text1 = "%s(t%s,t%s)(%s)->m[%s]@(!c)"%(dp,m,n,pre,t)
+                            #print text0
                             selranges = QTableWidgetSelectionRange(row, column, row, column)
                             self.inittablewidget.setRangeSelected(selranges, True)
                             self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-                            self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                            self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
+                            self.inittablewidget.setItem(row + 1, column + 1,QTableWidgetItem(text1))
                             self.inittablewidget.dataParser(row, column)
                             self.inittablewidget.dataParser(row + 1, column)
+                            self.inittablewidget.dataParser(row + 1, column + 1)
                             self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                            self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"6")
 
     def testfalu1(self):
@@ -86,17 +94,21 @@ class mytest(unittest.TestCase):
                         for n in xrange(0,4):
                             for t in xrange(0,4):
                                 text = "%s(t%s,t%s)(%s)->%s.t%s"%(dp,m,n,pre,macc,t)
-                                text0 = "%s(t%s,t%s)(%s)->%s.t%s@(c|!c)"%(dp,m,n,pre,macc,t)
+                                text0 = "%s(t%s,t%s)(%s)->%s.t%s@(!c)"%(dp,m,n,pre,macc,t)
+                                text1 = "%s(t%s,t%s)(%s)->%s.t%s@(c)"%(dp,m,n,pre,macc,t)
                                 #print text
                                 selranges = QTableWidgetSelectionRange(row, column, row, column)
                                 self.inittablewidget.setRangeSelected(selranges, True)
                                 self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
                                 #print self.inittablewidget.item(row,column).text()
-                                self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                                self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
+                                self.inittablewidget.setItem(row + 1, column + 1,QTableWidgetItem(text1))
                                 self.inittablewidget.dataParser(row, column)
                                 self.inittablewidget.dataParser(row + 1, column)
+                                self.inittablewidget.dataParser(row + 1, column + 1)
                                 self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
                                 self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                                self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                                 self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"5")
 
     def testfalu2(self):
@@ -113,17 +125,21 @@ class mytest(unittest.TestCase):
                         for n in xrange(0,4):
                             for t in xrange(0,4):
                                 text = "%s(t%s,t%s)(%s)->%s.t%s"%(dp,m,n,pre,shu,t)
-                                text0 = "%s(t%s,t%s)(%s)->%s.t%s@(c|!c)"%(dp,m,n,pre,shu,t)
+                                text0 = "%s(t%s,t%s)(%s)->%s.t%s@(c)"%(dp,m,n,pre,shu,t)
+                                text1 = "%s(t%s,t%s)(%s)->%s.t%s@(!c)"%(dp,m,n,pre,shu,t)
                                 #print text
                                 selranges = QTableWidgetSelectionRange(row, column, row, column)
                                 self.inittablewidget.setRangeSelected(selranges, True)
                                 self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
                                 #print self.inittablewidget.item(row,column).text()
-                                self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                                self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
+                                self.inittablewidget.setItem(row + 1, column + 1,QTableWidgetItem(text0))
                                 self.inittablewidget.dataParser(row, column)
                                 self.inittablewidget.dataParser(row + 1, column)
+                                self.inittablewidget.dataParser(row + 1, column + 1)
                                 self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
                                 self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                                self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                                 self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"6")
 
 suite = unittest.TestLoader().loadTestsFromTestCase(mytest)
