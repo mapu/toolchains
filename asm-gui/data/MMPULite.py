@@ -456,6 +456,9 @@ class MMPULite(Parser):
              | seqslot
              | hmacro
         """
+        if len(p) == 3:
+	    if p[2] == None:
+		return
         if p[1] != None:
 	    p[0] = p[1]
 	
@@ -3938,6 +3941,7 @@ class MMPULite(Parser):
         condflag : ALPHA _flag cflag flag_
                  | ALPHA _flag ncflag flag_
         """
+        p[0] = "C"
 
     def p_condflag_error(self, p):
         """
