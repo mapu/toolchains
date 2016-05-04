@@ -75,8 +75,8 @@ int main() {
 
   cout << "****testing mem" << endl;
   cout << "*******allocating mem" << endl;
-  int *mem = (int*) apc->cmalloc(DataSize), *mmm = (int*) apc->cmalloc(DataSize);
-  cout << (unsigned long) mem << ' ' << (unsigned long)mmm << ' ' << endl;
+  volatile int *mem = (int*) apc->cmalloc(DataSize), *mmm = (int*) apc->cmalloc(DataSize);
+  cout << (unsigned long) mem << ' ' << (unsigned long) mmm << ' ' << endl;
 
   cout << "*******writing mem" << endl;
   for (i = 0; i < DataSize / 4; ++i) {
@@ -88,6 +88,7 @@ int main() {
   for (int i = 0; i < DataSize / 4; ++i) {
     if (mem[i] != i) cout << "mem[" << i << "] = " << mem[i] << endl;
   }
+  cout << "*******checking mem done" << endl;
   cout << "****testing mem done" << endl;
 
   cout << "****checking dma"<< endl;

@@ -78,8 +78,7 @@ ElfObject::tryFile(const std::string &fname, int fd, Apc& apc) {
     result->_programHeaderCount = ehdr.e_phnum;
     //Record the size of each entry
     result->_programHeaderSize = ehdr.e_phentsize;
-    if (result->_programHeaderCount) //If there is a program header table
-    {
+    if (result->_programHeaderCount) {    //If there is a program header table
       //Figure out the virtual address of the header table in the
       //final memory image. We use the program headers themselves
       //to translate from a file offset to the address in the image.
@@ -221,8 +220,7 @@ bool ElfObject::loadSection(Section *sec, Csu& csu) {
 
     bool result = csu.sendData(sec->fileImage, sec->size, sec->baseAddr);
 
-    if(shouldRelease)
-      csu.cfree(sec->fileImage);
+    if (shouldRelease) csu.cfree(sec->fileImage);
 
     return result;
   }
