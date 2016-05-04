@@ -475,7 +475,7 @@ class MicrocodeTableWidget(InitTableWidget):
                             info.num = int(r.group(1))
                             info.reg = self.register.index(r.group(2))
                             if r.group(3) != None:
-                                info.margin = int(r.group(3))
+                                info.margin = int(r.group(4))
                             else:
 				info.margin = 0
                             info.column = column
@@ -503,14 +503,14 @@ class MicrocodeTableWidget(InitTableWidget):
                         if row > self.RowCount:
                             self.RowCount = row
                             self.setRowCount(row)
-                            self.array.append(["...."]*(self.ColumnCount))			
+                            self.array.append(["...."]*(self.ColumnCount))
                     record = startLPPattern.match(string)        
                     info = RectInfo()
                     info.startRow = row
                     info.num = int(record.group(1))
                     info.reg = self.register.index(record.group(2))
                     if record.group(3) != None:
-                        info.margin = int(record.group(3))
+                        info.margin = int(record.group(4))
                     else:
 		        info.margin = 0
                     info.column = column
