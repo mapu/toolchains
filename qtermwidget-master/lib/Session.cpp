@@ -302,10 +302,7 @@ void Session::removeView(TerminalDisplay * widget)
 
 void Session::run()
 {
-    if (QFile::remove(fileName) == true)
-    {
-        return;
-    }
+
     //check that everything is in place to run the session
     if (_program.isEmpty()) {
 

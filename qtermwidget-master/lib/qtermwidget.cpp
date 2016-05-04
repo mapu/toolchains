@@ -227,6 +227,7 @@ void QTermWidget::startShellProgram()
     }
 
     m_impl->m_session->run();
+
 }
 
 void QTermWidget::startTerminalTeletype()
