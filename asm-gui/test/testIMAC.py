@@ -5,9 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString,QStringList
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
-sys.path.append("../..")
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
