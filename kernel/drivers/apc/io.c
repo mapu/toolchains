@@ -41,6 +41,7 @@ struct apc_info {
   u32 num_of_apes;
   rwlock_t lock;
   unsigned long free_ape_mask;   // 没有被分配的ape
+  unsigned long busy_ape_mask;   // 正在执行kernel的ape
 
   void __iomem *sm_virt_base;   // SM的虚拟地址
   resource_size_t sm_bus_base; /* resource base */           // apc的CPU总线地址
@@ -73,7 +74,7 @@ struct allocated_areas {
 };
 
 struct file_ctx {  // 每一个打开的apc文件描述符, 都有一个上下文结构体
-  struct csu_if *dma_caches;   // 暂存dma的配置, 有一些浪费
+  union csu_mmap *dma_caches;   // 暂存dma的配置, 有一些浪费
   struct allocated_areas allocated_areas;
 };
 
@@ -141,7 +142,8 @@ static irqreturn_t apc_mb_int(int irq, void *dev_id) {
   printk(KERN_ERR "apc_mb_int\n");
 
   csu_if = apc_data.ape[ape_id].virt_base;
-  apc_data.ape[ape_id].ret = ioread32(&(csu_if->MailBoxOutInt));      //
+  apc_data.ape[ape_id].ret = ioread32(&(csu_if->MailBoxOutInt));
+  apc_data.busy_ape_mask &= ~(1 << ape_id);
   wake_up_interruptible(&launchq);
 
   printk(KERN_ERR "leaving apc_mb_int\n");
@@ -157,14 +159,14 @@ int apc_open(struct inode *inode, struct file *filp) {
 
   filp->private_data = kmalloc(sizeof(struct file_ctx) +
                                sizeof(struct allocated_area) * areas_capacity +
-                               sizeof(struct csu_if) * apc_data.num_of_apes, GFP_KERNEL);
+                               sizeof(union csu_mmap) * apc_data.num_of_apes, GFP_KERNEL);
   if (filp->private_data == 0) {
     printk(KERN_ERR "apc: failed to allocate memory");
     return -EFAULT;
   }
 
   memset(filp->private_data, 0, sizeof(struct file_ctx) +
-         sizeof(struct allocated_area) * areas_capacity + sizeof(struct csu_if) * apc_data.num_of_apes);
+         sizeof(struct allocated_area) * areas_capacity + sizeof(union csu_mmap) * apc_data.num_of_apes);
   ((struct file_ctx *) filp->private_data)->dma_caches = filp->private_data +
                                                          sizeof(struct file_ctx) + sizeof(struct allocated_area) * areas_capacity;
   return 0;
@@ -202,8 +204,8 @@ static unsigned long get_phy(struct allocated_areas *areas, unsigned long virt, 
 
       for (i = 0; i < areas->cnt; i++)
         if (areas->areas[i].end > phy && areas->areas[i].start <= phy) {
-          if (areas->areas[i].end - areas->areas[i].start < size) return 0;
-          else return phy + ((unsigned long) virt % (1 << PAGE_SHIFT));
+          if (areas->areas[i].end < phy + size) { printk(KERN_ERR "Attmpted to go beyond the range of an allocated area. virt: %lu, size: %lu", virt, size);return 0;}
+          else return phy + ((unsigned long) virt - (unsigned long) vma->vm_start);
         }
     }
   }
@@ -222,24 +224,24 @@ static inline int get_ape_id(loff_t *f_pos) {
   return ape_id;
 }
 
-#define check_rw(f_pos, next_byte, offset, ape_id, count)                                                        \
-    /* Sanity check */                                                                                           \
-    ape_id = get_ape_id(f_pos);                                                                                  \
-    if (ape_id < 0 || ape_id >= apc_data.num_of_apes) {                                                          \
-      printk(KERN_ERR "User program accessed unknown APE.\n");                                                   \
-      return -EFAULT;                                                                                            \
-    }                                                                                                            \
-                                                                                                                 \
-    offset = *f_pos - apc_data.ape[ape_id].bus_base;                                                             \
-    if (offset >= sizeof(union csu_mmap) || (next_byte = offset + count) > sizeof(union csu_mmap)) {           \
-      printk(KERN_ERR "User program accessed wrong APE control registers.\n");                                   \
-      return -EFAULT;                                                                                            \
-    }                                                                                                            \
-                                                                                                                 \
-    if (count % 4 != 0 || count < 4 || offset % 8 != 0) {                                                        \
-      printk(KERN_ERR "User program's access is unaligned to 8 bytes.\n");                                       \
-      return -EFAULT; /* Any unaligned access is not allowed */                                                  \
-    }                                                                                                            \
+#define check_rw(f_pos, next_byte, offset, ape_id, count)                                                                      \
+    /* Sanity check */                                                                                                         \
+    ape_id = get_ape_id(f_pos);                                                                                                \
+    if (ape_id < 0 || ape_id >= apc_data.num_of_apes) {                                                                        \
+      printk(KERN_ERR "User program accessed unknown APE. (ape_id: %d).\n", ape_id);                                           \
+      return -EFAULT;                                                                                                          \
+    }                                                                                                                          \
+                                                                                                                               \
+    offset = *f_pos - apc_data.ape[ape_id].bus_base;                                                                           \
+    if (offset >= sizeof(union csu_mmap) || (next_byte = offset + count) > sizeof(union csu_mmap)) {                           \
+      printk(KERN_ERR "User program accessed wrong APE control registers. (offset: %d, count: %d)\n", offset, count);          \
+      return -EFAULT;                                                                                                          \
+    }                                                                                                                          \
+                                                                                                                               \
+    if (count % 4 != 0 || count < 4 || offset % 8 != 0) {                                                                      \
+      printk(KERN_ERR "User program's access is unaligned to 8 bytes. (offset: %d, count: %d)\n", offset, count);              \
+      return -EFAULT; /* Any unaligned access is not allowed */                                                                \
+    }                                                                                                                          \
 
 #define R   1
 #define W   2
@@ -310,10 +312,10 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count, loff_
   u32 ape_id;
   loff_t offset;
   loff_t next_byte;
-  u32 *csu_cache;
   u32 i;
   bool launch = false;
-  union csu_mmap *ape;
+  union csu_mmap *csu_mmap;
+  union csu_mmap *csu_cache;
   unsigned long savedirq;
 
   printk(KERN_NOTICE "apc_write\n");
@@ -321,11 +323,11 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count, loff_
   check_rw(f_pos, next_byte, offset, ape_id, count);
 
   if (apc_data.ape[ape_id].host_filp != filp) {
-    printk(KERN_ERR "Attempted to access ape that you don't possess.\n");
+    printk(KERN_ERR "Attempted to access ape %d, which you don't possess.\n", ape_id);
     return -EFAULT;
   }
 
-  csu_cache = (u32 *) & ((struct file_ctx *) filp->private_data)->dma_caches[ape_id];
+  csu_cache = (union csu_mmap *) & ((struct file_ctx *) filp->private_data)->dma_caches[ape_id];
 
   // 将本进程缓存的值刷新成用户的值, 在写入DMACmd之前, DMAGlobalAddr和DMAGroupNum要重新转义
   if (copy_from_user(((void *) csu_cache) + offset, buf, count)) {
@@ -333,32 +335,49 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count, loff_
     return -ENOMEM;
   }
 
-  ape = apc_data.ape[ape_id].virt_base;
+  csu_mmap = apc_data.ape[ape_id].virt_base;
 
   if (offsetOfVPUControl >= offset && offsetOfVPUControl < next_byte) {
-    launch = csu_cache[offsetOfVPUControl / 4] == CMD_START;
+    launch = csu_cache->csu_if.VPUControl == CMD_START;
     if (!launch) {
-      printk (KERN_ERR "Requesting undefined SPU operations.\n");
+      printk (KERN_ERR "Requesting undefined SPU operations: %d\n", csu_cache->csu_if.VPUControl);
       return -EFAULT;
-    } else if (ioread32(&(ape->csu_if.VPUStatus))) {
-      printk (KERN_ERR "Attempted to launch on a busy ape.\n");
-      return -EFAULT;
+    } else {
+      write_lock_irqsave(apc_data.lock, savedirq);
+      if ((apc_data.busy_ape_mask & (1 << ape_id)) || ioread32(&(csu_mmap->csu_if.VPUStatus))) {
+        write_unlock_irqrestore(apc_data.lock, savedirq);
+        printk (KERN_ERR "Attempted to launch on a busy APE. (ape_id: %d).\n", ape_id);
+        return -EFAULT;
+      } else {
+        apc_data.busy_ape_mask |= (1 << ape_id);
+        write_unlock_irqrestore(apc_data.lock, savedirq);
+      }
     }
   }
 
   write_lock_irqsave(apc_data.ape[ape_id].csu_lock, savedirq);
   for (i = 0; i < count / 4; ++i)
     if (shouldWriteThrough(offset / 8 + i / 2))
-      iowrite32(csu_cache[offset / 4 + i], apc_data.ape[ape_id].virt_base + offset + i * 4);
+      iowrite32(csu_cache->mem[offset / 4 + i], csu_mmap->mem + offset / 4 + i);
   write_unlock_irqrestore(apc_data.ape[ape_id].csu_lock, savedirq);
 
   // launch, 需要等待结束
-  if (launch && wait_event_interruptible(launchq, 1))   // 只有中断唤醒, 唤醒即可退出
-    return -EFAULT;
+  if (launch) {
+    i = wait_event_interruptible(launchq, !(apc_data.busy_ape_mask & (1UL<<ape_id)) || !ioread32(&(csu_mmap->csu_if.VPUStatus)));
+
+    write_lock_irqsave(apc_data.lock, savedirq);
+    apc_data.busy_ape_mask &= ~(1 << ape_id);  // 清掉busy标志, 并不一定代表已经执行完成. 只是在驱动端释放此APE的执行权. 如果跑飞了, 只能重启机器
+    write_unlock_irqrestore(apc_data.lock, savedirq);
+
+    if (i) {
+      printk (KERN_ERR "Interruption occurred when APE %d is running.\n", ape_id);
+      return -EFAULT;
+    }
+  }
 
   // 写入DMACmd, 用此进程已配置的寄存器来配dma
   if (offsetOfDMACmd >= offset && offsetOfDMACmd < next_byte) {
-    struct dma_if *dma = (struct dma_if *)(csu_cache + offsetof(struct csu_if, dma) / 4);
+    struct dma_if *dma = (struct dma_if *)(&csu_cache->csu_if.dma);
 
     // 将分配过的虚拟地址翻译成物理地址
     unsigned long complete_rows = dma->DMAGlobalYAllNum;
@@ -378,29 +397,22 @@ ssize_t apc_write(struct file *filp, const char __user *buf, size_t count, loff_
     dma->DMAGroupNum = num;
 
     write_lock_irqsave(apc_data.ape[ape_id].csu_lock, savedirq);
-    for (i = 0; i < sizeof(struct dma_if) / 4 - 2; ++i)   // 写入所有缓冲值
-      iowrite32(csu_cache[offsetof(struct csu_if, dma) / 4 + i],
-                apc_data.ape[ape_id].virt_base + offsetof(struct csu_if, dma) + i * 4);
+    for (i = 0; i < sizeof(struct dma_if) / 4; ++i) {  // 写入所有缓冲值
+      if (i == sizeof(struct dma_if) / 4 - 2) smp_wmb();  // 确保DMACmd最后写入
+      iowrite32(csu_cache->mem[offsetof(struct csu_if, dma) / 4 + i],
+                csu_mmap->mem + offsetof(struct csu_if, dma) / 4 + i);
+    }
+    iowrite32(ioread32(&(csu_mmap->csu_if.DMAQueryMask)) | (1UL << num), &(csu_mmap->csu_if.DMAQueryMask));  // 关注此组号
 
-    iowrite32(ioread32(&(ape->csu_if.DMAQueryMask)) | (1UL << num), &(ape->csu_if.DMAQueryMask));  // 关注此组号
-    smp_wmb();
-
-    // 在屏障后写入DMACmd
-    i = sizeof(struct dma_if) / 4 - 2;
-    iowrite32(csu_cache[offsetof(struct csu_if, dma) / 4 + i],
-              apc_data.ape[ape_id].virt_base + offsetof(struct csu_if, dma) + i * 4);
-    i = sizeof(struct dma_if) / 4 - 1;
-    iowrite32(csu_cache[offsetof(struct csu_if, dma) / 4 + i],
-              apc_data.ape[ape_id].virt_base + offsetof(struct csu_if, dma) + i * 4);
-
+    while(ioread32(csu_mmap->mem + offsetof(struct csu_if, DMACommandStatus) / 4));
     write_unlock_irqrestore(apc_data.ape[ape_id].csu_lock, savedirq);
 
     // 此处不必加读锁. 因为在释放编号之前, 这个编号的状态不会被改变
-    i = wait_event_interruptible(dmaq, !(ioread32(&(ape->csu_if.DMAQueryMask)) & (1UL << num)));
+    i = wait_event_interruptible(dmaq, !(ioread32(&(csu_mmap->csu_if.DMAQueryMask)) & (1UL << num)));
 
     if (i) { // 等待dma时被中断, 主动取消关注此组号
       write_lock_irqsave(apc_data.ape[ape_id].csu_lock, savedirq);
-      iowrite32(ioread32(&(ape->csu_if.DMAQueryMask)) & ~(1UL << num), &(ape->csu_if.DMAQueryMask));
+      iowrite32(ioread32(&(csu_mmap->csu_if.DMAQueryMask)) & ~(1UL << num), &(csu_mmap->csu_if.DMAQueryMask));
       write_unlock_irqrestore(apc_data.ape[ape_id].csu_lock, savedirq);
     }
 
@@ -608,8 +620,6 @@ static int apc_mmap(struct file *filp, struct vm_area_struct *vma) {
   unsigned log_size;
   struct allocated_areas *areas = &((struct file_ctx *) filp->private_data)->allocated_areas;
 
-  printk(KERN_ERR "apc_mmap\n");
-
   if (areas->cnt >= areas_capacity) {
     printk(KERN_ERR "too much areas allocated!\n");
     return -EFAULT;
@@ -638,6 +648,8 @@ static int apc_mmap(struct file *filp, struct vm_area_struct *vma) {
   areas->areas[areas->cnt].start = vma->vm_pgoff << PAGE_SHIFT;
   areas->areas[areas->cnt].end = (vma->vm_pgoff + (1 << log_size)) << PAGE_SHIFT;
   areas->cnt++;
+
+  printk(KERN_ERR "apc_mmap, cnt %d, start %lu, end %lu\n", areas->cnt, areas->areas[areas->cnt].start, areas->areas[areas->cnt].end);
 
   vma->vm_ops = &apc_vm_ops;
   vma->vm_flags |= VM_RESERVED | VM_DONTEXPAND | VM_IO | VM_PFNMAP;
@@ -925,6 +937,7 @@ static int __init apc_init(void) {
 
   rwlock_init(&apc_data.lock);
   apc_data.free_ape_mask = ((unsigned long) - 1) >> (8 * sizeof(unsigned long) - apc_data.num_of_apes);
+  apc_data.busy_ape_mask = 0;
 
   for (i = 0; i < apc_data.num_of_apes; i++) {
     unsigned char j;
