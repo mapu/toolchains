@@ -154,11 +154,11 @@ class mytest(unittest.TestCase):
                         for cond in condlist:
                             text = "%st%s(%s)->%s%s"%(ury,m,pre,biu,cond)
                             text1 = "%st%s->%s%s"%(ury,m,biu,cond)
-                            print text
+                            #print text
                             selranges = QTableWidgetSelectionRange(row, column, row, column)
                             self.inittablewidget.setRangeSelected(selranges, True)
                             self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-                            print self.inittablewidget.item(row,column).text()
+                            #print self.inittablewidget.item(row,column).text()
                             self.inittablewidget.setItem(row + 2, column,QTableWidgetItem(text1))
                             self.inittablewidget.dataParser(row, column)
                             self.inittablewidget.dataParser(row + 2, column)
