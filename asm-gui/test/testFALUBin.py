@@ -5,9 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString,QStringList
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
-sys.path.append("../..")
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -274,7 +274,7 @@ class mytest(unittest.TestCase):
                                     #print text
                                     selranges = QTableWidgetSelectionRange(row, column, row, column)
                                     self.inittablewidget.setRangeSelected(selranges, True)
-                                    self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                                    self.inittablewidget.setItem(row, column, QTableWidgetItem(text))
                                     #print self.inittablewidget.item(row,column).text()
                                     self.inittablewidget.dataParser(row, column)
                                     self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)

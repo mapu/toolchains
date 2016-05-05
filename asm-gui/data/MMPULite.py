@@ -1903,7 +1903,8 @@ class MMPULite(Parser):
         
     def p_fmaxclause(self, p):
         'fmaxclause : maxexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fmaxclause_error(self, p):
         """
@@ -1914,7 +1915,8 @@ class MMPULite(Parser):
         
     def p_fminclause(self, p):
         'fminclause : minexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fminclause_error(self, p):
         """
@@ -1927,8 +1929,9 @@ class MMPULite(Parser):
         """
         fabsclause : absexp _flag sdflag flag_
         """
-        p[0] = p[1]
-
+        if p[3] != None:
+            p[0] = p[1]
+ 
     def p_fabsclause_error(self, p):
         """
         fabsclause : absexp _flag error flag_
@@ -1950,7 +1953,8 @@ class MMPULite(Parser):
         """
         recipclause : recipexp _flag sdflag flag_
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_recipclause_error(self, p):
         """
@@ -1973,7 +1977,8 @@ class MMPULite(Parser):
         """
         rsqrtclause : rsqrtexp _flag sdflag flag_
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_rsqrtclause_error(self, p):
         """
@@ -1994,7 +1999,8 @@ class MMPULite(Parser):
 
     def p_fequclause(self, p):
         'fequclause : equexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fequclause_error(self, p):
         """
@@ -2005,7 +2011,8 @@ class MMPULite(Parser):
         
     def p_fneqclause(self, p):
         'fneqclause : neqexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fneqclause_error(self, p):
         """
@@ -2016,7 +2023,8 @@ class MMPULite(Parser):
         
     def p_fltclause(self, p):
         'fltclause : ltexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fltclause_error(self, p):
         """
@@ -2027,7 +2035,8 @@ class MMPULite(Parser):
         
     def p_fnstclause(self, p):
         'fnstclause : nstexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fnstclause_error(self, p):
         """
@@ -2038,7 +2047,8 @@ class MMPULite(Parser):
         
     def p_fstclause(self, p):
         'fstclause : stexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fstclause_error(self, p):
         """
@@ -2049,7 +2059,8 @@ class MMPULite(Parser):
         
     def p_fnltclause(self, p):
         'fnltclause : nltexp _flag sdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fnltclause_error(self, p):
         """
@@ -2062,7 +2073,8 @@ class MMPULite(Parser):
         """
         intclause : intexp _flag tsdflag flag_
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_intclause_error(self, p):
         """
@@ -2075,8 +2087,9 @@ class MMPULite(Parser):
         """
         intexp : intop t
                | uintop t
-        """   
-        p[0] = p[1]
+        """ 
+        if p[2] != None:
+            p[0] = p[1]
 
     def p_intexp_error(self, p):
         """
@@ -2098,7 +2111,8 @@ class MMPULite(Parser):
         tclause : tosexp _flag utflag flag_
                 | tosexp
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_tclause_error(self, p):
         """
@@ -2109,7 +2123,8 @@ class MMPULite(Parser):
         
     def p_tdclause(self, p):
         'tdclause : tosexp _flag tdflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_tdclause_error(self, p):
         """
@@ -2120,7 +2135,8 @@ class MMPULite(Parser):
         
     def p_tosexp(self, p):
         'tosexp : SINGLE t'
-        p[0] = "ToSingle"
+        if p[2] != None:
+            p[0] = "ToSingle"
 
     def p_tosexp_error(self, p):
         """
@@ -2135,7 +2151,8 @@ class MMPULite(Parser):
                 | todexp _flag utflag flag_
                 | todexp _flag t_sflag flag_
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_sclause_error(self, p):
         """
@@ -2148,7 +2165,8 @@ class MMPULite(Parser):
         
     def p_fasexp(self, p):
         'fasexp : t ADDSUB t'
-        p[0] = "AddSub"
+        if p[1] != None and p[3] != None:
+            p[0] = "AddSub"
 
     def p_fasexp_error(self, p):
         """
@@ -2159,7 +2177,8 @@ class MMPULite(Parser):
         
     def p_todexp(self, p):
         'todexp : DOUBLE t'
-        p[0] = "ToDouble"
+        if p[2] != None:
+            p[0] = "ToDouble"
 
     def p_todexp_error(self, p):
         """
@@ -2172,6 +2191,9 @@ class MMPULite(Parser):
         fuclause : todexp _flag uflag flag_
                  | todexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_fuclause_error(self, p):
@@ -2222,7 +2244,8 @@ class MMPULite(Parser):
         fmulclause : mulexp _flag tsdflag flag_
                    | cmulexp _flag sflag flag_
         """
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fmulclause_error(self, p):
         """
@@ -2235,7 +2258,8 @@ class MMPULite(Parser):
         
     def p_cmulexp(self, p):
         'cmulexp : t CMUL t'
-	p[0] = "Cmul"
+        if p[1] != None and p[3] != None:
+	    p[0] = "Cmul"
 
     def p_cmulexp_error(self, p):
         """
@@ -2246,7 +2270,8 @@ class MMPULite(Parser):
         
     def p_fmrclause(self, p):
         'fmrclause : MR _flag sdflag flag_'
-        p[0] = "Mac"
+        if p[3] != None:
+            p[0] = "Mac"
 
     def p_fmrclause_error(self, p):
         """
@@ -2260,7 +2285,8 @@ class MMPULite(Parser):
         fmrinst : exmacexp fexmacclause
                 | inmacexp finmacclause
         """
-        p[0] = p[1]
+        if p[2] != None:
+            p[0] = p[1]
 
     def p_eapression_fmrinst_error(self, p):
         """
@@ -2271,6 +2297,8 @@ class MMPULite(Parser):
         
     def p_fexmacclause(self, p):
         'fexmacclause : _flag sdflag flag_'
+        if p[2] != None:
+	    p[0] = ""
 
     def p_fexmacclause_error(self, p):
         """
@@ -2280,6 +2308,8 @@ class MMPULite(Parser):
         
     def p_finmacclause(self, p):
         'finmacclause : _flag crsdflag flag_'
+        if p[2] != None:
+	    p[0] = ""
         
     def p_finmacclause_error(self, p):
         """
@@ -2289,7 +2319,8 @@ class MMPULite(Parser):
 
     def p_fmacctrl(self, p):
         'fmacctrl : fmac DOT ctrl'
-        p[0] = p[1]
+        if p[1] != None and p[3] != None:
+            p[0] = p[1]
 
     def p_fmacctrl_error(self, p):
         """
@@ -2320,6 +2351,9 @@ class MMPULite(Parser):
 		  | regrep
                   | regrep SUB imm
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_repeatexp_error(self, p):
@@ -2337,8 +2371,9 @@ class MMPULite(Parser):
         'immrep : error'
         
     def p_regrep(self, p):
-        'regrep : loops' 
-        p[0] = "KI"
+        'regrep : loops'
+        if p[1] != None:
+            p[0] = "KI"
 
     def p_regrep_error(self, p):
         'regrep : error' 
@@ -2348,6 +2383,11 @@ class MMPULite(Parser):
         loops : loop
               | loop andflag loops
         """
+        if len(p) > 2:
+	    if p[1] != None and p[2] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_loops_error(self, p):
         """
@@ -2361,6 +2401,11 @@ class MMPULite(Parser):
         loop : negflag kiflag
              | kiflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[2] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_loop_error(self, p):
         """
@@ -2370,7 +2415,8 @@ class MMPULite(Parser):
         
     def p_lpinst(self, p):
         'lpinst : lpexp lpcond'
-        p[0] = "LpTo"
+        if p[1] != None and p[2] != None:
+            p[0] = "LpTo"
 
     def p_lpinst_error(self, p):
         """
@@ -2383,6 +2429,8 @@ class MMPULite(Parser):
         lpexp : LOOP label ALPHA
 	      | LOOP imm ALPHA
         """
+        if p[2] != None:
+	    p[0] = ""
 
     def p_lpexp_error(self, p):
         """
@@ -2399,6 +2447,11 @@ class MMPULite(Parser):
                | _flag kiflag SUB imm flag_
                | _flag imm flag_
         """
+        if len(p) > 4:
+	    if p[2] != None and p[4] != None:
+		p[0] = ""
+	elif p[2] != None:
+	    p[0] = ""
 
     def p_lpcond_error(self, p):
         """
@@ -2411,7 +2464,8 @@ class MMPULite(Parser):
         
     def p_jmpinst(self, p):
         'jmpinst : JMP label ALPHA condexp'
-        p[0] = "LpTo"
+        if p[2] != None and p[4] != None:
+            p[0] = "LpTo"
 
     def p_jmpinst_error(self, p):
         """
@@ -2427,6 +2481,11 @@ class MMPULite(Parser):
         condexp : _flag trueflag flag_
                 | regrep
         """
+        if len(p) > 2:
+	    if p[2] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_condexp_error(self, p):
         """
@@ -2548,7 +2607,8 @@ class MMPULite(Parser):
 
     def p_ialut(self, p):
         'ialut : ialu DOT t'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_ialut_error(self, p):
         """
@@ -2559,7 +2619,8 @@ class MMPULite(Parser):
         
     def p_imact(self, p):
         'imact : imac DOT t'
-	p[0] = p[1]
+        if p[3] != None:
+	    p[0] = p[1]
 
     def p_imact_error(self, p):
         """
@@ -2570,7 +2631,8 @@ class MMPULite(Parser):
         
     def p_falut(self, p):
         'falut : falu DOT t'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_falut_error(self, p):
         """
@@ -2581,7 +2643,8 @@ class MMPULite(Parser):
         
     def p_fmact(self, p):
         'fmact : fmac DOT t'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_fmact_error(self, p):
         """
@@ -2592,13 +2655,16 @@ class MMPULite(Parser):
         
     def p_biu0(self, p):
         'biu0 : BIU0'
+        p[0] = "BIU0"
 
     def p_biu1(self, p):
-        'biu1 : BIU1'    
+        'biu1 : BIU1'
+        p[0] = "BIU1"
 
     def p_biu2(self, p):
         'biu2 : BIU2'
-
+        p[0] = "BIU2"
+        
     def p_shu0t(self, p):
         'shu0t : SHU0 DOT t'
         if p[3] != None:
@@ -2613,7 +2679,8 @@ class MMPULite(Parser):
         
     def p_shu1t(self, p):
         'shu1t : SHU1 DOT t'
-        p[0] = "SHU"
+        if p[3] != None:
+            p[0] = "SHU"
   
     def p_shu1t_error(self, p):
         """
@@ -2624,12 +2691,15 @@ class MMPULite(Parser):
         
     def p_mindexs(self, p):
         'mindexs : MINDEXS'
+        p[0] = "MINDEXS"
 
     def p_mindexi(self, p):
         'mindexi : MINDEXI'
+        p[0] = "MINDEXI"
 
     def p_mindexn(self, p):
         'mindexn : MINDEXN'
+        p[0] = "MINDEXN"
 
     def p_t(self, p):
         't : TREG'
@@ -2658,6 +2728,8 @@ class MMPULite(Parser):
         
     def p_tripara(self, p):
         'tripara : dupara COMMA t'
+        if p[1] != None and p[3] != None:
+	    p[0] = ""
         
     def p_tripara_error(self, p):
         """
@@ -2668,6 +2740,8 @@ class MMPULite(Parser):
 
     def p_dupara(self, p):
         'dupara : t COMMA t'
+        if p[1] != None and p[3] != None:
+	    p[0] = ""
 
     def p_dupara_error(self, p):
         """
@@ -2681,6 +2755,8 @@ class MMPULite(Parser):
         imm : imm5
             | IMM
         """
+        if p[1] != None:
+	    p[0] = ""
 
     def p_imm5(self, p):
         """
@@ -2690,6 +2766,7 @@ class MMPULite(Parser):
              | IMM5_1
              | IMM5_2
         """
+        p[0] = ""
 
     def p_t_sflag(self, p):
 	"""
@@ -2697,6 +2774,11 @@ class MMPULite(Parser):
                 | tflag 
                 | tflag COMMA sflag
 	"""
+	if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_t_sflag_error(self, p):
         """
@@ -2709,9 +2791,11 @@ class MMPULite(Parser):
         
     def p_stflag(self, p):
         'stflag : imbrakflag'  
+        p[0] = p[1] 
 
     def p_ldflag(self, p):
         'ldflag : mbrakflag'
+        p[0] = p[1] 
 
     def p_imbrakflag(self, p):
         """
@@ -2726,6 +2810,11 @@ class MMPULite(Parser):
                    | kflag COMMA imbraflag
                    | kflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_imbrakflag_error(self, p):
         """
@@ -2753,6 +2842,11 @@ class MMPULite(Parser):
                   | kflag COMMA ibraflag
                   | kflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
         
     def p_ibrakflag_error(self, p):
         """
@@ -2778,7 +2872,12 @@ class MMPULite(Parser):
                  | kflag COMMA imaflag
                  | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imakflag_error(self, p):
         """
         imakflag : iflag COMMA error
@@ -2803,7 +2902,12 @@ class MMPULite(Parser):
                   | kflag COMMA imbrflag
                   | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imbrkflag_error(self, p):
         """
         imbrkflag : iflag COMMA error
@@ -2828,7 +2932,12 @@ class MMPULite(Parser):
                   | aflag COMMA imbrflag
                   | aflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imbraflag_error(self, p):
         """
         imbraflag : iflag COMMA error
@@ -2851,7 +2960,12 @@ class MMPULite(Parser):
 		| kflag COMMA iaflag
 		| kflag
 	"""
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_iakflag_error(self, p):
 	"""
 	iakflag : iflag COMMA error
@@ -2872,7 +2986,12 @@ class MMPULite(Parser):
                  | kflag COMMA ibrflag
                  | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_ibrkflag_error(self, p):
         """
         ibrkflag : iflag COMMA error
@@ -2893,7 +3012,11 @@ class MMPULite(Parser):
                  | aflag COMMA ibrflag
                  | aflag        
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_ibraflag_error(self, p):
         """
@@ -2915,7 +3038,12 @@ class MMPULite(Parser):
                 | kflag COMMA imflag 
                 | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imkflag_error(self, p):
         """
         imkflag : iflag COMMA error
@@ -2936,7 +3064,12 @@ class MMPULite(Parser):
                 | aflag COMMA imflag 
                 | aflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imaflag_error(self, p):
         """
         imaflag : iflag COMMA error
@@ -2957,7 +3090,12 @@ class MMPULite(Parser):
                  | brflag COMMA imflag
                  | brflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imbrflag_error(self, p):
         """
         imbrflag : iflag COMMA error 
@@ -2976,7 +3114,12 @@ class MMPULite(Parser):
                | kflag COMMA iflag 
                | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_ikflag_error(self, p):
         """
         ikflag : iflag COMMA error
@@ -2993,7 +3136,12 @@ class MMPULite(Parser):
                | aflag COMMA iflag 
                | aflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_iaflag_error(self, p):
         """
         iaflag : iflag COMMA error
@@ -3002,7 +3150,7 @@ class MMPULite(Parser):
                | aflag error
                | error
         """
-        
+	    
     def p_ibrflag(self, p):
         """
         ibrflag : iflag COMMA brflag
@@ -3010,7 +3158,12 @@ class MMPULite(Parser):
                 | brflag COMMA iflag 
                 | brflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_ibrflag_error(self, p):
         """
         ibrflag : iflag COMMA error
@@ -3027,7 +3180,12 @@ class MMPULite(Parser):
                | mflag COMMA iflag 
                | mflag      
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_imflag_error(self, p):
         """
         imflag : iflag COMMA error 
@@ -3048,7 +3206,12 @@ class MMPULite(Parser):
                   | kflag COMMA mbraflag
                   | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_mbrakflag_error(self, p):
         """
         mbrakflag : mflag COMMA error 
@@ -3071,7 +3234,12 @@ class MMPULite(Parser):
                  | kflag COMMA braflag
                  | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_brakflag_error(self, p):
         """
         brakflag : brflag COMMA error
@@ -3092,7 +3260,12 @@ class MMPULite(Parser):
                 | kflag COMMA maflag
                 | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_makflag_error(self, p):
         """
         makflag : mflag COMMA error
@@ -3113,7 +3286,12 @@ class MMPULite(Parser):
                  | kflag COMMA mbrflag
                  | kflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_mbrkflag_error(self, p):
         """
         mbrkflag : mflag COMMA error
@@ -3134,7 +3312,12 @@ class MMPULite(Parser):
                  | aflag COMMA mbrflag
                  | aflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_mbraflag_error(self, p):
         """
         mbraflag : mflag COMMA error
@@ -3153,6 +3336,11 @@ class MMPULite(Parser):
                | kflag 
                | kflag COMMA aflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_akflag_error(self, p):
         """
@@ -3170,6 +3358,11 @@ class MMPULite(Parser):
                | kflag 
                | kflag COMMA mflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_mkflag_error(self, p):
         """
@@ -3187,7 +3380,12 @@ class MMPULite(Parser):
                 | kflag 
                 | kflag COMMA brflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_brkflag_error(self, p):
         """
         brkflag : brflag COMMA error 
@@ -3204,7 +3402,12 @@ class MMPULite(Parser):
                | aflag 
                | aflag COMMA mflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_maflag_error(self, p):
         """
         maflag : mflag COMMA error 
@@ -3221,6 +3424,11 @@ class MMPULite(Parser):
                 | brflag
                 | brflag COMMA mflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_mbrflag_error(self, p):
         """
@@ -3238,7 +3446,12 @@ class MMPULite(Parser):
                 | aflag 
                 | aflag COMMA brflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_braflag_error(self, p):
         """
         braflag : brflag COMMA error 
@@ -3257,6 +3470,11 @@ class MMPULite(Parser):
                 | hflag COMMA utflag 
                 | hflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_uthflag_error(self, p):
         """
@@ -3276,7 +3494,12 @@ class MMPULite(Parser):
                | hflag 
                | hflag COMMA tflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_thflag_error(self, p):
         """
         thflag : tflag COMMA error 
@@ -3293,7 +3516,12 @@ class MMPULite(Parser):
                | hflag 
                | hflag COMMA uflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_uhflag_error(self, p):
         """
         uhflag : uflag COMMA error
@@ -3308,6 +3536,7 @@ class MMPULite(Parser):
         utbflag : t_ubflag 
                 | ubflag
         """
+        p[0] = p[1]
 
     def p_utbflag_error(self, p):
         """
@@ -3320,6 +3549,11 @@ class MMPULite(Parser):
                 | tflag 
                 | bflag COMMA tflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_t_bflag_error(self, p):
         """
@@ -3348,7 +3582,12 @@ class MMPULite(Parser):
                  | b_flag
                  | uflag COMMA b_flag
         """ 
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_b__uflag_error(self, p):
         """
         b__uflag : b_flag COMMA error
@@ -3384,6 +3623,7 @@ class MMPULite(Parser):
         utflag : t_uflag 
                | uflag
         """
+        p[0] = p[1]
 
     def p_utflag_error(self, p):
         """
@@ -3396,6 +3636,11 @@ class MMPULite(Parser):
                 | tflag 
                 | tflag COMMA uflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_t_uflag_error(self, p):
         """
@@ -3414,7 +3659,11 @@ class MMPULite(Parser):
                   | iflag COMMA t_ubflag
                   | bflag COMMA t_uiflag  
         """
-        p[0] = "T"
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = "T"
+	elif p[1] != None:
+	    p[0] = "T"
 
     def p_t_uibflag_error(self, p):
         """
@@ -3434,6 +3683,7 @@ class MMPULite(Parser):
         uibflag : b_uiflag 
                 | uiflag
         """
+        p[0] = p[1]
 
     def p_uibflag_error(self, p):
         """
@@ -3447,6 +3697,11 @@ class MMPULite(Parser):
                  | uflag COMMA b_iflag 
                  | iflag COMMA b_uflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_b_uiflag_error(self, p):
         """
@@ -3466,7 +3721,12 @@ class MMPULite(Parser):
                  | uflag COMMA t_bflag
                  | bflag COMMA t_uflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_t_ubflag_error(self, p):
         """
         t_ubflag : tflag COMMA error   
@@ -3485,7 +3745,12 @@ class MMPULite(Parser):
                  | iflag COMMA t_bflag
                  | bflag COMMA t_iflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_t_ibflag_error(self, p):
         """
         t_ibflag : tflag COMMA error
@@ -3504,7 +3769,12 @@ class MMPULite(Parser):
                  | uflag COMMA t_iflag
                  | iflag COMMA t_uflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_t_uiflag_error(self, p):
         """
         t_uiflag : tflag COMMA error
@@ -3521,6 +3791,7 @@ class MMPULite(Parser):
         ibflag : b_iflag
                | iflag
         """
+        p[0] = p[1]
 
     def p_ibflag_error(self, p):
         """
@@ -3533,7 +3804,12 @@ class MMPULite(Parser):
                 | bflag 
                 | iflag COMMA bflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_b_iflag_error(self, p):
         """
         b_iflag : bflag COMMA error
@@ -3549,7 +3825,12 @@ class MMPULite(Parser):
                 | tflag 
                 | iflag COMMA tflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_t_iflag_error(self, p):
         """
         t_iflag : tflag COMMA error
@@ -3566,7 +3847,12 @@ class MMPULite(Parser):
                | uflag 
                | uflag COMMA iflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_uiflag_error(self, p):
         """
         uiflag : iflag COMMA error
@@ -3669,7 +3955,12 @@ class MMPULite(Parser):
                 | lflag 
                 | lflag COMMA crflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_crlflag_error(self, p):
         """
         crlflag : crflag COMMA error
@@ -3678,7 +3969,7 @@ class MMPULite(Parser):
                 | lflag COMMA error
                 | error
         """
-        
+	    
     def p_crubflag(self, p):
         """
         crubflag : crflag COMMA ubflag
@@ -3688,7 +3979,12 @@ class MMPULite(Parser):
                  | bflag COMMA cruflag
                  | bflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_crubflag_error(self, p):
         """
         crubflag : crflag COMMA error
@@ -3707,7 +4003,12 @@ class MMPULite(Parser):
                 | bflag 
                 | bflag COMMA crflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_crbflag_error(self, p):
         """
         crbflag : crflag COMMA error
@@ -3724,7 +4025,12 @@ class MMPULite(Parser):
                 | uflag 
                 | uflag COMMA crflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_cruflag_error(self, p):
         """
         cruflag : crflag COMMA error 
@@ -3741,7 +4047,12 @@ class MMPULite(Parser):
                | bflag 
                | bflag COMMA lflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_lbflag_error(self, p):
         """
         lbflag : lflag COMMA error 
@@ -3783,7 +4094,12 @@ class MMPULite(Parser):
                 | bflag COMMA luflag 
                 | bflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_lubflag_error(self, p):
         """
         lubflag : lflag COMMA error 
@@ -3801,6 +4117,11 @@ class MMPULite(Parser):
                 | sdflag 
                 | sdflag COMMA tflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_tsdflag_error(self, p):
         """
@@ -3816,6 +4137,7 @@ class MMPULite(Parser):
         sdflag : sflag 
                | dflag
         """
+        p[0] = p[1]
 
     def p_sdflag_error(self, p):
         """
@@ -3828,6 +4150,11 @@ class MMPULite(Parser):
                | dflag
                | dflag COMMA tflag
         """
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_tdflag_error(self, p):
         """
@@ -3856,6 +4183,11 @@ class MMPULite(Parser):
                  | sdflag
                  | sdflag COMMA crflag
         """ 
+	if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
 
     def p_crsdflag_error(self, p):
         """
@@ -3876,7 +4208,12 @@ class MMPULite(Parser):
                | lflag COMMA tcflag 
                | lflag
         """
-
+        if len(p) > 2:
+	    if p[1] != None and p[3] != None:
+		p[0] = ""
+	elif p[1] != None:
+	    p[0] = ""
+	    
     def p_byflag_error(self, p):
         """
         byflag : tcflag COMMA error
@@ -3973,7 +4310,8 @@ class MMPULite(Parser):
         condflag : ALPHA _flag cflag flag_
                  | ALPHA _flag ncflag flag_
         """
-        p[0] = "C"
+        if p[3] != None:
+            p[0] = "C"
 
     def p_condflag_error(self, p):
         """
@@ -4010,6 +4348,7 @@ class MMPULite(Parser):
 
     def p_label(self, p):
         'label : EXPR'
+        p[0] = "EXPR"
      
     def p_error(self, p):
         self.result = -1
