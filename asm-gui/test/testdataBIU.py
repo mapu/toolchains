@@ -5,8 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString,QStringList
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -16,118 +17,134 @@ class mytest(unittest.TestCase):
         "test BIU register read"
         self.main = MainWindow()
         self.inittablewidget = self.main.microcodeTableWidget
+        global condlist
+        condlist = ["","@(c)","@(!c)"]
         
     def tearDown(self):
         self.main = None
         self.inittablewidget = None
- 
-    def testdatabiu(self):
-        self.main.newFile()
-        selranges = QTableWidgetSelectionRange(0, 0, 0, 0)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(0,0,QTableWidgetItem("biu0.dm->m[122]"))
-        self.inittablewidget.dataParser(0,0)
-        self.assertEqual(self.inittablewidget.item(0,0).background(),self.inittablewidget.defaultBackgroundColor)
 
-    def testdatabiufirst(self):
+    def testDataBiu(self):
+        self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        t = random.randint(0,127)
-        BIU = random.choice(["biu0","biu1","biu2"])
-        LD = random.choice(["A++","K++","M","BR","a++,K++","K++,M","M,BR"])
-        text = "%s.dm->m[%s]"%(BIU,t)
-        text0 = "%s.dm->m[i++]"%(BIU)
-        text1 = "%s.dm(%s)->m[%s]"%(BIU,LD,t)
-        text2 = "%s.dm(%s)->m[i++]"%(BIU,LD)
-        self.main.newFile()
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-        self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
-        self.inittablewidget.setItem(row, column + 1,QTableWidgetItem(text1))
-        self.inittablewidget.setItem(row + 1, column + 1,QTableWidgetItem(text1))
-        self.inittablewidget.dataParser(row, column)
-        self.inittablewidget.dataParser(row + 1, column)
-        self.inittablewidget.dataParser(row, column + 1)
-        self.inittablewidget.dataParser(row + 1, column + 1)
-        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
+        #t = random.randint(0,127)
+        biulist = ["biu0","biu1","biu2"]
+        ldlist = ["","(A++)","(K++)","(M)","(BR)","(a++,K++)","(K++,M)","(M,BR)","(A++,M)","(A++,BR)","(K++,BR)"]
+        for biu in biulist:
+            for ld in ldlist:
+                for t in xrange(0,127):
+                    for cond in condlist:
+                        text = "%s.dm%s->m[%s]%s"%(biu,ld,t,cond)
+                        #print text
+                        selranges = QTableWidgetSelectionRange(row, column, row, column)
+                        self.inittablewidget.setRangeSelected(selranges, True)
+                        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                        self.inittablewidget.dataParser(row, column)
+                        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
+                        self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "12")
+        for biu in biulist:
+            for ld in ldlist:
+                for cond in condlist:
+                    text = "%s.dm %s->m[I++]%s"%(biu,ld,cond)
+                    selranges = QTableWidgetSelectionRange(row + 1, column, row + 1, column)
+                    self.inittablewidget.setRangeSelected(selranges, True)
+                    self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                    self.inittablewidget.dataParser(row + 1, column)
+                    self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                    self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "12")
 
-    def testdatabiusecond(self):
+    def testDataBiu_0(self):
+        self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        t = random.randint(0,3)
-        BIU = random.choice(["biu0","biu1","biu2"])
-        LD = random.choice(["A++","K++","M","BR","a++,K++","K++,M","M,BR"])
-        ld = random.choice(["ialu","imac","falu","fmac"])
-        i = random.choice(["i0","i1","i2"])
-        text = "%s.dm->%s.t%s(%s)"%(BIU,ld,t,i)
-        text0 = "%s.dm(%s)->%s.t%s(%s)"%(BIU,LD,ld,t,i)
-        print text0
+        #t = random.randint(0,127)
+        biulist = ["biu0","biu1","biu2"]
+        ldlist = ["","(A++)","(K++)","(M)","(BR)","(a++,K++)","(K++,M)","(M,BR)","(A++,M)","(A++,BR)","(K++,BR)"]
+        macclist = ["ialu", "imac", "falu", "fmac"]
+        ilist = ["i0", "i1", "i2"]
+        for biu in biulist:
+            for ld in ldlist:
+                for macc in macclist:
+                    for t in xrange(0,3):
+                        for i in ilist:
+                            for cond in condlist:
+                                text = "%s.dm%s->%s.t%s(%s)%s"%(biu,ld,macc,t,i,cond)
+                                #print text
+                                selranges = QTableWidgetSelectionRange(row, column, row, column)
+                                self.inittablewidget.setRangeSelected(selranges, True)
+                                self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                                self.inittablewidget.dataParser(row, column)
+                                self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
+                                self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "11")
+    def testDataBiu_1(self):
         self.main.newFile()
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-        self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
-        self.inittablewidget.dataParser(row, column)
-        self.inittablewidget.dataParser(row + 1, column)
-        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
-
-    def testdatabiuthird(self):
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        t = random.randint(0,3)
-        BIU = random.choice(["biu0","biu1","biu2"])
-        LD = random.choice(["A++","K++","M","BR","a++,K++","K++,M","M,BR"])
-        shu = random.choice(["shu0","shu1"])
-        text = "%s.dm->%s.t%s"%(BIU,shu,t)
-        text0 = "%s.dm(%s)->%s.t%s"%(BIU,LD,shu,t)
-        self.main.newFile()
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-        self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
-        self.inittablewidget.dataParser(row, column)
-        self.inittablewidget.dataParser(row + 1, column)
-        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+        #t = random.randint(0,127)
+        biulist = ["biu0","biu1","biu2"]
+        ldlist = ["","(A++)","(K++)","(M)","(BR)","(a++,K++)","(K++,M)","(M,BR)","(A++,M)","(A++,BR)","(K++,BR)"]
+        shulist = ["shu0", "shu1"]
+        for biu in biulist:
+            for ld in ldlist:
+                for shu in shulist:
+                    for t in xrange(0,3):
+                        for cond in condlist:
+                            text = "%s.dm%s->%s.t%s%s"%(biu,ld,shu,t,cond)
+                            #print text
+                            selranges = QTableWidgetSelectionRange(row, column, row, column)
+                            self.inittablewidget.setRangeSelected(selranges, True)
+                            self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                            self.inittablewidget.dataParser(row, column)
+                            self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
+                            self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "11")
 
-    def testdatabiuforth(self):
+    def testDataBiu_2(self):
+        self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        BIU = random.choice(["biu0","biu1","biu2"])
-        LD = random.choice(["A++","K++","M","BR","a++,K++","K++,M","M,BR"])
-        text = "%s->dm@(c|!c)"%(BIU)
-        text0 = "%s->dm(%s)@(c|!c)"%(BIU,LD)
-        self.main.newFile()
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-        self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
-        self.inittablewidget.dataParser(row, column)
-        self.inittablewidget.dataParser(row + 1, column)
-        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+        #t = random.randint(0,127)
+        biulist = ["biu0","biu1","biu2"]
+        ldlist = ["","(A++)","(K++)","(M)","(BR)","(a++,K++)","(K++,M)","(M,BR)","(I)","(A++,M)","(A++,BR)","(A++,I)","(K++,BR)","(K++,I)","(M,I)","(BR,I)"]
+        for biu in biulist:
+            for ld in ldlist:
+                for cond in condlist:
+                    text = "%s->dm%s%s"%(biu,ld,cond)
+                    #print text
+                    selranges = QTableWidgetSelectionRange(row, column, row, column)
+                    self.inittablewidget.setRangeSelected(selranges, True)
+                    self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                    self.inittablewidget.dataParser(row, column)
+                    self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
+                    self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "8")
 
-    def testdatabiufive(self):
+    def testDataBiu_3(self):
+        self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        BIU = random.choice(["biu0","biu1","biu2"])
-        t = random.randint(0,127)
-        text = "%s(kg)->m[%s]@(c|!c)"%(BIU,t)
-        text0 = "%s(kg)->m[i++]@(c|!c)"%(BIU)
-        self.main.newFile()
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
-        self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text0))
-        self.inittablewidget.dataParser(row, column)
-        self.inittablewidget.dataParser(row + 1, column)
-        self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
-        self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+        #t = random.randint(0,127)
+        biulist = ["biu0","biu1","biu2"]
+        for biu in biulist:
+            for t in xrange(0,127):
+                for cond in condlist:
+                    text = "%s(kg)->m[%s]%s"%(biu,t,cond)
+                    #print text
+                    selranges = QTableWidgetSelectionRange(row, column, row, column)
+                    self.inittablewidget.setRangeSelected(selranges, True)
+                    self.inittablewidget.setItem(row, column,QTableWidgetItem(text))
+                    self.inittablewidget.dataParser(row, column)
+                    self.assertEqual(self.inittablewidget.item(row, column).background(),self.inittablewidget.defaultBackgroundColor)
+                    self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "4")
+        for biu in biulist:
+            for cond in condlist:
+                text0 = "%s(kg)->m[i++]%s"%(biu,cond)
+                print text0
+                selranges = QTableWidgetSelectionRange(row + 1, column, row + 1, column)
+                self.inittablewidget.setRangeSelected(selranges, True)
+                self.inittablewidget.setItem(row + 1, column,QTableWidgetItem(text))
+                self.inittablewidget.dataParser(row + 1, column)
+                self.assertEqual(self.inittablewidget.item(row + 1, column).background(),self.inittablewidget.defaultBackgroundColor)
+                self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result), "4")
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(mytest)
