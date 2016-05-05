@@ -7,6 +7,7 @@ from PyQt4.QtTest import QTest
 import unittest
 import main
 import sys
+sys.path.append("../..")
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -21,7 +22,7 @@ class mytest(unittest.TestCase):
         self.main = None
         self.inittablewidget = None
 
-    def testfalu(self):
+    def testFalu(self):
         self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
@@ -51,7 +52,7 @@ class mytest(unittest.TestCase):
                             self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"6")
    
-    def testfalu0(self):
+    def testFalu_0(self):
         self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
@@ -80,7 +81,7 @@ class mytest(unittest.TestCase):
                             self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                             self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"6")
 
-    def testfalu1(self):
+    def testFalu_1(self):
         self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
@@ -111,7 +112,7 @@ class mytest(unittest.TestCase):
                                 self.assertEqual(self.inittablewidget.item(row + 1, column + 1).background(),self.inittablewidget.defaultBackgroundColor)
                                 self.assertEqual(self.inittablewidget.database.searchMcc(self.inittablewidget.mmpulite.result),"5")
 
-    def testfalu2(self):
+    def testFalu_2(self):
         self.main.newFile()
         row = random.randint(0,1999)
         column = random.randint(0,19)
