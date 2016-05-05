@@ -659,8 +659,9 @@ class MMPULite(Parser):
                | mindexs ASSIGNTO r0dest      
         """
         if len(p) > 2:
-            p[0] = "ToM"
-        if p[1] != None:
+	    if p[1] != None and p[3] != None:
+                p[0] = "ToM"
+        elif p[1] != None:
 	    p[0] = p[1]
 
     def p_r0inst_error(self, p):
@@ -2111,8 +2112,11 @@ class MMPULite(Parser):
         tclause : tosexp _flag utflag flag_
                 | tosexp
         """
-        if p[3] != None:
-            p[0] = p[1]
+        if len(p) > 2:
+            if p[3] != None:
+                p[0] = p[1]
+        elif p[1] != None:
+	    p[0] = p[1]
 
     def p_tclause_error(self, p):
         """
@@ -2530,7 +2534,8 @@ class MMPULite(Parser):
  
     def p_r0dest(self, p):   
         'r0dest : mindexn'
-        p[0] = "M"
+        if p[1] != None:
+            p[0] = "M"
 	
     def p_r3dest(self, p):
         """
