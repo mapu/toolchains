@@ -1406,7 +1406,8 @@ class MMPULite(Parser):
         
     def p_rshti(self, p):
         'rshti : RSHT imm5'
-        p[0] = "Rshi"
+        if p[2] != None:
+            p[0] = "Rshi"
 
     def p_rshti_error(self, p):
         """
@@ -2765,10 +2766,7 @@ class MMPULite(Parser):
 
     def p_imm5(self, p):
         """
-        imm5 : IMM3_1
-	     | IMM3_2
-	     | IMM3_3
-             | IMM5_1
+        imm5 : IMM5_1
              | IMM5_2
         """
         p[0] = ""
