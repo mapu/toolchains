@@ -1649,7 +1649,8 @@ class MMPULite(Parser):
         
     def p_mulexp(self, p):
         'mulexp : t MUL t'
-        p[0] = "Mul"
+        if p[1] != None and p[3] != None:
+            p[0] = "Mul"
 
     def p_mulexp_error(self, p):
         """
@@ -1738,7 +1739,8 @@ class MMPULite(Parser):
         
     def p_exmacexp(self, p):
         'exmacexp : MR ASSIGN t ADD mulexp'
-        p[0] = "MA"
+        if p[3] != None and p[5] != None:
+            p[0] = "MA"
 
     def p_exmacexp_error(self, p):
         """
@@ -2230,7 +2232,7 @@ class MMPULite(Parser):
 		 | fmacclause error
 		 | error
         """
-        
+
     def p_fmacclause(self, p):
         """
         fmacclause : fmulclause
@@ -4355,10 +4357,11 @@ class MMPULite(Parser):
      
     def p_error(self, p):
         self.result = -1
-	'''
+        '''
         if p:
             print("Syntax error at '%s'" % p.value)
         else:
             print("Syntax error at EOF")  
         '''
+
         
