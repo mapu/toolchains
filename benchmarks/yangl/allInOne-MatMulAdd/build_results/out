@@ -1,0 +1,581 @@
+Building MaPU project ...
+Configuring MPU projects ...
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorInt'
+llvm[1]: Compiling example.m.s for Release+Asserts build
+llvm[1]: Linking Release+Asserts executable addVectorInt
+llvm[1]: ======= Finished Linking Release+Asserts Executable addVectorInt
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullInt'
+llvm[1]: Compiling example.m.s for Release+Asserts build
+llvm[1]: Linking Release+Asserts executable addVectorFullInt
+llvm[1]: ======= Finished Linking Release+Asserts Executable addVectorFullInt
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/fullBandWidth'
+llvm[1]: Compiling example.m.s for Release+Asserts build
+llvm[1]: Linking Release+Asserts executable fullBandWidth
+llvm[1]: ======= Finished Linking Release+Asserts Executable fullBandWidth
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullFloat'
+llvm[1]: Compiling example.m.s for Release+Asserts build
+llvm[1]: Linking Release+Asserts executable addVectorFullFloat
+llvm[1]: ======= Finished Linking Release+Asserts Executable addVectorFullFloat
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/matmul'
+llvm[1]: Compiling matmul.mpu.s for Release+Asserts build
+llvm[1]: Linking Release+Asserts executable matmul
+llvm[1]: ======= Finished Linking Release+Asserts Executable matmul
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/matmul'
+llvm[0]: Installing include files
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorInt'
+llvm[1]: Installing Release+Asserts /home/shishq/benchmarks/allInOne/mlib/bin/addVectorInt.m.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullInt'
+llvm[1]: Installing Release+Asserts /home/shishq/benchmarks/allInOne/mlib/bin/addVectorFullInt.m.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/fullBandWidth'
+llvm[1]: Installing Release+Asserts /home/shishq/benchmarks/allInOne/mlib/bin/fullBandWidth.m.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullFloat'
+llvm[1]: Installing Release+Asserts /home/shishq/benchmarks/allInOne/mlib/bin/addVectorFullFloat.m.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_mpu/matmul'
+llvm[1]: Installing Release+Asserts /home/shishq/benchmarks/allInOne/mlib/bin/matmul.m.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_mpu/matmul'
+Configuring SPU projects ...
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling init.spu.s for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorInt.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorInt.s.elf
+llvm[1]: Moving addVectorInt.mdep for Release+Asserts build
+llvm[1]: Moving addVectorInt.ld for Release+Asserts build
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling init.spu.s for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorFullInt.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorFullInt.s.elf
+llvm[1]: Moving addVectorFullInt.mdep for Release+Asserts build
+llvm[1]: Moving addVectorFullInt.ld for Release+Asserts build
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling init.spu.s for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library fullBandWidth.s.a
+llvm[1]: Building Release+Asserts Archive Library fullBandWidth.s.elf
+llvm[1]: Moving fullBandWidth.mdep for Release+Asserts build
+llvm[1]: Moving fullBandWidth.ld for Release+Asserts build
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling init.spu.s for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorFullFloat.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorFullFloat.s.elf
+llvm[1]: Moving addVectorFullFloat.mdep for Release+Asserts build
+llvm[1]: Moving addVectorFullFloat.ld for Release+Asserts build
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[1]: Compiling init.spu.s for Release+Asserts build
+llvm[1]: Compiling matmul.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library matmul.s.a
+llvm[1]: Building Release+Asserts Archive Library matmul.s.elf
+llvm[1]: Moving matmul.mdep for Release+Asserts build
+llvm[1]: Moving matmul.ld for Release+Asserts build
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[0]: Installing include files
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorInt.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullInt.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/fullBandWidth.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullFloat.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/matmul.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorInt.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorInt.s.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorFullInt.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorFullInt.s.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library fullBandWidth.s.a
+llvm[1]: Building Release+Asserts Archive Library fullBandWidth.s.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+llvm[1]: Compiling example.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library addVectorFullFloat.s.a
+llvm[1]: Building Release+Asserts Archive Library addVectorFullFloat.s.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[1]: Compiling matmul.s.c for Release+Asserts build
+llvm[1]: Compiling mlib_mgr.c for Release+Asserts build
+llvm[1]: Building Release+Asserts Archive Library matmul.s.a
+llvm[1]: Building Release+Asserts Archive Library matmul.s.elf
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[0]: Installing include files
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorInt.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullInt.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullInt'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/fullBandWidth.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/fullBandWidth'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullFloat.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/addVectorFullFloat'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+llvm[1]: Installing Release+Asserts Archive Library /home/shishq/benchmarks/allInOne/slib/lib/matmul.s.a
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/build_spu/matmul'
+/home/shishq/sdk/trunk/apc/bin/ld.gold /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullFloat.s.a -o /home/shishq/benchmarks/allInOne/fs_root/slib/addVectorFullFloat.s.elf -L/home/shishq/sdk/trunk/apc/lib/clang/3.6.0/lib/mspu/ -lclang_rt.builtins-mspu -L/home/shishq/sdk/trunk/apc/lib/mspu/lib -lc -lm -lgloss -T /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullFloat.ld --just-symbols /home/shishq/benchmarks/allInOne/fs_root/mlib/addVectorFullFloat.m.elf
+/home/shishq/sdk/trunk/apc/bin/ld.gold /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullInt.s.a -o /home/shishq/benchmarks/allInOne/fs_root/slib/addVectorFullInt.s.elf -L/home/shishq/sdk/trunk/apc/lib/clang/3.6.0/lib/mspu/ -lclang_rt.builtins-mspu -L/home/shishq/sdk/trunk/apc/lib/mspu/lib -lc -lm -lgloss -T /home/shishq/benchmarks/allInOne/slib/lib/addVectorFullInt.ld --just-symbols /home/shishq/benchmarks/allInOne/fs_root/mlib/addVectorFullInt.m.elf
+/home/shishq/sdk/trunk/apc/bin/ld.gold /home/shishq/benchmarks/allInOne/slib/lib/addVectorInt.s.a -o /home/shishq/benchmarks/allInOne/fs_root/slib/addVectorInt.s.elf -L/home/shishq/sdk/trunk/apc/lib/clang/3.6.0/lib/mspu/ -lclang_rt.builtins-mspu -L/home/shishq/sdk/trunk/apc/lib/mspu/lib -lc -lm -lgloss -T /home/shishq/benchmarks/allInOne/slib/lib/addVectorInt.ld --just-symbols /home/shishq/benchmarks/allInOne/fs_root/mlib/addVectorInt.m.elf
+/home/shishq/sdk/trunk/apc/bin/ld.gold /home/shishq/benchmarks/allInOne/slib/lib/fullBandWidth.s.a -o /home/shishq/benchmarks/allInOne/fs_root/slib/fullBandWidth.s.elf -L/home/shishq/sdk/trunk/apc/lib/clang/3.6.0/lib/mspu/ -lclang_rt.builtins-mspu -L/home/shishq/sdk/trunk/apc/lib/mspu/lib -lc -lm -lgloss -T /home/shishq/benchmarks/allInOne/slib/lib/fullBandWidth.ld --just-symbols /home/shishq/benchmarks/allInOne/fs_root/mlib/fullBandWidth.m.elf
+/home/shishq/sdk/trunk/apc/bin/ld.gold /home/shishq/benchmarks/allInOne/slib/lib/matmul.s.a -o /home/shishq/benchmarks/allInOne/fs_root/slib/matmul.s.elf -L/home/shishq/sdk/trunk/apc/lib/clang/3.6.0/lib/mspu/ -lclang_rt.builtins-mspu -L/home/shishq/sdk/trunk/apc/lib/mspu/lib -lc -lm -lgloss -T /home/shishq/benchmarks/allInOne/slib/lib/matmul.ld --just-symbols /home/shishq/benchmarks/allInOne/fs_root/mlib/matmul.m.elf
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/u-boot/mapu'
+  HOSTCC  scripts/basic/fixdep
+  GEN     ./Makefile
+  HOSTCC  scripts/kconfig/conf.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/zconf.lex.c
+  SHIPPED scripts/kconfig/zconf.hash.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+#
+# configuration written to .config
+#
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/u-boot/mapu'
+make[1]: Entering directory `/home/shishq/benchmarks/allInOne/u-boot/mapu'
+  GEN     ./Makefile
+scripts/kconfig/conf  --silentoldconfig Kconfig
+  CHK     include/config.h
+  UPD     include/config.h
+  GEN     include/autoconf.mk
+  GEN     include/autoconf.mk.dep
+make[1]: Leaving directory `/home/shishq/benchmarks/allInOne/u-boot/mapu'
+  CHK     include/config/uboot.release
+  UPD     include/config/uboot.release
+  Using .. as source for U-Boot
+  GEN     ./Makefile
+  CHK     include/generated/version_autogenerated.h
+  UPD     include/generated/version_autogenerated.h
+  CHK     include/generated/timestamp_autogenerated.h
+  UPD     include/generated/timestamp_autogenerated.h
+  CC      lib/asm-offsets.s
+  CHK     include/generated/generic-asm-offsets.h
+  UPD     include/generated/generic-asm-offsets.h
+  CC      arch/arm/lib/asm-offsets.s
+  CHK     include/generated/asm-offsets.h
+  UPD     include/generated/asm-offsets.h
+  HOSTCC  tools/gen_eth_addr
+  HOSTCC  tools/img2srec
+  HOSTCC  tools/mkenvimage.o
+  HOSTCC  tools/os_support.o
+  WRAP    tools/lib/crc32.c
+  HOSTCC  tools/lib/crc32.o
+  HOSTLD  tools/mkenvimage
+  HOSTCC  tools/aisimage.o
+  HOSTCC  tools/atmelimage.o
+  WRAP    tools/common/bootm.c
+  HOSTCC  tools/common/bootm.o
+  HOSTCC  tools/default_image.o
+  WRAP    tools/lib/fdtdec_common.c
+  HOSTCC  tools/lib/fdtdec_common.o
+  WRAP    tools/lib/fdtdec.c
+  HOSTCC  tools/lib/fdtdec.o
+  HOSTCC  tools/fit_common.o
+  HOSTCC  tools/fit_image.o
+  HOSTCC  tools/gpimage.o
+  HOSTCC  tools/gpimage-common.o
+  WRAP    tools/common/image-fit.c
+  HOSTCC  tools/common/image-fit.o
+  HOSTCC  tools/image-host.o
+  WRAP    tools/common/image.c
+  HOSTCC  tools/common/image.o
+  HOSTCC  tools/imagetool.o
+  HOSTCC  tools/imximage.o
+  HOSTCC  tools/kwbimage.o
+  WRAP    tools/lib/md5.c
+  HOSTCC  tools/lib/md5.o
+  HOSTCC  tools/lpc32xximage.o
+  HOSTCC  tools/mxsimage.o
+  HOSTCC  tools/omapimage.o
+  HOSTCC  tools/pblimage.o
+  HOSTCC  tools/pbl_crc32.o
+  WRAP    tools/lib/rc4.c
+  HOSTCC  tools/lib/rc4.o
+  HOSTCC  tools/rkcommon.o
+  HOSTCC  tools/rkimage.o
+  HOSTCC  tools/rksd.o
+  HOSTCC  tools/socfpgaimage.o
+  WRAP    tools/lib/sha1.c
+  HOSTCC  tools/lib/sha1.o
+  WRAP    tools/lib/sha256.c
+  HOSTCC  tools/lib/sha256.o
+  WRAP    tools/common/hash.c
+  HOSTCC  tools/common/hash.o
+  HOSTCC  tools/ublimage.o
+  WRAP    tools/lib/libfdt/fdt.c
+  HOSTCC  tools/lib/libfdt/fdt.o
+  WRAP    tools/lib/libfdt/fdt_ro.c
+  HOSTCC  tools/lib/libfdt/fdt_ro.o
+  WRAP    tools/lib/libfdt/fdt_rw.c
+  HOSTCC  tools/lib/libfdt/fdt_rw.o
+  WRAP    tools/lib/libfdt/fdt_strerror.c
+  HOSTCC  tools/lib/libfdt/fdt_strerror.o
+  WRAP    tools/lib/libfdt/fdt_wip.c
+  HOSTCC  tools/lib/libfdt/fdt_wip.o
+  WRAP    tools/lib/libfdt/fdt_region.c
+  HOSTCC  tools/lib/libfdt/fdt_region.o
+  HOSTCC  tools/dumpimage.o
+  HOSTLD  tools/dumpimage
+  HOSTCC  tools/mkimage.o
+  HOSTLD  tools/mkimage
+  HOSTCC  tools/proftool
+  HOSTCC  tools/fdtgrep.o
+  HOSTLD  tools/fdtgrep
+  LD      arch/arm/cpu/built-in.o
+  CC      arch/arm/cpu/armv7/cache_v7.o
+  CC      arch/arm/cpu/armv7/cpu.o
+  CC      arch/arm/cpu/armv7/cp15.o
+  CC      arch/arm/cpu/armv7/syslib.o
+  LD      arch/arm/cpu/armv7/built-in.o
+  AS      arch/arm/cpu/armv7/start.o
+  AS      arch/arm/lib/vectors.o
+  AS      arch/arm/lib/crt0.o
+  AS      arch/arm/lib/relocate.o
+  CC      arch/arm/lib/bootm-fdt.o
+  CC      arch/arm/lib/bootm.o
+  CC      arch/arm/lib/sections.o
+  CC      arch/arm/lib/stack.o
+  CC      arch/arm/lib/interrupts.o
+  CC      arch/arm/lib/reset.o
+  CC      arch/arm/lib/cache.o
+  CC      arch/arm/lib/cache-cp15.o
+  LD      arch/arm/lib/built-in.o
+  AR      arch/arm/lib/lib.a
+  CC      arch/arm/lib/eabi_compat.o
+  CC      board/casia/mapu/mapu_common.o
+  LD      board/casia/mapu/built-in.o
+  CC      common/main.o
+  CC      common/exports.o
+  CC      common/hash.o
+  CC      common/cli_hush.o
+  CC      common/autoboot.o
+  CC      common/board_f.o
+  CC      common/board_r.o
+  CC      common/cmd_boot.o
+  CC      common/cmd_bootm.o
+  CC      common/bootm.o
+  CC      common/bootm_os.o
+  CC      common/cmd_help.o
+  CC      common/cmd_version.o
+  CC      common/env_attr.o
+  CC      common/env_callback.o
+  CC      common/env_flags.o
+  CC      common/env_nowhere.o
+  CC      common/cmd_source.o
+  CC      common/cmd_bdinfo.o
+  CC      common/cmd_bootmenu.o
+  CC      common/cmd_console.o
+  CC      common/cmd_echo.o
+  CC      common/cmd_elf.o
+  CC      common/cmd_exit.o
+  CC      common/cmd_ext4.o
+  CC      common/cmd_ext2.o
+  CC      common/cmd_fat.o
+  CC      common/cmd_fdt.o
+  CC      common/fdt_support.o
+  CC      common/cmd_flash.o
+  CC      common/cmd_gettime.o
+  CC      common/cmd_itest.o
+  CC      common/cmd_jffs2.o
+  CC      common/cmd_load.o
+  CC      common/cmd_mem.o
+  CC      common/cmd_misc.o
+  CC      common/cmd_mtdparts.o
+  CC      common/cmd_net.o
+  CC      common/cmd_pcmcia.o
+  CC      common/cmd_setexpr.o
+  CC      common/cmd_test.o
+  CC      common/cmd_ximg.o
+  CC      common/flash.o
+  CC      common/splash.o
+  CC      common/menu.o
+  CC      common/cmd_nvedit.o
+  CC      common/env_common.o
+  CC      common/console.o
+  CC      common/dlmalloc.o
+  CC      common/image.o
+  CC      common/image-fdt.o
+  CC      common/memsize.o
+  CC      common/stdio.o
+  CC      common/cli_simple.o
+  CC      common/cli.o
+  CC      common/cli_readline.o
+  CC      common/command.o
+  CC      common/s_record.o
+  CC      common/xyzModem.o
+  CC      common/cmd_disk.o
+  CC      common/apc/cmd_lib.o
+  CC      common/apc/cmd_core.o
+  LD      common/apc/built-in.o
+  LD      common/built-in.o
+  CC      disk/part.o
+  CC      disk/part_dos.o
+  LD      disk/built-in.o
+  CC      drivers/apc/ape.o
+  CC      drivers/apc/loader.o
+  CC      drivers/apc/lib_init.o
+  LD      drivers/apc/built-in.o
+rm drivers/apc/db_parser.h drivers/apc/vlog_parser.h
+  LD      drivers/block/built-in.o
+  CC      drivers/crypto/fsl/sec.o
+  LD      drivers/crypto/fsl/built-in.o
+  LD      drivers/crypto/rsa_mod_exp/built-in.o
+  LD      drivers/crypto/built-in.o
+  LD      drivers/dfu/built-in.o
+  LD      drivers/hwmon/built-in.o
+  CC      drivers/input/input.o
+  LD      drivers/input/built-in.o
+  LD      drivers/memory/built-in.o
+  LD      drivers/misc/built-in.o
+  CC      drivers/pcmcia/tqm8xx_pcmcia.o
+  LD      drivers/pcmcia/built-in.o
+  LD      drivers/pwm/built-in.o
+  CC      drivers/rtc/date.o
+  LD      drivers/rtc/built-in.o
+  LD      drivers/soc/built-in.o
+  LD      drivers/sound/built-in.o
+  LD      drivers/thermal/built-in.o
+  LD      drivers/tpm/built-in.o
+  LD      drivers/twserial/built-in.o
+  LD      drivers/video/bridge/built-in.o
+  LD      drivers/video/built-in.o
+  LD      drivers/watchdog/built-in.o
+  LD      drivers/built-in.o
+  CC      drivers/dma/mapu_dma.o
+  LD      drivers/dma/built-in.o
+  LD      drivers/gpio/built-in.o
+  LD      drivers/i2c/muxes/built-in.o
+  LD      drivers/i2c/built-in.o
+  LD      drivers/mmc/built-in.o
+  CC      drivers/mtd/mtdcore.o
+  CC      drivers/mtd/mtd_uboot.o
+  CC      drivers/mtd/mtdpart.o
+  CC      drivers/mtd/cfi_flash.o
+  CC      drivers/mtd/cfi_mtd.o
+  LD      drivers/mtd/built-in.o
+  LD      drivers/mtd/onenand/built-in.o
+  LD      drivers/mtd/spi/built-in.o
+  LD      drivers/net/built-in.o
+  LD      drivers/net/phy/built-in.o
+  LD      drivers/pci/built-in.o
+  LD      drivers/power/built-in.o
+  LD      drivers/power/battery/built-in.o
+  LD      drivers/power/fuel_gauge/built-in.o
+  LD      drivers/power/mfd/built-in.o
+  LD      drivers/power/pmic/built-in.o
+  LD      drivers/power/regulator/built-in.o
+  CC      drivers/serial/serial.o
+  CC      drivers/serial/serial_ns16550.o
+  CC      drivers/serial/ns16550.o
+  LD      drivers/serial/built-in.o
+  CC      drivers/spi/spi.o
+  LD      drivers/spi/built-in.o
+  LD      drivers/usb/dwc3/built-in.o
+  LD      drivers/usb/emul/built-in.o
+  LD      drivers/usb/eth/built-in.o
+  LD      drivers/usb/gadget/built-in.o
+  LD      drivers/usb/gadget/udc/built-in.o
+  LD      drivers/usb/host/built-in.o
+  LD      drivers/usb/musb-new/built-in.o
+  LD      drivers/usb/musb/built-in.o
+  LD      drivers/usb/phy/built-in.o
+  LD      drivers/usb/ulpi/built-in.o
+  CC      fs/fs.o
+  CC      fs/ext4/ext4fs.o
+  CC      fs/ext4/ext4_common.o
+  CC      fs/ext4/dev.o
+  LD      fs/ext4/built-in.o
+  CC      fs/fat/fat.o
+  CC      fs/fat/file.o
+  LD      fs/fat/built-in.o
+  CC      fs/jffs2/compr_rtime.o
+  CC      fs/jffs2/compr_rubin.o
+  CC      fs/jffs2/compr_zlib.o
+  CC      fs/jffs2/jffs2_1pass.o
+  CC      fs/jffs2/mini_inflate.o
+  LD      fs/jffs2/built-in.o
+  LD      fs/built-in.o
+  CC      lib/libfdt/fdt.o
+  CC      lib/libfdt/fdt_ro.o
+  CC      lib/libfdt/fdt_rw.o
+  CC      lib/libfdt/fdt_strerror.o
+  CC      lib/libfdt/fdt_sw.o
+  CC      lib/libfdt/fdt_wip.o
+  CC      lib/libfdt/fdt_empty_tree.o
+  CC      lib/libfdt/fdt_addresses.o
+  CC      lib/libfdt/fdt_region.o
+  LD      lib/libfdt/built-in.o
+  CC      lib/zlib/zlib.o
+  LD      lib/zlib/built-in.o
+  CC      lib/crc7.o
+  CC      lib/crc8.o
+  CC      lib/crc16.o
+  CC      lib/gunzip.o
+  CC      lib/initcall.o
+  CC      lib/lmb.o
+  CC      lib/ldiv.o
+  CC      lib/net_utils.o
+  CC      lib/qsort.o
+  CC      lib/rc4.o
+  CC      lib/strmhz.o
+  CC      lib/list_sort.o
+  CC      lib/hashtable.o
+  CC      lib/errno.o
+  CC      lib/display_options.o
+  CC      lib/crc32.o
+  CC      lib/ctype.o
+  CC      lib/div64.o
+  CC      lib/hang.o
+  CC      lib/linux_compat.o
+  CC      lib/linux_string.o
+  CC      lib/slre.o
+  CC      lib/string.o
+  CC      lib/time.o
+  CC      lib/uuid.o
+  CC      lib/vsprintf.o
+  LD      lib/built-in.o
+  CC      net/checksum.o
+  CC      net/arp.o
+  CC      net/bootp.o
+  CC      net/eth.o
+  CC      net/net.o
+  CC      net/nfs.o
+  CC      net/ping.o
+  CC      net/tftp.o
+  LD      net/built-in.o
+  LD      test/built-in.o
+  LD      test/dm/built-in.o
+  CC      examples/standalone/stubs.o
+  LD      examples/standalone/libstubs.o
+  CC      examples/standalone/hello_world.o
+  LD      examples/standalone/hello_world
+  OBJCOPY examples/standalone/hello_world.srec
+  OBJCOPY examples/standalone/hello_world.bin
+  CC      app/stubs.o
+  LD      app/libstubs.o
+  CC      app/allInOne/allInOne.o
+  CC      app/allInOne/addVectorIntTest.o
+  CC      app/allInOne/fullBandWidthTest.o
+  CC      app/allInOne/addVectorFullFloatTest.o
+  CC      app/allInOne/addVectorFullIntTest.o
+  CC      app/allInOne/matmul.o
+  LD      app/allInOne/allInOne
+install -m 644 -D app/allInOne/allInOne /home/shishq/benchmarks/allInOne/u-boot/mapu/../../fs_root/app/allInOne
+  OBJCOPY app/allInOne/allInOne.srec
+  OBJCOPY app/allInOne/allInOne.bin
+  LDS     u-boot.lds
+  LD      u-boot
+  OBJCOPY u-boot.srec
+  OBJCOPY u-boot.bin
+  CFG     u-boot.cfg
+
+-------- Begin to build ARM projects --------
+arm-none-eabi-gcc (GNU Tools for ARM Embedded Processors) 4.8.3 20131129 (release) [ARM/embedded-4_8-branch revision 205641]
+Copyright (C) 2013 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Assembling (ARM-only): start.S
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -x assembler-with-cpp  -Wa,-adhlns=start.lst,--gdwarf-2 start.S -o start.o
+
+Assembling (ARM-only): util.S
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -x assembler-with-cpp  -Wa,-adhlns=util.lst,--gdwarf-2 util.S -o util.o
+
+Compiling C (ARM-only): lowlevel_init.c
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=lowlevel_init.lst   -MD -MP -MF .dep/lowlevel_init.o.d -Wnested-externs  -std=gnu99 lowlevel_init.c -o lowlevel_init.o 
+
+Compiling C (ARM-only): exit.c
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=exit.lst   -MD -MP -MF .dep/exit.o.d -Wnested-externs  -std=gnu99 exit.c -o exit.o 
+
+Compiling C (ARM-only): dma_ctrl.c
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=dma_ctrl.lst   -MD -MP -MF .dep/dma_ctrl.o.d -Wnested-externs  -std=gnu99 dma_ctrl.c -o dma_ctrl.o 
+
+Compiling C (ARM-only): ddr_param.c
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=ddr_param.lst   -MD -MP -MF .dep/ddr_param.o.d -Wnested-externs  -std=gnu99 ddr_param.c -o ddr_param.o 
+
+Compiling C: main.c
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc -c  -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=main.lst   -MD -MP -MF .dep/main.o.d -Wnested-externs  -std=gnu99 main.c -o main.o 
+
+Linking: main.elf
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-gcc  -mcpu=cortex-a8  -I. -gdwarf-2   -O3 -mno-unaligned-access -Wall -Wimplicit  -Wpointer-arith -Wswitch -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wa,-adhlns=start.lst   -MD -MP -MF .dep/main.elf.d start.o util.o  lowlevel_init.o exit.o dma_ctrl.o ddr_param.o main.o     --output main.elf -Wl,-Map=main.map,--cref -lnosys -specs=nosys.specs    -TMaPU.lds
+
+Creating load file for Flash: main.bin
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-objcopy -O binary main.elf main.bin
+
+Creating Extended Listing: main.lss
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-objdump -h -S -C main.elf > main.lss
+
+Creating Symbol Table: main.sym
+/home/shishq/sdk/trunk/arm-none-eabi/bin/arm-none-eabi-nm -n main.elf > main.sym
+
+Size after:
+main.elf  :
+section               size        addr
+.reset                 224           0
+.text                 6816         224
+.eh_frame                4        7040
+.ARM.exidx               8        7044
+.data                 1076   536870912
+.init_array              4   536871988
+.fini_array              4   536871992
+.init_array.00000        4   536871996
+.bss                    28   536872000
+.stack              262144   536872028
+.comment               112           0
+.ARM.attributes         49           0
+.debug_aranges         216           0
+.debug_info           7940           0
+.debug_abbrev         1261           0
+.debug_line           1515           0
+.debug_frame           740           0
+.debug_str            3939           0
+.debug_loc            1275           0
+.debug_ranges          752           0
+Total               288111
+
+
+
+Errors: none
+-------- end --------
+
+Generating flash image ...
+Retrieving boot rom binary image ...
+Retrieving u-boot binary image ...
+Make file system image ...
+Complete image generation. Flash image is in file image.bin.
