@@ -1,0 +1,18 @@
+;+:shift ^:ctrl #:win !:alt
+
+#singleinstance force
+#persistent
+#installkeybdhook
+SetTitleMatchMode, RegEx
+
+return
+
+^!+z::
+	send run initapclib{enter}
+	Sleep 500
+	send fsload 0x75000000 app/testMat{enter}
+	Sleep 500
+	send apccore load_mpu MatMul 0{enter}
+	Sleep 500
+	send bootelf -p 0x75000000{enter}
+	return
