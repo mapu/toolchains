@@ -1,0 +1,5 @@
+// This is a generated relationship database for APC library reference.
+// The database format is defined as:
+// <"slib_name", ["mlib_name0" "mlib_name1" ...]>
+<"PolyPhase", ["PolyPhase", ]>
+
