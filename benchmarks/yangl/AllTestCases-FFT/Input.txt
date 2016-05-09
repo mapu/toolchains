@@ -1,0 +1,16 @@
+;+:shift ^:ctrl #:win !:alt
+
+#singleinstance force
+#persistent
+#installkeybdhook
+SetTitleMatchMode, RegEx
+
+return
+
+^!+z::
+	send run initapclib{enter}
+	Sleep 500
+	send setenv ffloat "apccore load_mpu FFTFix4096_mpu 0;apccore loadvlog FFTFix4096_SDA0DM0.dat 0x400000 0x60000000 0;apccore loadvlog FFTFix4096_SDA1DM0.dat 0x800000 0x60000000 0;apccore loadvlog FFTFix4096_SDA1DM1.dat 0xa00000 0x60000000 0;apclib call FFTFix4096_spu 0;apccore wait 0"{enter}
+	Sleep 500
+	send run ffloat{enter}
+	return

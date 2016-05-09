@@ -1,0 +1,4 @@
+CONFIG_testLTE=y
+APPSUBDIRS-$(CONFIG_testLTE)+=testLTE
+CONFIG_main=y
+APPSUBDIRS-$(CONFIG_main)+=main

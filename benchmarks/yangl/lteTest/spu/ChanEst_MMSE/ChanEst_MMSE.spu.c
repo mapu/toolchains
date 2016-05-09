@@ -1,0 +1,992 @@
+#include <mspu-intrin.h>
+#include <mlib_mgr.h>
+
+extern void ChEstMMSE_Stg1();
+extern void ChEstMMSE_Stg2Cyc1();
+extern void ChEstMMSE_Stg2();
+extern void ChEstMMSE_Stg3();
+
+const unsigned int MMSE_COEF_MATRIX[] __attribute__((section (".SDA1.DM1"))) = {
+0x2b734156,
+0x096117f2,
+0xfdae00c9,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0x23322b73,
+0x0f961949,
+0x024d07a1,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x194917f2,
+0x13fc17cf,
+0x093c0ebf,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x0f960961,
+0x159413fc,
+0x1055142e,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x07a100c9,
+0x142e0ebf,
+0x15a3169f,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x024dfdae,
+0x1055093c,
+0x17cb15a3,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0xffc2fe73,
+0x0b250488,
+0x165211ad,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0xff7600d3,
+0x05f20160,
+0x11ad0bea,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x00590289,
+0x01f70006,
+0x0b2505f2,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x012001d9,
+0x00060030,
+0x04880160,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x0098fdf6,
+0x00590120,
+0xffc2ff76,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xfdf6f726,
+0x028901d9,
+0xfe7300d3,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xf5910000,
+0xf7fdf3cd,
+0x0599feec,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x00010a6f,
+0xf80ff9ee,
+0xfcd6f97c,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0x06120c33,
+0xfb330001,
+0xf81df87d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0x07f10803,
+0x000104cd,
+0xf7adfb27,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0x06840114,
+0x04d90783,
+0xface0000,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0x032afa67,
+0x085307e3,
+0x00000532,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0xff6af635,
+0x0985063c,
+0x055c0902,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0xfc9bf58a,
+0x082e0352,
+0x09020a2d,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0xfb95f835,
+0x04bd0024,
+0x0985082e,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0xfc8bfcfc,
+0x0024fda8,
+0x063c0352,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0xff08020a,
+0xfb95fc8b,
+0xff6afc9b,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0x020a056d,
+0xf835fcfc,
+0xf635f58a,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0x024dfdae,
+0x1055093c,
+0x17cb15a3,
+0x11ad1652,
+0x04880b25,
+0xfe73ffc2,
+0xfcd60599,
+0xf7adf81d,
+0x0000face,
+0x0902055c,
+0x063c0985,
+0xf635ff6a,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0xfdaefdae,
+0x00d3fe73,
+0x01d90289,
+0xf726fdf6,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0x024d024d,
+0xff76ffc2,
+0x01200059,
+0xfdf60098,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x093c093c,
+0x01600488,
+0x00300006,
+0x01d90120,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x10551055,
+0x05f20b25,
+0x000601f7,
+0x02890059,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x15a315a3,
+0x0bea11ad,
+0x016005f2,
+0x00d3ff76,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x17cb17cb,
+0x11ad1652,
+0x04880b25,
+0xfe73ffc2,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x16521652,
+0x15a317cb,
+0x093c1055,
+0xfdae024d,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x11ad11ad,
+0x169f15a3,
+0x0ebf142e,
+0x00c907a1,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x0b250b25,
+0x142e1055,
+0x13fc1594,
+0x09610f96,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x04880488,
+0x0ebf093c,
+0x17cf13fc,
+0x17f21949,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0xffc2ffc2,
+0x07a1024d,
+0x19490f96,
+0x2b732332,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0xfe73fe73,
+0x00c9fdae,
+0x17f20961,
+0x41562b73,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x05990599,
+0x0a7609cb,
+0x030407cb,
+0xfa93fdf6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0xfcd6fcd6,
+0x03650096,
+0x0375046b,
+0xfdf600f8,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xf81df81d,
+0xfcaef9c4,
+0x0258ffdc,
+0x03040375,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7adf7ad,
+0xf7d2f67b,
+0xffdcfb43,
+0x07cb046b,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xfaceface,
+0xf5d3f6fe,
+0xfcaef7d2,
+0x0a760365,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0x00000000,
+0xf6fefaa4,
+0xf9c4f67b,
+0x09cb0096,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0x055c055c,
+0xface0001,
+0xf81df7ad,
+0x0599fcd6,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x09020902,
+0x00000532,
+0xf87dfb27,
+0xfeecf97c,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x09850985,
+0x04d90853,
+0xfb330001,
+0xf7fdf80f,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x063c063c,
+0x078307e3,
+0x000004cd,
+0xf3cdf9ee,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0xff6aff6a,
+0x0684032a,
+0x061207f1,
+0xf5910000,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0xf635f635,
+0x0114fa67,
+0x0c330803,
+0x00000a6f,
+};
+
+void main()
+{
+        unsigned int SRC_ADDR = 0x400000;
+        unsigned int DST_ADDR = 0xc00000;
+        unsigned int DataLen = 9600;
+
+
+	unsigned int    BS = 32;
+	unsigned int    S2_TailNum, S2_TailEn, S1_Num, S2_Num, S3_Num;
+	unsigned int    S1_BIU0_START_ADDR, S1_BIU1_START_ADDR, S1_BIU2_START_ADDR;
+	unsigned int    S2_BIU0_STEP, S2_BIU1_STEP, S2_BIU2_STEP, S2_BIU0_START_ADDR, S2_BIU1_START_ADDR, S2_BIU2_START_ADDR;
+	unsigned int    S3_BIU0_STEP, S3_BIU1_STEP, S3_BIU2_STEP, S3_BIU0_START_ADDR, S3_BIU1_START_ADDR, S3_BIU2_START_ADDR;
+    unsigned int    BlockSize     = 64;                           
+    unsigned int    BlockGran     = 6 ;                     
+	unsigned int    BIU2_Mask_L, BIU2_Mask_H, ShiftNum, MaskLTemp, MaskHTemp;
+	unsigned int    MIndexStart   = 0x0 ;
+    unsigned int    MStepMode     = 0x1 ;
+    unsigned int    MLen          = 0x18;
+    unsigned int    ISize         = 0x18;
+    unsigned int    MCIndexStart, MCStepMode, MCLen, ICSize, MConfig;
+    
+	if (DataLen > 52){
+		S2_TailNum = (DataLen - 52) % BS;
+		S2_TailEn  = S2_TailNum != 0;
+		S2_Num     = (DataLen - 52) / BS + S2_TailEn;      
+		S1_Num     = (DataLen - S2_Num * BS) / 2;     
+	}else{
+		S2_Num     = 0;
+		S1_Num     = DataLen / 2;
+	}
+	S3_Num = S1_Num;
+
+	S1_BIU0_START_ADDR = SRC_ADDR;
+	S1_BIU1_START_ADDR = &MMSE_COEF_MATRIX[0];
+	S1_BIU2_START_ADDR = DST_ADDR;
+	
+	S2_BIU0_STEP       = (S1_Num - 5) * 2;
+	S2_BIU1_STEP       = 0x600;
+	S2_BIU2_STEP       = S1_Num * 2;
+	S2_BIU0_START_ADDR = SRC_ADDR + S2_BIU0_STEP;
+	S2_BIU1_START_ADDR = S1_BIU1_START_ADDR + S2_BIU1_STEP;
+	S2_BIU2_START_ADDR = DST_ADDR + S2_BIU2_STEP;
+
+	S3_BIU0_STEP       = (DataLen - 32) * 2;   
+	S3_BIU1_STEP       = 0x630;  
+	S3_BIU2_STEP       = S3_BIU0_STEP;
+	S3_BIU0_START_ADDR = SRC_ADDR + S3_BIU0_STEP;
+	S3_BIU1_START_ADDR = S1_BIU1_START_ADDR + S3_BIU1_STEP;
+	S3_BIU2_START_ADDR = DST_ADDR + S3_BIU2_STEP;
+
+	if (S3_Num == 0){
+        BIU2_Mask_L = 0x0;
+        BIU2_Mask_H = 0x0;
+    }else if (S3_Num < 16){
+        ShiftNum    = 32 - S3_Num * 2;
+        MaskLTemp   = 0xffffffff << ShiftNum; 
+        BIU2_Mask_L = 0;
+        BIU2_Mask_H = MaskLTemp;
+    }else{ 
+        ShiftNum    = 64 - S3_Num * 2;
+        MaskHTemp   = 0xffffffff << ShiftNum;
+        BIU2_Mask_L = MaskHTemp;
+        BIU2_Mask_H = 0xffffffff;
+    }  
+
+    MCIndexStart  = MIndexStart <<  0; 
+    MCStepMode    = MStepMode   <<  8;
+    MCLen         = MLen        << 24;
+    ICSize        = ISize       << 12;
+    MConfig       = MCIndexStart | MCStepMode | MCLen | ICSize;
+//----------------------------------------------------------------------------
+//Stage 1:
+//----------------------------------------------------------------------------
+// SVR
+	__mspu_setSVR(SVR0, 0,0x01000100,MODE_W);
+	__mspu_setSVR(SVR0, 1,0x01000100,MODE_W);
+	__mspu_setSVR(SVR0, 2,0x01000100,MODE_W);
+	__mspu_setSVR(SVR0, 3,0x05040302,MODE_W);
+	__mspu_setSVR(SVR0, 4,0x09080706,MODE_W);
+	__mspu_setSVR(SVR0, 5,0x0d0c0b0a,MODE_W);
+	__mspu_setSVR(SVR0, 6,0x11100f0e,MODE_W);
+	__mspu_setSVR(SVR0, 7,0x15141312,MODE_W);
+	__mspu_setSVR(SVR0, 8,0x19181716,MODE_W);
+	__mspu_setSVR(SVR0, 9,0x1d1c1b1a,MODE_W);
+	__mspu_setSVR(SVR0,10,0x21201f1e,MODE_W);
+	__mspu_setSVR(SVR0,11,0x25242322,MODE_W);
+	__mspu_setSVR(SVR0,12,0x29282726,MODE_W);
+	__mspu_setSVR(SVR0,13,0x29282928,MODE_W);
+	__mspu_setSVR(SVR0,14,0x29282928,MODE_W);
+	__mspu_setSVR(SVR0,15,0x29282928,MODE_W);
+	__mspu_setSHUWithSVR(SHU1,T3,SVR0);
+
+	__mspu_setSVR(SVR1,0,0x00000001,MODE_W);
+	__mspu_setSHUWithSVR(SHU0,T3,SVR1);
+
+    __mspu_setMC(MC_r0,MConfig);
+    __mspu_setMC(MC_w1,MConfig);
+
+// for BIU0     
+	__mspu_setKB(KB0,S1_BIU0_START_ADDR);
+	__mspu_setKS(KS0,0x20000);
+	__mspu_setKI(KI0,2);
+	__mspu_setKG(KG0,BlockGran);
+	__mspu_setKL(KL0,1);
+	
+// for BIU1 
+	__mspu_setKB(KB4,S1_BIU1_START_ADDR);
+	__mspu_setKS(KS4,BlockSize);
+	__mspu_setKI(KI4,24);
+	__mspu_setKG(KG1,BlockGran);
+	__mspu_setKL(KL1,1);
+
+// for BIU2  
+	__mspu_setKB(KB8,S1_BIU2_START_ADDR);
+	__mspu_setKS(KS8,0x20000);
+	__mspu_setKI(KI8,2);
+	__mspu_setKG(KG2,BlockGran);
+	__mspu_setKL(KL2,1);  
+   
+    MLOAD(ChEstMMSE_Stg1);
+	__mspu_callmb(ChEstMMSE_Stg1);
+//----------------------------------------------------------------------------
+//Stage 2:
+//----------------------------------------------------------------------------
+	if (S2_Num > 0){
+// for Loop
+		__mspu_setKI(KI12,S2_Num);
+		__mspu_setMC(MC_r0,MConfig);
+
+// for BIU0    
+		__mspu_setKB(KB0,S2_BIU0_START_ADDR);
+		__mspu_setKS(KS0,BlockSize);
+		__mspu_setKI(KI0,2);
+		__mspu_setKB(KB1,S2_BIU0_START_ADDR);
+		__mspu_setKS(KS1,0x20000);
+		__mspu_setKI(KI1,2);
+		__mspu_setKB(KB2,S2_BIU0_START_ADDR);
+		__mspu_setKS(KS2,BlockSize);
+		__mspu_setKI(KI2,S2_Num);
+		__mspu_setKG(KG0,BlockGran);
+		__mspu_setKL(KL0,3);
+		
+// for BIU1    
+		__mspu_setKB(KB4,S2_BIU1_START_ADDR);
+		__mspu_setKS(KS4,24);
+		__mspu_setKI(KI4,2);
+		__mspu_setKG(KG1,BlockGran);
+		__mspu_setKL(KL1,1);
+
+// for BIU2    
+		__mspu_setKB(KB8,S2_BIU2_START_ADDR);
+		__mspu_setKS(KS8,0x20000);
+		__mspu_setKI(KI8,2);
+		__mspu_setKB(KB9,S2_BIU2_START_ADDR);
+		__mspu_setKS(KS9,BlockSize);
+		__mspu_setKI(KI9,S2_Num);
+		__mspu_setKG(KG2,BlockGran);
+		__mspu_setKL(KL2,2);
+
+// call the MPU  
+		if (S2_Num == 1){
+            MLOAD(ChEstMMSE_Stg2Cyc1);
+			__mspu_callmb(ChEstMMSE_Stg2Cyc1);
+		}else{
+            MLOAD(ChEstMMSE_Stg2);
+			__mspu_callmb(ChEstMMSE_Stg2);
+		}
+	}
+//----------------------------------------------------------------------------
+//step 3:    
+//----------------------------------------------------------------------------
+// SVR
+	__mspu_setSHUWithSVR(SHU1,T3,SVR0);
+	__mspu_setMC(MC_r0,MConfig);
+	
+// for BIU0   
+	__mspu_setKB(KB0,S3_BIU0_START_ADDR);
+	__mspu_setKS(KS0,0x20000);
+	__mspu_setKI(KI0,2);
+	__mspu_setKG(KG0,BlockGran);
+	__mspu_setKL(KL0,1);  
+	
+// for BIU1 
+	__mspu_setKB(KB4,S3_BIU1_START_ADDR);
+	__mspu_setKS(KS4,BlockSize);
+	__mspu_setKI(KI4,24);
+	__mspu_setKG(KG1,BlockGran);
+	__mspu_setKL(KL1,1);
+
+// for BIU2  
+	__mspu_setKB(KB8,S3_BIU2_START_ADDR);
+	__mspu_setKS(KS8,0x20000);
+	__mspu_setKI(KI8,2);
+	__mspu_setKM(KM2,BIU2_Mask_L);
+	__mspu_setHiKM(KM2,BIU2_Mask_H);
+	__mspu_setKG(KG2,BlockGran);
+	__mspu_setKL(KL2,1);   
+
+    MLOAD(ChEstMMSE_Stg3);
+	__mspu_callmb(ChEstMMSE_Stg3);
+}
