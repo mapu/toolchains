@@ -712,7 +712,7 @@ class MMPULite(Parser):
         r2instw : mindexn _flag WFLAG_1 flag_  ASSIGNTO r2destp
                 | mindexn _flag WFLAG_2 flag_  ASSIGNTO r2destp
         """
-        if p[6] != None:
+        if p[1] != None and p[6] != None:
             p[0] = "WTo" + p[6]
 
     def p_r2instw_error(self, p):
@@ -727,7 +727,7 @@ class MMPULite(Parser):
         r3inst : mindexn ASSIGNTO r3dest _flag KG flag_ 
                | mindexn ASSIGNTO r3dest
         """
-        if p[3] != None:
+        if p[1] != None and p[3] != None:
             if len(p) > 4:
 	        p[0] = "To%sKG"%(p[3])
 	    else:
@@ -841,7 +841,8 @@ class MMPULite(Parser):
         
     def p_byclause(self, p):
         'byclause : BY _flag shudupara flag_'
-        p[0] = "Comb"
+        if p[3] != None:
+            p[0] = "Comb"
 
     def p_byclause_error(self, p):
         """
@@ -852,6 +853,8 @@ class MMPULite(Parser):
         
     def p_shudupara(self, p):
         'shudupara : shusrct COMMA shusrct'
+        if p[1] != None and p[3] != None:
+	    p[0] = ""
         
     def p_shudupara_error(self, p):
         """
@@ -865,6 +868,9 @@ class MMPULite(Parser):
         byexp : byclause _flag byflag flag_ 
               | byclause
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_byexp_error(self, p):
@@ -911,6 +917,9 @@ class MMPULite(Parser):
         ldop : DM _flag ldflag flag_ ASSIGNTO
              | DM ASSIGNTO
         """
+        if len(p) > 3:
+	    p[3] == None:
+		return
         p[0] = "LdTo"
 
     def p_ldop_error(self, p):
@@ -932,6 +941,9 @@ class MMPULite(Parser):
         storeop : ASSIGNTO DM 
                 | ASSIGNTO DM _flag stflag flag_
         """
+        if len(p) > 3:
+	    if p[4] == None:
+		return
         p[0] = "St"
 
     def p_storeop_error(self, p):
@@ -944,7 +956,8 @@ class MMPULite(Parser):
         
     def p_kginst(self, p):
         'kginst : _flag KG flag_ ASSIGNTO mindex'
-        p[0] = "KG"
+        if p[5] != None:
+            p[0] = "KG"
 
     def p_kginst_error(self, p):
         """
@@ -1006,6 +1019,9 @@ class MMPULite(Parser):
         iaddclause : addexp _flag utbflag flag_
                    | addexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_iaddclause_error(self, p):
@@ -1020,6 +1036,9 @@ class MMPULite(Parser):
         isubclause : subexp _flag utbflag flag_
                    | subexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_isubclause_error(self, p):
@@ -1087,6 +1106,9 @@ class MMPULite(Parser):
         imaxclause : maxexp _flag ubflag flag_
                    | maxexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_imaxclause_error(self, p):
@@ -1098,7 +1120,8 @@ class MMPULite(Parser):
         
     def p_maxexp(self, p):
         'maxexp : MAX _flag dupara flag_'
-        p[0] = "Max"
+	if p[3] != None:
+            p[0] = "Max"
 
     def p_maxexp_error(self, p):
         """
@@ -1112,6 +1135,9 @@ class MMPULite(Parser):
         iminclause : minexp _flag ubflag flag_
                    | minexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_iminclause_error(self, p):
@@ -1123,7 +1149,8 @@ class MMPULite(Parser):
 
     def p_minexp(self, p):
         'minexp : MIN _flag dupara  flag_'
-        p[0] = "Min"
+        if p[3] != None:
+            p[0] = "Min"
 
     def p_minexp_error(self, p):
         """
@@ -1137,6 +1164,9 @@ class MMPULite(Parser):
         iabsclause : abssexp _flag ubflag flag_
                    | abssexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_iabsclause_error(self, p):
@@ -1148,7 +1178,8 @@ class MMPULite(Parser):
         
     def p_abssexp(self, p):
         'abssexp : ABS _flag dupara  flag_'
-	p[0] = "Abs"
+        if p[3] != None:
+	    p[0] = "Abs"
 
     def p_abssexp_error(self, p):
         """
@@ -1162,6 +1193,9 @@ class MMPULite(Parser):
         iexpdclause : expdexp _flag ubflag flag_
                     | expdexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
         
     def p_iexpdclause_error(self, p):
@@ -1173,7 +1207,8 @@ class MMPULite(Parser):
         
     def p_expdexp(self, p):
         'expdexp : EXPD t'
-        p[0] = "Expd"
+        if p[2] != None:
+            p[0] = "Expd"
 
     def p_expdexp_error(self, p):
         """
@@ -1186,6 +1221,9 @@ class MMPULite(Parser):
         iltclause : ltexp _flag ubflag flag_
                   | ltexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_iltclause_error(self, p):
@@ -1197,7 +1235,8 @@ class MMPULite(Parser):
         
     def p_ltexp(self, p):
         'ltexp : t LT t'
-        p[0] = "Lt"
+        if p[1] != None and p[3] != None:
+            p[0] = "Lt"
    
     def p_ltexp_error(self, p):
         """
@@ -1211,6 +1250,9 @@ class MMPULite(Parser):
         instclause : nstexp _flag ubflag flag_
                    | nstexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_instclause_error(self, p):
@@ -1222,7 +1264,8 @@ class MMPULite(Parser):
         
     def p_nstexp(self, p):
         'nstexp : t NST t'
-        p[0] = "Nst"
+        if p[1] != None and p[3] != None:
+            p[0] = "Nst"
 
     def p_nstexp_error(self, p):
         """
@@ -1236,6 +1279,9 @@ class MMPULite(Parser):
         istclause : stexp _flag ubflag flag_
                   | stexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
 	p[0] = p[1]
 
     def p_istclause_error(self, p):
@@ -1247,7 +1293,8 @@ class MMPULite(Parser):
         
     def p_stexp(self, p):
         'stexp : t ST t'
-        p[0] = "St"
+        if p[1] != None and p[3] != None:
+            p[0] = "St"
 
     def p_stexp_error(self, p):
         """
@@ -1261,6 +1308,9 @@ class MMPULite(Parser):
         inltclause : nltexp _flag ubflag flag_
                    | nltexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_inltclause_error(self, p):
@@ -1298,6 +1348,9 @@ class MMPULite(Parser):
         mrgclause : mrgexp _flag bflag flag_
                   | mrgexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_mrgclause_error(self, p):
@@ -1309,7 +1362,8 @@ class MMPULite(Parser):
         
     def p_mrgexp(self, p):
         'mrgexp : MERGE _flag tripara flag_'
-        p[0] = "Merge"
+        if p[3] != None:
+            p[0] = "Merge"
 
     def p_mrgexp_error(self, p):
         """
@@ -1322,8 +1376,9 @@ class MMPULite(Parser):
         iequclause : equexp _flag bflag flag_
                    | equexp
         """
-        p[0] = p[1]
-
+        if p[3] != None:
+            p[0] = p[1]
+ 
     def p_iequclause_error(self, p):
         """
         iequclause : equexp _flag error flag_
@@ -1333,7 +1388,8 @@ class MMPULite(Parser):
         
     def p_equexp(self, p):
         'equexp : t EQU t'
-        p[0] = "Equ"
+        if p[1] != None and p[3] != None:
+            p[0] = "Equ"
 
     def p_equexp_error(self, p):
         """
@@ -1347,6 +1403,9 @@ class MMPULite(Parser):
         ineqclause : neqexp _flag bflag flag_
                    | neqexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_ineqclause_error(self, p):
@@ -1358,7 +1417,8 @@ class MMPULite(Parser):
         
     def p_neqexp(self, p):
         'neqexp : t NEQ t'
-        p[0] = "Neq"
+        if p[1] != None and p[3] != None:
+            p[0] = "Neq"
 
     def p_neqexp_error(self, p):
         """
@@ -1372,6 +1432,9 @@ class MMPULite(Parser):
         rshtclause : rshtexp _flag ubflag flag_
                    | rshtexp
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
 	p[0] = p[1]
 
     def p_rshtclause_error(self, p):
@@ -1386,7 +1449,8 @@ class MMPULite(Parser):
         rshtexp : t rshtt
                 | t rshti
         """
-        p[0] = p[2]
+        if p[1] != None and p[2] != None:
+            p[0] = p[2]
 
     def p_rshtexp_error(self, p):
         """
@@ -1396,7 +1460,8 @@ class MMPULite(Parser):
 
     def p_rshtt(self, p):
         'rshtt : RSHT t'
-        p[0] = "Rsh"
+        if p[2] != None:
+            p[0] = "Rsh"
 
     def p_rshtt_error(self, p):
         """
@@ -1443,7 +1508,8 @@ class MMPULite(Parser):
 
     def p_uaryexp(self, p):
         'uaryexp : NOT t'
-        p[0] = "Not"
+        if p[2] != None:
+            p[0] = "Not"
 
     def p_uaryexp_error(self, p):
         """
@@ -1453,7 +1519,8 @@ class MMPULite(Parser):
         
     def p_binaryexp(self, p):
         'binaryexp : t binaryop t'
-        p[0] = p[2]
+        if p[1] != None and p[2] != None and p[3] != None:
+            p[0] = p[2]
 
     def p_binaryexp_error(self, p):
         """
@@ -1480,6 +1547,9 @@ class MMPULite(Parser):
         lshtclause : lshtexp _flag bflag flag_
                    | lshtexp    
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_lshtclause_error(self, p):
@@ -1494,7 +1564,8 @@ class MMPULite(Parser):
         lshtexp : t LSHT t
                 | t LSHT imm5
         """
-        p[0] = "Lsh"
+        if p[1] != None and p[3] != None:
+            p[0] = "Lsh"
 
     def p_lshtexp_error(self, p):
         """
@@ -1508,6 +1579,9 @@ class MMPULite(Parser):
         uthclause : cprsexp _flag uthflag flag_
                   | cprsexp    
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
         p[0] = p[1]
 
     def p_uthclause_error(self, p):
@@ -1519,7 +1593,8 @@ class MMPULite(Parser):
 
     def p_cprsexp(self, p):
         'cprsexp : CPRS _flag dupara flag_'
-        p[0] = "Cprs"
+        if p[3] != None:
+            p[0] = "Cprs"
 
     def p_cprsexp_error(self, p):
         """
@@ -1530,7 +1605,8 @@ class MMPULite(Parser):
         
     def p_b_uclause(self, p):
         'b_uclause : reduceexp _flag b__uflag flag_'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_b_uclause_error(self, p):
         """
@@ -1544,7 +1620,7 @@ class MMPULite(Parser):
         reduceexp : RMAX t
                   | RMIN t
         """
-        if p[1] != None:
+        if p[2] != None:
             p[0] = p[1].capitalize()
 
     def p_reduceexp_error(self, p):
@@ -1587,8 +1663,12 @@ class MMPULite(Parser):
         divsexp : t DIVS t _flag uflag flag_
                 | t DIVS t 
         """
-        p[0] = "Divs"
-
+        if len(p) > 4:
+	    if p[5] == None:
+		return
+	if p[1] != None and p[3] != None:
+            p[0] = "Divs"
+  
     def p_divsexp_error(self, p):
         """
         divsexp : t DIVS t _flag error flag_
@@ -1612,7 +1692,8 @@ class MMPULite(Parser):
 
     def p_ialuctrl(self, p):
         'ialuctrl : ialu DOT ctrl'
-        p[0] = p[1]
+        if p[3] != None:
+            p[0] = p[1]
 
     def p_ialuctrl_error(self, p):
         """
@@ -1687,7 +1768,11 @@ class MMPULite(Parser):
         muladsbexp : t ADDSUB mulexp _flag hflag flag_
                    | t ADDSUB mulexp
         """
-        p[0] = "MAS"
+        if len(p) > 4:
+	    if p[5] == None:
+		return 
+	if p[1] != None and p[3] != None:
+            p[0] = "MAS"
 
     def p_muladsbexp_error(self, p):
         """
@@ -1703,6 +1788,11 @@ class MMPULite(Parser):
         mrclause : MR _flag lubflag flag_
                  | MR
         """
+        if len(p) > 2:
+	    if p[3] == None:
+		return
+	p[0] = ""
+	    
 
     def p_mrclause_error(self, p):
         """
@@ -1753,7 +1843,8 @@ class MMPULite(Parser):
         
     def p_inmacexp(self, p):
         'inmacexp : MR ACC1 mulexp'
-        p[0] = "MaC"
+        if p[3] != None:
+            p[0] = "MaC"
 
     def p_inmacexp_error(self, p):
         """
@@ -1764,7 +1855,8 @@ class MMPULite(Parser):
         
     def p_accexp(self, p):
        'accexp : MR ACC1 t' 
-       p[0] = "Acc"
+       if p[3] != None:
+           p[0] = "Acc"
 
     def p_accexp_error(self, p):
        """
@@ -1790,6 +1882,8 @@ class MMPULite(Parser):
         """
         if p[2] == "L":
 	    p[0] = p[2]
+	elif p[2] == None:
+	    p[0] = None
 	else:
 	    p[0] = ""
 
@@ -1803,7 +1897,8 @@ class MMPULite(Parser):
         """
         tregclause : _flag crlubflag flag_
         """
-        p[0] = p[2]
+        if p[2] != None:
+            p[0] = p[2]
 
     def p_tregclause_error(self, p):
         """
@@ -1813,6 +1908,8 @@ class MMPULite(Parser):
         
     def p_imacctrl(self, p):
         'imacctrl : imac DOT ctrl'   
+        if p[1] != None and p[3] != None:
+	    p[0] = ""
 
     def p_imacctrl_error(self, p):
         """
@@ -1863,7 +1960,8 @@ class MMPULite(Parser):
         
     def p_faddclause(self, p):
         'faddclause : addexp _flag tsdflag flag_'
-        p[0] = p[1] 
+        if p[3] != None:
+            p[0] = p[1] 
 
     def p_faddclause_error(self, p):
         """
@@ -1874,7 +1972,8 @@ class MMPULite(Parser):
         
     def p_fsubclause(self, p):
         'fsubclause : subexp _flag tsdflag flag_'
-        p[0] = p[1] 
+        if p[3] != None:
+            p[0] = p[1] 
 
     def p_fsubclause_error(self, p):
         """
@@ -1945,7 +2044,8 @@ class MMPULite(Parser):
         
     def p_absexp(self, p):
         'absexp : ABS t'
-        p[0] = "Abs"
+        if p[2] != None:
+            p[0] = "Abs"
 
     def p_absexp_error(self, p):
         """
@@ -1969,7 +2069,8 @@ class MMPULite(Parser):
         
     def p_recipexp(self, p):
         'recipexp : RECIP t'
-        p[0] = "Recip"
+        if p[2] != None:
+            p[0] = "Recip"
 
     def p_recipexp_error(self, p):
         """
@@ -1993,7 +2094,8 @@ class MMPULite(Parser):
         
     def p_rsqrtexp(self, p):
         'rsqrtexp : RSQRT t'
-        p[0] = "Rsqrt"
+        if p[2] != None:
+            p[0] = "Rsqrt"
     
     def p_rsqrtexp_error(self, p):
         """
