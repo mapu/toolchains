@@ -1376,8 +1376,10 @@ class MMPULite(Parser):
         iequclause : equexp _flag bflag flag_
                    | equexp
         """
-        if p[3] != None:
-            p[0] = p[1]
+        if len(p) > 2:
+            if p[3] == None:
+		return
+        p[0] = p[1]
  
     def p_iequclause_error(self, p):
         """
