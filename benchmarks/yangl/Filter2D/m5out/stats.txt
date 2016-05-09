@@ -1,0 +1,829 @@
+
+---------- Begin Simulation Statistics ----------
+sim_seconds                                  0.000052                       # Number of seconds simulated
+sim_ticks                                    51606000                       # Number of ticks simulated
+final_tick                                   51606000                       # Number of ticks from beginning of simulation (restored from checkpoints and never reset)
+sim_freq                                 1000000000000                       # Frequency of simulated ticks
+host_inst_rate                                   8987                       # Simulator instruction rate (inst/s)
+host_op_rate                                     8987                       # Simulator op (including micro ops) rate (op/s)
+host_tick_rate                                 659664                       # Simulator tick rate (ticks/s)
+host_mem_usage                                4080664                       # Number of bytes of host memory used
+host_seconds                                    78.23                       # Real time elapsed on the host
+sim_insts                                      703092                       # Number of instructions simulated
+sim_ops                                        703092                       # Number of ops (including micro ops) simulated
+system.physmem.bytes_read::cpu0.inst          1512531                       # Number of bytes read from this memory
+system.physmem.bytes_read::cpu0.data           134208                       # Number of bytes read from this memory
+system.physmem.bytes_read::total              1646739                       # Number of bytes read from this memory
+system.physmem.bytes_inst_read::cpu0.inst      1512531                       # Number of instructions bytes read from this memory
+system.physmem.bytes_inst_read::total         1512531                       # Number of instructions bytes read from this memory
+system.physmem.bytes_written::functional         9850                       # Number of bytes written to this memory
+system.physmem.bytes_written::cpu0.data         65536                       # Number of bytes written to this memory
+system.physmem.bytes_written::total             75386                       # Number of bytes written to this memory
+system.physmem.num_reads::cpu0.inst             36916                       # Number of read requests responded to by this memory
+system.physmem.num_reads::cpu0.data              2097                       # Number of read requests responded to by this memory
+system.physmem.num_reads::total                 39013                       # Number of read requests responded to by this memory
+system.physmem.num_writes::functional            9850                       # Number of write requests responded to by this memory
+system.physmem.num_writes::cpu0.data             1024                       # Number of write requests responded to by this memory
+system.physmem.num_writes::total                10874                       # Number of write requests responded to by this memory
+system.physmem.bw_read::cpu0.inst         29309208232                       # Total read bandwidth from this memory (bytes/s)
+system.physmem.bw_read::cpu0.data          2600627834                       # Total read bandwidth from this memory (bytes/s)
+system.physmem.bw_read::total             31909836066                       # Total read bandwidth from this memory (bytes/s)
+system.physmem.bw_inst_read::cpu0.inst    29309208232                       # Instruction read bandwidth from this memory (bytes/s)
+system.physmem.bw_inst_read::total        29309208232                       # Instruction read bandwidth from this memory (bytes/s)
+system.physmem.bw_write::functional         190869279                       # Write bandwidth from this memory (bytes/s)
+system.physmem.bw_write::cpu0.data         1269929853                       # Write bandwidth from this memory (bytes/s)
+system.physmem.bw_write::total             1460799132                       # Write bandwidth from this memory (bytes/s)
+system.physmem.bw_total::functional         190869279                       # Total bandwidth to/from this memory (bytes/s)
+system.physmem.bw_total::cpu0.inst        29309208232                       # Total bandwidth to/from this memory (bytes/s)
+system.physmem.bw_total::cpu0.data         3870557687                       # Total bandwidth to/from this memory (bytes/s)
+system.physmem.bw_total::total            33370635197                       # Total bandwidth to/from this memory (bytes/s)
+system.ddrmem1.bytes_read::functional            9850                       # Number of bytes read from this memory
+system.ddrmem1.bytes_read::total                 9850                       # Number of bytes read from this memory
+system.ddrmem1.num_reads::functional             9850                       # Number of read requests responded to by this memory
+system.ddrmem1.num_reads::total                  9850                       # Number of read requests responded to by this memory
+system.ddrmem1.bw_read::functional          190869279                       # Total read bandwidth from this memory (bytes/s)
+system.ddrmem1.bw_read::total               190869279                       # Total read bandwidth from this memory (bytes/s)
+system.ddrmem1.bw_total::functional         190869279                       # Total bandwidth to/from this memory (bytes/s)
+system.ddrmem1.bw_total::total              190869279                       # Total bandwidth to/from this memory (bytes/s)
+system.cpu0.dtb.read_hits                           0                       # DTB read hits
+system.cpu0.dtb.read_misses                         0                       # DTB read misses
+system.cpu0.dtb.read_accesses                       0                       # DTB read accesses
+system.cpu0.dtb.write_hits                          0                       # DTB write hits
+system.cpu0.dtb.write_misses                        0                       # DTB write misses
+system.cpu0.dtb.write_accesses                      0                       # DTB write accesses
+system.cpu0.dtb.hits                                0                       # DTB hits
+system.cpu0.dtb.misses                              0                       # DTB misses
+system.cpu0.dtb.accesses                            0                       # DTB accesses
+system.cpu0.itb.read_hits                           0                       # DTB read hits
+system.cpu0.itb.read_misses                         0                       # DTB read misses
+system.cpu0.itb.read_accesses                       0                       # DTB read accesses
+system.cpu0.itb.write_hits                          0                       # DTB write hits
+system.cpu0.itb.write_misses                        0                       # DTB write misses
+system.cpu0.itb.write_accesses                      0                       # DTB write accesses
+system.cpu0.itb.hits                                0                       # DTB hits
+system.cpu0.itb.misses                              0                       # DTB misses
+system.cpu0.itb.accesses                            0                       # DTB accesses
+system.cpu0.workload0.num_syscalls                  1                       # Number of system calls
+system.cpu0.workload1.num_syscalls                  0                       # Number of system calls
+system.cpu0.numCycles                           77413                       # number of cpu cycles simulated
+system.cpu0.numWorkItemsStarted                     0                       # number of work items this cpu started
+system.cpu0.numWorkItemsCompleted                   0                       # number of work items this cpu completed
+system.cpu0.branch_predictor.lookups                0                       # Number of BP lookups
+system.cpu0.branch_predictor.condPredicted            0                       # Number of conditional branches predicted
+system.cpu0.branch_predictor.condIncorrect            2                       # Number of conditional branches incorrect
+system.cpu0.branch_predictor.BTBLookups             0                       # Number of BTB lookups
+system.cpu0.branch_predictor.BTBHits                0                       # Number of BTB hits
+system.cpu0.branch_predictor.usedRAS                0                       # Number of times the RAS was used to get a target.
+system.cpu0.branch_predictor.RASInCorrect            0                       # Number of incorrect RAS predictions.
+system.cpu0.branch_predictor.BTBHitPct            nan                       # BTB Hit Percentage
+system.cpu0.branch_predictor.predictedTaken            0                       # Number of Branches Predicted As Taken (True).
+system.cpu0.branch_predictor.predictedNotTaken            1                       # Number of Branches Predicted As Not Taken (False).
+system.cpu0.regfile_manager.intRegFileReads           47                       # Number of Reads from Int. Register File
+system.cpu0.regfile_manager.intRegFileWrites           55                       # Number of Writes to Int. Register File
+system.cpu0.regfile_manager.intRegFileAccesses          102                       # Total Accesses (Read+Write) to the Int. Register File
+system.cpu0.regfile_manager.floatRegFileReads            0                       # Number of Reads from FP Register File
+system.cpu0.regfile_manager.floatRegFileWrites            0                       # Number of Writes to FP Register File
+system.cpu0.regfile_manager.doubleRegFileReads            0                       # Number of Reads from DR Register File
+system.cpu0.regfile_manager.doubleRegFileWrites            0                       # Number of Writes to DR Register File
+system.cpu0.regfile_manager.doubleRegFileAccesses            0                       # Total Accesses (Read+Write) to the DR Register File
+system.cpu0.regfile_manager.floatRegFileAccesses            0                       # Total Accesses (Read+Write) to the FP Register File
+system.cpu0.regfile_manager.regForwards             0                       # Number of Registers Read Through Forwarding Logic
+system.cpu0.mpurf_manager.MRegFileReads        410624                       # Number of Reads from M Register File
+system.cpu0.mpurf_manager.MRegFileWrites            0                       # Number of Writes to M Register File
+system.cpu0.mpurf_manager.MRegFileAccs         410624                       # Total Accesses (Read+Write) to M Register File
+system.cpu0.mpurf_manager.Shu0TRegFileReads            0                       # Number of Reads from SHU0 T Register File
+system.cpu0.mpurf_manager.Shu0TRegFileWrites            0                       # Number of Writes to SHU0 T Register File
+system.cpu0.mpurf_manager.Shu0TRegFileAccs            0                       # Total Accesses (Read+Write) to SHU0 T Register File
+system.cpu0.mpurf_manager.Shu1TRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu0.mpurf_manager.Shu1TRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu0.mpurf_manager.Shu1TRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu0.mpurf_manager.IaluTRegFileReads            0                       # Number of Reads from IALU T Register File
+system.cpu0.mpurf_manager.IaluTRegFileWrites            0                       # Number of Writes to IALU T Register File
+system.cpu0.mpurf_manager.IaluTRegFileAccs            0                       # Total Accesses (Read+Write) to IALU T Register File
+system.cpu0.mpurf_manager.FaluTRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu0.mpurf_manager.FaluTRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu0.mpurf_manager.FaluTRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu0.mpurf_manager.ImacTRegFileReads            0                       # Number of Reads from IMAC T Register File
+system.cpu0.mpurf_manager.ImacTRegFileWrites            0                       # Number of Writes to IMAC T Register File
+system.cpu0.mpurf_manager.ImacTRegFileAccs            0                       # Total Accesses (Read+Write) to IMAC T Register File
+system.cpu0.mpurf_manager.FmacTRegFileReads            0                       # Number of Reads from FMAC T Register File
+system.cpu0.mpurf_manager.FmacTRegFileWrites            0                       # Number of Writes to FMAC T Register File
+system.cpu0.mpurf_manager.FmacTRegFileAccs            0                       # Total Accesses (Read+Write) to FMAC T Register File
+system.cpu0.agen_unit.agens                      3121                       # Number of Address Generations
+system.cpu0.execution_unit.predictedTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Taken.
+system.cpu0.execution_unit.predictedNotTakenIncorrect            1                       # Number of Branches Incorrectly Predicted As Not Taken).
+system.cpu0.execution_unit.mispredicted             1                       # Number of Branches Incorrectly Predicted
+system.cpu0.execution_unit.predicted                0                       # Number of Branches Incorrectly Predicted
+system.cpu0.execution_unit.mispredictPct   100.000000                       # Percentage of Incorrect Branches Predicts
+system.cpu0.execution_unit.executions          164974                       # Number of Instructions Executed.
+system.cpu0.csu_unit.csu_unit                       0                       # Number of CSU operations Executed.
+system.cpu0.mult_div_unit.multiplies                0                       # Number of Multipy Operations Executed
+system.cpu0.mult_div_unit.divides                   0                       # Number of Divide Operations Executed
+system.cpu0.contextSwitches                         3                       # Number of context switches
+system.cpu0.threadCycles::0                       176                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu0.threadCycles::1                     51293                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu0.smtCycles                               8                       # Total number of cycles that the CPU was in SMT-mode
+system.cpu0.idleCycles                          25983                       # Number of cycles cpu's stages were not processed
+system.cpu0.runCycles                           51430                       # Number of cycles cpu stages are processed.
+system.cpu0.activity                        66.435870                       # Percentage of cycles cpu is active
+system.cpu0.comLoads                             2097                       # Number of Load instructions committed
+system.cpu0.comStores                            1023                       # Number of Store instructions committed
+system.cpu0.comBranches                             1                       # Number of Branches instructions committed
+system.cpu0.comNops                            534998                       # Number of Nop instructions committed
+system.cpu0.comNonSpec                              0                       # Number of Non-Speculative instructions committed
+system.cpu0.comInts                               100                       # Number of Integer instructions committed
+system.cpu0.comFloats                               0                       # Number of Floating Point instructions committed
+system.cpu0.committedInsts::0                     138                       # Number of Instructions committed (Per-Thread)
+system.cpu0.committedInsts::1                  702954                       # Number of Instructions committed (Per-Thread)
+system.cpu0.committedOps::0                       138                       # Number of Ops committed (Per-Thread)
+system.cpu0.committedOps::1                    702954                       # Number of Ops committed (Per-Thread)
+system.cpu0.smtCommittedInsts::0                    4                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu0.smtCommittedInsts::1                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu0.committedInsts_total               703092                       # Number of Instructions committed (Total)
+system.cpu0.cpi::0                         560.963768                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu0.cpi::1                           0.110125                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu0.smt_cpi::0                       2.000000                       # CPI: Total SMT-CPI
+system.cpu0.smt_cpi::1                            inf                       # CPI: Total SMT-CPI
+system.cpu0.cpi_total                        0.110104                       # CPI: Total CPI of All Threads
+system.cpu0.ipc::0                           0.001783                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu0.ipc::1                           9.080568                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu0.smt_ipc::0                       0.500000                       # IPC: Total SMT-IPC
+system.cpu0.smt_ipc::1                       0.000000                       # IPC: Total SMT-IPC
+system.cpu0.ipc_total                        9.082351                       # IPC: Total IPC of All Threads
+system.cpu0.spu.stage0.idleCycles               25845                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage0.runCycles                  117                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage0.utilization           0.151137                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage1.idleCycles               25847                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage1.runCycles                  115                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage1.utilization           0.148554                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage2.idleCycles               25850                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage2.runCycles                  112                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage2.utilization           0.144679                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage3.idleCycles               25848                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage3.runCycles                  114                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage3.utilization           0.147262                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage4.idleCycles               25826                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage4.runCycles                  136                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage4.utilization           0.175681                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage5.idleCycles               25845                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage5.runCycles                  117                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage5.utilization           0.151137                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage6.idleCycles               25937                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage6.runCycles                   25                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage6.utilization           0.032294                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage7.idleCycles               25861                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage7.runCycles                  101                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage7.utilization           0.130469                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage8.idleCycles               25962                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage8.utilization           0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage9.idleCycles               25952                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage9.runCycles                   10                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage9.utilization           0.012918                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage10.idleCycles              25962                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage10.utilization          0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.spu.stage11.idleCycles              25962                       # Number of cycles 0 instructions are processed.
+system.cpu0.spu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.spu.stage11.utilization          0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage0.idleCycles                1259                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage0.runCycles                50192                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage0.utilization          64.836655                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage1.idleCycles               14576                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage1.runCycles                36875                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage1.utilization          47.634118                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage2.idleCycles               51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage2.utilization           0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage3.idleCycles                1237                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage3.runCycles                50214                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage3.utilization          64.865074                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage4.idleCycles                1238                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage4.runCycles                50213                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage4.utilization          64.863783                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage5.idleCycles                1256                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage5.runCycles                50195                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage5.utilization          64.840531                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage6.idleCycles                1240                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage6.runCycles                50211                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage6.utilization          64.861199                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage7.idleCycles               51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage7.utilization           0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage8.idleCycles                 199                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage8.runCycles                51252                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage8.utilization          66.205934                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage9.idleCycles               51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage9.utilization           0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage10.idleCycles              51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage10.utilization          0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage11.idleCycles               1275                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage11.runCycles               50176                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage11.utilization         64.815987                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage12.idleCycles              51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage12.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage12.utilization          0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage13.idleCycles              50428                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage13.runCycles                1023                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage13.utilization          1.321483                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage14.idleCycles              50427                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage14.runCycles                1024                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage14.utilization          1.322775                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage15.idleCycles              51451                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage15.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage15.utilization          0.000000                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage16.idleCycles              51450                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage16.runCycles                   1                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage16.utilization          0.001292                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu0.mpu.stage17.idleCycles              49355                       # Number of cycles 0 instructions are processed.
+system.cpu0.mpu.stage17.runCycles                2096                       # Number of cycles 1+ instructions are processed.
+system.cpu0.mpu.stage17.utilization          2.707556                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.dtb.read_hits                           0                       # DTB read hits
+system.cpu1.dtb.read_misses                         0                       # DTB read misses
+system.cpu1.dtb.read_accesses                       0                       # DTB read accesses
+system.cpu1.dtb.write_hits                          0                       # DTB write hits
+system.cpu1.dtb.write_misses                        0                       # DTB write misses
+system.cpu1.dtb.write_accesses                      0                       # DTB write accesses
+system.cpu1.dtb.hits                                0                       # DTB hits
+system.cpu1.dtb.misses                              0                       # DTB misses
+system.cpu1.dtb.accesses                            0                       # DTB accesses
+system.cpu1.itb.read_hits                           0                       # DTB read hits
+system.cpu1.itb.read_misses                         0                       # DTB read misses
+system.cpu1.itb.read_accesses                       0                       # DTB read accesses
+system.cpu1.itb.write_hits                          0                       # DTB write hits
+system.cpu1.itb.write_misses                        0                       # DTB write misses
+system.cpu1.itb.write_accesses                      0                       # DTB write accesses
+system.cpu1.itb.hits                                0                       # DTB hits
+system.cpu1.itb.misses                              0                       # DTB misses
+system.cpu1.itb.accesses                            0                       # DTB accesses
+system.cpu1.workload0.num_syscalls                  0                       # Number of system calls
+system.cpu1.workload1.num_syscalls                  0                       # Number of system calls
+system.cpu1.numCycles                               0                       # number of cpu cycles simulated
+system.cpu1.numWorkItemsStarted                     0                       # number of work items this cpu started
+system.cpu1.numWorkItemsCompleted                   0                       # number of work items this cpu completed
+system.cpu1.branch_predictor.lookups                0                       # Number of BP lookups
+system.cpu1.branch_predictor.condPredicted            0                       # Number of conditional branches predicted
+system.cpu1.branch_predictor.condIncorrect            0                       # Number of conditional branches incorrect
+system.cpu1.branch_predictor.BTBLookups             0                       # Number of BTB lookups
+system.cpu1.branch_predictor.BTBHits                0                       # Number of BTB hits
+system.cpu1.branch_predictor.usedRAS                0                       # Number of times the RAS was used to get a target.
+system.cpu1.branch_predictor.RASInCorrect            0                       # Number of incorrect RAS predictions.
+system.cpu1.branch_predictor.BTBHitPct            nan                       # BTB Hit Percentage
+system.cpu1.branch_predictor.predictedTaken            0                       # Number of Branches Predicted As Taken (True).
+system.cpu1.branch_predictor.predictedNotTaken            0                       # Number of Branches Predicted As Not Taken (False).
+system.cpu1.regfile_manager.intRegFileReads            0                       # Number of Reads from Int. Register File
+system.cpu1.regfile_manager.intRegFileWrites            0                       # Number of Writes to Int. Register File
+system.cpu1.regfile_manager.intRegFileAccesses            0                       # Total Accesses (Read+Write) to the Int. Register File
+system.cpu1.regfile_manager.floatRegFileReads            0                       # Number of Reads from FP Register File
+system.cpu1.regfile_manager.floatRegFileWrites            0                       # Number of Writes to FP Register File
+system.cpu1.regfile_manager.doubleRegFileReads            0                       # Number of Reads from DR Register File
+system.cpu1.regfile_manager.doubleRegFileWrites            0                       # Number of Writes to DR Register File
+system.cpu1.regfile_manager.doubleRegFileAccesses            0                       # Total Accesses (Read+Write) to the DR Register File
+system.cpu1.regfile_manager.floatRegFileAccesses            0                       # Total Accesses (Read+Write) to the FP Register File
+system.cpu1.regfile_manager.regForwards             0                       # Number of Registers Read Through Forwarding Logic
+system.cpu1.mpurf_manager.MRegFileReads             0                       # Number of Reads from M Register File
+system.cpu1.mpurf_manager.MRegFileWrites            0                       # Number of Writes to M Register File
+system.cpu1.mpurf_manager.MRegFileAccs              0                       # Total Accesses (Read+Write) to M Register File
+system.cpu1.mpurf_manager.Shu0TRegFileReads            0                       # Number of Reads from SHU0 T Register File
+system.cpu1.mpurf_manager.Shu0TRegFileWrites            0                       # Number of Writes to SHU0 T Register File
+system.cpu1.mpurf_manager.Shu0TRegFileAccs            0                       # Total Accesses (Read+Write) to SHU0 T Register File
+system.cpu1.mpurf_manager.Shu1TRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu1.mpurf_manager.Shu1TRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu1.mpurf_manager.Shu1TRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu1.mpurf_manager.IaluTRegFileReads            0                       # Number of Reads from IALU T Register File
+system.cpu1.mpurf_manager.IaluTRegFileWrites            0                       # Number of Writes to IALU T Register File
+system.cpu1.mpurf_manager.IaluTRegFileAccs            0                       # Total Accesses (Read+Write) to IALU T Register File
+system.cpu1.mpurf_manager.FaluTRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu1.mpurf_manager.FaluTRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu1.mpurf_manager.FaluTRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu1.mpurf_manager.ImacTRegFileReads            0                       # Number of Reads from IMAC T Register File
+system.cpu1.mpurf_manager.ImacTRegFileWrites            0                       # Number of Writes to IMAC T Register File
+system.cpu1.mpurf_manager.ImacTRegFileAccs            0                       # Total Accesses (Read+Write) to IMAC T Register File
+system.cpu1.mpurf_manager.FmacTRegFileReads            0                       # Number of Reads from FMAC T Register File
+system.cpu1.mpurf_manager.FmacTRegFileWrites            0                       # Number of Writes to FMAC T Register File
+system.cpu1.mpurf_manager.FmacTRegFileAccs            0                       # Total Accesses (Read+Write) to FMAC T Register File
+system.cpu1.agen_unit.agens                         0                       # Number of Address Generations
+system.cpu1.execution_unit.predictedTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Taken.
+system.cpu1.execution_unit.predictedNotTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Not Taken).
+system.cpu1.execution_unit.mispredicted             0                       # Number of Branches Incorrectly Predicted
+system.cpu1.execution_unit.predicted                0                       # Number of Branches Incorrectly Predicted
+system.cpu1.execution_unit.mispredictPct          nan                       # Percentage of Incorrect Branches Predicts
+system.cpu1.execution_unit.executions               0                       # Number of Instructions Executed.
+system.cpu1.csu_unit.csu_unit                       0                       # Number of CSU operations Executed.
+system.cpu1.mult_div_unit.multiplies                0                       # Number of Multipy Operations Executed
+system.cpu1.mult_div_unit.divides                   0                       # Number of Divide Operations Executed
+system.cpu1.contextSwitches                         0                       # Number of context switches
+system.cpu1.threadCycles::0                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu1.threadCycles::1                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu1.smtCycles                               0                       # Total number of cycles that the CPU was in SMT-mode
+system.cpu1.idleCycles                              0                       # Number of cycles cpu's stages were not processed
+system.cpu1.runCycles                               0                       # Number of cycles cpu stages are processed.
+system.cpu1.activity                              nan                       # Percentage of cycles cpu is active
+system.cpu1.comLoads                                0                       # Number of Load instructions committed
+system.cpu1.comStores                               0                       # Number of Store instructions committed
+system.cpu1.comBranches                             0                       # Number of Branches instructions committed
+system.cpu1.comNops                                 0                       # Number of Nop instructions committed
+system.cpu1.comNonSpec                              0                       # Number of Non-Speculative instructions committed
+system.cpu1.comInts                                 0                       # Number of Integer instructions committed
+system.cpu1.comFloats                               0                       # Number of Floating Point instructions committed
+system.cpu1.committedInsts::0                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu1.committedInsts::1                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu1.committedOps::0                         0                       # Number of Ops committed (Per-Thread)
+system.cpu1.committedOps::1                         0                       # Number of Ops committed (Per-Thread)
+system.cpu1.smtCommittedInsts::0                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu1.smtCommittedInsts::1                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu1.committedInsts_total                    0                       # Number of Instructions committed (Total)
+system.cpu1.cpi::0                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu1.cpi::1                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu1.smt_cpi::0                            nan                       # CPI: Total SMT-CPI
+system.cpu1.smt_cpi::1                            nan                       # CPI: Total SMT-CPI
+system.cpu1.cpi_total                             nan                       # CPI: Total CPI of All Threads
+system.cpu1.ipc::0                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu1.ipc::1                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu1.smt_ipc::0                            nan                       # IPC: Total SMT-IPC
+system.cpu1.smt_ipc::1                            nan                       # IPC: Total SMT-IPC
+system.cpu1.ipc_total                             nan                       # IPC: Total IPC of All Threads
+system.cpu1.spu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.spu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.spu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.spu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage12.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage12.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage12.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage13.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage13.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage13.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage14.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage14.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage14.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage15.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage15.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage15.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage16.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage16.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage16.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu1.mpu.stage17.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu1.mpu.stage17.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu1.mpu.stage17.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.dtb.read_hits                           0                       # DTB read hits
+system.cpu2.dtb.read_misses                         0                       # DTB read misses
+system.cpu2.dtb.read_accesses                       0                       # DTB read accesses
+system.cpu2.dtb.write_hits                          0                       # DTB write hits
+system.cpu2.dtb.write_misses                        0                       # DTB write misses
+system.cpu2.dtb.write_accesses                      0                       # DTB write accesses
+system.cpu2.dtb.hits                                0                       # DTB hits
+system.cpu2.dtb.misses                              0                       # DTB misses
+system.cpu2.dtb.accesses                            0                       # DTB accesses
+system.cpu2.itb.read_hits                           0                       # DTB read hits
+system.cpu2.itb.read_misses                         0                       # DTB read misses
+system.cpu2.itb.read_accesses                       0                       # DTB read accesses
+system.cpu2.itb.write_hits                          0                       # DTB write hits
+system.cpu2.itb.write_misses                        0                       # DTB write misses
+system.cpu2.itb.write_accesses                      0                       # DTB write accesses
+system.cpu2.itb.hits                                0                       # DTB hits
+system.cpu2.itb.misses                              0                       # DTB misses
+system.cpu2.itb.accesses                            0                       # DTB accesses
+system.cpu2.workload0.num_syscalls                  0                       # Number of system calls
+system.cpu2.workload1.num_syscalls                  0                       # Number of system calls
+system.cpu2.numCycles                               0                       # number of cpu cycles simulated
+system.cpu2.numWorkItemsStarted                     0                       # number of work items this cpu started
+system.cpu2.numWorkItemsCompleted                   0                       # number of work items this cpu completed
+system.cpu2.branch_predictor.lookups                0                       # Number of BP lookups
+system.cpu2.branch_predictor.condPredicted            0                       # Number of conditional branches predicted
+system.cpu2.branch_predictor.condIncorrect            0                       # Number of conditional branches incorrect
+system.cpu2.branch_predictor.BTBLookups             0                       # Number of BTB lookups
+system.cpu2.branch_predictor.BTBHits                0                       # Number of BTB hits
+system.cpu2.branch_predictor.usedRAS                0                       # Number of times the RAS was used to get a target.
+system.cpu2.branch_predictor.RASInCorrect            0                       # Number of incorrect RAS predictions.
+system.cpu2.branch_predictor.BTBHitPct            nan                       # BTB Hit Percentage
+system.cpu2.branch_predictor.predictedTaken            0                       # Number of Branches Predicted As Taken (True).
+system.cpu2.branch_predictor.predictedNotTaken            0                       # Number of Branches Predicted As Not Taken (False).
+system.cpu2.regfile_manager.intRegFileReads            0                       # Number of Reads from Int. Register File
+system.cpu2.regfile_manager.intRegFileWrites            0                       # Number of Writes to Int. Register File
+system.cpu2.regfile_manager.intRegFileAccesses            0                       # Total Accesses (Read+Write) to the Int. Register File
+system.cpu2.regfile_manager.floatRegFileReads            0                       # Number of Reads from FP Register File
+system.cpu2.regfile_manager.floatRegFileWrites            0                       # Number of Writes to FP Register File
+system.cpu2.regfile_manager.doubleRegFileReads            0                       # Number of Reads from DR Register File
+system.cpu2.regfile_manager.doubleRegFileWrites            0                       # Number of Writes to DR Register File
+system.cpu2.regfile_manager.doubleRegFileAccesses            0                       # Total Accesses (Read+Write) to the DR Register File
+system.cpu2.regfile_manager.floatRegFileAccesses            0                       # Total Accesses (Read+Write) to the FP Register File
+system.cpu2.regfile_manager.regForwards             0                       # Number of Registers Read Through Forwarding Logic
+system.cpu2.mpurf_manager.MRegFileReads             0                       # Number of Reads from M Register File
+system.cpu2.mpurf_manager.MRegFileWrites            0                       # Number of Writes to M Register File
+system.cpu2.mpurf_manager.MRegFileAccs              0                       # Total Accesses (Read+Write) to M Register File
+system.cpu2.mpurf_manager.Shu0TRegFileReads            0                       # Number of Reads from SHU0 T Register File
+system.cpu2.mpurf_manager.Shu0TRegFileWrites            0                       # Number of Writes to SHU0 T Register File
+system.cpu2.mpurf_manager.Shu0TRegFileAccs            0                       # Total Accesses (Read+Write) to SHU0 T Register File
+system.cpu2.mpurf_manager.Shu1TRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu2.mpurf_manager.Shu1TRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu2.mpurf_manager.Shu1TRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu2.mpurf_manager.IaluTRegFileReads            0                       # Number of Reads from IALU T Register File
+system.cpu2.mpurf_manager.IaluTRegFileWrites            0                       # Number of Writes to IALU T Register File
+system.cpu2.mpurf_manager.IaluTRegFileAccs            0                       # Total Accesses (Read+Write) to IALU T Register File
+system.cpu2.mpurf_manager.FaluTRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu2.mpurf_manager.FaluTRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu2.mpurf_manager.FaluTRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu2.mpurf_manager.ImacTRegFileReads            0                       # Number of Reads from IMAC T Register File
+system.cpu2.mpurf_manager.ImacTRegFileWrites            0                       # Number of Writes to IMAC T Register File
+system.cpu2.mpurf_manager.ImacTRegFileAccs            0                       # Total Accesses (Read+Write) to IMAC T Register File
+system.cpu2.mpurf_manager.FmacTRegFileReads            0                       # Number of Reads from FMAC T Register File
+system.cpu2.mpurf_manager.FmacTRegFileWrites            0                       # Number of Writes to FMAC T Register File
+system.cpu2.mpurf_manager.FmacTRegFileAccs            0                       # Total Accesses (Read+Write) to FMAC T Register File
+system.cpu2.agen_unit.agens                         0                       # Number of Address Generations
+system.cpu2.execution_unit.predictedTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Taken.
+system.cpu2.execution_unit.predictedNotTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Not Taken).
+system.cpu2.execution_unit.mispredicted             0                       # Number of Branches Incorrectly Predicted
+system.cpu2.execution_unit.predicted                0                       # Number of Branches Incorrectly Predicted
+system.cpu2.execution_unit.mispredictPct          nan                       # Percentage of Incorrect Branches Predicts
+system.cpu2.execution_unit.executions               0                       # Number of Instructions Executed.
+system.cpu2.csu_unit.csu_unit                       0                       # Number of CSU operations Executed.
+system.cpu2.mult_div_unit.multiplies                0                       # Number of Multipy Operations Executed
+system.cpu2.mult_div_unit.divides                   0                       # Number of Divide Operations Executed
+system.cpu2.contextSwitches                         0                       # Number of context switches
+system.cpu2.threadCycles::0                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu2.threadCycles::1                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu2.smtCycles                               0                       # Total number of cycles that the CPU was in SMT-mode
+system.cpu2.idleCycles                              0                       # Number of cycles cpu's stages were not processed
+system.cpu2.runCycles                               0                       # Number of cycles cpu stages are processed.
+system.cpu2.activity                              nan                       # Percentage of cycles cpu is active
+system.cpu2.comLoads                                0                       # Number of Load instructions committed
+system.cpu2.comStores                               0                       # Number of Store instructions committed
+system.cpu2.comBranches                             0                       # Number of Branches instructions committed
+system.cpu2.comNops                                 0                       # Number of Nop instructions committed
+system.cpu2.comNonSpec                              0                       # Number of Non-Speculative instructions committed
+system.cpu2.comInts                                 0                       # Number of Integer instructions committed
+system.cpu2.comFloats                               0                       # Number of Floating Point instructions committed
+system.cpu2.committedInsts::0                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu2.committedInsts::1                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu2.committedOps::0                         0                       # Number of Ops committed (Per-Thread)
+system.cpu2.committedOps::1                         0                       # Number of Ops committed (Per-Thread)
+system.cpu2.smtCommittedInsts::0                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu2.smtCommittedInsts::1                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu2.committedInsts_total                    0                       # Number of Instructions committed (Total)
+system.cpu2.cpi::0                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu2.cpi::1                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu2.smt_cpi::0                            nan                       # CPI: Total SMT-CPI
+system.cpu2.smt_cpi::1                            nan                       # CPI: Total SMT-CPI
+system.cpu2.cpi_total                             nan                       # CPI: Total CPI of All Threads
+system.cpu2.ipc::0                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu2.ipc::1                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu2.smt_ipc::0                            nan                       # IPC: Total SMT-IPC
+system.cpu2.smt_ipc::1                            nan                       # IPC: Total SMT-IPC
+system.cpu2.ipc_total                             nan                       # IPC: Total IPC of All Threads
+system.cpu2.spu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.spu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.spu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.spu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage12.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage12.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage12.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage13.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage13.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage13.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage14.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage14.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage14.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage15.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage15.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage15.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage16.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage16.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage16.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu2.mpu.stage17.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu2.mpu.stage17.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu2.mpu.stage17.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.dtb.read_hits                           0                       # DTB read hits
+system.cpu3.dtb.read_misses                         0                       # DTB read misses
+system.cpu3.dtb.read_accesses                       0                       # DTB read accesses
+system.cpu3.dtb.write_hits                          0                       # DTB write hits
+system.cpu3.dtb.write_misses                        0                       # DTB write misses
+system.cpu3.dtb.write_accesses                      0                       # DTB write accesses
+system.cpu3.dtb.hits                                0                       # DTB hits
+system.cpu3.dtb.misses                              0                       # DTB misses
+system.cpu3.dtb.accesses                            0                       # DTB accesses
+system.cpu3.itb.read_hits                           0                       # DTB read hits
+system.cpu3.itb.read_misses                         0                       # DTB read misses
+system.cpu3.itb.read_accesses                       0                       # DTB read accesses
+system.cpu3.itb.write_hits                          0                       # DTB write hits
+system.cpu3.itb.write_misses                        0                       # DTB write misses
+system.cpu3.itb.write_accesses                      0                       # DTB write accesses
+system.cpu3.itb.hits                                0                       # DTB hits
+system.cpu3.itb.misses                              0                       # DTB misses
+system.cpu3.itb.accesses                            0                       # DTB accesses
+system.cpu3.workload0.num_syscalls                  0                       # Number of system calls
+system.cpu3.workload1.num_syscalls                  0                       # Number of system calls
+system.cpu3.numCycles                               0                       # number of cpu cycles simulated
+system.cpu3.numWorkItemsStarted                     0                       # number of work items this cpu started
+system.cpu3.numWorkItemsCompleted                   0                       # number of work items this cpu completed
+system.cpu3.branch_predictor.lookups                0                       # Number of BP lookups
+system.cpu3.branch_predictor.condPredicted            0                       # Number of conditional branches predicted
+system.cpu3.branch_predictor.condIncorrect            0                       # Number of conditional branches incorrect
+system.cpu3.branch_predictor.BTBLookups             0                       # Number of BTB lookups
+system.cpu3.branch_predictor.BTBHits                0                       # Number of BTB hits
+system.cpu3.branch_predictor.usedRAS                0                       # Number of times the RAS was used to get a target.
+system.cpu3.branch_predictor.RASInCorrect            0                       # Number of incorrect RAS predictions.
+system.cpu3.branch_predictor.BTBHitPct            nan                       # BTB Hit Percentage
+system.cpu3.branch_predictor.predictedTaken            0                       # Number of Branches Predicted As Taken (True).
+system.cpu3.branch_predictor.predictedNotTaken            0                       # Number of Branches Predicted As Not Taken (False).
+system.cpu3.regfile_manager.intRegFileReads            0                       # Number of Reads from Int. Register File
+system.cpu3.regfile_manager.intRegFileWrites            0                       # Number of Writes to Int. Register File
+system.cpu3.regfile_manager.intRegFileAccesses            0                       # Total Accesses (Read+Write) to the Int. Register File
+system.cpu3.regfile_manager.floatRegFileReads            0                       # Number of Reads from FP Register File
+system.cpu3.regfile_manager.floatRegFileWrites            0                       # Number of Writes to FP Register File
+system.cpu3.regfile_manager.doubleRegFileReads            0                       # Number of Reads from DR Register File
+system.cpu3.regfile_manager.doubleRegFileWrites            0                       # Number of Writes to DR Register File
+system.cpu3.regfile_manager.doubleRegFileAccesses            0                       # Total Accesses (Read+Write) to the DR Register File
+system.cpu3.regfile_manager.floatRegFileAccesses            0                       # Total Accesses (Read+Write) to the FP Register File
+system.cpu3.regfile_manager.regForwards             0                       # Number of Registers Read Through Forwarding Logic
+system.cpu3.mpurf_manager.MRegFileReads             0                       # Number of Reads from M Register File
+system.cpu3.mpurf_manager.MRegFileWrites            0                       # Number of Writes to M Register File
+system.cpu3.mpurf_manager.MRegFileAccs              0                       # Total Accesses (Read+Write) to M Register File
+system.cpu3.mpurf_manager.Shu0TRegFileReads            0                       # Number of Reads from SHU0 T Register File
+system.cpu3.mpurf_manager.Shu0TRegFileWrites            0                       # Number of Writes to SHU0 T Register File
+system.cpu3.mpurf_manager.Shu0TRegFileAccs            0                       # Total Accesses (Read+Write) to SHU0 T Register File
+system.cpu3.mpurf_manager.Shu1TRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu3.mpurf_manager.Shu1TRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu3.mpurf_manager.Shu1TRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu3.mpurf_manager.IaluTRegFileReads            0                       # Number of Reads from IALU T Register File
+system.cpu3.mpurf_manager.IaluTRegFileWrites            0                       # Number of Writes to IALU T Register File
+system.cpu3.mpurf_manager.IaluTRegFileAccs            0                       # Total Accesses (Read+Write) to IALU T Register File
+system.cpu3.mpurf_manager.FaluTRegFileReads            0                       # Number of Reads from FALU T Register File
+system.cpu3.mpurf_manager.FaluTRegFileWrites            0                       # Number of Writes to FALU T Register File
+system.cpu3.mpurf_manager.FaluTRegFileAccs            0                       # Total Accesses (Read+Write) to FALU T Register File
+system.cpu3.mpurf_manager.ImacTRegFileReads            0                       # Number of Reads from IMAC T Register File
+system.cpu3.mpurf_manager.ImacTRegFileWrites            0                       # Number of Writes to IMAC T Register File
+system.cpu3.mpurf_manager.ImacTRegFileAccs            0                       # Total Accesses (Read+Write) to IMAC T Register File
+system.cpu3.mpurf_manager.FmacTRegFileReads            0                       # Number of Reads from FMAC T Register File
+system.cpu3.mpurf_manager.FmacTRegFileWrites            0                       # Number of Writes to FMAC T Register File
+system.cpu3.mpurf_manager.FmacTRegFileAccs            0                       # Total Accesses (Read+Write) to FMAC T Register File
+system.cpu3.agen_unit.agens                         0                       # Number of Address Generations
+system.cpu3.execution_unit.predictedTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Taken.
+system.cpu3.execution_unit.predictedNotTakenIncorrect            0                       # Number of Branches Incorrectly Predicted As Not Taken).
+system.cpu3.execution_unit.mispredicted             0                       # Number of Branches Incorrectly Predicted
+system.cpu3.execution_unit.predicted                0                       # Number of Branches Incorrectly Predicted
+system.cpu3.execution_unit.mispredictPct          nan                       # Percentage of Incorrect Branches Predicts
+system.cpu3.execution_unit.executions               0                       # Number of Instructions Executed.
+system.cpu3.csu_unit.csu_unit                       0                       # Number of CSU operations Executed.
+system.cpu3.mult_div_unit.multiplies                0                       # Number of Multipy Operations Executed
+system.cpu3.mult_div_unit.divides                   0                       # Number of Divide Operations Executed
+system.cpu3.contextSwitches                         0                       # Number of context switches
+system.cpu3.threadCycles::0                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu3.threadCycles::1                         0                       # Total Number of Cycles A Thread Was Active in CPU (Per-Thread)
+system.cpu3.smtCycles                               0                       # Total number of cycles that the CPU was in SMT-mode
+system.cpu3.idleCycles                              0                       # Number of cycles cpu's stages were not processed
+system.cpu3.runCycles                               0                       # Number of cycles cpu stages are processed.
+system.cpu3.activity                              nan                       # Percentage of cycles cpu is active
+system.cpu3.comLoads                                0                       # Number of Load instructions committed
+system.cpu3.comStores                               0                       # Number of Store instructions committed
+system.cpu3.comBranches                             0                       # Number of Branches instructions committed
+system.cpu3.comNops                                 0                       # Number of Nop instructions committed
+system.cpu3.comNonSpec                              0                       # Number of Non-Speculative instructions committed
+system.cpu3.comInts                                 0                       # Number of Integer instructions committed
+system.cpu3.comFloats                               0                       # Number of Floating Point instructions committed
+system.cpu3.committedInsts::0                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu3.committedInsts::1                       0                       # Number of Instructions committed (Per-Thread)
+system.cpu3.committedOps::0                         0                       # Number of Ops committed (Per-Thread)
+system.cpu3.committedOps::1                         0                       # Number of Ops committed (Per-Thread)
+system.cpu3.smtCommittedInsts::0                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu3.smtCommittedInsts::1                    0                       # Number of SMT Instructions committed (Per-Thread)
+system.cpu3.committedInsts_total                    0                       # Number of Instructions committed (Total)
+system.cpu3.cpi::0                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu3.cpi::1                                nan                       # CPI: Cycles Per Instruction (Per-Thread)
+system.cpu3.smt_cpi::0                            nan                       # CPI: Total SMT-CPI
+system.cpu3.smt_cpi::1                            nan                       # CPI: Total SMT-CPI
+system.cpu3.cpi_total                             nan                       # CPI: Total CPI of All Threads
+system.cpu3.ipc::0                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu3.ipc::1                                nan                       # IPC: Instructions Per Cycle (Per-Thread)
+system.cpu3.smt_ipc::0                            nan                       # IPC: Total SMT-IPC
+system.cpu3.smt_ipc::1                            nan                       # IPC: Total SMT-IPC
+system.cpu3.ipc_total                             nan                       # IPC: Total IPC of All Threads
+system.cpu3.spu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.spu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.spu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.spu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage0.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage0.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage0.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage1.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage1.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage1.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage2.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage2.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage2.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage3.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage3.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage3.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage4.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage4.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage4.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage5.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage5.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage5.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage6.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage6.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage6.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage7.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage7.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage7.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage8.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage8.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage8.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage9.idleCycles                   0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage9.runCycles                    0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage9.utilization                nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage10.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage10.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage10.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage11.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage11.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage11.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage12.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage12.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage12.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage13.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage13.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage13.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage14.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage14.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage14.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage15.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage15.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage15.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage16.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage16.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage16.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+system.cpu3.mpu.stage17.idleCycles                  0                       # Number of cycles 0 instructions are processed.
+system.cpu3.mpu.stage17.runCycles                   0                       # Number of cycles 1+ instructions are processed.
+system.cpu3.mpu.stage17.utilization               nan                       # Percentage of cycles stage was utilized (processing insts).
+
+---------- End Simulation Statistics   ----------

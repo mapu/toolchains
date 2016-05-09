@@ -1,0 +1,4 @@
+shell echo "set tdesc filename $MAPU_HOME/arm-none-eabi/arm-none-eabi/share/gdb/features/arm-with-neon.xml" > .gdb.cmd
+source .gdb.cmd
+shell rm -f .gdb.cmd
+
