@@ -35,6 +35,9 @@ class mytest(unittest.TestCase):
         selrange = QTableWidgetSelectionRange(3,0,5,0)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.paste()
+        self.text0 = self.inittablewidget.item(0,0).text()
+        self.text1 = self.inittablewidget.item(1,0).text()
+        self.text2 = self.inittablewidget.item(2,0).text()
         self.text = self.inittablewidget.item(3,0).text()
         self.textfirst = self.inittablewidget.item(4,0).text()
         self.textsecond = self.inittablewidget.item(5,0).text()
@@ -45,6 +48,9 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.text ,self.result)
         self.assertEqual(self.textfirst, self.resultfirst)
         self.assertEqual(self.textsecond, self.resultsecond)
+        self.assertEqual(self.text0 ,str(""))
+        self.assertEqual(self.text1 ,str(""))
+        self.assertEqual(self.text2 ,str(""))
 
     def testCut_0(self):
         #selRange = self.inittablewidget.selectedRange()
@@ -85,6 +91,9 @@ class mytest(unittest.TestCase):
         selranges = QTableWidgetSelectionRange(rows + 3, columns, rows + 5, columns)
         self.inittablewidget.setRangeSelected(selranges, True)
         self.inittablewidget.paste()
+        self.text0 = self.inittablewidget.item(rows,columns).text()
+        self.text1 = self.inittablewidget.item(rows + 1,columns).text()
+        self.text2 = self.inittablewidget.item(rows + 2,columns).text()
         self.text = self.inittablewidget.item(rows + 3, columns).text()
         self.textfirst = self.inittablewidget.item(rows + 4, columns).text()
         self.textsecond = self.inittablewidget.item(rows + 5, columns).text()
@@ -94,13 +103,16 @@ class mytest(unittest.TestCase):
         self.assertTrue(self.inittablewidget.paste)
         self.assertEqual(self.text ,self.result)
         self.assertEqual(self.textfirst, self.resultfirst)
-        self.assertEqual(self.textsecond, self.resultsecond) 
+        self.assertEqual(self.textsecond, self.resultsecond)
+        self.assertEqual(self.text0 ,str(""))
+        self.assertEqual(self.text1 ,str(""))
+        self.assertEqual(self.text2 ,str("")) 
 
     def testCut_2(self):
         #selRange = self.inittablewidget.selectedRange()
         self.main.newFile()
         rows = random.randint(0,1999)
-        columns = random.randint(0,16)
+        columns = 0
         selranges = QTableWidgetSelectionRange(rows, columns, rows + 2, columns)
         self.inittablewidget.setRangeSelected(selranges, True)
         self.inittablewidget.setItem(rows,columns,QTableWidgetItem("r0.m[0]->m[0]"))
