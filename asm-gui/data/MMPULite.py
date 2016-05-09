@@ -918,7 +918,7 @@ class MMPULite(Parser):
              | DM ASSIGNTO
         """
         if len(p) > 3:
-	    p[3] == None:
+	    if p[3] == None:
 		return
         p[0] = "LdTo"
 
