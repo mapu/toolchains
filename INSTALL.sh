@@ -136,10 +136,10 @@ MCFLAG='-j 64'
 if [ "$debug_mode" -eq 1 ]
 then
   gem5_opt_mode='.debug'
-  llvm_cfg='--disable-optimized --enable-assertions'
+  llvm_cfg='Debug'
 else
   gem5_opt_mode='.opt'
-  llvm_cfg='--enable-optimized --disable-assertions'
+  llvm_cfg='Release'
 fi
 
 # Initialize error status
@@ -270,93 +270,6 @@ install_path=${install_path}/apc
 # Install llvm
 if [ "$llvm_en" -eq 1 ]
 then
-  if [ -e "/opt/updated-tools/gcc-4.8.2/bin/gcc" ]
-  then
-    CC=/opt/updated-tools/gcc-4.8.2/bin/gcc
-    CXX=/opt/updated-tools/gcc-4.8.2/bin/g++
-  else
-    CC=gcc
-    CXX=g++
-  fi
-  version=`$CC --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
-  ver_1st=`echo $version | awk -F '.' '{print $1}'`
-  ver_2nd=`echo $version | awk -F '.' '{print $2}'`
-  gcc_en=0
-  if (( ver_1st != 4 || ver_2nd < 6 ))
-  then
-    CC=$install_tool_path/gcc-4.8.3/bin/gcc
-    if [ -e "$CC" ]
-    then
-      version=`$CC --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
-      ver_1st=`echo $version | awk -F '.' '{print $1}'`
-      ver_2nd=`echo $version | awk -F '.' '{print $2}'` 
-      if ((ver_1st != 4 || ver_2nd < 6 ))
-      then
-        gcc_en=1
-      else
-        # gcc is built, so assume the dependent libraries are deployed at where they used to be
-        export LD_LIBRARY_PATH=$install_tool_path/gmp-4.3.2/lib:$install_tool_path/mpfr-2.4.2/lib:$install_tool_path/mpc-0.8.1/lib:$LD_LIBRARY_PATH
-      fi
-    else
-        gcc_en=1
-    fi
-  fi
-  version=`$CXX --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
-  ver_1st=`echo $version | awk -F '.' '{print $1}'`
-  ver_2nd=`echo $version | awk -F '.' '{print $2}'`
-  if (( ver_1st != 4 || ver_2nd < 6 ))
-  then
-    CXX=$install_tool_path/gcc-4.8.3/bin/g++
-    if [ -e "$CC" ]
-    then
-      version=`$CXX --version | grep -o -e '(GCC) [[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+' | awk '{print $2}'` 
-      ver_1st=`echo $version | awk -F '.' '{print $1}'`
-      ver_2nd=`echo $version | awk -F '.' '{print $2}'` 
-      if ((ver_1st != 4 || ver_2nd < 6 ))
-      then
-        gcc_en=1
-      fi
-    else
-      gcc_en=1
-    fi
-  fi
-  if [ "$gcc_en" -eq 1 ]
-  then
-    tar -xjvf $source_path/gmp-4.3.2.tar.bz2
-    mkdir build_gmp
-    cd build_gmp
-    ../gmp-4.3.2/configure --prefix=$install_tool_path/gmp-4.3.2
-    make $MCFLAG
-    make install
-    cd $root
-    tar -xjvf $source_path/mpfr-2.4.2.tar.bz2
-    mkdir build_mpfr
-    cd build_mpfr
-    ../mpfr-2.4.2/configure --prefix=$install_tool_path/mpfr-2.4.2 --with-gmp=$install_tool_path/gmp-4.3.2
-    make $MCFLAG
-    make install
-    cd $root
-    tar -xzvf $source_path/mpc-0.8.1.tar.gz
-    mkdir build_mpc
-    cd build_mpc
-    ../mpc-0.8.1/configure --prefix=$install_tool_path/mpc-0.8.1 --with-gmp=$install_tool_path/gmp-4.3.2 --with-mpfr=$install_tool_path/mpfr-2.4.2
-    make $MCFLAG
-    make install
-    cd $root
-    tar -xjvf $source_path/gcc-4.8.3.tar.bz2
-    mkdir build_gcc
-    cd build_gcc
-    ../gcc/configure --prefix=$install_tool_path/gcc-4.8.3 --with-gmp=$install_tool_path/gmp-4.3.2 --with-mpfr=$install_tool_path/mpfr-2.4.2 --with-mpc=$install_tool_path/mpc-0.8.1 --enable-languages=c,c++ --disable-multilib
-    make $MCFLAG
-    make install
-    cd $root
-  fi
-
-  if [ -e "/opt/updated-tools/python-2.7.5/bin/python" ]
-  then python_flag="--with-python=/opt/updated-tools/python-2.7.5/bin/python"
-  else python_flag=
-  fi
-
   # Build ragel first
   cd $root
   if [ -e "build_ragel" ] && [ "$debug_mode" -eq 0 ]
@@ -370,20 +283,6 @@ then
   make $MCFLAG
   make install
   
-  # Build libedit for lldb
-  cd $root
-  tar -xzvf $source_path/libedit-20130712-3.1.tar.gz
-  if [ -e "build_edit" ] && [ "$debug_mode" -eq 0 ]
-  then rm -rf build_edit
-  fi
-  if [ ! -e "build_edit" ]
-  then mkdir build_edit
-  fi
-  cd build_edit
-  ../libedit-20130712-3.1/configure --prefix=$install_path
-  make $MCFLAG
-  make install
-
   cd $root
   if [ -e "build_llvm" ] && [ "$debug_mode" -eq 0 ]
   then rm -rf build_llvm
@@ -392,14 +291,14 @@ then
   then mkdir build_llvm
   fi
   cd build_llvm
-  # libstdc++ is required while compiling llvm not only by the linker but also by the execution of tblgen
-  export LD_LIBRARY_PATH=$source_path/deplibs:$LD_LIBRARY_PATH
-  $source_path/llvm-3.5/configure --prefix=$install_path $llvm_cfg $python_flag \
-    --enable-cxx11 --enable-targets=mspu,mmpulite,x86 CC=$CC CXX=$CXX
-  make RAGEL=$root/ragel/bin/ragel CXXFLAGS="-DARCH_MAPU" CFLAGS="-DARCH_MAPU" $MCFLAG || llvm_err=1
-  install -v $source_path/deplibs/libstdc++.so.6 -t $install_path/lib
+  cmake $source_path/llvm-3.8 -DLLVM_TARGETS_TO_BUILD="X86;MSPU;MMPULite" -DCMAKE_C_FLAGS="-DARCH_MAPU" -DCMAKE_CXX_FLAGS="-DARCH_MAPU" -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="mspu-unknown-unknown" -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On -DCMAKE_BUILD_TYPE=$llvm_cfg -DCMAKE_INSTALL_PREFIX=$install_path -DRAGEL=$root/ragel/bin/ragel -DLLVM_LIBDIR_SUFFIX=64
+  make $MCFLAG || llvm_err=1
   if [ "$debug_mode" -eq 0 ]
-  then make install
+  then 
+    make install
+    # This keeps the compatibility to old clang versions
+    ln $install_path/lib/clang/3.9.0 $install_path/lib/clang/3.6.0 -s
+    ln $install_path/lib/clang/3.9.0/lib/linux  $install_path/lib/clang/3.9.0/lib/mspu -s
   fi
 fi
 
@@ -501,7 +400,7 @@ then
   rm -rf libedit-20130712-3.1
   rm -rf build_edit
   if [ "$llvm_err" -eq 0 ]
-  then rm -rf build_llvm
+  then ;#rm -rf build_llvm
   else echo "Failed to install LLVM"
   fi
   if [ "$gold_err" -eq 0 ]
