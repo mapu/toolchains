@@ -5,8 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -21,19 +22,28 @@ class mytest(unittest.TestCase):
         self.main = None
         self.inittablewidget = None
 
-    def testdeleteColumnsfirst(self):
+    def testDeleteColumns(self):
+        self.main.newFile()
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
+        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
+        for i in range(0,19):
+            self.inittablewidget.insertColumns()
+        selrange = QTableWidgetSelectionRange(0,0,0,19)
+        self.inittablewidget.setRangeSelected(selrange, False)
         selrange = QTableWidgetSelectionRange(0,0,0,2)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.setItem(0,0,QTableWidgetItem("hello"))
-        self.inittablewidget.setItem(0,1,QTableWidgetItem("world"))
-        self.inittablewidget.setItem(0,2,QTableWidgetItem("china"))
+        self.inittablewidget.setItem(0,0,QTableWidgetItem("r0.m[0]->m[0]"))
+        self.inittablewidget.setItem(0,1,QTableWidgetItem("r0.m[0]->m[1]"))
+        self.inittablewidget.setItem(0,2,QTableWidgetItem("r0.m[0]->m[2]"))
         self.inittablewidget.setRangeSelected(selrange, False)
         selrange = QTableWidgetSelectionRange(0,0,0,1)
         self.inittablewidget.currentColumnNum = selrange.columnCount() 
         self.inittablewidget.currentLeftColumn = selrange.leftColumn()
         self.inittablewidget.deleteColumns()
         self.result = self.inittablewidget.item(0,0).text()
-        self.expectresult = QString("china")
+        self.expectresult = QString("r0.m[0]->m[2]")
         for i in range(0,18):
             self.headeritemss = self.inittablewidget.horizontalHeaderItem(i).text()
             self.expectheaderitems = QString("nonameFSM" + str(i + 2))
@@ -43,15 +53,24 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.column, self.Columncount)
         self.assertEqual(self.result,self.expectresult)
 
-    def testdeleteColumnssecond(self):
+    def testDeleteColumns_0(self):
+        self.main.newFile()
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
+        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
+        for i in range(0,19):
+            self.inittablewidget.insertColumns()
+        selrange = QTableWidgetSelectionRange(0,0,0,19)
+        self.inittablewidget.setRangeSelected(selrange, False)
         row = random.randint(0,1999)
         column = random.randint(0,17)
         #print row,column
         selrange = QTableWidgetSelectionRange(row ,column , row , column + 2)
         self.inittablewidget.setRangeSelected(selrange,True)
-        self.inittablewidget.setItem(row, column, QTableWidgetItem("hello"))
-        self.inittablewidget.setItem(row, column + 1, QTableWidgetItem("world"))
-        self.inittablewidget.setItem(row, column + 2, QTableWidgetItem("china"))
+        self.inittablewidget.setItem(row, column, QTableWidgetItem("r0.m[0]->m[0]"))
+        self.inittablewidget.setItem(row, column + 1, QTableWidgetItem("r0.m[0]->m[1]"))
+        self.inittablewidget.setItem(row, column + 2, QTableWidgetItem("r0.m[0]->m[2]"))
         self.inittablewidget.setRangeSelected(selrange, False)
         selrange = QTableWidgetSelectionRange(row, column ,row , column + 1)
         self.inittablewidget.currentColumnNum = selrange.columnCount() 
@@ -59,7 +78,7 @@ class mytest(unittest.TestCase):
         self.inittablewidget.deleteColumns()
         self.column = self.inittablewidget.columnCount()
         self.result = self.inittablewidget.item(row, column).text()
-        self.expectresult = QString("china")
+        self.expectresult = QString("r0.m[0]->m[2]")
         for i in xrange(0, column ):
             self.headeritem = self.inittablewidget.horizontalHeaderItem(i).text()
             self.expectheaderitem = QString("nonameFSM" + str(i))
@@ -73,7 +92,16 @@ class mytest(unittest.TestCase):
         self.assertEqual(self.column, self.Columncount)
         self.assertEqual(self.result,self.expectresult)
 
-    def testdeleteColumnsthird(self):
+    def testDeleteColumns_1(self):
+        self.main.newFile()
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
+        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
+        for i in range(0,19):
+            self.inittablewidget.insertColumns()
+        selrange = QTableWidgetSelectionRange(0,0,0,19)
+        self.inittablewidget.setRangeSelected(selrange, False)
         row = random.randint(0,1999)
         column = random.randint(0,19)
         varRow = random.randint(1,2000 - row)
