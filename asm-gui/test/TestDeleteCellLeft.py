@@ -5,8 +5,9 @@ from PyQt4.QtGui import QWidget,QTableWidget,QTableWidgetItem,QApplication,QTabl
 from PyQt4.QtCore import Qt, QString
 from PyQt4.QtTest import QTest
 import unittest
-import main
 import sys
+sys.path.append("..")
+import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -21,10 +22,19 @@ class mytest(unittest.TestCase):
         self.main = None
         self.inittablewidget = None
  
-    def testdeleteLeftCellfirst(self):
-        self.inittablewidget.setItem(1,1,QTableWidgetItem("hello"))
-        self.inittablewidget.setItem(1,2,QTableWidgetItem("world"))
-        self.inittablewidget.setItem(1,3,QTableWidgetItem("china"))
+    def testDeleteLeftCell(self):
+        self.main.newFile()
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
+        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
+        for i in range(0,19):
+            self.inittablewidget.insertColumns()
+        selrange = QTableWidgetSelectionRange(0,0,0,19)
+        self.inittablewidget.setRangeSelected(selrange, False)
+        self.inittablewidget.setItem(1,1,QTableWidgetItem("R0.M[0]->M[0]"))
+        self.inittablewidget.setItem(1,2,QTableWidgetItem("R0.M[0]->M[1]"))
+        self.inittablewidget.setItem(1,3,QTableWidgetItem("R0.M[0]->M[2]"))
         selrange = QTableWidgetSelectionRange(1,2,1,2)
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.currentRowNum = selrange.rowCount() 
@@ -35,17 +45,26 @@ class mytest(unittest.TestCase):
         #self.inittablewidget.setRangeSelected(selrange, False)
         self.result = self.inittablewidget.item(1,2).text()
         self.results = self.inittablewidget.item(1,3).text()
-        self.expectresult = QString("china")
+        self.expectresult = QString("R0.M[0]->M[2]")
         self.expectresults = QString("")
         self.assertEqual(self.result,self.expectresult)
         self.assertEqual(self.results,self.expectresults)
 
-    def testdeleteLeftCellsecond(self):
+    def testDeleteLeftCell_0(self):
+        self.main.newFile()
+        selrange = QTableWidgetSelectionRange(0,0,0,0)
+        self.inittablewidget.setRangeSelected(selrange,True)
+        self.inittablewidget.currentColumnNum = selrange.columnCount() 
+        self.inittablewidget.currentLeftColumn = selrange.leftColumn()
+        for i in range(0,19):
+            self.inittablewidget.insertColumns()
+        selrange = QTableWidgetSelectionRange(0,0,0,19)
+        self.inittablewidget.setRangeSelected(selrange, False)
         row = random.randint(0,1999)
         column = random.randint(0,19)
-        self.inittablewidget.setItem(row, column - 1, QTableWidgetItem("hello"))
-        self.inittablewidget.setItem(row, column, QTableWidgetItem("world"))
-        self.inittablewidget.setItem(row, column + 1, QTableWidgetItem("china"))
+        self.inittablewidget.setItem(row, column - 1, QTableWidgetItem("R0.M[0]->M[0]"))
+        self.inittablewidget.setItem(row, column, QTableWidgetItem("R0.M[0]->M[1]"))
+        self.inittablewidget.setItem(row, column + 1, QTableWidgetItem("R0.M[0]->M[2]"))
         selrange = QTableWidgetSelectionRange(row, column, row , column )
         self.inittablewidget.setRangeSelected(selrange,True)
         self.inittablewidget.currentRowNum = selrange.rowCount() 
@@ -56,7 +75,7 @@ class mytest(unittest.TestCase):
         #self.inittablewidget.setRangeSelected(selrange, False)
         self.result = self.inittablewidget.item(row, column).text()
         self.results = self.inittablewidget.item(row, column + 1).text()
-        self.expectresult = QString("china")
+        self.expectresult = QString("R0.M[0]->M[2]")
         self.expectresults = QString("")
         self.assertEqual(self.result,self.expectresult)
         self.assertEqual(self.results,self.expectresults)
