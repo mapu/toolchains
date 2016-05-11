@@ -69,7 +69,7 @@ class TestOutput(unittest.TestCase):
 		self.inittablewidget.setRangeSelected(selranges, False)
 		row = row + 5 + i + 1
          
-        self.inittablewidget.saveFile("/home/litt/toolchains/trunk/asm-gui/test/test.mpu.s")
+        self.inittablewidget.saveFile("test.mpu.s")
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestOutput)
