@@ -110,7 +110,12 @@ class InitTableWidget(QTableWidget):
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
                     self.dataParser(row, column)
-
+        row = selRange.topRow() + numRows     
+        if row > self.loopEndRow:
+            for i in xrange(self.loopEndRow, row):
+                self.array.append(["...."]*(self.ColumnCount))
+            self.loopEndRow = row
+	    
     def delete(self):
         items = self.selectedItems()
         for i in xrange(len(items)):

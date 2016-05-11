@@ -535,6 +535,11 @@ class MicrocodeTableWidget(InitTableWidget):
                 text = record.group(1)
                 if text == "NOP":
                     text = ""
+                else:
+		    if row > self.loopEndRow:
+                        for i in xrange(self.loopEndRow, row):
+                            self.array.append(["...."]*(self.ColumnCount))
+                            self.loopEndRow = row
                 self.setItem(row, column, QTableWidgetItem(text))
                 self.dataParser(row, column)
                 row += 1
