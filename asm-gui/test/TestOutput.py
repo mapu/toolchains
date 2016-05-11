@@ -31,7 +31,7 @@ class TestOutput(unittest.TestCase):
     def test(self):
         self.main.newFile()
         textList = ["r0.m[0]->m[0]", "t0+t0(t)->biu0", "shu0.t2 ind tbh(tb=+2)->ialu.t1(i0)", "double t0(t)->biu0"]
-        for k in xrange(2):
+        for k in xrange(1):
 	    row  = 0
 	    column = 0
             for i in xrange(4):
@@ -68,15 +68,7 @@ class TestOutput(unittest.TestCase):
 		    self.inittablewidget.paintRect(j, str(j))
 		self.inittablewidget.setRangeSelected(selranges, False)
 		row = row + 5 + i + 1
-     
-	    selranges = QTableWidgetSelectionRange(0, 0, 0, 0)
-	    self.inittablewidget.setRangeSelected(selranges, True)
-	    self.inittablewidget.currentColumnNum = selranges.columnCount() 
-	    self.inittablewidget.currentLeftColumn = selranges.leftColumn()
-	    self.inittablewidget.insertColumns()
-	    self.inittablewidget.setRangeSelected(selranges,False)
-
-        
+         
         self.inittablewidget.saveFile("/home/litt/toolchains/trunk/asm-gui/test/test.mpu.s")
 
 
