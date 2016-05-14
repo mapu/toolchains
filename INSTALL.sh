@@ -211,29 +211,6 @@ then
     install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
     install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
   fi
-  if [ -e "build_gem5_arm" ] && [ "$debug_mode" -eq 0 ]
-  then rm -rf build_gem5_arm
-  fi
-  if [ ! -e "build_gem5_arm" ]
-  then mkdir build_gem5_arm
-  fi
-  cd build_gem5_arm
-  scons -C $source_path/MaPUSim/ARM build/ARM/gem5$gem5_opt_mode CPU_MODELS=AtomicSimpleCPU $MCFLAG || gem5_err=1
-  make -C $source_path/MaPUSim/ARM/util/term default
-  cd $root
-  if [ "$debug_mode" -eq 0 ]
-  then
-    install -v -d $install_path/simulator/arm
-    install -v build_gem5_arm/build/ARM/gem5$gem5_opt_mode -D $install_path/simulator/arm/gem5$gem5_opt_mode
-    install -v -d $install_path/simulator/arm/system
-    install -v $source_path/MaPUSim/ARM/configs/example/* -t $install_path/simulator/arm/system
-    install -v -d $install_path/simulator/arm/common
-    install -v $source_path/MaPUSim/ARM/configs/common/* -t $install_path/simulator/arm/common
-    install -v -d $install_path/simulator/arm/utils
-    install -v $source_path/MaPUSim/ARM/util/term/m5term -t $install_path/simulator/arm/utils
-    install -v $source_path/MaPUSim/mapu_sim.sh -t $install_path/simulator/
-  fi
-  make -C $source_path/MaPUSim/ARM/util/term clean
   #install MaPU GUI
   if [ -e "$install_path/simulator/gui" ]
   then

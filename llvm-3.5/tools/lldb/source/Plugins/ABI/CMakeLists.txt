@@ -1,7 +1,0 @@
-add_subdirectory(SysV-hexagon)
-add_subdirectory(SysV-ppc)
-add_subdirectory(SysV-ppc64)
-add_subdirectory(SysV-x86_64)
-add_subdirectory(MacOSX-i386)
-add_subdirectory(MacOSX-arm)
-add_subdirectory(MacOSX-arm64)
