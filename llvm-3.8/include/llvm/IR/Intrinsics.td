@@ -686,6 +686,6 @@ include "llvm/IR/IntrinsicsAMDGPU.td"
 include "llvm/IR/IntrinsicsBPF.td"
 include "llvm/IR/IntrinsicsSystemZ.td"
 include "llvm/IR/IntrinsicsWebAssembly.td"
-// MaPU intrinsics
+// ARCH_MAPU MaPU intrinsics
 include "llvm/IR/IntrinsicsMSPU.td"
-// MaPU intrinsics end
+// ARCH_MAPU MaPU intrinsics end
