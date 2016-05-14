@@ -274,6 +274,10 @@ then
   then 
     make install
     # This keeps the compatibility to old clang versions
+    if [ ! -e "$install_path/lib" ]
+    then mkdir -p $install_path/lib
+    fi
+    ln $install_path/lib64/clang $install/lib/clang -s
     ln $install_path/lib/clang/3.9.0 $install_path/lib/clang/3.6.0 -s
     ln $install_path/lib/clang/3.9.0/lib/linux  $install_path/lib/clang/3.9.0/lib/mspu -s
   fi
