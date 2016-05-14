@@ -175,8 +175,8 @@ eliminateCallFramePseudoInstr(MachineFunction &MF,
 }
 
 void MSPUFrameLowering::
-processFunctionBeforeCalleeSavedScan(MachineFunction &MF,
-                                     RegScavenger *RS) const
+processFunctionBeforeFrameFinalized(MachineFunction &MF,
+                                    RegScavenger *RS) const
 {
   MachineFrameInfo *MFI = MF.getFrameInfo();
   MSPUMachineFunctionInfo *FnInfo = MF.getInfo<MSPUMachineFunctionInfo>();

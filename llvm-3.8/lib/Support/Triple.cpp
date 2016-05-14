@@ -1353,6 +1353,10 @@ Triple Triple::getBigEndianArchVariant() const {
   // drop any arch suffixes.
   case Triple::arm:
   case Triple::thumb:
+#ifdef ARCH_MAPU
+  case Triple::mspu:
+  case Triple::mmpulite:
+#endif
     T.setArch(UnknownArch);
     break;
 
@@ -1429,6 +1433,10 @@ Triple Triple::getLittleEndianArchVariant() const {
   case Triple::x86:
   case Triple::x86_64:
   case Triple::xcore:
+#ifdef ARCH_MAPU
+  case Triple::mspu:
+  case Triple::mmpulite:
+#endif
     // Already little endian.
     break;
 
