@@ -165,7 +165,7 @@ np = options.num_cpus
 if buildEnv['TARGET_ISA'] == 'mapu':
     if options.turbo_type == "fix":
         class TurboClass(FixPointTurboDecoder): pass
-    elif options.turbo_type == "float"::
+    else:
         class TurboClass(TurboDecoder): pass
     class TheTLB(MapuTLB): pass
 elif buildEnv['TARGET_ISA'] == 'ucp':
