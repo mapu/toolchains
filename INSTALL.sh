@@ -381,7 +381,7 @@ then
   rm -rf libedit-20130712-3.1
   rm -rf build_edit
   if [ "$llvm_err" -eq 0 ]
-  then ;#rm -rf build_llvm
+  then rm -rf build_llvm
   else echo "Failed to install LLVM"
   fi
   if [ "$gold_err" -eq 0 ]
