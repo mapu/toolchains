@@ -838,6 +838,12 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return "ELF32-wasm";
     case ELF::EM_AMDGPU:
       return "ELF32-amdgpu";
+#ifdef ARCH_MAPU
+    case ELF::EM_MSPU:
+      return "ELF32-mspu";
+    case ELF::EM_MMPU:
+      return "ELF32-mmpulite";
+#endif
     default:
       return "ELF32-unknown";
     }
