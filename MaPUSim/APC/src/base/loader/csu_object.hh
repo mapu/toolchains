@@ -34,7 +34,7 @@
 #include <set>
 #include <vector>
 
-#include "arch/mapu/registers.hh"
+#include "arch/registers.hh"
 #include "base/loader/object_file.hh"
 #include "config/the_isa.hh"
 

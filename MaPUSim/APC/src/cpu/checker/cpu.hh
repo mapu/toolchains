@@ -220,7 +220,7 @@ class CheckerCPU : public BaseCPU
         return thread->readIntReg(si->srcRegIdx(idx));
     }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     MPUReg DummyMPUReg;
 
     uint64_t readIntJRegOperand(const StaticInst *si, int idx)
@@ -386,7 +386,7 @@ class CheckerCPU : public BaseCPU
     }
 #endif
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readRegOtherThread(int misc_reg)
     {
         panic("MIPS MT not defined for CheckerCPU.\n");

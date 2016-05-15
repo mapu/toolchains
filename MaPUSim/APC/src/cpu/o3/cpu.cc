@@ -1309,7 +1309,7 @@ FullO3CPU<Impl>::readIntReg(int reg_idx)
     return regFile.readIntReg(reg_idx);
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 template <class Impl>
 uint64_t
 FullO3CPU<Impl>::readIntJReg(int reg_idx)
@@ -1341,7 +1341,7 @@ FullO3CPU<Impl>::setIntReg(int reg_idx, uint64_t val)
     intRegfileWrites++;
     regFile.setIntReg(reg_idx, val);
 }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 template <class Impl>
 void
 FullO3CPU<Impl>::setIntJReg(int reg_idx, uint64_t val)

@@ -274,7 +274,7 @@ bool VliwPipelineStage::sendInstToNextStage(DynInstPtr inst) {
           "stage %u.\n", tid, stageNum+1);
 
   if (nextStageQueueValid(inst->nextStage - 1)) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     if (inst->seqLineNum > cpu->squashLineSeqNum[tid] &&
 #else
     if (inst->seqNum > cpu->squashSeqNum[tid] &&

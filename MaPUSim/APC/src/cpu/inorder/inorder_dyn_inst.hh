@@ -83,7 +83,7 @@ class InOrderDynInst : public RefCounted
     typedef TheISA::RegIndex RegIndex;
     // Integer register type.
     typedef TheISA::IntReg IntReg;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     // Integer j register type.
     typedef TheISA::IntReg IntJReg;
     // Double floating point register type.
@@ -131,7 +131,7 @@ class InOrderDynInst : public RefCounted
     /** The sequence number of the instruction. */
     InstSeqNum seqNum;
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** The sequence line number of the instruction. */
     InstSeqNum seqLineNum;
 #endif
@@ -139,7 +139,7 @@ class InOrderDynInst : public RefCounted
     /** If this instruction is squashing, the number should we squash behind. */
     InstSeqNum squashSeqNum;
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** If this instruction is squashing, the number should we squash behind. */
     InstSeqNum squashLineSeqNum;
 #endif
@@ -366,7 +366,7 @@ class InOrderDynInst : public RefCounted
     /** Sets the sequence number. */
     void setSeqNum(InstSeqNum seq_num) { seqNum = seq_num; }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Sets the sequence number. */
     void setSeqLineNum(InstSeqNum seq_line_num) { seqLineNum = seq_line_num; }
 #endif
@@ -441,7 +441,7 @@ class InOrderDynInst : public RefCounted
 
 
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     bool is1cycle() const { return staticInst->is1cycle(); }
     bool is2cycle() const { return staticInst->is2cycle(); }
     bool is3cycle() const { return staticInst->is3cycle(); }
@@ -916,7 +916,7 @@ class InOrderDynInst : public RefCounted
      *  the source reg. value is set using the setSrcReg() function.
      */
     IntReg readIntRegOperand(const StaticInst *si, int idx, ThreadID tid = 0);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     void setMPUSrc(int idx, MPUReg &val);
     DoubleReg readDoubleRegOperand(const StaticInst *si, int idx);
     DoubleRegBits readDoubleRegOperandBits(const StaticInst *si, int idx);
@@ -942,7 +942,7 @@ class InOrderDynInst : public RefCounted
         return instResult[idx].res.intVal;
     }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     IntJReg readIntJResult(int idx)
     {
         return instResult[idx].res.intVal;
@@ -982,7 +982,7 @@ class InOrderDynInst : public RefCounted
      *  it's destination register.
      */
     void setIntRegOperand(const StaticInst *si, int idx, IntReg val);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     void setDoubleRegOperand(const StaticInst *si, int idx, DoubleReg val);
     void setDoubleRegOperandBits(const StaticInst *si, int idx, DoubleRegBits val);
     void setMPURegOperand(const StaticInst *si, int idx, MPUReg &val);
@@ -1157,7 +1157,7 @@ class InOrderDynInst : public RefCounted
 
     //inline int curCount() { return curCount(); }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /* test if insts has been served */
     bool reqCompleted;
     bool isEnd;

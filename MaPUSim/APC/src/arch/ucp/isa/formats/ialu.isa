@@ -1,0 +1,152 @@
+////////////////////////////////////////////////////////////////////
+//
+// Integeral ALU instructions
+//
+output header {{
+using namespace UcpISA;
+
+class IaluOp : public MpuStaticInst {
+protected:
+  // Constructor
+  IaluOp(const char *mnem, ExtMachInst _machInst, MOpClass __mopClass)
+    : MpuStaticInst(mnem, _machInst, __mopClass) {
+    cond = IALU_C;
+    c_not = IALU_CN;
+    Flags = IALU_FLAG;
+  }
+
+  void printDest(std::ostream &os, int dest) const ;
+
+  void printLeft(std::ostream &os) const;
+
+  void print1stOp(std::ostream &os) const ;
+
+  void print2ndOp(std::ostream &os) const ;
+
+  void printExpHead(std::ostream &os) const ;
+
+  void printExpTail(std::ostream &os) const ;
+
+  void printFlags(std::ostream &os) const ;
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+void IaluOp::printDest(std::ostream &os, int dest) const {
+  if (IALU2C)
+    os << "->Cond";
+  else if (IALU_OP == 0x18 ) // division
+    os << "->DivR";
+  else if (IALU_OP >= 0x19 && IALU_OP <= 0x1B) // division
+  ;
+  else
+    MpuStaticInst::printDest(os, dest);
+}
+
+void IaluOp::printLeft(std::ostream &os) const {
+  if (IALU_OP == 0x19 ) // division
+    os << "DIVQ";
+  else if (IALU_OP == 0x1A) os << "MDIVR";
+  else if (IALU_OP == 0x1A) os << "MDIVQ";
+  else if (IALU_OP == 0x1C) os << "DIVR";
+  else
+    MpuStaticInst::printLeft(os);
+}
+
+
+void IaluOp::print1stOp(std::ostream &os) const {
+  switch (IALU_OP) {
+  case 0x1: os << "+"; break;
+  case 0x2:
+  case 0x5: os << "-"; break;
+  case 0x8: os << "&"; break;
+  case 0x9: os << "|"; break;
+  case 0xA: os << "^"; break;
+  case 0xC: os << "<<"; break;
+  case 0xD: os << ">>"; break;
+  case 0x10: os << "=="; break;
+  case 0x11: os << "!="; break;
+  case 0x12: os << ">"; break;
+  case 0x13: os << ">="; break;
+  case 0x14: os << "<"; break;
+  case 0x15: os << "<="; break;
+  case 0x18: os << " DivS "; break;
+  case 0xB:  // Not
+  case 0xF:  // Expd
+  case 0x19:  // DivQ
+  case 0x1A:  // MDivR
+  case 0x1B:  // MDivQ
+  case 0x1C: os << " DivR "; break;  // DivR
+  default: os << ","; break;
+  }
+}
+
+void IaluOp::print2ndOp(std::ostream &os) const {
+  switch (IALU_OP) {
+  case 0x6: os << ","; break;
+  default: os << ""; break;
+  }
+}
+
+void IaluOp::printExpHead(std::ostream &os) const {
+  switch (IALU_OP) {
+  case 0x3: os << "Max("; break;
+  case 0x4: os << "Min("; break;
+  case 0x5: os << "Abs("; break;
+  case 0x6: os << "Merge("; break;
+  case 0xB: os << "Not "; break;
+  case 0xE: os << "Cprs("; break;
+  case 0xF: os << "Expd "; break;
+  case 0x19: os << "DivQ"; break;
+  case 0x1A: os << "MDivR"; break;
+  case 0x1B: os << "MDivQ"; break;
+  case 0x1C: os << "DivR"; break;
+  default: break;
+  }
+}
+
+void IaluOp::printExpTail(std::ostream &os) const {
+  switch (IALU_OP) {
+    case 0x3:
+    case 0x4:
+    case 0x5:
+    case 0x6:
+    case 0xE: os << ")"; return;
+    case 0xC: if (IALU_IMM) os << "<<" << IALU_IMM5; return;
+    case 0xD: if (IALU_IMM) os << ">>" << IALU_IMM5; return;
+    default: return;
+  }
+}
+
+void IaluOp::printFlags(std::ostream &os) const {
+  std::string split = "";
+  if (Flags) {
+    os << "(";
+    if (IALU_T) {
+      os << "T";
+      split = ",";
+    }
+    if (IALU_U) {
+      os << split << "U";
+      split = ",";
+    }
+    if (IALU_B) {
+      os << split << "B";
+      split = ",";
+    }
+    if (IALU_H) os << split << "H";
+    os << ")";
+  }
+}
+
+}};
+
+def format IaluOp(code, *opt_flags) {{
+  iop = InstObjParams(name, Name, 'IaluOp', code, opt_flags)
+  header_output = BasicDeclare.subst(iop)
+  decoder_output = BasicConstructor.subst(iop)
+  decode_block = CondCheckDecode.subst(iop)
+  exec_output = BasicExecute.subst(iop)
+}};
+

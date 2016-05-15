@@ -10,13 +10,13 @@
 #include "cpu/inorder/resource_pool.hh"
 #include "cpu/inorder/resources/resource_list.hh"
 #include "debug/MapuCSU.hh"
-#include "params/MapuCPU.hh"
+#include "params/TheCPU.hh"
 #include "params/InOrderCPU.hh"
 
 #include "cpu.hh"
 #include "system.hh"
 
-MapuCPU::MapuCPU(Params *p)
+TheCPU::TheCPU(Params *p)
   : InOrderCPU((InOrderCPUParams *)p), sfetchPort(resPool->getInstUnit()),
     mfetchPort(resPool->getMInstUnit()), aguPort(resPool->getDataUnit()),
     biu0Port(resPool->getBiuUnit(0)), biu1Port(resPool->getBiuUnit(1)),
@@ -25,10 +25,10 @@ MapuCPU::MapuCPU(Params *p)
     ctickEvent(this) {
 }
 
-MapuCPU::~MapuCPU() {
+TheCPU::~TheCPU() {
 }
 
-Fault MapuCPU::read(DynInstPtr inst,
+Fault TheCPU::read(DynInstPtr inst,
                        Addr addr,
                        uint8_t *data,
                        unsigned size,
@@ -40,7 +40,7 @@ Fault MapuCPU::read(DynInstPtr inst,
     return resPool->getDataUnit()->read(inst, addr, data, size, flags);
 }
 
-Fault MapuCPU::write(DynInstPtr inst,
+Fault TheCPU::write(DynInstPtr inst,
                         uint8_t *data,
                         unsigned size,
                         Addr addr,
@@ -54,7 +54,7 @@ Fault MapuCPU::write(DynInstPtr inst,
 }
 
 MasterPort &
-MapuCPU::getMasterPort(const std::string &if_name, int idx) {
+TheCPU::getMasterPort(const std::string &if_name, int idx) {
   // Get the right port based on name. This applies to all the
   // subclasses of the base CPU and relies on their implementation
   // of getDataPort and getInstPort. In all cases there methods
@@ -81,20 +81,20 @@ MapuCPU::getMasterPort(const std::string &if_name, int idx) {
     return MemObject::getMasterPort(if_name, idx);
 }
 
-MapuCPU::CsuTickEvent::CsuTickEvent(MapuCPU *_cpu)
+TheCPU::CsuTickEvent::CsuTickEvent(TheCPU *_cpu)
   : Event(Sim_Exit_Pri + 1), cpu(_cpu) {
 }
 
 const char *
-MapuCPU::CsuTickEvent::description() const {
+TheCPU::CsuTickEvent::description() const {
   return "InOrderCSU tick event";
 }
 
-void MapuCPU::CsuTickEvent::process() {
+void TheCPU::CsuTickEvent::process() {
   cpu->ctick();
 }
 
-void MapuCPU::ctick() {
+void TheCPU::ctick() {
   // ctick should be only used in MapuSystem
   assert(MaPUSystem);
   MapuLiveProcess *p = dynamic_cast<MapuLiveProcess *>(threadContexts[0]->getProcessPtr());
@@ -138,7 +138,7 @@ void MapuCPU::ctick() {
   csuObj->update(cpu_id);
 }
 
-MapuCPU *
-MapuCPUParams::create() {
-  return new MapuCPU(this);
+TheCPU *
+TheCPUParams::create() {
+  return new TheCPU(this);
 }

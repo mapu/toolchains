@@ -61,6 +61,7 @@ isa_switch_hdrs = Split('''
         types.hh
         utility.hh
         vtophys.hh
+        cpu.hh
         ''')
 
 # Set up this directory to support switching headers

@@ -176,7 +176,7 @@ class O3ThreadContext : public ThreadContext
 
     /** Reads an integer register. */
     virtual uint64_t readIntReg(int reg_idx);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     virtual uint64_t readIntJReg(int reg_idx);
 #endif
 
@@ -186,7 +186,7 @@ class O3ThreadContext : public ThreadContext
 
     /** Sets an integer register to a value. */
     virtual void setIntReg(int reg_idx, uint64_t val);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     virtual void setIntJReg(int reg_idx, uint64_t val);
 #endif
     virtual void setFloatReg(int reg_idx, FloatReg val);

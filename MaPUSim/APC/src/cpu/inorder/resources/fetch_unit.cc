@@ -107,7 +107,7 @@ FetchUnit::createMachInst(std::list<FetchBlock*>::iterator fetch_it,
     TheISA::MachInst *fetchInsts =
         reinterpret_cast<TheISA::MachInst *>((*fetch_it)->block);
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     unsigned packagelen = 0;
     MachInst mach_inst =
         TheISA::gtoh(fetchInsts[fetch_offset]);

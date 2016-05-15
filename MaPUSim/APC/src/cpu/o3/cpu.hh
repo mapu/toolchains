@@ -492,7 +492,7 @@ class FullO3CPU : public BaseO3CPU
             ThreadID tid);
 
     uint64_t readIntReg(int reg_idx);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readIntJReg(int reg_idx);
     void setIntJReg(int reg_idx, uint64_t val);
 #endif

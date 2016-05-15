@@ -56,7 +56,7 @@ InOrderDynInst::InOrderDynInst(InOrderCPU *cpu,
                                InstSeqNum seq_num,
                                ThreadID tid,
                                unsigned _asid)
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
   : seqNum(seq_num), seqLineNum(seq_num), squashSeqNum(0), squashLineSeqNum(0), threadNumber(tid), asid(_asid),
 #else
   : seqNum(seq_num), squashSeqNum(0), threadNumber(tid), asid(_asid),
@@ -73,7 +73,7 @@ InOrderDynInst::InOrderDynInst(InOrderCPU *cpu,
     squashingStage(0), predictTaken(false), procDelaySlotOnMispred(false),
     fetchMemReq(NULL), dataMemReq(NULL), instEffAddr(0), eaCalcDone(false),
     lqIdx(0), sqIdx(0), onInstList(false)
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     , reqCompleted(false), isEnd(false), isMC(false), initiated(false)
 #endif
 #if TRACING_ON
@@ -346,13 +346,13 @@ InOrderDynInst::setSquashInfo(unsigned stage_num)
     // functions squash above a seqNum, so we
     // decrement here for that case
     if (fault != NoFault) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         squashLineSeqNum = seqLineNum - 1;
 #endif
         squashSeqNum = seqNum - 1;
         return;
     } else {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         squashLineSeqNum = seqLineNum;
 #endif
         squashSeqNum = seqNum;
@@ -445,7 +445,7 @@ InOrderDynInst::readIntRegOperand(const StaticInst *si, int idx, ThreadID tid)
     return instSrc[idx].intVal;
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 
 /** Records vector source register being set to a value. */
 void
@@ -583,7 +583,7 @@ InOrderDynInst::setIntRegOperand(const StaticInst *si, int idx, IntReg val)
             threadNumber, seqNum, idx, val, instResult[idx].tick);
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 void
 InOrderDynInst::setDoubleRegOperand(const StaticInst *si, int idx, DoubleReg val)
 {

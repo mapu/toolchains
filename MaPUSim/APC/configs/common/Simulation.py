@@ -58,7 +58,7 @@ def setCPUClass(options):
         if not options.caches:
             print "InOrder CPU must be used with caches"
             sys.exit(1)
-        class TmpClass(MapuCPU): pass
+        class TmpClass(TheCPU): pass
         #class TmpClass(InOrderCPU): pass
     else:
         class TmpClass(AtomicSimpleCPU): pass

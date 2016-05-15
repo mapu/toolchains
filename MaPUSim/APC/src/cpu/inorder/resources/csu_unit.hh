@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-#include "arch/mapu/cpu.hh"
+#include "arch/cpu.hh"
 #include "cpu/inorder/first_stage.hh"
 #include "cpu/inorder/inorder_dyn_inst.hh"
 #include "cpu/inorder/resource.hh"
@@ -85,8 +85,8 @@ public:
     ~DMAEvent() {}
 
     void process() {
-      PortProxy extProxy(dynamic_cast<MapuCPU *>(cpu)->getCsuExtPort());
-      PortProxy intProxy(dynamic_cast<MapuCPU *>(cpu)->getCsuIntPort());
+      PortProxy extProxy(dynamic_cast<TheCPU *>(cpu)->getCsuExtPort());
+      PortProxy intProxy(dynamic_cast<TheCPU *>(cpu)->getCsuIntPort());
       csu->processFrontDMA(cpu->cpuId(), extProxy, intProxy);
       cpu->cpuEventRemoveList.push(this);
     }

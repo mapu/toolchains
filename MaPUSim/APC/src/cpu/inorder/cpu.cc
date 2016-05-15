@@ -404,14 +404,14 @@ InOrderCPU::InOrderCPU(Params *params)
     squashSeqNum[tid] = MaxAddr;
     lastSquashCycle[tid] = 0;
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     squashLineSeqNum[tid] = MaxAddr;
     if (threadModel != HeteroDT || tid == 0) {
 #endif
       memset(intRegs[tid], 0, sizeof(intRegs[tid]));
       memset(floatRegs.i[tid], 0, sizeof(floatRegs.i[tid]));
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       memset(intJRegs[tid], 0, sizeof(intJRegs[tid]));
       memset(doubleRegs[tid], 0, sizeof(doubleRegs[tid]));
     }
@@ -428,7 +428,7 @@ InOrderCPU::InOrderCPU(Params *params)
       // in pipeline
       dummyTrapInst[tid] = new InOrderDynInst(this, NULL, 0, 0, 0);
       dummyTrapInst[tid]->seqNum = 0;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       dummyTrapInst[tid]->squashLineSeqNum = 0;
 #endif
       dummyTrapInst[tid]->squashSeqNum = 0;
@@ -1940,7 +1940,7 @@ uint64_t InOrderCPU::readIntReg(RegIndex reg_idx, ThreadID tid) {
   return intRegs[tid][reg_idx];
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 uint64_t InOrderCPU::readIntJReg(RegIndex reg_idx, ThreadID tid) {
   DPRINTF(IntJRegs, "[tid:%i]: Reading Int. JReg %i as %x\n", tid, reg_idx,
           intJRegs[tid][reg_idx]);
@@ -1995,7 +1995,7 @@ void InOrderCPU::setIntReg(RegIndex reg_idx, uint64_t val, ThreadID tid) {
   }
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 void InOrderCPU::setIntJReg(RegIndex reg_idx, uint64_t val, ThreadID tid) {
   if (reg_idx == TheISA::ZeroReg) {
     DPRINTF(
@@ -2110,7 +2110,7 @@ void InOrderCPU::setPartialMPUReg(RegIndex mpu_reg, int size, int idx,
 
 InOrderCPU::ListIt InOrderCPU::addInst(DynInstPtr inst) {
   ThreadID tid = inst->readTid();
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
   DPRINTF(
     InOrderCPU,
     "Pushing instruction [tid:%i] PC %s " "[sn:%lli] [lsn:%lli] to inst list\n",

@@ -33,7 +33,7 @@ using namespace LittleEndianGuest;
 void MapuSystem::CsuSkedEvent::process() {
   assert(MaPUSystem);
   for (unsigned i = 0; i < system->numContexts(); i+=2) {
-    MapuCPU *cpu = dynamic_cast<MapuCPU *>(system->getThreadContext(i)->getCpuPtr());
+    TheCPU *cpu = dynamic_cast<TheCPU *>(system->getThreadContext(i)->getCpuPtr());
     if (cpu) {
       cpu->scheduleCTickEvent(0);
       if (CsuObject::isArm && !system->dataEvent) {

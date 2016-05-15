@@ -17,7 +17,7 @@ class CoProcessor(MemObject):
     cop_addr = Param.Addr("Device Address")
     cop_size = Param.Addr("Device Map Size")
     cop_latency = Param.Latency('1ns', "Programmed IO latency in simticks")
-    cpu = Param.MapuCPU(Parent.any, "CPU this co-processor is part of")
+    cpu = Param.TheCPU(Parent.any, "CPU this co-processor is part of")
 
 class TurboDecoder(CoProcessor):
     type = "TurboDecoder"
@@ -25,8 +25,8 @@ class TurboDecoder(CoProcessor):
 class FixPointTurboDecoder(CoProcessor):
     type = "FixPointTurboDecoder"
 
-class MapuCPU(InOrderCPU):
-    type = "MapuCPU"
+class TheCPU(InOrderCPU):
+    type = "TheCPU"
 
     turbodec = CoProcessor()
 

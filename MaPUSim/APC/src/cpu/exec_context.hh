@@ -51,7 +51,7 @@ class ExecContext {
     uint64_t readIntRegOperand(const StaticInst *si, int idx);
 
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Reads an integer j register. */
     uint64_t readIntJRegOperand(const StaticInst *si, int idx);
 

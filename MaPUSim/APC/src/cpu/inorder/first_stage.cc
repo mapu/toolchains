@@ -72,7 +72,7 @@ FirstStage::squash(InstSeqNum squash_seq_num, ThreadID tid)
     DPRINTF(InOrderStage, "Removing instructions from stage instruction "
             "list.\n");
     while (!skidBuffer[tid].empty()) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         if (skidBuffer[tid].front()->seqLineNum <= squash_seq_num) {
 #else
         if (skidBuffer[tid].front()->seqNum <= squash_seq_num) {

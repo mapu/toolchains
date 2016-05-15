@@ -362,7 +362,7 @@ PipelineStage::unblock(ThreadID tid)
     return false;
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 void
 PipelineStage::setupSquash(DynInstPtr inst, ThreadID tid)
 {
@@ -450,7 +450,7 @@ PipelineStage::squashPrevStageInsts(InstSeqNum squash_seq_num, ThreadID tid)
     int insts_from_prev_stage = prevStage->insts.size();
     for (int i=0; i < insts_from_prev_stage; i++) {
         if (prevStage->insts[i]->threadNumber == tid &&
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
             prevStage->insts[i]->seqLineNum > squash_seq_num) {
 #else
           prevStage->insts[i]->seqNum > squash_seq_num) {
@@ -483,7 +483,7 @@ PipelineStage::squash(InstSeqNum squash_seq_num, ThreadID tid)
     std::list<DynInstPtr>::iterator end_it = skidBuffer[tid].end();
 
     while (cur_it != end_it) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         if ((*cur_it)->seqLineNum <= squash_seq_num) {
 #else
         if ((*cur_it)->seqNum <= squash_seq_num) {
@@ -761,7 +761,7 @@ PipelineStage::checkSignalsAndUpdate(ThreadID tid)
         if (is_squash) {
             DPRINTF(InOrderStage, "[tid:%u]: Squashing instructions due to "
                     "squash from stage %u.\n", cpu_tid(tid), stage_idx);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
             InstSeqNum squash_seq_num = pipetype
               ? fromNextStages->mstageInfo[stage_idx][tid].doneLineSeqNum
               : fromNextStages->stageInfo[stage_idx][tid].doneLineSeqNum;
@@ -1095,7 +1095,7 @@ PipelineStage::processInstSchedule(DynInstPtr inst,int &reqs_processed)
                     // Remove Thread From Pipeline & Resource Pool
                     inst->squashingStage = stageNum;
                     inst->squashSeqNum = inst->seqNum;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
                     inst->squashLineSeqNum = inst->seqLineNum;
 #endif
                     cpu->squashFromMemStall(inst, tid);
@@ -1173,7 +1173,7 @@ PipelineStage::sendInstToNextStage(DynInstPtr inst)
 
 
     if (nextStageQueueValid(inst->nextStage - 1)) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       if (inst->seqLineNum > cpu->squashLineSeqNum[tid] &&
 #else
       if (inst->seqNum > cpu->squashSeqNum[tid] &&

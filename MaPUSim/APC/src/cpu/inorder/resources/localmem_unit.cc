@@ -33,7 +33,7 @@
 #include <vector>
 
 #include "arch/isa_traits.hh"
-#include "arch/mapu/cpu.hh"
+#include "arch/cpu.hh"
 #include "arch/locked_mem.hh"
 #include "arch/utility.hh"
 #include "config/the_isa.hh"
@@ -101,11 +101,11 @@ void LocalMemUnit::init() {
   } else if (id == DCache) {
     localmemPort = &cpu->getDataPort();
   } else if (id == Biu0Unit) {
-    localmemPort = &dynamic_cast<MapuCPU *>(cpu)->getBiuPort(0);
+    localmemPort = &dynamic_cast<TheCPU *>(cpu)->getBiuPort(0);
   } else if (id == Biu1Unit) {
-    localmemPort = &dynamic_cast<MapuCPU *>(cpu)->getBiuPort(1);
+    localmemPort = &dynamic_cast<TheCPU *>(cpu)->getBiuPort(1);
   } else if (id == Biu2Unit) {
-    localmemPort = &dynamic_cast<MapuCPU *>(cpu)->getBiuPort(2);
+    localmemPort = &dynamic_cast<TheCPU *>(cpu)->getBiuPort(2);
   }
   assert(localmemPort != NULL);
 

@@ -14,7 +14,7 @@
 #include "params/CoProcessor.hh"
 
 class CoProcessor;
-class MapuCPU;
+class TheCPU;
 
 class CoPPort: public SimpleTimingPort {
 protected:
@@ -39,7 +39,7 @@ public:
  */
 class CoProcessor: public MemObject {
 protected:
-  MapuCPU *cpu;
+  TheCPU *cpu;
 
   /** The pioPort that handles the requests for us and provides us requests
    * that it sees. */

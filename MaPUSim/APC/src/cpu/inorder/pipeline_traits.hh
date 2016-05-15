@@ -39,8 +39,6 @@
 #include "arch/isa_traits.hh"
 #include "cpu/base.hh"
 #include "params/InOrderCPU.hh"
-#include "params/MapuCPU.hh"
-//#include "params/MapuCPU.hh"
 
 class InOrderDynInst;
 class ScheduleEntry;
@@ -51,7 +49,7 @@ class ResourceSked;
  */
 namespace ThePipeline {
     // Pipeline Constants
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     const unsigned NumSStages = 12;
     const ThreadID MaxSThreads = 1;
     const unsigned BackEndStartStage = 4;

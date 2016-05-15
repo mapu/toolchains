@@ -176,7 +176,7 @@ SimpleThread::serialize(ostream &os)
     ThreadState::serialize(os);
     SERIALIZE_ARRAY(floatRegs.i, TheISA::NumFloatRegs);
     SERIALIZE_ARRAY(intRegs, TheISA::NumIntRegs);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     SERIALIZE_ARRAY(intJRegs, TheISA::NumIntJRegs);
 #endif
     _pcState.serialize(os);
@@ -195,7 +195,7 @@ SimpleThread::unserialize(Checkpoint *cp, const std::string &section)
     ThreadState::unserialize(cp, section);
     UNSERIALIZE_ARRAY(floatRegs.i, TheISA::NumFloatRegs);
     UNSERIALIZE_ARRAY(intRegs, TheISA::NumIntRegs);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     UNSERIALIZE_ARRAY(intJRegs, TheISA::NumIntJRegs);
 #endif
     _pcState.unserialize(cp, section);

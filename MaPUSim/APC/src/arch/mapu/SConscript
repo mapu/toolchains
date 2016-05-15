@@ -95,4 +95,4 @@ if env['TARGET_ISA'] == 'mapu':
             Source(f)
 
 temp_cpu_list = env['CPU_MODELS'][:]
-temp_cpu_list.append('MapuCPU')
+temp_cpu_list.append('TheCPU')

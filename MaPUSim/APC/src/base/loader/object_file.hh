@@ -55,7 +55,8 @@ class ObjectFile
         Arm,
         Thumb,
         Power,
-        Mapu
+        Mapu,
+        Ucp,
     };
 
     enum OpSys {
@@ -65,7 +66,9 @@ class ObjectFile
         Solaris,
         LinuxArmOABI,
         MaPU_SPU,
-        MaPU_MPU
+        MaPU_MPU,
+        UCP_SPU,
+        UCP_MPU
     };
 
   protected:

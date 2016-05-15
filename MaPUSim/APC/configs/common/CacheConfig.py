@@ -68,12 +68,10 @@ def config_cache(options, system):
                 system.cpu[i].addPrivateSplitL1Caches(icache, dcache,
                                                       PageTableWalkerCache(),
                                                       PageTableWalkerCache())
-            elif buildEnv['TARGET_ISA'] == 'mapu':
+            elif (buildEnv['TARGET_ISA'] == 'mapu') or (buildEnv['TARGET_ISA'] == 'ucp'):
                 micache = L1Cache(size = options.l1i_size,
                                  assoc = options.l1i_assoc,
                                  block_size=options.cacheline_size)
-                #system.cpu[i].addPrivateSplitL1Caches(icache, dcache, micache)
-                #system.cpu[i].addPrivateLocalMems(icache, dcache, micache)
             else:
                 system.cpu[i].addPrivateSplitL1Caches(icache, dcache)
         system.cpu[i].createInterruptController()

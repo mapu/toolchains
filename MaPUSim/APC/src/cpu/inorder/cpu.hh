@@ -80,18 +80,18 @@ class MemInterface;
 class MemObject;
 class Process;
 class ResourcePool;
-class MapuCPU;
+class TheCPU;
 
 class InOrderCPU : public BaseCPU
 {
-  friend class MapuCPU;
+  friend class TheCPU;
   protected:
     typedef ThePipeline::Params Params;
     typedef InOrderThreadState Thread;
 
    //ISA TypeDefs
     typedef TheISA::IntReg IntReg;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     typedef TheISA::IntReg IntJReg;
     typedef TheISA::DoubleReg DoubleReg;
     typedef TheISA::DoubleRegBits DoubleRegBits;
@@ -386,7 +386,7 @@ class InOrderCPU : public BaseCPU
     /** Last Committed PC */
     TheISA::PCState lastCommittedPC[ThePipeline::MaxThreads];
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** The Register File for the SPU */
     union {
         FloatReg f[ThePipeline::MaxSThreads][TheISA::NumFloatRegs];
@@ -412,7 +412,7 @@ class InOrderCPU : public BaseCPU
 
     /** Register Types Used in Dependency Tracking */
     enum RegType { IntType,
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
                    IntJType,
                    DoubleType,
                    VectorType,
@@ -733,7 +733,7 @@ class InOrderCPU : public BaseCPU
     InstSeqNum nextInstSeqNum(ThreadID tid)
     { return globalSeqNum[tid]; }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Get the current instruction line sequence number, and increment it. */
     InstSeqNum getAndIncrementInstSeqLine(ThreadID tid)
     { return globalLineSeqNum[tid]++; }
@@ -796,7 +796,7 @@ class InOrderCPU : public BaseCPU
     void setPartialMPUReg(RegIndex mpu_reg, int size, int idx,
                           IntReg val, ThreadID tid);
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     RegType inline getRegType(RegIndex reg_idx)
     {
         if (reg_idx < TheISA::J_Base_DepTag)
@@ -950,7 +950,7 @@ class InOrderCPU : public BaseCPU
     /** Instruction Seq. Num of last instruction squashed in pipeline */
     InstSeqNum squashSeqNum[ThePipeline::MaxThreads];
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Instruction Seq. Line Num of last instruction squashed in pipeline */
     InstSeqNum squashLineSeqNum[ThePipeline::MaxThreads];
 #endif
@@ -1076,7 +1076,7 @@ class InOrderCPU : public BaseCPU
     /** The global sequence number counter. */
     InstSeqNum globalSeqNum[ThePipeline::MaxThreads];
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** The global line sequence number counter. */
     InstSeqNum globalLineSeqNum[ThePipeline::MaxThreads];
 #endif

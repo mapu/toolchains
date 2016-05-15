@@ -16,8 +16,8 @@
 
 #include "process.hh"
 
-struct MapuCPUParams;
-class MapuCPU: public InOrderCPU {
+struct TheCPUParams;
+class TheCPU: public InOrderCPU {
 protected:
   LocalMemPort sfetchPort;
 
@@ -39,10 +39,10 @@ protected:
 
   class CsuTickEvent: public Event {
     /** Pointer to the CPU. */
-    MapuCPU *cpu;
+    TheCPU *cpu;
 
   public:
-    CsuTickEvent(MapuCPU *_cpu);
+    CsuTickEvent(TheCPU *_cpu);
     ~CsuTickEvent() {
     }
 
@@ -62,9 +62,9 @@ protected:
    */
   void ctick();
 public:
-  typedef MapuCPUParams Params;
-  MapuCPU(Params *p);
-  ~MapuCPU();
+  typedef TheCPUParams Params;
+  TheCPU(Params *p);
+  ~TheCPU();
 
   /** Return a reference to the data port. */
   virtual CpuPort &getDataPort() { return aguPort; }

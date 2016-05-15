@@ -117,10 +117,14 @@ CPUClass.numThreads = numThreads;
 
 print "Building MaPU full system simulator..."
 
-if options.turbo_type == "fix":
-    class TurboClass(FixPointTurboDecoder): pass
-else:
-    class TurboClass(TurboDecoder): pass
+if buildEnv['TARGET_ISA'] == 'mapu':
+    if options.turbo_type == "fix":
+        class TurboClass(FixPointTurboDecoder): pass
+    elif options.turbo_type == "float"::
+        class TurboClass(TurboDecoder): pass
+    class TheTLB(MapuTLB): pass
+elif buildEnv['TARGET_ISA'] == 'ucp':
+    class TheTLB(UcpTLB): pass
 
 dumplocal = False
 dumpddr = False
@@ -137,10 +141,35 @@ if len(memdump) >= 1:
         else:
             print "Unknown memory type %s!" % memtype
 
-system = MapuSystem(cpu = [CPUClass(cpu_id = i, 
-                    dtb = MapuTLB(cpuid = i), 
-                    itb = MapuTLB(cpuid = i),
+if buildEnv['TARGET_ISA'] == 'mapu':
+    system = MapuSystem(cpu = [CPUClass(cpu_id = i, 
+                    dtb = TheTLB(cpuid = i), 
+                    itb = TheTLB(cpuid = i),
                     turbodec = TurboClass(cop_addr = 0x80000000, cop_size = 0x1000, cop_latency = '2ns')) for i in xrange(np)],
+                physmem = SimpleMemory(range=AddrRange("128MB"), needdump = dumplocal),
+                membus = NoncoherentBus(), 
+                sbus = NoncoherentBus(), 
+                cbus = NoncoherentBus(), 
+                ddr0bus = NoncoherentBus(), 
+                ddr1bus = NoncoherentBus(),
+                ddr2bus = NoncoherentBus(),
+                ddr3bus = NoncoherentBus(),
+                s2sys_bridge = Bridge(),
+                c2sys_bridge = Bridge(),
+                ddr02sys_bridge = Bridge(),
+                ddr12sys_bridge = Bridge(),
+                ddr22sys_bridge = Bridge(),
+                ddr32sys_bridge = Bridge(),
+                mem_mode = test_mem_mode,
+                ddrmem0 = SimpleMemory(range=AddrRange(0x60000000, 0x6FFFFFFF), shared=True, shmkey=options.shm_key, needdump = dumpddr),
+                ddrmem1 = SimpleMemory(range=AddrRange(0x70000000, size = options.mem_size), shared=True, shmkey=options.shm_key, needdump = dumpddr),
+                ddrmem2 = SimpleMemory(range=AddrRange(0x80000000, 0xBFFFFFFF), needdump = dumpddr),
+                ddrmem3 = SimpleMemory(range=AddrRange(0xC0000000, 0xFFFFFFFF), needdump = dumpddr),
+                shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF), shared=True, shmkey=options.shm_key, needdump = dumpshare))
+elif buildEnv['TARGET_ISA'] == 'ucp':
+    system = MapuSystem(cpu = [CPUClass(cpu_id = i, 
+                    dtb = TheTLB(cpuid = i), 
+                    itb = TheTLB(cpuid = i)) for i in xrange(np)],
                 physmem = SimpleMemory(range=AddrRange("128MB"), needdump = dumplocal),
                 membus = NoncoherentBus(), 
                 sbus = NoncoherentBus(), 

@@ -110,7 +110,7 @@ class SimpleThread : public ThreadState
     } floatRegs;
     TheISA::IntReg intRegs[TheISA::NumIntRegs];
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     TheISA::IntReg intJRegs[TheISA::NumIntJRegs];
 #endif
 
@@ -231,7 +231,7 @@ class SimpleThread : public ThreadState
     {
         _pcState = 0;
         memset(intRegs, 0, sizeof(intRegs));
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         memset(intJRegs, 0, sizeof(intJRegs));
 #endif
         memset(floatRegs.i, 0, sizeof(floatRegs.i));
@@ -282,7 +282,7 @@ class SimpleThread : public ThreadState
         intRegs[flatIndex] = val;
     }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readIntJReg(int reg_idx)
     {
         int flatIndex = isa.flattenIntIndex(reg_idx);

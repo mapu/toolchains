@@ -75,6 +75,8 @@ elif buildEnv['TARGET_ISA'] == 'power':
 elif buildEnv['TARGET_ISA'] == 'mapu':
     from MapuTLB import MapuTLB
     from MapuInterrupts import MapuInterrupts
+elif buildEnv['TARGET_ISA'] == 'ucp':
+    from UcpTLB import UcpTLB
 
 class BaseCPU(MemObject):
     type = 'BaseCPU'
@@ -134,6 +136,12 @@ class BaseCPU(MemObject):
         dtb = Param.MapuTLB(MapuTLB(), "Data TLB")
         itb = Param.MapuTLB(MapuTLB(), "Instruction TLB")
         interrupts = Param.MapuInterrupts(
+                NULL, "Interrupt Controller")
+    elif buildEnv['TARGET_ISA'] == 'ucp':
+        UnifiedTLB = Param.Bool(True, "Is this a Unified TLB?")
+        dtb = Param.UcpTLB(UcpTLB(), "Data TLB")
+        itb = Param.UcpTLB(UcpTLB(), "Instruction TLB")
+        interrupts = Param.UcpInterrupts(
                 NULL, "Interrupt Controller")
     else:
         print "Don't know what TLB to use for ISA %s" % \

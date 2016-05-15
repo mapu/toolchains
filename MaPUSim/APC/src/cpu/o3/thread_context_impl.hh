@@ -230,7 +230,7 @@ O3ThreadContext<Impl>::readIntReg(int reg_idx)
     return cpu->readArchIntReg(reg_idx, thread->threadId());
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 template <class Impl>
 uint64_t
 O3ThreadContext<Impl>::readIntJReg(int reg_idx)
@@ -269,7 +269,7 @@ O3ThreadContext<Impl>::setIntReg(int reg_idx, uint64_t val)
     }
 }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
 template <class Impl>
 void
 O3ThreadContext<Impl>::setIntJReg(int reg_idx, uint64_t val)

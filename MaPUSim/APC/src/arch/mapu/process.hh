@@ -35,5 +35,5 @@ class MapuLiveProcess : public LiveProcess
     }
 };
 
-
+#define TheLiveProcess MapuLiveProcess
 #endif // __MAPU_PROCESS_HH__

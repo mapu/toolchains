@@ -33,7 +33,7 @@
 #include <vector>
 
 #include "config/the_isa.hh"
-#include "arch/mapu/process.hh"
+#include "arch/process.hh"
 #include "cpu/inorder/resources/csu_unit.hh"
 #include "cpu/inorder/resource_pool.hh"
 #include "debug/Fault.hh"
@@ -76,7 +76,7 @@ void ComSynUnit::execute(int slot_num) {
   ResourceRequest* csu_req = reqs[slot_num];
   DynInstPtr inst = reqs[slot_num]->inst;
 
-  MapuLiveProcess *proc = dynamic_cast<MapuLiveProcess *>(inst->tcBase()->getProcessPtr());
+  TheLiveProcess *proc = dynamic_cast<TheLiveProcess *>(inst->tcBase()->getProcessPtr());
 
   if (!proc)
     fatal("Unknown process is trying to use CSU.\n");
@@ -143,7 +143,7 @@ void ComSynUnit::execute(int slot_num) {
         // DMA cmd was issued, a DMA Event must be scheduled
         DPRINTF(InOrderCSU, "[tid:%i]: [sn:%i] CSU DMA request is issued.\n",
                 tid, seq_num);
-        cpu->schedule(new DMAEvent(dynamic_cast<MapuCPU *>(cpu), csu), curTick() + 2000);
+        cpu->schedule(new DMAEvent(dynamic_cast<TheCPU *>(cpu), csu), curTick() + 2000);
       }
       DPRINTF(InOrderCSU, "[tid:%i]: [sn:%i] Writing CSU Register %u completed.\n",
               tid, seq_num, chid);

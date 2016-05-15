@@ -52,7 +52,7 @@ class PhysRegFile
 {
   protected:
     typedef TheISA::IntReg IntReg;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     typedef TheISA::IntReg IntJReg;
 #endif
     typedef TheISA::FloatReg FloatReg;
@@ -92,7 +92,7 @@ class PhysRegFile
                 "%#x\n", int(reg_idx), intRegFile[reg_idx]);
         return intRegFile[reg_idx];
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Reads an integer j register. */
     uint64_t readIntJReg(PhysRegIndex reg_idx)
     {
@@ -146,7 +146,7 @@ class PhysRegFile
         if (reg_idx != TheISA::ZeroReg)
             intRegFile[reg_idx] = val;
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Sets an integer j register to the given value. */
     void setIntJReg(PhysRegIndex reg_idx, uint64_t val)
     {
@@ -193,7 +193,7 @@ class PhysRegFile
   public:
     /** (signed) integer register file. */
     IntReg *intRegFile;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     IntJReg *intJRegFile;
 #endif
 

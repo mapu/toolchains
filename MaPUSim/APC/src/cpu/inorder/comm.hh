@@ -57,7 +57,7 @@ struct TimeStruct {
     struct StageComm {
         bool squash;
         InstSeqNum doneSeqNum;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         InstSeqNum doneLineSeqNum;
 #endif
         bool uncached;
@@ -65,14 +65,14 @@ struct TimeStruct {
 
         StageComm()
             : squash(false), doneSeqNum(0),
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
               doneLineSeqNum(0),
 #endif
               uncached(false), uncachedLoad(NULL)
         { }
     };
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     StageComm stageInfo[ThePipeline::NumSStages][ThePipeline::MaxSThreads];
     bool stageBlock[ThePipeline::NumSStages][ThePipeline::MaxSThreads];
     bool stageUnblock[ThePipeline::NumSStages][ThePipeline::MaxSThreads];

@@ -83,7 +83,7 @@ class UseDefUnit : public Resource {
 
     Stats::Average uniqueRegsPerSwitch;
     std::map<RegIndex, bool> uniqueIntRegMap;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     std::map<RegIndex, bool> uniqueIntJRegMap;
     std::map<RegIndex, bool> uniqueDoubleRegMap;
 #endif

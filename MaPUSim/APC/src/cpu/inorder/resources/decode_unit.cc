@@ -60,7 +60,7 @@ void DecodeUnit::execute(int slot_num) {
         inst->readTid(), inst->seqNum);
     } else {
       assert(!inst->staticInst->isMacroop());
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       if (inst->isMCode()) {
         inst->setBackSked(cpu->createMBackEndSked(inst));
       } else {
@@ -72,7 +72,7 @@ void DecodeUnit::execute(int slot_num) {
     }
 
     if (inst->backSked != NULL) {
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       DPRINTF(InOrderDecode,
         "[tid:%i]: Back End Schedule created for %s  [sn:%i] [lsn: %i].\n",
         inst->readTid(), inst->instName(), inst->seqNum, inst->seqLineNum);

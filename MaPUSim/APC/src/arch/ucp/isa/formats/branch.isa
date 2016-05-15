@@ -1,0 +1,397 @@
+////////////////////////////////////////////////////////////////////
+//
+// Control transfer instructions
+//
+
+output header {{
+
+#include <iostream>
+    using namespace std;
+
+    /**
+     * Base class for instructions whose disassembly is not purely a
+     * function of the machine instruction (i.e., it depends on the
+     * PC).  This class overrides the disassemble() method to check
+     * the PC and symbol table values before re-using a cached
+     * disassembly string.  This is necessary for branches and jumps,
+     * where the disassembly string includes the target address (which
+     * may depend on the PC and/or symbol table).
+     */
+
+    class PCDependentDisassembly : public UcpStaticInst
+    {
+      protected:
+        /// Cached program counter from last disassembly
+        mutable Addr cachedPC;
+
+        /// Cached symbol table pointer from last disassembly
+        mutable const SymbolTable *cachedSymtab;
+
+        /// Constructor
+        PCDependentDisassembly(const char *mnem, ExtMachInst _machInst,
+                               OpClass __opClass)
+            : UcpStaticInst(mnem, _machInst, __opClass), cachedPC(0),
+              cachedSymtab(0)
+        {
+        }
+
+        const std::string &
+        disassemble(Addr pc, const SymbolTable *symtab) const;
+    };
+
+    /**
+     * Base class for branches (PC-relative control transfers),
+     * conditional or unconditional.
+     */
+    class Branch : public PCDependentDisassembly
+    {
+      protected:
+        /// target address (signed) Displacement .
+        int32_t disp;
+        int32_t extop;
+        int32_t extimm;
+
+        /// Constructor.
+        Branch(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+            : PCDependentDisassembly(mnem, _machInst, __opClass),
+              disp(IMMB), extop(NEXTOPCODE), extimm(EXTIMM)
+        {
+            //If Bit 17 is 1 then Sign Extend
+            if( (disp >> 16) == 1) disp = disp | 0xFFFE0000;
+            if (extop == 0x5)
+              disp = (disp & 0xF) | (extimm << 4);
+        }
+
+        UcpISA::PCState branchTarget(const UcpISA::PCState &branchPC) const;
+
+        std::string
+        generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+    };
+
+    class Callm : public PCDependentDisassembly
+    {
+      protected:
+        /// Constructor.
+        Callm(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+            : PCDependentDisassembly(mnem, _machInst, __opClass)
+        {
+
+        }
+
+        UcpISA::PCState branchTarget(const UcpISA::PCState &branchPC) const;
+
+        std::string
+        generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+    };
+
+    /**
+     * Base class for jumps (register-indirect control transfers).  In
+     * the Ucp ISA, these are always unconditional.
+     */
+    class Jump : public PCDependentDisassembly
+    {
+      protected:
+
+        /// Displacement to target address (signed).
+        int32_t disp;
+
+        uint32_t target;
+
+      public:
+        /// Constructor
+        Jump(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+            : PCDependentDisassembly(mnem, _machInst, __opClass),
+              disp(JMPTARG << 2)
+        {
+        }
+
+        UcpISA::PCState branchTarget(ThreadContext *tc) const;
+
+        std::string
+        generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+    };
+
+    /**
+     * Base class for LPTO.
+     **/
+    class Loop : public PCDependentDisassembly
+    {
+      protected:
+        /// target address (signed) Displacement .
+        int32_t disp;
+        int32_t extop;
+        int32_t extimm;
+
+        /// Constructor.
+        Loop(const char *mnem, ExtMachInst _machInst, OpClass __opClass)
+            : PCDependentDisassembly(mnem, _machInst, __opClass),
+              disp(IMMB), extop(NEXTOPCODE), extimm(EXTIMM)
+        {
+            //If Bit 17 is 1 then Sign Extend
+            if( (disp >> 16) == 1) disp = disp | 0xFFFE0000;
+            else if (extop == 0x5)
+              disp = (disp & 0xF) | (extimm << 4);
+
+        }
+
+        UcpISA::PCState branchTarget(const UcpISA::PCState &branchPC) const;
+
+        std::string
+        generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+    };
+}};
+
+
+
+output decoder {{
+    UcpISA::PCState
+    Branch::branchTarget(const UcpISA::PCState &branchPC) const
+    {
+        UcpISA::PCState target = branchPC;
+        target.advance();
+        target.npc(branchPC.pc() + disp);
+        return target;
+    }
+
+    UcpISA::PCState
+    Callm::branchTarget(const UcpISA::PCState &branchPC) const
+    {
+        UcpISA::PCState target = branchPC;
+        target.advance();
+        target.npc(branchPC.pc());
+        return target;
+    }
+
+    UcpISA::PCState
+    Jump::branchTarget(ThreadContext *tc) const
+    {
+        UcpISA::PCState target = tc->pcState();
+        Addr pc = target.pc();
+        target.advance();
+        target.npc((pc & 0xF0000000) | disp);
+        return target;
+    }
+
+    UcpISA::PCState
+    Loop::branchTarget(const UcpISA::PCState &branchPC) const
+    {
+        UcpISA::PCState target = branchPC;
+        target.advance();
+        //target.npc(branchPC.pc() + disp);
+        return target;
+    }
+
+    const std::string &
+    PCDependentDisassembly::disassemble(Addr pc,
+                                        const SymbolTable *symtab) const
+    {
+        if (!cachedDisassembly ||
+            pc != cachedPC || symtab != cachedSymtab)
+        {
+            if (cachedDisassembly)
+                delete cachedDisassembly;
+
+            cachedDisassembly =
+                new std::string(generateDisassembly(pc, symtab));
+            cachedPC = pc;
+            cachedSymtab = symtab;
+        }
+
+        return *cachedDisassembly;
+    }
+        
+    std::string
+    Branch::generateDisassembly(Addr pc, const SymbolTable *symtab) const
+    {
+        std::stringstream ss;
+
+        ccprintf(ss, "%-10s ", mnemonic);
+
+        // There's only one register arg (RA), but it could be
+        // either a source (the condition for conditional
+        // branches) or a destination (the link reg for
+        // unconditional branches)
+        if (_numSrcRegs == 1) {
+            printReg(ss, _srcRegIdx[0]);
+            ss << ", ";
+        } else if(_numSrcRegs == 2) {
+            printReg(ss, _srcRegIdx[0]);
+            ss << ", ";
+            printReg(ss, _srcRegIdx[1]);
+            ss << ", ";
+        }
+
+        Addr target = pc + disp;
+
+        std::string str;
+        if (symtab && symtab->findSymbol(target, str))
+            ss << str;
+        else
+            ccprintf(ss, "0x%x", target);
+
+        return ss.str();
+    }
+
+    std::string
+    Callm::generateDisassembly(Addr pc, const SymbolTable *symtab) const
+    {
+        std::stringstream ss;
+
+        ccprintf(ss, "%-10s ", mnemonic);
+
+        // There's only one register arg (RA), but it could be
+        // either a source (the condition for conditional
+        // branches) or a destination (the link reg for
+        // unconditional branches)
+        if (CALLMIMM) {
+          symtab = mdebugSymbolTable;
+          std::string str;
+          if (symtab && symtab->findSymbol(IMM17 * 41, str))
+              ss << str;
+          else
+              ccprintf(ss, "0x%x", IMM17 * 41);
+        } else {
+          printReg(ss, _srcRegIdx[0]);
+        }
+
+        return ss.str();
+    }
+
+    std::string
+    Jump::generateDisassembly(Addr pc, const SymbolTable *symtab) const
+    {
+        std::stringstream ss;
+
+        ccprintf(ss, "%-10s ", mnemonic);
+
+        if ( strcmp(mnemonic,"jal") == 0 ) {
+            Addr npc = pc + 4;
+            ccprintf(ss,"0x%x",(npc & 0xF0000000) | disp);
+        } else if (_numSrcRegs == 0) {
+            std::string str;
+            if (symtab && symtab->findSymbol(disp, str))
+                ss << str;
+            else
+                ccprintf(ss, "0x%x", disp);
+        } else if (_numSrcRegs == 1) {
+             printReg(ss, _srcRegIdx[0]);
+        } else if(_numSrcRegs == 2) {
+            printReg(ss, _srcRegIdx[0]);
+            ss << ", ";
+            printReg(ss, _srcRegIdx[1]);
+        }
+
+        return ss.str();
+    }
+
+    std::string
+    Loop::generateDisassembly(Addr pc, const SymbolTable *symtab) const
+    {
+        std::stringstream ss;
+
+        ccprintf(ss, "%-10s ", mnemonic);
+
+        Addr target = pc + disp;
+        std::string str;
+        if (symtab && symtab->findSymbol(target, str))
+            ss << str;
+        else
+            ccprintf(ss, "0x%x", target);
+
+        ss << " BY ";
+        printReg(ss, _srcRegIdx[0]);
+
+        return ss.str();
+    }
+
+}};
+
+
+
+def format Branch(code, *inst_flags) {{
+
+    #Build Instruction Flags
+    inst_flags += ('IsDirectControl', 'Is1cycle')
+
+    #Take into account uncond. branch instruction
+    if 'cond = 1' in code:
+         inst_flags += ('IsUncondControl', )
+    else:
+         inst_flags += ('IsCondControl', )
+
+    #Condition code
+    code = '''
+    bool cond;
+    %(code)s
+    if (cond) {
+        NPC = PC + disp;
+    }
+    else
+        NPC = NPC;
+    ''' % { "code" : code}
+
+    iop = InstObjParams(name, Name, 'Branch', code, inst_flags)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format Callm(code, *inst_flags) {{
+
+    #Build Instruction Flags
+    inst_flags += ('Is2cycle', )
+
+    #Condition code
+    code = '''
+    Addr mtarget;
+    bool block;
+    if (xc->tcBase()->getCpuPtr()->getContext(ThePipeline::MaxSThreads)->status() ==
+        ThreadContext::Halted) {
+      %(code)s
+      xc->tcBase()->getCpuPtr()->getContext(ThePipeline::MaxSThreads)->activate(0);
+      dynamic_cast<InOrderCPU *>(xc->tcBase()->getCpuPtr())->pc[ThePipeline::MaxSThreads].mset(mtarget);
+      UcpSPUProcess *p = dynamic_cast<UcpSPUProcess *>(xc->tcBase()->getProcessPtr());
+      assert(p);
+      p->setBlockedByMPU(block);
+      CsuObject *csuObj = p->getCsuPtr();
+      assert(csuObj);
+      csuObj->clearEvent(CsuObject::MPUIdelEvent);
+    } else {
+      xc->tcBase()->getCpuPtr()->getContext(xc->tcBase()->threadId())->suspend(0);
+      fault = new ReExec();
+    }
+    ''' % { "code" : code}
+
+    iop = InstObjParams(name, Name, 'Callm', code, inst_flags)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format Jump(code, *inst_flags) {{
+    #Build Instruction Flags
+    inst_flags += ('IsIndirectControl', 'IsUncondControl', 'Is1cycle')
+
+    iop = InstObjParams(name, Name, 'Jump', code, inst_flags)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format Loop(code, *inst_flags) {{
+    #Build Instruction Flags
+    inst_flags += ('Is1cycle',)
+
+    iop = InstObjParams(name, Name, 'Loop', code, inst_flags)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+
+
+

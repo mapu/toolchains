@@ -245,7 +245,7 @@ void UseDefUnit::execute(int slot_idx) {
       }
         break;
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       case InOrderCPU::IntJType: {
         uniqueIntJRegMap[flat_idx] = true;
 
@@ -327,7 +327,7 @@ void UseDefUnit::execute(int slot_idx) {
       ud_req->done();
     } else {
       // Look for forwarding opportunities
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       DynInstPtr forward_inst = NULL;
 #else
       DynInstPtr forward_inst = regDepMap[tid]->canForward(reg_type,flat_idx, inst);
@@ -420,7 +420,7 @@ void UseDefUnit::execute(int slot_idx) {
         intRegFileWrites++;
       }
         break;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
       case InOrderCPU::IntJType: {
         uniqueIntRegMap[flat_idx] = true;
 

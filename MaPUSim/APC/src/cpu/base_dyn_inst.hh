@@ -635,7 +635,7 @@ class BaseDynInst : public RefCounted
     {
         setResult<uint64_t>(val);
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     /** Records an integer register being set to a value. */
     void setIntJRegOperand(const StaticInst *si, int idx, uint64_t val)
     {

@@ -166,7 +166,7 @@ class StaticInst : public RefCounted
         IsMicroBranch,  ///< This microop branches within the microcode for a macroop
         IsDspOp,
         IsSquashAfter, ///< Squash all uncommitted state after executed
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
         IsVector,
         Is1cycle,
         Is2cycle,
@@ -280,7 +280,7 @@ class StaticInst : public RefCounted
     bool isMicroBranch() const { return flags[IsMicroBranch]; }
     //@}
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     bool is1cycle() const{ return flags[Is1cycle]; }
     bool is2cycle() const{ return flags[Is2cycle]; }
     bool is3cycle() const{ return flags[Is3cycle]; }

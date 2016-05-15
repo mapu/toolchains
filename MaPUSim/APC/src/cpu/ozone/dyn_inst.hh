@@ -150,7 +150,7 @@ class OzoneDynInst : public BaseDynInst<Impl>
     {
         return srcInsts[idx]->readIntResult();
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readIntJRegOperand(const StaticInst *si, int idx)
     {
         return srcInsts[idx]->readIntResult();

@@ -74,7 +74,7 @@ class BaseO3DynInst : public BaseDynInst<Impl>
     typedef TheISA::RegIndex RegIndex;
     /** Integer register index type. */
     typedef TheISA::IntReg   IntReg;
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     typedef TheISA::IntReg   IntJReg;
 #endif
     typedef TheISA::FloatReg FloatReg;
@@ -201,7 +201,7 @@ class BaseO3DynInst : public BaseDynInst<Impl>
             TheISA::RegIndex original_dest_reg = this->staticInst->destRegIdx(idx);
             if (original_dest_reg <  TheISA::FP_Base_DepTag)
                 this->setIntRegOperand(this->staticInst.get(), idx, this->cpu->readIntReg(prev_phys_reg));
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
             else if (original_dest_reg <  TheISA::FP_Base_DepTag + 32)
                 this->setIntJRegOperand(this->staticInst.get(), idx, this->cpu->readIntReg(prev_phys_reg));
 #endif
@@ -235,7 +235,7 @@ class BaseO3DynInst : public BaseDynInst<Impl>
     {
         return this->cpu->readIntReg(this->_srcRegIdx[idx]);
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readIntJRegOperand(const StaticInst *si, int idx)
     {
         return this->cpu->readIntJReg(this->_srcRegIdx[idx]);
@@ -260,7 +260,7 @@ class BaseO3DynInst : public BaseDynInst<Impl>
         this->cpu->setIntReg(this->_destRegIdx[idx], val);
         BaseDynInst<Impl>::setIntRegOperand(si, idx, val);
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     void setIntJRegOperand(const StaticInst *si, int idx, uint64_t val)
     {
         this->cpu->setIntJReg(this->_destRegIdx[idx], val);
@@ -293,7 +293,7 @@ class BaseO3DynInst : public BaseDynInst<Impl>
     }
 #endif
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readRegOtherThread(int misc_reg)
     {
         panic("MAPU MT not defined for O3 CPU.\n");

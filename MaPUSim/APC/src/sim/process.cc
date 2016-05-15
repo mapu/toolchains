@@ -81,6 +81,8 @@
 #include "arch/x86/linux/process.hh"
 #elif THE_ISA == POWER_ISA
 #include "arch/power/linux/process.hh"
+#elif THE_ISA == UCP_ISA
+#include "arch/ucp/linux/process.hh"
 #else
 #error "THE_ISA not set"
 #endif
@@ -624,6 +626,13 @@ LiveProcess::create(LiveProcessParams * params)
       else
         return new MapuMPUProcess(params, objFile);
     }
+#elif THE_ISA == UCP_ISA
+    if (MaPUSystem) {
+      if (objFile != NULL)
+        return new UcpSPUProcess(params, objFile);
+      else
+        return new UcpMPUProcess(params, objFile);
+    }
 #endif
     if (objFile == NULL) {
         fatal("Can't load object file %s", executable);
@@ -753,6 +762,23 @@ LiveProcess::create(LiveProcessParams * params)
         break;
       case ObjectFile::MaPU_MPU:
         process = new MapuMPUProcess(params, objFile);
+        break;
+
+      default:
+        fatal("Unknown/unsupported operating system.");
+    }
+#elif THE_ISA == UCP_ISA
+    if (objFile->getArch() != ObjectFile::Ucp)
+        fatal("Object file architecture does not match compiled ISA (Mapu).");
+    switch (objFile->getOpSys()) {
+      case ObjectFile::UnknownOpSys:
+        warn("Unknown MaPU program; assuming SPU program.");
+        // fall through
+      case ObjectFile::UCP_SPU:
+        process = new UcpSPUProcess(params, objFile);
+        break;
+      case ObjectFile::UCP_MPU:
+        process = new UcpMPUProcess(params, objFile);
         break;
 
       default:

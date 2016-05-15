@@ -227,7 +227,7 @@ class BaseSimpleCPU : public BaseCPU
     Stats::Scalar numIntRegWrites;
 
     //number of integer j register file accesses
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     Stats::Scalar numIntJRegReads;
     Stats::Scalar numIntJRegWrites;
 #endif
@@ -297,7 +297,7 @@ class BaseSimpleCPU : public BaseCPU
         return thread->readIntReg(si->srcRegIdx(idx));
     }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     uint64_t readIntJRegOperand(const StaticInst *si, int idx)
     {
         numIntJRegReads++;
@@ -325,7 +325,7 @@ class BaseSimpleCPU : public BaseCPU
         thread->setIntReg(si->destRegIdx(idx), val);
     }
 
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     void setIntJRegOperand(const StaticInst *si, int idx, uint64_t val)
     {
         numIntJRegWrites++;

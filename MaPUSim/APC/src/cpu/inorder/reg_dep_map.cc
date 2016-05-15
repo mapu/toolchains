@@ -45,7 +45,7 @@ RegDepMap::RegDepMap(int size)
 {
     regMap.resize(InOrderCPU::NumRegTypes);
     regMap[InOrderCPU::IntType].resize(NumIntRegs);
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     regMap[InOrderCPU::IntJType].resize(NumIntJRegs);
     regMap[InOrderCPU::DoubleType].resize(NumDoubleRegs);
     regMap[InOrderCPU::VectorType].resize(NumMPURegs);
@@ -67,7 +67,7 @@ RegDepMap::name()
 
 std::string RegDepMap::mapNames[InOrderCPU::NumRegTypes] =
 {"IntReg",
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
  "IntJReg",
  "DoubleReg",
  "VectorReg",
@@ -275,7 +275,7 @@ RegDepMap::canRead(uint8_t reg_type, RegIndex idx, DynInstPtr inst)
     if (inst->seqNum <= (*list_it)->seqNum) {
       return true;
     }
-#if THE_ISA == MAPU_ISA
+#if (THE_ISA == MAPU_ISA) || (THE_ISA == UCP_ISA)
     else if (inst->seqLineNum <= (*list_it)->seqLineNum) {
         return true;
     }
