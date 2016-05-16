@@ -1,4 +1,4 @@
-//===-- MMPULiteAsmParser.h - Parse MMPULite asm to MCInst instructions -----===//
+//===-- UCPMAsmParser.h - Parse UCPM asm to MCInst instructions -----===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MMPULITEASMPARSER_H
-#define MMPULITEASMPARSER_H
+#ifndef UCPMASMPARSER_H
+#define UCPMASMPARSER_H
 
-//#include "../MMPULiteInsnFlags.h"
-#include "../MCTargetDesc/MMPULiteInsnLine.h"
-#include "../MCTargetDesc/MMPULiteMCTargetDesc.h"
+//#include "../UCPMInsnFlags.h"
+#include "../MCTargetDesc/UCPMInsnLine.h"
+#include "../MCTargetDesc/UCPMMCTargetDesc.h"
 
 #include "llvm/MC/MCParser/AsmLexer.h"
 #include "llvm/MC/MCParser/MCAsmLexer.h"
@@ -38,7 +38,7 @@
 
 
 namespace llvm {
-namespace MMPULite {
+namespace UCPM {
 class MCFunction;
 enum AsmOperandKind {
   AsmHMacro, // slot is a special kind of helper register class
@@ -49,7 +49,7 @@ enum AsmOperandKind {
   AsmSlot
 };
 
-struct MMPULiteAsmOperand: public MCParsedAsmOperand {
+struct UCPMAsmOperand: public MCParsedAsmOperand {
   enum AsmOperandKind Kind;
   SMLoc StartLoc, EndLoc;
 
@@ -62,7 +62,7 @@ struct MMPULiteAsmOperand: public MCParsedAsmOperand {
   };
 
 public:
-  MMPULiteAsmOperand(const MMPULiteAsmOperand &o)
+  UCPMAsmOperand(const UCPMAsmOperand &o)
     : MCParsedAsmOperand() {
     Kind = o.Kind;
     StartLoc = o.StartLoc;
@@ -89,7 +89,7 @@ public:
     }
   }
 
-  MMPULiteAsmOperand(AsmOperandKind K)
+  UCPMAsmOperand(AsmOperandKind K)
         : MCParsedAsmOperand(), Kind(K) {}
 
   /// getStartLoc - Get the location of the first token of this operand.
@@ -201,54 +201,54 @@ public:
     OS << ">";
   }
 
-  static MMPULiteAsmOperand *createHMacro(std::string *Name,
+  static UCPMAsmOperand *createHMacro(std::string *Name,
                                           SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmHMacro);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmHMacro);
     Op->Name = Name;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
   }
 
-static MMPULiteAsmOperand *createOpc(unsigned opcode,
+static UCPMAsmOperand *createOpc(unsigned opcode,
                                      SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmOpcode);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmOpcode);
     Op->Opc = opcode;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
   }
 
-  static MMPULiteAsmOperand *createReg(unsigned RegNum,
+  static UCPMAsmOperand *createReg(unsigned RegNum,
                                        SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmRegister);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmRegister);
     Op->Reg = RegNum;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
   }
 
-  static MMPULiteAsmOperand *createImm(int64_t imm,
+  static UCPMAsmOperand *createImm(int64_t imm,
                                        SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmImmediate);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmImmediate);
     Op->Imm = imm;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
   }
 
-  static MMPULiteAsmOperand *createSlot(int64_t imm,
+  static UCPMAsmOperand *createSlot(int64_t imm,
                                         SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmSlot);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmSlot);
     Op->Imm = imm;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
   }
 
-  static MMPULiteAsmOperand *createExpr(const MCExpr *expr,
+  static UCPMAsmOperand *createExpr(const MCExpr *expr,
                                         SMLoc S = SMLoc(), SMLoc E = SMLoc()) {
-    MMPULiteAsmOperand *Op = new MMPULiteAsmOperand(AsmExpression);
+    UCPMAsmOperand *Op = new UCPMAsmOperand(AsmExpression);
     Op->Expr = expr;
     Op->StartLoc = S;
     Op->EndLoc = E;
@@ -256,11 +256,11 @@ static MMPULiteAsmOperand *createOpc(unsigned opcode,
   }
 };
 #define OPERAND(TY, VALUE, START, END) \
-MMPULite::MMPULiteAsmOperand::create##TY(VALUE, START, END)
+UCPM::UCPMAsmOperand::create##TY(VALUE, START, END)
 #define SHARED_OPRD(TY, VALUE, START, END) \
 SharedMMPUOprd(OPERAND(TY, VALUE, START, END))
 #define ADDOPERAND(TY, VALUE, START, END) \
-Operands.push_back(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(std::unique_ptr<MMPULite::MMPULiteAsmOperand>(OPERAND(TY, VALUE, START, END))))
+Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(std::unique_ptr<UCPM::UCPMAsmOperand>(OPERAND(TY, VALUE, START, END))))
 
   
 struct HMacro {
@@ -272,7 +272,7 @@ public:
     : Name(N), Body(B) {}
 };
   
-} // namespace MMPULite
+} // namespace UCPM
 } // namespace llvm
 
 #endif

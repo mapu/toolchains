@@ -167,7 +167,7 @@ if buildEnv['TARGET_ISA'] == 'mapu':
                 ddrmem3 = SimpleMemory(range=AddrRange(0xC0000000, 0xFFFFFFFF), needdump = dumpddr),
                 shmem = SimpleMemory(range=AddrRange(0x40400000, 0x407FFFFF), shared=True, shmkey=options.shm_key, needdump = dumpshare))
 elif buildEnv['TARGET_ISA'] == 'ucp':
-    system = MapuSystem(cpu = [CPUClass(cpu_id = i, 
+    system = UcpSystem(cpu = [CPUClass(cpu_id = i, 
                     dtb = TheTLB(cpuid = i), 
                     itb = TheTLB(cpuid = i)) for i in xrange(np)],
                 physmem = SimpleMemory(range=AddrRange("128MB"), needdump = dumplocal),

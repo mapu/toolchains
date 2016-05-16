@@ -12,22 +12,22 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MMPULITE_MCFUNCTION_H
-#define MMPULITE_MCFUNCTION_H
+#ifndef UCPM_MCFUNCTION_H
+#define UCPM_MCFUNCTION_H
 
-#include "MMPULiteAsmParser.h"
+#include "UCPMAsmParser.h"
 #include "llvm/ADT/StringMap.h"
 
 namespace llvm {
-namespace MMPULite {
+namespace UCPM {
 
 class MCLoopBlock;
 class MCFunction;
 typedef std::shared_ptr<MCParsedAsmOperand> SharedOperand;
-typedef std::shared_ptr<MMPULiteAsmOperand> SharedMMPUOprd;
+typedef std::shared_ptr<UCPMAsmOperand> SharedMMPUOprd;
 typedef SmallVectorImpl<SharedOperand> SharedOperandVector;
 #define CAST_TO_MMPU_OPRD(O) \
-  std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(O)
+  std::static_pointer_cast<UCPM::UCPMAsmOperand>(O)
 
 class MCParsedInst {
   SmallVector<SharedOperand, 256> Operands;

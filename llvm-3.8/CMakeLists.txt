@@ -224,6 +224,7 @@ set(LLVM_ALL_TARGETS
 # MaPU Archs
   MSPU
   MMPULite
+  UCPM
 # MaPU Archs
   )
 

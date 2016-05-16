@@ -14,17 +14,17 @@
 //===----------------------------------------------------------------------===//
 
 #include "MCFunction.h"
-#include "MMPULiteAsmParser.h"
+#include "UCPMAsmParser.h"
 
 namespace llvm {
-namespace MMPULite {
+namespace UCPM {
 bool MCParsedInst::hasRepeat(unsigned &OpNo) const {
   for(OpNo = 0; OpNo < Operands.size(); OpNo++) {
-    std::shared_ptr<MMPULite::MMPULiteAsmOperand> op =
-      std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Operands[OpNo]);
+    std::shared_ptr<UCPM::UCPMAsmOperand> op =
+      std::static_pointer_cast<UCPM::UCPMAsmOperand>(Operands[OpNo]);
     if (op->isToken() && 
-        (op->getOpc() == MMPULite::REPEATIMM ||
-         op->getOpc() == MMPULite::REPEATK))
+        (op->getOpc() == UCPM::REPEATIMM ||
+         op->getOpc() == UCPM::REPEATK))
       return true;
   }
   return false;
@@ -32,20 +32,20 @@ bool MCParsedInst::hasRepeat(unsigned &OpNo) const {
 
 bool MCParsedInst::hasLoop(unsigned &OpNo) const {
   for(OpNo = 0; OpNo < Operands.size(); OpNo++) {
-    std::shared_ptr<MMPULite::MMPULiteAsmOperand> op =
-      std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Operands[OpNo]);
-    if (op->isToken() && op->getOpc() == MMPULite::LPTO) return true;
+    std::shared_ptr<UCPM::UCPMAsmOperand> op =
+      std::static_pointer_cast<UCPM::UCPMAsmOperand>(Operands[OpNo]);
+    if (op->isToken() && op->getOpc() == UCPM::LPTO) return true;
   }
   return false;
 }
 
 bool MCParsedInst::hasJump(unsigned &OpNo) const {
   for(OpNo = 0; OpNo < Operands.size(); OpNo++) {
-    std::shared_ptr<MMPULite::MMPULiteAsmOperand> op =
-      std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Operands[OpNo]);
+    std::shared_ptr<UCPM::UCPMAsmOperand> op =
+      std::static_pointer_cast<UCPM::UCPMAsmOperand>(Operands[OpNo]);
     if (op->isToken() && 
-        (op->getOpc() == MMPULite::JUMP ||
-         op->getOpc() == MMPULite::JUMPK))
+        (op->getOpc() == UCPM::JUMP ||
+         op->getOpc() == UCPM::JUMPK))
       return true;
   }
   return false;
@@ -53,10 +53,10 @@ bool MCParsedInst::hasJump(unsigned &OpNo) const {
   
 bool MCParsedInst::hasEmbeddedHMacro(unsigned &OpNo) const {
   for(OpNo = 0; OpNo < Operands.size(); OpNo++) {
-    std::shared_ptr<MMPULite::MMPULiteAsmOperand> op =
-      std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Operands[OpNo]);
+    std::shared_ptr<UCPM::UCPMAsmOperand> op =
+      std::static_pointer_cast<UCPM::UCPMAsmOperand>(Operands[OpNo]);
     if (op->isHMacro() && (OpNo + 1 < Operands.size())) {
-      op = std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(Operands[OpNo + 1]);
+      op = std::static_pointer_cast<UCPM::UCPMAsmOperand>(Operands[OpNo + 1]);
       if (op->isImm() && op->getImm() == 1)
         return true;
     }
@@ -526,7 +526,7 @@ void MCLoopBlock::ExpandEmbeddedHM(StringMap<HMacro*> &Map) {
            << "L:" << LHS.size() << "|" << Start << "\n";
     if (start > Start) {
       SmallVector<SharedOperand, 8> Nops;
-      Nops.push_back(SharedOperand(MMPULiteAsmOperand::createOpc(NOP)));
+      Nops.push_back(SharedOperand(UCPMAsmOperand::createOpc(NOP)));
       if (start - Start == 1) {
         RHS.push_back(new MCLoopBlock(Sequential, Start));
         RHS.back()->addParsedInst(new MCParsedInst(Nops));
@@ -839,7 +839,7 @@ bool MCFunction::getLoopBlock(uint64_t Address, MCLoopBlock* &MB) {
 
 void MCFunction::addParsedInst(MCParsedInst *Inst) {
   unsigned OpNo;
-  std::shared_ptr<MMPULite::MMPULiteAsmOperand> op;
+  std::shared_ptr<UCPM::UCPMAsmOperand> op;
   int64_t count = 1;
   unsigned ki = 0;
   bool Sym;
@@ -876,7 +876,7 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
   }
   if (cachedLabel) {
     PendingLabels.push_back(
-      std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>(cachedLabel, false));
+      std::pair<std::shared_ptr<UCPM::UCPMAsmOperand>, bool>(cachedLabel, false));
     cachedLabel = nullptr;
     while (PreviousInst && PreviousInst->hasLoop(OpNo)) {
       op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 1));
@@ -888,7 +888,7 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
           const MCSymbolRefExpr *SE = dyn_cast<MCSymbolRefExpr>(op->getExpr());
           if (SE) {
             PendingLabels.push_back(
-              std::pair<std::shared_ptr<MMPULite::MMPULiteAsmOperand>, bool>(op, false));
+              std::pair<std::shared_ptr<UCPM::UCPMAsmOperand>, bool>(op, false));
             op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 2));
             ki = op->getImm();
             op = CAST_TO_MMPU_OPRD(PreviousInst->getOperand(OpNo + 3));
@@ -919,8 +919,8 @@ void MCFunction::addParsedInst(MCParsedInst *Inst) {
     op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 1));
     count = op->getImm();
     op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo));
-    if (op->getOpc() == MMPULite::REPEATIMM && count == 0) count = 1024;
-    else if (op->getOpc() == MMPULite::REPEATK) {
+    if (op->getOpc() == UCPM::REPEATIMM && count == 0) count = 1024;
+    else if (op->getOpc() == UCPM::REPEATK) {
       ki = count;
       op = CAST_TO_MMPU_OPRD(Inst->getOperand(OpNo + 2));
       count = -op->getImm();
@@ -1034,5 +1034,5 @@ void MCFunction::ExpandEmbeddedHM(StringMap<HMacro*> &Map) {
   Index = next;
   Embedded = false;
 }
-} // namespace MMPULite
+} // namespace UCPM
 } // namespace llvm

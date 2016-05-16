@@ -90,6 +90,7 @@ public:
 #ifdef ARCH_MAPU
     mspu,    // mspu: MaPU SPU
     mmpulite,     // mmpu: MaPU MPU
+    ucpm,    // ucpm: UCP MPU
 #endif
     wasm32,     // WebAssembly with 32-bit pointers
     wasm64,     // WebAssembly with 64-bit pointers
@@ -122,6 +123,7 @@ public:
 #ifdef ARCH_MAPU
     ,mspu_v1    // MaPU v1
     ,mmpu_v1    // MaPU v1
+    ,ucpm_v1    // UCP v1
 #endif
   };
   enum VendorType {

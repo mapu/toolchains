@@ -1,4 +1,4 @@
-///===-- MMPULiteScheduler.h ---------------------------------------------------===///
+///===-- UCPMScheduler.h ---------------------------------------------------===///
 ///
 ///                     The LLVM Compiler Infrastructure
 ///
@@ -12,16 +12,16 @@
 ///
 ///===----------------------------------------------------------------------===///
 
-#ifndef MMPULITESCHEDULER_H
-#define MMPULITESCHEDULER_H
+#ifndef UCPMSCHEDULER_H
+#define UCPMSCHEDULER_H
 
-#include "MMPULiteAsmParser.h"
+#include "UCPMAsmParser.h"
 #include "MCFunction.h"
 #include <map>
 
 namespace llvm {
-namespace MMPULite {
-class MMPULiteScheduler {
+namespace UCPM {
+class UCPMScheduler {
 public:
   enum ResouceTy {
     Invalid = 0, // Indicate usage info of an nonexisting inst, such as BIU0.DM -> BIU0
@@ -120,7 +120,7 @@ private:
   void FixupDoubleRegWB(std::vector<use> &instline, const MCInst *MI, unsigned begin);
 
 public:
-  #define INSTRUCTION_LIST_LEN (MMPULite::INSTRUCTION_LIST_END - MMPULite::BIU0KG)
+  #define INSTRUCTION_LIST_LEN (UCPM::INSTRUCTION_LIST_END - UCPM::BIU0KG)
   static const std::string ResName[NumResouces];
   static const uint64_t ResUsageMap[INSTRUCTION_LIST_LEN];
   static const uint64_t ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 2];
@@ -144,11 +144,11 @@ public:
   static const uint64_t R_MW    = (1ULL << MW0 | 1ULL << MW1 | 1ULL << MW2 |
                                    1ULL << MW3);
   
-  MMPULiteScheduler(MCAsmParser &Parser) : CurPoint(0), Parser(&Parser) {
+  UCPMScheduler(MCAsmParser &Parser) : CurPoint(0), Parser(&Parser) {
     allocResvRecord();
   };
 
-  MMPULiteScheduler() : CurPoint(0) {
+  UCPMScheduler() : CurPoint(0) {
     Parser = NULL;
     allocResvRecord();
   };

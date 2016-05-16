@@ -1,4 +1,4 @@
-//===-- MMPULiteScheduler.cpp -------------------------------------------------===//
+//===-- UCPMScheduler.cpp -------------------------------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -12,25 +12,25 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "MMPULiteScheduler.h"
+#include "UCPMScheduler.h"
 
 using namespace llvm;
 namespace llvm{
-namespace MMPULite{
+namespace UCPM{
 
-void MMPULiteScheduler::allocResvRecord() {
+void UCPMScheduler::allocResvRecord() {
   std::map<unsigned, resv> *records = new std::map<unsigned, resv>;
   ResvBoard.push_back(*records);
 }
 
-void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
+void UCPMScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
   History.push_back(*(new std::vector<use>));
   std::vector<use> &instline = History.back();
   const MCInst *MIP = MI;
   do {
     if (MIP == MI) MIP = MIP->getOperand(0).getInst();//???
     else MIP = MIP->getOperand(MIP->getNumOperands() - 1).getInst();
-    const unsigned opcode = MIP->getOpcode() - MMPULite::BIU0KG;
+    const unsigned opcode = MIP->getOpcode() - UCPM::BIU0KG;
     const uint64_t DefUsage = ResUsageMap[opcode];
     const uint64_t Usage = UsageFixup	(DefUsage, MIP);
     if (Usage != 0) {
@@ -58,11 +58,11 @@ void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
   } while (MIP->getNumOperands() != 0 &&
            MIP->getOperand(MIP->getNumOperands() - 1).isInst());
   // Begin to analyze the control flow
-  if (MIP->getOpcode() == MMPULite::REPEATIMM) {
+  if (MIP->getOpcode() == UCPM::REPEATIMM) {
     int64_t imm = MIP->getOperand(0).getImm() - 1;
     imm = imm > 10 ? 10 : imm;
     while (imm-- > 0) History.push_back(History.back());
-  } else if (MIP->getOpcode() == MMPULite::REPEATK)
+  } else if (MIP->getOpcode() == UCPM::REPEATK)
     for (unsigned i = 0; i < 10; i++)//???
       History.push_back(History.back());
   while (!LoopStack.empty() && Sym) {//???
@@ -74,7 +74,7 @@ void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
     LoopStack.pop_back();
     --Sym;
   }
-  if (MIP->getOpcode() == MMPULite::LPTO) LoopStack.push_back(History.size());
+  if (MIP->getOpcode() == UCPM::LPTO) LoopStack.push_back(History.size());
   // Begin to check collision
   for (; CurPoint < History.size(); CurPoint++) {
     if (History[CurPoint].empty())
@@ -110,12 +110,12 @@ void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
               if (j != curuse.ResID &&
                   ResvBoard[curuse.Delay].count(j) &&
                   ResvBoard[curuse.Delay][j].MID == curuse.MID &&
-                  curuse.MID !=  MMPULiteReg::MIPP &&
-                  curuse.MID !=  MMPULiteReg::MSPP) {
+                  curuse.MID !=  UCPMReg::MIPP &&
+                  curuse.MID !=  UCPMReg::MSPP) {
                 if (Parser) {
                   Parser->Warning(curuse.Owner->getLoc(),
                                   "M Register Collision detected, M" +
-                                  Twine(curuse.MID - MMPULiteReg::M0) +
+                                  Twine(curuse.MID - UCPMReg::M0) +
                                   " is used by Inst:");
                   Parser->Warning(
                     ResvBoard[curuse.Delay][curuse.ResID].Owner->getLoc(),
@@ -126,7 +126,7 @@ void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
                   OS << "M Register Collision detected between inst 0x"
                      << Twine::utohexstr(VA) << " and 0x" << Twine::utohexstr(
                         ResvBoard[curuse.Delay][curuse.ResID].IssueTime)
-                     << ". Register ID is M" << curuse.MID - MMPULiteReg::M0
+                     << ". Register ID is M" << curuse.MID - UCPMReg::M0
                      << ".\n";
                 }
               }
@@ -139,7 +139,7 @@ void MMPULiteScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
   }
 }
 
-void MMPULiteScheduler::Trace(MCInst *MI) {
+void UCPMScheduler::Trace(MCInst *MI) {
   unsigned TResID = 0;
   for (uint64_t i = History.size() - 1; i <= 0; i++) {
     if (History[i].empty()) continue;
@@ -149,65 +149,65 @@ void MMPULiteScheduler::Trace(MCInst *MI) {
   }
 }
 
-uint64_t MMPULiteScheduler::UsageFixup(const uint64_t DefUsage,
+uint64_t UCPMScheduler::UsageFixup(const uint64_t DefUsage,
                                         const MCInst *MI) {
   const unsigned opc = MI->getOpcode();
   uint64_t Patch = 0xFFFFFFFFFFFFFFFFULL;
   switch (opc) {
-  case MMPULite::BIU0LdToMACC:
-  case MMPULite::BIU1LdToMACC:
-  case MMPULite::BIU2LdToMACC:
-  case MMPULite::MR0ToMACC:
-  case MMPULite::MR1ToMACC:
-  case MMPULite::MR2ToMACC:
-  case MMPULite::SHU0CombToMACC:
-  case MMPULite::SHU0IndTBNoOptToMACC:
-  case MMPULite::SHU0IndTBOptToMACC:
-  case MMPULite::SHU0IndTNoOptToMACC:
-  case MMPULite::SHU0IndTOptToMACC:
-  case MMPULite::SHU1CombToMACC:
-  case MMPULite::SHU1IndTBNoOptToMACC:
-  case MMPULite::SHU1IndTBOptToMACC:
-  case MMPULite::SHU1IndTNoOptToMACC:
-  case MMPULite::SHU1IndTOptToMACC:
+  case UCPM::BIU0LdToMACC:
+  case UCPM::BIU1LdToMACC:
+  case UCPM::BIU2LdToMACC:
+  case UCPM::MR0ToMACC:
+  case UCPM::MR1ToMACC:
+  case UCPM::MR2ToMACC:
+  case UCPM::SHU0CombToMACC:
+  case UCPM::SHU0IndTBNoOptToMACC:
+  case UCPM::SHU0IndTBOptToMACC:
+  case UCPM::SHU0IndTNoOptToMACC:
+  case UCPM::SHU0IndTOptToMACC:
+  case UCPM::SHU1CombToMACC:
+  case UCPM::SHU1IndTBNoOptToMACC:
+  case UCPM::SHU1IndTBOptToMACC:
+  case UCPM::SHU1IndTNoOptToMACC:
+  case UCPM::SHU1IndTOptToMACC:
     if (MI->getOperand(2).isImm())
       Patch &= ~((0x7ULL ^ (1ULL << (MI->getOperand(2).getImm() - 1))) << I0);
-  case MMPULite::FALUBinToMACC:
-  case MMPULite::FALUDParaToMACC:
-  case MMPULite::FALUUryToMACC:
-  case MMPULite::FMaCToMACC:
-  case MMPULite::FMulToMACC:
-  case MMPULite::IALUBinToMACC:
-  case MMPULite::IALUDPToMACC:
-  case MMPULite::IALUDivRToMACC:
-  case MMPULite::IALUImmToMACC:
-  case MMPULite::IALUTPToMACC:
-  case MMPULite::IALUUryToMACC:
-  case MMPULite::IMASToMACC:
-  case MMPULite::IMAToMACC:
-  case MMPULite::IMAccToMACC:
-  case MMPULite::IMaCToMACC:
-  case MMPULite::IMulToMACC:
+  case UCPM::FALUBinToMACC:
+  case UCPM::FALUDParaToMACC:
+  case UCPM::FALUUryToMACC:
+  case UCPM::FMaCToMACC:
+  case UCPM::FMulToMACC:
+  case UCPM::IALUBinToMACC:
+  case UCPM::IALUDPToMACC:
+  case UCPM::IALUDivRToMACC:
+  case UCPM::IALUImmToMACC:
+  case UCPM::IALUTPToMACC:
+  case UCPM::IALUUryToMACC:
+  case UCPM::IMASToMACC:
+  case UCPM::IMAToMACC:
+  case UCPM::IMAccToMACC:
+  case UCPM::IMaCToMACC:
+  case UCPM::IMulToMACC:
     if (MI->getOperand(0).isReg() && MI->getOperand(1).isReg()) {
       switch (MI->getOperand(0).getReg()) {
-      case MMPULiteReg::IALU:
+      case UCPMReg::IALU:
         Patch &= ~((0xFFFFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0)))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0)))
                    << IALUT0);
         break;
-      case MMPULiteReg::IMAC:
+      case UCPMReg::IMAC:
         Patch &= ~((0xFFFFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0) << 4))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0) << 4))
                    << IALUT0);
         break;
-      case MMPULiteReg::FALU:
+      case UCPMReg::FALU:
         Patch &= ~((0xFFFFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0) << 8))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0) << 8))
                    << IALUT0);
         break;
-      case MMPULiteReg::FMAC:
+      case UCPMReg::FMAC:
         Patch &= ~((0xFFFFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0) << 12))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0) << 12))
                    << IALUT0);
         break;
       default: break;
@@ -215,49 +215,49 @@ uint64_t MMPULiteScheduler::UsageFixup(const uint64_t DefUsage,
     }
     break;
       
-  case MMPULite::FALUBinToSHU:
-  case MMPULite::FALUDParaToSHU:
-  case MMPULite::FALUUryToSHU:
-  case MMPULite::FMaCToSHU:
-  case MMPULite::FMulToSHU:
-  case MMPULite::IALUBinToSHU:
-  case MMPULite::IALUDPToSHU:
-  case MMPULite::IALUDivRToSHU:
-  case MMPULite::IALUImmToSHU:
-  case MMPULite::IALUTPToSHU:
-  case MMPULite::IALUUryToSHU:
-  case MMPULite::IMASToSHU:
-  case MMPULite::IMAToSHU:
-  case MMPULite::IMAccToSHU:
-  case MMPULite::IMaCToSHU:
-  case MMPULite::IMulToSHU:
+  case UCPM::FALUBinToSHU:
+  case UCPM::FALUDParaToSHU:
+  case UCPM::FALUUryToSHU:
+  case UCPM::FMaCToSHU:
+  case UCPM::FMulToSHU:
+  case UCPM::IALUBinToSHU:
+  case UCPM::IALUDPToSHU:
+  case UCPM::IALUDivRToSHU:
+  case UCPM::IALUImmToSHU:
+  case UCPM::IALUTPToSHU:
+  case UCPM::IALUUryToSHU:
+  case UCPM::IMASToSHU:
+  case UCPM::IMAToSHU:
+  case UCPM::IMAccToSHU:
+  case UCPM::IMaCToSHU:
+  case UCPM::IMulToSHU:
     //Patch &= ~(1ULL << MACCO);
-  case MMPULite::BIU0LdToSHU:
-  case MMPULite::BIU1LdToSHU:
-  case MMPULite::BIU2LdToSHU:
-  case MMPULite::MR0ToSHU:
-  case MMPULite::MR1ToSHU:
-  case MMPULite::SHU0CombToSHU:
-  case MMPULite::SHU0IndTBNoOptToSHU:
-  case MMPULite::SHU0IndTBOptToSHU:
-  case MMPULite::SHU0IndTNoOptToSHU:
-  case MMPULite::SHU0IndTOptToSHU:
-  case MMPULite::SHU1CombToSHU:
-  case MMPULite::SHU1IndTBNoOptToSHU:
-  case MMPULite::SHU1IndTBOptToSHU:
-  case MMPULite::SHU1IndTNoOptToSHU:
-  case MMPULite::SHU1IndTOptToSHU:
+  case UCPM::BIU0LdToSHU:
+  case UCPM::BIU1LdToSHU:
+  case UCPM::BIU2LdToSHU:
+  case UCPM::MR0ToSHU:
+  case UCPM::MR1ToSHU:
+  case UCPM::SHU0CombToSHU:
+  case UCPM::SHU0IndTBNoOptToSHU:
+  case UCPM::SHU0IndTBOptToSHU:
+  case UCPM::SHU0IndTNoOptToSHU:
+  case UCPM::SHU0IndTOptToSHU:
+  case UCPM::SHU1CombToSHU:
+  case UCPM::SHU1IndTBNoOptToSHU:
+  case UCPM::SHU1IndTBOptToSHU:
+  case UCPM::SHU1IndTNoOptToSHU:
+  case UCPM::SHU1IndTOptToSHU:
     if (MI->getOperand(0).isReg() && MI->getOperand(1).isReg()) {
       switch (MI->getOperand(0).getReg()) {
-      case MMPULiteReg::SHU0:
+      case UCPMReg::SHU0:
         Patch &= ~((0xFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0)))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0)))
                    << SHU0T0);
         Patch &= ~(0xFULL << SHU1T0);
         break;
-      case MMPULiteReg::SHU1:
+      case UCPMReg::SHU1:
         Patch &= ~((0xFULL ^
-                    (1ULL << (MI->getOperand(1).getReg() - MMPULiteReg::T0)))
+                    (1ULL << (MI->getOperand(1).getReg() - UCPMReg::T0)))
                    << SHU1T0);
         Patch &= ~(0xFULL << SHU0T0);
         break;
@@ -266,37 +266,37 @@ uint64_t MMPULiteScheduler::UsageFixup(const uint64_t DefUsage,
     }
     break;
 
-  case MMPULite::FALUBinToBIU:
-  case MMPULite::FALUDParaToBIU:
-  case MMPULite::FALUUryToBIU:
-  case MMPULite::FMaCToBIU:
-  case MMPULite::FMulToBIU:
-  case MMPULite::IALUBinToBIU:
-  case MMPULite::IALUDPToBIU:
-  case MMPULite::IALUDivRToBIU:
-  case MMPULite::IALUImmToBIU:
-  case MMPULite::IALUTPToBIU:
-  case MMPULite::IALUUryToBIU:
-  case MMPULite::IMASToBIU:
-  case MMPULite::IMAToBIU:
-  case MMPULite::IMAccToBIU:
-  case MMPULite::IMaCToBIU:
-  case MMPULite::IMulToBIU:
+  case UCPM::FALUBinToBIU:
+  case UCPM::FALUDParaToBIU:
+  case UCPM::FALUUryToBIU:
+  case UCPM::FMaCToBIU:
+  case UCPM::FMulToBIU:
+  case UCPM::IALUBinToBIU:
+  case UCPM::IALUDPToBIU:
+  case UCPM::IALUDivRToBIU:
+  case UCPM::IALUImmToBIU:
+  case UCPM::IALUTPToBIU:
+  case UCPM::IALUUryToBIU:
+  case UCPM::IMASToBIU:
+  case UCPM::IMAToBIU:
+  case UCPM::IMAccToBIU:
+  case UCPM::IMaCToBIU:
+  case UCPM::IMulToBIU:
     //Patch &= ~(1ULL << MACCO);
-  case MMPULite::MR3ToBIU:
-  case MMPULite::MR3ToBIUKG:
-  case MMPULite::SHU0CombToBIU:
-  case MMPULite::SHU0IndTBNoOptToBIU:
-  case MMPULite::SHU0IndTBOptToBIU:
-  case MMPULite::SHU0IndTNoOptToBIU:
-  case MMPULite::SHU0IndTOptToBIU:
-  case MMPULite::SHU1CombToBIU:
-  case MMPULite::SHU1IndTBNoOptToBIU:
-  case MMPULite::SHU1IndTBOptToBIU:
-  case MMPULite::SHU1IndTNoOptToBIU:
-  case MMPULite::SHU1IndTOptToBIU:
+  case UCPM::MR3ToBIU:
+  case UCPM::MR3ToBIUKG:
+  case UCPM::SHU0CombToBIU:
+  case UCPM::SHU0IndTBNoOptToBIU:
+  case UCPM::SHU0IndTBOptToBIU:
+  case UCPM::SHU0IndTNoOptToBIU:
+  case UCPM::SHU0IndTOptToBIU:
+  case UCPM::SHU1CombToBIU:
+  case UCPM::SHU1IndTBNoOptToBIU:
+  case UCPM::SHU1IndTBOptToBIU:
+  case UCPM::SHU1IndTNoOptToBIU:
+  case UCPM::SHU1IndTOptToBIU:
     if (MI->getOperand(0).isReg())
-      Patch &= ~((0x7ULL ^ (1ULL << (MI->getOperand(0).getReg() - MMPULiteReg::BIU0)))
+      Patch &= ~((0x7ULL ^ (1ULL << (MI->getOperand(0).getReg() - UCPMReg::BIU0)))
                  << BIU0W);
     break;
 
@@ -305,36 +305,36 @@ uint64_t MMPULiteScheduler::UsageFixup(const uint64_t DefUsage,
   return DefUsage & Patch;
 }
 
-void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCInst *MI,
+void UCPMScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCInst *MI,
                                          unsigned begin) {
   const unsigned TF=3, LF=7;
   unsigned linesize = 0;
   const MCOperand *MO = NULL;
   switch (MI->getOpcode()) {
-  case MMPULite::IALUUryToBIU:
-  case MMPULite::IALUUryToM:
+  case UCPM::IALUUryToBIU:
+  case UCPM::IALUUryToM:
     MO = &MI->getOperand(2);
-  case MMPULite::IALUUryToMACC:
+  case UCPM::IALUUryToMACC:
     if (!MO) MO = &MI->getOperand(4);
-  case MMPULite::IALUUryToSHU:
+  case UCPM::IALUUryToSHU:
     if (!MO) MO = &MI->getOperand(3);
-    if (MO->getReg() == MMPULiteReg::EXPD)
+    if (MO->getReg() == UCPMReg::EXPD)
       break;
     else
       return;
 
-  case MMPULite::IMAToBIU:
-  case MMPULite::IMAToM:
-  case MMPULite::IMAToMACC:
-  case MMPULite::IMAToSHU:
-  case MMPULite::IMAccToBIU:
-  case MMPULite::IMAccToM:
-  case MMPULite::IMAccToMACC:
-  case MMPULite::IMAccToSHU:
-  case MMPULite::IMaCToBIU:
-  case MMPULite::IMaCToM:
-  case MMPULite::IMaCToMACC:
-  case MMPULite::IMaCToSHU:
+  case UCPM::IMAToBIU:
+  case UCPM::IMAToM:
+  case UCPM::IMAToMACC:
+  case UCPM::IMAToSHU:
+  case UCPM::IMAccToBIU:
+  case UCPM::IMAccToM:
+  case UCPM::IMAccToMACC:
+  case UCPM::IMAccToSHU:
+  case UCPM::IMaCToBIU:
+  case UCPM::IMaCToM:
+  case UCPM::IMaCToMACC:
+  case UCPM::IMaCToSHU:
     // The second last operand is flag
     if (MI->getOperand(MI->getNumOperands() - 1).isInst())
       MO = &MI->getOperand(MI->getNumOperands() - 2);
@@ -343,10 +343,10 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     if (!((MO->getImm() >> 8) & (1ULL << LF)))
       return;
     break;
-  case MMPULite::IMulToBIU:
-  case MMPULite::IMulToM:
-  case MMPULite::IMulToMACC:
-  case MMPULite::IMulToSHU:
+  case UCPM::IMulToBIU:
+  case UCPM::IMulToM:
+  case UCPM::IMulToMACC:
+  case UCPM::IMulToSHU:
     if (MI->getOperand(MI->getNumOperands() - 1).isInst())
       MO = &MI->getOperand(MI->getNumOperands() - 2);
     else
@@ -354,30 +354,30 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     if ((MO->getImm() >> 8) & (1ULL << TF))
       return;
     break;
-  case MMPULite::IALUDivRToBIU:
-  case MMPULite::IALUDivRToM:
-  case MMPULite::IALUDivRToMACC:
-  case MMPULite::IALUDivRToSHU:
+  case UCPM::IALUDivRToBIU:
+  case UCPM::IALUDivRToM:
+  case UCPM::IALUDivRToMACC:
+  case UCPM::IALUDivRToSHU:
     break;
 
-  case MMPULite::MR2ToMACC:
+  case UCPM::MR2ToMACC:
     if (MI->getOperand(MI->getNumOperands() - 1).isInst())
       MO = &MI->getOperand(MI->getNumOperands() - 2);
     else
       MO = &MI->getOperand(MI->getNumOperands() - 1);
-    if (MO->getReg() == MMPULiteReg::WF0)
+    if (MO->getReg() == UCPMReg::WF0)
       return;
     break;
   default:
     return;
   }
   switch (MI->getOpcode()) {
-  case MMPULite::IALUUryToBIU:
-  case MMPULite::IALUDivRToBIU:
-  case MMPULite::IMAToBIU:
-  case MMPULite::IMAccToBIU:
-  case MMPULite::IMaCToBIU:
-  case MMPULite::IMulToBIU:
+  case UCPM::IALUUryToBIU:
+  case UCPM::IALUDivRToBIU:
+  case UCPM::IMAToBIU:
+  case UCPM::IMAccToBIU:
+  case UCPM::IMaCToBIU:
+  case UCPM::IMulToBIU:
     linesize = instline.size();
     for (unsigned i = begin; i < linesize; i++) {
       switch (instline[i].ResID) {
@@ -394,12 +394,12 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     }
     break;
 
-  case MMPULite::IALUUryToM:
-  case MMPULite::IALUDivRToM:
-  case MMPULite::IMAToM:
-  case MMPULite::IMAccToM:
-  case MMPULite::IMaCToM:
-  case MMPULite::IMulToM:
+  case UCPM::IALUUryToM:
+  case UCPM::IALUDivRToM:
+  case UCPM::IMAToM:
+  case UCPM::IMAccToM:
+  case UCPM::IMaCToM:
+  case UCPM::IMulToM:
     linesize = instline.size();
     for (unsigned i = begin; i < linesize; i++) {
       switch (instline[i].ResID) {
@@ -419,12 +419,12 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     }
     break;
 
-  case MMPULite::IALUUryToMACC:
-  case MMPULite::IALUDivRToMACC:
-  case MMPULite::IMAToMACC:
-  case MMPULite::IMAccToMACC:
-  case MMPULite::IMaCToMACC:
-  case MMPULite::IMulToMACC:
+  case UCPM::IALUUryToMACC:
+  case UCPM::IALUDivRToMACC:
+  case UCPM::IMAToMACC:
+  case UCPM::IMAccToMACC:
+  case UCPM::IMaCToMACC:
+  case UCPM::IMulToMACC:
     linesize = instline.size();
     for (unsigned i = begin; i < linesize; i++) {
       if (instline[i].ResID == IMACW || instline[i].ResID == IALUW)
@@ -444,12 +444,12 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     }
     break;
 
-  case MMPULite::IALUUryToSHU:
-  case MMPULite::IALUDivRToSHU:
-  case MMPULite::IMAToSHU:
-  case MMPULite::IMAccToSHU:
-  case MMPULite::IMaCToSHU:
-  case MMPULite::IMulToSHU:
+  case UCPM::IALUUryToSHU:
+  case UCPM::IALUDivRToSHU:
+  case UCPM::IMAToSHU:
+  case UCPM::IMAccToSHU:
+  case UCPM::IMaCToSHU:
+  case UCPM::IMulToSHU:
     linesize = instline.size();
     for (unsigned i = begin; i < linesize; i++) {
       if (instline[i].ResID == IMACW || instline[i].ResID == IALUW)
@@ -469,7 +469,7 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
     }
     break;
 
-  case MMPULite::MR2ToMACC:
+  case UCPM::MR2ToMACC:
     linesize = instline.size();
     for (unsigned i = begin; i < linesize; i++)
       instline[i].Delay++;
@@ -480,8 +480,8 @@ void MMPULiteScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCIns
   }
 }
 
-uint64_t MMPULiteScheduler::getLatency(unsigned Opc) {
-  uint64_t usage = ResUsageMap[Opc - MMPULite::BIU0KG];
+uint64_t UCPMScheduler::getLatency(unsigned Opc) {
+  uint64_t usage = ResUsageMap[Opc - UCPM::BIU0KG];
   unsigned index = 0;
   ResouceTy id = Invalid;
   if (usage & (1 << MW3))
@@ -504,18 +504,18 @@ uint64_t MMPULiteScheduler::getLatency(unsigned Opc) {
     return 0;
   for (unsigned i = 0; i < id; i++)
     if ((1 << i) & usage) index++;
-  return ResLatMap[Opc - MMPULite::BIU0KG][index * 2];
+  return ResLatMap[Opc - UCPM::BIU0KG][index * 2];
 }
   
-uint64_t MMPULiteScheduler::getLatency(unsigned Opc, ResouceTy Res) {
-  uint64_t usage = ResUsageMap[Opc - MMPULite::BIU0KG];
+uint64_t UCPMScheduler::getLatency(unsigned Opc, ResouceTy Res) {
+  uint64_t usage = ResUsageMap[Opc - UCPM::BIU0KG];
   unsigned index = 0;
   for (unsigned i = 0; i < Res; i++)
     if ((1 << i) & usage) index++;
-  return ResLatMap[Opc - MMPULite::BIU0KG][index * 2];
+  return ResLatMap[Opc - UCPM::BIU0KG][index * 2];
 }
   
-const std::string MMPULiteScheduler::ResName[MMPULiteScheduler::NumResouces] = {
+const std::string UCPMScheduler::ResName[UCPMScheduler::NumResouces] = {
   "Invalid resource",
   "M regsiter file W0 port",
   "M regsiter file W1 port",
@@ -564,7 +564,7 @@ const std::string MMPULiteScheduler::ResName[MMPULiteScheduler::NumResouces] = {
   "BIU2 write port",
 };
 
-const uint64_t MMPULiteScheduler::ResUsageMap[INSTRUCTION_LIST_LEN] = {
+const uint64_t UCPMScheduler::ResUsageMap[INSTRUCTION_LIST_LEN] = {
   1ULL << BIU0R | 1ULL << MW0,     /// BIU0KG
   1ULL << BIU0R | 1ULL << MW0,     /// BIU0LdToM
   1ULL << BIU0R | R_MACCT | R_IPATH,   /// BIU0LdToMACC
@@ -726,7 +726,7 @@ const uint64_t MMPULiteScheduler::ResUsageMap[INSTRUCTION_LIST_LEN] = {
   0                                /// SHU1Stop
 };
 
-const uint64_t MMPULiteScheduler::ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 2] = {
+const uint64_t UCPMScheduler::ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 2] = {
   {4, 1/*MW0*/, 1, 1/*BIU0R*/}, /// BIU0KG
   {12, 1/*MW0*/, 7, 1/*BIU0R*/}, /// BIU0LdToM
   {11, 1, 11, 1, 11, 1,/*IPATH*/ 11, 1, 11, 1, 11, 1, 11, 1,/*IALUT*/

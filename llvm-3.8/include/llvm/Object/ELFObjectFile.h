@@ -843,6 +843,8 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return "ELF32-mspu";
     case ELF::EM_MMPU:
       return "ELF32-mmpulite";
+    case ELF::EM_UCPM:
+      return "ELF32-ucpm";
 #endif
     default:
       return "ELF32-unknown";
@@ -869,12 +871,6 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return (EF.getHeader()->e_ident[ELF::EI_OSABI] == ELF::ELFOSABI_AMDGPU_HSA
               && IsLittleEndian) ?
              "ELF64-amdgpu-hsacobj" : "ELF64-amdgpu";
-#ifdef ARCH_MAPU
-    case ELF::EM_MSPU:
-      return "ELF32-mspu";
-    case ELF::EM_MMPU:
-      return "ELF32-mmpu";
-#endif
     default:
       return "ELF64-unknown";
     }

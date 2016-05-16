@@ -1,4 +1,4 @@
-//===- MMPULiteDisassembler.cpp - Disassembler for MMPULite -------------*- C++ -*-===//
+//===- UCPMDisassembler.cpp - Disassembler for UCPM -------------*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -7,13 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file is part of the MMPULite Disassembler.
+// This file is part of the UCPM Disassembler.
 //
 //===----------------------------------------------------------------------===//
 
-#include "MMPULite.h"
-#include "MMPULiteSubtarget.h"
-#include "AsmParser/MMPULiteScheduler.h"
+#include "UCPM.h"
+#include "UCPMSubtarget.h"
+#include "AsmParser/UCPMScheduler.h"
 #include "llvm/MC/MCDisassembler/MCDisassembler.h"
 #include "llvm/MC/MCFixedLenDisassembler.h"
 #include "llvm/Support/MemoryObject.h"
@@ -28,32 +28,32 @@
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/LEB128.h"
 #include "llvm/Support/raw_ostream.h"
-#include "../MCTargetDesc/MMPULiteInsnLine.h"
+#include "../MCTargetDesc/UCPMInsnLine.h"
 
 using namespace llvm;
-using namespace llvm::MMPULite;
+using namespace llvm::UCPM;
 
-#define DEBUG_TYPE "mmpu-disassembler"
+#define DEBUG_TYPE "ucpm-disassembler"
 
 #define GET_REGINFO_HEADER
-#include "MMPULiteGenRegisterInfo.inc"
+#include "UCPMGenRegisterInfo.inc"
 
 
 typedef MCDisassembler::DecodeStatus DecodeStatus;
 
 namespace {
-/// MMPULiteDisassemblerBase - a disasembler class for MMPULite.
-class MMPULiteDisassembler: public MCDisassembler {
-  MMPULiteScheduler *Scheduler;
+/// UCPMDisassemblerBase - a disasembler class for UCPM.
+class UCPMDisassembler: public MCDisassembler {
+  UCPMScheduler *Scheduler;
   
 public:
 /// Constructor - Initializes the disassembler.
 ///
-  MMPULiteDisassembler(const MCSubtargetInfo &STI,
+  UCPMDisassembler(const MCSubtargetInfo &STI,
                        MCContext &Ctx, bool bigEndian)
-    : MCDisassembler(STI, Ctx), Scheduler(new MMPULiteScheduler()) {}
+    : MCDisassembler(STI, Ctx), Scheduler(new UCPMScheduler()) {}
 
-  virtual ~MMPULiteDisassembler() {}
+  virtual ~UCPMDisassembler() {}
 
   virtual DecodeStatus getInstruction(MCInst &Instr, uint64_t &Size,
                                       ArrayRef<uint8_t> Bytes, uint64_t Address,
@@ -64,7 +64,7 @@ public:
 
 static DecodeStatus readInsnLine(ArrayRef<uint8_t> Bytes,
                                  uint64_t address, uint64_t &numBytes,
-                                 MMPULite::InsnLine& line) {
+                                 UCPM::InsnLine& line) {
 	numBytes = line.getSumBytes();
 	if (Bytes.size() < numBytes) return MCDisassembler::Fail;
 	memcpy(line.getCodeBuf(), Bytes.data(), numBytes);
@@ -72,7 +72,7 @@ static DecodeStatus readInsnLine(ArrayRef<uint8_t> Bytes,
 }
 
 static bool getReg(const void *D, unsigned RC, unsigned& RegNo) {
-	const MMPULiteDisassembler *Dis = static_cast<const MMPULiteDisassembler*>(D);
+	const UCPMDisassembler *Dis = static_cast<const UCPMDisassembler*>(D);
   const MCRegisterInfo *RegInfo = Dis->getContext().getRegisterInfo();
 	unsigned RegPtr;
 	for (unsigned i = 0;
@@ -126,7 +126,7 @@ static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
                                             unsigned RegNo,
                                             uint64_t Address,
                                             const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::MRegRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::MRegRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -136,7 +136,7 @@ static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
 static DecodeStatus DecodeMRegO(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
   RegNo = (RegNo >> 2) | ((RegNo & 0x3) << 7);
-	if (getReg(Decoder, MMPULiteReg::MRegRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::MRegRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -146,7 +146,7 @@ static DecodeStatus DecodeMRegO(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeSHUOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                         uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::SHUOprtorRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::SHUOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -156,7 +156,7 @@ DecodeSHUOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeIALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::IALUUryOprtorRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::IALUUryOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -166,12 +166,12 @@ DecodeIALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeIALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::IALUDPOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::IALUDPOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
     Inst.setOpcode(Inst.getOpcode() +
-                   (MMPULite::IALUUryToM - MMPULite::IALUDPToM));
+                   (UCPM::IALUUryToM - UCPM::IALUDPToM));
     return DecodeIALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -179,12 +179,12 @@ DecodeIALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeIALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::IALUBinOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::IALUBinOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
     Inst.setOpcode(Inst.getOpcode() +
-                   (MMPULite::IALUDPToM - MMPULite::IALUBinToM));
+                   (UCPM::IALUDPToM - UCPM::IALUBinToM));
     return DecodeIALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -192,12 +192,12 @@ DecodeIALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeIALUTPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::IALUTPOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::IALUTPOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
     Inst.setOpcode(Inst.getOpcode() -
-                   (MMPULite::IALUTPToM - MMPULite::IALUBinToM));
+                   (UCPM::IALUTPToM - UCPM::IALUBinToM));
     return DecodeIALUBinOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -205,7 +205,7 @@ DecodeIALUTPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeFALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::FALUUryOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::FALUUryOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -215,12 +215,12 @@ DecodeFALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeFALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::FALUDPOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::FALUDPOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
     Inst.setOpcode(Inst.getOpcode() +
-                   (MMPULite::FALUUryToM - MMPULite::FALUDParaToM));
+                   (UCPM::FALUUryToM - UCPM::FALUDParaToM));
     return DecodeFALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -228,12 +228,12 @@ DecodeFALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeFALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::FALUBinOprtorRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::FALUBinOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   } else {
     Inst.setOpcode(Inst.getOpcode() +
-                   (MMPULite::FALUDParaToM - MMPULite::FALUBinToM));
+                   (UCPM::FALUDParaToM - UCPM::FALUBinToM));
     return DecodeFALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -243,17 +243,17 @@ static bool TFlag = false;
 static DecodeStatus
 DecodeIMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::IMACMulOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::IMACMulOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
     // T flag in IMAC mcode is not a defined flag, but can only be extracted from opcode
     // So use a static variable to pass this flag to DecodeFlag function
-    if (RegNo == MMPULiteReg::IMULT) TFlag = true;
+    if (RegNo == UCPMReg::IMULT) TFlag = true;
 
     // "Tm * Tn" is always disassembled as "Tp +- Tn * Tm", and must be fixed
     // according to the "op", where the real "Tp +- Tn * Tm" uses IMULS, while
     // "Tm * Tn" uses IMUL or IMULT.
-    if (RegNo != MMPULiteReg::IMULS)
-      Inst.setOpcode(Inst.getOpcode() + (MMPULite::IMulToBIU - MMPULite::IMASToBIU));
+    if (RegNo != UCPMReg::IMULS)
+      Inst.setOpcode(Inst.getOpcode() + (UCPM::IMulToBIU - UCPM::IMASToBIU));
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
@@ -262,7 +262,7 @@ DecodeIMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::FMACMulOprtorRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::FMACMulOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -272,7 +272,7 @@ DecodeFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                              uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::DIVOprtorRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::DIVOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -282,7 +282,7 @@ DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::IALUImmOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::IALUImmOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   }
@@ -292,15 +292,15 @@ DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
                              uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::ConditionRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::ConditionRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     // Here fix the "op" operands which were "DisableEncoding"ed in InstInfo.td
-    if ((Inst.getOpcode() >= MMPULite::SHU1CombToBIU &&
-         Inst.getOpcode() <= MMPULite::SHU1CombToSHU) ||
-        (Inst.getOpcode() >= MMPULite::SHU0CombToBIU &&
-         Inst.getOpcode() <= MMPULite::SHU0CombToSHU))
+    if ((Inst.getOpcode() >= UCPM::SHU1CombToBIU &&
+         Inst.getOpcode() <= UCPM::SHU1CombToSHU) ||
+        (Inst.getOpcode() >= UCPM::SHU0CombToBIU &&
+         Inst.getOpcode() <= UCPM::SHU0CombToSHU))
       return DecodeSHUOprtorRegisterClass(Inst, 0, Address, Decoder);
-    /*if (Inst.getOpcode() == MMPULite::IALUDivS)
+    /*if (Inst.getOpcode() == UCPM::IALUDivS)
       return DecodeDIVOprtorRegisterClass(Inst, 0, Address, Decoder);*/
     return MCDisassembler::Success;
   }
@@ -310,7 +310,7 @@ DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
                          uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::WFlagRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::WFlagRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -320,7 +320,7 @@ DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
                         uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::MACCRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::MACCRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -330,7 +330,7 @@ DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeTPortRegisterClass(MCInst &Inst, unsigned RegNo,
                          uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::TPortRegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -340,7 +340,7 @@ DecodeTPortRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeTEPortRegisterClass(MCInst &Inst, unsigned RegNo,
                           uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, MMPULiteReg::TEPortRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::TEPortRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -351,7 +351,7 @@ DecodeTEPortRegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus
 DecodeBIURegisterClass(MCInst &Inst, unsigned RegNo,
 		                   uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, MMPULiteReg::BIURegClassID, RegNo)) {
+	if (getReg(Decoder, UCPMReg::BIURegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   }
@@ -361,10 +361,10 @@ DecodeBIURegisterClass(MCInst &Inst, unsigned RegNo,
 static DecodeStatus DecodeSHUT(MCInst &Inst, unsigned RegNo,
                                uint64_t Address, const void *Decoder) {
   unsigned Reg = RegNo & 0x3;
-	if (getReg(Decoder, MMPULiteReg::SHURegClassID, Reg)) {
+	if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
 	  Inst.addOperand(MCOperand::createReg(Reg));
     Reg = (RegNo >> 2) & 0x3;
-	  if (getReg(Decoder, MMPULiteReg::TPortRegClassID, Reg)) {
+	  if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
 	    Inst.addOperand(MCOperand::createReg(Reg));
 	    return MCDisassembler::Success;
     }
@@ -391,32 +391,32 @@ static DecodeStatus DecodeFlags(MCInst &Inst, unsigned Flags,
 	const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7,
                  APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13;
 	unsigned op = Inst.getOpcode();
-  if (op >= MMPULite::BIU0KG && op <= MMPULite::BIU2St) {
+  if (op >= UCPM::BIU0KG && op <= UCPM::BIU2St) {
 	  Flags |= (Flags & 0x1) << (KPPF + 8);
 	  Flags |= (Flags & 0x2) << (APPF + 7);
 	  Flags |= (Flags & 0x4) << (BRF + 6);
 	  Flags |= (Flags & 0x8) << (MF + 5);
 	  Flags |= (Flags & 0x10) << (IF + 4);
   }
-  else if (op >= MMPULite::IALUBinToBIU && op <= MMPULite::IALUUryToSHU) {
+  else if (op >= UCPM::IALUBinToBIU && op <= UCPM::IALUUryToSHU) {
 	  Flags |= (Flags & 0x1) << (HF + 8);
 	  Flags |= (Flags & 0x2) << (BF + 7);
 	  Flags |= (Flags & 0x4) << (UF + 6);
 	  Flags |= (Flags & 0x8) << (TF + 5);
   }
-  else if (op >= MMPULite::FALUBinToBIU && op <= MMPULite::FALUUryToSHU) {
+  else if (op >= UCPM::FALUBinToBIU && op <= UCPM::FALUUryToSHU) {
 	  Flags |= (Flags & 0x1) << (DF + 8);
 	  Flags |= (Flags & 0x2) << (SF + 7);
 	  Flags |= (Flags & 0x4) << (UF + 6);
 	  Flags |= (Flags & 0x8) << (TF + 5);
   }
-  else if (op >= MMPULite::FMA && op <= MMPULite::FMulToSHU) {
+  else if (op >= UCPM::FMA && op <= UCPM::FMulToSHU) {
 	  Flags |= (Flags & 0x1) ? 1 << (DF + 8) : 1 << (SF + 8);
-    if (op >= MMPULite::FMaC && op <= MMPULite::FMaCToSHU)
+    if (op >= UCPM::FMaC && op <= UCPM::FMaCToSHU)
       Flags |= (Flags & 0x2) << (CRF + 7);
 	  else Flags |= (Flags & 0x2) << (TF + 7);
   }
-  else if (op >= MMPULite::IMA && op <= MMPULite::IMulToSHU) {
+  else if (op >= UCPM::IMA && op <= UCPM::IMulToSHU) {
     if (TFlag) {
       Flags |= 1 << (TF + 8);
       TFlag = false;
@@ -428,7 +428,7 @@ static DecodeStatus DecodeFlags(MCInst &Inst, unsigned Flags,
 	  Flags |= (Flags & 0x10) << (LF + 4);
 	  Flags |= (Flags & 0x20) << (CRF + 3);
   }
-  else if (op >= MMPULite::SHU0CombToBIU && op <= MMPULite::SHU1Stop) {
+  else if (op >= UCPM::SHU0CombToBIU && op <= UCPM::SHU1Stop) {
 	  Flags |= (Flags & 0x1) << (BF + 8);
 	  Flags |= (Flags & 0x2) << (HF + 7);
 	  Flags |= ((Flags & 0x7)==0) << (LF + 8);
@@ -450,17 +450,17 @@ DecodeLabel(MCInst &Inst, unsigned Label,
 }
 
 /********************************************************************************/
-#include "MMPULiteGenDisassemblerTables.inc"
+#include "UCPMGenDisassemblerTables.inc"
 /********************************************************************************/
 
-DecodeStatus MMPULiteDisassembler::
+DecodeStatus UCPMDisassembler::
 getInstruction(MCInst &Instr, uint64_t &Size,
                ArrayRef<uint8_t> Bytes, uint64_t Address,
                raw_ostream &VStream,
                raw_ostream &CStream) const {
   static std::vector<uint64_t> LoopStack;
 	uint64_t codes=0, numBytes=0;
-	MMPULite::InsnLine line;
+	UCPM::InsnLine line;
 	MCInst *formerInst, *curInst;
 	Size=0;
 
@@ -473,7 +473,7 @@ getInstruction(MCInst &Instr, uint64_t &Size,
 		line.ExtractCode(codes, i);
 		formerInst->addOperand(MCOperand::createInst(curInst = new MCInst()));
 		// Calling the auto-generated decoder function.
-		result = decodeInstruction(DecoderTableMMPULiteDecode48,
+		result = decodeInstruction(DecoderTableUCPMDecode48,
                                *curInst, codes, Address, this, STI);
 		if(!result) return result;
 		formerInst = curInst;
@@ -484,7 +484,7 @@ getInstruction(MCInst &Instr, uint64_t &Size,
     LoopStack.pop_back();
   }
 	Scheduler->Schedule(Address, &Instr, Sym);
-  if (formerInst->getOpcode() == MMPULite::LPTO) {
+  if (formerInst->getOpcode() == UCPM::LPTO) {
     if (formerInst->getOperand(0).isImm() &&
         formerInst->getOperand(0).getImm() != 0)
     LoopStack.push_back(formerInst->getOperand(0).getImm() - 1);
@@ -494,18 +494,18 @@ getInstruction(MCInst &Instr, uint64_t &Size,
 }
 
 namespace llvm {
-	extern Target TheMMPULiteTarget;
+	extern Target TheUCPMTarget;
 }
 
-static MCDisassembler *createMMPULiteDisassembler(const Target &T,
+static MCDisassembler *createUCPMDisassembler(const Target &T,
                                                   const MCSubtargetInfo &STI,
                                                   MCContext &Ctx) {
-  return new MMPULiteDisassembler(STI, Ctx, false);
+  return new UCPMDisassembler(STI, Ctx, false);
 }
 
-extern "C" void LLVMInitializeMMPULiteDisassembler() {
+extern "C" void LLVMInitializeUCPMDisassembler() {
   // Register the disassembler.
-  TargetRegistry::RegisterMCDisassembler(TheMMPULiteTarget,
-                                         createMMPULiteDisassembler);
+  TargetRegistry::RegisterMCDisassembler(TheUCPMTarget,
+                                         createUCPMDisassembler);
 }
 

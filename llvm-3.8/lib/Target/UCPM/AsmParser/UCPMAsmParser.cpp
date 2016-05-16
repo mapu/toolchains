@@ -1,4 +1,4 @@
-//===-- MMPULiteAsmParser.cpp - Parse MMPULite asm to MCInst instructions -----===//
+//===-- UCPMAsmParser.cpp - Parse UCPM asm to MCInst instructions -----===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -9,8 +9,8 @@
 
 #define DEBUG_TYPE "asm-parser"
 #include "MCFunction.h"
-#include "MMPULiteAsmParser.h"
-#include "MMPULiteScheduler.h"
+#include "UCPMAsmParser.h"
+#include "UCPMScheduler.h"
 #include "llvm/ADT/Statistic.h"
 
 #if !defined(NDEBUG) || defined(LLVM_ENABLE_STATS)
@@ -20,9 +20,9 @@ static uint64_t NumHMInvoked = 0;
 #endif
 
 using namespace llvm;
-using namespace llvm::MMPULite;
+using namespace llvm::UCPM;
 
-/// MMPULiteAsmOperand - Instances of this class represent operands of parsed MMPULite assembly instructions.
+/// UCPMAsmOperand - Instances of this class represent operands of parsed UCPM assembly instructions.
 /// Note: the first operand records instruction opcode, see ARMGenAsmMatcher.inc MatchInstructionImpl().
 
 namespace {
@@ -34,7 +34,7 @@ SMLoc TokStart;
 }
 
 namespace llvm {
-namespace MMPULite {
+namespace UCPM {
 
 class HMacroInstantiation {
   MCFunction *Body;
@@ -159,7 +159,7 @@ public:
 };
 /*******************************************************************/
 
-class MMPULiteAsmParser: public MCTargetAsmParser {
+class UCPMAsmParser: public MCTargetAsmParser {
   const MCSubtargetInfo &STI;
   MCAsmParser &Parser;
   StringMap<HMacro*> HMacroMap;
@@ -174,7 +174,7 @@ class MMPULiteAsmParser: public MCTargetAsmParser {
   std::vector<int64_t> LocalLabels;
   int64_t UniqueLabelID;
   bool cachedLabel;
-  MMPULiteScheduler *Scheduler;
+  UCPMScheduler *Scheduler;
   struct OptContextStruct {
     MCInst *PreviousInst;
     MCInst *PreviousLastInst;
@@ -204,7 +204,7 @@ private:
   void RenameHMacro(MCParsedInst *PI);
   void RenameHMacro(OperandVector &_Operands);
 public:
-  MMPULiteAsmParser(const MCSubtargetInfo &_STI, MCAsmParser &_Parser,
+  UCPMAsmParser(const MCSubtargetInfo &_STI, MCAsmParser &_Parser,
                     const MCInstrInfo &MII, const MCTargetOptions &Options)
     : MCTargetAsmParser(Options, _STI), STI(_STI), Parser(_Parser), CurHMacro(NULL) {
     MCAsmParserExtension::Initialize(_Parser);
@@ -217,7 +217,7 @@ public:
     LoopAvailable = true;
     EnableOptimization = false;
     cachedLabel = false;
-    Scheduler = new MMPULiteScheduler(Parser);
+    Scheduler = new UCPMScheduler(Parser);
   }
 
   bool ParseRegister(unsigned &RegNo, SMLoc &StartLoc, SMLoc &EndLoc) override {
@@ -276,7 +276,7 @@ public:
 
   void onLabelParsed(MCSymbol *Symbol) override;
 };
-} // namespace MMPULite
+} // namespace UCPM
 } // namespace llvm
 
 
@@ -299,10 +299,10 @@ namespace {
       result = i;                                                         \
     }                                                                     \
   } while (0)
-#include "MMPULiteGenInstrFLexer.flex"
+#include "UCPMGenInstrFLexer.flex"
 
-/* error handling for bison generated mmpuliteparse() */
-void mmpuliteerror(YYLTYPE *Loc,
+/* error handling for bison generated ucpmparse() */
+void ucpmerror(YYLTYPE *Loc,
                    OperandVector &Operands,
                const char * p) {} //For suppressing "syntax error"
 
@@ -311,10 +311,10 @@ void llvmerror(YYLTYPE *Loc,
   llvmParser->Error(Loc->S, p);
 }
 
-#include "MMPULiteGenInstrParser.bison"
+#include "UCPMGenInstrParser.bison"
 }
 
-bool MMPULite::MMPULiteAsmParser::
+bool UCPM::UCPMAsmParser::
 MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
                         MCStreamer &Out, uint64_t &ErrorInfo,
                         bool MatchingInlineAsm) {
@@ -328,7 +328,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   MCInst *CurInst = Inst, *NewInst;
   SmallVector<SharedOperand, 256> os;
   SharedOperandVector *ops;
-  std::shared_ptr<MMPULiteAsmOperand> op;
+  std::shared_ptr<UCPMAsmOperand> op;
   MCOperand MO;
   MCParsedInst *ParsedInst;
   std::vector<HMacroInstantiation*>::iterator iter;
@@ -344,13 +344,13 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   unsigned j = 0;
   do {
     for(unsigned i=0; ops && i < ops->size(); i++) {
-      op = std::static_pointer_cast<MMPULiteAsmOperand>((*ops)[i]);
+      op = std::static_pointer_cast<UCPMAsmOperand>((*ops)[i]);
       switch(op->getKind()) {
       default:
         return false;
 
       case AsmOpcode:
-        if (op->getOpc() == MMPULite::NOP) break;
+        if (op->getOpc() == UCPM::NOP) break;
         NewInst = new MCInst;
         MO = MCOperand::createInst(NewInst);
         CurInst->addOperand(MO);
@@ -481,25 +481,25 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   }
   if (Inst->getNumOperands() == 0) {
     NewInst = new MCInst();
-    NewInst->setOpcode(MMPULite::NOP);
+    NewInst->setOpcode(UCPM::NOP);
     Inst->addOperand(MCOperand::createInst(NewInst));
     CurInst = NewInst;
   }
   if (EnableOptimization) tryMergeRedundantInst(Inst, CurInst);
   if (Inst) {
-    if (OptContext.mseq != MMPULite::NOP) {
+    if (OptContext.mseq != UCPM::NOP) {
       MCOperand MO;
       MCInst *IP = new MCInst();
       IP->setOpcode(OptContext.mseq);
       MO = MCOperand::createInst(IP);
       CurInst->addOperand(MO);
       Inst->addOperand(MO);
-      if (OptContext.mseq == MMPULite::LPTO) {
+      if (OptContext.mseq == UCPM::LPTO) {
         MO = MCOperand::createExpr(OptContext.label);
         IP->addOperand(MO);
         Inst->addOperand(MO);
       }
-      if (OptContext.mseq == MMPULite::LPTO || OptContext.mseq == MMPULite::REPEATK) {
+      if (OptContext.mseq == UCPM::LPTO || OptContext.mseq == UCPM::REPEATK) {
         MO = MCOperand::createImm(OptContext.ki);
         IP->addOperand(MO);
         Inst->addOperand(MO);
@@ -514,7 +514,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
     Scheduler->Schedule(VAddr, Inst, OptContext.PreviousInst ? 0 : Sym);
     Out.EmitInstruction(*Inst, STI);
   }
-  OptContext.mseq = MMPULite::NOP;
+  OptContext.mseq = UCPM::NOP;
   OptContext.label = NULL;
   OptContext.ki = 0;
   OptContext.count = 0;
@@ -533,20 +533,20 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   return false; // Has any parsing error?
 }
 
-/// Parse an MMPULite instruction mnemonic followed by its operands.
-bool MMPULite::MMPULiteAsmParser::
+/// Parse an UCPM instruction mnemonic followed by its operands.
+bool UCPM::UCPMAsmParser::
 ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
                  OperandVector &Operands) {
-  YY_BUFFER_STATE buf = mmpulite_create_buffer(0, YY_BUF_SIZE);
-  mmpulite_switch_to_buffer(buf);
-  mmpulite_flush_buffer(buf);
+  YY_BUFFER_STATE buf = ucpm_create_buffer(0, YY_BUF_SIZE);
+  ucpm_switch_to_buffer(buf);
+  ucpm_flush_buffer(buf);
   CurLoc = NameLoc;
   TokStart = NameLoc;  // Used for tracing the start location of each token
 
   BEGIN INITIAL;
-  int err =  mmpuliteparse(Operands);
+  int err =  ucpmparse(Operands);
 
-  mmpulite_delete_buffer(buf);
+  ucpm_delete_buffer(buf);
   while (Lexer->isNot(AsmToken::EndOfStatement) &&
          Lexer->isNot(AsmToken::PipePipe))
     Lex();
@@ -572,7 +572,7 @@ ParseInstruction(ParseInstructionInfo &Info, StringRef Name, SMLoc NameLoc,
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::ParseDirectiveHMacro(AsmToken DirectiveID,
+bool UCPM::UCPMAsmParser::ParseDirectiveHMacro(AsmToken DirectiveID,
                                                        SMLoc DirectiveLoc) {
   StringRef Name;
   if (inHMacro)
@@ -592,7 +592,7 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveHMacro(AsmToken DirectiveID,
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::ParseDirectiveEndHMacro(AsmToken DirectiveID,
+bool UCPM::UCPMAsmParser::ParseDirectiveEndHMacro(AsmToken DirectiveID,
                                                           SMLoc DirectiveLoc) {
   if (!inHMacro)
     return TokError("no matching '.hmacro' in definition");
@@ -619,7 +619,7 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveEndHMacro(AsmToken DirectiveID,
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::
+bool UCPM::UCPMAsmParser::
 ParseDirectiveFlushHM(AsmToken DirectiveID, SMLoc DirectiveLoc) {
   if (inHMacro)
     return TokError("no matching '.endhmacro' in definition");
@@ -639,13 +639,13 @@ ParseDirectiveFlushHM(AsmToken DirectiveID, SMLoc DirectiveLoc) {
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::ParseDirectiveOpt(AsmToken DirectiveID,
+bool UCPM::UCPMAsmParser::ParseDirectiveOpt(AsmToken DirectiveID,
                                                     SMLoc DirectiveLoc) {
   EnableOptimization = true;
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::ParseDirectiveStopOpt(AsmToken DirectiveID,
+bool UCPM::UCPMAsmParser::ParseDirectiveStopOpt(AsmToken DirectiveID,
                                                         SMLoc DirectiveLoc) {
   EnableOptimization = false;
   SMLoc Loc;
@@ -653,7 +653,7 @@ bool MMPULite::MMPULiteAsmParser::ParseDirectiveStopOpt(AsmToken DirectiveID,
   return false;
 }
 
-bool MMPULite::MMPULiteAsmParser::HandleHMacroEntry(StringRef Name,
+bool UCPM::UCPMAsmParser::HandleHMacroEntry(StringRef Name,
                                                     SMLoc NameLoc,
                                                     const HMacro *M,
                                                     StringRef Prefix) {
@@ -672,7 +672,7 @@ bool MMPULite::MMPULiteAsmParser::HandleHMacroEntry(StringRef Name,
  * So here utilize onLabelParsed function to keep tracking Label emit status
  * in HMacro definitions
  */
-void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
+void UCPM::UCPMAsmParser::onLabelParsed(MCSymbol *Symbol) {
   SmallVector<std::pair<SharedMMPUOprd, bool>, 8> MatchedLabels;
   // Labels out of hmacro are not insterested
   if (!inHMacro || !CurHMacro) return;
@@ -749,9 +749,9 @@ void MMPULite::MMPULiteAsmParser::onLabelParsed(MCSymbol *Symbol) {
 /* AnalyzeHMacro: All instantiated HMacros will be analyzed here to determine if 
  * LoopBlocks need to be unrolled or not
  */
-int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
+int UCPM::UCPMAsmParser::AnalyzeHMacro(unsigned &Sym) {
   MCLoopBlock* MB;
-  MCBlockTy PreType = MMPULite::None, CurType;
+  MCBlockTy PreType = UCPM::None, CurType;
   int64_t MaxCnt = 0;
   unsigned CheckLoops = 0;
   bool Done = false;
@@ -772,7 +772,7 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
       if ((CurType == Sequential && PreType == Repeat) ||
           (CurType == Repeat && PreType == Sequential)) {
         DealWithSequential();
-        PreType = MMPULite::None;
+        PreType = UCPM::None;
         Done = true;
         continue; //do not return here, because Loop is not handled yet
       }
@@ -783,12 +783,12 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
               (MaxCnt <= 0 && MB->getCount() > 0))
             MaxCnt = MB->getCount();
         }
-        else if (PreType == MMPULite::None)
+        else if (PreType == UCPM::None)
           MaxCnt = MB->getCount();
         else // loop with repeat is illegal
           return -1;
       }
-      if (CurType != MMPULite::None) PreType = CurType;
+      if (CurType != UCPM::None) PreType = CurType;
     }
     else return -2; // Cannot find VAddr in one of ActiveHMacros, this is an error.
   }
@@ -833,7 +833,7 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
   // blocks are all sequential or all repeats have been dealed with,
   // so probably loop blocks follow current blocks.
   MaxCnt = 1;
-  PreType = MMPULite::None;
+  PreType = UCPM::None;
   MCLoopBlock *LastMB = NULL;
   uint64_t KI = 0;
   unsigned LowestLevel = 0;
@@ -908,7 +908,7 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
           // else there is a RepeatImm before
         }
       }
-      if (MB->getType(VAddr + 1) != MMPULite::None &&
+      if (MB->getType(VAddr + 1) != UCPM::None &&
           MB->getType(VAddr + 1) != Repeat) // Record whether there was any sequential or loop block
         PreType = MB->getType(VAddr + 1);
     }
@@ -923,7 +923,7 @@ int MMPULite::MMPULiteAsmParser::AnalyzeHMacro(unsigned &Sym) {
   return 0;
 }
 
-void MMPULite::MMPULiteAsmParser::DealWithSequential() {
+void UCPM::UCPMAsmParser::DealWithSequential() {
   MCLoopBlock *MB, *NewMB;
   for (unsigned i = 0; i < ActiveHMacros.size(); i++)
     if (ActiveHMacros[i]->getLeafContainer(VAddr, MB))
@@ -937,7 +937,7 @@ void MMPULite::MMPULiteAsmParser::DealWithSequential() {
       }
 }
 
-void MMPULite::MMPULiteAsmParser::DealWithRepeat(int64_t loops) {
+void UCPM::UCPMAsmParser::DealWithRepeat(int64_t loops) {
   MCLoopBlock *MB, *NewMB;
   if (loops <= 0) { // insts are all repeat KI
     for (unsigned i = 0; i < ActiveHMacros.size(); i++)
@@ -960,7 +960,7 @@ void MMPULite::MMPULiteAsmParser::DealWithRepeat(int64_t loops) {
         }
         Top->RecalStart(Top->getStart());
       }
-    OptContext.mseq = MMPULite::REPEATK;
+    OptContext.mseq = UCPM::REPEATK;
     OptContext.label = NULL;
     OptContext.ki = MB->getKI();
     OptContext.count = loops;
@@ -978,14 +978,14 @@ void MMPULite::MMPULiteAsmParser::DealWithRepeat(int64_t loops) {
           }
           Top->RecalStart(Top->getStart());
         }
-    OptContext.mseq = MMPULite::REPEATIMM;
+    OptContext.mseq = UCPM::REPEATIMM;
     OptContext.label = NULL;
     OptContext.ki = 0;
     OptContext.count = loops;
   }
 }
 
-void MMPULite::MMPULiteAsmParser::DealWithLoop(int64_t insts, bool Mode) {
+void UCPM::UCPMAsmParser::DealWithLoop(int64_t insts, bool Mode) {
   MCLoopBlock *MB;
   if (insts > 0) {
     for (unsigned i = 0; i < ActiveHMacros.size(); i++)
@@ -1056,18 +1056,18 @@ void MMPULite::MMPULiteAsmParser::DealWithLoop(int64_t insts, bool Mode) {
     MCSymbol *Sym = getContext().getOrCreateSymbol(Twine("HM\1")+Twine(++UniqueLabelID));
     cachedLabel = true;
     const MCSymbolRefExpr *SE = MCSymbolRefExpr::create(Sym, getContext());
-    OptContext.mseq = MMPULite::LPTO;
+    OptContext.mseq = UCPM::LPTO;
     OptContext.label = SE;
     OptContext.ki = MB->getKI();
     OptContext.count = insts;
   }
 }
 
-bool MMPULite::MMPULiteAsmParser::DealWithUnmatchedLoop(uint64_t KI,
+bool UCPM::UCPMAsmParser::DealWithUnmatchedLoop(uint64_t KI,
                                                 unsigned Level,
                                                 int64_t &MaxCnt) {
   MCLoopBlock *MB;
-  MCBlockTy PreType = MMPULite::None;
+  MCBlockTy PreType = UCPM::None;
   MaxCnt = 0;
   for (unsigned i = 0; i < ActiveHMacros.size(); i++) {
     if (ActiveHMacros[i]->getContainer(VAddr, MB) ||
@@ -1135,7 +1135,7 @@ bool MMPULite::MMPULiteAsmParser::DealWithUnmatchedLoop(uint64_t KI,
   return true;
 }
 
-void MMPULite::MMPULiteAsmParser::tryMergeRedundantInst(MCInst* &Inst,
+void UCPM::UCPMAsmParser::tryMergeRedundantInst(MCInst* &Inst,
                                                 MCInst* &CurInst) {
   bool identical = true;
   if (!OptContext.PreviousInst) {
@@ -1149,20 +1149,20 @@ void MMPULite::MMPULiteAsmParser::tryMergeRedundantInst(MCInst* &Inst,
     CurInst = NULL;
     return;
   }
-  if (OptContext.mseq == MMPULite::LPTO || OptContext._mseq == MMPULite::LPTO)
+  if (OptContext.mseq == UCPM::LPTO || OptContext._mseq == UCPM::LPTO)
     identical = false;
-  else if (OptContext.mseq == MMPULite::REPEATK &&
-           OptContext._mseq == MMPULite::REPEATK)
+  else if (OptContext.mseq == UCPM::REPEATK &&
+           OptContext._mseq == UCPM::REPEATK)
     identical = false;
-  else if (OptContext.mseq == MMPULite::REPEATK) {
+  else if (OptContext.mseq == UCPM::REPEATK) {
     if (OptContext.count == 0) identical = false;
-    else if (OptContext._mseq == MMPULite::REPEATIMM &&
+    else if (OptContext._mseq == UCPM::REPEATIMM &&
              OptContext._count > -OptContext.count)
       identical = false;
   }
-  else if (OptContext._mseq == MMPULite::REPEATK) {
+  else if (OptContext._mseq == UCPM::REPEATK) {
     if (OptContext._count == 0) identical = false;
-    else if (OptContext.mseq == MMPULite::REPEATIMM &&
+    else if (OptContext.mseq == UCPM::REPEATIMM &&
              OptContext.count > -OptContext._count)
       identical = false;
   }
@@ -1253,9 +1253,9 @@ void MMPULite::MMPULiteAsmParser::tryMergeRedundantInst(MCInst* &Inst,
     OptContext.count = lltmp;
     return;
   }
-  if (OptContext._mseq == MMPULite::NOP) {
-    if (OptContext.mseq == MMPULite::NOP) {
-      OptContext._mseq = MMPULite::REPEATIMM;
+  if (OptContext._mseq == UCPM::NOP) {
+    if (OptContext.mseq == UCPM::NOP) {
+      OptContext._mseq = UCPM::REPEATIMM;
       OptContext._count = 2;
     }
     else {
@@ -1265,9 +1265,9 @@ void MMPULite::MMPULiteAsmParser::tryMergeRedundantInst(MCInst* &Inst,
     }
   }
   else {
-    if (OptContext.mseq == MMPULite::NOP)
+    if (OptContext.mseq == UCPM::NOP)
       OptContext._count++;
-    else if (OptContext.mseq == MMPULite::REPEATK) {
+    else if (OptContext.mseq == UCPM::REPEATK) {
       OptContext._mseq = OptContext.mseq;
       OptContext._count += OptContext.count;
       OptContext._ki = OptContext.ki;
@@ -1279,23 +1279,23 @@ void MMPULite::MMPULiteAsmParser::tryMergeRedundantInst(MCInst* &Inst,
   CurInst = NULL;
 }
 
-void MMPULite::MMPULiteAsmParser::EmitCachedInst(SMLoc IDLoc, MCStreamer &Out, unsigned Sym) {
+void UCPM::UCPMAsmParser::EmitCachedInst(SMLoc IDLoc, MCStreamer &Out, unsigned Sym) {
   MCInst *Inst = OptContext.PreviousInst;
   if (!Inst) return;
   MCInst *CurInst = OptContext.PreviousLastInst;
-  if (OptContext._mseq != MMPULite::NOP) {
+  if (OptContext._mseq != UCPM::NOP) {
     MCOperand MO;
     MCInst *IP = new MCInst();
     IP->setOpcode(OptContext._mseq);
     MO = MCOperand::createInst(IP);
     CurInst->addOperand(MO);
     Inst->addOperand(MO);
-    if (OptContext._mseq == MMPULite::LPTO) {
+    if (OptContext._mseq == UCPM::LPTO) {
       MO = MCOperand::createExpr(OptContext._label);
       IP->addOperand(MO);
       Inst->addOperand(MO);
     }
-    if (OptContext._mseq == MMPULite::LPTO || OptContext._mseq == MMPULite::REPEATK) {
+    if (OptContext._mseq == UCPM::LPTO || OptContext._mseq == UCPM::REPEATK) {
       MO = MCOperand::createImm(OptContext._ki);
       IP->addOperand(MO);
       Inst->addOperand(MO);
@@ -1311,13 +1311,13 @@ void MMPULite::MMPULiteAsmParser::EmitCachedInst(SMLoc IDLoc, MCStreamer &Out, u
   Out.EmitInstruction(*Inst, STI);
   OptContext.PreviousInst = NULL;
   OptContext.PreviousLastInst = NULL;
-  OptContext._mseq = MMPULite::NOP;
+  OptContext._mseq = UCPM::NOP;
   OptContext._label = NULL;
   OptContext._ki = 0;
   OptContext._count = 0;
 }
 
-void MMPULite::MMPULiteAsmParser::HMacroDump() {
+void UCPM::UCPMAsmParser::HMacroDump() {
   raw_ostream &OS = errs();
   OS.changeColor(raw_ostream::SAVEDCOLOR, true);
   OS << "Dumping Active HMacro List:\n"
@@ -1348,10 +1348,10 @@ void MMPULite::MMPULiteAsmParser::HMacroDump() {
   OS.resetColor();
 }
 
-void MMPULite::MMPULiteAsmParser::RenameHMacro(MCParsedInst *PI) {
+void UCPM::UCPMAsmParser::RenameHMacro(MCParsedInst *PI) {
   for(unsigned i= 0; i < PI->size(); ++i) {
-    std::shared_ptr<MMPULite::MMPULiteAsmOperand> op =
-      std::static_pointer_cast<MMPULite::MMPULiteAsmOperand>(PI->getOperand(i));
+    std::shared_ptr<UCPM::UCPMAsmOperand> op =
+      std::static_pointer_cast<UCPM::UCPMAsmOperand>(PI->getOperand(i));
     if (op->isHMacro()) {
       const HMacro *HM = HMacroMap.lookup(StringRef(*(op->getHMacro())));
       std::string OldName = *(op->getHMacro());
@@ -1366,11 +1366,11 @@ void MMPULite::MMPULiteAsmParser::RenameHMacro(MCParsedInst *PI) {
   }
 }
 
-void MMPULite::MMPULiteAsmParser::
+void UCPM::UCPMAsmParser::
 RenameHMacro(OperandVector &_Operands) {
   for(unsigned i= 0; i < _Operands.size(); ++i) {
-    MMPULite::MMPULiteAsmOperand* op =
-      static_cast<MMPULite::MMPULiteAsmOperand *>(_Operands[i].get());
+    UCPM::UCPMAsmOperand* op =
+      static_cast<UCPM::UCPMAsmOperand *>(_Operands[i].get());
     if (op->isHMacro()) {
       const HMacro *HM = HMacroMap.lookup(StringRef(*(op->getHMacro())));
       std::string OldName = *(op->getHMacro());
@@ -1388,11 +1388,11 @@ RenameHMacro(OperandVector &_Operands) {
 /// Force static initialization.
 extern "C"
 void
-LLVMInitializeMMPULiteAsmParser() {
-  RegisterMCAsmParser<MMPULite::MMPULiteAsmParser> X(TheMMPULiteTarget);
+LLVMInitializeUCPMAsmParser() {
+  RegisterMCAsmParser<UCPM::UCPMAsmParser> X(TheUCPMTarget);
 }
 /*
 #define GET_REGISTER_MATCHER
 #define GET_MATCHER_IMPLEMENTATION
-#include "MMPULiteGenAsmMatcher.inc"
+#include "UCPMGenAsmMatcher.inc"
 */

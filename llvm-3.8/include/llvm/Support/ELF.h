@@ -323,6 +323,7 @@ enum {
 #ifdef ARCH_MAPU
   EM_MSPU          = 0x288, // MaPU SPU
   EM_MMPU          = 0x460, // MaPU MPU
+  EM_UCPM          = 0x461, // UCP MPU
 #endif
 };
 
