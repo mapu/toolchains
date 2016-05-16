@@ -229,10 +229,10 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		CONFIG_PLATFORM_ENV_SETTINGS \
 		"dram=512M\0" \
-		"root=/dev/ram0 rw\0" \
+		"root=/dev/mtdblock4 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} initrd=0x70000000,0x1000000 vmalloc=768M init=/sbin/init nocache "\
-    "console=ttyS0,115200n8\0" \
+    "root=${root} noinitrd vmalloc=768M init=/sbin/init nocache rootfstype=jffs2 "\
+    "console=tty0\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
 			"bootm ${loadaddr}\0" \

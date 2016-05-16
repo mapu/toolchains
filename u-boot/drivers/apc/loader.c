@@ -238,6 +238,32 @@ int32_t send_matrix(uint32_t dst, uint32_t src, uint32_t width, uint32_t height,
   return ape_dma_request(&conf, cpuid);
 }
 
+int32_t send_sub_matrix(uint32_t dst, uint32_t src, uint32_t width, uint32_t sub_width, uint32_t height,
+                         enum DATA_TYPE size, uint32_t cpuid) {
+  struct dma_if conf;
+  uint32_t bank_size = 0x1000;
+  uint32_t bank_num = 64;
+  if (size > 6) return -1;
+  bank_num >>= size;
+  size = 1 << size;
+  bank_size *= size;
+  conf.DMAGlobalAddr = src;
+  conf.DMAGlobalXNum = size * sub_width;
+  conf.DMAGlobalYAllNum = height;
+  conf.DMAGlobalYNum = bank_num;
+  conf.DMAGlobalYStep = size * width;
+  conf.DMAGlobalZStep = size * width * bank_num;
+  conf.DMALocalAddr = dst;
+  conf.DMALocalXNum = size * sub_width;
+  conf.DMALocalYAllNum = height;
+  conf.DMALocalYNum = bank_num;
+  conf.DMALocalYStep = bank_size;
+  conf.DMALocalZStep = size * sub_width;
+  conf.DMACmd = CMD_EXT2INT;
+  conf.DMAGroupNum = DATA_E2I_GP;
+  return ape_dma_request(&conf, cpuid);
+}
+
 int32_t fetch_vector(uint32_t dst, uint32_t src, uint32_t len,
                      enum DATA_TYPE size, uint32_t cpuid) {
   struct dma_if conf;
@@ -281,6 +307,32 @@ int32_t fetch_matrix(uint32_t dst, uint32_t src, uint32_t width, uint32_t height
   conf.DMALocalYNum = bank_num;
   conf.DMALocalYStep = bank_size;
   conf.DMALocalZStep = size * width;
+  conf.DMACmd = CMD_INT2EXT;
+  conf.DMAGroupNum = DATA_I2E_GP;
+  return ape_dma_request(&conf, cpuid);
+}
+
+int32_t fetch_sub_matrix(uint32_t dst, uint32_t src, uint32_t width, uint32_t sub_width, uint32_t height,
+                     enum DATA_TYPE size, uint32_t cpuid) {
+  struct dma_if conf;
+  uint32_t bank_size = 0x1000;
+  uint32_t bank_num = 64;
+  if (size > 6) return -1;
+  bank_num >>= size;
+  size = 1 << size;
+  bank_size *= size;
+  conf.DMAGlobalAddr = src;
+  conf.DMAGlobalXNum = size * sub_width;
+  conf.DMAGlobalYAllNum = height;
+  conf.DMAGlobalYNum = bank_num;
+  conf.DMAGlobalYStep = size * width;
+  conf.DMAGlobalZStep = size * width * bank_num;
+  conf.DMALocalAddr = dst;
+  conf.DMALocalXNum = size * sub_width;
+  conf.DMALocalYAllNum = height;
+  conf.DMALocalYNum = bank_num;
+  conf.DMALocalYStep = bank_size;
+  conf.DMALocalZStep = size * sub_width;
   conf.DMACmd = CMD_INT2EXT;
   conf.DMAGroupNum = DATA_I2E_GP;
   return ape_dma_request(&conf, cpuid);

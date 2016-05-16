@@ -104,7 +104,9 @@
 		  EXPORT_FUNC(load_mpu_section, int, load_mpu_section, unsigned int, unsigned int, unsigned int)
 		  EXPORT_FUNC(send_vector, int, send_vector, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
 		  EXPORT_FUNC(send_matrix, int, send_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+      EXPORT_FUNC(send_matrix, int, send_sub_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
 		  EXPORT_FUNC(fetch_vector, int, fetch_vector, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
 		  EXPORT_FUNC(fetch_matrix, int, fetch_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+      EXPORT_FUNC(fetch_matrix, int, fetch_sub_matrix, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
 
 
