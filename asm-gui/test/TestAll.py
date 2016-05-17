@@ -7,21 +7,23 @@ from PyQt4.QtTest import QTest
 import unittest
 import sys
 sys.path.append("..")
-import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
 
 class mytest(unittest.TestCase):
     def setUp(self):
-        self.main = MainWindow()
-        self.inittablewidget = self.main.microcodeTableWidget
+        self.main = None
+        self.inittablewidget = None
 
     def tearDown(self):
         self.main = None
         self.inittablewidget = None
 
     def testSoftware(self):
+        app = QApplication(sys.argv)
+        self.main = MainWindow()
+        self.inittablewidget = self.main.microcodeTableWidget
         self.main.newFile()
         selrange = QTableWidgetSelectionRange(0,0,0,0)
         self.inittablewidget.setRangeSelected(selrange,True)
@@ -187,5 +189,8 @@ class mytest(unittest.TestCase):
             
         self.inittablewidget.saveFile("test.asm.s")
 
+	self.main.show()
+	app.exec_()
+	
 suite = unittest.TestLoader().loadTestsFromTestCase(mytest)
 unittest.TextTestRunner(verbosity=2).run(suite)
