@@ -391,11 +391,16 @@ class MicrocodeTableWidget(InitTableWidget):
                     line = line[:-4]
                     line += ";\n"
                     if endFlag != 0:
-		        del lines[0 - endFlag - 1]
-			lines.insert(0 - endFlag, line)
+		        text = lines[0 - endFlag - 1]
+		        if text == "NOP;\n":
+			    del lines[0 - endFlag - 1]
+			    lines.insert(0 - endFlag, line)
+			else:
+			    lines.append(line)
 			endFlag = 0
 		    else:
                         lines.append(line) 
+                     
                 else:
 		    endFlag = 0
                     if line != "":
@@ -406,7 +411,7 @@ class MicrocodeTableWidget(InitTableWidget):
                 if item == None or item.text() == "":
                     line = "NOP"
                 else:
-                    line = item.text()    
+                    line = item.text()  
                 #get loop end info
                 if textList[2] != "":
                     line += ";\n"
