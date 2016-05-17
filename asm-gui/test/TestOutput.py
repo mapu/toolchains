@@ -11,7 +11,6 @@ from PyQt4.QtTest import QTest
 import unittest
 import sys 
 sys.path.append("..")
-import main
 import random
 from view.MainWindow import MainWindow
 from view.Utils import initParent
@@ -21,14 +20,17 @@ class TestOutput(unittest.TestCase):
         '''
         test FMAC code
         '''
-        self.main = MainWindow()
-        self.inittablewidget = self.main.microcodeTableWidget
+        self.mainWindow = None
+        self.inittablewidget = None
         
     def tearDown(self):
         self.main = None
         self.inittablewidget = None
 
     def test(self):
+        app = QApplication(sys.argv)
+        self.main = MainWindow()
+        self.inittablewidget = self.main.microcodeTableWidget
         self.main.newFile()
         textList = ["r0.m[0]->m[0]", "t0+t0(t)->biu0", "shu0.t2 ind tbh(tb=+2)->ialu.t1(i0)", "double t0(t)->biu0"]
         for k in xrange(1):
@@ -70,7 +72,8 @@ class TestOutput(unittest.TestCase):
 		row = row + 5 + i + 1
          
         self.inittablewidget.saveFile("test.mpu.s")
-
-
+        self.main.show()
+	app.exec_()
+	
 suite = unittest.TestLoader().loadTestsFromTestCase(TestOutput)
 unittest.TextTestRunner(verbosity=2).run(suite)
