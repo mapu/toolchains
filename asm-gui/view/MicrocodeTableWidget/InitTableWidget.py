@@ -254,6 +254,7 @@ class InitTableWidget(QTableWidget):
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
                     self.dataParser(row, column)
+        #lpto
         for i in xrange(self.currentColumnNum):
             self.loopBodyList.insert(self.currentLeftColumn + i, [])
             num = len(self.array)
@@ -289,6 +290,7 @@ class InitTableWidget(QTableWidget):
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
                     self.dataParser(row, column)
+        #lpto
         for i in xrange(self.currentRowNum):
             if self.loopEndRow >= (self.currentTopRow + i):
                 self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
@@ -303,9 +305,11 @@ class InitTableWidget(QTableWidget):
         for i in xrange(self.currentRowNum):
             self.insertRow(self.currentTopRow + i)
             self.RowCount += 1
+            #lpto
             if self.loopEndRow >= (self.currentTopRow + i):
                 self.array.insert(self.currentTopRow + i, ["...."]*(self.ColumnCount))
                 self.loopEndRow += 1
+        #lpto
         for columnList in self.loopBodyList:
 	    for i in columnList:
 		if self.currentTopRow <= i.startRow:
@@ -365,6 +369,7 @@ class InitTableWidget(QTableWidget):
                 column = self.currentLeftColumn + j
                 if row < self.RowCount and column < self.ColumnCount:
                     self.setItem(row, column, QTableWidgetItem(columns[j]))
+                    self.dataParser(row, column)
 
     def deleteCellUp(self):
         string = QString()
@@ -393,11 +398,13 @@ class InitTableWidget(QTableWidget):
                 column = self.currentLeftColumn + j
                 if row < self.RowCount and column < self.ColumnCount:
                      self.setItem(row, column, QTableWidgetItem(columns[j]))
+                     self.dataParser(row, column)
 
     def deleteRows(self):
         for i in xrange(self.currentRowNum):
             self.removeRow(self.currentTopRow)
             self.RowCount -= 1
+            #lpto
             if len(self.array) > self.currentTopRow:
                 del self.array[self.currentTopRow]
                 self.loopEndRow -= 1

@@ -214,12 +214,12 @@ class MicrocodeTableWidget(InitTableWidget):
             return              
         for i in xrange(num, 0, -1):
            rectInfo = columnList[i - 1]
-           if rectInfo.reg == reg and rectInfo.startRow <= self.currentTopRow and rectInfo.endRow >= self.currentTopRow and rectInfo.column == self.currentLeftColumn:
+           if rectInfo.reg == reg and rectInfo.startRow <= self.currentTopRow and rectInfo.endRow >= self.currentTopRow:
                 columnList.remove(rectInfo)        
                 #remove item reg info and frame                
                 for i in xrange(rectInfo.startRow, rectInfo.endRow + 1):
                     if rectInfo.startRow == rectInfo.endRow:
-                        text = self.array[i][rectInfo.column]
+                        text = self.array[i][self.currentLeftColumn]
                         textList = text.split(".")
                         num = len(textList)
                         for j in xrange(num - 1):
@@ -236,10 +236,10 @@ class MicrocodeTableWidget(InitTableWidget):
                                 regText = "%s%s,"%(regText, regList[k])
                             textList[j] = regText                             
                         text = "%s.%s.%s.%s.%s"%(textList[0], textList[1], textList[2], textList[3], textList[4])  
-                        self.array[rectInfo.startRow][rectInfo.column] = text 
+                        self.array[rectInfo.startRow][self.currentLeftColumn] = text 
                         break    
                     if i == rectInfo.startRow:
-                        text = self.array[i][rectInfo.column]
+                        text = self.array[i][self.currentLeftColumn]
                         textList = text.split(".")
                         #up, right, left
                         for j in [0, 1, 3]:
@@ -256,9 +256,9 @@ class MicrocodeTableWidget(InitTableWidget):
                                 regText = "%s%s,"%(regText, regList[k])
                             textList[j] = regText                                             
                         text = "%s.%s.%s.%s.%s"%(textList[0], textList[1], textList[2], textList[3], textList[4]) 
-                        self.array[i][rectInfo.column] = text
+                        self.array[i][self.currentLeftColumn] = text
                     elif i == rectInfo.endRow:
-                        text = self.array[i][rectInfo.column]
+                        text = self.array[i][self.currentLeftColumn]
                         textList = text.split(".")
                         #right, bottom, left
                         for j in [1, 2, 3]:
@@ -275,9 +275,9 @@ class MicrocodeTableWidget(InitTableWidget):
                                 regText = "%s%s,"%(regText, regList[k])
                             textList[j] = regText                                             
                         text = "%s.%s.%s.%s.%s"%(textList[0], textList[1], textList[2], textList[3], textList[4])  
-                        self.array[i][rectInfo.column] = text
+                        self.array[i][self.currentLeftColumn] = text
                     else:
-                        text = self.array[i][rectInfo.column]
+                        text = self.array[i][self.currentLeftColumn]
                         textList = text.split(".")
                         #right, left
                         for j in [1, 3]:
@@ -294,7 +294,7 @@ class MicrocodeTableWidget(InitTableWidget):
                                 regText = "%s%s,"%(regText, regList[k])
                             textList[j] = regText                                             
                         text = "%s.%s.%s.%s.%s"%(textList[0], textList[1], textList[2], textList[3], textList[4]) 
-                        self.array[i][rectInfo.column] = text 
+                        self.array[i][self.currentLeftColumn] = text 
         self.viewport().update()                              
 
     def setWholeRowColor(self, row, color):
