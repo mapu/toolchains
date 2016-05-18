@@ -469,9 +469,17 @@ class MicrocodeTableWidget(InitTableWidget):
                         data.append("....")
                 row = 0
                 self.setHorizontalHeaderItem(column, QTableWidgetItem(record.group(1)))
-            elif startLPPattern.search(string) != None:
-                if string.find("||") >= 0:
-                    record = string.split(" || ")
+            elif startLPPattern.search(string) != None:                     
+                record = string.split(" || ")
+                if len(record) == 1 or startLPPattern.match(record[0]) != None:
+		    self.setItem(row, column, QTableWidgetItem(""))
+                    self.dataParser(row, column)
+                    row += 1
+                    if row > self.RowCount:
+                        self.RowCount = row
+                        self.setRowCount(row)
+                        self.array.append(["...."]*(self.ColumnCount))
+                if len(record) > 1:
                     for lpto in record:
                         if startLPPattern.match(lpto) != None:
                             r = startLPPattern.match(lpto)        
@@ -501,14 +509,6 @@ class MicrocodeTableWidget(InitTableWidget):
                                 self.setRowCount(row)
                                 self.array.append(["...."]*(self.ColumnCount))
                 else:
-		    if endLPPattern.search(previous) == None:
-                        self.setItem(row, column, QTableWidgetItem(""))
-                        self.dataParser(row, column)
-                        row += 1
-                        if row > self.RowCount:
-                            self.RowCount = row
-                            self.setRowCount(row)
-                            self.array.append(["...."]*(self.ColumnCount))
                     record = startLPPattern.match(string)        
                     info = RectInfo()
                     info.startRow = row
