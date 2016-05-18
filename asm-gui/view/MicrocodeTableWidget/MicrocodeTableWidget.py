@@ -501,7 +501,7 @@ class MicrocodeTableWidget(InitTableWidget):
                                 self.setRowCount(row)
                                 self.array.append(["...."]*(self.ColumnCount))
                 else:
-		    if endPattern.search(previous) == None:
+		    if endLPPattern.search(previous) == None:
                         self.setItem(row, column, QTableWidgetItem(""))
                         self.dataParser(row, column)
                         row += 1
