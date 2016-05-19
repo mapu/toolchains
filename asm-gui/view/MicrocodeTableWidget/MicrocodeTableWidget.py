@@ -337,7 +337,7 @@ class MicrocodeTableWidget(InitTableWidget):
     def searchLPEnd(self, rectList, row):
         cmpList = []
         for info in rectList:
-            if info.endRow == row:
+            if info.endRow == row and info.startRow != info.endRow:
                 if cmpList != []:
                     tmp = cmpList[-1]
                     if tmp.startRow <= info.startRow:
@@ -352,6 +352,8 @@ class MicrocodeTableWidget(InitTableWidget):
         fp = open(fileName, "w")
         endFlag = 0
         self.startList = dict()
+        oneLpto = []
+        loop = ""
         for column in xrange(self.ColumnCount):
             rectList = self.loopBodyList[column]
             lines = []
@@ -380,14 +382,20 @@ class MicrocodeTableWidget(InitTableWidget):
                         line += " || "
                     cmpList = self.searchLPStart(rectList, row)
                     if cmpList != []:
+		        #start lpto row
 		        if self.startList[headerText] > row:
 			    self.startList[headerText] = row
+	            oneLpto = []
+	            loop = ""
                     for info in cmpList:  
-			if info.margin == 0:
-			    loop = "LPTO (%df ) @ (%s) || "%(info.num, self.register[info.reg])
+		        if info.startRow == info.endRow:
+			    oneLpto.append(info)
 			else:
-                            loop = "LPTO (%df ) @ (%s - %d) || "%(info.num, self.register[info.reg], info.margin)
-                        line += loop
+			    if info.margin == 0:
+			        loop = "LPTO (%df ) @ (%s) || "%(info.num, self.register[info.reg])
+			    else:
+                                loop = "LPTO (%df ) @ (%s - %d) || "%(info.num, self.register[info.reg], info.margin)
+                            line += loop
                     line = line[:-4]
                     line += ";\n"
                     if endFlag != 0:
@@ -399,8 +407,10 @@ class MicrocodeTableWidget(InitTableWidget):
 			    lines.append(line)
 			endFlag = 0
 		    else:
-                        lines.append(line) 
-                     
+		        if loop == "":
+			    line = "NOP;\n"
+			if row != 0 or loop != "":
+                            lines.append(line)        
                 else:
 		    endFlag = 0
                     if line != "":
@@ -411,7 +421,15 @@ class MicrocodeTableWidget(InitTableWidget):
                 if item == None or item.text() == "":
                     line = "NOP"
                 else:
-                    line = item.text()  
+                    line = item.text() 
+                if len(oneLpto) > 0:
+		    for info in oneLpto:
+		        if info.margin == 0:
+			    loop = " || Repeat @ (%s)"%(self.register[info.reg])
+			else:
+			    loop = " || Repeat @ (%s - %d)"%(self.register[info.reg], info.margin)
+		        line += loop
+		oneLpto = []
                 #get loop end info
                 if textList[2] != "":
                     line += ";\n"
@@ -447,6 +465,7 @@ class MicrocodeTableWidget(InitTableWidget):
         headerPattern = re.compile("\.hmacro ([a-zA-Z]+[0-9]+)")
         endPattern = re.compile("\.endhmacro")
         startLPPattern = re.compile("LPTO \((\d+)f \) @ \((\w+)( - )?(\d*)\)")
+        oneLPPattern = re.compile("Repeat @ \((\w+)( - )?(\d*)\)")
         endLPPattern = re.compile("(\d+):")
         rowPattern = re.compile("(.+);")
 
@@ -478,7 +497,6 @@ class MicrocodeTableWidget(InitTableWidget):
                     if row > self.RowCount:
                         self.RowCount = row
                         self.setRowCount(row)
-                        self.array.append(["...."]*(self.ColumnCount))
                 if len(record) > 1:
                     for lpto in record:
                         if startLPPattern.match(lpto) != None:
@@ -507,7 +525,6 @@ class MicrocodeTableWidget(InitTableWidget):
                             if row > self.RowCount:
                                 self.RowCount = row
                                 self.setRowCount(row)
-                                self.array.append(["...."]*(self.ColumnCount))
                 else:
                     record = startLPPattern.match(string)        
                     info = RectInfo()
@@ -523,6 +540,36 @@ class MicrocodeTableWidget(InitTableWidget):
                     self.setItem(row, column, item)
                     self.dataParser(row, column)
                     self.loopBodyList[column].append(info)
+            elif oneLPPattern.search(string) != None:
+	        record = string.split(" || ")
+	        if record[0] == "NOP":
+		    text = ""
+		else:
+		    text = record[0]
+		self.setItem(row, column, QTableWidgetItem(text))
+                self.dataParser(row, column)
+                if row > self.RowCount:
+                    self.RowCount = row
+                    self.setRowCount(row)
+		for lpto in record[1 : ]:
+                    record = oneLPPattern.match(lpto)        
+                    info = RectInfo()
+                    info.startRow = row
+                    info.endRow = row
+                    info.num = 1
+                    info.reg = self.register.index(record.group(1))
+                    if record.group(2) != None:
+                        info.margin = int(record.group(3))
+                    else:
+		        info.margin = 0
+                    info.column = column
+                    self.loopBodyList[column].append(info)
+                    if info.endRow > self.loopEndRow:
+                        for i in xrange(self.loopEndRow, info.endRow):
+                            self.array.append(["...."]*(self.ColumnCount))
+                            self.loopEndRow = info.endRow
+                    self.setItemInfo(info)
+                    row += 1
             elif endLPPattern.search(string) != None:        
                 record = endLPPattern.search(string)
                 columnList = self.loopBodyList[column]
@@ -551,7 +598,6 @@ class MicrocodeTableWidget(InitTableWidget):
                 if row > self.RowCount:
                     self.RowCount = row
                     self.setRowCount(row)
-                    self.array.append(["...."]*(self.ColumnCount))
             previous = string   
                  
         fp.close()
