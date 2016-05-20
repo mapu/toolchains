@@ -156,53 +156,51 @@ class mytest(unittest.TestCase):
                     QTest.mouseClick(self.main.registerCheck[j], Qt.LeftButton)
                 self.inittablewidget.setRangeSelected(selranges, False)
             else:
-                break
-    
+               break
         row = row + 4
-        p = random.randint(0,3)
-        self.inittablewidget.setCurrentCell(row,column)
-        QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
-        text = QString("R0.M[0]->M[0]@(C)")
-        selranges = QTableWidgetSelectionRange(row, column, row, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        QTest.mouseClick(self.main.registerText[p], Qt.LeftButton)
-        QTest.keyClick(self.main.registerText[p],Qt.Key_Backspace)
-        QTest.keyClicks(self.main.registerText[p], str(p))
-        QTest.mouseClick(self.main.registerCheck[p], Qt.LeftButton)
-        self.inittablewidget.setRangeSelected(selranges, False)
-
-        self.inittablewidget.setCurrentCell(row + 1,column)
-        QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
-        text = QString("R0.M[0]->M[0]@(C)")
-        selranges = QTableWidgetSelectionRange(row + 1, column, row + 1, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        QTest.mouseClick(self.main.registerText[p], Qt.LeftButton)
-        QTest.keyClick(self.main.registerText[p],Qt.Key_Backspace)
-        QTest.keyClicks(self.main.registerText[p], str(p))
-        QTest.mouseClick(self.main.registerCheck[p], Qt.LeftButton)
-        self.inittablewidget.setRangeSelected(selranges, False)
+        for i in xrange(0,4):
+            row = row + 2
+            #p = random.randint(0,3)
+            self.inittablewidget.setCurrentCell(row,column)
+            QTest.keyClicks(self.inittablewidget,'max(t0,t3)(u,b)->falu.t2')
+            selranges = QTableWidgetSelectionRange(row, column, row, column)
+            self.inittablewidget.setRangeSelected(selranges, True)
+            for j in xrange(i + 1):
+                QTest.mouseClick(self.main.registerText[j], Qt.LeftButton)
+                QTest.keyClick(self.main.registerText[j],Qt.Key_Backspace)
+                QTest.keyClicks(self.main.registerText[j], str(i))
+                QTest.mouseClick(self.main.registerCheck[j], Qt.LeftButton)
+            self.inittablewidget.setRangeSelected(selranges, False)
+            
+        row = row + 1 
+        for i in xrange(0,4):
+            row = row + 1
+            self.inittablewidget.setCurrentCell(row,column)
+            QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
+            selranges = QTableWidgetSelectionRange(row, column, row, column)
+            self.inittablewidget.setRangeSelected(selranges, True)
+            for j in xrange(i + 1):
+                QTest.mouseClick(self.main.registerText[j], Qt.LeftButton)
+                QTest.keyClick(self.main.registerText[j],Qt.Key_Backspace)
+                QTest.keyClicks(self.main.registerText[j], str(i))
+                QTest.mouseClick(self.main.registerCheck[j], Qt.LeftButton)
+            self.inittablewidget.setRangeSelected(selranges, False)
         
-        self.inittablewidget.setCurrentCell(row + 3,column)
-        QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
-        text = QString("R0.M[0]->M[0]@(C)")
-        selranges = QTableWidgetSelectionRange(row + 3, column, row + 3, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        QTest.mouseClick(self.main.registerText[p], Qt.LeftButton)
-        QTest.keyClick(self.main.registerText[p],Qt.Key_Backspace)
-        QTest.keyClicks(self.main.registerText[p], str(p))
-        QTest.mouseClick(self.main.registerCheck[p], Qt.LeftButton)
-        self.inittablewidget.setCurrentCell(row + 4,column)
-        QTest.keyClicks(self.inittablewidget,'R0.M[1]->M[1]')
-
-        self.inittablewidget.setCurrentCell(row + 5,column)
-        QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
-        text = QString("R0.M[0]->M[0]@(C)")
-        selranges = QTableWidgetSelectionRange(row + 5, column, row + 5, column)
-        self.inittablewidget.setRangeSelected(selranges, True)
-        QTest.mouseClick(self.main.registerText[p], Qt.LeftButton)
-        QTest.keyClick(self.main.registerText[p],Qt.Key_Backspace)
-        QTest.keyClicks(self.main.registerText[p], str(p))
-        QTest.mouseClick(self.main.registerCheck[p], Qt.LeftButton)
+        #row = row + 1
+        for i in xrange(0,4):
+            row = row + 2
+            self.inittablewidget.setCurrentCell(row,column)
+            QTest.keyClicks(self.inittablewidget,'R0.M[0]->M[0]@(C)')
+            selranges = QTableWidgetSelectionRange(row, column, row, column)
+            self.inittablewidget.setRangeSelected(selranges, True)
+            for j in xrange(i + 1):
+                QTest.mouseClick(self.main.registerText[j], Qt.LeftButton)
+                QTest.keyClick(self.main.registerText[j],Qt.Key_Backspace)
+                QTest.keyClicks(self.main.registerText[j], str(j))
+                QTest.mouseClick(self.main.registerCheck[j], Qt.LeftButton)
+            self.inittablewidget.setCurrentCell(row + 1, column)
+            QTest.keyClicks(self.inittablewidget,'R0.M[1]->M[1]')
+            self.inittablewidget.setRangeSelected(selranges, False)
             
         self.inittablewidget.saveFile("test.guifirst.s")
 
