@@ -1,0 +1,68 @@
+# -*- coding: utf-8 -*- 
+from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem
+from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSlot, QStringList, QXmlStreamReader, QFile, QIODevice, QString, qDebug
+
+class MCCTreeWidget(QTreeWidget):
+    def __init__(self, parent = None):
+	super(MCCTreeWidget, self).__init__(parent)
+	
+	self.setColumnCount(1)
+	self.setHeaderLabel("MCC Tree")
+	self.xmlfile = QFile("config.xml")
+	self.regList = ["M", "SHU", "BIU", "IALU", "FALU", "IMAC", "FMAC", "MSEQ"]
+	self.readXML()
+	
+    def readXML(self):
+        '''
+        Initialize tree from XML file
+        '''
+	if self.xmlfile.open(QIODevice.ReadOnly | QIODevice.Text) == False:
+	    return
+        xmlReader = QXmlStreamReader(self.xmlfile)
+        if xmlReader.readNext() != QXmlStreamReader.StartDocument:
+            qDebug("XML file has a broken header!")
+            return
+        if (xmlReader.readNext() != QXmlStreamReader.StartElement or
+            xmlReader.name() != "MCCTree"):
+            return
+	for reg in self.regList:
+            xmlReader.readNext()
+            xmlReader.readNext()
+            if str(xmlReader.name()) == reg:
+	        ppitem = QTreeWidgetItem(QStringList() << reg)
+	        self.addTopLevelItem(ppitem)	
+	    else:
+                qDebug("XML file has a broken reg beginning!")
+                return		
+            xmlReader.readNext()  
+	    while not xmlReader.atEnd():
+		if xmlReader.readNext() == QXmlStreamReader.StartElement:
+		    element_name = xmlReader.name()
+		    if xmlReader.readNext() == QXmlStreamReader.Characters:
+			pitem = QTreeWidgetItem(QStringList() << str(element_name))
+			ppitem.addChild(pitem)
+			text = xmlReader.text().toString()
+			textList = text.split(";")
+			itemList = []
+			for i in textList:
+			    item = QTreeWidgetItem(QStringList() << i)
+			    itemList.append(item)
+			pitem.addChildren(itemList)
+			if (xmlReader.readNext() != QXmlStreamReader.EndElement or
+			    xmlReader.name() != element_name):
+			    qDebug("XML file has broken element end!")
+			    return
+			else:
+			    xmlReader.readNext()
+		    elif xmlReader.tokenType() == QXmlStreamReader.EndElement:
+			xmlReader.readNext()
+		    else:
+			qDebug("XML file has broken element content!")
+			return
+		elif (xmlReader.tokenType() == QXmlStreamReader.EndElement and
+		      xmlReader.name() == reg):
+		    break
+		else:
+		    qDebug("XML file has broken element beginning!")
+		    return
+        self.xmlfile.close()

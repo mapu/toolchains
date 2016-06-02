@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit
+from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit, QHBoxLayout, QSplitter
 from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot, QString
 from res import qrc_resources 
 from view.MicrocodeTableWidget.MicrocodeTableWidget import MicrocodeTableWidget
 from Utils import warning
 from data.MicrocodeDB import MicrocodeDB
+from view.MCCTreeWidget.MCCTreeWidget import MCCTreeWidget
 
 class MainWindow(QMainWindow):  
     def __init__(self, parent = None):  
@@ -17,8 +18,14 @@ class MainWindow(QMainWindow):
         self.register = ["KI12", "KI13", "KI14", "KI15"]
         self.setWindowTitle("Graphic Microcode Editor")
         self.resize(800, 600)
-        self.microcodeTableWidget = MicrocodeTableWidget(self.register, database)
-        self.setCentralWidget(self.microcodeTableWidget)
+        splitter = QSplitter(Qt.Horizontal, self)
+        self.microcodeTableWidget = MicrocodeTableWidget(self.register, database, splitter)
+        self.mccTreeWidget = MCCTreeWidget(splitter)
+	splitter.addWidget(self.mccTreeWidget)
+	splitter.addWidget(self.microcodeTableWidget)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 4)	
+        self.setCentralWidget(splitter)
         self.createAction()
         self.createContextMenu()
         self.createToolBars()
