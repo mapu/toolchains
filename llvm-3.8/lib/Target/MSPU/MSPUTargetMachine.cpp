@@ -14,7 +14,7 @@
 #include "MSPU.h"
 #include "MSPUMachineScheduler.h"
 #include "MSPUTargetObjectFile.h"
-#include "llvm/PassManager.h"
+#include "llvm/IR/PassManager.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/CommandLine.h"
