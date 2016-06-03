@@ -10,7 +10,7 @@ from data.MMPULite import MMPULite
 import re
 
 class MicrocodeTableWidget(InitTableWidget):  
-    floatDialogShowSignal = pyqtSignal(int, int, list)
+    searchTreeSignal = pyqtSignal(int, int, str)
     itemRegStateSignal = pyqtSignal(list, list)
     def __init__(self, register, database, parent = None):  
         super(MicrocodeTableWidget, self).__init__(parent)   
@@ -51,7 +51,7 @@ class MicrocodeTableWidget(InitTableWidget):
 	    for i in self.previousPointRow:
                 self.earserWholeRowColor(i)   
         item = self.item(currentRow, currentColumn)
-        if item != None:	    
+        if item != None:
             if item.text() == "":
                 return  
 	    if item.whatsThis() == "" or item.whatsThis() == "-1":
@@ -100,10 +100,6 @@ class MicrocodeTableWidget(InitTableWidget):
             self.floatDialogCloseSlot()
         if event.key() < 0x20 or event.key() > 0xff:
             return
-        stringList = []
-        stringList.append(event.text())
-        stringList.append(event.text())
-        stringList.append(event.text())
         column = self.currentColumn()
         row = self.currentRow()
         item = self.item(row, column)
@@ -117,7 +113,8 @@ class MicrocodeTableWidget(InitTableWidget):
             self.setItem(row, column, QTableWidgetItem(event.text()))
         self.CurrentRow = row
         self.CurrentColumn = column
-        self.floatDialogShow(row, column, stringList)
+        text = self.item(row, column).text()
+        self.searchTreeSignal.emit(row, column, text)
 
     def setRectInfo(self, reg):
         rectInfo = RectInfo()

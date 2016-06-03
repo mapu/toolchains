@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*- 
 from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSlot, QStringList, QXmlStreamReader, QFile, QIODevice, QString, qDebug
+import re
 
 class MCCTreeWidget(QTreeWidget):
     floatDialogShowSignal = pyqtSignal(int, int, list)
@@ -71,6 +72,14 @@ class MCCTreeWidget(QTreeWidget):
         self.xmlfile.close()
         
     def searchMcc(self, row, column, text):
+      	self.mark = [".", "*", "+", "^", "|", "(", ")", "[", "]"]
+	num = len(text)
+	for k in range(num, 0,  -1):
+	    if text[k - 1] in self.mark:
+	        text = text[: k - 1] + "\\" + text[k - 1: ]
+	text += ".*"
+	text = "^" + text
+	pattern = re.compile(str(text), re.IGNORECASE)
 	self.result = []
 	for ppitem in self.topLevelItemList:
 	    pnum =  ppitem.childCount()
@@ -79,6 +88,8 @@ class MCCTreeWidget(QTreeWidget):
 		num = pitem.childCount()
 		for j in range(num):
 		    item = pitem.child(j)
+		    string = item.text(0)
 		    #search
-		    self.result.append(item.text(0))
+		    if pattern.search(string) != None: 
+		        self.result.append(string)
 	self.floatDialogShowSignal.emit(row, column, self.result)	    

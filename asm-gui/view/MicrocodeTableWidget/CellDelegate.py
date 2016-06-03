@@ -5,7 +5,7 @@ from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot, SIGNAL
 import data.RegColor
 
 class CellDelegate(QItemDelegate):
-    floatDialogShowSignal = pyqtSignal(int, int, str)
+    searchTreeSignal = pyqtSignal(int, int, str)
     floatDialogCloseSignal = pyqtSignal()
     def __init__(self, parent = None):
         super(CellDelegate, self).__init__(parent)
@@ -27,7 +27,7 @@ class CellDelegate(QItemDelegate):
         self.floatDialogCloseSignal.emit()
 
     def textChangedSlot(self, text):
-        self.floatDialogShowSignal.emit(self.tableRow, self.tableColumn, str(text))
+        self.searchTreeSignal.emit(self.tableRow, self.tableColumn, str(text))
 
     def lineEditClear(self):
         self.lineEdit.clear()
@@ -86,5 +86,4 @@ class CellDelegate(QItemDelegate):
                         painter.drawLine(option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]), \
                                          option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))       
         QItemDelegate.paint(self, painter, myOption, index)   
-
 
