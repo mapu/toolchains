@@ -3,6 +3,7 @@ from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem
 from PyQt4.QtCore import Qt, SIGNAL, pyqtSignal, pyqtSlot, QStringList, QXmlStreamReader, QFile, QIODevice, QString, qDebug
 
 class MCCTreeWidget(QTreeWidget):
+    floatDialogShowSignal = pyqtSignal(int, int, list)
     def __init__(self, parent = None):
 	super(MCCTreeWidget, self).__init__(parent)
 	
@@ -10,6 +11,7 @@ class MCCTreeWidget(QTreeWidget):
 	self.setHeaderLabel("MCC Tree")
 	self.xmlfile = QFile("config.xml")
 	self.regList = ["M", "SHU", "BIU", "IALU", "FALU", "IMAC", "FMAC", "MSEQ"]
+	self.topLevelItemList = []
 	self.readXML()
 	
     def readXML(self):
@@ -31,6 +33,7 @@ class MCCTreeWidget(QTreeWidget):
             if str(xmlReader.name()) == reg:
 	        ppitem = QTreeWidgetItem(QStringList() << reg)
 	        self.addTopLevelItem(ppitem)	
+	        self.topLevelItemList.append(ppitem)
 	    else:
                 qDebug("XML file has a broken reg beginning!")
                 return		
@@ -66,3 +69,16 @@ class MCCTreeWidget(QTreeWidget):
 		    qDebug("XML file has broken element beginning!")
 		    return
         self.xmlfile.close()
+        
+    def searchMcc(self, row, column, text):
+	self.result = []
+	for ppitem in self.topLevelItemList:
+	    pnum =  ppitem.childCount()
+	    for i in range(pnum):
+		pitem = ppitem.child(i)
+		num = pitem.childCount()
+		for j in range(num):
+		    item = pitem.child(j)
+		    #search
+		    self.result.append(item.text(0))
+	self.floatDialogShowSignal.emit(row, column, self.result)	    
