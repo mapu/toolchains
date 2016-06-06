@@ -92,8 +92,10 @@ class MCCTreeWidget(QTreeWidget):
 	self.result = []
 	for ppitem in self.topLevelItemList:
 	    pnum =  ppitem.childCount()
+	    self.collapseItem(ppitem)
 	    for i in range(pnum):
 		pitem = ppitem.child(i)
+		self.collapseItem(pitem)
 		num = pitem.childCount()
 		for j in range(num):
 		    item = pitem.child(j)
@@ -108,5 +110,7 @@ class MCCTreeWidget(QTreeWidget):
 		    #search
 		    if pattern.search(string) != None: 
 		        self.result.append(string)
+			self.expandItem(ppitem)
+		        self.expandItem(pitem)
 	self.floatDialogShowSignal.emit(row, column, self.result)
 	return self.result
