@@ -150,6 +150,7 @@ class InitTableWidget(QTableWidget):
         item = self.item(row, column)
         floatDialog_x = 0
         floatDialog_y = 0
+        height = 150
         if item == None:
             if row + 4 < self.RowCount:
                 item = self.item(row + 1, column)
@@ -166,7 +167,7 @@ class InitTableWidget(QTableWidget):
 		    self.setItem(row - 1, column, item)	
                 rect = self.visualItemRect(item)
                 floatDialog_x = rect.topLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height() - 80		    	
+                floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height() - height		    	
         else:
             rect = self.visualItemRect(item)
             if row + 4 < self.RowCount:
@@ -174,8 +175,8 @@ class InitTableWidget(QTableWidget):
                 floatDialog_y = rect.bottomLeft().y() + self.horizontalHeader().sizeHint().height()
             else:
                 floatDialog_x = rect.bottomLeft().x() + self.verticalHeader().sizeHint().width()
-                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height() - 80
-        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, rect.width(), 80)
+                floatDialog_y = rect.topLeft().y() + self.horizontalHeader().sizeHint().height() - height
+        self.floatDialog.setGeometry(floatDialog_x, floatDialog_y, rect.width(), height)
         self.floatDialog.initDialog(stringList)
         self.floatDialog.setVisible(True)
         
