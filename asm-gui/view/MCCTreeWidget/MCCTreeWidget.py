@@ -72,11 +72,20 @@ class MCCTreeWidget(QTreeWidget):
         self.xmlfile.close()
         
     def searchMcc(self, row, column, text):
-      	self.mark = [".", "*", "+", "^", "|", "(", ")", "[", "]"]
+      	self.mark0 = [".", "*", "+", "^", "|", "(", ")", "[", "]"]
+      	self.mark1 = ["s", "m", "n", "p", "t"]
+      	self.mark2 = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+      	self.mark3 = ["r", "R", "U", "u", "i", "I"]
+      	self.mark4 = [ "imm", "imm3", "imm4", "imm5", "imm10"]
 	num = len(text)
 	for k in range(num, 0,  -1):
-	    if text[k - 1] in self.mark:
+	    if text[k - 1] in self.mark0:
 	        text = text[: k - 1] + "\\" + text[k - 1: ]
+	num = len(text)
+	for i in range(num, 0, -1):
+	    if text[i - 1] in self.mark2:
+		if text[i - 2] not in self.mark3:
+		    text = text[ : i - 1] + "\w+" + text[i : ]	
 	text += ".*"
 	text = "^" + text
 	pattern = re.compile(str(text), re.IGNORECASE)
@@ -89,6 +98,13 @@ class MCCTreeWidget(QTreeWidget):
 		for j in range(num):
 		    item = pitem.child(j)
 		    string = item.text(0)
+		    '''
+		    textNum = len(string)
+		    for k in range(textNum, 0, -1):
+			if string[k - 1] in self.mark1:
+			    string = string[ : k -1] + "0" + string[k : ]
+			    print string
+		    '''
 		    #search
 		    if pattern.search(string) != None: 
 		        self.result.append(string)
