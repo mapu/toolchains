@@ -90,13 +90,15 @@ class MicrocodeTableWidget(InitTableWidget):
             row = self.floatDialog.currentRow()
             if row > 0:
                 self.floatDialog.setCurrentRow(row - 1)
-        elif event.key() == Qt.Key_Return and self.floatDialogFocus == 1:
+        elif event.key() == Qt.Key_Return:
             item = self.floatDialog.currentItem()
+            if item == None:
+		return
             text = item.text()
             column = self.currentColumn()
             row = self.currentRow()
-            item = self.item(row, column)	   
-            item.setText(text) 
+            item = QTableWidgetItem(text)	   
+            self.setItem(row, column, item)
             self.floatDialogCloseSlot()
         if event.key() < 0x20 or event.key() > 0xff:
             return
