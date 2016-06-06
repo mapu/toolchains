@@ -73,10 +73,10 @@ class MCCTreeWidget(QTreeWidget):
         
     def searchMcc(self, row, column, text):
       	self.mark0 = [".", "*", "+", "^", "|", "(", ")", "[", "]"]
-      	self.mark1 = ["s", "m", "n", "p", "t"]
+      	#self.mark1 = ["s", "m", "n", "p", "t"]
       	self.mark2 = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
       	self.mark3 = ["r", "R", "U", "u", "i", "I"]
-      	self.mark4 = [ "imm", "imm3", "imm4", "imm5", "imm10"]
+      	#self.mark4 = [ "imm", "imm3", "imm4", "imm5", "imm10"]
 	num = len(text)
 	for k in range(num, 0,  -1):
 	    if text[k - 1] in self.mark0:
@@ -108,4 +108,5 @@ class MCCTreeWidget(QTreeWidget):
 		    #search
 		    if pattern.search(string) != None: 
 		        self.result.append(string)
-	self.floatDialogShowSignal.emit(row, column, self.result)	    
+	self.floatDialogShowSignal.emit(row, column, self.result)
+	return self.result
