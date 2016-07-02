@@ -1082,6 +1082,8 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
     default: break;
     }
   }
+  if (inst->isIaluExpd())
+    wb_stage++;
 
   StageScheduler *pW = NULL;
   StageScheduler *pSecW = NULL;
@@ -1183,6 +1185,15 @@ RSkedPtr InOrderCPU::createMBackEndSked(DynInstPtr inst) {
     case ShuIndCombOp:
       if (idx != 0)
         RR.needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+      else
+        pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+      break;
+    case IaluArithOp:
+      if ( inst->isIaluExpd())
+        if (idx==0)
+          pSecW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
+        else
+          pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
       else
         pW->needs(MPURegManager, MpuRfsUnit::WriteDestReg, idx);
       break;

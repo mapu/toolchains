@@ -460,6 +460,7 @@ class InOrderDynInst : public RefCounted
     bool isMPURegOp() const { return staticInst->isMPURegOp(); }
     bool isCSUOp() const { return staticInst->isCSUOp(); }
     bool isCSUNumOp() const { return staticInst->isCSUNumOp(); }
+    bool isIaluExpd() const  { return staticInst->isIaluExpd(); }
 #endif
 
     /////////////////////////////////////////////

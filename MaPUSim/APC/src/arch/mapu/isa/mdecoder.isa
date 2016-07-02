@@ -426,7 +426,7 @@ decode SLOTNUM default Unknown::Unknown(mpuunknown) {
                                       res1.expd_h1(IaluTm); }
         MPUd  = res0;
         MPUhd = res1;
-      }}, IaluArithOp);
+      }}, IaluArithOp, IsIaluExpd );
  
       0x18: ialudivs ({{
         const uint8_t ZERO[64] = {0};

@@ -18,10 +18,24 @@ _IALUTest:
    NOP; 
    NOP; 
 
+ EXPD T1 -> IALU.T2;
+
+
  SHU0.T1 IND T3 ->   IALU.T1 (I0);   //IALU.T1 = SHU0.T1
  SHU0.T2 IND T3 ->   IALU.T2 (I0);   //IALU.T2 = SHU0.T2
  SHU0.T0 IND T3 ->   IALU.T3 (I0);   //IALU.T3 = SHU0.T0
    NOP; 
+   NOP;
+   NOP;
+   NOP;
+   NOP;
+   NOP;
+ EXPD T1 (U,B) -> IALU.T2;
+ NOP;
+ NOP;
+ NOP;
+ NOP;
+ NOP;
 
 //Basic IALU
  T1 + T2 ->   IMAC.T0 ; 

@@ -183,6 +183,7 @@ class StaticInst : public RefCounted
         IsCSUReg,
         IsCSUOp,
         IsCSUNumOp,
+        IsIaluExpd,
 #endif
         NumFlags
     };
@@ -300,6 +301,7 @@ class StaticInst : public RefCounted
     bool isMPURegOp() const { return flags[IsMPURegOp]; }
     bool isCSUOp() const { return flags[IsCSUOp]; }
     bool isCSUNumOp() const { return flags[IsCSUNumOp]; }
+    bool isIaluExpd() const { return flags[IsIaluExpd]; }
 #endif
 
     void setLastMicroop() { flags[IsLastMicroop] = true; }
