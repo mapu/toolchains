@@ -1,0 +1,47 @@
+/*
+ *  Copyright (C) 2014 IACAS, Lei Wang
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/dts-v1/;
+#include "skeleton.dtsi"
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+    
+    spi: spi@50ff0000 {
+      compatible = "snps,dw-apb-ssi";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x50ff0000 0x1000>;
+      interrupts = <0 6 4>;
+      num-cs = <4>;
+      bus-num = <0>;
+      status = "okay";
+    };
+    
+    gpio: gpio@50800000 {
+      compatible = "snps,dw-apb-gpio";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x50800000 0x1000>;
+      interrupts = <0 16 4>;
+    };
+    
+    i2c0: i2c@50a00000 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      compatible = "snps,designware-i2c";
+      reg = <0x50a00000 0x1000>;
+      interrupts = <0 24 0x4>;
+    };
+
+};
