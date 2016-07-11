@@ -67,8 +67,12 @@
 #else
 	EXPORT_FUNC(spi_claim_bus, int, spi_claim_bus, struct spi_slave *)
 	EXPORT_FUNC(spi_release_bus, void, spi_release_bus, struct spi_slave *)
+#ifdef CONFIG_MAPU
+	EXPORT_FUNC(spi_xfer, int, spi_xfer, int, unsigned int, const void *, void *, unsigned long)
+#else
 	EXPORT_FUNC(spi_xfer, int, spi_xfer, struct spi_slave *,
 		    unsigned int, const void *, void *, unsigned long)
+#endif
 #endif
 	EXPORT_FUNC(ustrtoul, unsigned long, ustrtoul,
 		    const char *, char **, unsigned int)

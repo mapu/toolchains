@@ -301,6 +301,9 @@
 /* dma */
 #define CONFIG_MAPU_DMA
 
+/* spi */
+#define CONFIG_MAPU_SPI
+
 /* slib or mlib 's max numbers of files and max_length of filenames */
 #define file_max_num             20
 #define filename_max_length      50

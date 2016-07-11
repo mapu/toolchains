@@ -269,8 +269,13 @@ int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
  *
  * Returns: 0 on success, not 0 on failure
  */
-int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+#ifdef CONFIG_MAPU
+int  spi_xfer(int cs, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags);
+#else
+int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+      void *din, unsigned long flags);
+#endif
 
 /* Copy memory mapped data */
 void spi_flash_copy_mmap(void *data, void *offset, size_t len);
@@ -330,8 +335,11 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
 
 	dout[0] = byte;
 	dout[1] = 0;
-
+#ifdef CONFIG_MAPU
+	ret = spi_xfer(0, 16, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
+#else
 	ret = spi_xfer(slave, 16, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
+#endif
 	return ret < 0 ? ret : din[1];
 }
 

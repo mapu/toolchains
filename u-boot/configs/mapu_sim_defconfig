@@ -144,6 +144,11 @@ CONFIG_CPU_V7=y
 # CONFIG_ARCH_ROCKCHIP is not set
 CONFIG_TARGET_MAPU=y
 # CONFIG_SYS_MALLOC_F is not set
+# CONFIG_DM_SERIAL is not set
+CONFIG_DM_SPI=y
+# CONFIG_DM_SPI_FLASH is not set
+# CONFIG_DM_I2C is not set
+CONFIG_DM_GPIO=y
 CONFIG_MAPU_SIM=y
 # CONFIG_MAPU_CHIP is not set
 
@@ -151,7 +156,8 @@ CONFIG_MAPU_SIM=y
 # ARM debug
 #
 # CONFIG_DEBUG_LL is not set
-CONFIG_DEFAULT_DEVICE_TREE=""
+# CONFIG_DEBUG_LL_UART_8250 is not set
+CONFIG_DEFAULT_DEVICE_TREE="mapu_sim"
 
 #
 # General setup
@@ -224,12 +230,14 @@ CONFIG_CMD_CRC32=y
 #
 # Device access commands
 #
+CONFIG_CMD_DM=y
+CONFIG_CMD_DEMO=y
 CONFIG_CMD_LOADB=y
 CONFIG_CMD_LOADS=y
 CONFIG_CMD_FLASH=y
 # CONFIG_CMD_NAND is not set
 # CONFIG_CMD_SF is not set
-# CONFIG_CMD_SPI is not set
+CONFIG_CMD_SPI=y
 # CONFIG_CMD_I2C is not set
 # CONFIG_CMD_USB is not set
 CONFIG_CMD_FPGA=y
@@ -284,7 +292,9 @@ CONFIG_SUPPORT_OF_CONTROL=y
 #
 # Device Tree Control
 #
-# CONFIG_OF_CONTROL is not set
+CONFIG_OF_CONTROL=y
+# CONFIG_OF_SEPARATE is not set
+CONFIG_OF_EMBED=y
 CONFIG_NET=y
 # CONFIG_NET_RANDOM_ETHADDR is not set
 # CONFIG_NETCONSOLE is not set
@@ -296,7 +306,16 @@ CONFIG_NET=y
 #
 # Generic Driver Options
 #
-# CONFIG_DM is not set
+CONFIG_DM=y
+CONFIG_DM_WARN=y
+CONFIG_DM_DEVICE_REMOVE=y
+CONFIG_DM_STDIO=y
+CONFIG_DM_SEQ_ALIAS=y
+# CONFIG_REGMAP is not set
+# CONFIG_DEVRES is not set
+CONFIG_SIMPLE_BUS=y
+CONFIG_CLK=y
+# CONFIG_SPL_CLK is not set
 # CONFIG_CPU is not set
 
 #
@@ -307,6 +326,9 @@ CONFIG_NET=y
 #
 # Demo for driver model
 #
+CONFIG_DM_DEMO=y
+# CONFIG_DM_DEMO_SIMPLE is not set
+# CONFIG_DM_DEMO_SHAPE is not set
 
 #
 # DFU support
@@ -316,15 +338,21 @@ CONFIG_NET=y
 #
 # GPIO Support
 #
+CONFIG_DWAPB_GPIO=y
+# CONFIG_LPC32XX_GPIO is not set
+# CONFIG_ROCKCHIP_GPIO is not set
+# CONFIG_VYBRID_GPIO is not set
 
 #
 # I2C support
 #
+# CONFIG_DM_I2C_COMPAT is not set
 # CONFIG_CROS_EC_KEYB is not set
 
 #
 # LED Support
 #
+# CONFIG_LED is not set
 
 #
 # Multifunction device drivers
@@ -332,10 +360,12 @@ CONFIG_NET=y
 # CONFIG_CROS_EC is not set
 # CONFIG_FSL_SEC_MON is not set
 # CONFIG_PCA9551_LED is not set
+# CONFIG_RESET is not set
 
 #
 # MMC Host controller Support
 #
+# CONFIG_DM_MMC is not set
 
 #
 # NAND Device Support
@@ -352,24 +382,31 @@ CONFIG_NET=y
 # SPI Flash Support
 #
 # CONFIG_SPI_FLASH is not set
+# CONFIG_DM_ETH is not set
 # CONFIG_PHYLIB is not set
 # CONFIG_NETDEVICES is not set
 
 #
 # PCI
 #
+# CONFIG_DM_PCI is not set
 
 #
 # Pin controllers
 #
+# CONFIG_PINCTRL is not set
 
 #
 # Power
 #
+# CONFIG_DM_PMIC is not set
+# CONFIG_DM_REGULATOR is not set
+# CONFIG_RAM is not set
 
 #
 # Real Time Clock
 #
+# CONFIG_DM_RTC is not set
 
 #
 # Serial drivers
@@ -384,6 +421,17 @@ CONFIG_NET=y
 #
 # SPI Support
 #
+# CONFIG_CADENCE_QSPI is not set
+CONFIG_DESIGNWARE_SPI=y
+# CONFIG_EXYNOS_SPI is not set
+# CONFIG_FSL_DSPI is not set
+# CONFIG_FSL_QSPI is not set
+# CONFIG_ICH_SPI is not set
+# CONFIG_ROCKCHIP_SPI is not set
+# CONFIG_TEGRA114_SPI is not set
+# CONFIG_TEGRA20_SFLASH is not set
+# CONFIG_TEGRA20_SLINK is not set
+# CONFIG_XILINX_SPI is not set
 # CONFIG_FSL_ESPI is not set
 # CONFIG_TI_QSPI is not set
 # CONFIG_DM_THERMAL is not set
@@ -401,6 +449,7 @@ CONFIG_NET=y
 # CONFIG_VIDEO_LCD_SSD2828 is not set
 # CONFIG_DISPLAY_PORT is not set
 # CONFIG_VIDEO_TEGRA124 is not set
+# CONFIG_VIDEO_BRIDGE is not set
 # CONFIG_PHYS_TO_BUS is not set
 
 #

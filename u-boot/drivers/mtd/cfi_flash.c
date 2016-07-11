@@ -334,20 +334,20 @@ void flash_write_cmd (flash_info_t * info, flash_sect_t sect,
 	flash_make_cmd (info, cmd, &cword);
 	switch (info->portwidth) {
 	case FLASH_CFI_8BIT:
-		debug ("fwc addr %p cmd %x %x 8bit x %d bit\n", addr, cmd,
-		       cword.c, info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+//		debug ("fwc addr %p cmd %x %x 8bit x %d bit\n", addr, cmd,
+//		       cword.c, info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		flash_write8(cword.c, addr);
 		break;
 	case FLASH_CFI_16BIT:
-		debug ("fwc addr %p cmd %x %4.4x 16bit x %d bit\n", addr,
-		       cmd, cword.w,
-		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+//		debug ("fwc addr %p cmd %x %4.4x 16bit x %d bit\n", addr,
+//		       cmd, cword.w,
+//		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		flash_write16(cword.w, addr);
 		break;
 	case FLASH_CFI_32BIT:
-		debug ("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n", addr,
-		       cmd, cword.l,
-		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+//		debug ("fwc addr %p cmd %x %8.8lx 32bit x %d bit\n", addr,
+//		       cmd, cword.l,
+//		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
 		flash_write32(cword.l, addr);
 		break;
 	case FLASH_CFI_64BIT:

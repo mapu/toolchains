@@ -18,7 +18,9 @@
 #include <fdtdec.h>
 #include <linux/compat.h>
 #include <asm/io.h>
+#ifndef CONFIG_MAPU
 #include <asm/arch/clock_manager.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,6 +110,10 @@ struct dw_spi_priv {
 	void *rx_end;
 };
 
+#ifdef CONFIG_MAPU
+static struct udevice *dw_spi;
+#endif
+
 static inline u32 dw_readl(struct dw_spi_priv *priv, u32 offset)
 {
 	return __raw_readl(priv->regs + offset);
@@ -192,6 +198,10 @@ static int dw_spi_probe(struct udevice *bus)
 	/* Basic HW init */
 	spi_hw_init(priv);
 
+	dw_spi = bus;
+
+	printf("\n DW SPI init DONE!\n");
+
 	return 0;
 }
 
@@ -213,6 +223,10 @@ static inline u32 tx_max(struct dw_spi_priv *priv)
 	 */
 	rxtx_gap = ((priv->rx_end - priv->rx) - (priv->tx_end - priv->tx)) /
 		(priv->bits_per_word >> 3);
+
+	debug("%s: tx_left = %d\ntx_room = %d\nrxtx_gap=%d\npriv->fifo_len=%d\n",
+	    __func__,
+	    tx_left, tx_room, rxtx_gap, priv->fifo_len);
 
 	return min3(tx_left, tx_room, (u32)(priv->fifo_len - rxtx_gap));
 }
@@ -239,6 +253,7 @@ static void dw_writer(struct dw_spi_priv *priv)
 				txw = *(u16 *)(priv->tx);
 		}
 		dw_writew(priv, DW_SPI_DR, txw);
+	  debug("%s: tx_max=%d\n", __func__, max);
 		debug("%s: tx=0x%02x\n", __func__, txw);
 		priv->tx += priv->bits_per_word >> 3;
 	}
@@ -292,6 +307,68 @@ static int poll_transfer(struct dw_spi_priv *priv)
 	return 0;
 }
 
+#ifdef CONFIG_MAPU
+static int dw_spi_xfer(int cs, unsigned int bitlen,
+           const void *dout, void *din, unsigned long flags)
+{
+  struct dw_spi_priv *priv = dev_get_priv(dw_spi);
+  const u8 *tx = dout;
+  u8 *rx = din;
+  int ret = 0;
+  u32 cr0 = 0;
+
+  /* spi core configured to do 8 bit transfers */
+  if (bitlen % 8) {
+    debug("Non byte aligned SPI transfer.\n");
+    return -1;
+  }
+
+  cr0 = (priv->bits_per_word - 1) | (priv->type << SPI_FRF_OFFSET) |
+    (priv->mode << SPI_MODE_OFFSET) |
+    (priv->tmode << SPI_TMOD_OFFSET);
+
+  if (rx && tx)
+    priv->tmode = SPI_TMOD_TR;
+  else if (rx)
+    priv->tmode = SPI_TMOD_RO;
+  else
+    priv->tmode = SPI_TMOD_TO;
+
+  cr0 &= ~SPI_TMOD_MASK;
+  cr0 |= (priv->tmode << SPI_TMOD_OFFSET);
+
+  priv->len = bitlen >> 3;
+  debug("%s: rx=%p tx=%p len=%d [bytes]\n", __func__, rx, tx, priv->len);
+
+  priv->tx = (void *)tx;
+  priv->tx_end = priv->tx + priv->len;
+  priv->rx = rx;
+  priv->rx_end = priv->rx + priv->len;
+
+  /* Disable controller before writing control registers */
+  spi_enable_chip(priv, 0);
+
+  debug("%s: cr0=%08x\n", __func__, cr0);
+  /* Reprogram cr0 only if changed */
+  if (dw_readw(priv, DW_SPI_CTRL0) != cr0)
+    dw_writew(priv, DW_SPI_CTRL0, cr0);
+
+  /*
+   * Configure the desired SS (slave select 0...3) in the controller
+   * The DW SPI controller will activate and deactivate this CS
+   * automatically. So no cs_activate() etc is needed in this driver.
+   */
+  dw_writel(priv, DW_SPI_SER, 1 << cs);
+
+  /* Enable controller after writing control registers */
+  spi_enable_chip(priv, 1);
+
+  /* Start transfer in a polling loop */
+  ret = poll_transfer(priv);
+
+  return ret;
+}
+#else
 static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		       const void *dout, void *din, unsigned long flags)
 {
@@ -355,6 +432,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	return ret;
 }
+#endif
 
 static int dw_spi_set_speed(struct udevice *bus, uint speed)
 {
@@ -369,7 +447,11 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	spi_enable_chip(priv, 0);
 
 	/* clk_div doesn't support odd number */
+#ifdef CONFIG_MAPU_SIM || CONFIG_MAPU_CHIP
+	clk_div = 41200000 / speed;
+#else
 	clk_div = cm_get_spi_controller_clk_hz() / speed;
+#endif
 	clk_div = (clk_div + 1) & 0xfffe;
 	dw_writel(priv, DW_SPI_BAUDR, clk_div);
 

@@ -275,6 +275,19 @@ static int check_reserved(struct gpio_desc *desc, const char *func)
  * GPIO API used in U-Boot. The request is forwarded to particular
  * GPIO driver. Returns 0 on success, negative value on error.
  */
+#ifdef CONFIG_MAPU
+int gpio_direction_input(unsigned gpio)
+{
+  struct udevice *dev;
+  int ret;
+
+  ret = uclass_first_device(UCLASS_GPIO, &dev);
+  if (ret)
+    return ret;
+
+  return gpio_get_ops(dev)->direction_input(dev, gpio);
+}
+#else
 int gpio_direction_input(unsigned gpio)
 {
 	struct gpio_desc desc;
@@ -289,7 +302,7 @@ int gpio_direction_input(unsigned gpio)
 
 	return gpio_get_ops(desc.dev)->direction_input(desc.dev, desc.offset);
 }
-
+#endif
 /**
  * gpio_direction_output() - [COMPAT] Set GPIO direction to output and set value
  * gpio:	GPIO number
@@ -299,6 +312,20 @@ int gpio_direction_input(unsigned gpio)
  * GPIO API used in U-Boot. The request is forwarded to particular
  * GPIO driver. Returns 0 on success, negative value on error.
  */
+#ifdef CONFIG_MAPU
+int gpio_direction_output(unsigned gpio, int value)
+{
+  struct udevice *dev;
+  int ret;
+
+  ret = uclass_first_device(UCLASS_GPIO, &dev);
+  if (ret)
+    return ret;
+
+  return gpio_get_ops(dev)->direction_output(dev,
+              gpio, value);
+}
+#else
 int gpio_direction_output(unsigned gpio, int value)
 {
 	struct gpio_desc desc;
@@ -314,16 +341,16 @@ int gpio_direction_output(unsigned gpio, int value)
 	return gpio_get_ops(desc.dev)->direction_output(desc.dev,
 							desc.offset, value);
 }
-
+#endif
 int dm_gpio_get_value(struct gpio_desc *desc)
 {
 	int value;
 	int ret;
-
+#ifndef CONFIG_MAPU
 	ret = check_reserved(desc, "get_value");
 	if (ret)
 		return ret;
-
+#endif
 	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
 
 	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
@@ -332,11 +359,11 @@ int dm_gpio_get_value(struct gpio_desc *desc)
 int dm_gpio_set_value(struct gpio_desc *desc, int value)
 {
 	int ret;
-
+#ifndef CONFIG_MAPU
 	ret = check_reserved(desc, "set_value");
 	if (ret)
 		return ret;
-
+#endif
 	if (desc->flags & GPIOD_ACTIVE_LOW)
 		value = !value;
 	gpio_get_ops(desc->dev)->set_value(desc->dev, desc->offset, value);
@@ -387,17 +414,32 @@ int dm_gpio_set_dir(struct gpio_desc *desc)
  * GPIO driver. Returns the value of the GPIO pin, or negative value
  * on error.
  */
+#ifdef CONFIG_MAPU
 int gpio_get_value(unsigned gpio)
 {
 	int ret;
 
 	struct gpio_desc desc;
 
-	ret = gpio_to_device(gpio, &desc);
+	ret = uclass_first_device(UCLASS_GPIO, &(desc.dev));
 	if (ret)
 		return ret;
+	desc.offset = gpio;
 	return dm_gpio_get_value(&desc);
 }
+#else
+int gpio_get_value(unsigned gpio)
+{
+  int ret;
+
+  struct gpio_desc desc;
+
+  ret = gpio_to_device(gpio, &desc);
+  if (ret)
+    return ret;
+  return dm_gpio_get_value(&desc);
+}
+#endif
 
 /**
  * gpio_set_value() - [COMPAT] Configure logical value on GPIO pin
@@ -408,16 +450,30 @@ int gpio_get_value(unsigned gpio)
  * GPIO API used in U-Boot. The request is forwarded to particular
  * GPIO driver. Returns 0 on success, negative value on error.
  */
+#ifdef CONFIG_MAPU
 int gpio_set_value(unsigned gpio, int value)
 {
 	struct gpio_desc desc;
 	int ret;
 
-	ret = gpio_to_device(gpio, &desc);
-	if (ret)
-		return ret;
+  ret = uclass_first_device(UCLASS_GPIO, &(desc.dev));
+  if (ret)
+    return ret;
+  desc.offset = gpio;
 	return dm_gpio_set_value(&desc, value);
 }
+#else
+int gpio_set_value(unsigned gpio, int value)
+{
+  struct gpio_desc desc;
+  int ret;
+
+  ret = gpio_to_device(gpio, &desc);
+  if (ret)
+    return ret;
+  return dm_gpio_set_value(&desc, value);
+}
+#endif
 
 const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
 {

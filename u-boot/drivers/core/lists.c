@@ -151,7 +151,8 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 	int result = 0;
 	int ret = 0;
 
-	dm_dbg("bind node %s\n", fdt_get_name(blob, offset, NULL));
+	//dm_dbg("bind node %s\n", fdt_get_name(blob, offset, NULL));
+  dm_warn("bind node %s\n", fdt_get_name(blob, offset, NULL));
 	if (devp)
 		*devp = NULL;
 	for (entry = driver; entry != driver + n_ents; entry++) {

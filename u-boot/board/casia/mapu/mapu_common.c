@@ -33,6 +33,11 @@
 #include <asm/arch/dma.h>
 #include <asm/armv7.h>
 
+
+#include "dm/uclass.h"
+#include "dm/device.h"
+
+
 static struct systimer *systimer_base = (struct systimer *)V2M_TIMER01;
 extern void apc_init(void);
 
@@ -102,6 +107,20 @@ int board_init(void)
 	mapu_timer_init();
 	mapu_dma_init();  // dma init
 	apc_init();
+
+	/*
+	 * spi test
+	 */
+	struct udevice *dev;
+
+	char out[] = "out";
+	char in[20];
+	int ret = spi_xfer(0, 32, out, in, 0);
+	printf("\nAfter spi_xfer ret=%d\n", ret);
+	ret = gpio_direction_output(0, 1);
+  printf("\nAfter gpio_direction_output ret=%d\n", ret);
+  ret = gpio_direction_input(0, 1);
+  printf("\nAfter gpio_direction_input ret=%d\n", ret);
 	return 0;
 }
 

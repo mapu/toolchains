@@ -167,6 +167,8 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb
+	
+dtb-$(CONFIG_MAPU_SIM) += mapu_sim.dtb
 
 targets += $(dtb-y)
 

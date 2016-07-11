@@ -82,18 +82,35 @@ void spi_release_bus(struct spi_slave *slave)
 	if (ops->release_bus)
 		ops->release_bus(dev);
 }
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+#ifdef CONFIG_MAPU
+int spi_xfer(int cs, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {
-	struct udevice *dev = slave->dev;
-	struct udevice *bus = dev->parent;
+	struct udevice *bus;
+	int ret;
+	ret = uclass_get_device( UCLASS_SPI, 0, &bus);
+
+	if (ret)
+	  return ret;
 
 	if (bus->uclass->uc_drv->id != UCLASS_SPI)
 		return -EOPNOTSUPP;
 
-	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
+	return spi_get_ops(bus)->xfer(cs, bitlen, dout, din, flags);
 }
+#else
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+       const void *dout, void *din, unsigned long flags)
+{
+  struct udevice *dev = slave->dev;
+  struct udevice *bus = dev->parent;
+
+  if (bus->uclass->uc_drv->id != UCLASS_SPI)
+    return -EOPNOTSUPP;
+
+  return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
+}
+#endif
 
 static int spi_post_bind(struct udevice *dev)
 {
