@@ -121,6 +121,8 @@ int board_init(void)
   printf("\nAfter gpio_direction_output ret=%d\n", ret);
   ret = gpio_direction_input(0, 1);
   printf("\nAfter gpio_direction_input ret=%d\n", ret);
+  ret = i2c_probe(0);
+  printf("\nAfter i2c_probe ret=%d\n", ret);
 	return 0;
 }
 

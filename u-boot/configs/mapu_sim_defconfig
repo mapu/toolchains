@@ -156,7 +156,6 @@ CONFIG_MAPU_SIM=y
 # ARM debug
 #
 # CONFIG_DEBUG_LL is not set
-# CONFIG_DEBUG_LL_UART_8250 is not set
 CONFIG_DEFAULT_DEVICE_TREE="mapu_sim"
 
 #
@@ -238,7 +237,7 @@ CONFIG_CMD_FLASH=y
 # CONFIG_CMD_NAND is not set
 # CONFIG_CMD_SF is not set
 CONFIG_CMD_SPI=y
-# CONFIG_CMD_I2C is not set
+CONFIG_CMD_I2C=y
 # CONFIG_CMD_USB is not set
 CONFIG_CMD_FPGA=y
 

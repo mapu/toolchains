@@ -43,6 +43,7 @@
 	EXPORT_FUNC(strcmp, int, strcmp, const char *cs, const char *ct)
 #if defined(CONFIG_CMD_I2C) && \
 		(!defined(CONFIG_DM_I2C) || defined(CONFIG_DM_I2C_COMPAT))
+	EXPORT_FUNC(i2c_probe, int, i2c_probe, uint_8)
 	EXPORT_FUNC(i2c_write, int, i2c_write, uchar, uint, int , uchar * , int)
 	EXPORT_FUNC(i2c_read, int, i2c_read, uchar, uint, int , uchar * , int)
 #else
