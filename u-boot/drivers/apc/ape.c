@@ -46,12 +46,11 @@ int32_t ape_dma_wait(uint32_t group, uint32_t cpuid) {
   uint32_t mask = 1UL << group;
   writel(mask, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryMask));
   // Mask query does not work well on real chip
-  /*
   do {
-    writel(DMAQ_OR, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryType));
-  } while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus)) & mask == 0);
-  */
-  while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueueNum)) != MAX_NUM_DMA);
+    ;//writel(DMAQ_OR, (uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryType));
+  } while ((readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueryStatus)) & mask) == 0);
+
+  //while (readl((uint32_t)&(ape_cores[cpuid]->csu_if.DMAQueueNum)) != MAX_NUM_DMA);
   return 0;
 }
 
