@@ -376,6 +376,7 @@ static int dw_i2c_probe(struct i2c_adapter *adap, u8 dev)
 	if (ret)
 		dw_i2c_init(adap, adap->speed, adap->slaveaddr);
 
+  printf("i2c type info: %#x\n", readl(0x50a00000+0xfc));
 	return ret;
 }
 

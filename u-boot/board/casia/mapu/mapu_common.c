@@ -36,7 +36,7 @@
 
 #include "dm/uclass.h"
 #include "dm/device.h"
-
+#include "asm-generic/gpio.h"
 
 static struct systimer *systimer_base = (struct systimer *)V2M_TIMER01;
 extern void apc_init(void);
@@ -96,6 +96,58 @@ static inline void delay(ulong loops)
 		"bne 1b" : "=r" (loops) : "0" (loops));
 }
 
+/*
+ * Peripheral Test
+ */
+
+void peri_test(void)
+{
+  /*
+   * spi test
+   */
+  struct udevice *dev;
+  char out[] = "out";
+  char in[20];
+  int ret = spi_xfer(0, 32, out, in, 0);
+  printf("\nAfter spi_xfer ret=%d\n", ret);
+
+  /*
+   * gpio test
+   */
+  struct gpio_desc desc;
+  ret = dm_gpio_lookup_name("porta0", &desc);
+  printf("\nAfter dm_gpio_lookup_name ret=%d\n", ret);
+  ret = dm_gpio_request(&desc, "dw_test");
+  printf("\nAfter dm_gpio_request ret=%d\n", ret);
+  ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+  printf("\nAfter dm_gpio_set_dir_flags ret=%d\n", ret);
+  ret = dm_gpio_set_value(&desc, 1);
+  printf("\nAfter dm_gpio_set_value ret=%d\n", ret);
+  ret = gpio_direction_output(0, 1);
+  printf("\nAfter gpio_direction_output ret=%d\n", ret);
+  ret = gpio_direction_input(0);
+  printf("\nAfter gpio_direction_input ret=%d\n", ret);
+
+  ret = dm_gpio_lookup_name("porta1", &desc);
+  printf("\nAfter dm_gpio_lookup_name ret=%d\n", ret);
+  ret = dm_gpio_request(&desc, "prota");
+  printf("\nAfter dm_gpio_request ret=%d\n", ret);
+  ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
+  printf("\nAfter dm_gpio_set_dir_flags ret=%d\n", ret);
+  ret = dm_gpio_set_value(&desc, 1);
+  printf("\nAfter dm_gpio_set_value ret=%d\n", ret);
+  ret = gpio_direction_output(1, 1);
+  printf("\nAfter gpio_direction_output ret=%d\n", ret);
+  ret = gpio_direction_input(1);
+  printf("\nAfter gpio_direction_input ret=%d\n", ret);
+
+  /*
+   * i2c test
+   */
+  ret = i2c_probe(0);
+  printf("\nAfter i2c_probe ret=%d\n", ret);
+}
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
@@ -108,21 +160,8 @@ int board_init(void)
 	mapu_dma_init();  // dma init
 	apc_init();
 
-	/*
-	 * spi test
-	 */
-	struct udevice *dev;
+	peri_test();
 
-	char out[] = "out";
-	char in[20];
-	int ret = spi_xfer(0, 32, out, in, 0);
-	printf("\nAfter spi_xfer ret=%d\n", ret);
-	ret = gpio_direction_output(0, 1);
-  printf("\nAfter gpio_direction_output ret=%d\n", ret);
-  ret = gpio_direction_input(0, 1);
-  printf("\nAfter gpio_direction_input ret=%d\n", ret);
-  ret = i2c_probe(0);
-  printf("\nAfter i2c_probe ret=%d\n", ret);
 	return 0;
 }
 

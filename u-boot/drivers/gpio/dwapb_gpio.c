@@ -49,14 +49,11 @@ static int dwapb_gpio_direction_output(struct udevice *dev, unsigned pin,
 				     int val)
 {
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
-
 	setbits_le32(plat->base + GPIO_SWPORTA_DDR, 1 << pin);
-
 	if (val)
 		setbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
 	else
 		clrbits_le32(plat->base + GPIO_SWPORTA_DR, 1 << pin);
-
 	return 0;
 }
 
@@ -96,6 +93,8 @@ static int gpio_dwapb_probe(struct udevice *dev)
 
 	priv->gpio_count = plat->pins;
 	priv->bank_name = plat->name;
+
+	printf("gpio version info: %#x\n", readl(0x50800000+0x6c));
 
 	return 0;
 }
