@@ -56,7 +56,8 @@ void initPHY() {
 #endif
 #ifdef NEED_DDR
 extern const unsigned int DDR_PHY_CONF[140];
-extern const unsigned int DDR_CTRL_CONF[162];
+extern const unsigned int DDR_CH_CTRL_CONF[162];
+extern const unsigned int DDR_SYS_CTRL_CONF[162];
 void initDDR(unsigned char idx);
 void initDDR(unsigned char idx) {
   static const unsigned int DDR_CTRL_BASE[3] = {
@@ -82,7 +83,11 @@ void initDDR(unsigned char idx) {
   *(gic_dist_base + GIC_DIST_ENABLE_SET / 4 + INTR_TIMERS / 32) = 1 << (INTR_TIMERS & 0x1F);
   
   volatile unsigned int *ddr_reg_base = (unsigned int *)(DDR_CTRL_BASE[idx]);
-  DMAtrans((unsigned int)DDR_CTRL_CONF,(unsigned int)ddr_reg_base, 162, TR_W_32, TR_W_32);
+  if (idx == 0) //SYS DDR
+    DMAtrans((unsigned int)DDR_SYS_CTRL_CONF,(unsigned int)ddr_reg_base, 162, TR_W_32, TR_W_32);
+  else  //CH DDR
+    DMAtrans((unsigned int)DDR_CH_CTRL_CONF,(unsigned int)ddr_reg_base, 162, TR_W_32, TR_W_32);
+
   volatile unsigned int *ddr_phy_reg_base = ddr_reg_base + 0x100 + 128;
   //DMAtrans((unsigned int)&DDR_PHY_CONF[128], (unsigned int)ddr_phy_reg_base, 12, TR_W_32, TR_W_32);
   ddr_phy_reg_base = ddr_reg_base + 0x100;
