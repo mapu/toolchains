@@ -29,20 +29,25 @@ class SimLogWidget(QTextEdit):
         Refresh the TextEdit every 1000ms for updated log
         '''
         string = self.log
-        self.clear()
-        defaultColor = self.textColor()
-        num = string.count("\n")
-        while num != 0:
-            pos = string.indexOf("\n")
-            str1 = string.left(pos)
-            string = string.right(string.size() - pos - 1)
-            if str1.contains("fatal") == True:
-                self.setTextColor(QColor("red"))
-                self.append(str1)
-                self.setTextColor(defaultColor)
-            else:
-                self.append(str1)
-            num -= 1
+        #self.clear()       
+        if str(string).find("fatal") == True:
+            defaultColor = self.textColor()
+            num = string.count("\n")
+            while num != 0:
+                pos = string.indexOf("\n")
+                str1 = string.left(pos)
+                string = string.right(string.size() - pos - 1)
+                if str1.contains("fatal") == True:
+                    self.setTextColor(QColor("red"))
+                    self.append(str1)
+                    self.setTextColor(defaultColor)
+                else:
+                    self.append(str1)
+                num -= 1
+	else:
+	    self.append(string)
+	    
+        self.log = ""
                     
     def updateSwitch(self, state):
         '''
