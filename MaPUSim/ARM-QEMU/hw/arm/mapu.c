@@ -61,10 +61,12 @@ enum
 	MaPU_UART0,
 	MaPU_UART1,
 	MaPU_UART2,
+	MaPU_I2C,
 	MaPU_KEYBOARD,
 	MaPU_MOUSE,
 	MaPU_GMAC,
 	MaPU_SDC,
+	MaPU_SSI,
 	MaPU_GICCPU,
 	MaPU_GICDIS,
 	MaPU_DDR3REG,
@@ -78,9 +80,11 @@ static hwaddr MaPUboard_map[] =
 		[MaPU_VIF] = 0x50500000,
 		[MaPU_UART0] = 0x50920000, /*Match MaPU chip*/
 		[MaPU_UART1] = 0x50910000,
-		[MaPU_UART2] = 0x50920000, [MaPU_KEYBOARD] = 0x50a20000,
+		[MaPU_UART2] = 0x50920000,
+	  [MaPU_I2C] = 0x50a00000,
+	  [MaPU_KEYBOARD] = 0x50a20000,
 		[MaPU_MOUSE] = 0x50a30000, [MaPU_GMAC] = 0x50c00000,
-		[MaPU_SDC] = 0x50d00000,
+		[MaPU_SDC] = 0x50d00000, [MaPU_SSI] = 0x50ff0000,
 		[MaPU_GICCPU] = 0x547f0000, [MaPU_GICDIS] = 0x547f1000,
 		[MaPU_DDR3REG] = 0x54800000, [MaPU_SDRAM] = 0x60000000};
 
@@ -307,6 +311,13 @@ static void mapu_init(MachineState *mms)
     smc91c111_init(&nd_table[0], MaPUboard_map[MaPU_GMAC], pic[0]);
     fprintf(stderr, "\tmapu network interface init done!\n");
   }
+
+  sysbus_create_varargs("dwssi", MaPUboard_map[MaPU_SSI], pic[6], NULL);
+  fprintf(stderr, "\tmapu dwssi init done!\n");
+
+  sysbus_create_varargs("dw_i2c", MaPUboard_map[MaPU_I2C], pic[24], NULL);
+  fprintf(stderr, "\tmapu dw_i2c init done!\n");
+
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;
 	mapu_binfo.kernel_cmdline = mms->kernel_cmdline;
