@@ -73,7 +73,7 @@ static inline void dw_i2c_raise_interrupt(DWI2CState *s)
 		s->ic_raw_intr_stat &= 0xf7;
 	s->ic_intr_stat=s->ic_raw_intr_stat & s->ic_intr_mask;
 	if(s->ic_intr_stat)
-	        qemu_set_irq(s->irq, 1);
+		    qemu_set_irq(s->irq, 1);
 	    else
 	        qemu_set_irq(s->irq, 0);
 }
@@ -81,10 +81,11 @@ static inline void dw_i2c_raise_interrupt(DWI2CState *s)
 static void dw_i2c_data_receive(void *opaque)
 {
     DWI2CState *s = (DWI2CState *)opaque;
-    int ret;
+    int ret=0;
     if (s->ic_enable &&(s->ic_cmd_data&0x100)){
     	ret = i2c_recv(s->bus);
     	fifo8_push(&s->rx_fifo,ret);
+
     }
     dw_i2c_raise_interrupt(s);
 }
@@ -95,13 +96,14 @@ static void dw_i2c_data_send(void *opaque)
     while(fifo8_num_used(&s->tx_fifo))
     	i2c_send(s->bus,fifo8_pop(&s->tx_fifo));
     dw_i2c_raise_interrupt(s);
-    if (!(s->ic_cmd_data&0x200))
-    	while(s->ic_enable){
-    		while(fifo8_num_used(&s->tx_fifo))
-    		    	i2c_send(s->bus,fifo8_pop(&s->tx_fifo));
-    		dw_i2c_raise_interrupt(s);
-    	}
 
+    if (!(s->ic_cmd_data&0x200))
+    	while(fifo8_num_used(&s->tx_fifo)){
+
+    		    	i2c_send(s->bus,fifo8_pop(&s->tx_fifo));
+
+    	}
+    dw_i2c_raise_interrupt(s);
 }
 
 static uint64_t dw_i2c_read(void *opaque, hwaddr offset,
@@ -124,7 +126,7 @@ static uint64_t dw_i2c_read(void *opaque, hwaddr offset,
         value = s->ic_hs_maddr;
         break;
     case 0x10:
-        value =fifo8_pop(&s->tx_fifo);
+        value =fifo8_pop(&s->rx_fifo);
         dw_i2c_raise_interrupt(s);
         break;
     case 0x14:
@@ -475,13 +477,14 @@ static int dw_i2c_realize(SysBusDevice *sbd)
     DWI2CState *s = DW_I2C(dev);
 
     memory_region_init_io(&s->iomem, OBJECT(s), &dw_i2c_ops, s,
-                          TYPE_DW_I2C, 0);
+                          TYPE_DW_I2C, 0x1000);
     sysbus_init_mmio(sbd, &s->iomem);
     sysbus_init_irq(sbd, &s->irq);
     s->bus = i2c_init_bus(dev, "i2c");
     dw_i2c_reset(s);
     fifo8_create(&s->tx_fifo, 8);
     fifo8_create(&s->rx_fifo, 8);
+
     return 0;
 }
 
