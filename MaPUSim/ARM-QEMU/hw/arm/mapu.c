@@ -58,6 +58,7 @@ enum
 	MaPU_WDT,
 	MaPU_RTC,
 	MaPU_VIF,
+	MaPU_GPIO,
 	MaPU_UART0,
 	MaPU_UART1,
 	MaPU_UART2,
@@ -77,7 +78,7 @@ static hwaddr MaPUboard_map[] =
 { [MaPU_NOR_FLASH]= 0, [MaPU_SRAM] = 0x20000000, [MaPU_SHAREMEM] = 0x40400000,
 		[MaPU_APC_REG] = 0x41000000, [MaPU_DMA] = 0x50000000,
 		[MaPU_TIMER] = 0x50400000, [MaPU_WDT] = 0x50440000,[MaPU_RTC] = 0x50480000,
-		[MaPU_VIF] = 0x50500000,
+		[MaPU_VIF] = 0x50500000,[MaPU_GPIO]=0x50800000,
 		[MaPU_UART0] = 0x50920000, /*Match MaPU chip*/
 		[MaPU_UART1] = 0x50910000,
 		[MaPU_UART2] = 0x50920000,
@@ -317,7 +318,8 @@ static void mapu_init(MachineState *mms)
 
   sysbus_create_varargs("dw_i2c", MaPUboard_map[MaPU_I2C], pic[24], NULL);
   fprintf(stderr, "\tmapu dw_i2c init done!\n");
-
+  sysbus_create_varargs("dw_gpio", MaPUboard_map[MaPU_GPIO], pic[16], NULL);
+  fprintf(stderr, "\tmapu dw_gpio init done!\n");
 	mapu_binfo.ram_size = mms->ram_size;
 	mapu_binfo.kernel_filename = mms->kernel_filename;
 	mapu_binfo.kernel_cmdline = mms->kernel_cmdline;
