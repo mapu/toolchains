@@ -170,10 +170,9 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_DESIGNWARE_ETH
-	setenv("ethaddr", "74:D4:35:C0:C5:C9");
+	//setenv("ethaddr", "74:D4:35:C0:C5:C9");
 	u32 interface = PHY_INTERFACE_MODE_MII;
-	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
-				interface) >= 0)
+	if (designware_initialize( CONFIG_MAPU_GMAC_BASE, interface) >= 0)
 		rc++;
 #endif
 	return rc;

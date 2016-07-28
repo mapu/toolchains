@@ -179,6 +179,12 @@
 #define CONFIG_SYS_I2C_BUS_MAX    1
 #define IC_CLK        50
 
+/*
+ * Ethernet
+ */
+#define CONFIG_DESIGNWARE_ETH
+#define CONFIG_MAPU_GMAC_BASE 0x50c00000
+
 /* Command line configuration */
 #define CONFIG_MENU_SHOW
 #define CONFIG_CMD_BOOTMENU
