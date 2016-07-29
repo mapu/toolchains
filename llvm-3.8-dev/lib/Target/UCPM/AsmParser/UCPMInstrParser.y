@@ -9,6 +9,7 @@ static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *f, *unit, *ut, *b, *md, *ms, *
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
+llvm::raw_ostream &OS = errs();
 %}
 
 %code requires {
@@ -108,6 +109,7 @@ slot: mr012slot condflag {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
 hmacro: IDENTIFIER {ADDOPERAND(HMacro, $1, @$.S, @$.E);};
 hmacro: IDENTIFIER LPAREN RPAREN {ADDOPERAND(HMacro, $1, @$.S, @$.E); ADDOPERAND(Imm, 1, @$.S, @$.E);};
+
 mr012slot: R0 DOT r0inst {
   switch ($3) {
   case 0:
@@ -131,13 +133,15 @@ mr012slot: R0 DOT r0inst {
                MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister(0),
                @$.S, @$.E);
     break;
+//yangl
   case 3:
-    ADDOPERAND(Opc, UCPM::MR0ToMACC, @$.S, @$.E);
+    ADDOPERAND(Opc, UCPM::MR0ToDestCom, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
-    Operands.push_back(nullptr);
-    condpos = Operands.size();
+    OS<<"hahaha"<<"\n";
+    //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
+    //Operands.push_back(nullptr);
+    //condpos = Operands.size();
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     ADDOPERAND(Reg,
                MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister(0),
@@ -258,10 +262,13 @@ fmacslot: fmacinst | fmacctrl | fmrinst {
 };
 seqslot: reinst | lpinst | jmpinst | mpustop ;
 
-r0inst: r1inst {$$ = $1;} |
+//yangl
+r0inst: mindexn ASSIGNTO r0dest {$$ = $3} ;
+/*r0inst: r1inst {$$ = $1;} |
         mindexn ASSIGNTO r0dest {$$ = $3;} | 
         mindexi ASSIGNTO r0dest {$$ = $3;} |
         mindexs ASSIGNTO r0dest {$$ = $3;} ;
+*/
 r1inst: r2inst {$$ = $1;} |
         mindexn ASSIGNTO r1destp {$$ = $3;} ;
 r1inst: mindexi ASSIGNTO r1destp {$$ = $3;} | 
@@ -278,6 +285,7 @@ r3inst: mindexn ASSIGNTO r3dest _flag KG flag_ {
   $$ = 0;
   ADDOPERAND(Opc, UCPM::MR3ToBIU, @$.S, @$.E);
 } ;
+
 mr012slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R1 DOT error { llvmerror(&@3, "Incorrect M.r1 inst."); YYABORT;} |
            R2 DOT error { llvmerror(&@3, "Incorrect M.r2 inst."); YYABORT;};
@@ -1056,6 +1064,10 @@ condexp: _flag trueflag flag_ {ADDOPERAND(Opc, UCPM::JUMP, @-2.S, @$.E);}|
 mpustop: MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
 /*Destination types: 0:biu,1:unit,2:m */
+//yangl
+r0dest: ialut | imact | falut | fmact ;
+
+
 r2destp: r2dest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3 + 1, @3.S, @3.E);};
 r2dest : ialut | imact | falut | fmact ;
 r1destp : r1dest {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
@@ -1207,7 +1219,8 @@ cflag: C ;
 ncflag: NEG C ;
 condflag: ALPHA _flag cflag flag_ {if (condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::C, @$.S, @$.E));}
 |         ALPHA _flag ncflag flag_ {if (condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NC, @$.S, @$.E));}
-|         {if (condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NOC, @$.S, @$.E));};
+//|         {if (condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NOC, @$.S, @$.E));};
+| ;
 
 _flag: LPAREN {FlagS = @$.E;};
 flag_: RPAREN {FlagE = @$.S;};

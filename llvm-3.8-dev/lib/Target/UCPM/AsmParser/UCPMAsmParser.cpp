@@ -340,7 +340,9 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
     os.push_back(SharedOperand(std::move(Operands[i])));
 
   ops = &os;
+  int OprSize = Operands.size();
 
+  int RegNum = 0;
   unsigned j = 0;
   do {
     for(unsigned i=0; ops && i < ops->size(); i++) {
@@ -362,6 +364,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
 
       case AsmRegister:
         MO = MCOperand::createReg(op->getReg());
+        RegNum = op->getReg();
         CurInst->addOperand(MO);
         Inst->addOperand(MO);
         break;

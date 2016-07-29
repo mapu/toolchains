@@ -59,6 +59,9 @@ public:
   unsigned getMACCTIEncoding(const MCInst &MI, unsigned OpNo,
                              SmallVectorImpl<MCFixup> &Fixups,
                              const MCSubtargetInfo &STI) const;
+  unsigned getMR0DestTEncoding(const MCInst &MI, unsigned OpNo,
+                               SmallVectorImpl<MCFixup> &Fixups,
+                               const MCSubtargetInfo &STI) const;
   
   unsigned getSHUTEncoding(const MCInst &MI, unsigned OpNo,
                            SmallVectorImpl<MCFixup> &Fixups,
@@ -96,6 +99,8 @@ MCCodeEmitter *llvm::createUCPMMCCodeEmitter(const MCInstrInfo &MCII,
   return new UCPMMCCodeEmitter(Ctx);
 }
 
+/// getMachineOpValue - Return binary encoding of operand. If the machine
+/// operand requires relocation, record the relocation and return zero.
 unsigned UCPMMCCodeEmitter::getMachineOpValue(const MCInst &MI,
                               const MCOperand &MO,
                               SmallVectorImpl<MCFixup> &Fixups,
@@ -137,6 +142,18 @@ getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
   unsigned IPathBits = getMachineOpValue(MI, MI.getOperand(OpNo+2), Fixups, STI);
   
   return UnitBits | (TPortBits << 2) | (IPathBits << 4);
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR0DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
 }
 
 unsigned UCPMMCCodeEmitter::

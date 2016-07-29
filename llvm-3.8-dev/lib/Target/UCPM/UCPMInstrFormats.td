@@ -26,6 +26,13 @@ def MACCTI : Operand<i32> {
   let EncoderMethod = "getMACCTIEncoding";
   let DecoderMethod = "DecodeMACCTI";
 }
+//yangl
+def MR0DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR0Dest, TPort);
+  let EncoderMethod = "getMR0DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
 def SHUT : Operand<i32> {
   let PrintMethod = "printSHUT";
   let MIOperandInfo = (ops SHU, TPort);
@@ -77,6 +84,13 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
                             header, "$d$c", "->", lclause, pattern> {
   bits<9>  d;
   bits<2>  c;
+}
+//yangl
+class myAssignInstr<dag ins, string header, string lclause, Operand DestTy,
+                  list<dag> pattern = []>
+        : CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<4>  d;
 }
 
 class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
