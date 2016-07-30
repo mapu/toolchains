@@ -21,8 +21,8 @@ class UCPMReg<bits<9> num, string n > : Register<n> {
 
 foreach i = 0-127 in 
   def M#i   : UCPMReg<i, "M["#i#"]" >, DwarfRegNum< [i] >;
-def MIPP : UCPMReg<128, "M[I++]">, DwarfRegNum<[128]>;
-def MSPP : UCPMReg<256, "M[S++]">, DwarfRegNum<[256]>;
+def MIPP : UCPMReg<2, "M[I++]">, DwarfRegNum<[128]>;
+def MSPP : UCPMReg<1, "M[S++]">, DwarfRegNum<[256]>;
 
 def MReg : RegisterClass<"UCPMReg", [v16i32], 32,
                          (add (sequence "M%u", 0, 127), MIPP, MSPP)>;
@@ -43,7 +43,15 @@ def MACC : RegisterClass<"UCPMReg", [v16i32], 32,
 			 (add IALU, IMAC, FALU, FMAC)>;
 
 //yangl
-def MR0Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IALU, IMAC, SHU0)>;//??? BIU is undifined yet
+			 
+def BIU0  : UCPMReg<3, "BIU0">, DwarfRegNum<[142]>;
+def BIU1  : UCPMReg<3, "BIU1">, DwarfRegNum<[143]>;
+def BIU2  : UCPMReg<3, "BIU2">, DwarfRegNum<[144]>;
+
+def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
+                          (sequence "BIU%u", 0, 2)>;
+			  
+def MR0Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IALU, IMAC, SHU0, BIU0)>;
 
 def T0  : UCPMReg<0, "T0">, DwarfRegNum<[138]>;
 def T1  : UCPMReg<1, "T1">, DwarfRegNum<[139]>;
@@ -62,13 +70,6 @@ def TSQ : UCPMReg<8,  "TSQ">;
 
 def TEPort : RegisterClass<"UCPMReg", [v16i32], 32,
                            (add (sequence "T%u", 0, 3), TBB, TBH, TBW, TBD, TSQ)>;
-
-def BIU0  : UCPMReg<0, "BIU0">, DwarfRegNum<[142]>;
-def BIU1  : UCPMReg<1, "BIU1">, DwarfRegNum<[143]>;
-def BIU2  : UCPMReg<2, "BIU2">, DwarfRegNum<[144]>;
-
-def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
-                          (sequence "BIU%u", 0, 2)>;
 
 def COMB : UCPMReg<0, "COMB">;
 

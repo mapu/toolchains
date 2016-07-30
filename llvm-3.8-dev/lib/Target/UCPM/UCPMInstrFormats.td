@@ -86,7 +86,7 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
   bits<2>  c;
 }
 //yangl
-class myAssignInstr<dag ins, string header, string lclause, Operand DestTy,
+class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
         : CommonAssignInstr<ins, (outs DestTy: $d),
                             header, "$d", "->", lclause, pattern> {

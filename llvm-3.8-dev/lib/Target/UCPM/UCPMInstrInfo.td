@@ -28,15 +28,18 @@ class MRToDest<string header, bits<4> slotid, bits<2> dest, Operand DestTy>
   let Inst{1-0}   = dest;
 }
 //yangl
-class myMRToDest<string header, bits<4> slotid, bits<4> mregid, Operand DestTy>
-      : myAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
+class UCPMRToDest<string header, bits<4> slotid, bits<4> mregid, Operand DestTy>
+      : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
   let Inst{47-44} = slotid;
   let Inst{14-11} = mregid;
 }
 
-
-def MR0ToDestCom : myMRToDest<"R0.", 0b0000, 0b0110, MR0DestT> {
+def MR0ToDestCom : UCPMRToDest<"R0.", 0b0000, 0b0110, MR0DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR0ToDestSI : UCPMRToDest<"R0.", 0b0000, 0b1110, MR0DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
