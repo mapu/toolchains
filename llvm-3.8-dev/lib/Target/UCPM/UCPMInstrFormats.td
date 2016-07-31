@@ -33,6 +33,38 @@ def MR0DestT : Operand<i32> {
   let EncoderMethod = "getMR0DestTEncoding";
   //let DecoderMethod = "DecodeMR0DestT";  
 }
+def MR1DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR1Dest, TPort);
+  let EncoderMethod = "getMR1DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
+def MR2DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR2Dest, TPort);
+  let EncoderMethod = "getMR2DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
+def MR3DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR3Dest, TPort);
+  let EncoderMethod = "getMR3DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
+def MR4DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR4Dest, TPort);
+  let EncoderMethod = "getMR4DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
+def MR5DestT : Operand<i32> {
+  //let PrintMethod = "printMR0DestT";
+  let MIOperandInfo = (ops MR5Dest, TPort);
+  let EncoderMethod = "getMR5DestTEncoding";
+  //let DecoderMethod = "DecodeMR0DestT";  
+}
+
+
 def SHUT : Operand<i32> {
   let PrintMethod = "printSHUT";
   let MIOperandInfo = (ops SHU, TPort);

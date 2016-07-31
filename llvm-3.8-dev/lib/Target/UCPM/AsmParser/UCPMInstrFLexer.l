@@ -223,10 +223,13 @@ A   [a-zA-Z_0-9]
 
 "shu0"                   {return TOKEN(SHU0);}
 "shu1"                   {return TOKEN(SHU1);}
+"shu2"                   {return TOKEN(SHU2);}
 "ialu"                   {return TOKEN(IALU);}
 "imac"                   {return TOKEN(IMAC);}
 "falu"                   {return TOKEN(FALU);}
 "fmac"                   {return TOKEN(FMAC);}
+"ifalu"                   {return TOKEN(IFALU);}
+"ifmac"                   {return TOKEN(IFMAC);}
 "m"                      {return TOKEN(M);}
 "biu0"                   {return TOKEN(BIU0);}
 "biu1"                   {return TOKEN(BIU1);}
@@ -235,6 +238,8 @@ A   [a-zA-Z_0-9]
 "r1"                     {return TOKEN(R1);}
 "r2"                     {return TOKEN(R2);}
 "r3"                     {return TOKEN(R3);}
+"r4"                     {return TOKEN(R4);}
+"r5"                     {return TOKEN(R5);}
 "biu"                    {return TOKEN(BIU);}
 "i"[0-2]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return IPATH;} 
 "t"[0-3]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TREG;} 

@@ -63,6 +63,26 @@ public:
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
   
+  unsigned getMR1DestTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
+
+  unsigned getMR2DestTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
+
+  unsigned getMR3DestTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
+
+  unsigned getMR4DestTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
+
+  unsigned getMR5DestTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
+
   unsigned getSHUTEncoding(const MCInst &MI, unsigned OpNo,
                            SmallVectorImpl<MCFixup> &Fixups,
                            const MCSubtargetInfo &STI) const;
@@ -146,6 +166,66 @@ getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
 
 unsigned UCPMMCCodeEmitter::
 getMR0DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR1DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR2DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR3DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR4DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 2) | TPortBits;
+}
+
+unsigned UCPMMCCodeEmitter::
+getMR5DestTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                   SmallVectorImpl<llvm::MCFixup>& Fixups,
                   const MCSubtargetInfo &STI) const {
   assert(MI.getOperand(OpNo).isReg());

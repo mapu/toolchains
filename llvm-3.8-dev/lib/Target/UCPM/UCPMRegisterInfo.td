@@ -28,13 +28,18 @@ def MReg : RegisterClass<"UCPMReg", [v16i32], 32,
                          (add (sequence "M%u", 0, 127), MIPP, MSPP)>;
 
 //def SHU0  : UCPMReg<0, "SHU0">, DwarfRegNum<[129]>;
-def SHU1  : UCPMReg<1, "SHU1">, DwarfRegNum<[130]>;
+//def SHU1  : UCPMReg<1, "SHU1">, DwarfRegNum<[130]>;
 
 def IALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
 def IMAC  : UCPMReg<1, "IMAC">, DwarfRegNum<[135]>;
 def SHU0  : UCPMReg<2, "SHU0">, DwarfRegNum<[129]>;
-def FALU  : UCPMReg<3, "FALU">, DwarfRegNum<[136]>;
-def FMAC  : UCPMReg<4, "FMAC">, DwarfRegNum<[137]>;
+def SHU1  : UCPMReg<2, "SHU1">, DwarfRegNum<[130]>;
+def SHU2  : UCPMReg<2, "SHU2">, DwarfRegNum<[131]>;//yangl:131 is remained to be certain
+def FALU  : UCPMReg<3, "FALU">, DwarfRegNum<[136]>;//delete
+def FMAC  : UCPMReg<4, "FMAC">, DwarfRegNum<[137]>;//delete
+def IFALU  : UCPMReg<0, "IFALU">, DwarfRegNum<[132]>;//yangl:132 is remained to be certain
+def IFMAC  : UCPMReg<1, "IFMAC">, DwarfRegNum<[133]>;//yangl:133 is remained to be certain
+
 
 def SHU   : RegisterClass<"UCPMReg", [v16i32], 32,
                           (add SHU0, SHU1)>;
@@ -52,6 +57,11 @@ def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
                           (sequence "BIU%u", 0, 2)>;
 			  
 def MR0Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IALU, IMAC, SHU0, BIU0)>;
+def MR1Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IALU, IMAC, SHU1)>;
+def MR2Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IALU, IMAC, SHU2, BIU2)>;
+def MR3Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IFALU, IFMAC, SHU0)>;
+def MR4Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IFALU, IFMAC, SHU1, BIU1)>;
+def MR5Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add IFALU, IFMAC, SHU2, BIU2)>;
 
 def T0  : UCPMReg<0, "T0">, DwarfRegNum<[138]>;
 def T1  : UCPMReg<1, "T1">, DwarfRegNum<[139]>;

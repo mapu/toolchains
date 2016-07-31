@@ -35,11 +35,57 @@ class UCPMRToDest<string header, bits<4> slotid, bits<4> mregid, Operand DestTy>
   let Inst{14-11} = mregid;
 }
 
+//MR0 read instructions
 def MR0ToDestCom : UCPMRToDest<"R0.", 0b0000, 0b0110, MR0DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 def MR0ToDestSI : UCPMRToDest<"R0.", 0b0000, 0b1110, MR0DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+//MR1 read instructions
+def MR1ToDestCom : UCPMRToDest<"R1.", 0b0001, 0b0110, MR1DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR1ToDestSI : UCPMRToDest<"R1.", 0b0001, 0b1110, MR1DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+//MR2 read instructions
+def MR2ToDestCom : UCPMRToDest<"R2.", 0b0010, 0b0110, MR2DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR2ToDestSI : UCPMRToDest<"R2.", 0b0010, 0b1110, MR2DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+//MR3 read instructions
+def MR3ToDestCom : UCPMRToDest<"R3.", 0b0011, 0b0110, MR3DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR3ToDestSI : UCPMRToDest<"R3.", 0b0011, 0b1110, MR3DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+//MR4 read instructions
+def MR4ToDestCom : UCPMRToDest<"R4.", 0b0100, 0b0110, MR4DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR4ToDestSI : UCPMRToDest<"R4.", 0b0100, 0b1110, MR4DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+//MR5 read instructions
+def MR5ToDestCom : UCPMRToDest<"R5.", 0b0101, 0b0110, MR5DestT> {
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
+}
+def MR5ToDestSI : UCPMRToDest<"R5.", 0b0101, 0b1110, MR5DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }

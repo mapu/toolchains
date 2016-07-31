@@ -48,18 +48,18 @@ typedef struct YYLTYPE {
   int token;
 }
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN DOT COMMA ADD SUB MUL CMUL LSHT RSHT
-%token <val> OR AND XOR NOT NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 BIU0 BIU1 BIU2 M COND
-%token <val> IALU IMAC FALU FMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
+%token <val> OR AND XOR NOT NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND
+%token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP U T B H S D I L TC C LABEL SHU BIU 
-%token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 IPATH WFLAG
+%token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI
 
-%type <val> slots slotref mr012slot mr3slot mr3slot_ shuslot shu0code shu1code biuslot biuheader biucode ialuslot imacslot faluslot fmacslot seqslot
-%type <val> r0inst r1inst r2inst r2instw r3inst
+%type <val> slots slotref mr012345slot mr3slot mr3slot_ shuslot shu0code shu1code biuslot biuheader biucode ialuslot imacslot faluslot fmacslot seqslot
+%type <val> r0inst r1inst r2inst r3inst r4inst r5inst
 %type <val> shu0inst shu1inst shuexp indexp indclause indtnclause indtbclause byexp byflag byclause tripara dupara shu0ctrl shu1ctrl
 %type <val> ldinst ldop stinst storeop kginst
 %type <val> ialuinst ialuclause condclause utbclause uthclause iaddclause isubclause addexp subexp ubclause imaxclause maxexp iminclause minexp iabsclause abssexp iexpdclause expdexp iltclause ltexp instclause nstexp istclause stexp inltclause rshtclause nltexp bclause b_uclause mrgclause mrgexp iequclause equexp ineqclause neqexp rshtexp rshtt rshti inoflagclause inoflagexp divrop uaryexp binaryexp binaryop lshtclause lshtexp cprsexp divinst divexp divsexp divqop mdivrop mdivqop reduceexp ialuctrl
@@ -67,11 +67,11 @@ typedef struct YYLTYPE {
 %type <val> faluinst faluclause tsdclause faddclause fsubclause sdclause fmaxclause fminclause fabsclause absexp recipclause recipexp rsqrtclause rsqrtexp fequclause fneqclause fltclause fnstclause fstclause fnltclause intclause intexp intop uintop tclause tosexp tdclause sclause todexp fasexp fuclause faluctrl
 %type <val> fmacinst fmacclause fmulclause cmulexp fmrclause fmrinst fexmacclause finmacclause fmacctrl
 %type <val> reinst repeatexp immrep regrep loops loop lpinst lpexp lpcond jmpinst condexp mpustop
-%type <val> r2destp r2dest r1destp r1dest r0dest r3dest lddest shu0dest shu1dest mindex ialudest imacdest faludest fmacdest ialut imact falut fmact biu0 biu1 biu2 biu0t shu0t shu1t mindexs mindexi mindexn t constt _constt shusrct shudupara
+%type <val> r2destp r2dest r1destp r1dest r0dest r3dest lddest shu0dest shu1dest mindex ialudest imacdest faludest fmacdest ialut imact falut fmact ifalut ifmact biu0 biu1 biu2 biu0t biu1t biu2t shu0t shu1t shu2t mindexs mindexi mindexn t constt _constt shusrct shudupara
 %type <val> imbrakflag ibrakflag imakflag imbraflag imbrkflag imbrflag imaflag imkflag ibraflag ibrkflag iakflag imflag ibrflag iaflag ikflag
 %type <val> ldflag stflag mbrakflag brakflag makflag mbrkflag mbraflag akflag mkflag brkflag maflag mbrflag braflag utbflag t_ubflag t_bflag ubflag b_uflag utflag t_uflag t_uibflag uibflag b_uiflag t_ibflag t_uiflag ibflag b_iflag t_iflag uiflag crlubflag crluflag crlbflag crlflag crubflag crbflag cruflag lbflag luflag lubflag tsdflag sdflag tdflag bflag crsdflag condflag uthflag thflag uhflag b__uflag
 %type <val> b_flag hflag brflag mflag aflag kflag tflag uflag sflag dflag lflag crflag iflag negflag andflag tcflag kiflag trueflag cflag ncflag
-%type <val> ialu imac falu fmac ctrl imm imm5 label mcodeline hmacro _flag flag_
+%type <val> ialu imac falu fmac ifalu ifmac ctrl imm imm5 label mcodeline hmacro _flag flag_
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -96,8 +96,7 @@ slotref : slot {
   FlagS = SMLoc();
   FlagE = SMLoc();
 };
-slot: mr012slot condflag {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
-      mr3slot condflag {ADDOPERAND(Slot, 3, @$.S, @$.E);} |
+slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot condflag {ADDOPERAND(Slot, 4 + $1, @$.S, @$.E);} |
       ialuslot condflag {ADDOPERAND(Slot, 6, @$.S, @$.E);} |
       imacslot condflag {ADDOPERAND(Slot, 7, @$.S, @$.E);} |
@@ -110,9 +109,9 @@ slot: mr012slot condflag {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
 hmacro: IDENTIFIER {ADDOPERAND(HMacro, $1, @$.S, @$.E);};
 hmacro: IDENTIFIER LPAREN RPAREN {ADDOPERAND(HMacro, $1, @$.S, @$.E); ADDOPERAND(Imm, 1, @$.S, @$.E);};
 
-mr012slot: R0 DOT r0inst {
-  switch ($3) {
 //yangl
+mr012345slot: R0 DOT r0inst {
+  switch ($3) {
   case 0:
     //r0inst: mindexn -> r0dest
     ADDOPERAND(Opc, UCPM::MR0ToDestCom, @$.S, @$.E);
@@ -127,53 +126,104 @@ mr012slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
   default:
-    OS<<"Parsing R0 DOT r0inst fails!"<<"\n";
+    //OS<<"Parsing R0 DOT r0inst fails!"<<"\n";
     break;
   }
   slotid = 0;
 }
 | R1 DOT r1inst {
-  if ($3 == 1)
-    ADDOPERAND(Opc, UCPM::MR1ToSHU, @$.S, @$.E);
-  else if ($3 == 3)
-    ADDOPERAND(Opc, UCPM::MR1ToMACC, @$.S, @$.E);
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-  if ($3 == 3) Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
-  Operands.push_back(nullptr);
-  condpos = Operands.size();
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
-  ADDOPERAND(Reg,
-             MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister(0),
-             @$.S, @$.E);
+  switch ($3) {
+  case 0:
+    ADDOPERAND(Opc, UCPM::MR1ToDestCom, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    break;
+  case 1:
+    ADDOPERAND(Opc, UCPM::MR1ToDestSI, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+  default:
+    break;
+  }
   slotid = 1;
 }
 | R2 DOT r2inst {
-  ADDOPERAND(Opc, UCPM::MR2ToMACC, @$.S, @$.E);
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
-  Operands.push_back(nullptr);
-  condpos = Operands.size();
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
-  ADDOPERAND(Reg,
-             MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister(0),
-             @$.S, @$.E);
+  switch ($3) {
+  case 0:
+    ADDOPERAND(Opc, UCPM::MR2ToDestCom, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    break;
+  case 1:
+    ADDOPERAND(Opc, UCPM::MR2ToDestSI, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+  default:
+    break;
+  }
   slotid = 2;
 }
-| R2 DOT r2instw {
-  ADDOPERAND(Opc, UCPM::MR2ToMACC, @$.S, @$.E);
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
-  Operands.push_back(nullptr);
-  condpos = Operands.size();
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
-  ADDOPERAND(Reg,
-             MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister($3),
-             @$.S, @$.E);
-  slotid = 2;
+| R3 DOT r3inst {
+  switch ($3) {
+  case 0:
+    ADDOPERAND(Opc, UCPM::MR3ToDestCom, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    break;
+  case 1:
+    ADDOPERAND(Opc, UCPM::MR3ToDestSI, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+  default:
+    break;
+  }
+  slotid = 3;
+}
+| R4 DOT r4inst {
+  switch ($3) {
+  case 0:
+    ADDOPERAND(Opc, UCPM::MR4ToDestCom, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    break;
+  case 1:
+    ADDOPERAND(Opc, UCPM::MR4ToDestSI, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+  default:
+    break;
+  }
+  slotid = 4;
+}
+| R5 DOT r5inst {
+  switch ($3) {
+  case 0:
+    ADDOPERAND(Opc, UCPM::MR5ToDestCom, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    break;
+  case 1:
+    ADDOPERAND(Opc, UCPM::MR5ToDestSI, @$.S, @$.E);
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+  default:
+    break;
+  }
+  slotid = 5;
 };
+
+
+
 mr3slot: mr3slot_ {
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(b));
   Operands.push_back(nullptr);
@@ -246,32 +296,33 @@ seqslot: reinst | lpinst | jmpinst | mpustop ;
 r0inst: mindexn ASSIGNTO r0dest {$$ = 0} |
         mindexi ASSIGNTO r0dest {$$ = 1} |
         mindexs ASSIGNTO r0dest {$$ = 1} ;
-/*r0inst: r1inst {$$ = $1;} |
-        mindexn ASSIGNTO r0dest {$$ = $3;} | 
-        mindexi ASSIGNTO r0dest {$$ = $3;} |
-        mindexs ASSIGNTO r0dest {$$ = $3;} ;
-*/
-r1inst: r2inst {$$ = $1;} |
-        mindexn ASSIGNTO r1destp {$$ = $3;} ;
-r1inst: mindexi ASSIGNTO r1destp {$$ = $3;} | 
-        mindexi ASSIGNTO r2destp {$$ = $3;} |
-        mindexs ASSIGNTO r1destp {$$ = $3;} |
-        mindexs ASSIGNTO r2destp {$$ = $3;} ;
-r2inst: mindexn ASSIGNTO r2destp {$$ = $3;} ;
-r2instw: mindexn _flag WFLAG flag_  ASSIGNTO r2destp {$$ = $3;} ;
-r3inst: mindexn ASSIGNTO r3dest _flag KG flag_ {
-  $$ = 1;
-  ADDOPERAND(Opc, UCPM::MR3ToBIUKG, @$.S, @$.E);
-}
-|       mindexn ASSIGNTO r3dest {
-  $$ = 0;
-  ADDOPERAND(Opc, UCPM::MR3ToBIU, @$.S, @$.E);
-} ;
 
-mr012slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
+r1inst: mindexn ASSIGNTO r1dest {$$ = 0} |
+        mindexi ASSIGNTO r1dest {$$ = 1} |
+        mindexs ASSIGNTO r1dest {$$ = 1} ;
+
+r2inst: mindexn ASSIGNTO r2dest {$$ = 0} |
+        mindexi ASSIGNTO r2dest {$$ = 1} |
+        mindexs ASSIGNTO r2dest {$$ = 1} ;
+
+r3inst: mindexn ASSIGNTO r3dest {$$ = 0} |
+        mindexi ASSIGNTO r3dest {$$ = 1} |
+        mindexs ASSIGNTO r3dest {$$ = 1} ;
+        
+r4inst: mindexn ASSIGNTO r4dest {$$ = 0} |
+        mindexi ASSIGNTO r4dest {$$ = 1} |
+        mindexs ASSIGNTO r4dest {$$ = 1} ;
+        
+r5inst: mindexn ASSIGNTO r5dest {$$ = 0} |
+        mindexi ASSIGNTO r5dest {$$ = 1} |
+        mindexs ASSIGNTO r5dest {$$ = 1} ;
+
+mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R1 DOT error { llvmerror(&@3, "Incorrect M.r1 inst."); YYABORT;} |
-           R2 DOT error { llvmerror(&@3, "Incorrect M.r2 inst."); YYABORT;};
-r3inst: mindexn error { llvmerror(&@2, "Incorrect M.r3 inst."); YYABORT;};
+           R2 DOT error { llvmerror(&@3, "Incorrect M.r2 inst."); YYABORT;} |
+           R3 DOT error { llvmerror(&@3, "Incorrect M.r3 inst."); YYABORT;} |
+           R4 DOT error { llvmerror(&@3, "Incorrect M.r4 inst."); YYABORT;} |
+           R5 DOT error { llvmerror(&@3, "Incorrect M.r5 inst."); YYABORT;} ;
 
 shu0inst: shuexp ASSIGNTO shu0dest {
   switch ($3) {
@@ -1046,10 +1097,14 @@ condexp: _flag trueflag flag_ {ADDOPERAND(Opc, UCPM::JUMP, @-2.S, @$.E);}|
 mpustop: MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
 /*Destination types: 0:biu,1:unit,2:m */
-//yangl
-//r0dest: ialut | imact | falut | fmact ;
+//yangl 
 //here biu0t is only a symbol, t is always 't0'
 r0dest: ialut | imact | shu0t | biu0t ;
+r1dest: ialut | imact | shu1t ;
+r2dest: ialut | imact | shu2t | biu2t ;
+r3dest: ifalut | ifmact | shu0t ;
+r4dest: ifalut | ifmact | shu1t | biu1t ;
+r5dest: ifalut | ifmact | shu2t | biu2t ;
 
 
 r2destp: r2dest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3 + 1, @3.S, @3.E);};
@@ -1057,7 +1112,7 @@ r2dest : ialut | imact | falut | fmact ;
 r1destp : r1dest {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
 r1dest: shu0t | shu1t ;
 r0dest: mindexn ;
-r3dest: biu0 | biu1 | biu2 ;
+r3dest: biu0 | biu1 | biu2 ;//delete
 lddest: r1destp | r2destp | mindex ;
 shu0dest: r0dest | r2destp | r3dest | shu0t {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
 shu1dest: r0dest | r2destp | r3dest | shu1t {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
@@ -1068,9 +1123,17 @@ faludest: ialudest | fmact ;
 fmacdest: r0dest | r1destp | r3dest | falut | fmact;
 ialut: ialu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
 imact: imac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-falut: falu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-fmact: fmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
+falut: falu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};//delete
+fmact: fmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};//delete
+ifalut: ifalu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
+ifmact: ifmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
 biu0t: biu0 {$$ = 3; unit = b;
+             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
+             ut = OPERAND(Reg, treg, @$.S, @$.E); }
+biu1t: biu1 {$$ = 3; unit = b;
+             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
+             ut = OPERAND(Reg, treg, @$.S, @$.E); }
+biu2t: biu2 {$$ = 3; unit = b;
              unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
              ut = OPERAND(Reg, treg, @$.S, @$.E); }
 biu0: BIU0 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU0, @$.S, @$.E);};
@@ -1078,6 +1141,7 @@ biu1: BIU1 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU1, @$.S, @$.E);};
 biu2: BIU2 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU2, @$.S, @$.E);};
 shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
 shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
+shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
 mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
 mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
 mindexn: MINDEXN {$$ = 0; ms = md;
@@ -1216,6 +1280,8 @@ ialu: IALU ;
 imac: IMAC ;
 falu: FALU ;
 fmac: FMAC ;
+ifalu: IFALU ;
+ifmac: IFMAC ;
 ctrl: START {$$ = 0;} | STOP {$$ = 1;};
 label: EXPR {$$ = 0; expr = $1;} | imm {$$ = $1; expr = 0;};
 %%
