@@ -234,7 +234,7 @@ then
   make distclean
   cd $root
   cd build_qemu
-  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu 
+  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu --disable-sdl 
   make $MCFLAG || qemu_err=1 
   if [ "$debug_mode" -eq 0 ]
   then make install

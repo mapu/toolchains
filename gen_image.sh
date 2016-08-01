@@ -140,7 +140,7 @@ then
       make mapu_${sys}_defconfig O=mapu || uboot_err=1
       if [ $uboot_err -eq 0 ]
       then
-        make O=mapu CROSS_COMPILE=arm-none-eabi- || uboot_err=1
+        make O=mapu CROSS_COMPILE=arm-none-eabi- DT_COMPILE=${MAPU_HOME}/dtc-build/bin/dtc || uboot_err=1
         if [ "$uboot_err" -ne 0 ]
         then
           echo -e "\n\n\tError: Make u-boot.bin fail!\n\n"
