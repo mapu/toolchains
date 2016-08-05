@@ -39,6 +39,9 @@ def FALU  : UCPMReg<3, "FALU">, DwarfRegNum<[136]>;//delete
 def FMAC  : UCPMReg<4, "FMAC">, DwarfRegNum<[137]>;//delete
 def IFALU  : UCPMReg<0, "IFALU">, DwarfRegNum<[132]>;//yangl:132 is remained to be certain
 def IFMAC  : UCPMReg<1, "IFMAC">, DwarfRegNum<[133]>;//yangl:133 is remained to be certain
+//yangl: As the coding of IFALU and IFMAC for MRead is different, I define another 'UCPIFALU' and 'UCPIFMAC' for 'UCPMACC'
+def UCPIFALU : UCPMReg<2, "IFALU">, DwarfRegNum<[145]>;//yangl:145 is remained to be certain
+def UCPIFMAC : UCPMReg<3, "IFMAC">, DwarfRegNum<[146]>;//yangl:146 is remained to be certain
 
 
 def SHU   : RegisterClass<"UCPMReg", [v16i32], 32,
@@ -46,6 +49,9 @@ def SHU   : RegisterClass<"UCPMReg", [v16i32], 32,
 
 def MACC : RegisterClass<"UCPMReg", [v16i32], 32,
 			 (add IALU, IMAC, FALU, FMAC)>;
+			 
+def UCPMACC : RegisterClass<"UCPMReg", [v16i32], 32,
+			 (add IALU, IMAC, UCPIFALU, UCPIFMAC)>;
 
 //yangl
 			 

@@ -5,7 +5,7 @@
 std::bitset<16> flags;
 static int flagsort;
 const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *f, *unit, *ut, *b, *md, *ms, *imm, *expr, *ipath;
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *f, *unit, *ut, *b, *md, *ms, *imm, *expr, *ipath;
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -47,7 +47,7 @@ typedef struct YYLTYPE {
   int val;
   int token;
 }
-%token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN DOT COMMA ADD SUB MUL CMUL LSHT RSHT
+%token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE DOT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
@@ -60,14 +60,14 @@ typedef struct YYLTYPE {
 
 %type <val> slots slotref mr012345slot mr3slot mr3slot_ shuslot shu0code shu1code biuslot biuheader biucode ialuslot imacslot faluslot fmacslot seqslot
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst
-%type <val> shu0inst shu1inst shuexp indexp indclause indtnclause indtbclause byexp byflag byclause tripara dupara shu0ctrl shu1ctrl
+%type <val> shu0inst shu1inst shuexp indexp indclause indtnclause indtbclause byexp byflag byclause tripara dupara shu0ctrl shu1ctrl ucpindclause ucpindtbclause ucpshusrcTn ucpindtkclause ucpshusrcTk ucpshuexp ucpshu0dest
 %type <val> ldinst ldop stinst storeop kginst
 %type <val> ialuinst ialuclause condclause utbclause uthclause iaddclause isubclause addexp subexp ubclause imaxclause maxexp iminclause minexp iabsclause abssexp iexpdclause expdexp iltclause ltexp instclause nstexp istclause stexp inltclause rshtclause nltexp bclause b_uclause mrgclause mrgexp iequclause equexp ineqclause neqexp rshtexp rshtt rshti inoflagclause inoflagexp divrop uaryexp binaryexp binaryop lshtclause lshtexp cprsexp divinst divexp divsexp divqop mdivrop mdivqop reduceexp ialuctrl
 %type <val> imacinst imacclause mulexp imulclause muladsbexp mrclause mrinst exmacexp inmacexp accexp iexmacclause iinmacclause tregclause imacctrl
 %type <val> faluinst faluclause tsdclause faddclause fsubclause sdclause fmaxclause fminclause fabsclause absexp recipclause recipexp rsqrtclause rsqrtexp fequclause fneqclause fltclause fnstclause fstclause fnltclause intclause intexp intop uintop tclause tosexp tdclause sclause todexp fasexp fuclause faluctrl
 %type <val> fmacinst fmacclause fmulclause cmulexp fmrclause fmrinst fexmacclause finmacclause fmacctrl
 %type <val> reinst repeatexp immrep regrep loops loop lpinst lpexp lpcond jmpinst condexp mpustop
-%type <val> r2destp r2dest r1destp r1dest r0dest r3dest lddest shu0dest shu1dest mindex ialudest imacdest faludest fmacdest ialut imact falut fmact ifalut ifmact biu0 biu1 biu2 biu0t biu1t biu2t shu0t shu1t shu2t mindexs mindexi mindexn t constt _constt shusrct shudupara
+%type <val> ucpmaccdest ucpmaccdestp r2destp r2dest r1destp r1dest r0dest r3dest lddest shu0dest shu1dest mindex ialudest imacdest faludest fmacdest ialut imact falut fmact ifalut ifmact ucpifalut ucpifmact biu0 biu1 biu2 biu0t biu1t biu2t shu0t shu1t shu2t mindexs mindexi mindexn t constt _constt shusrct shudupara
 %type <val> imbrakflag ibrakflag imakflag imbraflag imbrkflag imbrflag imaflag imkflag ibraflag ibrkflag iakflag imflag ibrflag iaflag ikflag
 %type <val> ldflag stflag mbrakflag brakflag makflag mbrkflag mbraflag akflag mkflag brkflag maflag mbrflag braflag utbflag t_ubflag t_bflag ubflag b_uflag utflag t_uflag t_uibflag uibflag b_uiflag t_ibflag t_uiflag ibflag b_iflag t_iflag uiflag crlubflag crluflag crlbflag crlflag crubflag crbflag cruflag lbflag luflag lubflag tsdflag sdflag tdflag bflag crsdflag condflag uthflag thflag uhflag b__uflag
 %type <val> b_flag hflag brflag mflag aflag kflag tflag uflag sflag dflag lflag crflag iflag negflag andflag tcflag kiflag trueflag cflag ncflag
@@ -82,6 +82,7 @@ slotref : slot {
   tm = NULL;
   tn = NULL;
   tp = NULL;
+  tk = NULL;
   ut = NULL;
   ms = NULL;
   md = NULL;
@@ -97,7 +98,7 @@ slotref : slot {
   FlagE = SMLoc();
 };
 slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
-      shuslot condflag {ADDOPERAND(Slot, 4 + $1, @$.S, @$.E);} |
+      shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
       ialuslot condflag {ADDOPERAND(Slot, 6, @$.S, @$.E);} |
       imacslot condflag {ADDOPERAND(Slot, 7, @$.S, @$.E);} |
       faluslot condflag {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
@@ -233,8 +234,8 @@ mr3slot: mr3slot_ {
   ADDOPERAND(Reg,
              MRI->getRegClass(UCPMReg::WFlagRegClassID).getRegister(0),
              @$.S, @$.E);
-};
-mr3slot_: r3inst | R3 DOT r3inst { $$ = $3; };
+};//delete
+mr3slot_: r3inst | R3 DOT r3inst { $$ = $3; };//delete
 shuslot: shu0code {$$ = 0;} | shu1code {$$ = 1;};
 shu0code: SHU0 DOT shu0inst | shu0ctrl ;
 shu1code: SHU1 DOT shu1inst | shu1ctrl ;
@@ -398,6 +399,79 @@ shu0inst: shuexp ASSIGNTO shu0dest {
   default : break;
   }
 
+};//delete
+//yangl
+shu0inst: ucpshuexp ASSIGNTO ucpshu0dest {
+  switch ($3) {
+  case 0:
+    
+    break;
+  case 1:
+    
+    break;
+  case 2:
+    
+    break;
+  case 3://ialut, imact, ifalut, ifmacct
+    switch ($1) {
+    case 0: //+=
+      ADDOPERAND(Opc, UCPM::SHU0Ind_SetTBToMACC_0, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      //***
+      break;
+    case 1: //=+
+      ADDOPERAND(Opc, UCPM::SHU0Ind_SetTBToMACC_1, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      break;
+    default : break;
+    }
+    /*
+    
+    
+    break;*/
+  default: break;
+  }
+  /*Operands.push_back(nullptr);
+  condpos = Operands.size();
+  if ($1 == 6) Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+  
+  switch ($1) {
+  case 2:
+  case 3:
+  case 6:
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+    if ($1 == 6) {
+      tp = OPERAND(Reg, UCPMReg::T0, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+    }
+  case 4:
+  case 5:
+    if (imm == NULL) ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+    else Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+    break;
+  default : break;
+  }*/
+
 };
 shu1inst: shuexp ASSIGNTO shu1dest {
   switch ($3) {
@@ -483,8 +557,26 @@ shuexp: indexp | byexp {
     flagsort = (1 << 2) | (flags[TCF] << 3);
   f = OPERAND(Imm, (flags.to_ulong() << 8) | flagsort, FlagS, FlagE);
   flags.reset();
-};
-shuexp: error { llvmerror(&@1, "Incorrect SHU inst. Legal insts are IND and COMB"); YYABORT;};
+};//delete
+shuexp: error { llvmerror(&@1, "Incorrect SHU inst. Legal insts are IND and COMB"); YYABORT;};//delete
+//yangl
+ucpshuexp: LBRACE ucpshusrcTm ucpshusrcTn RBRACE IND ucpindclause {$$ = $6};
+ucpshusrcTm: t;
+ucpshusrcTn: t {$$ = 1;}| 
+             constt {$$ = 2;};
+ucpindclause: ucpindtkclause | ucpindtbclause ;
+ucpindtkclause: ucpshusrcTk _flag TB ACC2 IMM5 flag_ {$$ = 1; imm = OPERAND(Imm, $5, @5.S, @5.E);}//"=+"case
+|               ucpshusrcTk {$$ = 2;};
+ucpindtkclause: ucpshusrcTk _flag error flag_ { llvmerror(&@2, "IND Tk must be followed by (TB =+ Imm)"); YYABORT;};
+ucpindtbclause: TB _flag TB ACC1 IMM5 flag_ {$$ = 0; imm = OPERAND(Imm, $5, @5.S, @5.E);}//"+="case
+|            TB {$$ = 3;};
+ucpindtkclause: TB _flag error flag_ { llvmerror(&@2, "IND TB must be followed by (TB += Imm)"); YYABORT;};
+ucpshusrcTk: t {$$ = 1;}| 
+             constt {$$ = 2;};
+
+
+
+             
 indexp: shusrct IND indclause {$$ = $3;};
 indclause: indtnclause | indtbclause ;
 indtnclause: shusrct _flag TB ACC2 IMM3 flag_ {$$ = 3; imm = OPERAND(Imm, $5, @5.S, @5.E);}
@@ -1114,19 +1206,31 @@ r1dest: shu0t | shu1t ;
 r0dest: mindexn ;
 r3dest: biu0 | biu1 | biu2 ;//delete
 lddest: r1destp | r2destp | mindex ;
-shu0dest: r0dest | r2destp | r3dest | shu0t {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
+shu0dest: r0dest | r2destp | r3dest | shu0t {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};//delete
+//yangl
+ucpshu0dest: ucpmaccdestp {
+               if(ipath->getImm() >= 3) {
+                 llvmerror(&@1, "SHU to Macc must use port 'I0 -I2'"); 
+                 YYABORT;
+               }
+             };
+ucpmaccdestp: ucpmaccdest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3, @3.S, @3.E);};
+ucpmaccdest: ialut | imact | ucpifalut | ucpifmact ;
 shu1dest: r0dest | r2destp | r3dest | shu1t {$$ = $1; ipath = OPERAND(Imm, 0, SMLoc(), SMLoc());};
 mindex: mindexi | mindexn ;
 ialudest: ialut | imact | falut | r0dest | r1destp | r3dest ;
 imacdest: ialudest ;
 faludest: ialudest | fmact ;
 fmacdest: r0dest | r1destp | r3dest | falut | fmact;
-ialut: ialu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-imact: imac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-falut: falu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};//delete
-fmact: fmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};//delete
-ifalut: ifalu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-ifmact: ifmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
+ialut: ialu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+imact: imac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+falut: falu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};//delete
+fmact: fmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::FMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};//delete
+ifalut: ifalu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifmact: ifmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+//yangl
+ucpifalut: ifalu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::UCPIFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ucpifmact: ifmac DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::UCPIFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 biu0t: biu0 {$$ = 3; unit = b;
              unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
              ut = OPERAND(Reg, treg, @$.S, @$.E); }
@@ -1139,9 +1243,9 @@ biu2t: biu2 {$$ = 3; unit = b;
 biu0: BIU0 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU0, @$.S, @$.E);};
 biu1: BIU1 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU1, @$.S, @$.E);};
 biu2: BIU2 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU2, @$.S, @$.E);};
-shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
-shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tp ? tp : (tn ? tn : tm);};
+shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
 mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
 mindexn: MINDEXN {$$ = 0; ms = md;
@@ -1154,20 +1258,22 @@ t: TREG {
   if (!tm) tm = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!tn) tn = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!tp) tp = OPERAND(Reg, treg, @$.S, @$.E);
+  else if (!tk) tk = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!ut) ut = OPERAND(Reg, treg, @$.S, @$.E);
 };
-_constt: TBB {$$ = UCPMReg::TBB;} |
-         TBH {$$ = UCPMReg::TBH;} |
-         TBW {$$ = UCPMReg::TBW;} |
-         TBD {$$ = UCPMReg::TBD;} |
-         TSQ {$$ = UCPMReg::TSQ;} ;
 constt: _constt {
   unsigned treg = $1;
   if (!tm) tm = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!tn) tn = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!tp) tp = OPERAND(Reg, treg, @$.S, @$.E);
+  else if (!tk) tk = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!ut) ut = OPERAND(Reg, treg, @$.S, @$.E);
 }
+_constt: TBB {$$ = UCPMReg::TBB;} |
+         TBH {$$ = UCPMReg::TBH;} |
+         TBW {$$ = UCPMReg::TBW;} |
+         TBD {$$ = UCPMReg::TBD;} |
+         TSQ {$$ = UCPMReg::TSQ;} ;
 shusrct: t | constt;
 tripara: dupara COMMA t;
 dupara: t COMMA t;

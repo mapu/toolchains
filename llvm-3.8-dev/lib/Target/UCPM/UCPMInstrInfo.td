@@ -113,7 +113,7 @@ multiclass MR0Inst {
     let Inst{10-2}  = d;
   }
 }
-defm MR0 : MR0Inst;
+defm MR0 : MR0Inst;//delete
 
 def MR1ToSHU : MRToDest<"R1.", 0b0001, 0b01, SHUT> {
   let Inst{23}    = w{0};
@@ -181,7 +181,83 @@ class SHUIndTOptToDest<string header, bit tbopt, bits<4> slot, bits<2> dest, Ope
   let Inst{13-11} = imm3;
   let Inst{10-2}  = d;
   let Inst{1-0}   = dest;
+}//delete
+//yangl, 3 kinds of base class for SHUIndToDest
+//"TB+=" and "TB=+"
+class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<4> slot, Operand DestTy>
+        : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5),
+                      header, !strconcat("{$tm,$tn} IND $tk",
+                                         !if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)")),
+                      DestTy> {
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  bits<5> imm5;
+  let Inst{47-44} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 0;
+  let Inst{15} = TBSymbol;
+  let Inst{14-10} = imm5;
+  let Inst{9-8} = tm;
 }
+//Select Tn
+class UCPSHUIndToDest_FullTn<string header, bits<4> slot, Operand DestTy>
+        : UCPSHUIndexAssignInstr<(ins TPort: $tm, TEPort: $tn, TEPort: $tk), header,
+                      "{$tm,$tn} IND $tk", DestTy> {
+  bits<2> tm;
+  bits<4> tn;
+  bits<4> tk;
+  let Inst{47-44} = slot;
+  let Inst{22-19} = tk;
+  let Inst{9-8} = tm;
+}
+//No set TB, Tn: T0-T3
+class UCPSHUIndToDest<string header, bits<4> slot, Operand DestTy>
+        : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk), header,
+                      "{$tm,$tn} IND $tk", DestTy> {
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  let Inst{47-44} = slot;
+  let Inst{22-19} = tk;
+  let Inst{9-8} = tm;
+}
+//yangl: final shu0 test instruction, for case: "+="
+def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b0110, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+//yangl: final shu0 test instruction, for case: "=+"
+def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+
+
+
+
+
+
+
+class SHUIndTToDest<string header, bit tbopt, bits<4> slot, bits<2> dest, Operand DestTy>
+        : AssignInstr<(ins TEPort: $tm, TEPort: $tn, imm32i: $imm3),
+                      header, !strconcat("$tm IND $tn",
+                                         !if(tbopt, "(TB=+$imm3)", "")),
+                      DestTy> {
+  bits<4> tm;
+  bits<4> tn;
+  bits<3> imm3;
+  let Inst{47-44} = slot;
+  let Inst{27-25} = 0b001;
+  let Inst{24-23} = c;
+  let Inst{22}    = tbopt;
+  let Inst{21-18} = tm;
+  let Inst{17-14} = tn;
+  let Inst{13-11} = imm3;
+  let Inst{10-2}  = d;
+  let Inst{1-0}   = dest;
+}//delete
 multiclass SHUIndTOptInstr<string header, bit tbopt, bits<4> slot> {
   def ToM    : SHUIndTOptToDest<header, tbopt, slot, 0b00, MRegO >;
   def ToSHU  : SHUIndTOptToDest<header, tbopt, slot, 0b01, SHUT  >;

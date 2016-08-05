@@ -54,31 +54,25 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 <EXPRPARSE>[1-9][0-9]*    { /* dec */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 <EXPRPARSE>0[01234567]+                       { /* oct */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 <EXPRPARSE>0+                       { /* num '0' */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=0;
-  return IMM3;
+  return IMM5;
 }
 
 
@@ -148,9 +142,7 @@ A   [a-zA-Z_0-9]
       llvmParser->Warning(Start, "Negative immediate is not allowed");
       return IMM;
     }
-    if (yylval->val<8) return IMM3;
-    else if (yylval->val<32) return IMM5;
-    else return IMM;
+    return IMM5;
   }
 }
 <PARENEXPRPARSE>.                {}
@@ -159,31 +151,25 @@ A   [a-zA-Z_0-9]
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(2).c_str(),0,16);
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 [1-9][0-9]*    { /* dec */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=atol(yylval->string->c_str());
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 0[01234567]+                       { /* oct */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=strtol(yylval->string->substr(1).c_str(),0,8);
-  if (yylval->val<=8) return IMM3;
-  else if (yylval->val<32) return IMM5;
-  else return IMM;
+  return IMM5;
 }
 0+                       { /* num '0' */
   BEGIN INITIAL;
   SAVE_TOKEN;
   yylval->val=0;
-  return IMM3;
+  return IMM5;
 }
 [ \t\n]                {;}
 "->"                   {return TOKEN(ASSIGNTO);}
@@ -194,10 +180,12 @@ A   [a-zA-Z_0-9]
 ">"                    {return TOKEN(LT);}
 ">="                   {return TOKEN(NST);}
 "("                    {return TOKEN(LPAREN);}
+"{"                    {return TOKEN(LBRACE);}
 <CONDPARSE>"("         {BEGIN PARENEXPRPARSE; return TOKEN(LPAREN);}
 <CONDPARSE>[ \t\n]     {;}
 <CONDPARSE>.           {BEGIN INITIAL;}
 ")"                    {return TOKEN(RPAREN);}
+"}"                    {return TOKEN(RBRACE);}
 "."                    {return TOKEN(DOT);}
 ","                    {return TOKEN(COMMA);}
 "+"                    {return TOKEN(ADD);}
