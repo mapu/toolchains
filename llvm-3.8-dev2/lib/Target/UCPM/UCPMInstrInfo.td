@@ -461,6 +461,38 @@ multiclass IALUBinToDest {
   def DPToMACC  : BinaryInstr<"", 0, IALUDPOprtor, MACCTI>, IALUBinCode<0b11>;
   }
 }
+
+// ducx start ----- IALUBinTo BIU/MACC/SHU --------------------------------------------------------------------
+class dcx_IALUBaseCode {
+  field bits<48> Inst;
+  let Inst{47-44} = 0b0110;//?
+}
+
+class dcx_IALUBinCode<bits<2> dest> : dcx_IALUBaseCode {
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<6> f;
+  bits<4>  d;
+  let Inst{21-18} = op{3-0};
+  let Inst{17-12} = f;
+  let Inst{11-10} = tm;
+  let Inst{9-8} = tn;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-3}  = d{3-2};
+  let Inst{2} = 0;
+  let Inst{1-0}   = d{1-0};
+}
+multiclass dcx_IALUBinToDest {
+  def BinToSHU  : dcx_BinaryInstr<"", 1, IALUBinOprtor, SHUT  >, dcx_IALUBinCode<0b00>;
+  def BinToBIU  : dcx_BinaryInstr<"", 1, IALUBinOprtor, BIUO  >, dcx_IALUBinCode<0b10>;
+  def BinToMACC : dcx_BinaryInstr<"", 1, IALUBinOprtor, MACCTI>, dcx_IALUBinCode<0b01>;
+}
+
+defm dcx_IALU : dcx_IALUBinToDest;
+// ducx end --------------------------------------------------------------------------
+
 class IALUUryCode<bits<2> dest> : IALUBinCode<dest> {
   let tn = 0b0000;
 }

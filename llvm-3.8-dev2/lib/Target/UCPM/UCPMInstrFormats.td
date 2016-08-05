@@ -179,6 +179,33 @@ class BinaryInstr<string header, bit mode,
   bits<8>  op;
 }
 
+// ducx start ---------------------------------------------------------------------
+class dcx_CommonAssignInstr<dag ins, dag outs, 
+                        string header, string rclause, string assign, string lclause,
+                        list<dag> pattern = []>
+        : UCPMInst<ins, outs,
+                       !strconcat(header, lclause, " ", assign, " ", rclause),
+                       pattern>;
+
+class dcx_AssignInstr<dag ins, string header, string lclause, Operand DestTy,
+                  list<dag> pattern = []>
+        : dcx_CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<4>  d;
+}
+
+class dcx_BinaryInstr<string header, bit mode,
+                  RegisterClass OprtorTy, Operand DestTy>
+        : dcx_AssignInstr<(ins OprtorTy: $op, TEPort: $tm, TEPort: $tn, Flags: $f),
+                      header,
+                      !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<6> f;
+  bits<8>  op;
+}
+// ducx end ----------------------------------------------------------------
+
 class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
         : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TEPort: $tn, TPort: $tp, Flags: $f),
                       header,
