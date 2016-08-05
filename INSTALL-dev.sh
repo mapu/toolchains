@@ -2,15 +2,15 @@
 root=`pwd`
 
 # Check argument
-gem5_en=1
-gold_en=1
+gem5_en=0
+gold_en=0
 llvm_en=1
-newlib_en=1
-openocd_en=1
-qemu_en=1
-res_en=1
-compiler_en=1
-debug_mode=0
+newlib_en=0
+openocd_en=0
+qemu_en=0
+res_en=0
+compiler_en=0
+debug_mode=1
 install_path=
 while (( $# != 0 ))
 do
@@ -252,13 +252,13 @@ then
   if [ -e "build_ragel" ] && [ "$debug_mode" -eq 0 ]
   then rm -rf build_ragel
   fi
-  if [ ! -e "build_ragel" ]
+ if [ ! -e "build_ragel" ]
   then mkdir build_ragel
   fi
-  cd build_ragel
-  $source_path/ragel-6.8/configure --prefix=$root/ragel CFLAGS='-O2' CXXFLAGS='-O2'
-  make $MCFLAG
-  make install
+  #cd build_ragel
+  #$source_path/ragel-6.8/configure --prefix=$root/ragel CFLAGS='-O2' CXXFLAGS='-O2'
+  #make $MCFLAG
+  #make install
   
   cd $root
   if [ -e "build_llvm" ] && [ "$debug_mode" -eq 0 ]
@@ -268,7 +268,7 @@ then
   then mkdir build_llvm
   fi
   cd build_llvm
-  cmake $source_path/llvm-3.8 -DLLVM_TARGETS_TO_BUILD="X86;MSPU;MMPULite;UCPM" -DCMAKE_C_FLAGS="-DARCH_MAPU" -DCMAKE_CXX_FLAGS="-DARCH_MAPU" -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="mspu-unknown-unknown" -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On -DCMAKE_BUILD_TYPE=$llvm_cfg -DCMAKE_INSTALL_PREFIX=$install_path -DRAGEL=$root/ragel/bin/ragel -DLLVM_LIBDIR_SUFFIX=64
+  cmake $source_path/llvm-3.8-dev -DLLVM_TARGETS_TO_BUILD="X86;MSPU;MMPULite;UCPM" -DCMAKE_C_FLAGS="-DARCH_MAPU" -DCMAKE_CXX_FLAGS="-DARCH_MAPU" -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="mspu-unknown-unknown" -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On -DCMAKE_BUILD_TYPE=$llvm_cfg -DCMAKE_INSTALL_PREFIX=$install_path -DRAGEL=$root/ragel/bin/ragel -DLLVM_LIBDIR_SUFFIX=64
   make $MCFLAG || llvm_err=1
   if [ "$debug_mode" -eq 0 ]
   then 
