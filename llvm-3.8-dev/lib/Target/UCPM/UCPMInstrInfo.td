@@ -233,7 +233,22 @@ def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, UCPMACCTI>
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-
+def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b0111, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b0111, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b1000, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b1000, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
 
 
 
