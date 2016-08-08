@@ -113,7 +113,44 @@ def IALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                (add IADD, ISUB, AND,  OR,   XOR,
                                     LSHT, RSHT, IEQU, INEQ, ILT,
                                     INST, IST, INLT)>;
+// ducx start 20160808 ------------------------------------------------
+// ADD SUB
+def f_IADD : UCPMReg<0b000000000, "+">;
+def f_ISUB : UCPMReg<0b000000001, "-">;
 
+def dcx_IALUASOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add f_IADD, f_ISUB)>;			    
+// AND OR XOR       
+def m_AND  : UCPMReg<0b000000000, "&">;
+def m_OR   : UCPMReg<0b000000001, "|">;
+def m_XOR  : UCPMReg<0b000000010, "^">;
+
+def dcx_IALULogicOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_AND, m_OR, m_XOR)>;
+// EQU NEQ
+def m_IEQU : UCPMReg<0b000000010, "==">;
+def m_INEQ : UCPMReg<0b000000011, "!=">;
+
+def dcx_IALUCom1Oprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_IEQU, m_INEQ)>;
+// LT NST ST NLT		       
+def m_ILT  : UCPMReg<0b000000000, ">">;
+def m_INST : UCPMReg<0b000000010, ">=">;
+def m_IST  : UCPMReg<0b000000001, "<">;
+def m_INLT : UCPMReg<0b000000011, "<=">;
+
+def dcx_IALUCom2Oprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_ILT, m_INST, m_IST, m_INLT)>;
+// LSH RSH
+def m_LSHT : UCPMReg<0b000000000, "<<">;
+def m_RSHT : UCPMReg<0b000000001, ">>">;
+
+def dcx_IALUShiftOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_LSHT, m_RSHT)>;
+
+// ducx end 20160808 ------------------------------------------------------------		
+				    
+				    
 def IMAX : UCPMReg<0b000000011, "MAX">;
 def IMIN : UCPMReg<0b000000100, "MIN">;
 def IABS : UCPMReg<0b000000101, "ABS">;

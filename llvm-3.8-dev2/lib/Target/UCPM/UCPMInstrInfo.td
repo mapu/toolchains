@@ -462,20 +462,19 @@ multiclass IALUBinToDest {
   }
 }
 
-// ducx start ----- IALUBinTo BIU/MACC/SHU --------------------------------------------------------------------
+// ducx start 20160805 ----- IALUBinTo BIU/MACC/SHU --------------------------------------------------------------------
 class dcx_IALUBaseCode {
   field bits<48> Inst;
   let Inst{47-44} = 0b0110;//?
 }
 
-class dcx_IALUBinCode<bits<2> dest> : dcx_IALUBaseCode {
+class dcx_IALUCode<bits<2> dest> : dcx_IALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
   bits<6> f;
   bits<4>  d;
-  let Inst{21-18} = op{3-0};
-  let Inst{17-12} = f;
+
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
   let Inst{7} = 0;
@@ -484,14 +483,74 @@ class dcx_IALUBinCode<bits<2> dest> : dcx_IALUBaseCode {
   let Inst{2} = 0;
   let Inst{1-0}   = d{1-0};
 }
-multiclass dcx_IALUBinToDest {
-  def BinToSHU  : dcx_BinaryInstr<"", 1, IALUBinOprtor, SHUT  >, dcx_IALUBinCode<0b00>;
-  def BinToBIU  : dcx_BinaryInstr<"", 1, IALUBinOprtor, BIUO  >, dcx_IALUBinCode<0b10>;
-  def BinToMACC : dcx_BinaryInstr<"", 1, IALUBinOprtor, MACCTI>, dcx_IALUBinCode<0b01>;
+// ducx:ADD SUB
+class dcx_IALUASCode<bits<2> dest> : dcx_IALUCode<dest> {
+  let Inst{21-18} = op{3-0};
+  let Inst{17-12} = f;
+}
+// ducx:AND OR XOR
+class dcx_IALULogicCode<bits<2> dest> : dcx_IALUCode<dest>{
+  let Inst{21-18} = 0b1001;
+  let Inst{14}    = 0;
+  let Inst{13-12} = op{1-0};
+}
+// ducx:EQU NEQ
+class dcx_IALUCom1Code<bits<2> dest> : dcx_IALUCode<dest>{
+  let Inst{21-18} = 0b1001;
+  let Inst{16-15} = f{2-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+// ducx:LT NST ST NLT
+class dcx_IALUCom2Code<bits<2> dest> : dcx_IALUCode<dest>{
+  let Inst{21-18} = 0b1010;
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+// ducx:LSH RSH
+class dcx_IALUShiftCode<bits<2> dest> : dcx_IALUCode<dest>{
+  let Inst{21-18} = 0b0101;
+  let Inst{17-15} = f{2-0};
+  let Inst{13} = op{0};
 }
 
-defm dcx_IALU : dcx_IALUBinToDest;
-// ducx end --------------------------------------------------------------------------
+// ducx:ADD SUB
+multiclass dcx_IALUASToDest {
+  def ASToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, SHUT  >, dcx_IALUASCode<0b00>;
+  def ASToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, BIUO  >, dcx_IALUASCode<0b10>;
+  def ASToMACC : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, MACCT >, dcx_IALUASCode<0b01>;
+}
+// ducx:AND OR XOR
+multiclass dcx_IALULogicToDest {
+  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, SHUT  >, dcx_IALULogicCode<0b00>;
+  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, BIUO  >, dcx_IALULogicCode<0b10>;
+  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, MACCT >, dcx_IALULogicCode<0b01>;
+}
+// ducx:EQU NEQ
+multiclass dcx_IALUCom1ToDest {
+  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, SHUT  >, dcx_IALUCom1Code<0b00>;
+  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, BIUO  >, dcx_IALUCom1Code<0b10>;
+  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, MACCT >, dcx_IALUCom1Code<0b01>;
+}
+// ducx:LT NST ST NLT
+multiclass dcx_IALUCom2ToDest {
+  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, SHUT  >, dcx_IALUCom2Code<0b00>;
+  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, BIUO  >, dcx_IALUCom2Code<0b10>;
+  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, MACCT >, dcx_IALUCom2Code<0b01>;
+}
+// ducx:LSH RSH
+multiclass dcx_IALUShiftToDest {
+  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, SHUT  >, dcx_IALUShiftCode<0b00>;
+  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, BIUO  >, dcx_IALUShiftCode<0b10>;
+  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, MACCT >, dcx_IALUShiftCode<0b01>;
+}
+defm dcx_IALU :      dcx_IALUASToDest;
+defm dcx_IALULogic : dcx_IALULogicToDest;
+defm dcx_IALUCom1 :  dcx_IALUCom1ToDest;
+defm dcx_IALUCom2 :  dcx_IALUCom2ToDest;
+defm dcx_IALUShift : dcx_IALUShiftToDest;
+// ducx end 20160805--------------------------------------------------------------------------
 
 class IALUUryCode<bits<2> dest> : IALUBinCode<dest> {
   let tn = 0b0000;
