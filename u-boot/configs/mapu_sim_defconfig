@@ -258,11 +258,11 @@ CONFIG_CMD_TFTPSRV=y
 # CONFIG_CMD_RARP is not set
 CONFIG_CMD_DHCP=y
 # CONFIG_CMD_NFS is not set
-# CONFIG_CMD_PING is not set
+CONFIG_CMD_PING=y
 # CONFIG_CMD_CDP is not set
 # CONFIG_CMD_SNTP is not set
 # CONFIG_CMD_DNS is not set
-# CONFIG_CMD_LINK_LOCAL is not set
+CONFIG_CMD_LINK_LOCAL=y
 
 #
 # Misc commands

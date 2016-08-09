@@ -26,12 +26,26 @@ DECLARE_GLOBAL_DATA_PTR;
 # error "DesignWare Ether MAC requires PHYLIB - missing CONFIG_PHYLIB"
 #endif
 
+/*#define DW_GMAC_DEBUG*/
+
+#ifdef CONFIG_MAPU
+#ifdef DW_GMAC_DEBUG
+#define debug(fmt, args...) printf(fmt, ##args)
+#else
+#define debug(fmt, args...)
+#endif /* DW_GMAC_DEBUG */
+#endif /* CONFIG_MPAU*/
+
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct eth_mac_regs *mac_p = bus->priv;
 	ulong start;
 	u16 miiaddr;
 	int timeout = CONFIG_MDIO_TIMEOUT;
+
+#ifdef CONFIG_MAPU
+	debug("dw mdio read from reg = %#x\n", reg);
+#endif
 
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) |
 		  ((reg << MIIREGSHIFT) & MII_REGMSK);
@@ -40,10 +54,22 @@ static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 
 	start = get_timer(0);
 	while (get_timer(start) < timeout) {
-		if (!(readl(&mac_p->miiaddr) & MII_BUSY))
-			return readl(&mac_p->miidata);
+    if (!(readl(&mac_p->miiaddr) & MII_BUSY))
+#ifdef CONFIG_MAPU
+    {
+      ulong value = readl(&mac_p->miidata);
+      debug("dw mdio read, value = %#x\n", value);
+      return value;
+    }
+#else
+      return readl(&mac_p->miidata);
+#endif
 		udelay(10);
 	};
+
+#ifdef CONFIG_MAPU
+	debug("dw mdio read timeout!\n");
+#endif
 
 	return -ETIMEDOUT;
 }
@@ -55,6 +81,10 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	ulong start;
 	u16 miiaddr;
 	int ret = -ETIMEDOUT, timeout = CONFIG_MDIO_TIMEOUT;
+
+#ifdef CONFIG_MAPU
+  debug("dw mdio wirte value = %#x to reg = %#x\n", val, reg);
+#endif
 
 	writel(val, &mac_p->miidata);
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) |
@@ -70,6 +100,11 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 		}
 		udelay(10);
 	};
+
+#ifdef CONFIG_MAPU
+	if (ret != 0)
+	  debug("dw mdio wirte timeout!\n");
+#endif
 
 	return ret;
 }
@@ -124,9 +159,11 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 	desc_p->dmamac_next = &desc_table_p[0];
 
 	/* Flush all Tx buffer descriptors at once */
+#ifndef CONFIG_MAPU
 	flush_dcache_range((unsigned int)priv->tx_mac_descrtable,
 			   (unsigned int)priv->tx_mac_descrtable +
 			   sizeof(priv->tx_mac_descrtable));
+#endif
 
 	writel((ulong)&desc_table_p[0], &dma_p->txdesclistaddr);
 	priv->tx_currdescnum = 0;
@@ -146,8 +183,10 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 	 * Otherwise there's a chance to get some of them flushed in RAM when
 	 * GMAC is already pushing data to RAM via DMA. This way incoming from
 	 * GMAC data will be corrupted. */
+#ifndef CONFIG_MAPU
 	flush_dcache_range((unsigned int)rxbuffs, (unsigned int)rxbuffs +
 			   RX_TOTAL_BUFSIZE);
+#endif
 
 	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
@@ -165,9 +204,11 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 	desc_p->dmamac_next = &desc_table_p[0];
 
 	/* Flush all Rx buffer descriptors at once */
+#ifndef CONFIG_MAPU
 	flush_dcache_range((unsigned int)priv->rx_mac_descrtable,
 			   (unsigned int)priv->rx_mac_descrtable +
 			   sizeof(priv->rx_mac_descrtable));
+#endif
 
 	writel((ulong)&desc_table_p[0], &dma_p->rxdesclistaddr);
 	priv->rx_currdescnum = 0;
@@ -306,8 +347,9 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 	 * individual descriptors in the array are each aligned to
 	 * ARCH_DMA_MINALIGN and padded appropriately.
 	 */
+#ifndef CONFIG_MAPU
 	invalidate_dcache_range(desc_start, desc_end);
-
+#endif
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->txrx_status & DESC_TXSTS_OWNBYDMA) {
 		printf("CPU not owner of tx frame\n");
@@ -317,7 +359,9 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 	memcpy(desc_p->dmamac_addr, packet, length);
 
 	/* Flush data to be sent */
-	flush_dcache_range(data_start, data_end);
+#ifndef CONFIG_MAPU
+	flush_dcache_range(data_s
+#endif
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
@@ -335,7 +379,9 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 #endif
 
 	/* Flush modified buffer descriptor */
+#ifndef CONFIG_MAPU
 	flush_dcache_range(desc_start, desc_end);
+#endif
 
 	/* Test the wrap-around condition. */
 	if (++desc_num >= CONFIG_TX_DESCR_NUM)
@@ -361,9 +407,13 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 	uint32_t data_end;
 
 	/* Invalidate entire buffer descriptor */
+#ifndef CONFIG_MAPU
 	invalidate_dcache_range(desc_start, desc_end);
+#endif
 
 	status = desc_p->txrx_status;
+
+  printf("DEBUG_MAPU dw eth recv status = %#x!\n", status);
 
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
@@ -373,7 +423,9 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 
 		/* Invalidate received data */
 		data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
+#ifndef CONFIG_MAPU
 		invalidate_dcache_range(data_start, data_end);
+#endif
 		*packetp = desc_p->dmamac_addr;
 	}
 
@@ -395,7 +447,9 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 	desc_p->txrx_status |= DESC_RXSTS_OWNBYDMA;
 
 	/* Flush only status field - others weren't changed */
+#ifndef CONFIG_MAPU
 	flush_dcache_range(desc_start, desc_end);
+#endif
 
 	/* Test the wrap-around condition. */
 	if (++desc_num >= CONFIG_RX_DESCR_NUM)
@@ -437,6 +491,7 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 
 static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 {
+  printf("DEBUG_MAPU dw eth send!\n");
 	return _dw_eth_send(dev->priv, packet, length);
 }
 
@@ -445,7 +500,12 @@ static int dw_eth_recv(struct eth_device *dev)
 	uchar *packet;
 	int length;
 
+	//printf("DEBUG_MAPU dw eth recv!\n");
+
 	length = _dw_eth_recv(dev->priv, &packet);
+
+  //printf("DEBUG_MAPU dw eth recv length = %d!\n", length);
+
 	if (length == -EAGAIN)
 		return 0;
 	net_process_received_packet(packet, length);

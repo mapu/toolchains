@@ -185,10 +185,15 @@
 #define CONFIG_DESIGNWARE_ETH
 #define CONFIG_MAPU_GMAC_BASE 0x50c00000
 
-# define CONFIG_IPADDR    192.168.3.233
-# define CONFIG_NETMASK   255.255.255.0
-# define CONFIG_SERVERIP    192.168.3.9
-# define CONFIG_GATEWAYIP   192.168.3.1
+#define CONFIG_IPADDR    192.168.1.103
+#define CONFIG_NETMASK   255.255.255.0
+#define CONFIG_SERVERIP    192.168.1.105
+#define CONFIG_GATEWAYIP   192.168.1.1
+#define CONFIG_MII    /* expose smi ove miiphy interface */
+#define CONFIG_CMD_MII
+#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN /* detect link using phy */
+#define CONFIG_PHY_ADDR 1
+#define CONFIG_DW_ALTDESCRIPTOR
 
 /* Command line configuration */
 #define CONFIG_MENU_SHOW
@@ -202,7 +207,7 @@
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NET
 */
-#define CONFIG_CMD_PING
+/*#define CONFIG_CMD_PING*/
 /*#define CONFIG_CMD_RUN*/
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
