@@ -24,7 +24,7 @@ class MicrocodeTableWidget(InitTableWidget):
         self.previousPointRow = -1
         #MMPULite parser
 	self.mmpulite = MMPULite()
-	self.errorColor = QBrush(QColor(255, 99, 71))
+	self.errorColor = QColor(255, 99, 71)
 
     @pyqtSlot(int, int, int, int)   
     def currentCellChangedSlot(self, currentRow, currentColumn, previousRow, previousColumn):
@@ -59,9 +59,13 @@ class MicrocodeTableWidget(InitTableWidget):
 	    out = item.whatsThis().split("-")
 	    self.previousPointRow = []   
 	    for i in out:
-	        outRow = currentRow + int(i)	  
+	        rowColor = []
+	        outRow = currentRow + int(i)	
+	        color = self.getRowBackground(outRow)
                 self.setWholeRowColor(outRow, Qt.blue) 
-                self.previousPointRow.append(outRow)
+                rowColor.append(outRow)
+                rowColor.append(color)
+                self.previousPointRow.append(rowColor)
         else:
             self.previousPointRow = -1 
 
@@ -296,6 +300,17 @@ class MicrocodeTableWidget(InitTableWidget):
                         self.array[i][self.currentLeftColumn] = text 
         self.viewport().update()                              
 
+    def getRowBackground(self, row):
+	rowColor = []
+	count = self.getColumnCount()
+	for i in xrange(count):
+	    item = self.item(row, i)
+	    if item == None:
+		self.setItem(row, i, QTableWidgetItem(""))
+		item = self.item(row, i)
+	    rowColor.append(item.background())
+	return rowColor
+
     def setWholeRowColor(self, row, color):
         count = self.getColumnCount()
         for i in xrange(0, count):
@@ -305,16 +320,16 @@ class MicrocodeTableWidget(InitTableWidget):
                 self.setItem(row, i, item)
             item.setBackground(QBrush(color))
         
-    def earserWholeRowColor(self, row):
+    def earserWholeRowColor(self, rowColor):
         count = self.getColumnCount()
+        row = rowColor[0]
+        color = rowColor[1]
         for i in xrange(0, count):
             item = self.item(row, i)
             if item == None:
                 item = QTableWidgetItem("")
                 self.setItem(row, i, item)
-                item.setBackground(self.defaultBackgroundColor)
-            else:
-	        self.dataParser(row, i)	         
+            item.setBackground(color[i])    
 
     def searchLPStart(self, rectList, row):
         cmpList = []

@@ -7,6 +7,7 @@ from view.MicrocodeTableWidget.InsertDialog import InsertDialog
 from view.MicrocodeTableWidget.DeleteDialog import DeleteDialog
 from view.MicrocodeTableWidget.CellDelegate import CellDelegate
 from view.MicrocodeTableWidget.FloatDialog import FloatDialog
+from view.MicrocodeTableWidget.ColorDialog import ColorDialog
 from data.MMPULite import MMPULite
 import sys
 sys.path.append("..")
@@ -33,11 +34,13 @@ class InitTableWidget(QTableWidget):
         #get default background
         item = QTableWidgetItem("")
         self.defaultBackgroundColor = item.background()
+        self.defaultTextColor = item.textColor()
+        self.color = [QColor(211, 211, 211), QColor(176, 214, 246), QColor(239, 239, 183), QColor(241, 181, 195), QColor(242, 180, 239)]
         #set font
         self.setFont(QFont("Monospace", 10))
         self.horizontalHeader().setFont(QFont("Monospace", 10))
         #set Item delegate
-        self.cellDelegate = CellDelegate()
+        self.cellDelegate = CellDelegate(self.color, self)
         self.setItemDelegate(self.cellDelegate)
         self.cellDelegate.floatDialogCloseSignal.connect(self.floatDialogCloseSlot)
         
@@ -80,7 +83,7 @@ class InitTableWidget(QTableWidget):
         selRange = self.selectedRange()
         string = QString()
         for i in xrange(0, selRange.rowCount()):
-            if i> 0:
+            if i > 0:
                 string += '\n'
             for j in xrange(0, selRange.columnCount()):
                 if j > 0:
@@ -114,7 +117,34 @@ class InitTableWidget(QTableWidget):
             for i in xrange(self.loopEndRow, row):
                 self.array.append(["...."]*(self.ColumnCount))
             self.loopEndRow = row
-	    
+
+    def fileColor(self):
+	self.colorDialog = ColorDialog(self.color, self)
+	self.colorDialog.OKColorSignal.connect(self.setColor)
+	self.colorDialog.OKIndexSignal.connect(self.setColor)
+	self.colorDialog.show()
+        
+    @pyqtSlot(QColor)
+    @pyqtSlot(int)
+    def setColor(self, color):
+	if color == 5:
+	    color = self.defaultBackgroundColor
+	selRange = self.selectedRange()
+        self.currentRowNum = selRange.rowCount()
+        self.currentColumnNum = selRange.columnCount()
+        self.currentTopRow = selRange.topRow()
+        self.currentLeftColumn = selRange.leftColumn()
+        for i in xrange(self.currentRowNum):
+	    for j in xrange(self.currentColumnNum):
+		row = self.currentTopRow + i
+		column = self.currentLeftColumn + j
+		
+		item = self.item(row, column)
+		if item == None:
+		    self.setItem(row, column, QTableWidgetItem(""))
+		    item = self.item(row, column)
+		item.setBackground(QBrush(color))	
+        
     def delete(self):
         items = self.selectedItems()
         for i in xrange(len(items)):
@@ -415,7 +445,8 @@ class InitTableWidget(QTableWidget):
         item = self.item(row, column)
         if item != None:
 	    if item.text() == "":
-	        item.setBackground(self.defaultBackgroundColor)
+	        #item.setBackground(self.defaultBackgroundColor)
+	        item.setTextColor(self.defaultTextColor)
 		item.setWhatsThis("")
             else:
 		#check microcode is legal?
@@ -425,13 +456,16 @@ class InitTableWidget(QTableWidget):
 		if text != -1:
 		    out = self.database.searchMcc(text)
 		    if out != 0:
-		        item.setBackground(self.defaultBackgroundColor)
+		        #item.setBackground(self.defaultBackgroundColor)
+		        item.setTextColor(self.defaultTextColor)
 		        item.setWhatsThis(out)	
 		    else:
-		        item.setBackground(self.errorColor)
+		        #item.setBackground(self.errorColor)
+		        item.setTextColor(self.errorColor)
 		        item.setWhatsThis("-1")
 		else:
-		    item.setBackground(self.errorColor)
+		    #item.setBackground(self.errorColor)
+		    item.setTextColor(self.errorColor)
 		    item.setWhatsThis(str(text))
 	    '''
 	    if item.whatsThis() == "" or item.whatsThis() == "-1":

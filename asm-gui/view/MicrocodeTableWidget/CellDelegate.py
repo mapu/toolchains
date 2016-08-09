@@ -7,8 +7,10 @@ import data.RegColor
 class CellDelegate(QItemDelegate):
     searchTreeSignal = pyqtSignal(int, int, str)
     floatDialogCloseSignal = pyqtSignal()
-    def __init__(self, parent = None):
+    def __init__(self, color, parent = None):
         super(CellDelegate, self).__init__(parent)
+        
+        self.color = color
         self.regColor = data.RegColor.initRegColor()
         self.flagList = [[1, 1, 0, 0],
                          [0, 0, 1, 1],
@@ -84,6 +86,9 @@ class CellDelegate(QItemDelegate):
                     regList = textList[3].split(",")
                     if str(reg) in regList:
                         painter.drawLine(option.rect.bottomLeft().x() + (reg * step), option.rect.bottomLeft().y() - (reg * step * flag[3]), \
-                                         option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))       
+                                         option.rect.topLeft().x() + (reg * step), option.rect.topLeft().y() + (reg * step * flag[0]))      
+		#if textList[4] != "":
+		    #paintColor = self.color[int(textList[4])]
+		    #painter.drawRect(option.rect)
         QItemDelegate.paint(self, painter, myOption, index)   
 

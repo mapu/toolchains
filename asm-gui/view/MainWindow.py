@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-   
-from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit, QHBoxLayout, QSplitter
+from PyQt4.QtGui import QMainWindow, QToolBar, QAction, QIcon, QCheckBox, QTextEdit, QFileDialog, QLineEdit, QHBoxLayout, QSplitter, QMenu
 from PyQt4.QtCore import pyqtSignal, Qt, SIGNAL, pyqtSlot, QString
 from res import qrc_resources 
 from view.MicrocodeTableWidget.MicrocodeTableWidget import MicrocodeTableWidget
@@ -82,6 +82,10 @@ class MainWindow(QMainWindow):
         self.connect(self.pasteAction, SIGNAL("triggered()"), self.microcodeTableWidget.paste)
 	self.pasteAction.setEnabled(False)
 	
+	self.fillAction = QAction(QIcon(":/fill.png"), self.tr("Fill color"), self)
+	self.connect(self.fillAction, SIGNAL("triggered()"), self.microcodeTableWidget.fileColor)
+	self.fillAction.setEnabled(False)
+	
         self.clearAction = QAction(self.tr("Clear"), self)
         self.clearAction.setShortcut("Del")
         self.clearAction.setStatusTip("Delete the current selection's contents")
@@ -146,6 +150,7 @@ class MainWindow(QMainWindow):
         editToolBar.addAction(self.cutAction)
         editToolBar.addAction(self.copyAction)
         editToolBar.addAction(self.pasteAction)
+        editToolBar.addAction(self.fillAction)
 
         registerToolBar = self.addToolBar("Register")
         self.register0Check = QCheckBox(self.register[0], registerToolBar) 
@@ -196,6 +201,7 @@ class MainWindow(QMainWindow):
         self.copyAction.setEnabled(True)
         self.cutAction.setEnabled(True)
         self.pasteAction.setEnabled(True)
+        self.fillAction.setEnabled(True)
 
     @pyqtSlot()
     def openFile(self):
@@ -209,7 +215,8 @@ class MainWindow(QMainWindow):
             self.copyAction.setEnabled(True)
             self.cutAction.setEnabled(True)
             self.pasteAction.setEnabled(True)
-            self.saveFile()
+            self.fillAction.setEnabled(True)
+            self.saveFile() 
         
     @pyqtSlot()
     def saveFile(self):
