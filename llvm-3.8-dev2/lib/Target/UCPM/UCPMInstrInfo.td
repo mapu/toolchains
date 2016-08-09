@@ -394,30 +394,9 @@ defm BIU2Ld : BIULdInstr<"BIU2.", 0b1100>;
 def BIU2St: BIUStInstr<"BIU2", 0b1100>;
 def BIU2KG: BIUKGInstr<"BIU2", 0b1100>;
 
-class IALUBaseCode {
-  field bits<48> Inst;
-  let Inst{47-44} = 0b0110;
-}
 
-class IALUCode<bits<2> dest> : IALUBaseCode {
-  bits<8> op;
-  bits<4> tm;
-  bits<4> tn;
-  bits<2> tp;
-  bits<32> f;
-  bits<9>  d;
-  bits<2>  c;
-  let Inst{30-26} = op{4-0};
-  let Inst{25-24} = c;
-  let Inst{23-22} = 0;
-  let Inst{21-18} = f{3-0};
-  let Inst{17-16} = tm{1-0};
-  let Inst{15-14} = tn{1-0};
-  let Inst{13-12} = tp;
-  let Inst{11}    = 0;
-  let Inst{10-2}  = d;
-  let Inst{1-0}   = dest;
-}
+
+
 
 class IALUTPCode<bits<2> dest> : IALUCode<dest>  {
   bits<8> op;
@@ -444,31 +423,14 @@ multiclass IALUTPToDest {
   def ToBIU  : TParaInstr<"", 1, "", IALUTPOprtor, BIUO  >, IALUTPCode<0b10>;
   def ToMACC : TParaInstr<"", 1, "", IALUTPOprtor, MACCTI>, IALUTPCode<0b11>;
 }
-class IALUBinCode<bits<2> dest> : IALUTPCode<dest> {
-  let tp = 0b00;
-}
-multiclass IALUBinToDest {
-  let isCodeGenOnly = 1 in {
-  def BinToM    : BinaryInstr<"", 1, IALUBinOprtor, MRegO >, IALUBinCode<0b00>;
-  def BinToSHU  : BinaryInstr<"", 1, IALUBinOprtor, SHUT  >, IALUBinCode<0b01>;
-  def BinToBIU  : BinaryInstr<"", 1, IALUBinOprtor, BIUO  >, IALUBinCode<0b10>;
-  def BinToMACC : BinaryInstr<"", 1, IALUBinOprtor, MACCTI>, IALUBinCode<0b11>;
-  }
-  let isCodeGenOnly = 1 in {
-  def DPToM     : BinaryInstr<"", 0, IALUDPOprtor, MRegO >, IALUBinCode<0b00>;
-  def DPToSHU   : BinaryInstr<"", 0, IALUDPOprtor, SHUT  >, IALUBinCode<0b01>;
-  def DPToBIU   : BinaryInstr<"", 0, IALUDPOprtor, BIUO  >, IALUBinCode<0b10>;
-  def DPToMACC  : BinaryInstr<"", 0, IALUDPOprtor, MACCTI>, IALUBinCode<0b11>;
-  }
-}
 
 // ducx start 20160805 ----- IALUBinTo BIU/MACC/SHU --------------------------------------------------------------------
-class dcx_IALUBaseCode {
+class IALUBaseCode {
   field bits<48> Inst;
   let Inst{47-44} = 0b0110;//?
 }
 
-class dcx_IALUCode<bits<2> dest> : dcx_IALUBaseCode {
+class IALUCode<bits<2> dest> : IALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
@@ -483,109 +445,137 @@ class dcx_IALUCode<bits<2> dest> : dcx_IALUBaseCode {
   let Inst{2} = 0;
   let Inst{1-0}   = d{1-0};
 }
-// ducx:ADD SUB
-class dcx_IALUASCode<bits<2> dest> : dcx_IALUCode<dest> {
+
+// ADD SUB
+class IALUASCode<bits<2> dest> : IALUCode<dest> {
   let Inst{21-18} = op{3-0};
   let Inst{17-12} = f;
 }
-// ducx:AND OR XOR
-class dcx_IALULogicCode<bits<2> dest> : dcx_IALUCode<dest>{
+multiclass IALUASToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : BinaryInstr<"", 1, IALUASOprtor, SHUT  >, IALUASCode<0b00>;
+  def ToBIU  : BinaryInstr<"", 1, IALUASOprtor, BIUO  >, IALUASCode<0b10>;
+  def ToMACC : BinaryInstr<"", 1, IALUASOprtor, MACCT >, IALUASCode<0b01>;
+  }
+}
+
+// AND OR XOR
+class IALULogicCode<bits<2> dest> : IALUCode<dest>{
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
-// ducx:EQU NEQ
-class dcx_IALUCom1Code<bits<2> dest> : dcx_IALUCode<dest>{
-  let Inst{21-18} = 0b1001;
-  let Inst{16-15} = f{2-1};
-  let Inst{14-13} = op{1-0};
-  let Inst{12}    = f{0};
-}
-// ducx:LT NST ST NLT
-class dcx_IALUCom2Code<bits<2> dest> : dcx_IALUCode<dest>{
-  let Inst{21-18} = 0b1010;
-  let Inst{17-15} = f{3-1};
-  let Inst{14-13} = op{1-0};
-  let Inst{12}    = f{0};
-}
-// ducx:LSH RSH
-class dcx_IALUShiftCode<bits<2> dest> : dcx_IALUCode<dest>{
-  let Inst{21-18} = 0b0101;
-  let Inst{17-15} = f{2-0};
-  let Inst{13} = op{0};
-}
-
-// ducx:ADD SUB
-multiclass dcx_IALUASToDest {
-  def ASToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, SHUT  >, dcx_IALUASCode<0b00>;
-  def ASToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, BIUO  >, dcx_IALUASCode<0b10>;
-  def ASToMACC : dcx_BinaryInstr<"", 1, dcx_IALUASOprtor, MACCT >, dcx_IALUASCode<0b01>;
-}
-// ducx:AND OR XOR
-multiclass dcx_IALULogicToDest {
-  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, SHUT  >, dcx_IALULogicCode<0b00>;
-  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, BIUO  >, dcx_IALULogicCode<0b10>;
-  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALULogicOprtor, MACCT >, dcx_IALULogicCode<0b01>;
-}
-// ducx:EQU NEQ
-multiclass dcx_IALUCom1ToDest {
-  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, SHUT  >, dcx_IALUCom1Code<0b00>;
-  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, BIUO  >, dcx_IALUCom1Code<0b10>;
-  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUCom1Oprtor, MACCT >, dcx_IALUCom1Code<0b01>;
-}
-// ducx:LT NST ST NLT
-multiclass dcx_IALUCom2ToDest {
-  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, SHUT  >, dcx_IALUCom2Code<0b00>;
-  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, BIUO  >, dcx_IALUCom2Code<0b10>;
-  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUCom2Oprtor, MACCT >, dcx_IALUCom2Code<0b01>;
-}
-// ducx:LSH RSH
-multiclass dcx_IALUShiftToDest {
-  def ToSHU  : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, SHUT  >, dcx_IALUShiftCode<0b00>;
-  def ToBIU  : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, BIUO  >, dcx_IALUShiftCode<0b10>;
-  def ToMACC : dcx_BinaryInstr<"", 1, dcx_IALUShiftOprtor, MACCT >, dcx_IALUShiftCode<0b01>;
-}
-defm dcx_IALU :      dcx_IALUASToDest;
-defm dcx_IALULogic : dcx_IALULogicToDest;
-defm dcx_IALUCom1 :  dcx_IALUCom1ToDest;
-defm dcx_IALUCom2 :  dcx_IALUCom2ToDest;
-defm dcx_IALUShift : dcx_IALUShiftToDest;
-// ducx end 20160805--------------------------------------------------------------------------
-
-class IALUUryCode<bits<2> dest> : IALUBinCode<dest> {
-  let tn = 0b0000;
-}
-multiclass IALUUryToDest {
+multiclass IALULogicToDest {
   let isCodeGenOnly = 1 in {
-  def ToM    : UnaryInstr<"", IALUUryOprtor, MRegO >, IALUUryCode<0b00>;
-  def ToSHU  : UnaryInstr<"", IALUUryOprtor, SHUT  >, IALUUryCode<0b01>;
-  def ToBIU  : UnaryInstr<"", IALUUryOprtor, BIUO  >, IALUUryCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryOprtor, MACCTI>, IALUUryCode<0b11>;
+  def ToSHU  : BinaryInstr<"", 1, IALULogicOprtor, SHUT  >, IALULogicCode<0b00>;
+  def ToBIU  : BinaryInstr<"", 1, IALULogicOprtor, BIUO  >, IALULogicCode<0b10>;
+  def ToMACC : BinaryInstr<"", 1, IALULogicOprtor, MACCT >, IALULogicCode<0b01>;
   }
 }
+
+// EQU NEQ LT NST ST NLT / MAX MIN
+class IALUComCode<bits<2> dest> : IALUCode<dest>{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{5-3};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+multiclass IALUComToDest {
+  let isCodeGenOnly = 1 in {
+  def ComToSHU  : BinaryInstr<"", 1, IALUComOprtor, SHUT  >, IALUComCode<0b00>;
+  def ComToBIU  : BinaryInstr<"", 1, IALUComOprtor, BIUO  >, IALUComCode<0b10>;
+  def ComToMACC : BinaryInstr<"", 1, IALUComOprtor, MACCT >, IALUComCode<0b01>;
+  }
+  let isCodeGenOnly = 1 in {
+  def MNToSHU  : BinaryInstr<"", 0, IALUMNOprtor, SHUT  >, IALUComCode<0b00>;
+  def MNToBIU  : BinaryInstr<"", 0, IALUMNOprtor, BIUO  >, IALUComCode<0b10>;
+  def MNToMACC : BinaryInstr<"", 0, IALUMNOprtor, MACCT >, IALUComCode<0b01>;
+  }
+}
+
+// LSH RSH
+class IALUShiftCode<bits<2> dest> : IALUCode<dest>{
+  let Inst{21-18} = 0b0101;
+  let Inst{17-15} = f{5-3};
+  let Inst{13} = op{0};
+}
+multiclass IALUShiftToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : BinaryInstr<"", 1, IALUShiftOprtor, SHUT  >, IALUShiftCode<0b00>;
+  def ToBIU  : BinaryInstr<"", 1, IALUShiftOprtor, BIUO  >, IALUShiftCode<0b10>;
+  def ToMACC : BinaryInstr<"", 1, IALUShiftOprtor, MACCT >, IALUShiftCode<0b01>;
+  }
+}
+
+class IALUUryCode<bits<2> dest> : IALUCode<dest> {
+  let tn = 0b00;
+}
+// RADD RMAX RMIN EXPD	
+class IALUUryRMNCode<bits<2> dest> : IALUUryCode<dest>{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{5-3};
+  let Inst{14-13} = op{1-0};
+}
+multiclass IALUUryRMNToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : UnaryInstr<"", IALUUryRMNOprtor, SHUT  >, ALUUryRMNCode<0b00>;
+  def ToBIU  : UnaryInstr<"", IALUUryRMNOprtor, BIUO  >, IALUUryRMNCode<0b10>;
+  def ToMACC : UnaryInstr<"", IALUUryRMNOprtor, MACCT >, IALUUryRMNCode<0b01>;
+  }
+}
+
+// ABS CONJ MINUS
+class IALUUryCONCode<bits<2> dest> : IALUUryCode<dest>{
+  let Inst{21-18} = op{4-1};
+  let Inst{17-14} = f{5-2};
+  let Inst{13} = op{0};
+  let Inst{12} = f{0};
+}
+multiclass IALUUryCONToDest {
+  let isCodeGenOnly = 1 in { //???
+  def ToSHU  : UnaryInstr<"", IALUUryCONOprtor, SHUT  >, IALUUryCONCode<0b00>;
+  def ToBIU  : UnaryInstr<"", IALUUryCONOprtor, BIUO  >, IALUUryCONCode<0b10>;
+  def ToMACC : UnaryInstr<"", IALUUryCONOprtor, MACCT >, IALUUryCONCode<0b01>;
+  }
+}
+
+// LSHimm RSHimm
 class IALUImmInstr<Operand DestTy, bits<2> dest>
         : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f),
                       "", "$tm $op $imm$f", DestTy>, IALUBaseCode {
   bits<2>  tm;
   bits<5>  imm;
-  bits<32> f;
+  bits<6> f;
   bit      op;
-  let Inst{30-27} = 0b0110;
-  let Inst{26}    = op;
-  let Inst{25-24} = c;
-  let Inst{23-22} = 0b01;
-  let Inst{21-18} = f{3-0};
-  let Inst{17-16} = tm;
-  let Inst{15-11} = imm;
-  let Inst{10-2}  = d;
-  let Inst{1-0}   = dest;
+  let Inst{21-18} = op{3-0};
+  let Inst{17-15} = f{5-3}
+  let Inst{14-12} = imm{4-2};
+  let Inst{11-10} = tm;
+  let Inst{9-8} = imm{1-0};
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-3}  = d{3-2};
+  let Inst{2} = 0;
+  let Inst{1-0}   = d{1-0};
 }
-multiclass IALUImmToDest {
-  def ToM    : IALUImmInstr<MRegO , 0b00>;
-  def ToSHU  : IALUImmInstr<SHUT  , 0b01>;
+multiclass IALUImmToDest { 
+  def ToSHU  : IALUImmInstr<SHUT  , 0b00>;
   def ToBIU  : IALUImmInstr<BIUO  , 0b10>;
-  def ToMACC : IALUImmInstr<MACCTI, 0b11>;
+  def ToMACC : IALUImmInstr<MACCT, 0b01>;
 }
+
+defm IALUAS :      IALUASToDest;
+defm IALULogic : IALULogicToDest;
+defm IALU :      IALUComToDest;
+defm IALUShift : IALUShiftToDest;
+defm IALUUryRMN:   IALUUryRMNToDest;
+defm IALUUryCON:   IALUUryCONToDest;
+defm IALUImm : IALUImmToDest;
+
+// ducx end 20160805--------------------------------------------------------------------------
+
+
+
 class DIVRInstr<Operand DestTy, bits<2> dest>
         : AssignInstr<(ins), "", "DIVR", DestTy>, IALUCode<dest> {
   let tm = 0;

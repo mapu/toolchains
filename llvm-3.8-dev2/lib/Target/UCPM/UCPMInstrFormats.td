@@ -117,6 +117,8 @@ class CtrlInstr<string header, string ctrl>
                        !strconcat(header, ".", ctrl)> {}
 
 /* instruction template for the class of assignment instructions */
+
+// ducx start 20160805---------------------------------------------------------------------
 class CommonAssignInstr<dag ins, dag outs, 
                         string header, string rclause, string assign, string lclause,
                         list<dag> pattern = []>
@@ -126,11 +128,32 @@ class CommonAssignInstr<dag ins, dag outs,
 
 class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
-                            header, "$d$c", "->", lclause, pattern> {
-  bits<9>  d;
-  bits<2>  c;
+        : CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<4>  d;
 }
+
+class BinaryInstr<string header, bit mode,
+                  RegisterClass OprtorTy, Operand DestTy>
+        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      header,
+                      !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<6> f;
+  bits<8>  op;
+}
+class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
+        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      header,
+                      "$op $tm$f", DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<6> f;
+  bits<8>  op;
+}
+// ducx end 20160805----------------------------------------------------------------
+
 //yangl
 class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
@@ -174,55 +197,6 @@ class TParaInstr<string header, bit mode, string fop,
   bits<8>  op;
 }
 
-class BinaryInstr<string header, bit mode,
-                  RegisterClass OprtorTy, Operand DestTy>
-        : AssignInstr<(ins OprtorTy: $op, TEPort: $tm, TEPort: $tn, TPort: $tp, Flags: $f),
-                      header,
-                      !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
-  bits<4>  tm;
-  bits<4>  tn;
-  bits<2>  tp;
-  bits<32> f;
-  bits<8>  op;
-}
-
-// ducx start 20160805---------------------------------------------------------------------
-class dcx_CommonAssignInstr<dag ins, dag outs, 
-                        string header, string rclause, string assign, string lclause,
-                        list<dag> pattern = []>
-        : UCPMInst<ins, outs,
-                       !strconcat(header, lclause, " ", assign, " ", rclause),
-                       pattern>;
-
-class dcx_AssignInstr<dag ins, string header, string lclause, Operand DestTy,
-                  list<dag> pattern = []>
-        : dcx_CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
-  bits<4>  d;
-}
-
-class dcx_BinaryInstr<string header, bit mode,
-                  RegisterClass OprtorTy, Operand DestTy>
-        : dcx_AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
-                      header,
-                      !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
-  bits<2>  tm;
-  bits<2>  tn;
-  bits<6> f;
-  bits<8>  op;
-}
-// ducx end 20160805----------------------------------------------------------------
-
-class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
-        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TEPort: $tn, TPort: $tp, Flags: $f),
-                      header,
-                      "$op $tm$f", DestTy> {
-  bits<4>  tm;
-  bits<4>  tn;
-  bits<2>  tp;
-  bits<32> f;
-  bits<8>  op;
-}
 
 class SEQInst<dag ins, 
           string opstr, 
