@@ -143,12 +143,26 @@ class BinaryInstr<string header, bit mode,
   bits<6> f;
   bits<8>  op;
 }
+
 class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
         : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
                       header,
                       "$op $tm$f", DestTy> {
   bits<2>  tm;
   bits<2>  tn;
+  bits<6> f;
+  bits<8>  op;
+}
+
+class TParaInstr<string header, bit mode, string fop,
+                 RegisterClass OprtorTy, Operand DestTy>
+        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f),
+                      header,
+                      !if(mode, "$op($tm, $tn, $tp)$f",
+                          !strconcat(fop, " $tm $op $tn$f")), DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<2>  tp;
   bits<6> f;
   bits<8>  op;
 }
@@ -182,21 +196,6 @@ class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
   bits<9> d;
   bits<2> c;
 }
-
-
-class TParaInstr<string header, bit mode, string fop,
-                 RegisterClass OprtorTy, Operand DestTy>
-        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f),
-                      header,
-                      !if(mode, "$op($tm, $tn, $tp)$f",
-                          !strconcat(fop, " $tm $op $tn$f")), DestTy> {
-  bits<4>  tm;
-  bits<4>  tn;
-  bits<2>  tp;
-  bits<32> f;
-  bits<8>  op;
-}
-
 
 class SEQInst<dag ins, 
           string opstr, 
