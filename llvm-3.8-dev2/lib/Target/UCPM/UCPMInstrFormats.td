@@ -86,7 +86,10 @@ def SHUT : Operand<i32> {
   let EncoderMethod = "getSHUTEncoding";
   let DecoderMethod = "DecodeSHUT";
 }
-
+def BIUO: Operand<i32> {
+  let DecoderMethod = "DecodeBIURegisterClass";
+  let MIOperandInfo = (ops BIU);
+}
 
 
 /* a common instruction template base for UCPM */
