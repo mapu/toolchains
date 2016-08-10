@@ -260,7 +260,7 @@ getSHUTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
   unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
   assert(MI.getOperand(OpNo+1).isReg());
   unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
-  return UnitBits | (TPortBits << 2);
+  return (UnitBits << 1) | TPortBits;
 }
 
 unsigned UCPMMCCodeEmitter::

@@ -24,6 +24,7 @@ void UCPMScheduler::allocResvRecord() {
 }
 
 void UCPMScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
+  /*yangl
   History.push_back(*(new std::vector<use>));
   std::vector<use> &instline = History.back();
   const MCInst *MIP = MI;
@@ -136,7 +137,7 @@ void UCPMScheduler::Schedule(uint64_t VA, MCInst *MI, unsigned Sym) {
       }
     }
     ResvBoard.erase(ResvBoard.begin());
-  }
+  }*/
 }
 
 void UCPMScheduler::Trace(MCInst *MI) {
@@ -151,7 +152,7 @@ void UCPMScheduler::Trace(MCInst *MI) {
 
 uint64_t UCPMScheduler::UsageFixup(const uint64_t DefUsage,
                                         const MCInst *MI) {
-  const unsigned opc = MI->getOpcode();
+  /*yangl const unsigned opc = MI->getOpcode();
   uint64_t Patch = 0xFFFFFFFFFFFFFFFFULL;
   switch (opc) {
   case UCPM::BIU0LdToMACC:
@@ -302,12 +303,13 @@ uint64_t UCPMScheduler::UsageFixup(const uint64_t DefUsage,
 
   default: return DefUsage;
   }
-  return DefUsage & Patch;
+  return DefUsage & Patch;*/
+  return 0;//yangl, temp, please delete
 }
 
 void UCPMScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCInst *MI,
                                          unsigned begin) {
-  const unsigned TF=3, LF=7;
+  /*yangl const unsigned TF=3, LF=7;
   unsigned linesize = 0;
   const MCOperand *MO = NULL;
   switch (MI->getOpcode()) {
@@ -477,11 +479,11 @@ void UCPMScheduler::FixupDoubleRegWB(std::vector<use> &instline, const MCInst *M
 
   default:
     break;
-  }
+  }*/
 }
 
 uint64_t UCPMScheduler::getLatency(unsigned Opc) {
-  uint64_t usage = ResUsageMap[Opc - UCPM::BIU0KG];
+  /*yangl uint64_t usage = ResUsageMap[Opc - UCPM::BIU0KG];
   unsigned index = 0;
   ResouceTy id = Invalid;
   if (usage & (1 << MW3))
@@ -505,14 +507,17 @@ uint64_t UCPMScheduler::getLatency(unsigned Opc) {
   for (unsigned i = 0; i < id; i++)
     if ((1 << i) & usage) index++;
   return ResLatMap[Opc - UCPM::BIU0KG][index * 2];
+  */
+  return 0;//yangl, temp, delete
 }
   
 uint64_t UCPMScheduler::getLatency(unsigned Opc, ResouceTy Res) {
-  uint64_t usage = ResUsageMap[Opc - UCPM::BIU0KG];
+  uint64_t usage = 0;//yangl ResUsageMap[Opc - UCPM::BIU0KG];
   unsigned index = 0;
   for (unsigned i = 0; i < Res; i++)
     if ((1 << i) & usage) index++;
-  return ResLatMap[Opc - UCPM::BIU0KG][index * 2];
+  //yangl return ResLatMap[Opc - UCPM::BIU0KG][index * 2];
+  return 0;//yangl, temp, delete
 }
   
 const std::string UCPMScheduler::ResName[UCPMScheduler::NumResouces] = {

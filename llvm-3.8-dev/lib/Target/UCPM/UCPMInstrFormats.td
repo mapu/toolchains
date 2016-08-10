@@ -6,19 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 def KIReg : Operand<i32> {
   let PrintMethod = "printKIReg";
 }
 def Label : Operand<i32> {
   let DecoderMethod = "DecodeLabel";
 }
-def IPath : Operand<i32> {
-  let PrintMethod = "printIPath";
-}
 def Flags : Operand<i32> {
   let PrintMethod = "printFlags";
   let DecoderMethod = "DecodeFlags";
+}
+def IPath : Operand<i32> {
+  let PrintMethod = "printIPath";
 }
 def MACCTI : Operand<i32> {
   let PrintMethod = "printMACCTI";
@@ -26,14 +25,22 @@ def MACCTI : Operand<i32> {
   let EncoderMethod = "getMACCTIEncoding";
   let DecoderMethod = "DecodeMACCTI";
 }
-//yangl
 def UCPMACCTI : Operand<i32> {
   //let PrintMethod = "printUCPMACCTI";
   let MIOperandInfo = (ops UCPMACC, TPort, IPath);
   let EncoderMethod = "getUCPMACCTIEncoding";
   //let DecoderMethod = "DecodeUCPMACCTI";
 }
-//yangl
+def MACCT : Operand<i32> {
+  let PrintMethod = "printMACCTI";
+  let MIOperandInfo = (ops MACC, TPort);
+  let EncoderMethod = "getMACCTIEncoding";
+  let DecoderMethod = "DecodeMACCTI";
+}
+def imm32i : Operand<i32>;
+
+
+
 def MR0DestT : Operand<i32> {
   //let PrintMethod = "printMR0DestT";
   let MIOperandInfo = (ops MR0Dest, TPort);
@@ -72,23 +79,15 @@ def MR5DestT : Operand<i32> {
 }
 
 
+
 def SHUT : Operand<i32> {
   let PrintMethod = "printSHUT";
   let MIOperandInfo = (ops SHU, TPort);
   let EncoderMethod = "getSHUTEncoding";
   let DecoderMethod = "DecodeSHUT";
 }
-def MRegO: Operand<i32> {
-  let MIOperandInfo = (ops MReg);
-  let DecoderMethod = "DecodeMRegO";
-  let EncoderMethod = "getMRegOEncoding";
-}
-def BIUO: Operand<i32> {
-  let DecoderMethod = "DecodeBIURegisterClass";
-  let MIOperandInfo = (ops BIU);
-}
 
-def imm32i : Operand<i32>;
+
 
 /* a common instruction template base for UCPM */
 class UCPMInst<dag ins, dag outs,
@@ -104,7 +103,6 @@ class UCPMInst<dag ins, dag outs,
   field bits<48> Inst;
   field bits<48> SoftFail;
 }
-
 class CtrlInstr<string header, string ctrl>
         : UCPMInst<(ins), (outs),
                        !strconcat(header, ".", ctrl)> {}
@@ -198,4 +196,27 @@ class SEQInst<dag ins,
                     !strconcat(opstr, label, " @(", rclause, ")")> {
   let Inst{47-44} = 13;
 }
+class dcx_CommonAssignInstr<dag ins, dag outs, 
+                        string header, string rclause, string assign, string lclause,
+                        list<dag> pattern = []>
+        : UCPMInst<ins, outs,
+                       !strconcat(header, lclause, " ", assign, " ", rclause),
+                       pattern>;
 
+class dcx_AssignInstr<dag ins, string header, string lclause, Operand DestTy,
+                  list<dag> pattern = []>
+        : dcx_CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<4>  d;
+}
+
+class dcx_BinaryInstr<string header, bit mode,
+                  RegisterClass OprtorTy, Operand DestTy>
+        : dcx_AssignInstr<(ins OprtorTy: $op, TEPort: $tm, TEPort: $tn, Flags: $f),
+                      header,
+                      !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<6> f;
+  bits<8>  op;
+}
