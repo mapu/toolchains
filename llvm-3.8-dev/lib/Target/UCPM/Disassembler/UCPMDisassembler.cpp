@@ -122,7 +122,7 @@ static bool tryAddingSymbolicOperand(uint64_t Value, bool isBranch,
 //  Dis->tryAddingPcLoadReferenceComment(Value, Address);
 //}
 /*******************************************************************/
-static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
+/*yangl static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
                                             unsigned RegNo,
                                             uint64_t Address,
                                             const void *Decoder) {
@@ -170,8 +170,8 @@ DecodeIALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
-    /*yangl Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::IALUUryToM - UCPM::IALUDPToM))*/;
+    Inst.setOpcode(Inst.getOpcode() +
+                   (UCPM::IALUUryToM - UCPM::IALUDPToM));
     return DecodeIALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -183,8 +183,8 @@ DecodeIALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
-   /*yangl Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::IALUDPToM - UCPM::IALUBinToM))*/;
+   Inst.setOpcode(Inst.getOpcode() +
+                   (UCPM::IALUDPToM - UCPM::IALUBinToM));
     return DecodeIALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -196,8 +196,8 @@ DecodeIALUTPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
-    /*yangl Inst.setOpcode(Inst.getOpcode() -
-                   (UCPM::IALUTPToM - UCPM::IALUBinToM))*/;
+    Inst.setOpcode(Inst.getOpcode() -
+                   (UCPM::IALUTPToM - UCPM::IALUBinToM));
     return DecodeIALUBinOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -219,8 +219,8 @@ DecodeFALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
   } else {
-    /*yangl Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::FALUUryToM - UCPM::FALUDParaToM))*/;
+    Inst.setOpcode(Inst.getOpcode() +
+                   (UCPM::FALUUryToM - UCPM::FALUDParaToM));
     return DecodeFALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -232,8 +232,8 @@ DecodeFALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
   } else {
-    /* yangl Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::FALUDParaToM - UCPM::FALUBinToM))*/;
+    Inst.setOpcode(Inst.getOpcode() +
+                   (UCPM::FALUDParaToM - UCPM::FALUBinToM));
     return DecodeFALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
 }
@@ -253,7 +253,7 @@ DecodeIMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     // according to the "op", where the real "Tp +- Tn * Tm" uses IMULS, while
     // "Tm * Tn" uses IMUL or IMULT.
     if (RegNo != UCPMReg::IMULS)
-     /*yangl  Inst.setOpcode(Inst.getOpcode() + (UCPM::IMulToBIU - UCPM::IMASToBIU))*/;
+     Inst.setOpcode(Inst.getOpcode() + (UCPM::IMulToBIU - UCPM::IMASToBIU));
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
@@ -277,9 +277,9 @@ DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
-static DecodeStatus
+/*yangl static DecodeStatus
 DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::IALUImmOprtorRegClassID, RegNo)) {
@@ -295,19 +295,19 @@ DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
   if (getReg(Decoder, UCPMReg::ConditionRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     // Here fix the "op" operands which were "DisableEncoding"ed in InstInfo.td
-   /*yangl  if ((Inst.getOpcode() >= UCPM::SHU1CombToBIU &&
+   if ((Inst.getOpcode() >= UCPM::SHU1CombToBIU &&
          Inst.getOpcode() <= UCPM::SHU1CombToSHU) ||
         (Inst.getOpcode() >= UCPM::SHU0CombToBIU &&
          Inst.getOpcode() <= UCPM::SHU0CombToSHU))
       return DecodeSHUOprtorRegisterClass(Inst, 0, Address, Decoder);*/
     /*if (Inst.getOpcode() == UCPM::IALUDivS)
       return DecodeDIVOprtorRegisterClass(Inst, 0, Address, Decoder);*/
-    return MCDisassembler::Success;
+  /*yangl  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
-static DecodeStatus
+/*yangl static DecodeStatus
 DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
                          uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::WFlagRegClassID, RegNo)) {
@@ -345,10 +345,10 @@ DecodeTEPortRegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
 /*******************************************************************/
-static DecodeStatus
+/*yangl static DecodeStatus
 DecodeBIURegisterClass(MCInst &Inst, unsigned RegNo,
 		                   uint64_t Address, const void *Decoder) {
 	if (getReg(Decoder, UCPMReg::BIURegClassID, RegNo)) {
@@ -391,7 +391,7 @@ static DecodeStatus DecodeFlags(MCInst &Inst, unsigned Flags,
 	const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7,
                  APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13;
 	unsigned op = Inst.getOpcode();
-  /*yangl if (op >= UCPM::BIU0KG && op <= UCPM::BIU2St) {
+  if (op >= UCPM::BIU0KG && op <= UCPM::BIU2St) {
 	  Flags |= (Flags & 0x1) << (KPPF + 8);
 	  Flags |= (Flags & 0x2) << (APPF + 7);
 	  Flags |= (Flags & 0x4) << (BRF + 6);
@@ -434,10 +434,10 @@ static DecodeStatus DecodeFlags(MCInst &Inst, unsigned Flags,
 	  Flags |= ((Flags & 0x7)==0) << (LF + 8);
     Flags |= (Flags & 0x8) << (TCF + 5);
   }
-  else */return MCDisassembler::Fail;
+  else return MCDisassembler::Fail;
 	Inst.addOperand(MCOperand::createImm(Flags));
 	return MCDisassembler::Success;
-}
+}*/
 /*******************************************************************/
 static DecodeStatus
 DecodeLabel(MCInst &Inst, unsigned Label,
@@ -465,7 +465,7 @@ getInstruction(MCInst &Instr, uint64_t &Size,
 	Size=0;
 
 	DecodeStatus result = readInsnLine(Bytes, Address, numBytes, line);
-  if (!result) return result;
+  /*yangl if (!result) return result;
 	Size = numBytes;
 
 	formerInst = &Instr;
@@ -484,11 +484,11 @@ getInstruction(MCInst &Instr, uint64_t &Size,
     LoopStack.pop_back();
   }
 	Scheduler->Schedule(Address, &Instr, Sym);
-  if (/*yangl formerInst->getOpcode() == UCPM::LPTO*/1) {
+  if (formerInst->getOpcode() == UCPM::LPTO*) {
     if (formerInst->getOperand(0).isImm() &&
         formerInst->getOperand(0).getImm() != 0)
     LoopStack.push_back(formerInst->getOperand(0).getImm() - 1);
-  }
+  }*/
 
 	return result;
 }
