@@ -16,18 +16,12 @@ include "UCPMInstrFormats.td"
 //===----------------------------------------------------------------------===//
 //			Instruction NOP for all slots
 //===----------------------------------------------------------------------===//
+
+//from original
 def NOP : UCPMInst <(ins), (outs), "NOP"> {
   let Inst = 0;
 }
 
-class MRToDest<string header, bits<4> slotid, bits<2> dest, Operand DestTy>
-        : AssignInstr<(ins MReg: $m, WFlag: $w), header, "$m$w", DestTy> {
-  bits<9> m;
-  bits<3> w;
-  let Inst{47-44} = slotid;
-  let Inst{1-0}   = dest;
-}
-//yangl
 class UCPMRToDest<string header, bits<4> slotid, bits<4> mregid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
@@ -91,7 +85,8 @@ def MR5ToDestSI : UCPMRToDest<"R5.", 0b0101, 0b1110, MR5DestT> {
 }
 
 
-//yangl, 3 kinds of base class for SHUIndToDest
+
+//3 kinds of base class for SHUIndToDest
 //"TB+=" and "TB=+"
 class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<4> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5),
@@ -132,459 +127,36 @@ class UCPSHUIndToDest<string header, bits<4> slot, Operand DestTy>
   let Inst{22-19} = tk;
   let Inst{9-8} = tm;
 }
-//yangl: final shu0 test instruction, for case: "+="
+//final shu0 test instruction, for case: "+="
 def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b0110, UCPMACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-//yangl: final shu0 test instruction, for case: "=+"
+//final shu0 test instruction, for case: "=+"
 def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b0111, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b0111, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b1000, UCPMACCTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b1000, UCPMACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
 
 
-// ducx start IALU Instruction --------------------------------------------------------------------
-class IALUBaseCode {
-  field bits<48> Inst;
-  let Inst{47-44} = 0b0110;//?
-}
 
-class IALUCode<bits<2> dest> : IALUBaseCode {
-  bits<8> op;
-  bits<2> tm;
-  bits<2> tn;
-  bits<6> f;
-  bits<4>  d;
-
-  let Inst{11-10} = tm;
-  let Inst{9-8} = tn;
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
-  let Inst{1-0}   = d{1-0};
-}
-
-// MERGE
-class IALUTPCode<bits<2> dest> : IALUCode<dest>  {
-  bits<2> tp;
-
-  let Inst{21-18} = op{3-0};
-  let Inst{16-15} = f{4-3};
-  let Inst{14} = tp{1};
-  let Inst{13} = 1;
-  let Inst{12} = tp{0};
-}
-multiclass IALUTPToDest {
-  def ToSHU  : TParaInstr<"", 1, "", IALUTPOprtor, SHUT  >, IALUTPCode<0b00>;
-  def ToBIU  : TParaInstr<"", 1, "", IALUTPOprtor, BIUO  >, IALUTPCode<0b10>;
-  def ToMACC : TParaInstr<"", 1, "", IALUTPOprtor, MACCT >, IALUTPCode<0b01>;
-}
-
-// ADD SUB
-class IALUASCode<bits<2> dest> : IALUCode<dest> {
-  let Inst{21-18} = op{3-0};
-  let Inst{17-12} = f;
-}
-multiclass IALUASToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 1, IALUASOprtor, SHUT  >, IALUASCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 1, IALUASOprtor, BIUO  >, IALUASCode<0b10>;
-  def ToMACC : BinaryInstr<"", 1, IALUASOprtor, MACCT >, IALUASCode<0b01>;
-  }
-}
-
-// AND OR XOR
-class IALULogicCode<bits<2> dest> : IALUCode<dest>{
-  let Inst{21-18} = 0b1001;
-  let Inst{14}    = 0;
-  let Inst{13-12} = op{1-0};
-}
-multiclass IALULogicToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 1, IALULogicOprtor, SHUT  >, IALULogicCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 1, IALULogicOprtor, BIUO  >, IALULogicCode<0b10>;
-  def ToMACC : BinaryInstr<"", 1, IALULogicOprtor, MACCT >, IALULogicCode<0b01>;
-  }
-}
-
-// EQU NEQ LT NST ST NLT / MAX MIN
-class IALUComCode<bits<2> dest> : IALUCode<dest>{
-  let Inst{21-18} = op{5-2};
-  let Inst{17-15} = f{5-3};
-  let Inst{14-13} = op{1-0};
-  let Inst{12}    = f{0};
-}
-multiclass IALUComToDest {
-  let isCodeGenOnly = 1 in {
-  def ComToSHU  : BinaryInstr<"", 1, IALUComOprtor, SHUT  >, IALUComCode<0b00>;
-  def ComToBIU  : BinaryInstr<"", 1, IALUComOprtor, BIUO  >, IALUComCode<0b10>;
-  def ComToMACC : BinaryInstr<"", 1, IALUComOprtor, MACCT >, IALUComCode<0b01>;
-  }
-  let isCodeGenOnly = 1 in {
-  def MNToSHU  : BinaryInstr<"", 0, IALUMNOprtor, SHUT  >, IALUComCode<0b00>;
-  def MNToBIU  : BinaryInstr<"", 0, IALUMNOprtor, BIUO  >, IALUComCode<0b10>;
-  def MNToMACC : BinaryInstr<"", 0, IALUMNOprtor, MACCT >, IALUComCode<0b01>;
-  }
-}
-
-// LSH RSH
-class IALUShiftCode<bits<2> dest> : IALUCode<dest>{
-  let Inst{21-18} = 0b0101;
-  let Inst{17-15} = f{5-3};
-  let Inst{13} = op{0};
-}
-multiclass IALUShiftToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 1, IALUShiftOprtor, SHUT  >, IALUShiftCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 1, IALUShiftOprtor, BIUO  >, IALUShiftCode<0b10>;
-  def ToMACC : BinaryInstr<"", 1, IALUShiftOprtor, MACCT >, IALUShiftCode<0b01>;
-  }
-}
-
-// SUBABS CPRS
-class IALUSCCode<bits<2> dest> : IALUCode<dest>{
-  let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
-  let Inst{13} = op{0};
-  let Inst{12}    = f{0};
-  let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
-  let Inst{13} = op{0};
-  let Inst{12}    = f{0};
-}
-multiclass IALUSCToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 0, IALUSCOprtor, SHUT  >, IALUSCCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 0, IALUSCOprtor, BIUO  >, IALUSCCode<0b10>;
-  def ToMACC : BinaryInstr<"", 0, IALUSCOprtor, MACCT >, IALUSCCode<0b01>;
-  }
-}
-
-class IALUUryCode<bits<2> dest> : IALUCode<dest> {
-  let tn = 0b00;
-}
-// RADD RMAX RMIN EXPD	
-class IALUUryRMNCode<bits<2> dest> : IALUUryCode<dest>{
-  let Inst{21-18} = op{5-2};
-  let Inst{17-15} = f{5-3};
-  let Inst{14-13} = op{1-0};
-}
-multiclass IALUUryRMNToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : UnaryInstr<"", IALUUryRMNOprtor, SHUT  >, ALUUryRMNCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IALUUryRMNOprtor, BIUO  >, IALUUryRMNCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryRMNOprtor, MACCT >, IALUUryRMNCode<0b01>;
-  }
-}
-
-// NOT
-class IALUUryNOTCode<bits<2> dest> : IALUUryCode<dest>{
-  let Inst{21-18} = 0b1001;
-  let Inst{14}    = 0;
-  let Inst{13-12} = op{1-0};
-}
-multiclass IALUUryNOTToDest {
-  let isCodeGenOnly = 1 in {
-  def ToSHU  : UnaryInstr<"", IALUUryNOTOprtor, SHUT  >, ALUUryNOTCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IALUUryNOTOprtor, BIUO  >, IALUUryNOTCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryNOTOprtor, MACCT >, IALUUryNOTCode<0b01>;
-  }
-}
-
-// ABS CONJ MINUS
-class IALUUryCONCode<bits<2> dest> : IALUUryCode<dest>{
-  let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
-  let Inst{13} = op{0};
-  let Inst{12} = f{0};
-}
-multiclass IALUUryCONToDest {
-  let isCodeGenOnly = 1 in { //???
-  def ToSHU  : UnaryInstr<"", IALUUryCONOprtor, SHUT  >, IALUUryCONCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IALUUryCONOprtor, BIUO  >, IALUUryCONCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryCONOprtor, MACCT >, IALUUryCONCode<0b01>;
-  }
-}
-
-// LSHimm RSHimm
-class IALUImmInstr<Operand DestTy, bits<2> dest>
-        : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f),
-                      "", "$tm $op $imm$f", DestTy>, IALUBaseCode {
-  bits<2>  tm;
-  bits<5>  imm;
-  bits<6> f;
-  bits<8> op;
-  let Inst{21-18} = op{3-0};
-  let Inst{17-15} = f{5-3}
-  let Inst{14-12} = imm{4-2};
-  let Inst{11-10} = tm;
-  let Inst{9-8} = imm{1-0};
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
-  let Inst{1-0}   = d{1-0};
-}
-
-multiclass IALUImmToDest { 
-  def ToSHU  : IALUImmInstr<SHUT  , 0b00>;
-  def ToBIU  : IALUImmInstr<BIUO  , 0b10>;
-  def ToMACC : IALUImmInstr<MACCT, 0b01>;
-}
-// DIV ReadQ ReadR
-class IALUReadQRCode<bits<2> dest> : IALUCode<dest>{
-  let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
-  let Inst{13} = op{0};
-  let Inst{12} = f{0};
-}
-multiclass IALUReadQRToDest {
-  def ToSHU  : BinaryInstr<"", 0, DIVOprtor, SHUT  >, IALUReadQRCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 0, DIVOprtor, BIUO  >, IALUReadQRCode<0b10>;
-  def ToMACC : BinaryInstr<"", 0, DIVOprtor, MACCT >, IALUReadQRCode<0b01>;
-}
- 
-// DIV START CONT
-def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
-                                 (outs),
-                                 "", "", "", "$op($tm, $tn)$f">,
-                IALUBaseCode {
-  bits<8> op;
-  bits<2> tm;
-  bits<2> tn;
-  bits<6> f;
-  let Inst{21-18} = op{4-1};
-  let Inst{17-15} = f{5-3};
-  let Inst{14} = 0;
-  let Inst{13} = op{0};
-  let Inst{11-10} = tm;
-  let Inst{9-8} = tn;
-  let Inst{7-0} = 0;
-}
-
-// MOV ???
-class IALUMOVCode<Operand DestTy, bits<2> dest> 
-            : AssignInstr<(ins TPort: $tm), "", "IALU.$tm", DestTy>, IALUBaseCode {
-  bits<2> tm;
- 
-  let Inst{21-18} = 0b1011;
-  let Inst{14-13} =0b01;
-  let Inst{11-10} = tm;
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
-  let Inst{1-0}   = d{1-0};
-}
-multiclass IALUMOVToDest { 
-  def ToSHU  : IALUMOVCode<SHUT  , 0b00>;
-  def ToBIU  : IALUMOVCode<BIUO  , 0b10>;
-  def ToMACC : IALUMOVCode<MACCT, 0b01>;
-}
-
-// WAIT
-def IALUWait : CommonAssignInstr<(ins imm32i: $imm),(outs),
-                                   "", "", "", "Wait $imm">,
-                 IALUBaseCode {
-  bits<7>  imm;
-  
-  let Inst{21-18} = 0b1111;
-  let Inst{16-15} = imm{6-5};
-  let Inst{14-13} = 0b01;
-  let Inst{12-8} = imm{4-0};
-  let Inst{7-0}  = 0;
-}
-// NOP
-def IALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IALUBaseCode {
-  let Inst{21-18} = 0b1111;
-  let Inst{17} = 0;
-  let Inst{14-13} = 0b11;
-}
-// SetCond
-def IALUSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
-                                   "", "IALU.SetCond", "->", "$imm">,
-                 IALUBaseCode {
-  bits<8>  imm;
-  bit m;
-  
-  let Inst{21-18} = 0b1111;
-  let Inst{17} = 1;
-  let Inst{15} = m;
-  let Inst{14-13} = 0b11;
-  let Inst{7-0} = imm;
-}
-// SendFlag
-class IALUSendFlagCode<Operand DestTy, bits<2> dest> 
-            : AssignInstr<(ins Flags: $f),
-                      "", "IALU.FLAG", DestTy>, IALUBaseCode {
-  bits<4> f;
- 
-  let Inst{21-18} = 0b1000;
-  let Inst{13} = 0;
-  let Inst{11-8} = f;
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
-  let Inst{1-0}   = d{1-0};
-}
-multiclass IALUSendFlagToDest { 
-  def ToSHU  : IALUSendFlagCode<SHUT  , 0b00>;
-  def ToBIU  : IALUSendFlagCode<BIUO  , 0b10>;
-  def ToMACC : IALUSendFlagCode<MACCT, 0b01>;
-}
-// WriteFlag ???
-def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $a, Flags: $f),(outs), "", "WriteFlag", "->", "IALU.$tm">,
-                 IALUBaseCode { 
-  bits<2>  tm;
-  bit a;
-  bits<2> f;
-  
-  let Inst{21-18} = 0b1111;
-  let Inst{14-13} = 0b10;
-  let Inst{12} = a;
-  let Inst{11-10} = tm;
-  let Inst{9-8} = f;
-  let Inst{7-0}  = 0;
-}
-
-defm IALUTP  : IALUTPToDest;
-defm IALUAS :      IALUASToDest;
-defm IALULogic : IALULogicToDest;
-defm IALU :      IALUComToDest;
-defm IALUShift : IALUShiftToDest;
-defm IALUUryRMN:   IALUUryRMNToDest;
-defm IALUUryCON:   IALUUryCONToDest;
-defm IALUUryNOT:   IALUUryNOTToDest;
-defm IALUImm : IALUImmToDest;
-defm IALUSC : IALUSCToDest;
-defm IALUReadQR : IALUReadQRToDest;
-defm IALUMOVE:   IALUMOVToDest;
-defm IALUSendFlag: IALUSendFlagToDest;
-// ducx end IALU Instruction --------------------------------------------------------------------------
-
-  
-class MAInstr
-        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f),
-                         "<-", "$tp + $tm * $tn$f"> {
-  bits<4> tm;
-  bits<4> tn;
-  bits<2> tp;
-  bits<32> f;
-}
-
-class MAwMovInstr<Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f),
-                        "<-", "$tp + $tm * $tn$f", DestTy> {
-  bits<4> tm;
-  bits<4> tn;
-  bits<2> tp;
-  bits<32> f;
-}
-
-class MaCInstr
-        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f),
-                         "+=", "$tm * $tn$f"> {
-  bits<4> tm;
-  bits<4> tn;
-  bits<32> f;
-}
-
-class MaCwMovInstr<Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f),
-                        "+=", "$tm * $tn$f", DestTy> {
-  bits<4> tm;
-  bits<4> tn;
-  bits<32> f;
-}
-
-class AccInstr
-        : ToMRwoMovInstr<(ins TPort: $tm, Flags: $f),
-                         "+=", "$tm$f"> {
-  bits<4> tm;
-  bits<32> f;
-}
-
-class AccwMovInstr<Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, Flags: $f),
-                        "+=", "$tm$f", DestTy> {
-  bits<4> tm;
-  bits<32> f;
-}
-
-class RdMRInstr<Operand DestTy>
-        : ToMRwMovInstr<(ins), "", "", DestTy>;
-        
-multiclass IMAToDest {
-  let opc = 0b1101 in {
-  def ToM    : MAwMovInstr<MRegO >, IMACCode<0b00>;
-  def ToSHU  : MAwMovInstr<SHUT  >, IMACCode<0b01>;
-  def ToBIU  : MAwMovInstr<BIUO  >, IMACCode<0b10>;
-  def ToMACC : MAwMovInstr<MACCTI>, IMACCode<0b11>;
-  }
-}
-multiclass IMaCToDest {
-  let opc = 0b1010, tp = 0b00 in {
-  def ToM    : MaCwMovInstr<MRegO >, IMACCode<0b00>;
-  def ToSHU  : MaCwMovInstr<SHUT  >, IMACCode<0b01>;
-  def ToBIU  : MaCwMovInstr<BIUO  >, IMACCode<0b10>;
-  def ToMACC : MaCwMovInstr<MACCTI>, IMACCode<0b11>;
-  }
-}
-multiclass IAccToDest {
-  let opc = 0b1100, tn = 0b0000, tp = 0b00 in {
-  def ToM    : AccwMovInstr<MRegO >, IMACCode<0b00>;
-  def ToSHU  : AccwMovInstr<SHUT  >, IMACCode<0b01>;
-  def ToBIU  : AccwMovInstr<BIUO  >, IMACCode<0b10>;
-  def ToMACC : AccwMovInstr<MACCTI>, IMACCode<0b11>;
-  }
-}
-multiclass IRdMRToDest {
-  let opc = 0b1010, tm = 0b0000, tn = 0b0000, tp = 0b00 in {
-  def ToM    : RdMRInstr<MRegO >, IMACCode<0b00>;
-  def ToSHU  : RdMRInstr<SHUT  >, IMACCode<0b01>;
-  def ToBIU  : RdMRInstr<BIUO  >, IMACCode<0b10>;
-  def ToMACC : RdMRInstr<MACCTI>, IMACCode<0b11>;
-  }
-}
-
-def IMA : MAInstr, IMACCode<0b00> {
-  let opc = 0b1000;
-  let d  = 0;
-}
-def IMaC : MaCInstr, IMACCode<0b00> {
-  let opc = 0b1001;
-  let d  = 0;
-  let tp = 0;
-}
-def IMAcc : AccInstr, IMACCode<0b00> {
-  let opc = 0b1011;
-  let d  = 0;
-  let tn = 0;
-  let tp = 0;
-}
-class IMACCtrlCode<bit ctrl> : IMACBaseCode{
-  let Inst{28-26} = 0b111;
-  let Inst{25}    = ctrl;
-  let Inst{24-0}  = 0;
-}
-
-
-defm IMA  : IMAToDest;
-defm IMaC : IMaCToDest;
-defm IMAcc: IAccToDest;
-defm IMR  : IRdMRToDest;
-def IMACStart : CtrlInstr<"IMAC", "Start">, IMACCtrlCode<0>;
-def IMACStop : CtrlInstr<"IMAC", "Stop">, IMACCtrlCode<1>;
-
-class FMACBaseCode {
-  field bits<48> Inst;
-  let Inst{47-44} = 0b1001;
-}
-
-
+//from original
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
                         "REPEAT", "", "$imm"> {
   bits<11> imm;
@@ -647,4 +219,3 @@ def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
   let Inst{22-19} = 0b0100;
   let Inst{18-0}  = 0;
 }
-

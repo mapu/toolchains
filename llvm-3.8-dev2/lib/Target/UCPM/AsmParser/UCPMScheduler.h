@@ -120,7 +120,8 @@ private:
   void FixupDoubleRegWB(std::vector<use> &instline, const MCInst *MI, unsigned begin);
 
 public:
-  #define INSTRUCTION_LIST_LEN (UCPM::INSTRUCTION_LIST_END - UCPM::BIU0KG)
+  //yangl #define INSTRUCTION_LIST_LEN (UCPM::INSTRUCTION_LIST_END - UCPM::BIU0KG)
+  #define INSTRUCTION_LIST_LEN 1000//yangl temp, please delete
   static const std::string ResName[NumResouces];
   static const uint64_t ResUsageMap[INSTRUCTION_LIST_LEN];
   static const uint64_t ResLatMap[INSTRUCTION_LIST_LEN][NumResouces * 2];
