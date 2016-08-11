@@ -227,8 +227,7 @@ def ADDSUB : UCPMReg<0b000000110, "+-">;
 
 
 def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add FADD, FSUB, ADDSUB, FEQU, FNEQ,
-                                       FLT,  FNST, FST,    FNLT)>;  
+                                  (add FADD, FSUB, ADDSUB)>;  
 
 
 def IMUL : UCPMReg<2, "*">;
