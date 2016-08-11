@@ -487,6 +487,7 @@ class IFALUCode<bits<2> dest> : IFALUBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<4>  d;
+  bits<6> f;
   
   let Inst{22} = 1;
   let Inst{11-10} = tm;
@@ -516,7 +517,6 @@ multiclass IFALUComToDest {
 }
 
 class IFALUUryCode<bits<2> dest> : IFALUCode<dest> {
-  bits<2> f;
   let tn = 0b00;
 }
 
