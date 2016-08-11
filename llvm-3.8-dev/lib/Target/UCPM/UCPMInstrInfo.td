@@ -445,7 +445,7 @@ multiclass IALUSendFlagToDest {
   def ToMACC : IALUSendFlagCode<MACCT, 0b01>;
 }
 
-// WriteFlag ???
+// WriteFlag 
 def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(outs), "", "WriteFlag", "->", "IALU.$tm">,
                  IALUBaseCode { 
   bits<2>  tm;
@@ -456,7 +456,7 @@ def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(
   let Inst{14-13} = 0b10;
   let Inst{12} = all;
   let Inst{11-10} = tm;
-  let Inst{9-8} = f;
+  let Inst{9-8} = f;//???
   let Inst{7-0}  = 0;
 }
 
@@ -474,6 +474,72 @@ defm IALUReadQR : IALUReadQRToDest;
 defm IALUMOVE:   IALUMOVToDest;
 defm IALUSendFlag: IALUSendFlagToDest;
 // ducx end IALU Instruction --------------------------------------------------------------------------
+
+
+// ducx start IFALU Instruction --------------------------------------------------------------------------
+class IFALUBaseCode {
+  field bits<48> Inst;
+  let Inst{47-44} = 0b0111;//?
+}
+
+class IFALUCode<bits<2> dest> : IFALUBaseCode {
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<2> f;
+  bits<4>  d;
+  
+  let Inst{22} = 1;
+  let Inst{11-10} = tm;
+  let Inst{9-8} = tn;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-3}  = d{3-2};
+  let Inst{2} = 0;
+  let Inst{1-0}   = d{1-0};
+}
+
+// EQU NEQ LT NST ST NLT / MAX MIN
+class IFALUComCode<bits<2> dest> : IFALUCode<dest>{
+  let Inst{21-18} = op{5-2};
+  let Inst{14-13} = op{1-0};
+}
+multiclass IFALUComToDest {
+  def ComToSHU  : BinaryInstr<"", 1, IFALUComOprtor, SHUT  >, IFALUComCode<0b00>;
+  def ComToBIU  : BinaryInstr<"", 1, IFALUComOprtor, BIUO  >, IFALUComCode<0b10>;
+  def ComToMACC : BinaryInstr<"", 1, IFALUComOprtor, MACCT >, IFALUComCode<0b01>;
+
+  let isCodeGenOnly = 1 in {
+  def MNToSHU  : BinaryInstr<"", 0, IFALUMNOprtor, SHUT  >, IFALUComCode<0b00>;
+  def MNToBIU  : BinaryInstr<"", 0, IFALUMNOprtor, BIUO  >, IFALUComCode<0b10>;
+  def MNToMACC : BinaryInstr<"", 0, IFALUMNOprtor, MACCT >, IFALUComCode<0b01>;
+  }
+}
+
+class IFALUUryCode<bits<2> dest> : IFALUCode<dest> {
+  let tn = 0b00;
+}
+
+// Transfer
+class IFALUUryCode<bits<2> dest> : IFALUUryCode<dest>{
+  let Inst{21-18} = op{4-1};
+  let Inst{17} = f{1};
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
+}
+multiclass IFALUUryToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : UnaryInstr<"", IFALUUryOprtor, SHUT  >, IFALUUryCode<0b00>;
+  def ToBIU  : UnaryInstr<"", IFALUUryOprtor, BIUO  >, IFALUUryCode<0b10>;
+  def ToMACC : UnaryInstr<"", IFALUUryOprtor, MACCT >, IFALUUryCode<0b01>;
+  }
+}
+
+defm IFALU : IFALUComToDest;
+defm IFALUUry : IFALUUryToDest;
+
+// ducx end IFALU Instruction --------------------------------------------------------------------------
+
 
 //from original
 def REPEATIMM : SEQInst<(ins imm32i: $imm),

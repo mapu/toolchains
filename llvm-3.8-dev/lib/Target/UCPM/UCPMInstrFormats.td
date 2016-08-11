@@ -112,7 +112,7 @@ class CtrlInstr<string header, string ctrl>
 
 /* instruction template for the class of assignment instructions */
 
-// ducx start 20160805---------------------------------------------------------------------
+// ducx start ---------------------------------------------------------------------
 class CommonAssignInstr<dag ins, dag outs, 
                         string header, string rclause, string assign, string lclause,
                         list<dag> pattern = []>
@@ -160,7 +160,7 @@ class TParaInstr<string header, bit mode, string fop,
   bits<6> f;
   bits<8>  op;
 }
-// ducx end 20160805----------------------------------------------------------------
+// ducx end ----------------------------------------------------------------
 
 //yangl
 class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,

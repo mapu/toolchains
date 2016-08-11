@@ -92,7 +92,7 @@ def COMB : UCPMReg<0, "COMB">;
 def SHUOprtor : RegisterClass<"UCPMReg", [i32], 32, (add COMB)>;
 
 
-// ducx start 20160808 ------------------------------------------------
+// ducx start IALU ------------------------------------------------
 
 // MERGE                                  
 def f_MERGE : UCPMReg<8, "MERGE">;
@@ -182,41 +182,54 @@ def DIVOprtor : RegisterClass<"UCPMReg", [i32], 32,
                               (add DIVSTART, DIVCONT, READQ, READR)>;
 
 
-// ducx end 20160808 ------------------------------------------------------------		
+// ducx end IALU--------------------------------------------------------		
 				    
-				
+                              
+// ducx start IFALU ----------------------------------------------------
+                                       
+// EQU NEQ LT NST ST NLT
+def m_FEQU : UCPMReg<0b000100110, "==">;
+def m_FNEQ : UCPMReg<0b000100111, "!=">;
+def m_FLT  : UCPMReg<0b000101000, ">">;
+def m_FNST : UCPMReg<0b000101010, ">=">;
+def m_FST  : UCPMReg<0b000101001, "<">;
+def m_FNLT : UCPMReg<0b000101011, "<=">;
+
+def IFALUComOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_FEQU, m_FNEQ, m_FLT, m_FNST, m_FST, m_FNLT)>;
+
+//  MAX MIN 
+def m_FMAX : UCPMReg<0b000001000, "MAX">;
+def m_FMIN : UCPMReg<0b000001001, "MIN">;
+
+def IFALUMNOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                               (add m_FMAX, m_FMIN)>;
+                              
+//  Transfer                        
+def IntToSINGLE : UCPMReg<0b000011000, "SINGLE">;
+def DouToSINGLE : UCPMReg<0b000011110, "SINGLE">;
+def IntToDOUBLE : UCPMReg<0b000011001, "DOUBLE">;
+def SinToDOUBLE : UCPMReg<0b000011111, "DOUBLE">;
+def SinToINT  : UCPMReg<0b000011010, "INT">;
+def DouToINT  : UCPMReg<0b000011011, "INT">;
+
+def IFALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                                 (add IntToSINGLE, DouToSINGLE, IntToDOUBLE, 
+                                     SinToDOUBLE, SinToINT, DouToINT)>; 
+// ducx end IFALU ------------------------------------------------------
                         
+
+
+
 def FADD : UCPMReg<0b000000001, "+">;
 def FSUB : UCPMReg<0b000000010, "-">;
 def ADDSUB : UCPMReg<0b000000110, "+-">;
-def FEQU : UCPMReg<0b000001000, "==">;
-def FNEQ : UCPMReg<0b000001001, "!=">;
-def FLT  : UCPMReg<0b000001010, ">">;
-def FNST : UCPMReg<0b000001011, ">=">;
-def FST  : UCPMReg<0b000001100, "<">;
-def FNLT : UCPMReg<0b000001101, "<=">;
+
 
 def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                   (add FADD, FSUB, ADDSUB, FEQU, FNEQ,
-                                       FLT,  FNST, FST,    FNLT)>;
+                                       FLT,  FNST, FST,    FNLT)>;  
 
-def FMAX : UCPMReg<0b000000011, "MAX">;
-def FMIN : UCPMReg<0b000000100, "MIN">;
-
-def FALUDPOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                 (add FMAX, FMIN)>;
-
-def FABS : UCPMReg<0b000000101, "ABS">;
-def SINGLE : UCPMReg<0b000010000, "SINGLE">;
-def DOUBLE : UCPMReg<0b000010001, "DOUBLE">;
-def INT  : UCPMReg<0b000010010, "INT">;
-def UINT : UCPMReg<0b000010011, "UINT">;
-def RECIP : UCPMReg<0b000011000, "RECIP">;
-def RSQRT : UCPMReg<0b000011001, "RSQRT">;
-
-def FALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                 (add FABS,  SINGLE, DOUBLE, INT, UINT,
-                                      RECIP, RSQRT)>;
 
 def IMUL : UCPMReg<2, "*">;
 def IMULT : UCPMReg<1, "*">;
