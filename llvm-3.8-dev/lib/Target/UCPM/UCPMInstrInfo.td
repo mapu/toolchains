@@ -259,10 +259,6 @@ class IALUSCCode<bits<2> dest> : IALUCode<dest>{
   let Inst{17-14} = f{5-2};
   let Inst{13} = op{0};
   let Inst{12}    = f{0};
-  let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
-  let Inst{13} = op{0};
-  let Inst{12}    = f{0};
 }
 multiclass IALUSCToDest {
   let isCodeGenOnly = 1 in {
@@ -324,10 +320,10 @@ class IALUImmInstr<Operand DestTy, bits<2> dest>
                       "", "$tm $op $imm$f", DestTy>, IALUBaseCode {
   bits<2>  tm;
   bits<5>  imm;
-  bits<6> f;
+  bits<3> f;
   bits<8> op;
   let Inst{21-18} = op{3-0};
-  let Inst{17-15} = f{5-3};
+  let Inst{17-15} = f{2-0};
   let Inst{14-12} = imm{4-2};
   let Inst{11-10} = tm;
   let Inst{9-8} = imm{1-0};
@@ -337,12 +333,12 @@ class IALUImmInstr<Operand DestTy, bits<2> dest>
   let Inst{2} = 0;
   let Inst{1-0}   = d{1-0};
 }
-
 multiclass IALUImmToDest { 
   def ToSHU  : IALUImmInstr<SHUT  , 0b00>;
   def ToBIU  : IALUImmInstr<BIUO  , 0b10>;
   def ToMACC : IALUImmInstr<MACCT, 0b01>;
 }
+
 // DIV ReadQ ReadR
 class IALUReadQRCode<bits<2> dest> : IALUCode<dest>{
   let Inst{21-18} = op{4-1};
@@ -364,9 +360,9 @@ def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, F
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<6> f;
+  bits<3> f;
   let Inst{21-18} = op{4-1};
-  let Inst{17-15} = f{5-3};
+  let Inst{17-15} = f{2-0};
   let Inst{14} = 0;
   let Inst{13} = op{0};
   let Inst{11-10} = tm;
@@ -374,7 +370,7 @@ def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, F
   let Inst{7-0} = 0;
 }
 
-// MOV ???
+// MOV
 class IALUMOVCode<Operand DestTy, bits<2> dest> 
             : AssignInstr<(ins TPort: $tm), "", "IALU.$tm", DestTy>, IALUBaseCode {
   bits<2> tm;
@@ -406,15 +402,17 @@ def IALUWait : CommonAssignInstr<(ins imm32i: $imm),(outs),
   let Inst{12-8} = imm{4-0};
   let Inst{7-0}  = 0;
 }
+
 // NOP
 def IALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IALUBaseCode {
   let Inst{21-18} = 0b1111;
   let Inst{17} = 0;
   let Inst{14-13} = 0b11;
 }
+
 // SetCond
 def IALUSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
-                                   "", "IALU.SetCond", "->", "$imm">,
+                                   "", "IALU.SetCond[$m]", "->", "$imm">,
                  IALUBaseCode {
   bits<8>  imm;
   bit m;
@@ -425,6 +423,7 @@ def IALUSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
   let Inst{14-13} = 0b11;
   let Inst{7-0} = imm;
 }
+
 // SendFlag
 class IALUSendFlagCode<Operand DestTy, bits<2> dest> 
             : AssignInstr<(ins Flags: $f),
@@ -445,16 +444,17 @@ multiclass IALUSendFlagToDest {
   def ToBIU  : IALUSendFlagCode<BIUO  , 0b10>;
   def ToMACC : IALUSendFlagCode<MACCT, 0b01>;
 }
+
 // WriteFlag ???
-def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $a, Flags: $f),(outs), "", "WriteFlag", "->", "IALU.$tm">,
+def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(outs), "", "WriteFlag", "->", "IALU.$tm">,
                  IALUBaseCode { 
   bits<2>  tm;
-  bit a;
+  bit all;
   bits<2> f;
   
   let Inst{21-18} = 0b1111;
   let Inst{14-13} = 0b10;
-  let Inst{12} = a;
+  let Inst{12} = all;
   let Inst{11-10} = tm;
   let Inst{9-8} = f;
   let Inst{7-0}  = 0;
@@ -465,11 +465,11 @@ defm IALUAS :      IALUASToDest;
 defm IALULogic : IALULogicToDest;
 defm IALU :      IALUComToDest;
 defm IALUShift : IALUShiftToDest;
-defm IALUUryRMN:   IALUUryRMNToDest;
-defm IALUUryCON:   IALUUryCONToDest;
-defm IALUUryNOT:   IALUUryNOTToDest;
-defm IALUImm : IALUImmToDest;
 defm IALUSC : IALUSCToDest;
+defm IALUUryRMN:   IALUUryRMNToDest;
+defm IALUUryNOT:   IALUUryNOTToDest;
+defm IALUUryCON:   IALUUryCONToDest;
+defm IALUImm : IALUImmToDest;
 defm IALUReadQR : IALUReadQRToDest;
 defm IALUMOVE:   IALUMOVToDest;
 defm IALUSendFlag: IALUSendFlagToDest;
