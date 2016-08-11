@@ -521,22 +521,22 @@ class IFALUUryCode<bits<2> dest> : IFALUCode<dest> {
 }
 
 // Transfer
-class IFALUUryCode<bits<2> dest> : IFALUUryCode<dest>{
+class IFALUUryTranCode<bits<2> dest> : IFALUUryCode<dest>{
   let Inst{21-18} = op{4-1};
   let Inst{17} = f{1};
   let Inst{14} = f{0};
   let Inst{13} = op{0};
 }
-multiclass IFALUUryToDest {
+multiclass IFALUUryTranToDest {
   let isCodeGenOnly = 1 in {
-  def ToSHU  : UnaryInstr<"", IFALUUryOprtor, SHUT  >, IFALUUryCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IFALUUryOprtor, BIUO  >, IFALUUryCode<0b10>;
-  def ToMACC : UnaryInstr<"", IFALUUryOprtor, MACCT >, IFALUUryCode<0b01>;
+  def ToSHU  : UnaryInstr<"", IFALUUryOprtor, SHUT  >, IFALUUryTranCode<0b00>;
+  def ToBIU  : UnaryInstr<"", IFALUUryOprtor, BIUO  >, IFALUUryTranCode<0b10>;
+  def ToMACC : UnaryInstr<"", IFALUUryOprtor, MACCT >, IFALUUryTranCode<0b01>;
   }
 }
 
 defm IFALU : IFALUComToDest;
-defm IFALUUry : IFALUUryToDest;
+defm IFALUUryTran : IFALUUryTranToDest;
 
 // ducx end IFALU Instruction --------------------------------------------------------------------------
 
