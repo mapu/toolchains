@@ -2,15 +2,15 @@
 root=`pwd`
 
 # Check argument
-gem5_en=1
-gold_en=1
+gem5_en=0
+gold_en=0
 llvm_en=1
-newlib_en=1
-openocd_en=1
-qemu_en=1
-res_en=1
-compiler_en=1
-debug_mode=0
+newlib_en=0
+openocd_en=0
+qemu_en=0
+res_en=0
+compiler_en=0
+debug_mode=1
 install_path=
 while (( $# != 0 ))
 do

@@ -255,10 +255,10 @@ then
  if [ ! -e "build_ragel" ]
   then mkdir build_ragel
   fi
-  #cd build_ragel
-  #$source_path/ragel-6.8/configure --prefix=$root/ragel CFLAGS='-O2' CXXFLAGS='-O2'
-  #make $MCFLAG
-  #make install
+  cd build_ragel
+  $source_path/ragel-6.8/configure --prefix=$root/ragel CFLAGS='-O2' CXXFLAGS='-O2'
+  make $MCFLAG
+  make install
   
   cd $root
   if [ -e "build_llvm" ] && [ "$debug_mode" -eq 0 ]
