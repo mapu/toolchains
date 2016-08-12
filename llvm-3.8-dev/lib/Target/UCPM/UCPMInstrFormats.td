@@ -154,6 +154,19 @@ class TParaInstr<string header, bit mode, string fop,
   bits<6> f;
   bits<8>  op;
 }
+
+class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
+        : CommonAssignInstr<ins, (outs Condition: $c), !strconcat("MR ", mrassign, " "),
+                            "", "", lclause> {
+}
+
+class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
+                            !strconcat("MR ", mrassign, " "),
+                            "$d", "->", lclause> {
+  bits<4> d;
+}
+
 // ducx end ----------------------------------------------------------------
 
 //yangl
@@ -171,19 +184,6 @@ class UCPSHUIndexAssignInstr<dag ins, string header, string lclause, Operand Des
   bits<6>  d;
 }
 
-class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
-        : CommonAssignInstr<ins, (outs Condition: $c), !strconcat("MR ", mrassign, " "),
-                            "$c", "", lclause> {
-  bits<2> c;
-}
-
-class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
-        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
-                            !strconcat("MR ", mrassign, " "),
-                            "$d$c", "->", lclause> {
-  bits<9> d;
-  bits<2> c;
-}
 
 
 class SEQInst<dag ins, 
