@@ -1,4 +1,4 @@
-%{
+                   %{
 #include <string>
 #include <bitset>
 
@@ -59,10 +59,10 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shu0t shu1t shu2t
-%type <val> r0inst r1inst r2inst r3inst r4inst r5inst ucpmaccdestp ucpmaccdest ialut imact ifalut ifmact ucpifalut ucpifmact
-%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause ucpshu0dest mindexs mindexi mindexn
-
+%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
+%type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact ucpifalut ucpifmact
+%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuclause
+%type <val> ialudest biut
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
 
 %%
@@ -91,7 +91,7 @@ slotref : slot {
 };
 slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
-//      ialuslot {ADDOPERAND(Slot, 6, @$.S, @$.E);} |
+      ialuslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
 //      imacslot {ADDOPERAND(Slot, 7, @$.S, @$.E);} |
 //      faluslot {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
 //      fmacslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
@@ -252,8 +252,7 @@ shu0code: SHU0 DOT shu0inst ;
 shu1code: SHU1 DOT shu1inst ;
 shu2code: SHU2 DOT shu2inst ;
 
-
-shu0inst: ucpshuexp ASSIGNTO ucpshu0dest {
+shu0inst: ucpshuexp ASSIGNTO shu0dest {
   switch ($3) {
   case 0:
     
@@ -278,7 +277,7 @@ shu0inst: ucpshuexp ASSIGNTO ucpshu0dest {
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
         Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-      //***
+
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU0Ind_SetTBToMACC_1, @$.S, @$.E); 
@@ -299,7 +298,7 @@ shu0inst: ucpshuexp ASSIGNTO ucpshu0dest {
   }
 
 };
-shu1inst: ucpshuexp ASSIGNTO ucpshu0dest {
+shu1inst: ucpshuexp ASSIGNTO shu0dest {
   switch ($3) {
   case 0:
     
@@ -324,7 +323,7 @@ shu1inst: ucpshuexp ASSIGNTO ucpshu0dest {
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
         Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-      //***
+
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU1Ind_SetTBToMACC_1, @$.S, @$.E); 
@@ -345,7 +344,7 @@ shu1inst: ucpshuexp ASSIGNTO ucpshu0dest {
   }
 
 };
-shu2inst: ucpshuexp ASSIGNTO ucpshu0dest {
+shu2inst: ucpshuexp ASSIGNTO shu0dest {
   switch ($3) {
   case 0:
     
@@ -370,7 +369,7 @@ shu2inst: ucpshuexp ASSIGNTO ucpshu0dest {
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
         Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-      //***
+
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU2Ind_SetTBToMACC_1, @$.S, @$.E); 
@@ -416,18 +415,17 @@ r2dest: ialut | imact | shu2t | biu2t ;
 r3dest: ifalut | ifmact | shu0t ;
 r4dest: ifalut | ifmact | shu1t | biu1t ;
 r5dest: ifalut | ifmact | shu2t | biu2t ;
+biut: biu0t | biu1t | biu2t ;
 
-
-
-ucpshu0dest: ucpmaccdestp {
+shu0dest: maccdestp {
                /*if(ipath->getImm() >= 3) {
                  llvmerror(&@1, "SHU to Macc must use port 'I0 -I2'"); 
                  YYABORT;
                }*/
              };
              
-ucpmaccdestp: ucpmaccdest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3, @3.S, @3.E);};
-ucpmaccdest: ialut | imact | ucpifalut | ucpifmact ;
+maccdestp: maccdest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3, @3.S, @3.E);};
+maccdest: ialut | imact | ucpifalut | ucpifmact ;
 mindex: mindexi | mindexn ;
 
 ialut: ialu DOT t {$$ = 3; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
@@ -459,6 +457,31 @@ mindexn: MINDEXN {$$ = 0; ms = md;
                MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
                @$.S, @$.E);
 };
+//***
+ialuslot: ialuclause ASSIGNTO ialudest {
+  ADDOPERAND(Opc, UCPM::IALUASToSHU, @$.S, @$.E);
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit't
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+}
+ialuclause: iaddclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);f = OPERAND(Imm, 0, @$.S, @$.E);};//|
+           //isubclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::ISUB, @$.S, @$.E);};
+iaddclause: addexp;
+//iaddclause: addexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm + Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
+//isubclause: subexp _flag utbflag flag_ | subexp ;
+//isubclause: subexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm - Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
+addexp: t ADD t ;
+//subexp: t SUB t ;
+ialudest: shut | maccdest | biut ;
+
+
+shut: shu0t | shu1t | shu2t ;
+
+
 t: TREG {
   unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister($1);
   if (!tm) tm = OPERAND(Reg, treg, @$.S, @$.E);
