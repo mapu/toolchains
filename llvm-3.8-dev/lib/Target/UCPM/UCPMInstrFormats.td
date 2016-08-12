@@ -164,7 +164,6 @@ class TParaInstr<string header, bit mode, string fop,
 class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
         : CommonAssignInstr<ins, (outs Condition: $c), !strconcat("MR ", mrassign, " "),
                             "", "", lclause> {
-
 }
 
 class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
