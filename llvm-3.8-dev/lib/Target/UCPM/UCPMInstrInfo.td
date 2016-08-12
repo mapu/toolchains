@@ -128,28 +128,28 @@ class UCPSHUIndToDest<string header, bits<4> slot, Operand DestTy>
   let Inst{9-8} = tm;
 }
 //final shu0 test instruction, for case: "+="
-def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b0110, UCPMACCTI> {
+def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b0110, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
 //final shu0 test instruction, for case: "=+"
-def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, UCPMACCTI> {
+def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b0111, UCPMACCTI> {
+def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b0111, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b0111, UCPMACCTI> {
+def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b0111, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b1000, UCPMACCTI> {
+def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b1000, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b1000, UCPMACCTI> {
+def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b1000, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }

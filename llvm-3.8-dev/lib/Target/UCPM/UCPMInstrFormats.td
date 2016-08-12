@@ -25,16 +25,10 @@ def MACCTI : Operand<i32> {
   let EncoderMethod = "getMACCTIEncoding";
   let DecoderMethod = "DecodeMACCTI";
 }
-def UCPMACCTI : Operand<i32> {
-  //let PrintMethod = "printUCPMACCTI";
-  let MIOperandInfo = (ops UCPMACC, TPort, IPath);
-  let EncoderMethod = "getUCPMACCTIEncoding";
-  //let DecoderMethod = "DecodeUCPMACCTI";
-}
 def MACCT : Operand<i32> {
   let PrintMethod = "printMACCTI";
   let MIOperandInfo = (ops MACC, TPort);
-  let EncoderMethod = "getMACCTIEncoding";
+  let EncoderMethod = "getMACCTEncoding";
   let DecoderMethod = "DecodeMACCTI";
 }
 def imm32i : Operand<i32>;
@@ -160,21 +154,7 @@ class TParaInstr<string header, bit mode, string fop,
   bits<6> f;
   bits<8>  op;
 }
-
-class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
-        : CommonAssignInstr<ins, (outs Condition: $c), !strconcat("MR ", mrassign, " "),
-                            "", "", lclause> {
-}
-
-class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
-        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
-                            !strconcat("MR ", mrassign, " "),
-                            "$d", "->", lclause> {
-  bits<4> d;
-}
-
 // ducx end ----------------------------------------------------------------
-
 
 //yangl
 class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,
@@ -187,8 +167,22 @@ class UCPSHUIndexAssignInstr<dag ins, string header, string lclause, Operand Des
                   list<dag> pattern = []>
         : CommonAssignInstr<ins, (outs DestTy: $d),
                             header, "$d", "->", lclause, pattern> {
-  //UCPMACCTI: MACC, T, I
+  //MACCTI: MACC, T, I
   bits<6>  d;
+}
+
+class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
+        : CommonAssignInstr<ins, (outs Condition: $c), !strconcat("MR ", mrassign, " "),
+                            "$c", "", lclause> {
+  bits<2> c;
+}
+
+class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
+                            !strconcat("MR ", mrassign, " "),
+                            "$d$c", "->", lclause> {
+  bits<9> d;
+  bits<2> c;
 }
 
 

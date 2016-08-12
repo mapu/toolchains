@@ -59,7 +59,7 @@ public:
   unsigned getMACCTIEncoding(const MCInst &MI, unsigned OpNo,
                              SmallVectorImpl<MCFixup> &Fixups,
                              const MCSubtargetInfo &STI) const;
-  unsigned getUCPMACCTIEncoding(const MCInst &MI, unsigned OpNo,
+  unsigned getMACCTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
   unsigned getMR0DestTEncoding(const MCInst &MI, unsigned OpNo,
@@ -163,21 +163,19 @@ getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
   unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
   assert(MI.getOperand(OpNo+2).isImm());
   unsigned IPathBits = getMachineOpValue(MI, MI.getOperand(OpNo+2), Fixups, STI);
-  
-  return UnitBits | (TPortBits << 2) | (IPathBits << 4);
+
+  return (TPortBits) | (IPathBits << 2) | (UnitBits << 4);
 }
 unsigned UCPMMCCodeEmitter::
-getUCPMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+getMACCTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                   SmallVectorImpl<llvm::MCFixup>& Fixups,
                   const MCSubtargetInfo &STI) const {
   assert(MI.getOperand(OpNo).isReg());
   unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
   assert(MI.getOperand(OpNo+1).isReg());
   unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
-  assert(MI.getOperand(OpNo+2).isImm());
-  unsigned IPathBits = getMachineOpValue(MI, MI.getOperand(OpNo+2), Fixups, STI);
 
-  return (TPortBits) | (IPathBits << 2) | (UnitBits << 4);
+  return (TPortBits) | (UnitBits << 2);
 }
 
 unsigned UCPMMCCodeEmitter::
