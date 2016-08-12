@@ -582,7 +582,7 @@ class IMACCompCode<bits<2> dest> : IMACCode<dest> {
 
 class MAInstr<bit addsub>
         : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift),
-                            "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f">{
+                            "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f")>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
@@ -592,7 +592,7 @@ class MAInstr<bit addsub>
     let Inst{24} = addsub;
     
 }
-def IMA_Real_add : MAInstr<0>, IMACRealCode<0b00,>{
+def IMA_Real_add : MAInstr<0>, IMACRealCode<0b00>{
     let opc = 0b01;
     let d = 0;
 }
