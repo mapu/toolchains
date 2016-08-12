@@ -541,6 +541,78 @@ defm IFALUUryTran : IFALUUryTranToDest;
 // ducx end IFALU Instruction --------------------------------------------------------------------------
 
 
+// ducx start IMAC Instruction --------------------------------------------------------------------------
+class IMACBaseCode {
+  field bits<48> Inst;
+  let Inst{47-44} = 0b1000;//?
+}
+
+class IMACCode<bits<2> dest> : IMACBaseCode {
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<2> tp;
+  bits<4>  d;
+  bits<8> f;
+  bits<2> shift;
+  bits<2> opc;
+  
+  let Inst{26-25} = opc;
+  let Inst{23-21} = f{6-4};
+  let Inst{19-17} = f{3-1};
+  let Inst{16-15} = tm;
+  let Inst{14-13} = tn;
+  let Inst{12-11} = tp;
+  let Inst{10} = f{0};
+  let Inst{9-8} = shift;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-3}  = d{3-2};
+  let Inst{2} = 0;
+  let Inst{1-0}   = d{1-0};
+}
+// Real
+class IMACRealCode<bits<2> dest> : IMACCode<dest> {
+  let Inst{20} = 0;
+}
+// Complex
+class IMACCompCode<bits<2> dest> : IMACCode<dest> {
+  let Inst{20} = 1;
+}
+
+class MAInstr<bit addsub>
+        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift),
+                            "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f">{
+    bits<2> tm;
+    bits<2> tn;
+    bits<2> tp;    
+    bits<8> f;
+    bits<2> shift;
+  
+    let Inst{24} = addsub;
+    
+}
+def IMA_Real_add : MAInstr<0>, IMACRealCode<0b00,>{
+    let opc = 0b01;
+    let d = 0;
+}
+def IMA_Real_sub : MAInstr<1>, IMACRealCode<0b00>{
+    let opc = 0b01;
+    let d = 0;
+}
+def IMA_Comp_add : MAInstr<0>, IMACCompCode<0b00>{
+    let opc = 0b01;
+    let d = 0;
+}
+def IMA_Comp_sub : MAInstr<1>, IMACCompCode<0b00>{
+    let opc = 0b01;
+    let d = 0;
+}
+
+// ducx end IMAC Instruction --------------------------------------------------------------------------
+
+
+
 //from original
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
                         "REPEAT", "", "$imm"> {

@@ -91,7 +91,7 @@ slotref : slot {
 };
 slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
-//      ialuslot {ADDOPERAND(Slot, 6, @$.S, @$.E);} |
+      ialuslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
 //      imacslot {ADDOPERAND(Slot, 7, @$.S, @$.E);} |
 //      faluslot {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
 //      fmacslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
@@ -251,6 +251,9 @@ shuslot: shu0code {$$ = 0;} | shu1code {$$ = 1;} | shu2code {$$ = 2} ;
 shu0code: SHU0 DOT shu0inst ;
 shu1code: SHU1 DOT shu1inst ;
 shu2code: SHU2 DOT shu2inst ;
+
+// ducx
+ialuslot: ialuinst | divinst | ialuctrl;
 
 shu0inst: ucpshuexp ASSIGNTO ucpshu0dest {
   switch ($3) {
@@ -415,6 +418,9 @@ r2dest: ialut | imact | shu2t | biu2t ;
 r3dest: ifalut | ifmact | shu0t ;
 r4dest: ifalut | ifmact | shu1t | biu1t ;
 r5dest: ifalut | ifmact | shu2t | biu2t ;
+
+// ducx
+ialudest: r0dest | r1dest | r2dest | r3dest | r4dest | r5dest ;
 
 ucpshu0dest: ucpmaccdestp {
                /*if(ipath->getImm() >= 3) {

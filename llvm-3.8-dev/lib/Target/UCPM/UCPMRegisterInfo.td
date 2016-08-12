@@ -92,6 +92,7 @@ def COMB : UCPMReg<0, "COMB">;
 def SHUOprtor : RegisterClass<"UCPMReg", [i32], 32, (add COMB)>;
 
 
+
 // ducx start IALU ------------------------------------------------
 
 // MERGE                                  
@@ -218,8 +219,10 @@ def IFALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                      SinToDOUBLE, SinToINT, DouToINT)>; 
 // ducx end IFALU ------------------------------------------------------
                         
-
-
+// ducx start IMAC ------------------------------------------------------
+def IMUL : UCPMReg<0, "*">;                                     
+                                     
+// ducx end IMAC ------------------------------------------------------
 
 def FADD : UCPMReg<0b000000001, "+">;
 def FSUB : UCPMReg<0b000000010, "-">;
