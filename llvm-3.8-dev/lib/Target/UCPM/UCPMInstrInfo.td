@@ -591,9 +591,9 @@ class MAInstr<bit addsub>
     
     let Inst{24} = addsub;
 }
-class MAMovInstr<bit addsub, Operand DestTy>:
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift)
-                          "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f"), DestTy>{
+class MAMovInstr<bit addsub, Operand DestTy>
+        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift), 
+                "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f"), DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
@@ -605,7 +605,7 @@ class MAMovInstr<bit addsub, Operand DestTy>:
 
 class MaCInstr<bit addsub>
         : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $shift),
-                            !if(addsub, "+=", "-="), "$tm * $tn$f")>{
+                            !if(addsub, "+=", "-="), "$tm * $tn$f">{
     bits<2> tm;
     bits<2> tn;
     bits<8> f;
@@ -615,8 +615,8 @@ class MaCInstr<bit addsub>
     let Inst{12} = 1;
     let Inst{11} = f{1};
 }
-class MaCMovInstr<bit addsub, Operand DestTy>:
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $shift)
+class MaCMovInstr<bit addsub, Operand DestTy>
+        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $shift),
                           !if(addsub, "+=", "-="), "$tm * $tn$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
