@@ -623,7 +623,7 @@ class MAMovInstr<bit addsub, Operand DestTy>
 // MAFFT: MR <- tp +- tm*tn
 class MAFFTInstr
         : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift),
-                            "<-", "$tp +- $tm * $tn$f")>{
+                            "<-", "$tp +- $tm * $tn$f">{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
