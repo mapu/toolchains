@@ -2,9 +2,9 @@
 #include <string>
 #include <bitset>
 
-std::bitset<16> flags;
-static int flagsort;
-const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15;
+std::bitset<32> flags;
+static unsigned int flagsort;
+const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, CIF = 16, FF = 17, BF=18;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *f, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -52,7 +52,7 @@ typedef struct YYLTYPE {
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
-%token <val> BR CR APP KPP U T B H S D I L TC C LABEL SHU BIU 
+%token <val> BR CR APP KPP CI F U T B H S D I L TC C LABEL SHU BIU
 %token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
@@ -63,7 +63,7 @@ typedef struct YYLTYPE {
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuclause
 %type <val> ialudest biut
-%type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
+%type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt parserflag parserflags
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -457,18 +457,34 @@ mindexn: MINDEXN {$$ = 0; ms = md;
 };
 //***
 ialuslot: ialuclause ASSIGNTO ialudest {
+  flagsort = (flags[UF] << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
+  flags.reset();
+  //OS<<"flagsort: "<<flagsort<<"\n";
+  f = OPERAND(Imm, flagsort, FlagS, FlagE);
   ADDOPERAND(Opc, UCPM::IALUASToSHU, @$.S, @$.E);
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit't
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-  
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 }
-ialuclause: iaddclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);f = OPERAND(Imm, 0, @$.S, @$.E);};//|
+ialuclause: iaddclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);};//|
            //isubclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::ISUB, @$.S, @$.E);};
-iaddclause: addexp;
+iaddclause: addexp _flag parserflags flag_ /*{
+              //check flags type
+              unsigned long temp, tmpflag;
+              tmpflag = flags.to_ulong();
+              OS<<"tmpflag: "<<tmpflag<<"\n";
+              temp = tmpflag | (1 << TF) | (1 << CIF) | (1 << FF) | (1 << BF) | (1 << SF) | (1 << UF)
+                 - (1 << TF) | (1 << CIF) | (1 << FF) | (1 << BF) | (1 << SF) | (1 << UF);
+              OS<<"temp: "<<temp<<"\n";
+              if(temp != 0) {
+                OS<<"error flag: "<<temp<<"\n";
+                llvmerror(&@3, "Invalid flag for \"Tm + Tn\". Available flags for IALU are T, CI, F, B/S, U"); YYABORT; 
+              }
+            }*/
+          | addexp;
 //iaddclause: addexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm + Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
 //isubclause: subexp _flag utbflag flag_ | subexp ;
 //isubclause: subexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm - Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
@@ -515,3 +531,13 @@ falu: FALU ;
 fmac: FMAC ;
 ifalu: IFALU ;
 ifmac: IFMAC ;
+
+
+parserflags: parserflag | parserflag COMMA parserflags;
+parserflag:  T   {flags.set(TF);}  |
+             CI  {flags.set(CIF);} |
+             F   {flags.set(FF);}  |
+             B   {flags.set(BF);}  |
+             S   {flags.set(SF);}  |
+             D   {flags.set(DF);}  |
+             U   {flags.set(UF);}  ;

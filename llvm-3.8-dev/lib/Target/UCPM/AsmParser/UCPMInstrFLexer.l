@@ -274,6 +274,8 @@ A   [a-zA-Z_0-9]
 "k""++"                  {return TOKEN(KPP);}
 "u"                      {return TOKEN(U);}
 "t"                      {return TOKEN(T);}
+"ci"                     {return TOKEN(CI);}
+"f"                      {return TOKEN(F);}
 "b"                      {return TOKEN(B);}
 "h"                      {return TOKEN(H);}
 "s"                      {return TOKEN(S);}
