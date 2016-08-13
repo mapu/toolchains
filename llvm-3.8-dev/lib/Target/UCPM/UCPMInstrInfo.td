@@ -582,14 +582,14 @@ class IMACCompCode<bits<2> dest> : IMACCode<dest> {
 
 // tm*tn -> d
 multiclass IMulRealToDest{
-    let opc = op{1-0} in{
+    let opc = 0b00 in{
     def ToSHU  : BinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACRealCode<0b00>;
     def ToBIU  : BinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACRealCode<0b10>;
     def ToMACC : BinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACRealCode<0b01>;
     }
 }
 multiclass IMulCompToDest{
-    let opc = op{1-0} in{
+    let opc = 0b00 in{
     def ToSHU  : BinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACCompCode<0b00>;
     def ToBIU  : BinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACCompCode<0b10>;
     def ToMACC : BinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACCompCode<0b01>;
