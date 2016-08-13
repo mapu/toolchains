@@ -894,7 +894,6 @@ class IMACSendFlagCode<Operand DestTy, bits<2> dest>
   let Inst{23-22} = f{2-1};
   let Inst{18} = 0;
   let Inst{17} = f{0};
-  let Inst{16-15} = tm;
   let Inst{14-13} = 0b01;
   let Inst{12-11} = 0b00;
   let Inst{7} = 0;
@@ -910,8 +909,9 @@ multiclass IMACSendFlagToDest {
 }
 
 // WriteFlag 
-def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(outs), "", "FLAG$f", "->", "IMAC.$tm">,
+def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs), "", "FLAG$f", "->", "IMAC.$tm">,
                  IMACBaseCode { 
+  bits<2>  tm;
   bits<3> f;
  
   let Inst{26-25} = 0b10;
