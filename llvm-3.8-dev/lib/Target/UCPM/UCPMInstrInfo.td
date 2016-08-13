@@ -922,11 +922,6 @@ def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs), "", "F
   let Inst{16-15} = tm;
   let Inst{14-13} = 0b01;
   let Inst{12-11} = 0b00;
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
-  let Inst{1-0}   = d{1-0};
 }
 
 // WAIT
