@@ -226,7 +226,10 @@ def IFALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
 // ducx end IFALU ------------------------------------------------------
                         
 // ducx start IMAC ------------------------------------------------------
-                                  
+                                     
+def IMUL : UCPMReg<0, "*">;               
+
+def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add IMUL)>;             
                                      
 // ducx end IMAC ------------------------------------------------------
 
@@ -239,13 +242,13 @@ def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                   (add FADD, FSUB, ADDSUB)>;  
 
 
-def IMUL : UCPMReg<2, "*">;
-def IMULT : UCPMReg<1, "*">;
-def IMULS : UCPMReg<3, "*">;
-def MR : UCPMReg<0, "MR">;
-
-def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add IMUL, IMULT, IMULS)>;
+// def IMUL : UCPMReg<2, "*">;
+// def IMULT : UCPMReg<1, "*">;
+// def IMULS : UCPMReg<3, "*">;
+// def MR : UCPMReg<0, "MR">;
+// 
+// def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32,
+//                                   (add IMUL, IMULT, IMULS)>;
 
 def FMUL : UCPMReg<0, "*">;
 def CMUL : UCPMReg<1, "**">;
