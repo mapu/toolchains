@@ -59,11 +59,10 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> ialuastodest
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause
-%type <val> ialudest biut
+%type <val> ialudest ifaludest biut
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt parserflag parserflags
 
 %%
@@ -93,7 +92,7 @@ slotref : slot {
 slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
       ialuslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
-//      imacslot {ADDOPERAND(Slot, 7, @$.S, @$.E);} |
+      ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
 //      faluslot {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
 //      fmacslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
  //     biuslot {ADDOPERAND(Slot, 10 + slotid, @$.S, @$.E);} |
@@ -456,69 +455,50 @@ mindexn: MINDEXN {$$ = 0; ms = md;
                MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
                @$.S, @$.E);
 };
-ialuslot: ialuastodest ;
-ialuastodest: ialuasclause ASSIGNTO ialudest {
+ialuslot: ialutodest ;
+ialutodest: ialuasclause ASSIGNTO ialudest {
   flagsort = (flags[UF] << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
   flags.reset();
   f = OPERAND(Imm, flagsort, FlagS, FlagE);
   switch ($3) {
     case 1://to shu
       ADDOPERAND(Opc, UCPM::IALUASToSHU, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
     case 2://to macc
       ADDOPERAND(Opc, UCPM::IALUASToMACC, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
       break;
     case 3://to biu
       ADDOPERAND(Opc, UCPM::IALUASToBIU, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
       break;
     default:
       break;
   }
-}//***
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+}
 | ialulogicclause ASSIGNTO ialudest {
   switch ($3) {
     case 1://to shu
       ADDOPERAND(Opc, UCPM::IALULogicToSHU, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
     case 2://to macc
       ADDOPERAND(Opc, UCPM::IALULogicToMACC, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
     case 3://to biu
       ADDOPERAND(Opc, UCPM::IALULogicToBIU, @$.S, @$.E);
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
     default:
       break;
   }
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 };
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
               isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
@@ -552,6 +532,42 @@ ialudest: shut {$$ = 1;} | maccdest {$$ = 2;} | biut {$$ = 3;} ;
 
 shut: shu0t | shu1t | shu2t ;
 
+
+//***
+ifaluslot: ifalutodest ;
+ifalutodest: ifalucomclause ASSIGNTO ifaludest {
+  switch ($3) {
+    case 1://to shu
+      ADDOPERAND(Opc, UCPM::IFALUComToSHU, @$.S, @$.E); 
+      break;
+    case 2://to macc
+      ADDOPERAND(Opc, UCPM::IFALUComToMACC, @$.S, @$.E);
+      break;
+    case 3://to biu
+      ADDOPERAND(Opc, UCPM::IFALUComToBIU, @$.S, @$.E);
+      break;
+    default:
+      break;
+  }
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+};
+ifalucomclause: ifm_FEQUclause {opc = OPERAND(Reg, UCPMReg::m_FEQU, @$.S, @$.E);} |
+                ifm_FNEQclause {opc = OPERAND(Reg, UCPMReg::m_FNEQ, @$.S, @$.E);} |
+                ifm_FLTclause  {opc = OPERAND(Reg, UCPMReg::m_FLT, @$.S, @$.E);}  |
+                ifm_FNSTclause {opc = OPERAND(Reg, UCPMReg::m_FNST, @$.S, @$.E);} |
+                ifm_FSTclause  {opc = OPERAND(Reg, UCPMReg::m_FST, @$.S, @$.E);}  |
+                ifm_FNLTclause {opc = OPERAND(Reg, UCPMReg::m_FNLT, @$.S, @$.E);} ;
+ifm_FEQUclause: t EQU t ;
+ifm_FNEQclause: t NEQ t ;
+ifm_FLTclause: t LT t ;
+ifm_FNSTclause: t NST t ;
+ifm_FSTclause: t ST t ;
+ifm_FNLTclause: t NLT t ;
+ifaludest: ialudest ;
 
 t: TREG {
   unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister($1);

@@ -62,6 +62,9 @@ public:
   unsigned getMACCTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
+  unsigned getBIUTEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
   unsigned getMR0DestTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
@@ -168,6 +171,17 @@ getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
 }
 unsigned UCPMMCCodeEmitter::
 getMACCTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (TPortBits) | (UnitBits << 2);
+}
+unsigned UCPMMCCodeEmitter::
+getBIUTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                   SmallVectorImpl<llvm::MCFixup>& Fixups,
                   const MCSubtargetInfo &STI) const {
   assert(MI.getOperand(OpNo).isReg());
