@@ -997,7 +997,7 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<4>  d;
-  bits f;
+  bit f;
   
   let Inst{26-23} = op{3-0};
   let Inst{22} = f;
