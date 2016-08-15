@@ -164,7 +164,7 @@ class IALUCode<bits<2> dest> : IALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<6> f;
+  bits<32> f;
   bits<4>  d;
 
   let Inst{11-10} = tm;
@@ -195,7 +195,7 @@ multiclass IALUTPToDest {
 // ADD SUB
 class IALUASCode<bits<2> dest> : IALUCode<dest> {
   let Inst{21-18} = op{3-0};
-  let Inst{17-12} = f;
+  let Inst{17-12} = f{6-0};
 }
 multiclass IALUASToDest {
   let isCodeGenOnly = 1 in {
@@ -487,7 +487,7 @@ class IFALUCode<bits<2> dest> : IFALUBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<4>  d;
-  bits<6> f;
+  bits<32> f;
   
   let Inst{22} = 1;
   let Inst{11-10} = tm;
@@ -553,7 +553,7 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   bits<2> tn;
   bits<2> tp;
   bits<4>  d;
-  bits<8> f;
+  bits<32> f;
   bits<2> shift;
   bits<2> opc;
   
@@ -603,7 +603,7 @@ class MAInstr<bit addsub>
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
     
     let Inst{24} = addsub;
@@ -632,7 +632,7 @@ class MAMovInstr<bit addsub, Operand DestTy>
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
   
     let Inst{24} = addsub;                          
@@ -673,7 +673,7 @@ class MAFFTInstr
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
     
 }
@@ -693,7 +693,7 @@ class MAFFTMovInstr<Operand DestTy>
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
                            
 }
@@ -718,7 +718,7 @@ class MaCInstr<bit addsub>
                             !if(addsub, "+=", "-="), "$tm * $tn$f">{
     bits<2> tm;
     bits<2> tn;
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
      
     let Inst{24} = addsub;
@@ -748,7 +748,7 @@ class MaCMovInstr<bit addsub, Operand DestTy>
                           !if(addsub, "+=", "-="), "$tm * $tn$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
     
     let Inst{24} = addsub;
@@ -789,7 +789,7 @@ class AccInstr<bit addsub>
         : ToMRwoMovInstr<(ins TPort: $tm, Flags: $f , Flags: $shift),
                             !if(addsub, "+=", "-="), "$tm$f">{
     bits<2> tm;
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
      
     let Inst{24} = addsub;
@@ -823,7 +823,7 @@ class AccMovInstr<bit addsub, Operand DestTy>
                           !if(addsub, "+=", "-="), "$tm$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
-    bits<8> f;
+    bits<32> f;
     bits<2> shift;
     
     let Inst{24} = addsub;
@@ -997,10 +997,10 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<4>  d;
-  bit f;
+  bits<32> f;
   
   let Inst{26-23} = op{3-0};
-  let Inst{22} = f;
+  let Inst{22} = f{0};
   let Inst{20-19} = tn;
   let Inst{16-15} = tm;
   let Inst{14-11} = 0b0101;

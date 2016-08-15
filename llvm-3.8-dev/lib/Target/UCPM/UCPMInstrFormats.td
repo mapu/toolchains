@@ -128,7 +128,7 @@ class BinaryInstr<string header, bit mode,
                       !if(mode, "$tm $op $tn$f", "$op($tm, $tn)$f"), DestTy> {
   bits<2>  tm;
   bits<2>  tn;
-  bits<6> f;
+  bits<32> f;
   bits<8>  op;
 }
 
@@ -138,7 +138,7 @@ class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
                       "$op $tm$f", DestTy> {
   bits<2>  tm;
   bits<2>  tn;
-  bits<6> f;
+  bits<32> f;
   bits<8>  op;
 }
 
@@ -151,7 +151,7 @@ class TParaInstr<string header, bit mode, string fop,
   bits<2>  tm;
   bits<2>  tn;
   bits<2>  tp;
-  bits<6> f;
+  bits<32> f;
   bits<8>  op;
 }
 
