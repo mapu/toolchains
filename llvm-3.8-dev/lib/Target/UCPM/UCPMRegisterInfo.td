@@ -236,7 +236,7 @@ def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add IMUL)>;
 def FMUL : UCPMReg<0b000001000, "*">;
 def FADD : UCPMReg<0b000001010, "+">;
 def FSUB : UCPMReg<0b000001011, "-">;
-def FMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add FMUL FADD FSUB)>;
+def FMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add FMUL, FADD, FSUB)>;
  // ducx end IFMAC ------------------------------------------------------                                 
                                   
 
