@@ -82,7 +82,7 @@ def SHUT : Operand<i32> {
 }
 def BIUO: Operand<i32> {
   let DecoderMethod = "DecodeBIURegisterClass";
-  let MIOperandInfo = (ops BIU);
+  let MIOperandInfo = (ops BIU, TPort);
 }
 
 
@@ -119,6 +119,13 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
         : CommonAssignInstr<ins, (outs DestTy: $d),
                             header, "$d", "->", lclause, pattern> {
   bits<4>  d;
+}
+
+class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
+                  list<dag> pattern = []>
+        : CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<6>  d;
 }
 
 class BinaryInstr<string header, bit mode,

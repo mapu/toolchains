@@ -236,9 +236,22 @@ def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add IMUL)>;
 def FMUL : UCPMReg<0b000001000, "*">;
 def FADD : UCPMReg<0b000001010, "+">;
 def FSUB : UCPMReg<0b000001011, "-">;
+
 def IFMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add FMUL, FADD, FSUB)>;
  // ducx end IFMAC ------------------------------------------------------                                 
-                                  
+           
+
+// ducx start BIU ------------------------------------------------------
+def BIUADD : UCPMReg<0b000000000, "+">;
+def BIUSUB : UCPMReg<0b000000001, "-">;
+def BIUAND : UCPMReg<0b000000010, "&">;
+def BIUOR : UCPMReg<0b000000011, "|">;
+
+def BIUBinOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIUADD, BIUSUB, BIUAND, BIUOR)>;
+ // ducx end BIU ------------------------------------------------------                                 
+        
+
+
 //dcx for svn bug
 
 // def ADDSUB : UCPMReg<0b000000110, "+-">;

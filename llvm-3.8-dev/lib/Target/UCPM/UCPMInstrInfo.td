@@ -1018,10 +1018,123 @@ multiclass IFMACToDest{
 }
 
 defm IFMAC : IFMACToDest;
-
-//dcx for svn bug
-
 // ducx end IFMAC Instruction --------------------------------------------------------------------------
+
+
+
+// ducx start BIU Instruction --------------------------------------------------------------------------
+
+// load: discrete data
+class BIULdToDest_dis<string header, bits<4> slot, bits<2> dest, Operand DestTy>
+        : BIUAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH), header, "$tm($ts)$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bits<2> ts;
+    bits<2> QLH;
+    
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = QLH;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = ts;
+    let Inst{9} = f{0};
+    let Inst{8-7} = dest;
+    let Inst{6-5}  = d{5-4};
+    let Inst{4} = 0;
+    let Inst{3-0}   = d{3-0};
+}
+
+multiclass BIULdInstr_dis<string header, bits<4> slot>{
+    def ToSHU  : BIULdToDest_dis<header, slot ,0b00, SHUT >;
+    def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
+}
+
+// load: common/step
+class BIULdToDest_com<string header, bits<4> slot, bits<2> dest, Operand DestTy>
+        : BIUAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $step), header, "$tm($ts)$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bits<2> ts;
+    bit step;
+
+    
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = 0b11;
+    let Inst{13-12} = tm;
+    let Inst{11} = 0;
+    let Inst{10} = step;
+    let Inst{9} = f{0};
+    let Inst{8-7} = dest;
+    let Inst{6-5}  = d{5-4};
+    let Inst{4} = 0;
+    let Inst{3-0}   = d{3-0};
+}
+
+multiclass BIULdInstr_com<string header, bits<4> slot>{
+    def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
+    def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
+}
+
+// store
+class BIUStInstr<string header, bits<4> slot>
+        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $SQLH), (outs), !strconcat(header,"$tm($ts)", "-> DM$f")>{
+            
+    bits<32> f;
+    bits<2> tm;
+    bits<2> ts;
+    bits<2> SQLH;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b100;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = SQLH;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = ts;
+    let Inst{9} = f{0};
+    let Inst{8-6} = 0b100;
+    let Inst{5-0}   = 0;
+}
+ 
+// ADD SUB AND OR
+// class BIUBinInstr<string header, bits<4> slot>
+//         : UCPMInst<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, TPort: $tp), (outs), !strconcat(header,"$tm $op $tn", "-> $tp")>{
+//             
+//     bits<32> f;
+//     bits<2> tm;
+//     bits<2> tn;
+//     bits<2> tp;
+//     bits<8> op;
+// 
+//     let Inst{47-44} = slot;
+//     let Inst{20-18} = op{2-0};
+//     let Inst{17-16} = tm;
+//     let Inst{15-12} = ;
+//     let Inst{11-10} = tn;
+//     let Inst{9-6} = ;
+//     let Inst{5-4} = tp;
+//     let Inst{3-0}   = ;
+// }
+ 
+
+
+defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b1010>;
+defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b1010>;
+def BIU0St : BIUStInstr<"BIU0.", 0b1010>;
+defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
+defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b1011>;
+def BIU1St : BIUStInstr<"BIU1.", 0b1011>;
+defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b1100>;
+defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b1100>;
+def BIU2St : BIUStInstr<"BIU2.", 0b1100>;
+
+// ducx end BIU Instruction --------------------------------------------------------------------------
+
+
 
 //from original
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
