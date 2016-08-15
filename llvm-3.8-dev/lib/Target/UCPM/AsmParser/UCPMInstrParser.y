@@ -456,7 +456,6 @@ mindexn: MINDEXN {$$ = 0; ms = md;
                MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
                @$.S, @$.E);
 };
-//***
 ialuslot: ialuastodest ;
 ialuastodest: ialuasclause ASSIGNTO ialudest {
   flagsort = (flags[UF] << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
@@ -471,7 +470,6 @@ ialuastodest: ialuasclause ASSIGNTO ialudest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
-      break;
     case 2://to macc
       ADDOPERAND(Opc, UCPM::IALUASToMACC, @$.S, @$.E);
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
@@ -492,7 +490,36 @@ ialuastodest: ialuasclause ASSIGNTO ialudest {
     default:
       break;
   }
-}
+}//***
+| ialulogicclause ASSIGNTO ialudest {
+  switch ($3) {
+    case 1://to shu
+      ADDOPERAND(Opc, UCPM::IALULogicToSHU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      break;
+    case 2://to macc
+      ADDOPERAND(Opc, UCPM::IALULogicToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      break;
+    case 3://to biu
+      ADDOPERAND(Opc, UCPM::IALULogicToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      break;
+    default:
+      break;
+  }
+};
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
               isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
 iaddclause: addexp _flag parserflags flag_ /*{
@@ -512,6 +539,14 @@ iaddclause: addexp _flag parserflags flag_ /*{
 isubclause: subexp _flag parserflags flag_ | subexp ;
 addexp: t ADD t ;
 subexp: t SUB t ;
+ialulogicclause: iandclause {opc = OPERAND(Reg, UCPMReg::m_AND, @$.S, @$.E);} | 
+                 iorclause {opc = OPERAND(Reg, UCPMReg::m_OR, @$.S, @$.E);} | 
+                 ixorclause {opc = OPERAND(Reg, UCPMReg::m_XOR, @$.S, @$.E);} ;
+iandclause: t AND t ;
+iorclause : t OR t ;
+ixorclause : t XOR t ;
+
+
 ialudest: shut {$$ = 1;} | maccdest {$$ = 2;} | biut {$$ = 3;} ;
 
 
