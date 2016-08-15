@@ -59,9 +59,10 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
+%type <val> ialuastodest
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
-%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuclause
+%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause
 %type <val> ialudest biut
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt parserflag parserflags
 
@@ -456,21 +457,38 @@ mindexn: MINDEXN {$$ = 0; ms = md;
                @$.S, @$.E);
 };
 //***
-ialuslot: ialuclause ASSIGNTO ialudest {
+ialuslot: ialuastodest ;
+ialuastodest: ialuasclause ASSIGNTO ialudest {
   flagsort = (flags[UF] << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
   flags.reset();
-  //OS<<"flagsort: "<<flagsort<<"\n";
   f = OPERAND(Imm, flagsort, FlagS, FlagE);
-  ADDOPERAND(Opc, UCPM::IALUASToSHU, @$.S, @$.E);
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit't
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  switch ($3) {
+    case 1://to shu
+      ADDOPERAND(Opc, UCPM::IALUASToSHU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+    case 2://to macc
+      ADDOPERAND(Opc, UCPM::IALUASToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+    case 3://to biu
+      break;
+    default:
+      break;
+  }
 }
-ialuclause: iaddclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);};//|
-           //isubclause {$$ = 2; opc = OPERAND(Reg, UCPMReg::ISUB, @$.S, @$.E);};
+ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
+              isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
 iaddclause: addexp _flag parserflags flag_ /*{
               //check flags type
               unsigned long temp, tmpflag;
@@ -485,12 +503,10 @@ iaddclause: addexp _flag parserflags flag_ /*{
               }
             }*/
           | addexp;
-//iaddclause: addexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm + Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
-//isubclause: subexp _flag utbflag flag_ | subexp ;
-//isubclause: subexp _flag error flag_ {llvmerror(&@3, "Invalid flag for \"Tm - Tn\". Available flags for IALU are U, T, B/H, and for FALU are T, S/D."); YYABORT;};
+isubclause: subexp _flag parserflags flag_ | subexp ;
 addexp: t ADD t ;
-//subexp: t SUB t ;
-ialudest: shut | maccdest | biut ;
+subexp: t SUB t ;
+ialudest: shut {$$ = 1;} | maccdest {$$ = 2;} | biut {$$ = 3;} ;
 
 
 shut: shu0t | shu1t | shu2t ;
