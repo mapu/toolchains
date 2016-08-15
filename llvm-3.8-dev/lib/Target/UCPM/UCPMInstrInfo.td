@@ -195,7 +195,7 @@ multiclass IALUTPToDest {
 // ADD SUB
 class IALUASCode<bits<2> dest> : IALUCode<dest> {
   let Inst{21-18} = op{3-0};
-  let Inst{17-12} = f{6-0};
+  let Inst{17-12} = f{5-0};
 }
 multiclass IALUASToDest {
   let isCodeGenOnly = 1 in {
