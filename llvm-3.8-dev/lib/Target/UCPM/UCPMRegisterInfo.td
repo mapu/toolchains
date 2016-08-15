@@ -187,8 +187,6 @@ def READR : UCPMReg<0b000011011, "READR">;
 
 def DIVOprtor : RegisterClass<"UCPMReg", [i32], 32,
                               (add DIVSTART, DIVCONT, READQ, READR)>;
-
-
 // ducx end IALU--------------------------------------------------------		
 				    
                               
@@ -225,21 +223,29 @@ def IFALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                      SinToDOUBLE, SinToINT, DouToINT)>; 
 // ducx end IFALU ------------------------------------------------------
                         
+                                     
+                                     
 // ducx start IMAC ------------------------------------------------------
-                                     
 def IMUL : UCPMReg<0, "*">;               
-
 def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add IMUL)>;             
-                                     
 // ducx end IMAC ------------------------------------------------------
 
-def FADD : UCPMReg<0b000000001, "+">;
-def FSUB : UCPMReg<0b000000010, "-">;
-def ADDSUB : UCPMReg<0b000000110, "+-">;
 
 
-def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add FADD, FSUB, ADDSUB)>;  
+// ducx start IFMAC ------------------------------------------------------
+def FMUL : UCPMReg<0b000001000, "*">;
+def FADD : UCPMReg<0b000001010, "+">;
+def FSUB : UCPMReg<0b000001011, "-">;
+def FMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add FMUL FADD FSUB)>;
+ // ducx end IFMAC ------------------------------------------------------                                 
+                                  
+
+
+// def ADDSUB : UCPMReg<0b000000110, "+-">;
+// 
+// 
+// def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
+//                                   (add FADD, FSUB, ADDSUB)>;  
 
 
 // def IMUL : UCPMReg<2, "*">;
@@ -250,11 +256,7 @@ def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
 // def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32,
 //                                   (add IMUL, IMULT, IMULS)>;
 
-def FMUL : UCPMReg<0, "*">;
-def CMUL : UCPMReg<1, "**">;
 
-def FMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add FMUL, CMUL)>;
 
 def C : UCPMReg<2, "@(C)">;
 def NC : UCPMReg<3, "@(!C)">;

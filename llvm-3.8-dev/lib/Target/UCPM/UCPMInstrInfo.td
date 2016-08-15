@@ -986,6 +986,40 @@ defm IMACSendFlag: IMACSendFlagToDest;
 // ducx end IMAC Instruction --------------------------------------------------------------------------
 
 
+// ducx start IFMAC Instruction --------------------------------------------------------------------------
+class IFMACBaseCode {
+  field bits<48> Inst;
+  let Inst{47-44} = 0b1001;//?
+}
+
+class IFMACCode<bits<2> dest> : IFMACBaseCode {
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<4>  d;
+  bits f;
+  
+  let Inst{26-23} = op{3-0};
+  let Inst{22} = f;
+  let Inst{20-19} = tn;
+  let Inst{16-15} = tm;
+  let Inst{14-11} = 0b0101;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-3}  = d{3-2};
+  let Inst{2} = 0;
+  let Inst{1-0}   = d{1-0};
+}
+
+multiclass IFMACToDest{
+    def ToSHU  : BinaryInstr<"", 1, IFMACMulOprtor, SHUT >, IFMACCode<0b00>;
+    def ToBIU  : BinaryInstr<"", 1, IFMACMulOprtor, BIUO >, IFMACCode<0b10>;
+    def ToMACC : BinaryInstr<"", 1, IFMACMulOprtor, MACCT>, IFMACCode<0b01>;
+}
+
+defm IFMAC : IFMACToDest;
+
+// ducx end IFMAC Instruction --------------------------------------------------------------------------
 
 //from original
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
