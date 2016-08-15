@@ -1129,11 +1129,10 @@ class BIUShiftInstr<string header, bits<4> slot>
             
     bits<32> f;
     bits<2> tm;
-    bits<2> tn;
     bits<2> tp;
     bits<8> op;
+    bits<2> imm;
     bits<4> m;
-    bits<4> n;
     bits<4> p;
 
     let Inst{47-44} = slot;
