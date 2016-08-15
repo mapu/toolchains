@@ -482,6 +482,12 @@ ialuastodest: ialuasclause ASSIGNTO ialudest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
       break;
     case 3://to biu
+      ADDOPERAND(Opc, UCPM::IALUASToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//ADD or SUB
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
       break;
     default:
       break;
