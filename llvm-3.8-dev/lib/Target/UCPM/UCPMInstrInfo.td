@@ -317,7 +317,7 @@ multiclass IALUUryCONToDest {
 // LSHimm RSHimm
 class IALUImmInstr<Operand DestTy, bits<2> dest>
         : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm5, Flags: $f),
-                      "", "$tm $op $imm$f", DestTy>, IALUBaseCode {
+                      "", "$tm $op $imm5$f", DestTy>, IALUBaseCode {
   bits<2>  tm;
   bits<5>  imm5;
   bits<3> f;
