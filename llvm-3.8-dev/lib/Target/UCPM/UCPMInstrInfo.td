@@ -316,17 +316,17 @@ multiclass IALUUryCONToDest {
 
 // LSHimm RSHimm
 class IALUImmInstr<Operand DestTy, bits<2> dest>
-        : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f),
+        : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm5, Flags: $f),
                       "", "$tm $op $imm$f", DestTy>, IALUBaseCode {
   bits<2>  tm;
-  bits<5>  imm;
+  bits<5>  imm5;
   bits<3> f;
   bits<8> op;
   let Inst{21-18} = op{3-0};
   let Inst{17-15} = f{2-0};
-  let Inst{14-12} = imm{4-2};
+  let Inst{14-12} = imm5{4-2};
   let Inst{11-10} = tm;
-  let Inst{9-8} = imm{1-0};
+  let Inst{9-8} = imm5{1-0};
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
   let Inst{4-3}  = d{3-2};
@@ -391,15 +391,15 @@ multiclass IALUMOVToDest {
 }
 
 // WAIT
-def IALUWait : CommonAssignInstr<(ins imm32i: $imm),(outs),
-                                   "", "", "", "Wait $imm">,
+def IALUWait : CommonAssignInstr<(ins imm32i: $imm7),(outs),
+                                   "", "", "", "Wait $imm7">,
                  IALUBaseCode {
-  bits<7>  imm;
+  bits<7>  imm7;
   
   let Inst{21-18} = 0b1111;
-  let Inst{16-15} = imm{6-5};
+  let Inst{16-15} = imm7{6-5};
   let Inst{14-13} = 0b01;
-  let Inst{12-8} = imm{4-0};
+  let Inst{12-8} = imm7{4-0};
   let Inst{7-0}  = 0;
 }
 
@@ -411,17 +411,17 @@ def IALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IALUBaseCode {
 }
 
 // SetCond
-def IALUSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
-                                   "", "IALU.SetCond[$m]", "->", "$imm">,
+def IALUSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
+                                   "", "IALU.SetCond[$m]", "->", "$imm8">,
                  IALUBaseCode {
-  bits<8>  imm;
+  bits<8>  imm8;
   bit m;
   
   let Inst{21-18} = 0b1111;
   let Inst{17} = 1;
   let Inst{15} = m;
   let Inst{14-13} = 0b11;
-  let Inst{7-0} = imm;
+  let Inst{7-0} = imm8;
 }
 
 // SendFlag
@@ -925,13 +925,13 @@ def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs), "", "F
 }
 
 // WAIT
-def IMACWait : CommonAssignInstr<(ins imm32i: $imm),(outs),
-                                   "", "", "", "Wait $imm">,
+def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs),
+                                   "", "", "", "Wait $imm7">,
                  IMACBaseCode {
-  bits<7>  imm;
+  bits<7>  imm7;
   
   let Inst{26-25} = 0b10;
-  let Inst{21-15} = imm;
+  let Inst{21-15} = imm7;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
   let Inst{7-0}  = 0;
@@ -946,10 +946,10 @@ def IMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IMACBaseCode {
 }
 
 // SetCond
-def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
-                                   "", "IMAC.SetCond[$m]", "->", "$imm">,
+def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
+                                   "", "IMAC.SetCond[$m]", "->", "$imm8">,
                  IMACBaseCode {
-  bits<8>  imm;
+  bits<8>  imm8;
   bit m;
   
   let Inst{26-25} = 0b10;
@@ -957,7 +957,7 @@ def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm, Flags: $m), (outs),
   let Inst{23} = 1;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
-  let Inst{7-0} = imm;
+  let Inst{7-0} = imm8;
 }
 
 defm IMulReal : IMulRealToDest;
@@ -1101,36 +1101,68 @@ class BIUStInstr<string header, bits<4> slot>
 }
  
 // ADD SUB AND OR
-// class BIUBinInstr<string header, bits<4> slot>
-//         : UCPMInst<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, TPort: $tp), (outs), !strconcat(header,"$tm $op $tn", "-> $tp")>{
-//             
-//     bits<32> f;
-//     bits<2> tm;
-//     bits<2> tn;
-//     bits<2> tp;
-//     bits<8> op;
-// 
-//     let Inst{47-44} = slot;
-//     let Inst{20-18} = op{2-0};
-//     let Inst{17-16} = tm;
-//     let Inst{15-12} = ;
-//     let Inst{11-10} = tn;
-//     let Inst{9-6} = ;
-//     let Inst{5-4} = tp;
-//     let Inst{3-0}   = ;
-// }
- 
+class BIUBinInstr<string header, bits<4> slot>
+        : UCPMInst<(ins BIUBinOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, imm32i: $m, imm32i: $n, imm32i: $p), (outs), !strconcat(header,"$tm $op $tn", "-> $tp")>{
+            
+    bits<32> f;
+    bits<2> tm;
+    bits<2> tn;
+    bits<2> tp;
+    bits<8> op;
+    bits<4> m;
+    bits<4> n;
+    bits<4> p;
 
+    let Inst{47-44} = slot;
+    let Inst{20-18} = op{2-0};
+    let Inst{17-16} = tm;
+    let Inst{15-12} = m;
+    let Inst{11-10} = tn;
+    let Inst{9-6} = n;
+    let Inst{5-4} = tp;
+    let Inst{3-0} = p;
+}
+ 
+// LSH RSH
+class BIUShiftInstr<string header, bits<4> slot>
+        : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $tm, TPort: $tp, imm32i: $imm, imm32i: $m, imm32i: $p), (outs), !strconcat(header,"$tm $op $imm", "-> $tp")>{
+            
+    bits<32> f;
+    bits<2> tm;
+    bits<2> tn;
+    bits<2> tp;
+    bits<8> op;
+    bits<4> m;
+    bits<4> n;
+    bits<4> p;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = op{6-4};
+    let Inst{17-16} = tm;
+    let Inst{15-12} = m;
+    let Inst{11-10} = imm;
+    let Inst{9-6} = op{3-0};
+    let Inst{5-4} = tp;
+    let Inst{3-0} = p;
+}
 
 defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b1010>;
 defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b1010>;
 def BIU0St : BIUStInstr<"BIU0.", 0b1010>;
+def BIU0Bin : BIUBinInstr<"BIU0.", 0b1010>;
+def BIU0Shift : BIUShiftInstr<"BIU0.", 0b1010>;
+
 defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
 defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b1011>;
 def BIU1St : BIUStInstr<"BIU1.", 0b1011>;
+def BIU1Bin : BIUBinInstr<"BIU1.", 0b1011>;
+def BIU1Shift : BIUShiftInstr<"BIU1.", 0b1011>;
+
 defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b1100>;
 defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b1100>;
 def BIU2St : BIUStInstr<"BIU2.", 0b1100>;
+def BIU2Bin : BIUBinInstr<"BIU2.", 0b1100>;
+def BIU2Shift : BIUShiftInstr<"BIU2.", 0b1100>;
 
 // ducx end BIU Instruction --------------------------------------------------------------------------
 

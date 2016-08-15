@@ -248,6 +248,11 @@ def BIUAND : UCPMReg<0b000000010, "&">;
 def BIUOR : UCPMReg<0b000000011, "|">;
 
 def BIUBinOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIUADD, BIUSUB, BIUAND, BIUOR)>;
+
+def BIULSHT : UCPMReg<0b001001010, "<<">;
+def BIURSHT : UCPMReg<0b001001011, ">>">;
+
+def BIUShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIULSHT, BIURSHT)>;
  // ducx end BIU ------------------------------------------------------                                 
         
 
