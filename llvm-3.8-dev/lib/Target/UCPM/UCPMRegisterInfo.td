@@ -253,11 +253,17 @@ def BIULSHT : UCPMReg<0b001001010, "<<">;
 def BIURSHT : UCPMReg<0b001001011, ">>">;
 
 def BIUShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIULSHT, BIURSHT)>;
+
+def BIUEQU : UCPMReg<0b001000001, "==0">;
+def BIUNEQ : UCPMReg<0b001000000, "!=0">;
+
+def BIUComOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIUEQU, BIUNEQ)>;
+
  // ducx end BIU ------------------------------------------------------                                 
         
 
 
-//dcx for svn bug
+
 
 // def ADDSUB : UCPMReg<0b000000110, "+-">;
 // 

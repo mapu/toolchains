@@ -1102,66 +1102,155 @@ class BIUStInstr<string header, bits<4> slot>
  
 // ADD SUB AND OR
 class BIUBinInstr<string header, bits<4> slot>
-        : UCPMInst<(ins BIUBinOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, imm32i: $m, imm32i: $n, imm32i: $p), (outs), !strconcat(header,"$tm $op $tn", "-> $tp")>{
+        : UCPMInst<(ins BIUBinOprtor: $op, TPort: $td, TPort: $ts0, TPort: $ts1, imm32i: $d, imm32i: $s0, imm32i: $s1), (outs), !strconcat(header,"$ts0[$s0] $op $ts1[$s1]", "-> $td[d]")>{
             
-    bits<32> f;
-    bits<2> tm;
-    bits<2> tn;
-    bits<2> tp;
+    bits<2> td;
+    bits<2> ts0;
+    bits<2> ts1;
     bits<8> op;
-    bits<4> m;
-    bits<4> n;
-    bits<4> p;
+    bits<4> d;
+    bits<4> s0;
+    bits<4> s1;
 
     let Inst{47-44} = slot;
     let Inst{20-18} = op{2-0};
-    let Inst{17-16} = tm;
-    let Inst{15-12} = m;
-    let Inst{11-10} = tn;
-    let Inst{9-6} = n;
-    let Inst{5-4} = tp;
-    let Inst{3-0} = p;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{11-10} = ts0;
+    let Inst{9-6} = s0;
+    let Inst{5-4} = ts1;
+    let Inst{3-0} = s1;
 }
  
 // LSH RSH
 class BIUShiftInstr<string header, bits<4> slot>
-        : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $tm, TPort: $tp, imm32i: $imm, imm32i: $m, imm32i: $p), (outs), !strconcat(header,"$tm $op $imm", "-> $tp")>{
+        : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $td, TPort: $ts, imm32i: $imm, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op $imm", "-> $td[$d]")>{
             
-    bits<32> f;
-    bits<2> tm;
-    bits<2> tp;
+    bits<2> ts;
+    bits<2> td;
     bits<8> op;
     bits<2> imm;
-    bits<4> m;
-    bits<4> p;
+    bits<4> s;
+    bits<4> d;
 
     let Inst{47-44} = slot;
     let Inst{20-18} = op{6-4};
-    let Inst{17-16} = tm;
-    let Inst{15-12} = m;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
     let Inst{11-10} = imm;
     let Inst{9-6} = op{3-0};
-    let Inst{5-4} = tp;
-    let Inst{3-0} = p;
+    let Inst{5-4} = ts;
+    let Inst{3-0} = s;
 }
+
+// ==  !=
+class BIUComInstr<string header, bits<4> slot>
+        : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op 0", "-> $td[$d]")>{
+            
+    bits<2> td;
+    bits<2> ts;
+    bits<8> op;
+    bits<4> d;
+    bits<4> s;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = op{6-4};
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{9-6} = op{3-0};
+    let Inst{5-4} = ts;
+    let Inst{3-0} = s;
+}
+
+// NOT
+class BIUNOTInstr<string header, bits<4> slot>
+        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d), (outs), !strconcat(header,"~$ts[$s]", "-> $td[$d]")>{
+  
+    bits<2> ts;
+    bits<2> td;
+    bits<4> s;
+    bits<4> d;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b100;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{9-6} = 0b0010;
+    let Inst{5-4} = ts;
+    let Inst{3-0} = s;
+}
+
+// Imm
+class BIUImmInstr<string header, bits<4> slot>
+        : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f), (outs), !strconcat("$imm8 -> ", header,"$td[$d]$f")>{
+  
+    bits<8> imm8;
+    bits<2> td;
+    bits<4> d;
+    bits<3> f;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b110;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{11-10} = f{3-2};
+    let Inst{9-4} = imm8{7-2};
+    let Inst{3-2} = f{1-0};
+    let Inst{1-0} = imm8{1-0};
+}
+
+// Mov
+class BIUMovInstr<string header, bits<4> slot>
+        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd), (outs), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd")>{
+  
+    bits<2> ts;
+    bits<2> td;
+    bits<4> s;
+    bits<4> d;
+    bits<2> fs;
+    bits<4> fd;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b101;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{11-10} = ts;
+    let Inst{9-6} = s;
+    let Inst{5-4} = fd{3-2};
+    let Inst{3-2} = fd{1-0};
+    let Inst{1-0} = fs{1-0};
+}
+
 
 defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b1010>;
 defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b1010>;
 def BIU0St : BIUStInstr<"BIU0.", 0b1010>;
 def BIU0Bin : BIUBinInstr<"BIU0.", 0b1010>;
 def BIU0Shift : BIUShiftInstr<"BIU0.", 0b1010>;
+def BIU0Com : BIUComInstr<"BIU0.", 0b1010>;
+def BIU0NOT : BIUNOTInstr<"BIU0.", 0b1010>;
+def BIU0Imm : BIUImmInstr<"BIU0.", 0b1010>;
+def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;
 
 defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
 defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b1011>;
 def BIU1St : BIUStInstr<"BIU1.", 0b1011>;
 def BIU1Bin : BIUBinInstr<"BIU1.", 0b1011>;
 def BIU1Shift : BIUShiftInstr<"BIU1.", 0b1011>;
+def BIU1Com : BIUComInstr<"BIU1.", 0b1011>;
+def BIU1NOT : BIUNOTInstr<"BIU1.", 0b1011>;
+def BIU1Imm : BIUImmInstr<"BIU1.", 0b1011>;
+def BIU1Mov : BIUMovInstr<"BIU1.", 0b1011>;
 
 defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b1100>;
 defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b1100>;
 def BIU2St : BIUStInstr<"BIU2.", 0b1100>;
 def BIU2Bin : BIUBinInstr<"BIU2.", 0b1100>;
 def BIU2Shift : BIUShiftInstr<"BIU2.", 0b1100>;
+def BIU2Com : BIUComInstr<"BIU2.", 0b1100>;
+def BIU2NOT : BIUNOTInstr<"BIU2.", 0b1100>;
+def BIU2Imm : BIUImmInstr<"BIU2.", 0b1100>;
+def BIU2Mov : BIUMovInstr<"BIU2.", 0b1100>;
 
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
