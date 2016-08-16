@@ -1275,7 +1275,7 @@ class BIUNOP<string header, bits<4> slot>
 // SetCond  ??? can not confirm which biu
 class BIUSetCond<string header, bits<4> slot>
         : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
-                                   "", "BIU.SetCond[$m]", "->", "$imm8">,{
+                                   "", "BIU.SetCond[$m]", "->", "$imm8">{
   bits<8>  imm8;
   bit m;
   
