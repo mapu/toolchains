@@ -1296,7 +1296,7 @@ def BIU0Shift : BIUShiftInstr<"BIU0.", 0b1010>;
 def BIU0Com : BIUComInstr<"BIU0.", 0b1010>;
 def BIU0NOT : BIUNOTInstr<"BIU0.", 0b1010>;
 def BIU0Imm : BIUImmInstr<"BIU0.", 0b1010>;
-def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;BIUMaskGenInstr
+def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;
 def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b1010>;
 
 defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
