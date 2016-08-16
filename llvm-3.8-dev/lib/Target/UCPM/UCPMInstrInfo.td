@@ -1187,7 +1187,7 @@ class BIUImmInstr<string header, bits<4> slot>
     bits<8> imm8;
     bits<2> td;
     bits<4> d;
-    bits<3> f;
+    bits<4> f;
 
     let Inst{47-44} = slot;
     let Inst{20-18} = 0b110;
