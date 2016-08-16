@@ -554,12 +554,14 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   bits<2> tp;
   bits<4>  d;
   bits<32> f;
+  bit ff;
   bits<2> shift;
   bits<2> opc;
   
   let Inst{26-25} = opc;
-  let Inst{23-21} = f{7-5};
-  let Inst{19-17} = f{4-2};
+  let Inst{23-21} = f{6-4};
+  let Inst{19} = ff;
+  let Inst{18-17} = f{3-2};
   let Inst{16-15} = tm;
   let Inst{14-13} = tn;
   let Inst{12-11} = tp;
@@ -598,13 +600,14 @@ multiclass IMulCompToDest{
 
 // MR <- tp +|- tm*tn
 class MAInstr<bit addsub>
-        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift),
-                            "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f")>{
+        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                            "<-", !if(addsub, "$tp + $tm * $tn$ff$f", "$tp - $tm * $tn$ff$f")>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
+    bit ff;
     
     let Inst{24} = addsub;
 }
@@ -627,13 +630,14 @@ def IMA_Compsub : MAInstr<1>, IMACCompCode<0b00>{
 
 // tp +|- tm*tn -> d
 class MAMovInstr<bit addsub, Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift), 
-                "<-", !if(addsub, "$tp + $tm * $tn$f", "$tp - $tm * $tn$f"), DestTy>{
+        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $ff, Flags: $shift), 
+                "<-", !if(addsub, "$tp + $tm * $tn$ff$f", "$tp - $tm * $tn$ff$f"), DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
+    bit ff;
   
     let Inst{24} = addsub;                          
 }
@@ -668,13 +672,14 @@ multiclass IMACompsubToDest{
 
 // MAFFT: MR <- tp +- tm*tn
 class MAFFTInstr
-        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift),
-                            "<-", "$tp +- $tm * $tn$f">{
+        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $ff, Flags: $shift),
+                            "<-", "$tp +- $tm * $tn$ff$f">{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
+    bit ff;
     
 }
 def IMAFFT_Real : MAFFTInstr, IMACRealCode<0b00>{
@@ -688,13 +693,14 @@ def IMAFFT_Comp : MAFFTInstr, IMACCompCode<0b00>{
 
 // MAFFT: tp +- tm*tn -> d
 class MAFFTMovInstr<Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $shift), 
-                "<-", "$tp +- $tm * $tn$f", DestTy>{
+        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift), 
+                "<-", "$tp +- $tm * $tn$ff$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
+    bit ff;
                            
 }
 multiclass IMAFFTRealToDest{
@@ -714,12 +720,13 @@ multiclass IMAFFTCompToDest{
 
 // MR +=|-= tm*tn
 class MaCInstr<bit addsub>
-        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $shift),
-                            !if(addsub, "+=", "-="), "$tm * $tn$f">{
+        : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
+                            !if(addsub, "+=", "-="), "$tm * $tn$ff$f">{
     bits<2> tm;
     bits<2> tn;
     bits<32> f;
     bits<2> shift;
+    bit ff;
      
     let Inst{24} = addsub;
     let Inst{12} = 1;
@@ -744,12 +751,13 @@ def IMaC_Compsub : MaCInstr<1>, IMACCompCode<0b00>{
 
 // MR +=|-= tm*tn -> d
 class MaCMovInstr<bit addsub, Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $shift),
-                          !if(addsub, "+=", "-="), "$tm * $tn$f", DestTy>{
+        : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $ff, Flags: $shift),
+                          !if(addsub, "+=", "-="), "$tm * $tn$ff$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<32> f;
     bits<2> shift;
+    bit ff;
     
     let Inst{24} = addsub;
     let Inst{12} = 1;
@@ -786,12 +794,13 @@ multiclass IMaCCompsubToDest{
 
 // MR +=|-= tm
 class AccInstr<bit addsub>
-        : ToMRwoMovInstr<(ins TPort: $tm, Flags: $f , Flags: $shift),
-                            !if(addsub, "+=", "-="), "$tm$f">{
+        : ToMRwoMovInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                            !if(addsub, "+=", "-="), "$tm$ff$f">{
     bits<2> tm;
     bits<32> f;
     bits<2> shift;
-     
+    bit ff;
+      
     let Inst{24} = addsub;
     let Inst{12} = 0;
     let Inst{11} = f{1};
@@ -819,12 +828,13 @@ def IAcc_Compsub : AccInstr<1>, IMACCompCode<0b00>{
 
 // MR +=|-= tm -> d 
 class AccMovInstr<bit addsub, Operand DestTy>
-        : ToMRwMovInstr<(ins TPort: $tm, Flags: $f , Flags: $shift),
-                          !if(addsub, "+=", "-="), "$tm$f", DestTy>{
+        : ToMRwMovInstr<(ins TPort: $tm, Flags: $f , Flags: $ff,Flags: $shift),
+                          !if(addsub, "+=", "-="), "$tm$ff$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<32> f;
     bits<2> shift;
+    bit ff;
     
     let Inst{24} = addsub;
     let Inst{12} = 0;

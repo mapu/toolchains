@@ -140,6 +140,18 @@ class BinaryInstr<string header, bit mode,
   bits<8>  op;
 }
 
+class IMACBinaryInstr<string header, bit mode,
+                  RegisterClass OprtorTy, Operand DestTy>
+        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff),
+                      header,
+                      !if(mode, "$tm $op $tn$ff$f", "$op($tm, $tn)$f"), DestTy> {
+  bits<2>  tm;
+  bits<2>  tn;
+  bits<32> f;
+  bit ff;
+  bits<8>  op;
+}
+
 class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
         : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
                       header,
