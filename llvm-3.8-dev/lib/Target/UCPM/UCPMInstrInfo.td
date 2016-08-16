@@ -1172,6 +1172,27 @@ class BIUComInstr<string header, bits<4> slot>
     let Inst{3-0} = s;
 }
 
+// MaskGen
+class BIUMaskGenInstr<string header, bits<4> slot>
+        : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs), !strconcat(header,"$ts[$s]$f", "-> $td.Mask")>{
+            
+    bits<2> td;
+    bits<2> ts;
+    bits<8> op;
+    bits<4> d;
+    bits<4> s;
+    bits<2> f;
+
+    let Inst{47-44} = slot;
+    let Inst{20-18} = 0b100;
+    let Inst{17-16} = td;
+    let Inst{15-12} = d;
+    let Inst{11-10} = f;
+    let Inst{9-6} = 0b0011;
+    let Inst{5-4} = ts;
+    let Inst{3-0} = s;
+}
+
 // NOT
 class BIUNOTInstr<string header, bits<4> slot>
         : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d), (outs), !strconcat(header,"~$ts[$s]", "-> $td[$d]")>{
@@ -1231,6 +1252,41 @@ class BIUMovInstr<string header, bits<4> slot>
     let Inst{1-0} = fs{1-0};
 }
 
+// WAIT  ??? can not confirm which biu
+class BIUWait<string header, bits<4> slot>
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
+                                   "", "", "", "Wait $imm7">{
+  bits<7>  imm7;
+  
+  let Inst{47-44} = slot;
+  let Inst{20-17} = 0b1000;
+  let Inst{16-10} = imm7;
+  let Inst{9-6} = 0b1000;
+}
+
+// NOP   ??? can not confirm which biu
+class BIUNOP<string header, bits<4> slot>
+        : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">{
+  let Inst{47-44} = slot;
+  let Inst{20-16} = 0b10011;
+  let Inst{9-6} = 0b1000;
+}
+
+// SetCond  ??? can not confirm which biu
+class BIUSetCond<string header, bits<4> slot>
+        : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
+                                   "", "BIU.SetCond[$m]", "->", "$imm8">,{
+  bits<8>  imm8;
+  bit m;
+  
+  let Inst{47-44} = slot;
+  let Inst{20-16} = 0b10010;
+  let Inst{12} = m;
+  let Inst{11-10} = imm8{7-6};
+  let Inst{9-6} = 0b1000;
+  let Inst{5-0} = imm8{5-0};
+}
+
 
 defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b1010>;
 defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b1010>;
@@ -1240,7 +1296,8 @@ def BIU0Shift : BIUShiftInstr<"BIU0.", 0b1010>;
 def BIU0Com : BIUComInstr<"BIU0.", 0b1010>;
 def BIU0NOT : BIUNOTInstr<"BIU0.", 0b1010>;
 def BIU0Imm : BIUImmInstr<"BIU0.", 0b1010>;
-def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;
+def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;BIUMaskGenInstr
+def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b1010>;
 
 defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
 defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b1011>;
@@ -1251,6 +1308,7 @@ def BIU1Com : BIUComInstr<"BIU1.", 0b1011>;
 def BIU1NOT : BIUNOTInstr<"BIU1.", 0b1011>;
 def BIU1Imm : BIUImmInstr<"BIU1.", 0b1011>;
 def BIU1Mov : BIUMovInstr<"BIU1.", 0b1011>;
+def BIU1MaskGen : BIUMaskGenInstr<"BIU1.", 0b1011>;
 
 defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b1100>;
 defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b1100>;
@@ -1261,7 +1319,7 @@ def BIU2Com : BIUComInstr<"BIU2.", 0b1100>;
 def BIU2NOT : BIUNOTInstr<"BIU2.", 0b1100>;
 def BIU2Imm : BIUImmInstr<"BIU2.", 0b1100>;
 def BIU2Mov : BIUMovInstr<"BIU2.", 0b1100>;
-
+def BIU2MaskGen : BIUMaskGenInstr<"BIU2.", 0b1100>;
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
 
