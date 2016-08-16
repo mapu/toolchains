@@ -81,8 +81,9 @@ def SHUT : Operand<i32> {
   let DecoderMethod = "DecodeSHUT";
 }
 def BIUO: Operand<i32> {
-  let DecoderMethod = "DecodeBIURegisterClass";
+  //let DecoderMethod = "DecodeBIURegisterClass";
   let MIOperandInfo = (ops BIU, TPort);
+  let EncoderMethod = "getBIUTEncoding";
 }
 
 
