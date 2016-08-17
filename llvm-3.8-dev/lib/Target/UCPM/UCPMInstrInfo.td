@@ -1323,25 +1323,111 @@ def BIU2MaskGen : BIUMaskGenInstr<"BIU2.", 0b1100>;
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
 
+// ducx start MFetch ---------------------------------------------------------------------------------  
 
-//from original
+// RepeatImm
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
                         "REPEAT", "", "$imm"> {
-  bits<11> imm;
-  let Inst{22-19} = 0b0001;
-  let Inst{18-8}  = imm;
-  let Inst{7-0}   = 0;
+  bits<12> imm;
+  let Inst{22-21} = 0b01;
+  let Inst{19-16}  = 0b1101;
+  let Inst{15-4}   = imm;
 }
 
+// RepeatKI
 def REPEATK : SEQInst<(ins KIReg: $ki, imm32i: $imm),
                        "REPEAT", "", "$ki - $imm"> {
-  bits<23> ki;
-  bits<4> imm;
-  let Inst{22-19} = 0b0010;
-  let Inst{17-8}  = 0;
-  let Inst{7-4}   = imm;
-  let Inst{3-0}   = ki{3-0};
+  bits<4> ki;
+  bits<5> imm;
+  let Inst{22-21} = 0b01;
+  let Inst{20}  = imm{4};
+  let Inst{19-16}  = 0b1100;
+  let Inst{7-4}   = imm{3-0};
+  let Inst{3-0}   = ki;
 }
+
+// lpto
+def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
+                     "LPTO", " $l", "$ki - $imm"> {
+  bits<12> l;
+  bits<4> ki;
+  bits<5> imm;
+  let Inst{22-21} = 0b00;
+  let Inst{20}  = imm{4};
+  let Inst{19-8}  = l;
+  let Inst{7-4}   = imm{3-0};
+  let Inst{3-0}   = ki;
+}
+
+// // JUMP label ??? if
+// def JUMPlabel : UCPMInst<(ins Label: $l, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $l$s")> {
+//   bits<12> l;
+//   bit s;
+//   bits<8> cond;
+//   let Inst{47-44} = 0b1101;
+//   let Inst{22-21} = 0b10;
+//   let Inst{20} = s;
+//   let Inst{19-8} = l;
+//   let Inst{7-0}  = cond;//??
+// }
+// 
+// // JUMP ki ??? if
+// def JUMPK : UCPMInst<(ins KIReg: $ki, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $ki$s")> {
+//   bits<8> ki;
+//   bit s;
+//   bits<8> cond;
+//   let Inst{47-44} = 0b1101;
+//   let Inst{22-21} = 0b11;
+//   let Inst{20} = s;
+//   let Inst{15-8} = ki;
+//   let Inst{7-0}  = cond;//??
+// }
+
+// STOP
+def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
+  let Inst{47-44} = 0b1101;
+  let Inst{22-20} = 0b010;
+  let Inst{19-16} = 0b1110;
+  let Inst{15-0}  = 0;
+}
+
+// ADD SUB ST NLT EQU NEQ AND OR  
+def MFetchBin : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg: $kis0,
+                                   KIReg: $kis1), (outs), "", "$kid", "->", "$kis0 $op $kis1">{
+    bits<8> op;
+    bits<8> kid;
+    bits<4> kis0;
+    bits<4> kis1;
+    
+    let Inst{47-44} = 0b1101;
+    let Inst{22-21} = 0b01;
+    let Inst{19-16} = op{3-0};
+    let Inst{15-8} = kid;
+    let Inst{7-4} = kis1;
+    let Inst{3-0} = kis0;
+}
+
+// LSHT RSHT  
+// def MFetchShift : CommonAssignInstr<(ins MFetchShiftOprtor: $op, KIReg: $kid, KIReg: $kis, imm32i: $imm), (outs), "", "$kid", "->", "$kis0 $op $imm">{
+//     bits<8> op;
+//     bits<8> kid;
+//     bits<4> kis;
+//     bits<5> imm;
+//     
+//     let Inst{47-44} = 0b1101;
+//     let Inst{22-21} = 0b01;
+//     let Inst{19-16} = op{3-0};
+//     let Inst{15-8} = kid;
+//     let Inst{7-4} = kis1;
+//     let Inst{3-0} = kis0;//???
+// }
+
+// ducx end MFetch -----------------------------------------------------------------------------------  
+
+
+//from original
+
+
 
 def JUMPK : SEQInst<(ins Label:$l, KIReg: $ki),
                      "JUMP", " ($l)", "$ki"> {
@@ -1360,16 +1446,7 @@ def JUMP : SEQInst<(ins Label:$l),
   let Inst{22-0}  = 0;
 }
 
-def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
-                     "LPTO", " ($l)", "$ki - $imm"> {
-  bits<11> l;
-  bits<23> ki;
-  bits<4> imm;
-  let Inst{22-19} = 0b0011;
-  let Inst{18-8}  = l;
-  let Inst{7-4}   = imm;
-  let Inst{3-0}   = ki{3-0};
-}
+
 
 def LPTOImm : SEQInst<(ins Label:$l, imm32i: $imm),
                      "LPTO", " ($l)", "$imm"> {
@@ -1381,9 +1458,3 @@ def LPTOImm : SEQInst<(ins Label:$l, imm32i: $imm),
   let Inst{7-0}   = imm;
 }
 
-def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
-  let Inst{47-44} = 0b1101;
-  let Inst{43-22} = 0;
-  let Inst{22-19} = 0b0100;
-  let Inst{18-0}  = 0;
-}

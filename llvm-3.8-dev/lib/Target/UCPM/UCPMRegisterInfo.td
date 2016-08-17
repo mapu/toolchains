@@ -238,7 +238,7 @@ def FADD : UCPMReg<0b000001010, "+">;
 def FSUB : UCPMReg<0b000001011, "-">;
 
 def IFMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32, (add FMUL, FADD, FSUB)>;
- // ducx end IFMAC ------------------------------------------------------                                 
+// ducx end IFMAC ------------------------------------------------------                                 
            
 
 // ducx start BIU ------------------------------------------------------
@@ -259,11 +259,31 @@ def BIUNEQ : UCPMReg<0b001000000, "!=0">;
 
 def BIUComOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIUEQU, BIUNEQ)>;
 
- // ducx end BIU ------------------------------------------------------                                 
+// ducx end BIU ------------------------------------------------------                                 
+                                 
         
+// ducx start MFetch -----------------------------------------------------
 
+def MFetchADD : UCPMReg<0b000000000, "+">;
+def MFetchSUB : UCPMReg<0b000000001, "-">;
+def MFetchST  : UCPMReg<0b000000100, "<">;
+def MFetchNLT : UCPMReg<0b000000101, "<=">;
+def MFetchEQU : UCPMReg<0b000000110, "==">;
+def MFetchNEQ : UCPMReg<0b000000111, "!=">;
+def MFetchAND : UCPMReg<0b000001000, "&">;
+def MFetchOR : UCPMReg<0b000001001, "|">;
 
+def MFetchBinOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchADD, MFetchSUB, MFetchST, 
+                                                           MFetchNLT, MFetchEQU, MFetchNEQ, MFetchAND, MFetchOR )>;
 
+def MFetchLSHTimm  : UCPMReg<0b000000010, "<<">;
+def MFetchRSHTimm : UCPMReg<0b000000011, ">>">;
+
+def MFetchShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchLSHTimm, MFetchRSHTimm )>;
+
+                                                           
+def MFetchNOT : UCPMReg<0b000101011, "~">;
+// ducx end MFetch --------------------------------------------------------
 
 // def ADDSUB : UCPMReg<0b000000110, "+-">;
 // 
