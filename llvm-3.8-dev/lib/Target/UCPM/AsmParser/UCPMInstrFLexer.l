@@ -273,7 +273,14 @@ A   [a-zA-Z_0-9]
 "a""++"                  {return TOKEN(APP);}
 "k""++"                  {return TOKEN(KPP);}
 "u"                      {return TOKEN(U);}
+"p"                      {return TOKEN(P);}
+"r"                      {return TOKEN(R);}
 "t"                      {return TOKEN(T);}
+"shift0"                 {return TOKEN(SHIFT0);}
+"shift1"                 {return TOKEN(SHIFT1);}
+"shift2"                 {return TOKEN(SHIFT2);}
+"shift3"                 {return TOKEN(SHIFT3);}
+"send"                   {return TOKEN(SEND);}
 "ci"                     {return TOKEN(CI);}
 "f"                      {return TOKEN(F);}
 "b"                      {return TOKEN(B);}

@@ -4,7 +4,8 @@
 
 std::bitset<32> flags;
 static unsigned int flagsort;
-const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, CIF = 16, FF = 17, BF=18;
+const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
+               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *f, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -52,7 +53,7 @@ typedef struct YYLTYPE {
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
-%token <val> BR CR APP KPP CI F U T B H S D I L TC C LABEL SHU BIU
+%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND
 %token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
@@ -62,8 +63,8 @@ typedef struct YYLTYPE {
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause
-%type <val> ialudest ifaludest biut
-%type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt parserflag parserflags
+%type <val> ialudest ifaludest imacdest biut
+%type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -93,8 +94,8 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
       ialuslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
+      imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
 //      faluslot {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
-//      fmacslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
  //     biuslot {ADDOPERAND(Slot, 10 + slotid, @$.S, @$.E);} |
  //     seqslot |
  //     hmacro |
@@ -502,7 +503,7 @@ ialutodest: ialuasclause ASSIGNTO ialudest {
 };
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
               isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
-iaddclause: addexp _flag parserflags flag_ /*{
+iaddclause: addexp _flag ialuflags flag_ /*{
               //check flags type
               unsigned long temp, tmpflag;
               tmpflag = flags.to_ulong();
@@ -516,7 +517,7 @@ iaddclause: addexp _flag parserflags flag_ /*{
               }
             }*/
           | addexp;
-isubclause: subexp _flag parserflags flag_ | subexp ;
+isubclause: subexp _flag ialuflags flag_ | subexp ;
 addexp: t ADD t ;
 subexp: t SUB t ;
 ialulogicclause: iandclause {opc = OPERAND(Reg, UCPMReg::m_AND, @$.S, @$.E);} | 
@@ -532,8 +533,6 @@ ialudest: shut {$$ = 1;} | maccdest {$$ = 2;} | biut {$$ = 3;} ;
 
 shut: shu0t | shu1t | shu2t ;
 
-
-//***
 ifaluslot: ifalutodest ;
 ifalutodest: ifalucomclause ASSIGNTO ifaludest {
   switch ($3) {
@@ -554,7 +553,18 @@ ifalutodest: ifalucomclause ASSIGNTO ifaludest {
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+};/*
+| ifaluurytran ASSIGNTO ifaludest {
+  
 };
+ifaluurytran: ifinttosingle | ifdoutosingle | ifinttodouble | ifsintodouble | ifsintoint | ifdoutoint ;
+ifinttosingle: 
+ifdoutosingle:
+ifinttodouble:
+ifsintodouble:
+ifsintoint:
+ifdoutoint:*/
+
 ifalucomclause: ifm_FEQUclause {opc = OPERAND(Reg, UCPMReg::m_FEQU, @$.S, @$.E);} |
                 ifm_FNEQclause {opc = OPERAND(Reg, UCPMReg::m_FNEQ, @$.S, @$.E);} |
                 ifm_FLTclause  {opc = OPERAND(Reg, UCPMReg::m_FLT, @$.S, @$.E);}  |
@@ -568,6 +578,22 @@ ifm_FNSTclause: t NST t ;
 ifm_FSTclause: t ST t ;
 ifm_FNLTclause: t NLT t ;
 ifaludest: ialudest ;
+
+//***
+imacslot: imacinst ;
+imacinst: imacclause ASSIGNTO imacdest {
+
+
+};
+imacclause: imacmulclause ;
+imacmulclause : imulreal | imulcomp ;
+imulreal: imulexp _flag imacrealflag flag_ _flag imacflags flag_ | imulexp _flag imacrealflag flag_ ;
+imulcomp: imulexp _flag imaccompflag flag_ _flag imacflags flag_ | imulexp _flag imaccompflag flag_ ;
+imulexp: t MUL t ;
+imacdest: ialudest;
+
+
+
 
 t: TREG {
   unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister($1);
@@ -606,11 +632,26 @@ ifalu: IFALU ;
 ifmac: IFMAC ;
 
 
-parserflags: parserflag | parserflag COMMA parserflags;
-parserflag:  T   {flags.set(TF);}  |
+ialuflags: ialuflag | ialuflag COMMA ialuflags;
+ialuflag:    T   {flags.set(TF);}  |
              CI  {flags.set(CIF);} |
              F   {flags.set(FF);}  |
              B   {flags.set(BF);}  |
              S   {flags.set(SF);}  |
-             D   {flags.set(DF);}  |
              U   {flags.set(UF);}  ;
+imacrealflag:  B   {flags.set(BF);}  |
+               S   {flags.set(SF);}  ;
+imaccompflag:  R   {flags.set(RF);}  |
+               I   {flags.set(IF);}  ;
+imacflags: imacflagpart2 | imacflagpart2 COMMA imacflags;
+imacflagpart2: U   {flags.set(UF);}  |
+               L   {flags.set(LF);}  |
+               P   {flags.set(PF);}  |
+               T   {flags.set(TF);}  |
+               F   {flags.set(FF);}  |
+               C   {flags.set(CF);}  |
+               SEND      {flags.set(SENDF);}  |
+               SHIFT0    {flags.set(S0F);}    |
+               SHIFT1    {flags.set(S1F);}    |
+               SHIFT2    {flags.set(S2F);}    |
+               SHIFT3    {flags.set(S3F);}    ;
