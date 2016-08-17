@@ -582,20 +582,24 @@ class IMACCompCode<bits<2> dest> : IMACCode<dest> {
   let Inst{20} = 1;
 }
 
+// for Mul op
+class IMACRealopCode<bits<2> dest> : IMACRealCode<dest> {
+  let opc = op{1-0};
+}
+class IMACCompopCode<bits<2> dest> : IMACCompCode<dest> {
+  let opc = op{1-0};
+}
+
 // tm*tn -> d
 multiclass IMulRealToDest{
-    let opc = 0b00 in{
-    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACRealCode<0b00>;
-    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACRealCode<0b10>;
-    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACRealCode<0b01>;
-    }
+    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACRealopCode<0b00>;
+    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACRealopCode<0b10>;
+    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACRealopCode<0b01>;
 }
 multiclass IMulCompToDest{
-    let opc = 0b00 in{
-    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACCompCode<0b00>;
-    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACCompCode<0b10>;
-    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACCompCode<0b01>;
-    }
+    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACCompopCode<0b00>;
+    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACCompopCode<0b10>;
+    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACCompopCode<0b01>;
 }
 
 // MR <- tp +|- tm*tn
