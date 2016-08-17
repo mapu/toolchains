@@ -1392,7 +1392,7 @@ def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
 }
 
 // ADD SUB ST NLT EQU NEQ AND OR  
-def MFetchBin : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg: $kis0,
+def MFetchBinInstr : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg: $kis0,
                                    KIReg: $kis1), (outs), "", "$kid", "->", "$kis0 $op $kis1">{
     bits<8> op;
     bits<8> kid;
@@ -1408,7 +1408,7 @@ def MFetchBin : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg:
 }
 
 // LSHT RSHT  
-// def MFetchShift : CommonAssignInstr<(ins MFetchShiftOprtor: $op, KIReg: $kid, KIReg: $kis, imm32i: $imm), (outs), "", "$kid", "->", "$kis0 $op $imm">{
+// def MFetchShiftInstr : CommonAssignInstr<(ins MFetchShiftOprtor: $op, KIReg: $kid, KIReg: $kis, imm32i: $imm), (outs), "", "$kid", "->", "$kis $op $imm">{
 //     bits<8> op;
 //     bits<8> kid;
 //     bits<4> kis;
@@ -1421,6 +1421,40 @@ def MFetchBin : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg:
 //     let Inst{7-4} = kis1;
 //     let Inst{3-0} = kis0;//???
 // }
+
+// NOT
+// def MFetchNOTInstr
+//         : CommonAssignInstr<(ins MFetchNOTOprtor: $op, KIReg: $kid, KIReg: $kis), (outs), "", "$kid", "->", "$op$kis">{
+//   
+//     bits<8> op;
+//     bits<8> kid;
+//     bits<4> kis;
+// 
+//     let Inst{47-44} = 0b1101;
+//     let Inst{22-21} = 0b01;
+//     let Inst{19-16} = op{3-0};
+//     let Inst{15-8} = kid;
+//     let Inst{7-4} = kis1;
+//     let Inst{3-0} = kis0;
+// }
+
+// MOV
+def MFetchMOVInstr
+        : CommonAssignInstr<(ins KIReg: $kid, KIReg: $kis, Flags: $CR), (outs), "", "$kid$CR", "->", "$kis">{
+  
+    
+    bits<8> kid;
+    bits<4> kis;
+    bit CR;
+    
+    let Inst{47-44} = 0b1101;
+    let Inst{22-21} = 0b01;
+    let Inst{19-16} = 0b1011;
+    let Inst{15-8} = kid;
+    let Inst{7} = CR;
+    let Inst{3-0} = kis;
+}
+
 
 // ducx end MFetch -----------------------------------------------------------------------------------  
 

@@ -282,7 +282,7 @@ def MFetchRSHTimm : UCPMReg<0b000000011, ">>">;
 def MFetchShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchLSHTimm, MFetchRSHTimm )>;
 
                                                            
-def MFetchNOT : UCPMReg<0b000101011, "~">;
+def MFetchNOTOprtor : UCPMReg<0b000001010, "~">;
 // ducx end MFetch --------------------------------------------------------
 
 // def ADDSUB : UCPMReg<0b000000110, "+-">;
