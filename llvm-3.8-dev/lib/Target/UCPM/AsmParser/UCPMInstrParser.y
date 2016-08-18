@@ -786,5 +786,5 @@ imacflagpart2: U   {flags.set(UF);}  |
                SHIFT3    {flags.set(S3F);}    ;
                
 //ducx
-ifmacflag:     S   {flags.set(SF);};
+ifmacflag:     SS   {flags.set(SF);};
 ifmacTflags:   T   {flags.set(TF);};
