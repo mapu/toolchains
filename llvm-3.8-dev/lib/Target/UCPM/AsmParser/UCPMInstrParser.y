@@ -98,7 +98,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       ialuslot {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
-//      faluslot {ADDOPERAND(Slot, 8, @$.S, @$.E);} |
+      ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
  //     biuslot {ADDOPERAND(Slot, 10 + slotid, @$.S, @$.E);} |
  //     seqslot |
  //     hmacro |
@@ -678,6 +678,50 @@ imulexp: t MUL t ;
 imacdest: ialudest;
 
 
+//ducx start ifmac
+ifmacslot: ifmacinst ;
+ifmacinst: ifmacclause ASSIGNTO ifmacdest {
+    flagsort = flags[TF];
+    f = OPERAND(Imm, flagsort, FlagS, FlagE);
+    flags.reset();
+    
+    switch ($3) {
+    case 1://to shu
+      ADDOPERAND(Opc, UCPM::IFMACToSHU, @$.S, @$.E);
+      break;
+    case 2://to macc
+      ADDOPERAND(Opc, UCPM::IFMACToMACC, @$.S, @$.E);
+      break;
+    case 3://to biu
+      ADDOPERAND(Opc, UCPM::IFMACToBIU, @$.S, @$.E);
+      break;
+    default:
+      break;
+  }
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+};
+
+ifmacclause: fmul {opc = OPERAND(Reg, UCPMReg::FMUL, @$.S, @$.E); } |
+            ifaddclause {opc = OPERAND(Reg, UCPMReg::FADD, @$.S, @$.E);} |
+            ifsubclause {opc = OPERAND(Reg, UCPMReg::FSUB, @$.S, @$.E);};
+            
+fmul: fmulexp _flag ifmacflag flag_ _flag ifmacTflags flag_ | 
+      fmulexp _flag ifmacflag flag_;
+      
+ifaddclause: faddexp _flag ifmacTflags flag_ | faddexp ;
+ifsubclause: fsubexp _flag ifmacTflags flag_ | fsubexp ;
+              
+fmulexp: t MUL t ;
+faddexp: t ADD t ;
+fsubexp: t SUB t ;
+ifmacdest: imacdest;
+// ducx end ifmac
+
 
 
 t: TREG {
@@ -740,3 +784,7 @@ imacflagpart2: U   {flags.set(UF);}  |
                SHIFT1    {flags.set(S1F);}    |
                SHIFT2    {flags.set(S2F);}    |
                SHIFT3    {flags.set(S3F);}    ;
+               
+//ducx
+ifmacflag:     S   {flags.set(SF);};
+ifmacTflags:   T   {flags.set(TF);};
