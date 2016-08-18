@@ -288,6 +288,7 @@ A   [a-zA-Z_0-9]
 "s"                      {return TOKEN(S);}
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
+"c"                      {return TOKEN(CFLAG);}
 "l"                      {return TOKEN(L);}
 "tc"                     {return TOKEN(TC);}
 "ki"[0-9]+               {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(2)).c_str()); return KI;}

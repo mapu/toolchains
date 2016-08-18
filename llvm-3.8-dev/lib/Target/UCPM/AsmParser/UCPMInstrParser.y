@@ -6,7 +6,7 @@ std::bitset<32> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *f, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -53,7 +53,7 @@ typedef struct YYLTYPE {
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
-%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND
+%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND
 %token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
@@ -63,7 +63,7 @@ typedef struct YYLTYPE {
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause
-%type <val> ialudest ifaludest imacdest biut
+%type <val> ialudest ifaludest imacdest biut imulreal imulcomp imacclause
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
 
 %%
@@ -77,10 +77,13 @@ slotref : slot {
   tp = NULL;
   tk = NULL;
   ut = NULL;
+  revt = NULL;
   ms = NULL;
   md = NULL;
   imm = NULL;
   f = NULL;
+  ff = NULL;
+  shift = NULL;
   unit = NULL;
   expr = NULL;
   b = NULL;
@@ -579,16 +582,79 @@ ifm_FSTclause: t ST t ;
 ifm_FNLTclause: t NLT t ;
 ifaludest: ialudest ;
 
-//***
 imacslot: imacinst ;
 imacinst: imacclause ASSIGNTO imacdest {
+  flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
+  //C or SEND flag
+  if(flags[CF] | flags[SENDF])
+    flagsort |= 0x1;
+  f = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //ff
+  if(flags[BF] | flags[RF])
+    flagsort = 0x0;
+  else if(flags[SF] | flags[IF])
+    flagsort = 0x1;
+  else {
+    llvmerror(&@1, "B/R/S/I flag error!"); 
+    YYABORT;
+  }
+  ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //SHIFT flag
+  if(flags[S0F])
+    flagsort = 0x0;
+  else if(flags[S1F])
+    flagsort = 0x1;
+  else if(flags[S2F])
+    flagsort = 0x2;
+  else if(flags[S3F])
+    flagsort = 0x3;
+  else
+    flagsort = 0x0;
+  shift = OPERAND(Imm, flagsort, FlagS, FlagE);
+  flags.reset();
+  switch ($1) {
+    case 0://imulreal
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::IMulRealToSHU, @$.S, @$.E); 
+        break;
+      case 2://to macc
+        ADDOPERAND(Opc, UCPM::IMulRealToMACC, @$.S, @$.E);
+        break;
+      case 3://to biu
+        ADDOPERAND(Opc, UCPM::IMulRealToBIU, @$.S, @$.E);
+        break;
+      }
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(revt));//tp
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+      //***
+      break;
+    case 1://imulcomp
+      //ADDOPERAND(Opc, UCPM::IFALUComToMACC, @$.S, @$.E);
+      break;
 
-
+    default:
+      break;
+  }
 };
-imacclause: imacmulclause ;
-imacmulclause : imulreal | imulcomp ;
-imulreal: imulexp _flag imacrealflag flag_ _flag imacflags flag_ | imulexp _flag imacrealflag flag_ ;
-imulcomp: imulexp _flag imaccompflag flag_ _flag imacflags flag_ | imulexp _flag imaccompflag flag_ ;
+imacclause: imulreal {
+              $$ = 0; 
+              opc = OPERAND(Reg, UCPMReg::IMUL, @$.S, @$.E); 
+              unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//tp is unused
+              revt = OPERAND(Reg, treg, @$.S, @$.E);
+            } |
+            imulcomp {$$ = 1; opc = OPERAND(Reg, UCPMReg::IMUL, @$.S, @$.E);};
+imulreal: imulexp _flag imacrealflag flag_ _flag imacflags flag_ | 
+          imulexp _flag imacrealflag flag_ ;
+imulcomp: imulexp _flag imaccompflag flag_ _flag imacflags flag_ | 
+          imulexp _flag imaccompflag flag_ ;
 imulexp: t MUL t ;
 imacdest: ialudest;
 
@@ -649,7 +715,7 @@ imacflagpart2: U   {flags.set(UF);}  |
                P   {flags.set(PF);}  |
                T   {flags.set(TF);}  |
                F   {flags.set(FF);}  |
-               C   {flags.set(CF);}  |
+               CFLAG        {flags.set(CF);}  |
                SEND      {flags.set(SENDF);}  |
                SHIFT0    {flags.set(S0F);}    |
                SHIFT1    {flags.set(S1F);}    |
