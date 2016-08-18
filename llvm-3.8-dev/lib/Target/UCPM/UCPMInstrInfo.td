@@ -1436,15 +1436,14 @@ def MFetchBinInstr : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, K
 
 // NOT
 // def MFetchNOTInstr
-//         : CommonAssignInstr<(ins MFetchNOTOprtor: $op, KIReg: $kid, KIReg: $kis), (outs), "", "$kid", "->", "$op$kis">{
+//         : CommonAssignInstr<(ins KIReg: $kid, KIReg: $kis), (outs), "", "$kid", "->", "$op$kis">{
 //   
-//     bits<8> op;
 //     bits<8> kid;
 //     bits<4> kis;
 // 
 //     let Inst{47-44} = 0b1101;
 //     let Inst{22-21} = 0b01;
-//     let Inst{19-16} = op{3-0};
+//     let Inst{19-16} = 0b1010;
 //     let Inst{15-8} = kid;
 //     let Inst{7-4} = kis1;
 //     let Inst{3-0} = kis0;
@@ -1466,6 +1465,38 @@ def MFetchMOVInstr
     let Inst{7} = CR;
     let Inst{3-0} = kis;
 }
+
+// ReadRegi
+// def MFetchReadRegiInstr
+//         : CommonAssignInstr<(ins KIReg: $kid, Flags: $B), (outs), "", "$kid", "->", "Regi$B">{
+//   
+//     bits<7> kid;
+//     bit B;
+//     
+//     let Inst{47-44} = 0b1101;
+//     let Inst{22-21} = 0b01;
+//     let Inst{19-16} = 0b1111;
+//     let Inst{15} = B;
+//     let Inst{14-8} = kid;
+//     let Inst{7-6} = 0b10;
+//     let Inst{5-4} = ?;
+// }
+
+// WriteRegi
+// def MFetchWriteRegiInstr
+//         : CommonAssignInstr<(ins KIReg: $kis, Flags: $B), (outs), "", "WriteRegi$B", "->", "$kis">{
+//   
+//     bits<4> kis;
+//     bit B;
+//     
+//     let Inst{47-44} = 0b1101;
+//     let Inst{22-21} = 0b01;
+//     let Inst{19-16} = 0b1111;
+//     let Inst{15} = B;
+//     let Inst{7-6} = 0b11;
+//     let Inst{5-4} = ?;
+//     let Inst{3-0} = kis;
+// }
 
 
 // ducx end MFetch -----------------------------------------------------------------------------------  
