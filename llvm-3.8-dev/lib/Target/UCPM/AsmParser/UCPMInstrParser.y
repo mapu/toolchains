@@ -637,7 +637,26 @@ imacinst: imacclause ASSIGNTO imacdest {
       //***
       break;
     case 1://imulcomp
-      //ADDOPERAND(Opc, UCPM::IFALUComToMACC, @$.S, @$.E);
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::IMulCompToSHU, @$.S, @$.E); 
+        break;
+      case 2://to macc
+        ADDOPERAND(Opc, UCPM::IMulCompToMACC, @$.S, @$.E);
+        break;
+      case 3://to biu
+        ADDOPERAND(Opc, UCPM::IMulCompToBIU, @$.S, @$.E);
+        break;
+      }
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(revt));//tp
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
       break;
 
     default:
