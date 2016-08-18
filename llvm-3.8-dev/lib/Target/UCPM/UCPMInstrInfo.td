@@ -190,7 +190,7 @@ multiclass IALUTPToDest {
   def ToSHU  : TParaInstr<"", 1, "", IALUTPOprtor, SHUT  >, IALUTPCode<0b00>;
   def ToBIU  : TParaInstr<"", 1, "", IALUTPOprtor, BIUO  >, IALUTPCode<0b10>;
   def ToMACC : TParaInstr<"", 1, "", IALUTPOprtor, MACCT >, IALUTPCode<0b01>;
-  let Inst{7} = 1, Inst{6-0} = d{6-0} in{
+  let Inst{7} = 1 in{
       def ToM :TParaInstr<"", 1, "", IALUTPOprtor, MRegO >, IALUTPCode<0b01>;
   }
 }
