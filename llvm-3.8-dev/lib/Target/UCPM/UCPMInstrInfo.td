@@ -165,7 +165,7 @@ class IALUCode<bits<2> dest> : IALUBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<32> f;
-  bits<4>  d;
+  bits<9>  d;
 
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
@@ -190,6 +190,9 @@ multiclass IALUTPToDest {
   def ToSHU  : TParaInstr<"", 1, "", IALUTPOprtor, SHUT  >, IALUTPCode<0b00>;
   def ToBIU  : TParaInstr<"", 1, "", IALUTPOprtor, BIUO  >, IALUTPCode<0b10>;
   def ToMACC : TParaInstr<"", 1, "", IALUTPOprtor, MACCT >, IALUTPCode<0b01>;
+  let Inst{7} = 1, Inst{6-0} = d{6-0} in{
+      def ToM :TParaInstr<"", 1, "", IALUTPOprtor, MRegO >, IALUTPCode<0b01>;
+  }
 }
 
 // ADD SUB

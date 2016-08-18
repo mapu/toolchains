@@ -85,6 +85,11 @@ def BIUO: Operand<i32> {
   let MIOperandInfo = (ops BIU, TPort);
   let EncoderMethod = "getBIUTEncoding";
 }
+def MRegO: Operand<i32> {
+  let MIOperandInfo = (ops MReg);
+  let DecoderMethod = "DecodeMRegO";
+  let EncoderMethod = "getMRegOEncoding";
+}
 
 
 /* a common instruction template base for UCPM */
@@ -119,7 +124,7 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
         : CommonAssignInstr<ins, (outs DestTy: $d),
                             header, "$d", "->", lclause, pattern> {
-  bits<4>  d;
+  bits<9>  d;
 }
 
 class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
