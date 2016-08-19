@@ -5,7 +5,7 @@
 std::bitset<32> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
-               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, TTF=28;
+               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -53,7 +53,7 @@ typedef struct YYLTYPE {
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
-%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST TTEST
+%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST 
 %token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
@@ -683,7 +683,7 @@ imacdest: ialudest;
 ifmacslot: ifmacinst ;
 ifmacinst: ifmacclause ASSIGNTO ifmacdest {
     OS<<"Position 1\n";
-    flagsort = flags[TTF];
+    flagsort = flags[TF];
     f = OPERAND(Imm, flagsort, FlagS, FlagE);
     flags.reset();
     
@@ -708,15 +708,15 @@ ifmacinst: ifmacclause ASSIGNTO ifmacdest {
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 };
 
-ifmacclause: fmul {OS<<"Position 8\n";opc = OPERAND(Reg, UCPMReg::FMUL, @$.S, @$.E); } |
+ifmacclause: fmul {opc = OPERAND(Reg, UCPMReg::FMUL, @$.S, @$.E); } |
             ifaddclause {opc = OPERAND(Reg, UCPMReg::FADD, @$.S, @$.E);} |
             ifsubclause {opc = OPERAND(Reg, UCPMReg::FSUB, @$.S, @$.E);};
             
-fmul: imulexp _flag ifmacflag flag_ _flag ifmacTflags flag_ | 
+fmul: imulexp _flag ifmacflag flag_ _flag ifmacTflag flag_ | 
       imulexp _flag ifmacflag flag_ {OS<<"Position 7\n";};
       
-ifaddclause: addexp _flag ifmacTflags flag_ | addexp ;
-ifsubclause: subexp _flag ifmacTflags flag_ | subexp ;
+ifaddclause: addexp _flag ifmacTflag flag_ | addexp ;
+ifsubclause: subexp _flag ifmacTflag flag_ | subexp ;
               
 
 ifmacdest: imacdest;
@@ -786,5 +786,5 @@ imacflagpart2: U   {flags.set(UF);}  |
                SHIFT3    {flags.set(S3F);}    ;
                
 //ducx
-ifmacflag:     STEST   {OS<<"Position 6\n";flags.set(SSF);};
-ifmacTflags:   TTEST   {flags.set(TTF);};
+ifmacflag:     STEST   {flags.set(SSF);};
+ifmacTflag:    T       {flags.set(TF);};

@@ -287,7 +287,6 @@ A   [a-zA-Z_0-9]
 "h"                      {return TOKEN(H);}
 "s"                      {return TOKEN(S);}
 "stest"                  {return TOKEN(STEST);} //dcx
-"ttest"                  {return TOKEN(TTEST);} //dcx
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
 "c"                      {return TOKEN(CFLAG);}
