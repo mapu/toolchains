@@ -711,15 +711,13 @@ ifmacclause: fmul {OS<<"Position 8\n";opc = OPERAND(Reg, UCPMReg::FMUL, @$.S, @$
             ifaddclause {opc = OPERAND(Reg, UCPMReg::FADD, @$.S, @$.E);} |
             ifsubclause {opc = OPERAND(Reg, UCPMReg::FSUB, @$.S, @$.E);};
             
-fmul: fmulexp _flag ifmacflag flag_ _flag ifmacTflags flag_ | 
-      fmulexp _flag ifmacflag flag_ {OS<<"Position 7\n";};
+fmul: imulexp _flag ifmacflag flag_ _flag ifmacTflags flag_ | 
+      imulexp _flag ifmacflag flag_ {OS<<"Position 7\n";};
       
-ifaddclause: faddexp _flag ifmacTflags flag_ | faddexp ;
-ifsubclause: fsubexp _flag ifmacTflags flag_ | fsubexp ;
+ifaddclause: addexp _flag ifmacTflags flag_ | addexp ;
+ifsubclause: subexp _flag ifmacTflags flag_ | subexp ;
               
-fmulexp: t MUL t ;
-faddexp: t ADD t ;
-fsubexp: t SUB t ;
+
 ifmacdest: imacdest;
 // ducx end ifmac
 
