@@ -459,7 +459,8 @@ mindexn: MINDEXN {$$ = 0; ms = md;
                MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
                @$.S, @$.E);
 };
-ialuslot: ialutodest ;
+
+ialuslot: IALU DOT ialutodest ;
 ialutodest: ialuasclause ASSIGNTO ialudest {
   flagsort = (flags[UF] << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
   flags.reset();
