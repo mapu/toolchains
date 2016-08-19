@@ -4,8 +4,9 @@
 using namespace llvm::UCPM;
 
 const unsigned llvm::UCPM::numBitsForSlot[] =
-						{ /*M0~4*/23, 20, 21, 15, /*SHU0~1*/28, 28,
-						  /*IALU*/31, /*IMAC*/29, /*FALU*/26, /*FMAC*/24, /*BIU0~2*/20, 20, 20, /*Brch*/23};
+						{/*BIU2~0*/23,23,23,/*IFMAC*/29,/*IFALU*/25,/*IMAC*/29,/*IALU*/24,/*SHU2~0*/25,25,25,
+						/*Mr5~1*/15,15,15,15,15,/*Mr0*/17,/*MFetch*/23};
+
 
 void
 InsnLine::initLayout()

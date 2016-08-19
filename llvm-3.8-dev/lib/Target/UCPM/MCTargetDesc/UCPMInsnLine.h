@@ -18,7 +18,7 @@ namespace llvm
 				unsigned numBytes; // how many bytes
 		};
 
-		#define  NUMSLOTS  14
+		#define  NUMSLOTS  17
 		extern const unsigned numBitsForSlot[];
 
 		class InsnLine
