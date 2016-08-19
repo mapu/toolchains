@@ -272,6 +272,9 @@ A   [a-zA-Z_0-9]
 "cr"                     {return TOKEN(CR);}
 "a""++"                  {return TOKEN(APP);}
 "k""++"                  {return TOKEN(KPP);}
+"ql"                     {return TOKEN(QL);}//dcx
+"qh"                     {return TOKEN(QH);}//dcx
+"q"                      {return TOKEN(Q);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}

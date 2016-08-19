@@ -5,7 +5,7 @@
 std::bitset<32> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
-               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27;
+               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -60,11 +60,12 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t
+%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
-%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause
-%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause
+%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause lddest
+%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
+%type <val> ldinst ldselect lddis ldstep stinst storeop 
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -99,7 +100,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
- //     biuslot {ADDOPERAND(Slot, 10 + slotid, @$.S, @$.E);} |
+      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);} |
  //     seqslot |
  //     hmacro |
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
@@ -679,7 +680,7 @@ imulexp: t MUL t ;
 imacdest: ialudest;
 
 
-//ducx start ifmac
+//ducx start ifmac -----------------------------------------------------
 ifmacslot: ifmacinst ;
 ifmacinst: ifmacclause ASSIGNTO ifmacdest {
     OS<<"Position 1\n";
@@ -713,14 +714,115 @@ ifmacclause: fmul {opc = OPERAND(Reg, UCPMReg::FMUL, @$.S, @$.E); } |
             ifsubclause {opc = OPERAND(Reg, UCPMReg::FSUB, @$.S, @$.E);};
             
 fmul: imulexp _flag ifmacflag flag_ _flag ifmacTflag flag_ | 
-      imulexp _flag ifmacflag flag_ {OS<<"Position 7\n";};
+      imulexp _flag ifmacflag flag_ ;
       
 ifaddclause: addexp _flag ifmacTflag flag_ | addexp ;
 ifsubclause: subexp _flag ifmacTflag flag_ | subexp ;
               
-
 ifmacdest: imacdest;
-// ducx end ifmac
+// ducx end ifmac --------------------------------------------------
+
+
+
+// ducx start biu --------------------------------------------------
+biuslot: biu0code {$$ = 0;} | biu1code {$$ = 1;} | biu2code {$$ = 2;} ;
+biu0code: BIU0 DOT biu0inst;
+biu1code: BIU1 DOT biu1inst;
+biu2code: BIU2 DOT biu2inst;
+
+biu0inst: ldselect ASSIGNTO lddest {
+    flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
+    f = OPERAND(Imm, flagsort, FlagS, FlagE);
+    
+    switch ($1) {
+    case 0://lddis
+    
+        //QLH flag
+        if(flags[LF])
+            flagsort = 0x0;
+        else if(flags[QHF])
+            flagsort = 0x1;
+        else if(flags[QLF])
+            flagsort = 0x2;
+        QLH = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::BIU0disLdToSHU, @$.S, @$.E); 
+        break;
+        case 2://to macc
+        ADDOPERAND(Opc, UCPM::BIU0disLdToMACC, @$.S, @$.E);
+        break;
+      }
+      
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ts));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(QLH));
+      //***
+      break;
+      
+    case 1://ldstep
+    
+        //step flag
+        if(flags[SF])
+            flagsort = 0x3;
+        step = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::BIU0comLdToSHU, @$.S, @$.E); 
+        break;
+      case 2://to macc
+        ADDOPERAND(Opc, UCPM::BIU0comLdToMACC, @$.S, @$.E);
+        break;
+      }
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(step));
+      break;
+
+    default:
+      break;
+  }
+  
+}
+| stinst{
+
+};
+ 
+ldselect: lddis{
+            $$ = 0; 
+        } |
+        ldstep{
+            $$ = 1; 
+        };
+lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
+            t _flag t flag_ _flag biuflags flag_ |
+            t _flag t flag_ _flag lddisflag flag_ |
+            t _flag t flag_ ;
+ldstep:     t _flag t flag_ _flag biuflags flag_ _flag ldstepflag flag_ |
+            t _flag t flag_ _flag biuflags flag_  |
+            t _flag t flag_ _flag ldstepflag flag_ |
+            t _flag t flag_ ;
+
+lddest: shut {$$ = 1;} | maccdest {$$ = 2;};
+
+stinst: storeop;
+stroeop: t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_|
+         t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
+         t _flag t flag_ ASSIGNTO DM _flag storeflag flag_|
+         t _flag t flag_ ASSIGNTO DM;
+
+        
+
+// ducx end biu --------------------------------------------------
 
 
 
@@ -788,3 +890,20 @@ imacflagpart2: U   {flags.set(UF);}  |
 //ducx
 ifmacflag:     STEST   {flags.set(SSF);};
 ifmacTflag:    T       {flags.set(TF);};
+
+biuflags : biuflag | biuflag COMMA biuflags;
+biuflag :      BR  {flags.set(BRF);}   |
+               M  {flags.set(MF);}     |
+               APP  {flags.set(APPF);} |
+               KPP  {flags.set(KPPF);} ;
+                          
+lddisflag :    QL {flags.set(QLF);}    | 
+               QH {flags.set(QHF);}    |
+               L {flags.set(LF);}      ;
+               
+ldstepflag :   S {flags.set(SF);}      ;
+
+storeflag :    H {flags.set(HF);}      |
+               Q {flags.set(QF);}      |
+               S {flags.set(SF);}      |
+               L {flags.set(LF);}      ;
