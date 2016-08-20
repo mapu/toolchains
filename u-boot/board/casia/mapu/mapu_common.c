@@ -99,7 +99,7 @@ static inline void delay(ulong loops)
 /*
  * Peripheral Test
  */
-
+#if 0
 void peri_test(void)
 {
   /*
@@ -149,6 +149,7 @@ void peri_test(void)
 
 }
 
+#endif
 int board_init(void)
 {
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
@@ -161,8 +162,9 @@ int board_init(void)
 	mapu_dma_init();  // dma init
 	apc_init();
 
+#if 0
 	peri_test();
-
+#endif
 	return 0;
 }
 

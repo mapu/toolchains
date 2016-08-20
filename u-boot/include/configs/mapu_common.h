@@ -179,6 +179,7 @@
 #define CONFIG_SYS_I2C_BUS_MAX    1
 #define IC_CLK        50
 
+#if 1
 /*
  * Ethernet
  */
@@ -194,6 +195,7 @@
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN /* detect link using phy */
 #define CONFIG_PHY_ADDR 1
 #define CONFIG_DW_ALTDESCRIPTOR
+#endif
 
 /* Command line configuration */
 #define CONFIG_MENU_SHOW
@@ -263,16 +265,17 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		CONFIG_PLATFORM_ENV_SETTINGS \
 		"dram=512M\0" \
-		"root=/dev/mtdblock4 rw\0" \
+		"root=/dev/ram0 rw\0" \
     "flashargs=setenv bootargs earlyprintk mem=${dram} "\
-    "root=${root} noinitrd vmalloc=768M init=/sbin/init nocache rootfstype=jffs2 "\
-    "console=tty0\0" \
+    "root=${root} initrd=0x70000000,0x1000000 vmalloc=768M init=/sbin/init nocache "\
+    "console=ttyS0,115200n8\0" \
 		"bootflash=run flashargs; " \
 		  "fatload mmc 0 ${loadaddr} uimage;" \
 			"bootm ${loadaddr}\0" \
     "bootmenu_1=Boot 2. linux 3.4.85=run bootflash\0" \
     "bootnor=run flashargs;cp.l 0x100000 0x60007fc0 0x240000;cp.l 0x80000 0x60000000 0x1000; " \
     "bootm 0x60007fc0 - 0x60000000\0" \
+    "bootram=run flashargs; bootm 0x60007fc0 - 0x60000000\0" \
     "bootmenu_0=Boot 1. linux 3.4.85 (Nor Flash)=run bootnor\0"\
     "initapclib=mtdparts default;chpart nor0,2;apclib sinit;apclib minit;"\
     "apclib dbinit apclib_custom.db\0"

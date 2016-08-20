@@ -413,7 +413,7 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 
 	status = desc_p->txrx_status;
 
-  printf("DEBUG_MAPU dw eth recv status = %#x!\n", status);
+//  printf("DEBUG_MAPU dw eth recv status = %#x!\n", status);
 
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
@@ -491,7 +491,7 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 
 static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 {
-  printf("DEBUG_MAPU dw eth send!\n");
+//  printf("DEBUG_MAPU dw eth send!\n");
 	return _dw_eth_send(dev->priv, packet, length);
 }
 
