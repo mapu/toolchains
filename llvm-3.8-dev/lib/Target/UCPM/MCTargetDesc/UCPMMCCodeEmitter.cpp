@@ -65,6 +65,11 @@ public:
   unsigned getBIUTEncoding(const MCInst &MI, unsigned OpNo,
                                  SmallVectorImpl<MCFixup> &Fixups,
                                  const MCSubtargetInfo &STI) const;
+				 
+  unsigned getBIU0DestTEEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;	 
+				 
   unsigned getMR0DestTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
@@ -283,4 +288,18 @@ getMRegOEncoding(const llvm::MCInst &MI, unsigned int OpNo,
   unsigned MBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
   return ((MBits & 0x7F) << 2) | (MBits >> 7);
 }
+
+// ducx
+unsigned UCPMMCCodeEmitter::
+getBIU0DestTEEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 4) | TPortBits;
+}
+
 #include "UCPMGenMCCodeEmitter.inc"

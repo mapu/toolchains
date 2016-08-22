@@ -1073,13 +1073,17 @@ multiclass BIULdInstr_dis<string header, bits<4> slot>{
     def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
 }
 
+// ducx 20160822: biu0 test
+def BIU0disLdToSHU_test : BIULdToDest_dis<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
+def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
+
+
 // load: common/step
 class BIULdToDest_com<string header, bits<4> slot, bits<2> dest, Operand DestTy>
-        : BIUAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $step), header, "$tm($ts)$f", DestTy>{
+        : BIUAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $step), header, "$tm$f", DestTy>{
 
     bits<32> f;
     bits<2> tm;
-    bits<2> ts;
     bit step;
 
     
@@ -1101,6 +1105,10 @@ multiclass BIULdInstr_com<string header, bits<4> slot>{
     def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
     def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
 }
+
+// ducx 20160822: biu0 test
+def BIU0ComLdToSHU_test : BIULdToDest_com<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
+def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
 
 // store
 class BIUStInstr<string header, bits<4> slot>

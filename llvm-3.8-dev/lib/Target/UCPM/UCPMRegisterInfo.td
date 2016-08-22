@@ -75,6 +75,10 @@ def MR3Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIFALU, MTIFMAC, MTSH
 def MR4Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIFALU, MTIFMAC, MTSHU1, MTBIU1)>;
 def MR5Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIFALU, MTIFMAC, MTSHU2, MTBIU2)>;
 
+// ducx
+def BIU0Dest: RegisterClass<"UCPMReg", [v16i32], 32, (add SHU0, SHU1, IALU, IMAC, IFALU, IFMAC)>;
+
+
 def T0  : UCPMReg<0, "T0">, DwarfRegNum<[138]>;
 def T1  : UCPMReg<1, "T1">, DwarfRegNum<[139]>;
 def T2  : UCPMReg<2, "T2">, DwarfRegNum<[140]>;

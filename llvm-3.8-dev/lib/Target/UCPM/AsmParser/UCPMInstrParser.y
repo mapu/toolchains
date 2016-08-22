@@ -6,7 +6,7 @@ std::bitset<32> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -53,19 +53,19 @@ typedef struct YYLTYPE {
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
-%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST 
+%token <val> BR CR APP KPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST Q QL QH
 %token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst
-%type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact
-%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause lddest
+%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu0inst //biu1code biu2code biu1inst biu2inst 
+%type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te ialute imacte ifalute ifmacte
+%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
-%type <val> ldinst ldselect lddis ldstep stinst storeop 
+%type <val> ldselect lddis ldstep 
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -93,6 +93,10 @@ slotref : slot {
   condpos = 0;
   FlagS = SMLoc();
   FlagE = SMLoc();
+  //dcx
+  qlh = NULL;
+  step = NULL;
+  
 };
 slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       shuslot {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
@@ -100,7 +104,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
-      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);} |
+      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E); OS<<"Position 8\n";}|
  //     seqslot |
  //     hmacro |
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
@@ -453,6 +457,16 @@ biu2: BIU2 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU2, @$.S, @$.E); b2 = OPERAND(Re
 shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+//dcx
+shu0te: SHU0 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu1te: SHU1 DOT shusrct { OS<<"Position 9\n";$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifalute: ifalu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifmacte: ifmac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
 mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
 mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
 mindexn: MINDEXN {$$ = 0; ms = md;
@@ -683,7 +697,7 @@ imacdest: ialudest;
 //ducx start ifmac -----------------------------------------------------
 ifmacslot: ifmacinst ;
 ifmacinst: ifmacclause ASSIGNTO ifmacdest {
-    OS<<"Position 1\n";
+ 
     flagsort = flags[TF];
     f = OPERAND(Imm, flagsort, FlagS, FlagE);
     flags.reset();
@@ -725,43 +739,48 @@ ifmacdest: imacdest;
 
 
 // ducx start biu --------------------------------------------------
-biuslot: biu0code {$$ = 0;} | biu1code {$$ = 1;} | biu2code {$$ = 2;} ;
+biuslot: biu0code {$$ = 0;} //| biu1code {$$ = 1;} | biu2code {$$ = 2;} ;
 biu0code: BIU0 DOT biu0inst;
-biu1code: BIU1 DOT biu1inst;
-biu2code: BIU2 DOT biu2inst;
+/*biu1code: BIU1 DOT biu1inst;
+biu2code: BIU2 DOT biu2inst;*/
 
-biu0inst: ldselect ASSIGNTO lddest {
+biu0inst: ldselect ASSIGNTO biu0dest {
+    
+
     flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
     f = OPERAND(Imm, flagsort, FlagS, FlagE);
     
     switch ($1) {
     case 0://lddis
     
-        //QLH flag
+        //qlh flag
         if(flags[LF])
             flagsort = 0x0;
         else if(flags[QHF])
             flagsort = 0x1;
         else if(flags[QLF])
             flagsort = 0x2;
-        QLH = OPERAND(Imm, flagsort, FlagS, FlagE);
+        qlh = OPERAND(Imm, flagsort, FlagS, FlagE);
         flags.reset();
         
       switch ($3) {
         case 1://to shu
-        ADDOPERAND(Opc, UCPM::BIU0disLdToSHU, @$.S, @$.E); 
+        OS<<"Position 5\n";
+        ADDOPERAND(Opc, UCPM::BIU0disLdToSHU_test, @$.S, @$.E); 
         break;
         case 2://to macc
-        ADDOPERAND(Opc, UCPM::BIU0disLdToMACC, @$.S, @$.E);
+        ADDOPERAND(Opc, UCPM::BIU0disLdToMACC_test, @$.S, @$.E);
         break;
       }
       
+      OS<<"Position 6\n";
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ts));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(QLH));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(qlh));
+      
       //***
       break;
       
@@ -775,10 +794,10 @@ biu0inst: ldselect ASSIGNTO lddest {
         
       switch ($3) {
         case 1://to shu
-        ADDOPERAND(Opc, UCPM::BIU0comLdToSHU, @$.S, @$.E); 
+        ADDOPERAND(Opc, UCPM::BIU0ComLdToSHU_test, @$.S, @$.E); 
         break;
       case 2://to macc
-        ADDOPERAND(Opc, UCPM::BIU0comLdToMACC, @$.S, @$.E);
+        ADDOPERAND(Opc, UCPM::BIU0ComLdToMACC_test, @$.S, @$.E);
         break;
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
@@ -793,32 +812,32 @@ biu0inst: ldselect ASSIGNTO lddest {
   }
   
 }
-| stinst{
+/*| stinst{
 
-};
+}*/;
  
 ldselect: lddis{
+	    OS<<"Position 3\n";
             $$ = 0; 
         } |
         ldstep{
             $$ = 1; 
         };
-lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
-            t _flag t flag_ _flag biuflags flag_ |
-            t _flag t flag_ _flag lddisflag flag_ |
-            t _flag t flag_ ;
+lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ {OS<<"Position 4\n"}|
+            t _flag t flag_ _flag lddisflag flag_ ;
+          
 ldstep:     t _flag t flag_ _flag biuflags flag_ _flag ldstepflag flag_ |
             t _flag t flag_ _flag biuflags flag_  |
             t _flag t flag_ _flag ldstepflag flag_ |
             t _flag t flag_ ;
 
-lddest: shut {$$ = 1;} | maccdest {$$ = 2;};
+biu0dest: shu0te | shu1te {OS<<"Position 7\n";}| ialute | imacte | ifalute | ifmacte ;
 
-stinst: storeop;
+/*stinst: storeop;
 stroeop: t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_|
          t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
          t _flag t flag_ ASSIGNTO DM _flag storeflag flag_|
-         t _flag t flag_ ASSIGNTO DM;
+         t _flag t flag_ ASSIGNTO DM;*/
 
         
 
@@ -894,11 +913,11 @@ ifmacTflag:    T       {flags.set(TF);};
 biuflags : biuflag | biuflag COMMA biuflags;
 biuflag :      BR  {flags.set(BRF);}   |
                M  {flags.set(MF);}     |
-               APP  {flags.set(APPF);} |
+               APP  {flags.set(APPF);OS<<"Position 1\n";} |
                KPP  {flags.set(KPPF);} ;
                           
 lddisflag :    QL {flags.set(QLF);}    | 
-               QH {flags.set(QHF);}    |
+               QH {flags.set(QHF);OS<<"Position 2\n";}    |
                L {flags.set(LF);}      ;
                
 ldstepflag :   S {flags.set(SF);}      ;

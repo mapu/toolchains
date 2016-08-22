@@ -87,6 +87,15 @@ def BIUO: Operand<i32> {
 }
 
 
+// ducx
+def BIU0DestTE : Operand<i32> {
+  //let PrintMethod = "printBIU0DestTE";
+  let MIOperandInfo = (ops BIU0Dest, TEPort);
+  let EncoderMethod = "getBIU0DestTEEncoding";
+  //let DecoderMethod = "DecodeBIU0DestTE";  
+}
+
+
 /* a common instruction template base for UCPM */
 class UCPMInst<dag ins, dag outs,
                    string asmstr,
