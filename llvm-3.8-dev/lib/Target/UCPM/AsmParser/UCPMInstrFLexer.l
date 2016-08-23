@@ -181,11 +181,13 @@ A   [a-zA-Z_0-9]
 ">="                   {return TOKEN(NST);}
 "("                    {return TOKEN(LPAREN);}
 "{"                    {return TOKEN(LBRACE);}
+"["                    {return TOKEN(LBRACKET);}//dcx
 <CONDPARSE>"("         {BEGIN PARENEXPRPARSE; return TOKEN(LPAREN);}
 <CONDPARSE>[ \t\n]     {;}
 <CONDPARSE>.           {BEGIN INITIAL;}
 ")"                    {return TOKEN(RPAREN);}
 "}"                    {return TOKEN(RBRACE);}
+"]"                    {return TOKEN(RBRACKET);}//dcx
 "."                    {return TOKEN(DOT);}
 ","                    {return TOKEN(COMMA);}
 "+"                    {return TOKEN(ADD);}

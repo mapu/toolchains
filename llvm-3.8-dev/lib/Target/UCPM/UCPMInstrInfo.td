@@ -1080,20 +1080,17 @@ def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
 
 // load: common/step
 class BIULdToDest_com<string header, bits<4> slot, bits<2> dest, Operand DestTy>
-        : BIUAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $step), header, "$tm$f", DestTy>{
+        : BIUAssignInstr<(ins TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
 
     bits<32> f;
     bits<2> tm;
-    bit step;
-
-    
+  
     let Inst{47-44} = slot;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = 0b11;
     let Inst{13-12} = tm;
-    let Inst{11} = 0;
-    let Inst{10} = step;
+    let Inst{11-10} = 0b00;
     let Inst{9} = f{0};
     let Inst{8-7} = dest;
     let Inst{6-5}  = d{5-4};

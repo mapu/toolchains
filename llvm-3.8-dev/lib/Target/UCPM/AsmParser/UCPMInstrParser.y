@@ -6,7 +6,7 @@ std::bitset<32> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13, CDF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -48,7 +48,7 @@ typedef struct YYLTYPE {
   int val;
   int token;
 }
-%token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE DOT COMMA ADD SUB MUL CMUL LSHT RSHT
+%token <val> NEGIMM IMM3 IMM IMM5 IMM4 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
@@ -64,8 +64,8 @@ typedef struct YYLTYPE {
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te ialute imacte ifalute ifmacte
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
-%type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
-%type <val> ldselect lddis ldstep stinst
+%type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
+%type <val> ldselect lddis ldstep stinst binInstr bindest 
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -82,6 +82,8 @@ slotref : slot {
   ms = NULL;
   md = NULL;
   imm = NULL;
+  imm1 = NULL;//dcx
+  imm2 = NULL;//dcx
   f = NULL;
   ff = NULL;
   shift = NULL;
@@ -785,9 +787,9 @@ biu0inst: ldselect ASSIGNTO biu0dest {
     case 1://ldstep
     
         //step flag
-        if(flags[SF])
-            flagsort = 0x3;
-        step = OPERAND(Imm, flagsort, FlagS, FlagE);
+    /*    if(flags[SF])
+            flagsort = 0x1;
+        step = OPERAND(Imm, flagsort, FlagS, FlagE);*/
         flags.reset();
         
       switch ($3) {
@@ -802,7 +804,7 @@ biu0inst: ldselect ASSIGNTO biu0dest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(step));
+      //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(step));
       break;
 
     default:
@@ -811,7 +813,7 @@ biu0inst: ldselect ASSIGNTO biu0dest {
   
 }
 | stinst{
-      OS<<"Position 3\n";
+      
 	flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
 	f = OPERAND(Imm, flagsort, FlagS, FlagE);
      
@@ -834,6 +836,19 @@ biu0inst: ldselect ASSIGNTO biu0dest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(qlh));      
   
+}
+| binInstr{
+        OS<<"Position 3\n";
+      ADDOPERAND(Opc, UCPM::BIU0Bin, @$.S, @$.E);
+
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+     
 };
  
 ldselect: lddis{
@@ -845,19 +860,31 @@ ldselect: lddis{
 lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
             t _flag t flag_ _flag lddisflag flag_ ;
           
-ldstep:     t _flag t flag_ _flag biuflags flag_ _flag ldstepflag flag_ |
-            t _flag t flag_ _flag biuflags flag_  |
-            t _flag t flag_ _flag ldstepflag flag_ |
-            t _flag t flag_ ;
+ldstep:     t  _flag biuflags flag_ | t;
+        
 
 biu0dest: shu0te | shu1te | ialute | imacte | ifalute | ifmacte ;
 
-stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_  {OS<<"Position 2\n";}|
+stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_ |
          t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
          t _flag t flag_ ASSIGNTO DM _flag storeflag flag_|
          t _flag t flag_ ASSIGNTO DM;
 
-        
+
+binInstr:     addclause {opc = OPERAND(Reg, UCPMReg::BIUADD, @$.S, @$.E);OS<<"Position 1\n";} | 
+              subclause {opc = OPERAND(Reg, UCPMReg::BIUSUB, @$.S, @$.E);} | 
+              andclause {opc = OPERAND(Reg, UCPMReg::BIUAND, @$.S, @$.E);} |
+               orclause {opc = OPERAND(Reg, UCPMReg::BIUOR, @$.S, @$.E);} ;
+addclause: t LBRACKET IMM4 RBRACKET ADD t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
+subclause: t LBRACKET IMM4 RBRACKET SUB t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
+andclause: t LBRACKET IMM4 RBRACKET AND t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
+orclause : t LBRACKET IMM4 RBRACKET OR t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);}; 
+
+bindest: t LBRACKET IMM4 RBRACKET{imm2 = OPERAND(Imm, $3, @3.S, @3.E);OS<<"Position 2\n";};
 
 // ducx end biu --------------------------------------------------
 
@@ -891,7 +918,9 @@ dupara: t COMMA t;
 _flag: LPAREN {FlagS = @$.E;};
 flag_: RPAREN {FlagE = @$.S;};
 imm: imm5 | IMM;
-imm5: IMM3 | IMM5;
+imm1: imm5 | IMM;
+imm2: imm5 | IMM;
+imm5: IMM3 | IMM5 | IMM4; 
 ialu: IALU ;
 imac: IMAC ;
 falu: FALU ;
@@ -938,8 +967,8 @@ lddisflag :    QL {flags.set(QLF);}    |
                QH {flags.set(QHF);}    |
                L {flags.set(LF);}      ;
                
-ldstepflag :   S {flags.set(SF);}      ;
+//ldstepflag :   S {flags.set(SF);}      ;
 
 storeflag :    H {flags.set(HF);}      |
-               Q {flags.set(QF); OS<<"Position 1\n";}      |
+               Q {flags.set(QF);}      |
                L {flags.set(LF);}      ;
