@@ -48,7 +48,7 @@ typedef struct YYLTYPE {
   int val;
   int token;
 }
-%token <val> NEGIMM IMM3 IMM IMM5 IMM4 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT COMMA ADD SUB MUL CMUL LSHT RSHT
+%token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
@@ -65,7 +65,7 @@ typedef struct YYLTYPE {
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
-%type <val> ldselect lddis ldstep stinst binInstr bindest 
+%type <val> ldselect lddis ldstep stinst binInstr 
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -845,9 +845,18 @@ biu0inst: ldselect ASSIGNTO biu0dest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      if (imm2 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      if (imm1 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
      
 };
  
@@ -871,20 +880,19 @@ stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_ 
          t _flag t flag_ ASSIGNTO DM;
 
 
-binInstr:     addclause {opc = OPERAND(Reg, UCPMReg::BIUADD, @$.S, @$.E);OS<<"Position 1\n";} | 
+binInstr:     addclause {opc = OPERAND(Reg, UCPMReg::BIUADD, @$.S, @$.E);} | 
               subclause {opc = OPERAND(Reg, UCPMReg::BIUSUB, @$.S, @$.E);} | 
               andclause {opc = OPERAND(Reg, UCPMReg::BIUAND, @$.S, @$.E);} |
                orclause {opc = OPERAND(Reg, UCPMReg::BIUOR, @$.S, @$.E);} ;
-addclause: t LBRACKET IMM4 RBRACKET ADD t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+addclause: t LBRACKET IMM5 RBRACKET ADD t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRACKET IMM5 RBRACKET
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
-subclause: t LBRACKET IMM4 RBRACKET SUB t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+subclause: t LBRACKET IMM5 RBRACKET SUB t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRACKET IMM5 RBRACKET
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
-andclause: t LBRACKET IMM4 RBRACKET AND t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+andclause: t LBRACKET IMM5 RBRACKET AND t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRACKET IMM5 RBRACKET
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);};
-orclause : t LBRACKET IMM4 RBRACKET OR t LBRACKET IMM4 RBRACKET ASSIGNTO t LBRACKET IMM4 RBRACKET
+orclause : t LBRACKET IMM5 RBRACKET OR t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRACKET IMM5 RBRACKET
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);}; 
 
-bindest: t LBRACKET IMM4 RBRACKET{imm2 = OPERAND(Imm, $3, @3.S, @3.E);OS<<"Position 2\n";};
 
 // ducx end biu --------------------------------------------------
 
@@ -920,7 +928,7 @@ flag_: RPAREN {FlagE = @$.S;};
 imm: imm5 | IMM;
 imm1: imm5 | IMM;
 imm2: imm5 | IMM;
-imm5: IMM3 | IMM5 | IMM4; 
+imm5: IMM3 | IMM5 ; 
 ialu: IALU ;
 imac: IMAC ;
 falu: FALU ;
