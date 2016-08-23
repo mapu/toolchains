@@ -65,7 +65,7 @@ typedef struct YYLTYPE {
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm5 mcodeline hmacro _flag flag_ constt _constt
-%type <val> ldselect lddis ldstep 
+%type <val> ldselect lddis ldstep stinst
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -104,7 +104,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
-      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E); OS<<"Position 8\n";}|
+      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|
  //     seqslot |
  //     hmacro |
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
@@ -460,7 +460,7 @@ shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); unit2
 
 //dcx
 shu0te: SHU0 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-shu1te: SHU1 DOT shusrct { OS<<"Position 9\n";$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
@@ -765,7 +765,6 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         
       switch ($3) {
         case 1://to shu
-        OS<<"Position 5\n";
         ADDOPERAND(Opc, UCPM::BIU0disLdToSHU_test, @$.S, @$.E); 
         break;
         case 2://to macc
@@ -773,7 +772,6 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         break;
       }
       
-      OS<<"Position 6\n";
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -812,18 +810,39 @@ biu0inst: ldselect ASSIGNTO biu0dest {
   }
   
 }
-/*| stinst{
-
-}*/;
+| stinst{
+      OS<<"Position 3\n";
+	flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
+	f = OPERAND(Imm, flagsort, FlagS, FlagE);
+     
+        //qlh flag
+        if(flags[LF])
+            flagsort = 0x0;
+        else if(flags[HF])
+            flagsort = 0x1;
+        else if(flags[QF])
+            flagsort = 0x2;
+        else
+            flagsort = 0x3;
+        qlh = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+      ADDOPERAND(Opc, UCPM::BIU0St, @$.S, @$.E); 
+        
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(qlh));      
+  
+};
  
 ldselect: lddis{
-	    OS<<"Position 3\n";
             $$ = 0; 
         } |
         ldstep{
             $$ = 1; 
         };
-lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ {OS<<"Position 4\n"}|
+lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
             t _flag t flag_ _flag lddisflag flag_ ;
           
 ldstep:     t _flag t flag_ _flag biuflags flag_ _flag ldstepflag flag_ |
@@ -831,13 +850,12 @@ ldstep:     t _flag t flag_ _flag biuflags flag_ _flag ldstepflag flag_ |
             t _flag t flag_ _flag ldstepflag flag_ |
             t _flag t flag_ ;
 
-biu0dest: shu0te | shu1te {OS<<"Position 7\n";}| ialute | imacte | ifalute | ifmacte ;
+biu0dest: shu0te | shu1te | ialute | imacte | ifalute | ifmacte ;
 
-/*stinst: storeop;
-stroeop: t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_|
+stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_  {OS<<"Position 2\n";}|
          t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
          t _flag t flag_ ASSIGNTO DM _flag storeflag flag_|
-         t _flag t flag_ ASSIGNTO DM;*/
+         t _flag t flag_ ASSIGNTO DM;
 
         
 
@@ -913,16 +931,15 @@ ifmacTflag:    T       {flags.set(TF);};
 biuflags : biuflag | biuflag COMMA biuflags;
 biuflag :      BR  {flags.set(BRF);}   |
                M  {flags.set(MF);}     |
-               APP  {flags.set(APPF);OS<<"Position 1\n";} |
+               APP  {flags.set(APPF);} |
                KPP  {flags.set(KPPF);} ;
                           
 lddisflag :    QL {flags.set(QLF);}    | 
-               QH {flags.set(QHF);OS<<"Position 2\n";}    |
+               QH {flags.set(QHF);}    |
                L {flags.set(LF);}      ;
                
 ldstepflag :   S {flags.set(SF);}      ;
 
 storeflag :    H {flags.set(HF);}      |
-               Q {flags.set(QF);}      |
-               S {flags.set(SF);}      |
+               Q {flags.set(QF); OS<<"Position 1\n";}      |
                L {flags.set(LF);}      ;
