@@ -65,7 +65,7 @@ typedef struct YYLTYPE {
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
-%type <val> ldselect lddis ldstep stinst binInstr 
+%type <val> ldselect lddis ldstep stinst binInstr shiftInstr
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -838,7 +838,7 @@ biu0inst: ldselect ASSIGNTO biu0dest {
   
 }
 | binInstr{
-        OS<<"Position 3\n";
+        
       ADDOPERAND(Opc, UCPM::BIU0Bin, @$.S, @$.E);
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
@@ -857,6 +857,27 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+     
+}
+| shiftInstr{
+        OS<<"Position 3\n";
+      ADDOPERAND(Opc, UCPM::BIU0Shift, @$.S, @$.E);
+
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      if (imm1 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      if (imm2 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
      
 };
  
@@ -893,7 +914,14 @@ andclause: t LBRACKET IMM5 RBRACKET AND t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRA
 orclause : t LBRACKET IMM5 RBRACKET OR t LBRACKET IMM5 RBRACKET ASSIGNTO t LBRACKET IMM5 RBRACKET
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $8, @8.S, @8.E);imm2 = OPERAND(Imm, $13, @13.S, @13.E);}; 
 
-
+shiftInstr :   lshtclause {opc = OPERAND(Reg, UCPMReg::BIULSHT, @$.S, @$.E);} |
+               rshtclause {opc = OPERAND(Reg, UCPMReg::BIURSHT, @$.S, @$.E);} ;
+lshtclause: t LBRACKET IMM5 RBRACKET LSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
+	     {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $6, @6.S, @6.E);imm2 = OPERAND(Imm, $10, @10.S, @10.E);};
+rshtclause: t LBRACKET IMM5 RBRACKET RSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
+	     {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $6, @6.S, @6.E);imm2 = OPERAND(Imm, $10, @10.S, @10.E);};
+	     
+	     
 // ducx end biu --------------------------------------------------
 
 
