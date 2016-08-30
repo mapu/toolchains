@@ -1076,6 +1076,10 @@ multiclass BIULdInstr_dis<string header, bits<4> slot>{
 // ducx 20160822: biu0 test
 def BIU0disLdToSHU_test : BIULdToDest_dis<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
 def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
+// ducx 20160829: biu1 test
+def BIU1disLdToSHU_test : BIULdToDest_dis<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
+def BIU1disLdToMACC_test: BIULdToDest_dis<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+
 
 
 // load: common/step
@@ -1106,6 +1110,11 @@ multiclass BIULdInstr_com<string header, bits<4> slot>{
 // ducx 20160822: biu0 test
 def BIU0ComLdToSHU_test : BIULdToDest_com<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
 def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
+// ducx 20160829: biu1 test
+def BIU1ComLdToSHU_test : BIULdToDest_com<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
+def BIU1ComLdToMACC_test: BIULdToDest_com<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+
+
 
 // store
 class BIUStInstr<string header, bits<4> slot>

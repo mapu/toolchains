@@ -60,9 +60,9 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu0inst //biu1code biu2code biu1inst biu2inst 
-%type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te ialute imacte ifalute ifmacte
-%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest
+%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu0inst biu1inst //biu2code  biu2inst 
+%type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te ialute imacte ifalute ifmacte
+%type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest biu1dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr
@@ -106,7 +106,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       ifaluslot {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
-      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|
+      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|  
  //     seqslot |
  //     hmacro |
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
@@ -464,6 +464,8 @@ shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); unit2
 shu0te: SHU0 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+b1shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::B1SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
 ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 ifalute: ifalu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
@@ -741,10 +743,10 @@ ifmacdest: imacdest;
 
 
 // ducx start biu --------------------------------------------------
-biuslot: biu0code {$$ = 0;} //| biu1code {$$ = 1;} | biu2code {$$ = 2;} ;
+biuslot: biu0code {$$ = 0;OS<<"Position biu0\n";} | biu1code {$$ = 1;OS<<"Position biu1\n";};//| biu2code {$$ = 2;} ;
 biu0code: BIU0 DOT biu0inst;
-/*biu1code: BIU1 DOT biu1inst;
-biu2code: BIU2 DOT biu2inst;*/
+biu1code: BIU1 DOT biu1inst {OS<<"Position 0\n";};
+//biu2code: BIU2 DOT biu2inst;
 
 biu0inst: ldselect ASSIGNTO biu0dest {
     
@@ -860,7 +862,7 @@ biu0inst: ldselect ASSIGNTO biu0dest {
      
 }
 | shiftInstr{
-        OS<<"Position 3\n";
+       
       ADDOPERAND(Opc, UCPM::BIU0Shift, @$.S, @$.E);
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
@@ -881,19 +883,158 @@ biu0inst: ldselect ASSIGNTO biu0dest {
      
 };
  
+ 
+biu1inst: ldselect ASSIGNTO biu1dest {
+     OS<<"Position 3\n";
+
+    flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
+    f = OPERAND(Imm, flagsort, FlagS, FlagE);
+    
+    switch ($1) {
+    case 0://lddis
+    
+        //qlh flag
+        if(flags[LF])
+            flagsort = 0x0;
+        else if(flags[QHF])
+            flagsort = 0x1;
+        else if(flags[QLF])
+            flagsort = 0x2;
+        qlh = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::BIU1disLdToSHU_test, @$.S, @$.E); 
+        break;
+        case 2://to macc
+        ADDOPERAND(Opc, UCPM::BIU1disLdToMACC_test, @$.S, @$.E);
+        break;
+      }
+      
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(qlh));
+      
+      //***
+      break;
+      
+    case 1://ldstep
+    
+        //step flag
+    /*    if(flags[SF])
+            flagsort = 0x1;
+        step = OPERAND(Imm, flagsort, FlagS, FlagE);*/
+        flags.reset();
+        
+      switch ($3) {
+        case 1://to shu
+        ADDOPERAND(Opc, UCPM::BIU1ComLdToSHU_test, @$.S, @$.E); 
+        break;
+      case 2://to macc
+        ADDOPERAND(Opc, UCPM::BIU1ComLdToMACC_test, @$.S, @$.E);
+        break;
+      }
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(step));
+      break;
+
+    default:
+      break;
+  }
+  
+}
+| stinst{
+      
+	flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
+	f = OPERAND(Imm, flagsort, FlagS, FlagE);
+     
+        //qlh flag
+        if(flags[LF])
+            flagsort = 0x0;
+        else if(flags[HF])
+            flagsort = 0x1;
+        else if(flags[QF])
+            flagsort = 0x2;
+        else
+            flagsort = 0x3;
+        qlh = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+      ADDOPERAND(Opc, UCPM::BIU1St, @$.S, @$.E); 
+        
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(qlh));      
+  
+}
+| binInstr{
+        
+      ADDOPERAND(Opc, UCPM::BIU1Bin, @$.S, @$.E);
+
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      if (imm2 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      if (imm1 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+     
+}
+| shiftInstr{
+       
+      ADDOPERAND(Opc, UCPM::BIU1Shift, @$.S, @$.E);
+
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      if (imm1 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      if (imm2 == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+     
+}; 
+
+
 ldselect: lddis{
             $$ = 0; 
         } |
         ldstep{
+         OS<<"Position 2\n";
             $$ = 1; 
         };
 lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
             t _flag t flag_ _flag lddisflag flag_ ;
           
-ldstep:     t  _flag biuflags flag_ | t;
+ldstep:     t  _flag biuflags flag_ { OS<<"Position 1\n";}| t;
         
 
 biu0dest: shu0te | shu1te | ialute | imacte | ifalute | ifmacte ;
+biu1dest: shu0te | b1shu2te | ialute | imacte | ifalute | ifmacte ;
 
 stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_ |
          t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
@@ -921,7 +1062,9 @@ lshtclause: t LBRACKET IMM5 RBRACKET LSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 rshtclause: t LBRACKET IMM5 RBRACKET RSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 	     {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $6, @6.S, @6.E);imm2 = OPERAND(Imm, $10, @10.S, @10.E);};
 	     
-	     
+
+	    
+
 // ducx end biu --------------------------------------------------
 
 

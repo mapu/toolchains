@@ -34,6 +34,7 @@ def IFMAC : UCPMReg<3, "IFMAC">, DwarfRegNum<[137]>;
 def SHU0  : UCPMReg<0, "SHU0">, DwarfRegNum<[129]>;
 def SHU1  : UCPMReg<1, "SHU1">, DwarfRegNum<[130]>;
 def SHU2  : UCPMReg<2, "SHU2">, DwarfRegNum<[131]>;
+def B1SHU2  : UCPMReg<1, "SHU2">, DwarfRegNum<[131]>;//dcx:for BIU1
 def MTSHU0  : UCPMReg<2, "SHU0">, DwarfRegNum<[129]>;//MT: for MReg Target
 def MTSHU1  : UCPMReg<2, "SHU1">, DwarfRegNum<[130]>;
 def MTSHU2  : UCPMReg<2, "SHU2">, DwarfRegNum<[131]>;
@@ -77,7 +78,7 @@ def MR5Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIFALU, MTIFMAC, MTSH
 
 // ducx
 def BIU0Dest: RegisterClass<"UCPMReg", [v16i32], 32, (add SHU0, SHU1, IALU, IMAC, IFALU, IFMAC)>;
-
+def BIU1Dest: RegisterClass<"UCPMReg", [v16i32], 32, (add SHU0, B1SHU2, IALU, IMAC, IFALU, IFMAC)>;
 
 def T0  : UCPMReg<0, "T0">, DwarfRegNum<[138]>;
 def T1  : UCPMReg<1, "T1">, DwarfRegNum<[139]>;

@@ -94,6 +94,13 @@ def BIU0DestTE : Operand<i32> {
   let EncoderMethod = "getBIU0DestTEEncoding";
   //let DecoderMethod = "DecodeBIU0DestTE";  
 }
+def BIU1DestTE : Operand<i32> {
+  //let PrintMethod = "printBIU1DestTE";
+  let MIOperandInfo = (ops BIU1Dest, TEPort);
+  let EncoderMethod = "getBIU1DestTEEncoding";
+  //let DecoderMethod = "DecodeBIU1DestTE";  
+}
+
 
 
 /* a common instruction template base for UCPM */

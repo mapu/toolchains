@@ -324,7 +324,7 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   }
 
   MCInst *Inst = new MCInst;
-  MCInst *InstSort[14] = {};
+  MCInst *InstSort[17] = {};
   MCInst *CurInst = Inst, *NewInst;
   SmallVector<SharedOperand, 256> os;
   SharedOperandVector *ops;
