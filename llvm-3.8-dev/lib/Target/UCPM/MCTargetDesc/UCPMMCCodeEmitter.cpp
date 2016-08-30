@@ -72,6 +72,9 @@ public:
   unsigned getBIU1DestTEEncoding(const MCInst &MI, unsigned OpNo,
                                  SmallVectorImpl<MCFixup> &Fixups,
                                  const MCSubtargetInfo &STI) const;
+  unsigned getBIU2DestTEEncoding(const MCInst &MI, unsigned OpNo,
+                                 SmallVectorImpl<MCFixup> &Fixups,
+                                 const MCSubtargetInfo &STI) const;
 				 
   unsigned getMR0DestTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
@@ -306,6 +309,17 @@ getBIU0DestTEEncoding(const llvm::MCInst &MI, unsigned int OpNo,
 }
 unsigned UCPMMCCodeEmitter::
 getBIU1DestTEEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                  SmallVectorImpl<llvm::MCFixup>& Fixups,
+                  const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  assert(MI.getOperand(OpNo+1).isReg());
+  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+
+  return (UnitBits << 4) | TPortBits;
+}
+unsigned UCPMMCCodeEmitter::
+getBIU2DestTEEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                   SmallVectorImpl<llvm::MCFixup>& Fixups,
                   const MCSubtargetInfo &STI) const {
   assert(MI.getOperand(OpNo).isReg());

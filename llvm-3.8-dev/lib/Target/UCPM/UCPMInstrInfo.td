@@ -1079,6 +1079,9 @@ def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
 def BIU1disLdToSHU_test : BIULdToDest_dis<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
 def BIU1disLdToMACC_test: BIULdToDest_dis<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+// ducx 20160830: biu2 test
+def BIU2disLdToSHU_test : BIULdToDest_dis<"BIU2.", 0b1100, 0b00, BIU2DestTE >;
+def BIU2disLdToMACC_test: BIULdToDest_dis<"BIU2.", 0b1100 ,0b01, BIU2DestTE >;
 
 
 
@@ -1113,6 +1116,9 @@ def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
 def BIU1ComLdToSHU_test : BIULdToDest_com<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
 def BIU1ComLdToMACC_test: BIULdToDest_com<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+// ducx 20160830: biu2 test
+def BIU2ComLdToSHU_test : BIULdToDest_com<"BIU2.", 0b1100, 0b00, BIU2DestTE >;
+def BIU2ComLdToMACC_test: BIULdToDest_com<"BIU2.", 0b1100 ,0b01, BIU2DestTE >;
 
 
 
