@@ -141,11 +141,11 @@ static int net_slirp_init(NetClientState *peer, const char *model,
                           const char *vsmbserver, const char **dnssearch)
 {
     /* default settings according to historic slirp */
-    struct in_addr net  = { .s_addr = htonl(0x0a000200) }; /* 10.0.2.0 */
+    struct in_addr net  = { .s_addr = htonl(0xc0a80100) }; /* 10.0.2.0 */
     struct in_addr mask = { .s_addr = htonl(0xffffff00) }; /* 255.255.255.0 */
-    struct in_addr host = { .s_addr = htonl(0x0a000202) }; /* 10.0.2.2 */
-    struct in_addr dhcp = { .s_addr = htonl(0x0a00020f) }; /* 10.0.2.15 */
-    struct in_addr dns  = { .s_addr = htonl(0x0a000203) }; /* 10.0.2.3 */
+    struct in_addr host = { .s_addr = htonl(0xc0a80102) }; /* 10.0.2.2 */
+    struct in_addr dhcp = { .s_addr = htonl(0xc0a8010f) }; /* 10.0.2.15 */
+    struct in_addr dns  = { .s_addr = htonl(0xc0a80103) }; /* 10.0.2.3 */
 #ifndef _WIN32
     struct in_addr smbsrv = { .s_addr = 0 };
 #endif
@@ -156,7 +156,6 @@ static int net_slirp_init(NetClientState *peer, const char *model,
     int shift;
     char *end;
     struct slirp_config_str *config;
-
     if (!tftp_export) {
         tftp_export = legacy_tftp_prefix;
     }
@@ -176,6 +175,8 @@ static int net_slirp_init(NetClientState *peer, const char *model,
                 mask.s_addr = htonl(0xfff00000); /* priv. 172.16.0.0/12 */
             } else if ((addr & 0xc0000000) == 0x80000000) {
                 mask.s_addr = htonl(0xffff0000); /* class B */
+            } else if ((addr & 0xffffff00) == 0xc0a80100) {
+                mask.s_addr = htonl(0xffffff00); /* priv. 192.168.1.0/24  add for mapu*/
             } else if ((addr & 0xffff0000) == 0xc0a80000) {
                 mask.s_addr = htonl(0xffff0000); /* priv. 192.168.0.0/16 */
             } else if ((addr & 0xffff0000) == 0xc6120000) {
@@ -201,9 +202,9 @@ static int net_slirp_init(NetClientState *peer, const char *model,
             }
         }
         net.s_addr &= mask.s_addr;
-        host.s_addr = net.s_addr | (htonl(0x0202) & ~mask.s_addr);
-        dhcp.s_addr = net.s_addr | (htonl(0x020f) & ~mask.s_addr);
-        dns.s_addr  = net.s_addr | (htonl(0x0203) & ~mask.s_addr);
+        host.s_addr = net.s_addr | (htonl(0x01) & ~mask.s_addr);
+        dhcp.s_addr = net.s_addr | (htonl(0x0f) & ~mask.s_addr);
+        dns.s_addr  = net.s_addr | (htonl(0x03) & ~mask.s_addr);
     }
 
     if (vhost && !inet_aton(vhost, &host)) {
