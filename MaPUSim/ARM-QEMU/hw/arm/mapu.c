@@ -307,11 +307,14 @@ static void mapu_init(MachineState *mms)
   sysbus_connect_irq(SYS_BUS_DEVICE(busdev), 0, pic[31]);
   fprintf(stderr, "\tmapu sdhci init done!\n");
 
-  if(nd_table[0].used)
+  /*if(nd_table[0].used)
   {
     smc91c111_init(&nd_table[0], MaPUboard_map[MaPU_GMAC], pic[0]);
     fprintf(stderr, "\tmapu network interface init done!\n");
-  }
+  }*/
+
+  sysbus_create_varargs("dwmac", MaPUboard_map[MaPU_GMAC], pic[0], NULL);
+    fprintf(stderr, "\tmapu dw_gmac init done!\n");
 
   sysbus_create_varargs("dwssi", MaPUboard_map[MaPU_SSI], pic[6], NULL);
   fprintf(stderr, "\tmapu dwssi init done!\n");
