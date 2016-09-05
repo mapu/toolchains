@@ -60,12 +60,13 @@ typedef struct YYLTYPE {
 %token <val> TREG MINDEXN KI
 
 %type <val> slots slotref slot 
-%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst 
+%type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0 biu1 biu2 biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest mindexs mindexi mindexn ialuasclause biu0dest biu1dest biu2dest
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr
+%type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -107,8 +108,8 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
       biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|  
- //     seqslot |
- //     hmacro |
+      seqslot |
+      hmacro | //?
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
 hmacro: IDENTIFIER {ADDOPERAND(HMacro, $1, @$.S, @$.E);};
 hmacro: IDENTIFIER LPAREN RPAREN {ADDOPERAND(HMacro, $1, @$.S, @$.E); ADDOPERAND(Imm, 1, @$.S, @$.E);};
@@ -1021,7 +1022,7 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 }; 
 
 biu2inst: ldselect ASSIGNTO biu2dest {
-     OS<<"Position 3\n";
+ 
 
     flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
     f = OPERAND(Imm, flagsort, FlagS, FlagE);
@@ -1159,13 +1160,12 @@ ldselect: lddis{
             $$ = 0; 
         } |
         ldstep{
-         OS<<"Position 2\n";
             $$ = 1; 
         };
 lddis:      t _flag t flag_ _flag biuflags flag_ _flag lddisflag flag_ |
             t _flag t flag_ _flag lddisflag flag_ ;
           
-ldstep:     t  _flag biuflags flag_ { OS<<"Position 1\n";}| t;
+ldstep:     t  _flag biuflags flag_ | t;
         
 
 biu0dest: shu0te | shu1te | ialute | imacte | ifalute | ifmacte ;
@@ -1198,10 +1198,32 @@ lshtclause: t LBRACKET IMM5 RBRACKET LSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 rshtclause: t LBRACKET IMM5 RBRACKET RSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 	     {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $6, @6.S, @6.E);imm2 = OPERAND(Imm, $10, @10.S, @10.E);};
 	     
-
-	    
-
 // ducx end biu --------------------------------------------------
+
+
+// ducx start seq --------------------------------------------------
+seqslot: reinst | lpinst;
+
+reinst: REPEAT ALPHA _flag repeatexp {  OS<<"Position 3\n";Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));};
+repeatexp: immrep{ADDOPERAND(Opc, UCPM::REPEATIMM, @-2.S, @$.E);   OS<<"Position 2\n";}; //-2 flag_
+immrep: IMM5 {imm = OPERAND(Imm, $1, @$.S, @$.E);    OS<<"Position 1\n";};
+
+lpinst: lpexp lpcond;
+lpexp: LOOP label ALPHA{
+  ADDOPERAND(Opc, UCPM::LPTO, @$.S, @$.E);
+  if(expr) Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
+  else ADDOPERAND(Imm, $2, @2.S, @2.E);
+};
+lpcond: _flag kiflag flag_{
+  ADDOPERAND(Imm, $2, @2.S, @2.E);
+  ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+}
+| _flag kiflag SUB IMM5 flag_{
+  ADDOPERAND(Imm, $2, @2.S, @2.E);
+  ADDOPERAND(Imm, $4, @4.S, @4.E);
+};
+// ducx end seq --------------------------------------------------
+
 
 
 
@@ -1287,3 +1309,6 @@ lddisflag :    QL {flags.set(QLF);}    |
 storeflag :    H {flags.set(HF);}      |
                Q {flags.set(QF);}      |
                L {flags.set(LF);}      ;
+               
+kiflag: KI;
+label: EXPR{$$=0;expr=$1;} | IMM5 {$$=$1;expr=0;};
