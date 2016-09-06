@@ -163,13 +163,13 @@ class Simulation(QObject):
             
             sim_command += '-c "'
             delimitor = ""
-            for i in range(0, ape_num - 1):
+            for i in range(0, ape_num):
                 sim_command += delimitor
                 delimitor = ";"
                 image = self.config.getConfig("APE%dSPUimage" % i)
                 if not os.path.isfile(image):
                     fatal(self.tr("Cannot find APE%dSPU executable image %s!" %
-                             i, image),
+                             (i, image)),
                           self.tr("Failed to launch the simulation"))
                     return False
                 sim_command += image
@@ -178,11 +178,12 @@ class Simulation(QObject):
                     continue
                 if not os.path.isfile(image):
                     fatal(self.tr("Cannot find APE%dMPU executable image %s!" %
-                             i, image),
+                             (i, image)),
                           self.tr("Failed to launch the simulation"))
                     return False
                 sim_command += "," + image
             sim_command += '"'
+            print sim_command
         # Run APC simulator
         self.APCProcess.start(sim_command)
         if not self.APCProcess.waitForStarted():

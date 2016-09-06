@@ -60,6 +60,8 @@ class ConfigViewWidget(QWidget):
                 self.APECheckBox[i - 1].setFixedHeight(25)
                 self.APCLayout.addWidget(self.APECheckBox[i - 1])
                 self.APECheckBox[i - 1].clicked.connect(self.APECheckSlot[i - 1])
+                self.APECheckBox[i - 1].setCheckState(Qt.Unchecked)
+            self.APE1CheckSlot()
             self.SPULabel[i].setFixedSize(60, 25)
             self.SPUImage[i].setText(self.config.getConfig("APE%dSPUimage" % i))
             self.SPUImage[i].setFixedSize(540, 25)
@@ -105,7 +107,7 @@ class ConfigViewWidget(QWidget):
         self.ARMmodeGroup.setExclusive(True)
         self.ARMmodeGroup.addButton(self.qemuRadio, 0)
         #self.ARMmodeGroup.addButton(self.gem5Radio, 1)
-        self.ARMmodeGroup.buttonClicked[int].connect(self.ARMSimulatorSwitchSlot)
+        #self.ARMmodeGroup.buttonClicked[int].connect(self.ARMSimulatorSwitchSlot)
         self.qemuRadio.setChecked(True)
         if self.config.getConfig("ARMSimType") == "QEMU":
             self.qemuRadio.setChecked(True)
@@ -255,7 +257,7 @@ class ConfigViewWidget(QWidget):
             self.browseBotton[2].setEnabled(False)
             self.MPUImage[1].setEnabled(False)
             self.browseBotton[3].setEnabled(False)
-            self.APECheckBox[2].setCheckState(Qt.Unchecked)
+            self.APECheckBox[1].setCheckState(Qt.Unchecked)
             self.APE2CheckSlot()
             self.config.setConfig("numberofAPEs", "1")
 
@@ -271,7 +273,7 @@ class ConfigViewWidget(QWidget):
             self.browseBotton[4].setEnabled(False)
             self.MPUImage[2].setEnabled(False)
             self.browseBotton[5].setEnabled(False)
-            self.APECheckBox[3].setCheckState(Qt.Unchecked)
+            self.APECheckBox[2].setCheckState(Qt.Unchecked)
             self.APE3CheckSlot()
             self.config.setConfig("numberofAPEs", "2")
 
@@ -318,11 +320,12 @@ class ConfigViewWidget(QWidget):
     def imageUpdateSlot(self):
         if self.sender() in self.SPUImage:
             i = self.SPUImage.index(self.sender())
-            self.config.setConfig("APE%dSPUImage" % i, self.sender().text())
+            print i, self.sender().text()
+            self.config.setConfig("APE%dSPUimage" % i, self.sender().text())
             return
         if self.sender() in self.MPUImage:
             i = self.MPUImage.index(self.sender())
-            self.config.setConfig("APE%dMPUImage" % i, self.sender().text())
+            self.config.setConfig("APE%dMPUimage" % i, self.sender().text())
             return
         if self.sender() == self.flashImageEdit:
             self.config.setConfig("flashimage", self.sender().text())
