@@ -1,0 +1,463 @@
+//===----- UCPSPacketizer.cpp - vliw packetizer ---------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+//
+// This implements a simple VLIW packetizer using DFA. The packetizer works on
+// machine basic blocks. For each instruction I in BB, the packetizer consults
+// the DFA to see if machine resources are available to execute I. If so, the
+// packetizer checks if I depends on any instruction J in the current packet.
+// If no dependency is found, I is added to current packet and machine resource
+// is marked as taken. If any dependency is found, a target API call is made to
+// prune the dependence.
+//
+//===----------------------------------------------------------------------===//
+#include "llvm/CodeGen/DFAPacketizer.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/CodeGen/MachineDominators.h"
+#include "llvm/CodeGen/MachineFunctionPass.h"
+#include "llvm/CodeGen/MachineLoopInfo.h"
+#include "llvm/CodeGen/ScheduleDAG.h"
+#include "llvm/CodeGen/ScheduleDAGInstrs.h"
+#include "llvm/CodeGen/LatencyPriorityQueue.h"
+#include "llvm/CodeGen/SchedulerRegistry.h"
+#include "llvm/CodeGen/MachineFrameInfo.h"
+#include "llvm/CodeGen/MachineInstrBuilder.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/MachineFunctionAnalysis.h"
+#include "llvm/CodeGen/MachineBranchProbabilityInfo.h"
+#include "llvm/CodeGen/ScheduleHazardRecognizer.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetInstrInfo.h"
+#include "llvm/Target/TargetRegisterInfo.h"
+#include "llvm/ADT/DenseMap.h"
+#include "llvm/ADT/Statistic.h"
+#include "llvm/Support/MathExtras.h"
+#include "llvm/MC/MCInstrItineraries.h"
+#include "llvm/Support/Compiler.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
+#include "UCPS.h"
+#include "UCPSTargetMachine.h"
+#include "UCPSRegisterInfo.h"
+#include "UCPSSubtarget.h"
+#include "UCPSMachineFunctionInfo.h"
+#include <map>
+#include <vector>
+
+using namespace llvm;
+
+#define DEBUG_TYPE "packets"
+
+static void UCPSCheckImmFlag(MachineInstr *MI, unsigned &flag) {
+  #define AGUIMM 1
+  #define SEQIMM 2
+  switch (MI->getDesc().getOpcode()) {
+  case UCPSInst::LoadSI8JI:
+  case UCPSInst::LoadUI8JI:
+  case UCPSInst::LoadSI16JI:
+  case UCPSInst::LoadUI16JI:
+  case UCPSInst::LoadI32JI:
+  case UCPSInst::LoadF32JI:
+  case UCPSInst::LoadF64JI:
+  case UCPSInst::LoadPtrJI:
+  case UCPSInst::LoadPtrOffsetJI:
+
+  case UCPSInst::StoreI8JI:
+  case UCPSInst::StoreI16JI:
+  case UCPSInst::StoreI32JI:
+  case UCPSInst::StoreF32JI:
+  case UCPSInst::StoreF64JI:
+  case UCPSInst::StorePtrJI:
+
+  case UCPSInst::AssignRRegImm11:
+  case UCPSInst::AssignJRegImm11:
+
+  case UCPSInst::AssignI32:
+  case UCPSInst::AssignPtr:
+  case UCPSInst::AssignF32:
+    flag |= AGUIMM;
+    return;
+
+  case UCPSInst::JumpImm:
+  case UCPSInst::JumpBasicBlock:
+  case UCPSInst::JumpImmCond:
+  case UCPSInst::JumpBasicBlockCond:
+
+  case UCPSInst::CallImm:
+  case UCPSInst::CallImmCond:
+
+  case UCPSInst::LoopL0:
+  case UCPSInst::LoopL1:
+    flag |= SEQIMM;
+    return;
+
+  default:
+    return;
+  }
+}
+
+static bool isSYNCtrl(MachineInstr *MI) {
+  switch (MI->getOpcode()) {
+  case UCPSInst::__SetKB:
+    return true;
+  default: return false;
+  }
+}
+
+namespace llvm {
+  void initializeUCPSPacketizerPass(PassRegistry&);
+}
+
+namespace {
+class UCPSPacketizer: public MachineFunctionPass {
+public:
+  static char ID;
+
+  UCPSPacketizer() : MachineFunctionPass(ID) {
+    initializeUCPSPacketizerPass(*PassRegistry::getPassRegistry());
+  }
+
+  void getAnalysisUsage(AnalysisUsage &AU) const override {
+    AU.setPreservesCFG();
+    AU.addRequired<AAResultsWrapperPass>();
+    AU.addRequired<MachineDominatorTree>();
+    AU.addRequired<MachineBranchProbabilityInfo>();
+    AU.addPreserved<MachineDominatorTree>();
+    AU.addRequired<MachineLoopInfo>();
+    AU.addPreserved<MachineLoopInfo>();
+    MachineFunctionPass::getAnalysisUsage(AU);
+  }
+
+  const char *getPassName() const override {
+    return "UCPS Packetizer";
+  }
+
+  bool runOnMachineFunction(MachineFunction &Fn) override;
+};
+
+char UCPSPacketizer::ID = 0;
+
+class UCPSPacketizerList : public VLIWPacketizerList {
+private:
+  static const unsigned MaxMINumber = 4;
+
+  unsigned IssueCount;
+
+  // Check if there is a dependence between some instruction already in this
+  // packet and this instruction.
+  bool Dependence;
+
+  // Only check for dependence if there are resources available to
+  // schedule this instruction.
+  bool FoundSequentialDependence;
+
+  /// \brief A handle to the branch probability pass.
+  const MachineBranchProbabilityInfo *MBPI;
+
+  // Track MIs with ignored dependece.
+  std::vector<MachineInstr*> IgnoreDepMIs;
+
+public:
+  // Ctor.
+  UCPSPacketizerList(MachineFunction &MF, MachineLoopInfo &MLI, AliasAnalysis *AA,
+                     const MachineBranchProbabilityInfo *MBPI);
+
+  // initPacketizerState - initialize some internal flags.
+  void initPacketizerState() override;
+
+  // ignorePseudoInstruction - Ignore bundling of pseudo instructions.
+  bool ignorePseudoInstruction(const MachineInstr &MI,
+                               const MachineBasicBlock *MBB) override;
+
+  // isSoloInstruction - return true if instruction MI can not be packetized
+  // with any other instruction, which means that MI itself is a packet.
+  bool isSoloInstruction(const MachineInstr &MI) override;
+
+  // isLegalToPacketizeTogether - Is it legal to packetize SUI and SUJ
+  // together.
+  bool isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) override;
+
+  // isLegalToPruneDependencies - Is it legal to prune dependece between SUI
+  // and SUJ.
+  //bool isLegalToPruneDependencies(SUnit *SUI, SUnit *SUJ) override;
+
+private:
+  /*bool IsCallDependent(MachineInstr* MI, SDep::Kind DepType, unsigned DepReg);
+  bool tryAllocateResourcesForConstExt(MachineInstr* MI);
+  bool canReserveResourcesForConstExt(MachineInstr *MI);
+  void reserveResourcesForConstExt(MachineInstr* MI);*/
+};
+}
+
+INITIALIZE_PASS_BEGIN(UCPSPacketizer, "packets", "UCPS Packetizer", false, false)
+INITIALIZE_PASS_DEPENDENCY(MachineDominatorTree)
+INITIALIZE_PASS_DEPENDENCY(MachineBranchProbabilityInfo)
+INITIALIZE_PASS_DEPENDENCY(MachineLoopInfo)
+INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)
+INITIALIZE_PASS_END(UCPSPacketizer, "packets", "UCPS Packetizer", false, false)
+
+// UCPSPacketizerList Ctor.
+UCPSPacketizerList::
+UCPSPacketizerList(MachineFunction &MF, MachineLoopInfo &MLI, AliasAnalysis *AA,
+                   const MachineBranchProbabilityInfo *MBPI)
+  : VLIWPacketizerList(MF, MLI, AA), IssueCount(0) {
+  this->MBPI = MBPI;
+}
+
+bool UCPSPacketizer::runOnMachineFunction(MachineFunction &MF) {
+  const TargetInstrInfo *TII = MF.getSubtarget().getInstrInfo();
+  auto &MLI = getAnalysis<MachineLoopInfo>();
+  auto *MBPI = &getAnalysis<MachineBranchProbabilityInfo>();
+  auto *AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();
+  // Instantiate the packetizer.
+  UCPSPacketizerList Packetizer(MF, MLI, AA, MBPI);
+
+  // DFA state table should not be empty.
+  assert(Packetizer.getResourceTracker() && "Empty DFA table!");
+
+  //
+  // Loop over all basic blocks and remove KILL pseudo-instructions
+  // These instructions confuse the dependence analysis. Consider:
+  // D0 = ...   (Insn 0)
+  // R0 = KILL R0, D0 (Insn 1)
+  // R0 = ... (Insn 2)
+  // Here, Insn 1 will result in the dependence graph not emitting an output
+  // dependence between Insn 0 and Insn 2. This can lead to incorrect
+  // packetization
+  //
+  for (auto &MB : MF) {
+    auto End = MB.end();
+    auto MI = MB.begin();
+    while (MI != End) {
+      auto NextI = std::next(MI);
+      if (MI->isKill()) {
+        MB.erase(MI);
+        End = MB.end();
+      }
+      MI = NextI;
+    }
+  }
+  // Loop over all of the basic blocks.
+  for (auto &MB : MF) {
+    auto Begin = MB.begin(), End = MB.end();
+    while (Begin != End) {
+      // First the first non-boundary starting from the end of the last
+      // scheduling region.
+      MachineBasicBlock::iterator RB = Begin;
+      while (RB != End && TII->isSchedulingBoundary(RB, &MB, MF))
+        ++RB;
+      // First the first boundary starting from the beginning of the new
+      // region.
+      MachineBasicBlock::iterator RE = RB;
+      while (RE != End && !TII->isSchedulingBoundary(RE, &MB, MF))
+        ++RE;
+      // Add the scheduling boundary if it's not block end.
+      if (RE != End)
+        ++RE;
+      // If RB == End, then RE == End.
+      if (RB != End)
+        Packetizer.PacketizeMIs(&MB, RB, RE);
+
+      Begin = RE;
+    }
+  }
+
+  //Packetizer.unpacketizeSoloInstrs(MF);
+
+  return true;
+}
+
+// initPacketizerState - Initialize packetizer flags
+void UCPSPacketizerList::initPacketizerState() {
+  IssueCount = 0;
+  Dependence = false;
+  FoundSequentialDependence = false;
+
+  return;
+}
+
+// ignorePseudoInstruction - Ignore bundling of pseudo instructions.
+bool UCPSPacketizerList::ignorePseudoInstruction(const MachineInstr &MI,
+                                                 const MachineBasicBlock *MBB) {
+  if(MI.isDebugValue())
+    return true;
+
+  // We must print out inline assembly
+  if(MI.isInlineAsm())
+    return false;
+
+  // We check if MI has any functional units mapped to it.
+  // If it doesn't, we ignore the instruction.
+  const MCInstrDesc& TID = MI.getDesc();
+  unsigned SchedClass = TID.getSchedClass();
+  const InstrStage* IS =
+    ResourceTracker->getInstrItins()->beginStage(SchedClass);
+  unsigned FuncUnits = IS->getUnits();
+  return !FuncUnits;
+}
+
+// isSoloInstruction: - Returns true for instructions that must be
+// scheduled in their own packet.
+bool UCPSPacketizerList::isSoloInstruction(const MachineInstr &MI) {
+  if(MI.isInlineAsm())
+    return true;
+
+  if(MI.isEHLabel())
+    return true;
+
+  if(MI.getDesc().isBarrier())
+    return true;
+
+  return false;
+}
+
+// isLegalToPacketizeTogether:
+// SUI is the current instruction that is out side of the current packet.
+// SUJ is the current instruction inside the current packet against which that
+// SUI will be packetized.
+bool UCPSPacketizerList::isLegalToPacketizeTogether(SUnit *SUI, SUnit *SUJ) {
+  MachineInstr *I = SUI->getInstr();
+  MachineInstr *J = SUJ->getInstr();
+  assert(I && J && "Unable to packetize null instruction!");
+
+  IssueCount++;
+
+  if (I->getOpcode() == UCPSInst::NOP || J->getOpcode() == UCPSInst::NOP)
+    return true;
+
+  if (J->getDesc().isCall()) return false;
+
+  unsigned flag = 0;
+  UCPSCheckImmFlag(I,flag);
+  if (flag != 0 && IssueCount >= 3) return false; // There is no enough slots for Imm Extension.
+  UCPSCheckImmFlag(J,flag);
+  if (flag == 3) return false; // disallow coexistance of AGU-IMM and SEQ-IMM
+
+
+  //MachineBasicBlock::iterator II = I;
+
+  //const unsigned FrameSize = MF.getFrameInfo()->getStackSize();
+  //const UCPSRegisterInfo* RegInfo =
+  //  (const UCPSRegisterInfo *)MF.getSubtarget().getRegisterInfo();
+  //const UCPSInstrInfo *InstrInfo = (const UCPSInstrInfo *) TII;
+
+  // Inline asm cannot go in the packet.
+  if(I->getOpcode() == TargetOpcode::INLINEASM)
+    llvm_unreachable("Should not meet inline asm here!");
+
+  if(isSoloInstruction(*I))
+    llvm_unreachable("Should not meet solo instr here!");
+
+  if(SUJ->isSucc(SUI)) {
+    for(unsigned i = 0; (i < SUJ->Succs.size()) && !FoundSequentialDependence; ++i)
+    {
+
+      if(SUJ->Succs[i].getSUnit() != SUI) {
+        continue;
+      }
+
+      SDep::Kind DepType = SUJ->Succs[i].getKind();
+
+      // For direct calls:
+      // Ignore register dependences for call instructions for
+      // packetization purposes except for those due to r31 and
+      // predicate registers.
+      //
+      // For indirect calls:
+      // Same as direct calls + check for true dependences to the register
+      // used in the indirect call.
+      //
+      // We completely ignore Order dependences for call instructions
+      //
+      // For returns:
+      // Ignore register dependences for return instructions like jumpr,
+      // dealloc return unless we have dependencies on the explicit uses
+      // of the registers used by jumpr (like r31) or dealloc return
+      // (like r29 or r30).
+      //
+      // TODO: Currently, jumpr is handling only return of r31. So, the
+      // following logic (specificaly IsCallDependent) is working fine.
+      // We need to enable jumpr for register other than r31 and then,
+      // we need to rework the last part, where it handles indirect call
+      // of that (IsCallDependent) function. Bug 6216 is opened for this.
+      //
+      //unsigned DepReg = 0;
+      //const TargetRegisterClass* RC = NULL;
+      //if(DepType == SDep::Data) {
+        //DepReg = SUJ->Succs[i].getReg();
+        //RC = RegInfo->getMinimalPhysRegClass(DepReg);
+      //}
+
+      // Ignore output dependences due to superregs. We can
+      // write to two different subregisters of R1:0 for instance
+      // in the same cycle
+      //
+
+      //
+      // Let the
+      // If neither I nor J defines DepReg, then this is a
+      // superfluous output dependence. The dependence must be of the
+      // form:
+      //  R0 = ...
+      //  R1 = ...
+      // and there is an output dependence between the two instructions
+      // with
+      // DepReg = D0
+      // We want to ignore these dependences.
+      // Ideally, the dependence constructor should annotate such
+      // dependences. We can then avoid this relatively expensive check.
+      //
+      if(DepType == SDep::Output) {
+        // DepReg is the register that's responsible for the dependence.
+        unsigned DepReg = SUJ->Succs[i].getReg();
+
+        // Check if I and J really defines DepReg.
+        if(I->definesRegister(DepReg) ||
+           J->definesRegister(DepReg)) {
+          //FoundSequentialDependence = true;
+          //break;
+        }
+      }
+
+      else if (SUJ->Succs[i].isBarrier()) {
+        if (isSYNCtrl(I) || isSYNCtrl(J))
+          continue;
+        else {
+          FoundSequentialDependence = true;
+          break;
+        }
+      }
+
+      //
+      // Skip over anti-dependences. Two instructions that are
+      // anti-dependent can share a packet
+      //
+      else if(DepType != SDep::Anti) {
+        FoundSequentialDependence = true;
+        break;
+      }
+    }
+
+    if(FoundSequentialDependence) {
+      Dependence = true;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//===----------------------------------------------------------------------===//
+//                         Public Constructor Functions
+//===----------------------------------------------------------------------===//
+
+FunctionPass *
+llvm::createUCPSPacketizer()
+{
+  return new UCPSPacketizer();
+}

@@ -68,6 +68,7 @@ const char *Triple::getArchTypeName(ArchType Kind) {
   case mspu:        return "mspu";
   case mmpulite:    return "mmpulite";
   case ucpm:        return "ucpm";
+  case ucps:        return "ucps";
 #endif
   }
 
@@ -140,6 +141,7 @@ const char *Triple::getArchTypePrefix(ArchType Kind) {
   case mspu:        return "mspu";
   case mmpulite:    return "mmpulite";
   case ucpm:        return "ucpm";
+  case ucps:        return "ucps";
 #endif
   }
 }
@@ -294,6 +296,7 @@ Triple::ArchType Triple::getArchTypeForLLVMName(StringRef Name) {
     .Case("mspu", mspu)
     .Case("mmpulite", mmpulite)
     .Case("ucpm", ucpm)
+    .Case("ucps", ucps)
 #endif
     .Default(UnknownArch);
 }
@@ -408,6 +411,7 @@ static Triple::ArchType parseArch(StringRef ArchName) {
     .Case("mspu", Triple::mspu)
     .Case("mmpulite", Triple::mmpulite)
     .Case("ucpm", Triple::ucpm)
+    .Case("ucps", Triple::ucps)
 #endif
     .Default(Triple::UnknownArch);
 
@@ -519,6 +523,7 @@ static Triple::SubArchType parseSubArch(StringRef SubArchName) {
       .EndsWith("mspu_v1", Triple::mspu_v1)
       .EndsWith("mmpu_v1", Triple::mmpu_v1)
       .EndsWith("ucpm_v1", Triple::ucpm_v1)
+      .EndsWith("ucps_v1", Triple::ucps_v1)
 #endif
       .Default(Triple::NoSubArch);
 
@@ -635,6 +640,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     return Triple::ELF;
 
@@ -1169,6 +1175,7 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     return 32;
 
@@ -1248,6 +1255,7 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     // Already 32-bit.
     break;
@@ -1287,6 +1295,7 @@ Triple Triple::get64BitArchVariant() const {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     T.setArch(UnknownArch);
     break;
@@ -1366,6 +1375,7 @@ Triple Triple::getBigEndianArchVariant() const {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     T.setArch(UnknownArch);
     break;
@@ -1447,6 +1457,7 @@ Triple Triple::getLittleEndianArchVariant() const {
   case Triple::mspu:
   case Triple::mmpulite:
   case Triple::ucpm:
+  case Triple::ucps:
 #endif
     // Already little endian.
     break;

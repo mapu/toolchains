@@ -845,6 +845,8 @@ StringRef ELFObjectFile<ELFT>::getFileFormatName() const {
       return "ELF32-mmpulite";
     case ELF::EM_UCPM:
       return "ELF32-ucpm";
+    case ELF::EM_UCPS:
+      return "ELF32-ucps";
 #endif
     default:
       return "ELF32-unknown";
