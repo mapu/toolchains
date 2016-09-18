@@ -70,6 +70,13 @@ def UImm17Ptr : Operand<iPTR> {
   let DecoderMethod = "DecodeUImm17";
   let PrintMethod = "printImmExt";
 }
+// dcx
+def UImm12Ptr : Operand<iPTR> {
+  let EncoderMethod = "getUImm12Encoding";
+  //let DecoderMethod = "DecodeUImm12";
+  let PrintMethod = "printImmExt";
+}
+
 // branch target, PC-relative address
 def SImm17Ptr : Operand<iPTR> {
   let EncoderMethod = "getSImm17Encoding";
@@ -2235,6 +2242,12 @@ class SynInst< dag outs, dag ins, string asm, bits<5> opcode,
 	  	: MSPUInstr < 0b0100, outs, ins, asm, pattern > {
   let Inst{27-23} = opcode;
 }
+// dcx
+class dcx_SynInst< dag outs, dag ins, string asm, bits<3> opcode,
+	  		   	list<dag> pattern = [], InstrItinClass itin = NoItinerary> 
+	  	: dcx_MSPUInstr < 0b011, outs, ins, asm, pattern > {
+  let Inst{27-25} = opcode;
+}
 
 /************
 def XYFlag: Operand<i32> {
@@ -2257,28 +2270,35 @@ def CallMFlag : Operand<i32> {
    Tablegen helps us in such way. */
 }
 
-def CallMImm : SynInst< 
+// dcx
+def CallMImm : dcx_SynInst< 
 			 (outs), 
-			 (ins UImm17Ptr:$i, CallMFlag:$f),
-			 "CallM $i$f", 0b00001>
+			 (ins RReg:$rs, UImm12Ptr:$i, CallMFlag:$f),
+			 "$rs=CallM $i$f", 0b000>
 {
-	bits<17> i;
+	
+	bits<5> rs;
+	bits<12> i;
 	bit f;
-	let Inst{22} = 1; // allow imm ext
-	let Inst{21-5} = i;
-	let Inst{0} = f;			 
+	let Inst{23} = 1; // allow imm ext
+	let Inst{22} = f; 
+	let Inst{16-5} = i;
+	let Inst{4-0} = rs;			 
 }
-
-def CallMJReg : SynInst< 
+// dcx
+def CallMJReg : dcx_SynInst< 
 			 (outs), 
-			 (ins PtrReg:$i, CallMFlag:$f),
-			 "CallM $i$f", 0b00001>
+			 (ins  RReg:$rs, PtrReg:$i, CallMFlag:$f),
+			 "$rs=CallM $i$f", 0b000>
 {
+	
+	bits<5> rs;
 	bits<5> i;
 	bit f;
-	let Inst{22} = 0;
+	let Inst{23} = 0;
+	let Inst{22} = f; 
 	let Inst{9-5} = i;
-	let Inst{0} = f;
+	let Inst{4-0} = rs;
 }
 
 /********************** K <-- R *********************/

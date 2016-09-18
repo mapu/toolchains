@@ -27,6 +27,26 @@ class MSPUInstr< bits<4> group, dag outs, dag ins, string asm,
 
   let Inst{31-28} = group; // encoding for SEQ, SCU, AGU, ...
 }
+// dcx
+class dcx_MSPUInstr< bits<3> group, dag outs, dag ins, string asm,
+	  			 list<dag> pattern = [] > : Instruction, Sched<[]>
+{
+  // 'field' is a keyword.
+  // Note the value of 'Inst' is specified distributedly.
+  field bits<32> Inst;
+  field bits<32> SoftFail; // mask bits for reserved encoding fields
+
+  // 'let' is used to override an OLD value.
+  let Namespace = "MSPUInst";
+  let OutOperandList = outs;
+  let InOperandList = ins;
+  let AsmString   = asm;
+  let Pattern = pattern;
+  let DecoderNamespace = "MSPUDecode";
+  let Size = 4; // this field is critical for disassembly
+
+  let Inst{31-29} = group; // encoding for SEQ, SCU, AGU, ...
+}
 
 /* instruction template for Seq instruction definition. See ISA manual 6.2.3 */
 class SeqInstr< dag outs, dag ins, string asm, bits<6> opcode,

@@ -32,7 +32,9 @@ namespace llvm {
 
 			// CallM specific fixup.
 			fixup_MSPU_17,
-
+			// dcx
+			fixup_MSPU_12,
+			
 			// imm extension. bit 27-0.
 			fixup_MSPU_28,
 

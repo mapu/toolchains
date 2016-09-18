@@ -1204,12 +1204,13 @@ rshtclause: t LBRACKET IMM5 RBRACKET RSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 // ducx start seq --------------------------------------------------
 seqslot: reinst | lpinst;
 
-reinst: REPEAT ALPHA _flag repeatexp {  OS<<"Position 3\n";Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));};
-repeatexp: immrep{ADDOPERAND(Opc, UCPM::REPEATIMM, @-2.S, @$.E);   OS<<"Position 2\n";}; //-2 flag_
-immrep: IMM5 {imm = OPERAND(Imm, $1, @$.S, @$.E);    OS<<"Position 1\n";};
+reinst: REPEAT ALPHA _flag repeatexp {Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));};
+repeatexp: immrep{ADDOPERAND(Opc, UCPM::REPEATIMM, @-2.S, @$.E);}; //-2 flag_
+immrep: IMM5 {imm = OPERAND(Imm, $1, @$.S, @$.E); };
 
 lpinst: lpexp lpcond;
 lpexp: LOOP label ALPHA{
+  OS<<"Position 3\n";
   ADDOPERAND(Opc, UCPM::LPTO, @$.S, @$.E);
   if(expr) Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
   else ADDOPERAND(Imm, $2, @2.S, @2.E);
@@ -1219,6 +1220,7 @@ lpcond: _flag kiflag flag_{
   ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 }
 | _flag kiflag SUB IMM5 flag_{
+ OS<<"Position 2\n";
   ADDOPERAND(Imm, $2, @2.S, @2.E);
   ADDOPERAND(Imm, $4, @4.S, @4.E);
 };
@@ -1311,4 +1313,4 @@ storeflag :    H {flags.set(HF);}      |
                L {flags.set(LF);}      ;
                
 kiflag: KI;
-label: EXPR{$$=0;expr=$1;} | IMM5 {$$=$1;expr=0;};
+label: EXPR{$$=0;expr=$1;  OS<<"Position 1\n";} | IMM5 {$$=$1;expr=0;};

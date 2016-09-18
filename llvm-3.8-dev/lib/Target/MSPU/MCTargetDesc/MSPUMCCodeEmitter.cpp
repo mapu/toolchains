@@ -515,6 +515,32 @@ public:
     return val / MMPUEncodingBytes;
   }
 
+  // dcx
+    unsigned getUImm12Encoding(const MCInst &MI,
+                             unsigned OpNo,
+                             SmallVectorImpl<MCFixup> &Fixups,
+                             const MCSubtargetInfo &STI) const {
+    const MCOperand &MO = MI.getOperand(OpNo);
+    int64_t val;
+
+    if (MO.isImm()) val = MO.getImm();
+    else if (MO.isExpr()) {
+      const MCExpr *Expr = MO.getExpr();
+      if (Expr->getKind() != MCExpr::Constant) {
+        Fixups.push_back(
+          MCFixup::create(LineOffset, Expr, MCFixupKind(MSPU::fixup_MSPU_12)));
+        return 0;
+      }
+      const MCConstantExpr *constExpr = static_cast<const MCConstantExpr *>(MO
+        .getExpr());
+      val = constExpr->getValue();
+    } else
+    llvm_unreachable("getUImm12Encoding expects only expression or immediate");
+
+    return val / MMPUEncodingBytes;
+  }
+  
+  
   unsigned getSImm17Encoding(const MCInst &MI,
                              unsigned OpNo,
                              SmallVectorImpl<MCFixup> &Fixups,

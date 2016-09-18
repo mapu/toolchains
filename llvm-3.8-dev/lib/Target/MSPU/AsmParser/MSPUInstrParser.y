@@ -2,6 +2,7 @@
 #include "llvm/MC/MCParser/MCParsedAsmOperand.h"
 #include "llvm/ADT/SmallVector.h"
 using namespace llvm;
+llvm::raw_ostream &OS = errs();
 %}
 
 /* %verbose */
@@ -103,8 +104,8 @@ NOPInst: _NOP {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::NOP)));
 	};
 
-RReg : _RReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
-JReg : _JReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
+RReg : _RReg      {OS<<"Position 3\n"; $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
+JReg : _JReg      {OS<<"Position 4\n"; $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 DReg : _DReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 KReg : _KReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 KMReg : _KMReg    { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
@@ -113,9 +114,9 @@ SHUReg : _SHUReg  { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU:
 TReg : _TReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 MCReg : _MCReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 
-Expr : _Imm   { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
-|      _Symb  { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
-|      _Expr  { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
+Expr : _Imm   { OS<<"Position 5\n"; $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
+|      _Symb  { OS<<"Position 6\n"; $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
+|      _Expr  { OS<<"Position 7\n"; $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 
 FPImm: _FPImm { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 
@@ -565,16 +566,16 @@ SeqInst: _Jump Expr {
 /************************* Syn Instructions ***************************/
 
 CallMFlags :  { $$ = 0; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(0))); }
-| _B 				  { $$ = 1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1))); }
+| _B 				  {OS<<"Position 2\n"; $$ = 1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1))); }
 
 KMFlags :   {$$ = (1<<0)     ; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1<<0))); }
 | _H 				{$$ = (1<<1); InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm(1<<1))); }
 
-SynInst: _CallM JReg CallMFlags {
+SynInst: RReg '=' _CallM JReg CallMFlags {OS<<"Position 1\n";
 	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::CallMJReg)));
 	}
 
-| _CallM Expr CallMFlags {
+| RReg '='_CallM Expr CallMFlags {
 	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::CallMImm)));
 	}
 
