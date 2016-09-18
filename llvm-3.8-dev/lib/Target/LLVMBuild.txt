@@ -39,6 +39,7 @@ subdirectories =
  MSPU
  MMPULite
  UCPM
+ UCPS
 ; ARCH_MAPU
 
 ; This is a special group whose required libraries are extended (by llvm-build)

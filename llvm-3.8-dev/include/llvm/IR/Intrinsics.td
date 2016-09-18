@@ -688,4 +688,5 @@ include "llvm/IR/IntrinsicsSystemZ.td"
 include "llvm/IR/IntrinsicsWebAssembly.td"
 // ARCH_MAPU MaPU intrinsics
 include "llvm/IR/IntrinsicsMSPU.td"
+include "llvm/IR/IntrinsicsUCPS.td"
 // ARCH_MAPU MaPU intrinsics end
