@@ -25,8 +25,10 @@
 #include "llvm/ADT/APFloat.h"
 #include "UCPMInsnLine.h"
 #include "../MCTargetDesc/UCPMMCTargetDesc.h"
+#include "../AsmParser/UCPMAsmParser.h"
 
 using namespace llvm;
+
 
 STATISTIC(MCNumEmitted, "Number of MC instructions emitted");
 STATISTIC(MCLineNumEmitted, "Number of MC instruction lines emitted");
@@ -108,9 +110,20 @@ public:
                             SmallVectorImpl<MCFixup> &Fixups,
                             const MCSubtargetInfo &STI) const;
   
+
   void encodeInstruction(const MCInst &MI, raw_ostream &OS,
                          SmallVectorImpl<MCFixup> &Fixups,
                          const MCSubtargetInfo &STI) const override {
+	std::bitset<NUMSLOTS> SlotFlag;
+	uint64_t SlotCode[NUMSLOTS] = {0};
+	uint64_t test = 0;
+	//NOP for individual slots
+	for(int i = 0; i < NUMSLOTS; i++)
+		SlotCode[i] = getBinaryCodeForInstr(*UCPM::NOPInst[i], Fixups, STI);
+
+	SlotFlag.reset();
+
+
     UCPM::InsnLine line;
     uint64_t code;
     const MCInst *CurInst = &MI;
@@ -120,10 +133,18 @@ public:
       else
         CurInst = CurInst->getOperand(CurInst->getNumOperands()-1).getInst();
       code = getBinaryCodeForInstr(*CurInst, Fixups, STI);
-      line.ConcatCode(code, code >> 44);
+      //NOP
+      if(code == 0)
+        break;
+      SlotFlag[code >> 43] = 1;
+      SlotCode[code >> 43] = code;
+      //line.ConcatCode(code, code >> 44);
       ++MCNumEmitted;
     } while (CurInst->getNumOperands() &&
              CurInst->getOperand(CurInst->getNumOperands()-1).isInst());
+
+    for(int i = 0; i < NUMSLOTS; i++)
+      line.ConcatCode(SlotCode[i], i);
     ++MCLineNumEmitted;
     line.EmitCode(OS);
   }

@@ -36,9 +36,16 @@
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Twine.h"
 
+//NUMSLOTS is the same as UCPMInsnLine.h
+#define  NUMSLOTS  17
+
 
 namespace llvm {
 namespace UCPM {
+
+//yangl, for the 17 NOPs
+extern MCInst *NOPInst[NUMSLOTS];
+
 class MCFunction;
 enum AsmOperandKind {
   AsmHMacro, // slot is a special kind of helper register class

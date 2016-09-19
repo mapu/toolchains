@@ -25,6 +25,11 @@ using namespace llvm::UCPM;
 /// UCPMAsmOperand - Instances of this class represent operands of parsed UCPM assembly instructions.
 /// Note: the first operand records instruction opcode, see ARMGenAsmMatcher.inc MatchInstructionImpl().
 
+
+//NUMSLOTS is the same as UCPMInsnLine.h
+#define  NUMSLOTS  17
+
+
 namespace {
 MCAsmLexer *Lexer;
 MCAsmParser *llvmParser;
@@ -35,6 +40,9 @@ SMLoc TokStart;
 
 namespace llvm {
 namespace UCPM {
+
+//yangl
+MCInst *NOPInst[NUMSLOTS];
 
 class HMacroInstantiation {
   MCFunction *Body;
@@ -334,6 +342,29 @@ MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode, OperandVector &Operands,
   std::vector<HMacroInstantiation*>::iterator iter;
   StringRef prefix = StringRef("/");
   StringRef new_prefix;
+
+  //yangl NOP instructions
+  for(int i = 0; i < NUMSLOTS; i++) {
+    NOPInst[i] = new MCInst;
+    NOPInst[i]->addOperand(MCOperand::createInst(new MCInst));
+  }
+  NOPInst[0]->setOpcode(UCPM::MFetchNOP);
+  NOPInst[1]->setOpcode(UCPM::MReg0NOP);
+  NOPInst[2]->setOpcode(UCPM::MReg1NOP);
+  NOPInst[3]->setOpcode(UCPM::MReg2NOP);
+  NOPInst[4]->setOpcode(UCPM::MReg3NOP);
+  NOPInst[5]->setOpcode(UCPM::MReg4NOP);
+  NOPInst[6]->setOpcode(UCPM::MReg5NOP);
+  NOPInst[7]->setOpcode(UCPM::SHU0NOP);
+  NOPInst[8]->setOpcode(UCPM::SHU1NOP);
+  NOPInst[9]->setOpcode(UCPM::SHU2NOP);
+  NOPInst[10]->setOpcode(UCPM::IALUNOP);
+  NOPInst[11]->setOpcode(UCPM::IMACNOP);
+  NOPInst[12]->setOpcode(UCPM::IFALUNOP);
+  NOPInst[13]->setOpcode(UCPM::IFMACNOP);
+  NOPInst[14]->setOpcode(UCPM::BIU0NOP);
+  NOPInst[15]->setOpcode(UCPM::BIU1NOP);
+  NOPInst[16]->setOpcode(UCPM::BIU2NOP);
 
   // Transfer unique_ptr to shared_ptr
   for (unsigned i = 0; i < Operands.size(); i++)
