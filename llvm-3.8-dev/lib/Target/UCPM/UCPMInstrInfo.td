@@ -22,73 +22,105 @@ def NOP : UCPMInst <(ins), (outs), "NOP"> {
   let Inst = 0;
 }
 
-class UCPMRToDest<string header, bits<4> slotid, bits<4> mregid, Operand DestTy>
+class UCPMRToDest<string header, bits<5> slotid, bits<4> mregid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
-  let Inst{47-44} = slotid;
+  let Inst{47-43} = slotid;
   let Inst{14-11} = mregid;
 }
 
 //MR0 read instructions
-def MR0ToDestCom : UCPMRToDest<"R0.", 0b0000, 0b0110, MR0DestT> {
+def MR0ToDestCom : UCPMRToDest<"R0.", 0b00001, 0b0110, MR0DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR0ToDestSI : UCPMRToDest<"R0.", 0b0000, 0b1110, MR0DestT> {
+def MR0ToDestSI : UCPMRToDest<"R0.", 0b00001, 0b1110, MR0DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 //MR1 read instructions
-def MR1ToDestCom : UCPMRToDest<"R1.", 0b0001, 0b0110, MR1DestT> {
+def MR1ToDestCom : UCPMRToDest<"R1.", 0b00010, 0b0110, MR1DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR1ToDestSI : UCPMRToDest<"R1.", 0b0001, 0b1110, MR1DestT> {
+def MR1ToDestSI : UCPMRToDest<"R1.", 0b00010, 0b1110, MR1DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 //MR2 read instructions
-def MR2ToDestCom : UCPMRToDest<"R2.", 0b0010, 0b0110, MR2DestT> {
+def MR2ToDestCom : UCPMRToDest<"R2.", 0b00011, 0b0110, MR2DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR2ToDestSI : UCPMRToDest<"R2.", 0b0010, 0b1110, MR2DestT> {
+def MR2ToDestSI : UCPMRToDest<"R2.", 0b00011, 0b1110, MR2DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 //MR3 read instructions
-def MR3ToDestCom : UCPMRToDest<"R3.", 0b0011, 0b0110, MR3DestT> {
+def MR3ToDestCom : UCPMRToDest<"R3.", 0b00100, 0b0110, MR3DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR3ToDestSI : UCPMRToDest<"R3.", 0b0011, 0b1110, MR3DestT> {
+def MR3ToDestSI : UCPMRToDest<"R3.", 0b00100, 0b1110, MR3DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 //MR4 read instructions
-def MR4ToDestCom : UCPMRToDest<"R4.", 0b0100, 0b0110, MR4DestT> {
+def MR4ToDestCom : UCPMRToDest<"R4.", 0b00101, 0b0110, MR4DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR4ToDestSI : UCPMRToDest<"R4.", 0b0100, 0b1110, MR4DestT> {
+def MR4ToDestSI : UCPMRToDest<"R4.", 0b00101, 0b1110, MR4DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 //MR5 read instructions
-def MR5ToDestCom : UCPMRToDest<"R5.", 0b0101, 0b0110, MR5DestT> {
+def MR5ToDestCom : UCPMRToDest<"R5.", 0b00110, 0b0110, MR5DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
-def MR5ToDestSI : UCPMRToDest<"R5.", 0b0101, 0b1110, MR5DestT> {
+def MR5ToDestSI : UCPMRToDest<"R5.", 0b00110, 0b1110, MR5DestT> {
   let Inst{10-4} = m;
   let Inst{3-0} = d;
 }
 
+// NOP
+def MReg0NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00001;
+  let Inst{14-11} = 0b1001;
+  let Inst{3-0} = 0b1100;
+}
+
+def MReg1NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00010;
+  let Inst{12-11} = 0b10;
+  let Inst{3-0} = 0b1100;
+}
+def MReg2NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00011;
+  let Inst{12-11} = 0b10;
+  let Inst{3-0} = 0b1100;
+}
+def MReg3NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00100;
+  let Inst{12-11} = 0b10;
+  let Inst{3-0} = 0b1100;
+}
+def MReg4NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00101;
+  let Inst{12-11} = 0b10;
+  let Inst{3-0} = 0b1100;
+}
+def MReg5NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00110;
+  let Inst{12-11} = 0b10;
+  let Inst{3-0} = 0b1100;
+}
 
 
 //3 kinds of base class for SHUIndToDest
 //"TB+=" and "TB=+"
-class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<4> slot, Operand DestTy>
+class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5),
                       header, !strconcat("{$tm,$tn} IND $tk",
                                          !if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)")),
@@ -97,7 +129,7 @@ class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<4> slot, Operand D
   bits<2> tn;
   bits<4> tk;
   bits<5> imm5;
-  let Inst{47-44} = slot;
+  let Inst{47-43} = slot;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 0;
@@ -106,58 +138,78 @@ class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<4> slot, Operand D
   let Inst{9-8} = tm;
 }
 //Select Tn
-class UCPSHUIndToDest_FullTn<string header, bits<4> slot, Operand DestTy>
+class UCPSHUIndToDest_FullTn<string header, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TEPort: $tn, TEPort: $tk), header,
                       "{$tm,$tn} IND $tk", DestTy> {
   bits<2> tm;
   bits<4> tn;
   bits<4> tk;
-  let Inst{47-44} = slot;
+  let Inst{47-43} = slot;
   let Inst{22-19} = tk;
   let Inst{9-8} = tm;
 }
 //No set TB, Tn: T0-T3
-class UCPSHUIndToDest<string header, bits<4> slot, Operand DestTy>
+class UCPSHUIndToDest<string header, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk), header,
                       "{$tm,$tn} IND $tk", DestTy> {
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
-  let Inst{47-44} = slot;
+  let Inst{47-43} = slot;
   let Inst{22-19} = tk;
   let Inst{9-8} = tm;
 }
 //final shu0 test instruction, for case: "+="
-def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b0110, MACCTI> {
+def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b00111, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
 //final shu0 test instruction, for case: "=+"
-def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b0110, MACCTI> {
+def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b00111, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b0111, MACCTI> {
+def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b01000, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b0111, MACCTI> {
+def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b01000, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b1000, MACCTI> {
+def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b01001, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b1000, MACCTI> {
+def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, MACCTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
+}
+
+// NOP
+def SHU0NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00111;
+  let Inst{22-19} = 0b1111;
+  let Inst{18-16} = 0b110;
+  let Inst{14-12} = 0b000;
+}
+def SHU1NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b01000;
+  let Inst{22-19} = 0b1111;
+  let Inst{18-16} = 0b110;
+  let Inst{14-12} = 0b000;
+}
+def SHU2NOP :  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b01001;
+  let Inst{22-19} = 0b1111;
+  let Inst{18-16} = 0b110;
+  let Inst{14-12} = 0b000;
 }
 
 // ducx start IALU Instruction --------------------------------------------------------------------
 class IALUBaseCode {
   field bits<48> Inst;
-  let Inst{47-44} = 0b0110;//?
+  let Inst{47-43} = 0b01010;//?
 }
 
 class IALUCode<bits<2> dest> : IALUBaseCode {
@@ -479,7 +531,7 @@ defm IALUSendFlag: IALUSendFlagToDest;
 // ducx start IFALU Instruction --------------------------------------------------------------------------
 class IFALUBaseCode {
   field bits<48> Inst;
-  let Inst{47-44} = 0b0111;//?
+  let Inst{47-43} = 0b01100;//?
 }
 
 class IFALUCode<bits<2> dest> : IFALUBaseCode {
@@ -535,6 +587,13 @@ multiclass IFALUUryTranToDest {
   }
 }
 
+// NOP
+def IFALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFALUBaseCode {
+  let Inst{21-18} = 0b1111;
+  let Inst{17} = 0;
+  let Inst{14-13} = 0b11;
+}
+
 defm IFALU : IFALUComToDest;
 defm IFALUUryTran : IFALUUryTranToDest;
 
@@ -544,7 +603,7 @@ defm IFALUUryTran : IFALUUryTranToDest;
 // ducx start IMAC Instruction --------------------------------------------------------------------------
 class IMACBaseCode {
   field bits<48> Inst;
-  let Inst{47-44} = 0b1000;//?
+  let Inst{47-43} = 0b01011;//?
 }
 
 class IMACCode<bits<2> dest> : IMACBaseCode {
@@ -952,7 +1011,7 @@ def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs),
                  IMACBaseCode {
   bits<7>  imm7;
   
-  let Inst{26-25} = 0b10;
+  let Inst{26-23} = 0b1011;
   let Inst{21-15} = imm7;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
@@ -1011,7 +1070,7 @@ defm IMACSendFlag: IMACSendFlagToDest;
 // ducx start IFMAC Instruction --------------------------------------------------------------------------
 class IFMACBaseCode {
   field bits<48> Inst;
-  let Inst{47-44} = 0b1001;//?
+  let Inst{47-43} = 0b01101;//?
 }
 
 class IFMACCode<bits<2> dest> : IFMACBaseCode {
@@ -1039,6 +1098,14 @@ multiclass IFMACToDest{
     def ToMACC : BinaryInstr<"", 1, IFMACMulOprtor, MACCT>, IFMACCode<0b01>;
 }
 
+// NOP
+def IFMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFMACBaseCode {
+  let Inst{26-25} = 0b10;
+  let Inst{23} = 0;
+  let Inst{14-13} = 0b11;
+  let Inst{12-11} = 0b00;
+}
+
 defm IFMAC : IFMACToDest;
 // ducx end IFMAC Instruction --------------------------------------------------------------------------
 
@@ -1047,7 +1114,7 @@ defm IFMAC : IFMACToDest;
 // ducx start BIU Instruction --------------------------------------------------------------------------
 
 // load: discrete data
-class BIULdToDest_dis<string header, bits<4> slot, bits<2> dest, Operand DestTy>
+class BIULdToDest_dis<string header, bits<5> slot, bits<2> dest, Operand DestTy>
         : BIUAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH), header, "$tm($ts)$f", DestTy>{
 
     bits<32> f;
@@ -1055,7 +1122,7 @@ class BIULdToDest_dis<string header, bits<4> slot, bits<2> dest, Operand DestTy>
     bits<2> ts;
     bits<2> QLH;
     
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = QLH;
@@ -1068,31 +1135,31 @@ class BIULdToDest_dis<string header, bits<4> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
-multiclass BIULdInstr_dis<string header, bits<4> slot>{
+multiclass BIULdInstr_dis<string header, bits<5> slot>{
     def ToSHU  : BIULdToDest_dis<header, slot ,0b00, SHUT >;
     def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
 }
 
 // ducx 20160822: biu0 test
-def BIU0disLdToSHU_test : BIULdToDest_dis<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
-def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
+def BIU0disLdToSHU_test : BIULdToDest_dis<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
+def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
-def BIU1disLdToSHU_test : BIULdToDest_dis<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
-def BIU1disLdToMACC_test: BIULdToDest_dis<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+def BIU1disLdToSHU_test : BIULdToDest_dis<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
+def BIU1disLdToMACC_test: BIULdToDest_dis<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
 // ducx 20160830: biu2 test
-def BIU2disLdToSHU_test : BIULdToDest_dis<"BIU2.", 0b1100, 0b00, BIU2DestTE >;
-def BIU2disLdToMACC_test: BIULdToDest_dis<"BIU2.", 0b1100 ,0b01, BIU2DestTE >;
+def BIU2disLdToSHU_test : BIULdToDest_dis<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
+def BIU2disLdToMACC_test: BIULdToDest_dis<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
 
 
 
 // load: common/step
-class BIULdToDest_com<string header, bits<4> slot, bits<2> dest, Operand DestTy>
+class BIULdToDest_com<string header, bits<5> slot, bits<2> dest, Operand DestTy>
         : BIUAssignInstr<(ins TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
 
     bits<32> f;
     bits<2> tm;
   
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = 0b11;
@@ -1105,25 +1172,25 @@ class BIULdToDest_com<string header, bits<4> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
-multiclass BIULdInstr_com<string header, bits<4> slot>{
+multiclass BIULdInstr_com<string header, bits<5> slot>{
     def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
     def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
 }
 
 // ducx 20160822: biu0 test
-def BIU0ComLdToSHU_test : BIULdToDest_com<"BIU0.", 0b1010, 0b00, BIU0DestTE >;
-def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b1010 ,0b01, BIU0DestTE >;
+def BIU0ComLdToSHU_test : BIULdToDest_com<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
+def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
-def BIU1ComLdToSHU_test : BIULdToDest_com<"BIU1.", 0b1011, 0b00, BIU1DestTE >;
-def BIU1ComLdToMACC_test: BIULdToDest_com<"BIU1.", 0b1011 ,0b01, BIU1DestTE >;
+def BIU1ComLdToSHU_test : BIULdToDest_com<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
+def BIU1ComLdToMACC_test: BIULdToDest_com<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
 // ducx 20160830: biu2 test
-def BIU2ComLdToSHU_test : BIULdToDest_com<"BIU2.", 0b1100, 0b00, BIU2DestTE >;
-def BIU2ComLdToMACC_test: BIULdToDest_com<"BIU2.", 0b1100 ,0b01, BIU2DestTE >;
+def BIU2ComLdToSHU_test : BIULdToDest_com<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
+def BIU2ComLdToMACC_test: BIULdToDest_com<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
 
 
 
 // store
-class BIUStInstr<string header, bits<4> slot>
+class BIUStInstr<string header, bits<5> slot>
         : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $SQLH), (outs), !strconcat(header,"$tm($ts)", "-> DM$f")>{
             
     bits<32> f;
@@ -1131,7 +1198,7 @@ class BIUStInstr<string header, bits<4> slot>
     bits<2> ts;
     bits<2> SQLH;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = SQLH;
@@ -1143,7 +1210,7 @@ class BIUStInstr<string header, bits<4> slot>
 }
  
 // ADD SUB AND OR
-class BIUBinInstr<string header, bits<4> slot>
+class BIUBinInstr<string header, bits<5> slot>
         : UCPMInst<(ins BIUBinOprtor: $op, TPort: $td, TPort: $ts0, TPort: $ts1, imm32i: $d, imm32i: $s0, imm32i: $s1), (outs), !strconcat(header,"$ts0[$s0] $op $ts1[$s1]", "-> $td[d]")>{
             
     bits<2> td;
@@ -1154,7 +1221,7 @@ class BIUBinInstr<string header, bits<4> slot>
     bits<4> s0;
     bits<4> s1;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = op{2-0};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1165,7 +1232,7 @@ class BIUBinInstr<string header, bits<4> slot>
 }
  
 // LSH RSH
-class BIUShiftInstr<string header, bits<4> slot>
+class BIUShiftInstr<string header, bits<5> slot>
         : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $td, TPort: $ts, imm32i: $imm, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op $imm", "-> $td[$d]")>{
             
     bits<2> ts;
@@ -1175,7 +1242,7 @@ class BIUShiftInstr<string header, bits<4> slot>
     bits<4> s;
     bits<4> d;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = op{6-4};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1186,7 +1253,7 @@ class BIUShiftInstr<string header, bits<4> slot>
 }
 
 // ==  !=
-class BIUComInstr<string header, bits<4> slot>
+class BIUComInstr<string header, bits<5> slot>
         : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op 0", "-> $td[$d]")>{
             
     bits<2> td;
@@ -1195,7 +1262,7 @@ class BIUComInstr<string header, bits<4> slot>
     bits<4> d;
     bits<4> s;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = op{6-4};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1205,7 +1272,7 @@ class BIUComInstr<string header, bits<4> slot>
 }
 
 // MaskGen
-class BIUMaskGenInstr<string header, bits<4> slot>
+class BIUMaskGenInstr<string header, bits<5> slot>
         : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs), !strconcat(header,"$ts[$s]$f", "-> $td.Mask")>{
             
     bits<2> td;
@@ -1215,7 +1282,7 @@ class BIUMaskGenInstr<string header, bits<4> slot>
     bits<4> s;
     bits<2> f;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1226,7 +1293,7 @@ class BIUMaskGenInstr<string header, bits<4> slot>
 }
 
 // NOT
-class BIUNOTInstr<string header, bits<4> slot>
+class BIUNOTInstr<string header, bits<5> slot>
         : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d), (outs), !strconcat(header,"~$ts[$s]", "-> $td[$d]")>{
   
     bits<2> ts;
@@ -1234,7 +1301,7 @@ class BIUNOTInstr<string header, bits<4> slot>
     bits<4> s;
     bits<4> d;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1244,7 +1311,7 @@ class BIUNOTInstr<string header, bits<4> slot>
 }
 
 // Imm
-class BIUImmInstr<string header, bits<4> slot>
+class BIUImmInstr<string header, bits<5> slot>
         : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f), (outs), !strconcat("$imm8 -> ", header,"$td[$d]$f")>{
   
     bits<8> imm8;
@@ -1252,7 +1319,7 @@ class BIUImmInstr<string header, bits<4> slot>
     bits<4> d;
     bits<4> f;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b110;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1263,7 +1330,7 @@ class BIUImmInstr<string header, bits<4> slot>
 }
 
 // Mov
-class BIUMovInstr<string header, bits<4> slot>
+class BIUMovInstr<string header, bits<5> slot>
         : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd), (outs), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd")>{
   
     bits<2> ts;
@@ -1273,7 +1340,7 @@ class BIUMovInstr<string header, bits<4> slot>
     bits<2> fs;
     bits<4> fd;
 
-    let Inst{47-44} = slot;
+    let Inst{47-43} = slot;
     let Inst{20-18} = 0b101;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -1285,33 +1352,48 @@ class BIUMovInstr<string header, bits<4> slot>
 }
 
 // WAIT  ??? can not confirm which biu
-class BIUWait<string header, bits<4> slot>
+class BIUWait<string header, bits<5> slot>
         : CommonAssignInstr<(ins imm32i: $imm7),(outs),
                                    "", "", "", "Wait $imm7">{
   bits<7>  imm7;
   
-  let Inst{47-44} = slot;
+  let Inst{47-43} = slot;
   let Inst{20-17} = 0b1000;
   let Inst{16-10} = imm7;
   let Inst{9-6} = 0b1000;
 }
 
 // NOP   ??? can not confirm which biu
-class BIUNOP<string header, bits<4> slot>
-        : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">{
-  let Inst{47-44} = slot;
+// class BIUNOP<string header, bits<5> slot>
+//         : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">{
+//   let Inst{47-43} = slot;
+//   let Inst{20-16} = 0b10011;
+//   let Inst{9-6} = 0b1000;
+// }
+def BIU0NOP: UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b01110;
+  let Inst{20-16} = 0b10011;
+  let Inst{9-6} = 0b1000;
+}
+def BIU1NOP: UCPMInst <(ins), (outs), "NOP">{
+  let Inst{47-43} = 0b01111;
+  let Inst{20-16} = 0b10011;
+  let Inst{9-6} = 0b1000;
+}
+def BIU2NOP: UCPMInst <(ins), (outs), "NOP">{
+  let Inst{47-43} = 0b10000;
   let Inst{20-16} = 0b10011;
   let Inst{9-6} = 0b1000;
 }
 
 // SetCond  ??? can not confirm which biu
-class BIUSetCond<string header, bits<4> slot>
+class BIUSetCond<string header, bits<5> slot>
         : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
                                    "", "BIU.SetCond[$m]", "->", "$imm8">{
   bits<8>  imm8;
   bit m;
   
-  let Inst{47-44} = slot;
+  let Inst{47-43} = slot;
   let Inst{20-16} = 0b10010;
   let Inst{12} = m;
   let Inst{11-10} = imm8{7-6};
@@ -1320,38 +1402,38 @@ class BIUSetCond<string header, bits<4> slot>
 }
 
 
-defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b1010>;
-defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b1010>;
-def BIU0St : BIUStInstr<"BIU0.", 0b1010>;
-def BIU0Bin : BIUBinInstr<"BIU0.", 0b1010>;
-def BIU0Shift : BIUShiftInstr<"BIU0.", 0b1010>;
-def BIU0Com : BIUComInstr<"BIU0.", 0b1010>;
-def BIU0NOT : BIUNOTInstr<"BIU0.", 0b1010>;
-def BIU0Imm : BIUImmInstr<"BIU0.", 0b1010>;
-def BIU0Mov : BIUMovInstr<"BIU0.", 0b1010>;
-def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b1010>;
+defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b01110>;
+defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b01110>;
+def BIU0St : BIUStInstr<"BIU0.", 0b01110>;
+def BIU0Bin : BIUBinInstr<"BIU0.", 0b01110>;
+def BIU0Shift : BIUShiftInstr<"BIU0.", 0b01110>;
+def BIU0Com : BIUComInstr<"BIU0.", 0b01110>;
+def BIU0NOT : BIUNOTInstr<"BIU0.", 0b01110>;
+def BIU0Imm : BIUImmInstr<"BIU0.", 0b01110>;
+def BIU0Mov : BIUMovInstr<"BIU0.", 0b01110>;
+def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b01110>;
 
-defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b1011>;
-defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b1011>;
-def BIU1St : BIUStInstr<"BIU1.", 0b1011>;
-def BIU1Bin : BIUBinInstr<"BIU1.", 0b1011>;
-def BIU1Shift : BIUShiftInstr<"BIU1.", 0b1011>;
-def BIU1Com : BIUComInstr<"BIU1.", 0b1011>;
-def BIU1NOT : BIUNOTInstr<"BIU1.", 0b1011>;
-def BIU1Imm : BIUImmInstr<"BIU1.", 0b1011>;
-def BIU1Mov : BIUMovInstr<"BIU1.", 0b1011>;
-def BIU1MaskGen : BIUMaskGenInstr<"BIU1.", 0b1011>;
+defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b01111>;
+defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b01111>;
+def BIU1St : BIUStInstr<"BIU1.", 0b01111>;
+def BIU1Bin : BIUBinInstr<"BIU1.", 0b01111>;
+def BIU1Shift : BIUShiftInstr<"BIU1.", 0b01111>;
+def BIU1Com : BIUComInstr<"BIU1.", 0b01111>;
+def BIU1NOT : BIUNOTInstr<"BIU1.", 0b01111>;
+def BIU1Imm : BIUImmInstr<"BIU1.", 0b01111>;
+def BIU1Mov : BIUMovInstr<"BIU1.", 0b01111>;
+def BIU1MaskGen : BIUMaskGenInstr<"BIU1.", 0b01111>;
 
-defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b1100>;
-defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b1100>;
-def BIU2St : BIUStInstr<"BIU2.", 0b1100>;
-def BIU2Bin : BIUBinInstr<"BIU2.", 0b1100>;
-def BIU2Shift : BIUShiftInstr<"BIU2.", 0b1100>;
-def BIU2Com : BIUComInstr<"BIU2.", 0b1100>;
-def BIU2NOT : BIUNOTInstr<"BIU2.", 0b1100>;
-def BIU2Imm : BIUImmInstr<"BIU2.", 0b1100>;
-def BIU2Mov : BIUMovInstr<"BIU2.", 0b1100>;
-def BIU2MaskGen : BIUMaskGenInstr<"BIU2.", 0b1100>;
+defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b10000>;
+defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b10000>;
+def BIU2St : BIUStInstr<"BIU2.", 0b10000>;
+def BIU2Bin : BIUBinInstr<"BIU2.", 0b10000>;
+def BIU2Shift : BIUShiftInstr<"BIU2.", 0b10000>;
+def BIU2Com : BIUComInstr<"BIU2.", 0b10000>;
+def BIU2NOT : BIUNOTInstr<"BIU2.", 0b10000>;
+def BIU2Imm : BIUImmInstr<"BIU2.", 0b10000>;
+def BIU2Mov : BIUMovInstr<"BIU2.", 0b10000>;
+def BIU2MaskGen : BIUMaskGenInstr<"BIU2.", 0b10000>;
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
 
@@ -1396,7 +1478,7 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
 //   bits<12> l;
 //   bit s;
 //   bits<8> cond;
-//   let Inst{47-44} = 0b1101;
+//   let Inst{47-43} = 0b00000;
 //   let Inst{22-21} = 0b10;
 //   let Inst{20} = s;
 //   let Inst{19-8} = l;
@@ -1408,7 +1490,7 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
 //   bits<8> ki;
 //   bit s;
 //   bits<8> cond;
-//   let Inst{47-44} = 0b1101;
+//   let Inst{47-43} = 0b00000;
 //   let Inst{22-21} = 0b11;
 //   let Inst{20} = s;
 //   let Inst{15-8} = ki;
@@ -1417,7 +1499,7 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
 
 // STOP
 def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
-  let Inst{47-44} = 0b1101;
+  let Inst{47-43} = 0b00000;
   let Inst{22-20} = 0b010;
   let Inst{19-16} = 0b1110;
   let Inst{15-0}  = 0;
@@ -1431,7 +1513,7 @@ def MFetchBinInstr : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, K
     bits<4> kis0;
     bits<4> kis1;
     
-    let Inst{47-44} = 0b1101;
+    let Inst{47-43} = 0b00000;
     let Inst{22-21} = 0b01;
     let Inst{19-16} = op{3-0};
     let Inst{15-8} = kid;
@@ -1446,7 +1528,7 @@ def MFetchShiftInstr : CommonAssignInstr<(ins MFetchShiftOprtor: $op, KIReg: $ki
     bits<4> kis1;
     bits<4> kis0;
     
-    let Inst{47-44} = 0b1101;
+    let Inst{47-43} = 0b00000;
     let Inst{22-21} = 0b01;
     let Inst{19-16} = op{3-0};
     let Inst{15-8} = kid;
@@ -1461,7 +1543,7 @@ def MFetchNOTInstr
     bits<8> kid;
     bits<4> kis;
 
-    let Inst{47-44} = 0b1101;
+    let Inst{47-43} = 0b00000;
     let Inst{22-21} = 0b01;
     let Inst{19-16} = 0b1010;
     let Inst{15-8} = kid;
@@ -1477,12 +1559,20 @@ def MFetchMOVInstr
     bits<4> kis;
     bit CR;
     
-    let Inst{47-44} = 0b1101;
+    let Inst{47-43} = 0b00000;
     let Inst{22-21} = 0b01;
     let Inst{19-16} = 0b1011;
     let Inst{15-8} = kid;
     let Inst{7} = CR;
     let Inst{3-0} = kis;
+}
+
+// NOP
+def MFetchNOP:  UCPMInst <(ins), (outs), "NOP"> {
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b10;
+  let Inst{7-4} = 0b1101;
+  let Inst{3-0} = 0b1011;
 }
 
 // ReadRegi
@@ -1493,7 +1583,7 @@ def MFetchMOVInstr
 //     bit B;
 //     bits<2> ;
 //     
-//     let Inst{47-44} = 0b1101;
+//     let Inst{47-43} = 0b00000;
 //     let Inst{22-21} = 0b01;
 //     let Inst{19-16} = 0b1111;
 //     let Inst{15} = B;
@@ -1509,7 +1599,7 @@ def MFetchMOVInstr
 //     bits<4> kis;
 //     bit B;
 //     
-//     let Inst{47-44} = 0b1101;
+//     let Inst{47-43} = 0b00000;
 //     let Inst{22-21} = 0b01;
 //     let Inst{19-16} = 0b1111;
 //     let Inst{15} = B;

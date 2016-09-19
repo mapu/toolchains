@@ -235,5 +235,5 @@ class SEQInst<dag ins,
           string rclause>
 	: UCPMInst <ins, (outs),
                     !strconcat(opstr, label, " @(", rclause, ")")> {
-  let Inst{47-44} = 13;
+  let Inst{47-43} = 0;
 }
