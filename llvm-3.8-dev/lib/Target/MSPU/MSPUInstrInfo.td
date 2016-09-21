@@ -2071,6 +2071,65 @@ class SCUInst< dag outs, dag ins, string asm, bits<5> opcode >
 {
   let Inst{27-23} = opcode;
 }
+// dcx SCU start
+class dcx_SCUInst< dag outs, dag ins, string asm, bits<3> opcode >
+	  	: dcx_MSPUInstr <0b010, outs, ins, asm>
+{
+  let Inst{28-26} = opcode;
+}
+
+class dcx_BinaInst< dag outs, dag ins, string asm, bits<3> opcode >
+	  	: dcx_SCUInst <outs, ins, asm, opcode>
+{
+  bits<4> f;
+  bits<5> s1;
+  bits<5> s0;
+  bits<5> d;
+
+  let Inst{28-26} = opcode;
+  let Inst{14-10} = s1;
+  let Inst{9-5} = s0;
+  let Inst{4-0} = d;
+}
+class dcx_RInst< string opc, bits<3> opcode>
+	  	: dcx_BinaInst < (outs RReg:$d), 
+		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>{					   
+  let Inst{25} = 1;
+  let Inst{24-21} = f{3-0};
+}
+
+class dcx_SInst< string opc, bits<3> opcode >
+	  	: dcx_BinaInst < (outs RReg:$d), 
+		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1 (S)$f"), opcode >{
+  let Inst{25} = 0;
+  let Inst{24-21} = f{3-0};
+}
+
+
+def AddR : dcx_RInst<"+", 0b000>;
+def SubR : dcx_RInst<"-", 0b001>;
+def MulR : dcx_RInst<"*", 0b010>;
+
+def AddS : dcx_SInst<"+", 0b000>;
+def SubS : dcx_SInst<"-", 0b001>;
+def MulS : dcx_SInst<"*", 0b010>;
+
+class LogicInst< string opc, bits<3> opcode , bits<2> x>
+	  	: dcx_BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1"), opcode>
+{
+  let Inst{25-24} = x;
+  let Inst{23} = 1;
+}
+
+def And : LogicInst<"&", 0b101, 0b00>;
+def Or  : LogicInst<"|", 0b101, 0b01>;
+def XOr : LogicInst<"^", 0b101, 0b10>;
+
+// dcx SCU end
+
 
 class BinaInst< dag outs, dag ins, string asm, bits<5> opcode, bit D >
 	  	: SCUInst <outs, ins, asm, opcode>
@@ -2094,6 +2153,8 @@ class RInst< string opc, bits<5> opcode, bit D >
 		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode, D >;
 
+
+					 
 class DInst< string opc, bits<5> opcode, bit D >
 	  	: BinaInst < (outs DReg:$d), 
 		  		  	 (ins DReg:$s0, DReg:$s1, SCUFlag:$f), 
@@ -2104,26 +2165,23 @@ class RDDInst< string opc, bits<5> opcode, bit D >
 		  		  	 (ins DReg:$s0, DReg:$s1, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1 (D)$f"), opcode, D >;
 
-def AddR : RInst<"+", 0b00001, 0>;
-def SubR : RInst<"-", 0b00010, 0>;
 
-def AddcR : BinaInst < (outs RReg:$d), 
+
+//def MulR : RInst<"*", 0b00011,0>;
+def AddD : DInst<"+", 0b00001,1>;
+def SubD : DInst<"-", 0b00010,1>;
+def MulD : DInst<"*", 0b00011,1>;
+
+def AddcR:BinaInst<(outs RReg:$d), 
 		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
 		  		  	 "$d = $s0 + $s1$f (CI)", 0b10010, 0 >;
-
-def SubcR : BinaInst < (outs RReg:$d), 
+def SubcR:BinaInst<(outs RReg:$d), 
 		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
-		  		  	 "$d = $s0 - $s1$f (CI)", 0b10011, 0 >;
+		  		  	 "$d = $s0 - $s1$f (CI)", 0b10011, 0 >;	
+					 
 
-def MulR : RInst<"*", 0b00011, 0>;
 
-def AddD : DInst<"+", 0b00001, 1>;
-def SubD : DInst<"-", 0b00010, 1>;
-def MulD : DInst<"*", 0b00011, 1>;
 
-def And : RInst<"&", 0b10100, 0>;
-def Or  : RInst<"|", 0b10101, 0>;
-def XOr : RInst<"^", 0b10111, 0>;
 
 def EQR : RInst<"==", 0b11000, 0>;
 def NER : RInst<"!=", 0b11001, 0>;
@@ -2242,12 +2300,7 @@ class SynInst< dag outs, dag ins, string asm, bits<5> opcode,
 	  	: MSPUInstr < 0b0100, outs, ins, asm, pattern > {
   let Inst{27-23} = opcode;
 }
-// dcx
-class dcx_SynInst< dag outs, dag ins, string asm, bits<3> opcode,
-	  		   	list<dag> pattern = [], InstrItinClass itin = NoItinerary> 
-	  	: dcx_MSPUInstr < 0b011, outs, ins, asm, pattern > {
-  let Inst{27-25} = opcode;
-}
+
 
 /************
 def XYFlag: Operand<i32> {
@@ -2270,7 +2323,13 @@ def CallMFlag : Operand<i32> {
    Tablegen helps us in such way. */
 }
 
-// dcx
+// dcx SYN start
+class dcx_SynInst< dag outs, dag ins, string asm, bits<3> opcode,
+	  		   	list<dag> pattern = [], InstrItinClass itin = NoItinerary> 
+	  	: dcx_MSPUInstr < 0b011, outs, ins, asm, pattern > {
+  let Inst{27-25} = opcode;
+}
+
 def CallMImm : dcx_SynInst< 
 			 (outs), 
 			 (ins RReg:$rs, UImm12Ptr:$i, CallMFlag:$f),
@@ -2285,7 +2344,7 @@ def CallMImm : dcx_SynInst<
 	let Inst{16-5} = i;
 	let Inst{4-0} = rs;			 
 }
-// dcx
+
 def CallMJReg : dcx_SynInst< 
 			 (outs), 
 			 (ins  RReg:$rs, PtrReg:$i, CallMFlag:$f),
@@ -2300,6 +2359,8 @@ def CallMJReg : dcx_SynInst<
 	let Inst{9-5} = i;
 	let Inst{4-0} = rs;
 }
+// dcx SYN end
+
 
 /********************** K <-- R *********************/
 // GPReg operand is to represent Rx/Jx/DRx registers that are used in ISA for

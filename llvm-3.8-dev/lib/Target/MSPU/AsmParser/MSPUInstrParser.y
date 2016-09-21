@@ -38,7 +38,7 @@ llvm::raw_ostream &OS = errs();
 %token _EQ _NE _GT _GE _LT _LE _PlusE _Recip _RSqRt _If _NOP _SysCall
 %token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop
 
-%token _T _B _H _L _N _AT _L0 _L1
+%token _T _B _H _L _N _AT _L0 _L1 _I _Flag
 %token _U _S _D _X _Y _XY _CI
 %token _SL _SR
 %token _Pl
@@ -46,8 +46,8 @@ llvm::raw_ostream &OS = errs();
 %type <opc>  LdStOpc
 %type <op>   LdStReg ChReg
 
-%type <flags>  CallMFlags KMFlags XferFlags SCUFlags
-%type <flags>  XferFlags_  SCUFlags_
+%type <flags>  CallMFlags KMFlags XferFlags SCUFlags dcx_SCUFlags Sflag
+%type <flags>  XferFlags_  SCUFlags_ dcx_SCUFlags_
 
 %type <line>  InstLine
 
@@ -146,48 +146,64 @@ SCUFlags_ :   {$$ = 0;}
 		assert(($1 & (1<<4))==0 && "duplicate flag (CI) for SCU");
 		$$ = $1 | (1<<4);
 	}
-
 SCUFlags : SCUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm($1))); }
 
-SCUInst : RReg '=' RReg '+' RReg SCUFlags {
-		if($6 & (1<<4))
-			InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AddcR)));
-		else
-			InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AddR)));
+	
+// dcx 
+dcx_SCUFlags_ :   {$$ = 0;}
+| dcx_SCUFlags_  _CI {
+		$$ = $1 | (1<<0);
+	}
+| dcx_SCUFlags_  _Flag {
+		$$ = $1 | (1<<1);		
+	}
+| dcx_SCUFlags_  _U {
+		$$ = $1 | (1<<2);
+	}
+| dcx_SCUFlags_  _T {
+		$$ = $1 | (1<<3);
+	}
+| dcx_SCUFlags_  _I {
+		$$ = $1 | (1<<0);
+	}
+	
+dcx_SCUFlags : dcx_SCUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm($1))); }
+	
+Sflag: _S 
+
+SCUInst : RReg '=' RReg '+' RReg dcx_SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AddR)));
 	}
 
-| RReg '=' RReg '-' RReg SCUFlags {
-		if($6 & (1<<4))
-			InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::SubcR)));
-		else
-			InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::SubR)));
+| RReg '=' RReg '-' RReg dcx_SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::SubR)));
 	}
 
-| RReg '=' RReg '*' RReg SCUFlags {
+| RReg '=' RReg '*' RReg dcx_SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::MulR)));
 	}
 
-| DReg '=' DReg '+' DReg SCUFlags {
-		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AddD)));
+| RReg '=' RReg '+' RReg Sflag dcx_SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AddS)));
 	}
 
-| DReg '=' DReg '-' DReg SCUFlags {
-		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::SubD)));
+| RReg '=' RReg '-' RReg Sflag dcx_SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::SubS)));
 	}
 
-| DReg '=' DReg '*' DReg SCUFlags {
-		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::MulD)));
+| RReg '=' RReg '*' RReg Sflag dcx_SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::MulS)));
 	}
 
-| RReg '=' RReg '&' RReg SCUFlags {
+| RReg '=' RReg '&' RReg  {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::And)));
 	}
 
-| RReg '=' RReg '|' RReg SCUFlags {
+| RReg '=' RReg '|' RReg  {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::Or)));
 	}
 
-| RReg '=' RReg '^' RReg SCUFlags {
+| RReg '=' RReg '^' RReg  {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::XOr)));
 	}
 
