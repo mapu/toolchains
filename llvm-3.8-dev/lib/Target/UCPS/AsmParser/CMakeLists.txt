@@ -6,16 +6,14 @@ set(LLVM_TARGET_PARSER UCPSInstrParser.y)
 bison(LLVM UCPSGenInstrParser.bison)
 add_public_bison_target(UCPSInstrParser)
 
-include(Flex)
-set(LLVM_TARGET_LEXER UCPSInstrFLexer.l)
-flex(LLVM UCPSGenInstrFLexer.flex)
-add_public_flex_target(UCPSInstrFLexer)
+include(Ragel)
+set(LLVM_TARGET_LEXER UCPSInstrRLexer.rl)
+ragel(LLVM UCPSGenInstrRLexer.ragel)
+add_public_ragel_target(UCPSInstrRLexer)
 
 add_llvm_library(LLVMUCPSAsmParser
   UCPSAsmParser.cpp
-  UCPSScheduler.cpp
-  MCFunction.cpp
   )
 
 add_dependencies(LLVMUCPSAsmParser UCPSCommonTableGen UCPSInstrParser 
-UCPSInstrFLexer)
+UCPSInstrRLexer)

@@ -13,7 +13,6 @@
 
 #include "UCPS.h"
 #include "UCPSSubtarget.h"
-#include "AsmParser/UCPSScheduler.h"
 #include "llvm/MC/MCDisassembler/MCDisassembler.h"
 #include "llvm/MC/MCFixedLenDisassembler.h"
 #include "llvm/Support/MemoryObject.h"
@@ -44,14 +43,13 @@ typedef MCDisassembler::DecodeStatus DecodeStatus;
 namespace {
 /// UCPSDisassemblerBase - a disasembler class for UCPS.
 class UCPSDisassembler: public MCDisassembler {
-  UCPSScheduler *Scheduler;
   
 public:
 /// Constructor - Initializes the disassembler.
 ///
   UCPSDisassembler(const MCSubtargetInfo &STI,
                        MCContext &Ctx, bool bigEndian)
-    : MCDisassembler(STI, Ctx), Scheduler(new UCPSScheduler()) {}
+    : MCDisassembler(STI, Ctx) {}
 
   virtual ~UCPSDisassembler() {}
 
