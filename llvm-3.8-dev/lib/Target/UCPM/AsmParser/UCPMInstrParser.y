@@ -66,7 +66,7 @@ typedef struct YYLTYPE {
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr
-%type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label
+%type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label mpustop
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -1202,7 +1202,7 @@ rshtclause: t LBRACKET IMM5 RBRACKET RSHT IMM5 ASSIGNTO t LBRACKET IMM5 RBRACKET
 
 
 // ducx start seq --------------------------------------------------
-seqslot: reinst | lpinst;
+seqslot: reinst | lpinst | mpustop;
 
 reinst: REPEAT ALPHA _flag repeatexp {Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));};
 repeatexp: immrep{ADDOPERAND(Opc, UCPM::REPEATIMM, @-2.S, @$.E);}; //-2 flag_
@@ -1224,6 +1224,9 @@ lpcond: _flag kiflag flag_{
   ADDOPERAND(Imm, $2, @2.S, @2.E);
   ADDOPERAND(Imm, $4, @4.S, @4.E);
 };
+
+mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
+
 // ducx end seq --------------------------------------------------
 
 

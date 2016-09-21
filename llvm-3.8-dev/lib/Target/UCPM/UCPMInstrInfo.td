@@ -87,34 +87,34 @@ def MR5ToDestSI : UCPMRToDest<"R5.", 0b00110, 0b1110, MR5DestT> {
 // NOP
 def MReg0NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00001;
-  let Inst{14-11} = 0b1001;
-  let Inst{3-0} = 0b1100;
+  let Inst{14-11} = 0b1101;
+  let Inst{3-0} = 0;
 }
 
 def MReg1NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00010;
   let Inst{12-11} = 0b10;
-  let Inst{3-0} = 0b1100;
+  let Inst{3-0} = 0b1001;
 }
 def MReg2NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00011;
-  let Inst{12-11} = 0b10;
-  let Inst{3-0} = 0b1100;
+  let Inst{13-11} = 0b010;
+  let Inst{3-0} = 0b1001;
 }
 def MReg3NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00100;
   let Inst{12-11} = 0b10;
-  let Inst{3-0} = 0b1100;
+  let Inst{3-0} = 0b1001;
 }
 def MReg4NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00101;
-  let Inst{12-11} = 0b10;
-  let Inst{3-0} = 0b1100;
+  let Inst{13-11} = 0b010;
+  let Inst{3-0} = 0b1001;
 }
 def MReg5NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00110;
   let Inst{12-11} = 0b10;
-  let Inst{3-0} = 0b1100;
+  let Inst{3-0} = 0b1001;
 }
 
 

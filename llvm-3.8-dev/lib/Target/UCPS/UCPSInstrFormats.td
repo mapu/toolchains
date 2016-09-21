@@ -8,16 +8,24 @@
 //===----------------------------------------------------------------------===//
 
 /* a common instruction template base for UCPS */
-class UCPSInst<dag ins, dag outs,
-                   string asmstr,
-                   list<dag> pattern = []> : Instruction {
-  let Namespace = "UCPS";
+
+// dcx
+class UCPSInstr< bits<3> group, dag outs, dag ins, string asm,
+	  			 list<dag> pattern = [] > : Instruction, Sched<[]>
+{
+  // 'field' is a keyword.
+  // Note the value of 'Inst' is specified distributedly.
+  field bits<32> Inst;
+  field bits<32> SoftFail; // mask bits for reserved encoding fields
+
+  // 'let' is used to override an OLD value.
+  let Namespace = "UCPSInst";
   let OutOperandList = outs;
   let InOperandList = ins;
+  let AsmString   = asm;
   let Pattern = pattern;
-  let AsmString = asmstr;
-  let Size = 6;
   let DecoderNamespace = "UCPSDecode";
-  field bits<48> Inst;
-  field bits<48> SoftFail;
+  let Size = 4; // this field is critical for disassembly
+
+  let Inst{31-29} = group; // encoding for SEQ, SCU, AGU, ...
 }

@@ -19,6 +19,8 @@
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Target/TargetMachine.h"
 
+#define  MSPUEncodingBytes  41
+
 namespace llvm
 {
 	class FunctionPass;
