@@ -2481,6 +2481,85 @@ class AGUInst< dag outs, dag ins, string asm, bits<5> opcode,
   let Inst{27-23} = opcode;
 }
 
+
+// dcx AGU start
+class dcx_AGUInst< dag outs, dag ins, string asm, bits<2> opcode,
+	  		   	list<dag> pattern = [], InstrItinClass itin = NoItinerary> 
+	  	: dcx_MSPUInstr < 0b001, outs, ins, asm, pattern > {
+  let Inst{28-27} = opcode;
+}
+
+def AGUFlag : Operand<i32> {
+  let PrintMethod = "printAGUFlag";
+}
+
+class AGULdSt<dag outs, dag ins, string asm, bits<2> opcode> 
+		    : dcx_AGUInst< outs, ins, asm, opcode>
+{
+	bits<4> f;
+	bits<2> BH;
+	bits<5> s1;
+	bits<5> s0;
+	bits<5> d;	
+	 
+	let Inst{26} = f{3};
+	let Inst{25-24} = BH;
+	let Inst{23} = f{2};
+	let Inst{17-16} = f{1-0};
+	let Inst{15} = 0;
+	let Inst{14-10} = s1;
+	let Inst{9-5} = s0;
+	let Inst{4-0} = d;			 
+}
+def AGULoad  : AGULdSt<(outs RReg:$d), 
+			 (ins RReg:$s0,  RReg:$s1, AGUFlag:$BH, AGUFlag:$f),
+			 "$d = [$s0 + $s1]$BH$f", 0b00>;
+def AGUStore : AGULdSt<(outs), 
+			 (ins RReg:$s0,  RReg:$s1, RReg:$d, AGUFlag:$BH, AGUFlag:$f),
+			 "[$s0 + $s1]= $d$BH$f", 0b01>;
+
+			 
+def AGUSvrLd : dcx_AGUInst< (outs SVRReg:$svr),
+                       (ins RReg:$s0,  RReg:$s1, AGUFlag:$f),
+                              "$svr = [$s0 + $s1]$f", 0b00> {
+	bits<4> f;
+	bits<5> s1;
+	bits<5> s0;
+	bits<5> svr;	
+	 
+	let Inst{26} = f{3};
+	let Inst{25-24} = 0b11;
+	let Inst{23} = f{2};
+	let Inst{17-16} = f{1-0};
+	let Inst{15} = 0;
+	let Inst{14-10} = s1;
+	let Inst{9-5} = s0;
+	let Inst{4-0} = svr;
+}
+
+def AGUSvrSt : dcx_AGUInst< (outs),
+                       (ins RReg:$s0,  RReg:$s1, SVRReg:$svr, AGUFlag:$f),
+                              "[$s0 + $s1] = $svr$f", 0b01> {
+	bits<4> f;
+	bits<5> s1;
+	bits<5> s0;
+	bits<5> svr;	
+	 
+	let Inst{26} = f{3};
+	let Inst{25-24} = 0b11;
+	let Inst{23} = f{2};
+	let Inst{17-16} = f{1-0};
+	let Inst{15} = 0;
+	let Inst{14-10} = s1;
+	let Inst{9-5} = s0;
+	let Inst{4-0} = svr;
+}
+
+def AGUNOP : dcx_AGUInst< (outs), (ins), "NOP", 0b11>;
+
+// dcx AGU end
+
+
 /*********** Channel access***********/
 // JReg or RReg. for each regsiter, 1 extra bit encoding to tell whether it
 // is a JReg or not.

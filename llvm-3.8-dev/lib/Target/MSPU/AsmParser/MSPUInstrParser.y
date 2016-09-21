@@ -38,7 +38,7 @@ llvm::raw_ostream &OS = errs();
 %token _EQ _NE _GT _GE _LT _LE _PlusE _Recip _RSqRt _If _NOP _SysCall
 %token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop
 
-%token _T _B _H _L _N _AT _L0 _L1 _I _Flag
+%token _T _B _H _L _N _AT _L0 _L1 _I _Flag _Column _Step
 %token _U _S _D _X _Y _XY _CI
 %token _SL _SR
 %token _Pl
@@ -46,8 +46,8 @@ llvm::raw_ostream &OS = errs();
 %type <opc>  LdStOpc
 %type <op>   LdStReg ChReg
 
-%type <flags>  CallMFlags KMFlags XferFlags SCUFlags dcx_SCUFlags Sflag
-%type <flags>  XferFlags_  SCUFlags_ dcx_SCUFlags_
+%type <flags>  CallMFlags KMFlags XferFlags SCUFlags dcx_SCUFlags Sflag AGUFlags BHFlags
+%type <flags>  XferFlags_  SCUFlags_ dcx_SCUFlags_ AGUFlags_ BHFlags_
 
 %type <line>  InstLine
 
@@ -352,6 +352,31 @@ XferFlags_ :   {$$ = 0; }
 
 XferFlags : XferFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm($1))); }
 
+
+// dcx 
+AGUFlags_ :   {$$ = 0;}
+| AGUFlags_  _Step {
+		$$ = $1 | (1<<0);
+	}
+| AGUFlags_  _Column {
+		$$ = $1 | (1<<1);		
+	}
+| AGUFlags_  _U {
+		$$ = $1 | (1<<2);
+	}
+| AGUFlags_  _AT {
+		$$ = $1 | (1<<3);
+	}
+
+AGUFlags : AGUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm($1))); }
+	
+BHFlags_: {$$ = 2;}
+| _B {$$ = 0;}
+| _H {$$ = 1;}
+
+BHFlags : BHFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createImm($1))); }
+
+
 LdStReg : _RReg { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 | _JReg         { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 | _DReg         { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
@@ -363,7 +388,24 @@ ChReg : _RReg { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPU
 |       _JReg { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>($1)); }
 
 	///// imm assign
-AGUInst :  RReg '=' RReg {
+AGUInst : RReg '=' '[' RReg '+'   RReg ']' BHFlags AGUFlags{
+	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AGULoad)));
+}
+
+| '[' RReg '+'   RReg ']' '=' RReg BHFlags AGUFlags {
+	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AGUStore)));
+}
+
+| SVRReg '=' '[' RReg '+'   RReg ']' AGUFlags{
+	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AGUSvrLd)));
+}
+
+| '[' RReg '+'   RReg ']' '=' SVRReg AGUFlags{
+	InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::AGUSvrSt)));
+}
+
+
+| RReg '=' RReg {
 		InstLine.Operands->push_back(std::unique_ptr<MSPU::MSPUAsmOperand>(MSPU::MSPUAsmOperand::createOpc(MSPUInst::Xfer)));
 	}
 

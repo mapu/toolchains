@@ -184,19 +184,42 @@ void MSPUInstPrinter::printLdStOpc(const MCInst *MI, unsigned OpNo,
   else O << "+";
 }
 
+// void MSPUInstPrinter::printSCUFlag(const MCInst *MI, unsigned OpNo,
+//                                    raw_ostream &O) const {
+//   const MCOperand &MO = MI->getOperand(OpNo);
+//   unsigned f = MO.getImm();
+// 
+//   assert(((f & (1 << MSPU::SCUFlag::S)) == 0 ||
+//           (f & (1 << MSPU::SCUFlag::D)) == 0)
+//          && "invalid flags for SCU, (S) and (D) coexist");
+// 
+//   if (f & (1 << MSPU::SCUFlag::U)) O << " (U)";
+//   if (f & (1 << MSPU::SCUFlag::S)) O << " (S)";
+//   if (f & (1 << MSPU::SCUFlag::D)) O << " (D)";
+//   if (f & (1 << MSPU::SCUFlag::T)) O << " (T)";
+// }
+
 void MSPUInstPrinter::printSCUFlag(const MCInst *MI, unsigned OpNo,
                                    raw_ostream &O) const {
   const MCOperand &MO = MI->getOperand(OpNo);
   unsigned f = MO.getImm();
 
-  assert(((f & (1 << MSPU::SCUFlag::S)) == 0 ||
-          (f & (1 << MSPU::SCUFlag::D)) == 0)
-         && "invalid flags for SCU, (S) and (D) coexist");
-
   if (f & (1 << MSPU::SCUFlag::U)) O << " (U)";
-  if (f & (1 << MSPU::SCUFlag::S)) O << " (S)";
-  if (f & (1 << MSPU::SCUFlag::D)) O << " (D)";
+  if (f & (1 << MSPU::SCUFlag::Flag)) O << " (Flag)";
+  if (f & (1 << MSPU::SCUFlag::CI)) O << " (CI)";
   if (f & (1 << MSPU::SCUFlag::T)) O << " (T)";
+}
+
+// dcx 
+void MSPUInstPrinter::printAGUFlag(const MCInst *MI, unsigned OpNo,
+                                   raw_ostream &O) const {
+  const MCOperand &MO = MI->getOperand(OpNo);
+  unsigned f = MO.getImm();
+
+  if (f & (1 << MSPU::AGUFlag::U)) O << " (U)";
+  if (f & (1 << MSPU::AGUFlag::AT)) O << " (AT)";
+  if (f & (1 << MSPU::AGUFlag::Column)) O << " (Column)";
+  if (f & (1 << MSPU::AGUFlag::Step)) O << " (Step)";
 }
 
 void MSPUInstPrinter::printKMFlag(const MCInst *MI, unsigned OpNo,

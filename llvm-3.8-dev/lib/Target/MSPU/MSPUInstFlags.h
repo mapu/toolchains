@@ -9,13 +9,24 @@ namespace llvm
 		{
 			enum SCUFlag
 			{
-				T = 0,
-				S = 1,
+				CI = 0,
+				Flag = 1,
 				U = 2, // this order is used for encoding/decoding
-				D = 3
+				T = 3
 			};
 		}
 
+		namespace AGUFlag
+		{
+			enum AGUFlag
+			{
+				Step   = 0,
+				Column = 1,
+				U      = 2, // this order is used for encoding/decoding
+				AT     = 3
+			};
+		}
+		
 		namespace XferFlag
 		{
 			enum XferFlag {

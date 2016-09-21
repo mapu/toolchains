@@ -61,6 +61,9 @@ namespace llvm
 			printSCUFlag(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
 
 			void
+			printAGUFlag(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+			
+			void
 			printSCUExtraUnaReg(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
 
 			void
