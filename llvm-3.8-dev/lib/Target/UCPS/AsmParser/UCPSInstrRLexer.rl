@@ -31,6 +31,15 @@ main := |*
 		CurLoc = SMLoc::getFromPointer(te); return _JReg;
 	};
 	
+      "svr"i('0'|'1') => {
+		yylval->op = UCPS::UCPSAsmOperand::createReg(
+		  (UCPS::UCPSAsmParser::getRegInfo())
+		    ->getRegClass(UCPSReg::SVRRegRegClassID).getRegister(atoi(ts+3)));
+		
+		
+		CurLoc = SMLoc::getFromPointer(te); return _SVRReg;
+	};
+	
   "cctrl"i => { CurLoc = SMLoc::getFromPointer(te); return _CCtrl; };
   "cstat"i => { CurLoc = SMLoc::getFromPointer(te); return _CStat; };
   "stat"i  => { CurLoc = SMLoc::getFromPointer(te); return _Stat; };

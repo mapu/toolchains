@@ -350,10 +350,10 @@ static unsigned getUCPSRegisterEncoding(unsigned RegEnum) {
 //   case UCPSReg::KM2:
 //     return 2;
 // 
-//   case UCPSReg::SVR0:
-//     return 0;
-//   case UCPSReg::SVR1:
-//     return 1;
+  case UCPSReg::SVR0:
+    return 0;
+  case UCPSReg::SVR1:
+    return 1;
 // 
 //   case UCPSReg::SHU0:
 //     return 0;

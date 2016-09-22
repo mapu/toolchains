@@ -98,4 +98,10 @@ def PtrReg : RegisterClass<"UCPSReg", [i32], 32, (sequence "J%u", 0, 31)>;
 def RReg : RegisterClass<"UCPSReg", [i32], 32, (sequence "R%u", 0, 31)>;
 def JReg : RegisterClass<"UCPSReg", [i32], 32, (sequence "J%u", 0, 31)>;
 
+// the SVR register , vector register in 512bit width. 
+// we model it with an 16 x i32 vector. 
+// TODO: Is the DwarfRegNum correct ?
+def SVR0 : UCPSReg<0, "SVR0">, DwarfRegNum<[32]>;
+def SVR1 : UCPSReg<1, "SVR1">, DwarfRegNum<[32]>;
 
+def SVRReg: RegisterClass<"UCPSReg", [v16i32], 512, (sequence "SVR%u", 0, 1)>;
