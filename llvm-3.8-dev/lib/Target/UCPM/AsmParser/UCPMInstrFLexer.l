@@ -203,6 +203,7 @@ A   [a-zA-Z_0-9]
 "&"                    {return TOKEN(AND);}
 "^"                    {return TOKEN(XOR);}
 "not"                  {return TOKEN(NOT);}
+"~"                    {return TOKEN(NOT2);}//dcx
 "!"                    {return TOKEN(NEG);}
 "+-"                   {return TOKEN(ADDSUB);}
 "+="                   {BEGIN EXPRPARSE; return TOKEN(ACC1);}
@@ -277,6 +278,8 @@ A   [a-zA-Z_0-9]
 "ql"                     {return TOKEN(QL);}//dcx
 "qh"                     {return TOKEN(QH);}//dcx
 "q"                      {return TOKEN(Q);}//dcx
+"ml"                     {return TOKEN(ML);}//dcx
+"mh"                     {return TOKEN(MH);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}

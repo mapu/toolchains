@@ -1135,20 +1135,20 @@ class BIULdToDest_dis<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
-multiclass BIULdInstr_dis<string header, bits<5> slot>{
-    def ToSHU  : BIULdToDest_dis<header, slot ,0b00, SHUT >;
-    def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
-}
+// multiclass BIULdInstr_dis<string header, bits<5> slot>{
+//     def ToSHU  : BIULdToDest_dis<header, slot ,0b00, SHUT >;
+//     def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
+// }
 
 // ducx 20160822: biu0 test
-def BIU0disLdToSHU_test : BIULdToDest_dis<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
-def BIU0disLdToMACC_test: BIULdToDest_dis<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
+def BIU0disLdToSHU : BIULdToDest_dis<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
+def BIU0disLdToMACC: BIULdToDest_dis<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
-def BIU1disLdToSHU_test : BIULdToDest_dis<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
-def BIU1disLdToMACC_test: BIULdToDest_dis<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
+def BIU1disLdToSHU : BIULdToDest_dis<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
+def BIU1disLdToMACC: BIULdToDest_dis<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
 // ducx 20160830: biu2 test
-def BIU2disLdToSHU_test : BIULdToDest_dis<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
-def BIU2disLdToMACC_test: BIULdToDest_dis<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
+def BIU2disLdToSHU : BIULdToDest_dis<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
+def BIU2disLdToMACC: BIULdToDest_dis<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
 
 
 
@@ -1172,20 +1172,20 @@ class BIULdToDest_com<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
-multiclass BIULdInstr_com<string header, bits<5> slot>{
-    def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
-    def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
-}
+// multiclass BIULdInstr_com<string header, bits<5> slot>{
+//     def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
+//     def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
+// }
 
 // ducx 20160822: biu0 test
-def BIU0ComLdToSHU_test : BIULdToDest_com<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
-def BIU0ComLdToMACC_test: BIULdToDest_com<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
+def BIU0ComLdToSHU : BIULdToDest_com<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
+def BIU0ComLdToMACC: BIULdToDest_com<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
 // ducx 20160829: biu1 test
-def BIU1ComLdToSHU_test : BIULdToDest_com<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
-def BIU1ComLdToMACC_test: BIULdToDest_com<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
+def BIU1ComLdToSHU : BIULdToDest_com<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
+def BIU1ComLdToMACC: BIULdToDest_com<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
 // ducx 20160830: biu2 test
-def BIU2ComLdToSHU_test : BIULdToDest_com<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
-def BIU2ComLdToMACC_test: BIULdToDest_com<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
+def BIU2ComLdToSHU : BIULdToDest_com<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
+def BIU2ComLdToMACC: BIULdToDest_com<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
 
 
 
@@ -1312,20 +1312,21 @@ class BIUNOTInstr<string header, bits<5> slot>
 
 // Imm
 class BIUImmInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f), (outs), !strconcat("$imm8 -> ", header,"$td[$d]$f")>{
+        : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f, Flags: $ff), (outs), !strconcat("$imm8 -> ", header,"$td[$d]$f")>{
   
     bits<8> imm8;
     bits<2> td;
     bits<4> d;
-    bits<4> f;
+    bits<2> f;
+    bits<2> ff;
 
     let Inst{47-43} = slot;
     let Inst{20-18} = 0b110;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
-    let Inst{11-10} = f{3-2};
+    let Inst{11-10} = f;
     let Inst{9-4} = imm8{7-2};
-    let Inst{3-2} = f{1-0};
+    let Inst{3-2} = ff;
     let Inst{1-0} = imm8{1-0};
 }
 
@@ -1402,8 +1403,8 @@ class BIUSetCond<string header, bits<5> slot>
 }
 
 
-defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b01110>;
-defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b01110>;
+//defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b01110>;
+//defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b01110>;
 def BIU0St : BIUStInstr<"BIU0.", 0b01110>;
 def BIU0Bin : BIUBinInstr<"BIU0.", 0b01110>;
 def BIU0Shift : BIUShiftInstr<"BIU0.", 0b01110>;
@@ -1413,8 +1414,8 @@ def BIU0Imm : BIUImmInstr<"BIU0.", 0b01110>;
 def BIU0Mov : BIUMovInstr<"BIU0.", 0b01110>;
 def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b01110>;
 
-defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b01111>;
-defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b01111>;
+//defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b01111>;
+//defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b01111>;
 def BIU1St : BIUStInstr<"BIU1.", 0b01111>;
 def BIU1Bin : BIUBinInstr<"BIU1.", 0b01111>;
 def BIU1Shift : BIUShiftInstr<"BIU1.", 0b01111>;
@@ -1424,8 +1425,8 @@ def BIU1Imm : BIUImmInstr<"BIU1.", 0b01111>;
 def BIU1Mov : BIUMovInstr<"BIU1.", 0b01111>;
 def BIU1MaskGen : BIUMaskGenInstr<"BIU1.", 0b01111>;
 
-defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b10000>;
-defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b10000>;
+//defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b10000>;
+//defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b10000>;
 def BIU2St : BIUStInstr<"BIU2.", 0b10000>;
 def BIU2Bin : BIUBinInstr<"BIU2.", 0b10000>;
 def BIU2Shift : BIUShiftInstr<"BIU2.", 0b10000>;
