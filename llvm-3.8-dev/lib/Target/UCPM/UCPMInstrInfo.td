@@ -1273,11 +1273,10 @@ class BIUComInstr<string header, bits<5> slot>
 
 // MaskGen
 class BIUMaskGenInstr<string header, bits<5> slot>
-        : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs), !strconcat(header,"$ts[$s]$f", "-> $td.Mask")>{
+        : UCPMInst<(ins TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs), !strconcat(header,"$ts[$s]$f", "-> $td[$d].Mask")>{
             
     bits<2> td;
     bits<2> ts;
-    bits<8> op;
     bits<4> d;
     bits<4> s;
     bits<2> f;
@@ -1332,14 +1331,15 @@ class BIUImmInstr<string header, bits<5> slot>
 
 // Mov
 class BIUMovInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd), (outs), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd")>{
+        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd1, Flags: $fd2), (outs), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd1$fd2")>{
   
     bits<2> ts;
     bits<2> td;
     bits<4> s;
     bits<4> d;
     bits<2> fs;
-    bits<4> fd;
+    bits<2> fd1;
+    bits<2> fd2;
 
     let Inst{47-43} = slot;
     let Inst{20-18} = 0b101;
@@ -1347,15 +1347,15 @@ class BIUMovInstr<string header, bits<5> slot>
     let Inst{15-12} = d;
     let Inst{11-10} = ts;
     let Inst{9-6} = s;
-    let Inst{5-4} = fd{3-2};
-    let Inst{3-2} = fd{1-0};
-    let Inst{1-0} = fs{1-0};
+    let Inst{5-4} = fd1;
+    let Inst{3-2} = fd2;
+    let Inst{1-0} = fs;
 }
 
-// WAIT  ??? can not confirm which biu
-class BIUWait<string header, bits<5> slot>
+// WAIT 
+class BIUWaitInstr<string header, bits<5> slot>
         : CommonAssignInstr<(ins imm32i: $imm7),(outs),
-                                   "", "", "", "Wait $imm7">{
+                                   header, "", "", "Wait $imm7">{
   bits<7>  imm7;
   
   let Inst{47-43} = slot;
@@ -1387,10 +1387,10 @@ def BIU2NOP: UCPMInst <(ins), (outs), "NOP">{
   let Inst{9-6} = 0b1000;
 }
 
-// SetCond  ??? can not confirm which biu
-class BIUSetCond<string header, bits<5> slot>
-        : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
-                                   "", "BIU.SetCond[$m]", "->", "$imm8">{
+// SetCond  
+class BIUSetCondInstr<string header, bits<5> slot>
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+                                   {
   bits<8>  imm8;
   bit m;
   
@@ -1413,6 +1413,8 @@ def BIU0NOT : BIUNOTInstr<"BIU0.", 0b01110>;
 def BIU0Imm : BIUImmInstr<"BIU0.", 0b01110>;
 def BIU0Mov : BIUMovInstr<"BIU0.", 0b01110>;
 def BIU0MaskGen : BIUMaskGenInstr<"BIU0.", 0b01110>;
+def BIU0Wait : BIUWaitInstr<"BIU0.", 0b01110>;
+def BIU0SetCond : BIUSetCondInstr<"BIU0.", 0b01110>;
 
 //defm BIU1disLd : BIULdInstr_dis<"BIU1.", 0b01111>;
 //defm BIU1comLd : BIULdInstr_com<"BIU1.", 0b01111>;
@@ -1424,6 +1426,8 @@ def BIU1NOT : BIUNOTInstr<"BIU1.", 0b01111>;
 def BIU1Imm : BIUImmInstr<"BIU1.", 0b01111>;
 def BIU1Mov : BIUMovInstr<"BIU1.", 0b01111>;
 def BIU1MaskGen : BIUMaskGenInstr<"BIU1.", 0b01111>;
+def BIU1Wait : BIUWaitInstr<"BIU1.", 0b01111>;
+def BIU1SetCond : BIUSetCondInstr<"BIU1.", 0b01111>;
 
 //defm BIU2disLd : BIULdInstr_dis<"BIU2.", 0b10000>;
 //defm BIU2comLd : BIULdInstr_com<"BIU2.", 0b10000>;
@@ -1435,6 +1439,8 @@ def BIU2NOT : BIUNOTInstr<"BIU2.", 0b10000>;
 def BIU2Imm : BIUImmInstr<"BIU2.", 0b10000>;
 def BIU2Mov : BIUMovInstr<"BIU2.", 0b10000>;
 def BIU2MaskGen : BIUMaskGenInstr<"BIU2.", 0b10000>;
+def BIU2Wait : BIUWaitInstr<"BIU2.", 0b10000>;
+def BIU2SetCond : BIUSetCondInstr<"BIU2.", 0b10000>;
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
 

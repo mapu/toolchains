@@ -140,7 +140,7 @@ A   [a-zA-Z_0-9]
     yylval->val = CE->getValue();
     if (yylval->val < 0) {
       llvmParser->Warning(Start, "Negative immediate is not allowed");
-      return IMM;
+      return IMM5;
     }
     return IMM5;
   }
@@ -238,6 +238,7 @@ A   [a-zA-Z_0-9]
 "m[s""++]"               {return TOKEN(MINDEXS);}
 "m[i""++]"               {return TOKEN(MINDEXI);}
 "cond"                   {return TOKEN(COND);}
+"setcond"                {return TOKEN(SETCOND);}//dcx
 "tb"                     {return TOKEN(TB);}
 "tbb"                    {return TOKEN(TBB);}
 "tbh"                    {return TOKEN(TBH);}
@@ -280,6 +281,8 @@ A   [a-zA-Z_0-9]
 "q"                      {return TOKEN(Q);}//dcx
 "ml"                     {return TOKEN(ML);}//dcx
 "mh"                     {return TOKEN(MH);}//dcx
+"mask"                   {return TOKEN(MASK);}//dcx
+"wait"                   {return TOKEN(WAIT);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}
