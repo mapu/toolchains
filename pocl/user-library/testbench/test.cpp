@@ -99,16 +99,18 @@ int main() {
   cout << "*******testing fetched data"<< endl;
   for (int i = 0; i < DataSize / 4; ++i)
     if (mmm[i] != i) cout << "mem[" <<i << "] = " << mem[i] << ", mmm[" << i << "] = " << mmm[i] << endl;
-  cout << "****testing mem done" << endl;
+  cout << "****checking dma done" << endl;
   getchar();
 
-  cout << "****testing muti-task dma" << endl;
+  cout << "****testing multi-task dma" << endl;
   apc->releaseApe(0);
   pthread_t id[task_num];
+  int ids[task_num];
   int retv;
 
   for (int t = 0; t < task_num; ++t) {
-    retv = pthread_create(id + t, NULL, thread, &t);
+	ids[t] = t;
+    retv = pthread_create(id + t, NULL, thread, ids+t);
     if (retv != 0) {
       printf("Create pthread error!/n");
       break;
@@ -118,7 +120,7 @@ int main() {
   for (int t = 0; t < task_num; ++t)
     pthread_join(id[t], NULL);
 
-  cout << "muti-task done!" << endl;
+  cout << "multi-task done!" << endl;
   getchar();
 
   cout << "******checking data of thread " << endl;
