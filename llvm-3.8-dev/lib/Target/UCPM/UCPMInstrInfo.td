@@ -186,6 +186,8 @@ def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, MACCTI> {
   let Inst{5-0} = d;
 }
 
+// ducx start SHU Instruction -------------------------------------------------
+
 // NOP
 def SHU0NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00111;
@@ -205,6 +207,35 @@ def SHU2NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{18-16} = 0b110;
   let Inst{14-12} = 0b000;
 }
+
+// byte-bit bit-byte
+class SHUByteBit<string header, bits<5> slot, bits<2> dest, Operand DestTy>
+        : UCPSHUIndexAssignInstr<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bits<8> op;
+    
+    let Inst{47-43} = slot;
+    let Inst{22-15} = op{7-0};
+    let Inst{12-10} = f{2-0};
+    let Inst{9-8} = tm;
+    let Inst{7-6} = dest;
+    let Inst{5-0} = d{5-0};
+}
+
+def SHU0ByteBitToBIU : SHUByteBit<"SHU0.", 0b00111, 0b00, SHU0DestTI >;
+def SHU0ByteBitToMACC: SHUByteBit<"SHU0.", 0b00111 ,0b01, SHU0DestTI >;
+
+def SHU1ByteBitToBIU : SHUByteBit<"SHU1.", 0b01000, 0b00, SHU1DestTI >;
+def SHU1ByteBitToMACC: SHUByteBit<"SHU1.", 0b01000 ,0b01, SHU1DestTI >;
+
+def SHU2ByteBitToBIU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
+def SHU2ByteBitToMACC: SHUByteBit<"SHU2.", 0b01001 ,0b01, SHU2DestTI >;
+// ducx end SHU Instruction -------------------------------------------------
+
+
+
 
 // ducx start IALU Instruction --------------------------------------------------------------------
 class IALUBaseCode {
@@ -1402,6 +1433,24 @@ class BIUSetCondInstr<string header, bits<5> slot>
   let Inst{5-0} = imm8{5-0};
 }
 
+// BIUKG
+// class BIUKGInstr<string header, bits<5> slot, bit dest, Operand DestTy>
+//         : MRegAssignInstr<(ins TPort: $tm), header, "$tm", DestTy>{
+// 
+//     
+//     bits<2> tm;
+//     
+//     let Inst{47-43} = slot;
+//     let Inst{20-18} = 0b100;
+//     let Inst{14} = dest;
+//     let Inst{13-12} = d{7-6};  
+//     let Inst{11-10} = tm;
+//     let Inst{9-6} = 0b1001;
+//     let Inst{5-0} = d{5-0};
+// }
+// def BIU0KG : BIUKGInstr<"BIU0.", 0b01110, 1, BIU0DestTE >;
+
+
 
 //defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b01110>;
 //defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b01110>;
@@ -1444,7 +1493,7 @@ def BIU2SetCond : BIUSetCondInstr<"BIU2.", 0b10000>;
 // ducx end BIU Instruction --------------------------------------------------------------------------
 
 
-// ducx start MFetch ---------------------------------------------------------------------------------  
+// ducx start MFetch Instruction ----------------------------------------------------------------------------  
 
 // RepeatImm
 def REPEATIMM : SEQInst<(ins imm32i: $imm),
@@ -1616,7 +1665,7 @@ def MFetchNOP:  UCPMInst <(ins), (outs), "NOP"> {
 // }
 
 
-// ducx end MFetch -----------------------------------------------------------------------------------  
+// ducx end MFetch Instruction -----------------------------------------------------------------------------  
 
 
 //from original

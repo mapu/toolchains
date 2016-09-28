@@ -283,6 +283,8 @@ A   [a-zA-Z_0-9]
 "mh"                     {return TOKEN(MH);}//dcx
 "mask"                   {return TOKEN(MASK);}//dcx
 "wait"                   {return TOKEN(WAIT);}//dcx
+"bit"                    {return TOKEN(BIT);}//dcx
+"byte"                   {return TOKEN(BYTE);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}

@@ -107,6 +107,26 @@ def BIU2DestTE : Operand<i32> {
   //let DecoderMethod = "DecodeBIU2DestTE";  
 }
 
+def SHU0DestTI : Operand<i32> {
+  //let PrintMethod = "printSHU0DestT";
+  let MIOperandInfo = (ops SHU0Dest, TPort, IPath);
+  let EncoderMethod = "getSHU0DestTIEncoding";
+  //let DecoderMethod = "DecodeSHU0DestT";  
+}
+
+def SHU1DestTI : Operand<i32> {
+  //let PrintMethod = "printSHU1DestT";
+  let MIOperandInfo = (ops SHU1Dest, TPort, IPath);
+  let EncoderMethod = "getSHU1DestTIEncoding";
+  //let DecoderMethod = "DecodeSHU1DestT";  
+}
+
+def SHU2DestTI : Operand<i32> {
+  //let PrintMethod = "printSHU2DestT";
+  let MIOperandInfo = (ops SHU2Dest, TPort, IPath);
+  let EncoderMethod = "getSHU2DestTIEncoding";
+  //let DecoderMethod = "DecodeSHU2DestT";  
+}
 
 /* a common instruction template base for UCPM */
 class UCPMInst<dag ins, dag outs,
@@ -149,6 +169,13 @@ class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                             header, "$d", "->", lclause, pattern> {
   bits<6>  d;
 }
+
+// class MRegAssignInstr<dag ins, string header, string lclause, Operand DestTy,
+//                   list<dag> pattern = []>
+//         : CommonAssignInstr<ins, (outs DestTy: $d),
+//                             header, "$d", "->", lclause, pattern> {
+//   bits<8>  d;
+// }
 
 class BinaryInstr<string header, bit mode,
                   RegisterClass OprtorTy, Operand DestTy>
