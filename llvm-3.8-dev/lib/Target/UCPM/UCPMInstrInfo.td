@@ -232,6 +232,38 @@ def SHU1ByteBitToMACC: SHUByteBit<"SHU1.", 0b01000 ,0b01, SHU1DestTI >;
 
 def SHU2ByteBitToBIU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
 def SHU2ByteBitToMACC: SHUByteBit<"SHU2.", 0b01001 ,0b01, SHU2DestTI >;
+
+
+// WAIT 
+class SHUWaitInstr<string header, bits<5> slot>
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
+                                   header, "", "", "Wait $imm7">{
+  bits<7>  imm7;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-15} = 0b11111101;
+  let Inst{14-8} = imm7;
+}
+def SHU0Wait : SHUWaitInstr<"SHU0.", 0b00111>;
+def SHU1Wait : SHUWaitInstr<"SHU1.", 0b01000>;
+def SHU2Wait : SHUWaitInstr<"SHU2.", 0b01001>;
+
+// SetCond  
+class SHUSetCondInstr<string header, bits<5> slot>
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+                                   {
+  bits<8>  imm8;
+  bit m;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-15} = 0b11111100;
+  let Inst{12-10} = 0b100;
+  let Inst{8} = m;
+  let Inst{7-0} = imm8;
+}
+def SHU0SetCond : SHUSetCondInstr<"SHU0.", 0b00111>;
+def SHU1SetCond : SHUSetCondInstr<"SHU1.", 0b01000>;
+def SHU2SetCond : SHUSetCondInstr<"SHU2.", 0b01001>;
 // ducx end SHU Instruction -------------------------------------------------
 
 

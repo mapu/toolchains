@@ -62,12 +62,13 @@ typedef struct YYLTYPE {
 %type <val> slots slotref slot 
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte s1biu1t s2biu1t
-%type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause
+%type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr
 %type <val> ucpshusrcTm ucpshusrcTn ucpindtkclause ucpshusrcTk ucpindtbclause ucpshuexp ucpindclause shu0dest shu1dest shu2dest mindexs mindexi mindexn ialuasclause biu0dest biu1dest biu2dest 
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label mpustop
+%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -261,9 +262,9 @@ mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            
 
 shuslot: shu0code {$$ = 0;} | shu1code {$$ = 1;} | shu2code {$$ = 2} ;
-shu0code: SHU0 DOT shu0inst | tran0Instr;
-shu1code: SHU1 DOT shu1inst | tran1Instr;
-shu2code: SHU2 DOT shu2inst | tran2Instr;
+shu0code: SHU0 DOT shu0inst | tran0Instr | shu0setcondInstr;
+shu1code: SHU1 DOT shu1inst | tran1Instr | shu1setcondInstr;
+shu2code: SHU2 DOT shu2inst | tran2Instr | shu2setcondInstr;
 
 shu0inst: ucpshuexp ASSIGNTO shu0dest {
   switch ($3) {
@@ -310,6 +311,16 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
   default: break;
   }
 
+}
+| shuwaitInstr{
+            
+      ADDOPERAND(Opc, UCPM::SHU0Wait, @$.S, @$.E);
+      
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+    
 };
 
 shu1inst: ucpshuexp ASSIGNTO shu0dest {
@@ -357,7 +368,18 @@ shu1inst: ucpshuexp ASSIGNTO shu0dest {
   default: break;
   }
 
+}
+| shuwaitInstr{
+            
+      ADDOPERAND(Opc, UCPM::SHU1Wait, @$.S, @$.E);
+      
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+    
 };
+
 shu2inst: ucpshuexp ASSIGNTO shu0dest {
   switch ($3) {
   case 0:
@@ -403,6 +425,16 @@ shu2inst: ucpshuexp ASSIGNTO shu0dest {
   default: break;
   }
 
+}
+| shuwaitInstr{
+            
+      ADDOPERAND(Opc, UCPM::SHU2Wait, @$.S, @$.E);
+      
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+    
 };
 ucpshuexp: LBRACE ucpshusrcTm ucpshusrcTn RBRACE IND ucpindclause {$$ = $6};
 ucpshusrcTm: t;
@@ -608,8 +640,56 @@ tran2clause:  bit2clause {opc = OPERAND(Reg, UCPMReg::BIT, @$.S, @$.E);} |
 bit2clause:  BIT SHU2 DOT t _flag shuflag flag_ | BIT SHU2 DOT t ; 
 byte2clause: BYTE SHU2 DOT t _flag shuflag flag_ | BYTE SHU2 DOT t ;
 
+shuwaitInstr: WAIT IMM5 {imm = OPERAND(Imm, $2, @2.S, @2.E);};
 
+shu0setcondInstr: shu0cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::SHU0SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+shu1setcondInstr: shu1cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::SHU1SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+shu2setcondInstr: shu2cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::SHU2SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
 
+shu0cond: SHU0 DOT IMM5 ASSIGNTO SHU0 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};      
+shu1cond: SHU1 DOT IMM5 ASSIGNTO SHU1 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
+shu2cond: SHU2 DOT IMM5 ASSIGNTO SHU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
+ 
+ 
 
 ialuslot: IALU DOT ialutodest ;
 ialutodest: ialuasclause ASSIGNTO ialudest {
