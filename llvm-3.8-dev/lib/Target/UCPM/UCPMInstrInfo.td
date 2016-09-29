@@ -321,7 +321,81 @@ def SHU2Ind_constTnToBIU_1 : UCPSHUIndToDest_constTn<"SHU2.", 1, 0b01001, SHU2De
   let Inst{7-6} = 0b00;
   let Inst{5-0} = d;
 }
+// TO SHU
+def SHU0Ind_SetTBToSHU_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_noImmToSHU_0 : UCPSHUIndToDest_noImm<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_constTnToSHU_0 : UCPSHUIndToDest_constTn<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_SetTBToSHU_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_noImmToSHU_1 : UCPSHUIndToDest_noImm<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_constTnToSHU_1 : UCPSHUIndToDest_constTn<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
 
+def SHU1Ind_SetTBToSHU_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToSHU_0 : UCPSHUIndToDest_noImm<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToSHU_0 : UCPSHUIndToDest_constTn<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToSHU_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToSHU_1 : UCPSHUIndToDest_noImm<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToSHU_1 : UCPSHUIndToDest_constTn<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+
+def SHU2Ind_SetTBToSHU_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToSHU_0 : UCPSHUIndToDest_noImm<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToSHU_0 : UCPSHUIndToDest_constTn<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToSHU_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToSHU_1 : UCPSHUIndToDest_noImm<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToSHU_1 : UCPSHUIndToDest_constTn<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
 
 // NOP
 def SHU0NOP :  UCPMInst <(ins), (outs), "NOP"> {
@@ -361,13 +435,15 @@ class SHUByteBit<string header, bits<5> slot, bits<2> dest, Operand DestTy>
 
 def SHU0ByteBitToBIU : SHUByteBit<"SHU0.", 0b00111, 0b00, SHU0DestTI >;
 def SHU0ByteBitToMACC: SHUByteBit<"SHU0.", 0b00111 ,0b01, SHU0DestTI >;
+def SHU0ByteBitToSHU: SHUByteBit<"SHU0.", 0b00111 ,0b00, SHU0DestTI >;
 
 def SHU1ByteBitToBIU : SHUByteBit<"SHU1.", 0b01000, 0b00, SHU1DestTI >;
 def SHU1ByteBitToMACC: SHUByteBit<"SHU1.", 0b01000 ,0b01, SHU1DestTI >;
+def SHU1ByteBitToSHU : SHUByteBit<"SHU1.", 0b01000, 0b00, SHU1DestTI >;
 
 def SHU2ByteBitToBIU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
 def SHU2ByteBitToMACC: SHUByteBit<"SHU2.", 0b01001 ,0b01, SHU2DestTI >;
-
+def SHU2ByteBitToSHU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
 
 // WAIT 
 class SHUWaitInstr<string header, bits<5> slot>
