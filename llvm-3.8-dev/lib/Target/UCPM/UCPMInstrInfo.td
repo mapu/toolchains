@@ -117,9 +117,9 @@ def MReg5NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{3-0} = 0b1001;
 }
 
-
+// start SHU Instruction -------------------------------------------------
 //3 kinds of base class for SHUIndToDest
-//"TB+=" and "TB=+"
+//Tn:T0-T3, "TB+=" and "TB=+"
 class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5),
                       header, !strconcat("{$tm,$tn} IND $tk",
@@ -137,8 +137,24 @@ class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<5> slot, Operand D
   let Inst{14-10} = imm5;
   let Inst{9-8} = tm;
 }
-//Select Tn
-class UCPSHUIndToDest_FullTn<string header, bits<5> slot, Operand DestTy>
+//Tn:T0-T3, no "TB+=" or "TB=+"
+class UCPSHUIndToDest_noImm<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
+        : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk),
+                      header, "{$tm,$tn} IND $tk", DestTy> {
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 0;
+  let Inst{9-8} = tm;
+}
+// Tn:TSQ/TBB/...
+class UCPSHUIndToDest_constTn<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TEPort: $tn, TEPort: $tk), header,
                       "{$tm,$tn} IND $tk", DestTy> {
   bits<2> tm;
@@ -146,47 +162,166 @@ class UCPSHUIndToDest_FullTn<string header, bits<5> slot, Operand DestTy>
   bits<4> tk;
   let Inst{47-43} = slot;
   let Inst{22-19} = tk;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 1;
+  let Inst{13-10} = tn;
   let Inst{9-8} = tm;
 }
-//No set TB, Tn: T0-T3
-class UCPSHUIndToDest<string header, bits<5> slot, Operand DestTy>
-        : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk), header,
-                      "{$tm,$tn} IND $tk", DestTy> {
-  bits<2> tm;
-  bits<2> tn;
-  bits<4> tk;
-  let Inst{47-43} = slot;
-  let Inst{22-19} = tk;
-  let Inst{9-8} = tm;
-}
-//final shu0 test instruction, for case: "+="
-def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b00111, MACCTI> {
+
+
+// TBSymbol=0:tb,TBSymbol=1:tk
+// TO MACC
+def SHU0Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-//final shu0 test instruction, for case: "=+"
-def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b00111, MACCTI> {
+def SHU0Ind_noImmToMACC_0 : UCPSHUIndToDest_noImm<"SHU0.", 0, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b01000, MACCTI> {
+def SHU0Ind_constTnToMACC_0 : UCPSHUIndToDest_constTn<"SHU0.", 0, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b01000, MACCTI> {
+def SHU0Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b01001, MACCTI> {
+def SHU0Ind_noImmToMACC_1 : UCPSHUIndToDest_noImm<"SHU0.", 1, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
-def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, MACCTI> {
+def SHU0Ind_constTnToMACC_1 : UCPSHUIndToDest_constTn<"SHU0.", 1, 0b00111, SHU0DestTI> {
   let Inst{7-6} = 0b01;
   let Inst{5-0} = d;
 }
 
-// ducx start SHU Instruction -------------------------------------------------
+def SHU1Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToMACC_0 : UCPSHUIndToDest_noImm<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToMACC_0 : UCPSHUIndToDest_constTn<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToMACC_1 : UCPSHUIndToDest_noImm<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToMACC_1 : UCPSHUIndToDest_constTn<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+
+def SHU2Ind_SetTBToMACC_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToMACC_0 : UCPSHUIndToDest_noImm<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToMACC_0 : UCPSHUIndToDest_constTn<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToMACC_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToMACC_1 : UCPSHUIndToDest_noImm<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToMACC_1 : UCPSHUIndToDest_constTn<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b01;
+  let Inst{5-0} = d;
+}
+// TO BIU
+def SHU0Ind_SetTBToBIU_0 : UCPSHUIndToDest_SetTB<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_noImmToBIU_0 : UCPSHUIndToDest_noImm<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_constTnToBIU_0 : UCPSHUIndToDest_constTn<"SHU0.", 0, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_SetTBToBIU_1 : UCPSHUIndToDest_SetTB<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_noImmToBIU_1 : UCPSHUIndToDest_noImm<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU0Ind_constTnToBIU_1 : UCPSHUIndToDest_constTn<"SHU0.", 1, 0b00111, SHU0DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+
+def SHU1Ind_SetTBToBIU_0 : UCPSHUIndToDest_SetTB<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToBIU_0 : UCPSHUIndToDest_noImm<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToBIU_0 : UCPSHUIndToDest_constTn<"SHU1.", 0, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_SetTBToBIU_1 : UCPSHUIndToDest_SetTB<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_noImmToBIU_1 : UCPSHUIndToDest_noImm<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU1Ind_constTnToBIU_1 : UCPSHUIndToDest_constTn<"SHU1.", 1, 0b01000, SHU1DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+
+def SHU2Ind_SetTBToBIU_0 : UCPSHUIndToDest_SetTB<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToBIU_0 : UCPSHUIndToDest_noImm<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToBIU_0 : UCPSHUIndToDest_constTn<"SHU2.", 0, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_SetTBToBIU_1 : UCPSHUIndToDest_SetTB<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_noImmToBIU_1 : UCPSHUIndToDest_noImm<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+def SHU2Ind_constTnToBIU_1 : UCPSHUIndToDest_constTn<"SHU2.", 1, 0b01001, SHU2DestTI> {
+  let Inst{7-6} = 0b00;
+  let Inst{5-0} = d;
+}
+
 
 // NOP
 def SHU0NOP :  UCPMInst <(ins), (outs), "NOP"> {
