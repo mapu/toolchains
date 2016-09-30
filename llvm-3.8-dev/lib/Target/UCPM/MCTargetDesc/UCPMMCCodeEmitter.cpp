@@ -120,7 +120,10 @@ public:
   unsigned getMRegOEncoding(const MCInst &MI, unsigned OpNo,
                             SmallVectorImpl<MCFixup> &Fixups,
                             const MCSubtargetInfo &STI) const;
-  
+
+  unsigned getshuMRegOEncoding(const MCInst &MI, unsigned OpNo,
+                            SmallVectorImpl<MCFixup> &Fixups,
+                            const MCSubtargetInfo &STI) const;
 
   void encodeInstruction(const MCInst &MI, raw_ostream &OS,
                          SmallVectorImpl<MCFixup> &Fixups,
@@ -324,7 +327,8 @@ getMRegOEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                  const MCSubtargetInfo &STI) const {
   assert(MI.getOperand(OpNo).isReg());
   unsigned MBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
-  return ((MBits & 0x7F) << 2) | (MBits >> 7);
+  //return ((MBits & 0x7F) << 2) | (MBits >> 7);
+  return MBits;
 }
 
 // ducx
@@ -400,4 +404,13 @@ getSHU2DestTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
 
   return (TPortBits) | (IPathBits << 2) | (UnitBits << 4);
 }
+unsigned UCPMMCCodeEmitter::
+getshuMRegOEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+                 SmallVectorImpl<llvm::MCFixup>& Fixups,
+                 const MCSubtargetInfo &STI) const {
+  assert(MI.getOperand(OpNo).isReg());
+  unsigned MBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+  return MBits;
+}
+
 #include "UCPMGenMCCodeEmitter.inc"

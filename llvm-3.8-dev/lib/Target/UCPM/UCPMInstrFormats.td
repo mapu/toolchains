@@ -128,6 +128,14 @@ def SHU2DestTI : Operand<i32> {
   //let DecoderMethod = "DecodeSHU2DestT";  
 }
 
+
+def MRegO: Operand<i32> {
+  //let DecoderMethod = "DecodeMRegO";
+  let MIOperandInfo = (ops MReg);
+  let EncoderMethod = "getMRegOEncoding";
+}
+
+
 /* a common instruction template base for UCPM */
 class UCPMInst<dag ins, dag outs,
                    string asmstr,
@@ -170,12 +178,12 @@ class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
   bits<6>  d;
 }
 
-// class MRegAssignInstr<dag ins, string header, string lclause, Operand DestTy,
-//                   list<dag> pattern = []>
-//         : CommonAssignInstr<ins, (outs DestTy: $d),
-//                             header, "$d", "->", lclause, pattern> {
-//   bits<8>  d;
-// }
+class MRegAssignInstr<dag ins, string header, string lclause, Operand DestTy,
+                  list<dag> pattern = []>
+        : CommonAssignInstr<ins, (outs DestTy: $d),
+                            header, "$d", "->", lclause, pattern> {
+  bits<8>  d;
+}
 
 class BinaryInstr<string header, bit mode,
                   RegisterClass OprtorTy, Operand DestTy>

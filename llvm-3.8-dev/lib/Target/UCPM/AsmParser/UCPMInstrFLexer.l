@@ -237,6 +237,8 @@ A   [a-zA-Z_0-9]
 "m["[0-9]+"]"            {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(2, ucpmleng-2)).c_str()); return MINDEXN;}
 "m[s""++]"               {return TOKEN(MINDEXS);}
 "m[i""++]"               {return TOKEN(MINDEXI);}
+"s""++"  		 {return TOKEN(SPP);}//dcx
+"i""++"  		 {return TOKEN(IPP);}//dcx
 "cond"                   {return TOKEN(COND);}
 "setcond"                {return TOKEN(SETCOND);}//dcx
 "tb"                     {return TOKEN(TB);}

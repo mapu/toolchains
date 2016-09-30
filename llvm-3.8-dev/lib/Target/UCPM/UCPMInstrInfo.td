@@ -137,6 +137,45 @@ class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<5> slot, Operand D
   let Inst{14-10} = imm5;
   let Inst{9-8} = tm;
 }
+class UCPSHUIndToM_SetTB<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5),
+                      header, !strconcat("{$tm,$tn} IND $tk",
+                                         !if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)")),
+                      DestTy> {
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  bits<5> imm5;
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 0;
+  let Inst{15} = TBSymbol;
+  let Inst{14-10} = imm5;
+  let Inst{9-8} = tm;
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+
+class UCPSHUIndToMSIA_SetTB<string header, bit TBSymbol, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk",!if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)"),"-> m[$sia]")>{
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  bits<5> imm5;
+  bits<3> sia;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 0;
+  let Inst{15} = TBSymbol;
+  let Inst{14-10} = imm5;
+  let Inst{9-8} = tm;
+  let Inst{7-4} = 0b0011;
+  let Inst{3-1} = sia;
+}
+
 //Tn:T0-T3, no "TB+=" or "TB=+"
 class UCPSHUIndToDest_noImm<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk),
@@ -153,6 +192,40 @@ class UCPSHUIndToDest_noImm<string header, bit TBSymbol, bits<5> slot, Operand D
   let Inst{14} = 0;
   let Inst{9-8} = tm;
 }
+class UCPSHUIndToM_noImm<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TEPort: $tk),
+                      header, "{$tm,$tn} IND $tk", DestTy> {
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 0;
+  let Inst{9-8} = tm;
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+class UCPSHUIndToMSIA_noImm<string header, bit TBSymbol, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> m[$sia]")>{
+  bits<2> tm;
+  bits<2> tn;
+  bits<4> tk;
+  bits<3> sia;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{18-17} = tn;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 0;
+  let Inst{9-8} = tm;
+  let Inst{7-4} = 0b0011;
+  let Inst{3-1} = sia;
+}
 // Tn:TSQ/TBB/...
 class UCPSHUIndToDest_constTn<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
         : UCPSHUIndexAssignInstr<(ins TPort: $tm, TEPort: $tn, TEPort: $tk), header,
@@ -167,6 +240,39 @@ class UCPSHUIndToDest_constTn<string header, bit TBSymbol, bits<5> slot, Operand
   let Inst{14} = 1;
   let Inst{13-10} = tn;
   let Inst{9-8} = tm;
+}
+class UCPSHUIndToM_constTn<string header, bit TBSymbol, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, TEPort: $tn, TEPort: $tk), header,
+                      "{$tm,$tn} IND $tk", DestTy> {
+  bits<2> tm;
+  bits<4> tn;
+  bits<4> tk;
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 1;
+  let Inst{13-10} = tn;
+  let Inst{9-8} = tm;
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+class UCPSHUIndToMSIA_constTn<string header, bit TBSymbol, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, TEPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> m[$sia]")>{
+  bits<2> tm;
+  bits<4> tn;
+  bits<4> tk;
+  bits<3> sia;
+  
+  let Inst{47-43} = slot;
+  let Inst{22-19} = tk;
+  let Inst{16} = 1;
+  let Inst{15} = TBSymbol;
+  let Inst{14} = 1;
+  let Inst{13-10} = tn;
+  let Inst{9-8} = tm;
+  let Inst{7-4} = 0b0011;
+  let Inst{3-1} = sia;
 }
 
 
@@ -397,6 +503,50 @@ def SHU2Ind_constTnToSHU_1 : UCPSHUIndToDest_constTn<"SHU2.", 1, 0b01001, SHU2De
   let Inst{5-0} = d;
 }
 
+// TO m[t]
+def SHU0Ind_SetTBToM_0 : UCPSHUIndToM_SetTB<"SHU0.", 0, 0b00111, MRegO>;
+def SHU0Ind_noImmToM_0 : UCPSHUIndToM_noImm<"SHU0.", 0, 0b00111, MRegO>;
+def SHU0Ind_constTnToM_0 : UCPSHUIndToM_constTn<"SHU0.", 0, 0b00111, MRegO>;
+def SHU0Ind_SetTBToM_1 : UCPSHUIndToM_SetTB<"SHU0.", 1, 0b00111, MRegO>;
+def SHU0Ind_noImmToM_1 : UCPSHUIndToM_noImm<"SHU0.", 1, 0b00111, MRegO>;
+def SHU0Ind_constTnToM_1 : UCPSHUIndToM_constTn<"SHU0.", 1, 0b00111, MRegO>;
+
+def SHU1Ind_SetTBToM_0 : UCPSHUIndToM_SetTB<"SHU1.", 0, 0b01000, MRegO>;
+def SHU1Ind_noImmToM_0 : UCPSHUIndToM_noImm<"SHU1.", 0, 0b01000, MRegO>;
+def SHU1Ind_constTnToM_0 : UCPSHUIndToM_constTn<"SHU1.", 0, 0b01000, MRegO>;
+def SHU1Ind_SetTBToM_1 : UCPSHUIndToM_SetTB<"SHU1.", 1, 0b01000, MRegO>;
+def SHU1Ind_noImmToM_1 : UCPSHUIndToM_noImm<"SHU1.", 1, 0b01000, MRegO>;
+def SHU1Ind_constTnToM_1 : UCPSHUIndToM_constTn<"SHU1.", 1, 0b01000, MRegO>;
+
+def SHU2Ind_SetTBToM_0 : UCPSHUIndToM_SetTB<"SHU2.", 0, 0b01001, MRegO>;
+def SHU2Ind_noImmToM_0 : UCPSHUIndToDest_noImm<"SHU2.", 0, 0b01001, MRegO>;
+def SHU2Ind_constTnToM_0 : UCPSHUIndToM_constTn<"SHU2.", 0, 0b01001, MRegO>;
+def SHU2Ind_SetTBToM_1 : UCPSHUIndToM_SetTB<"SHU2.", 1, 0b01001, MRegO>;
+def SHU2Ind_noImmToM_1 : UCPSHUIndToM_noImm<"SHU2.", 1, 0b01001, MRegO>;
+def SHU2Ind_constTnToM_1 : UCPSHUIndToM_constTn<"SHU2.", 1, 0b01001, MRegO>;
+
+// TO m[s++,i++,a++]
+def SHU0Ind_SetTBToMSIA_0 : UCPSHUIndToMSIA_SetTB<"SHU0.", 0, 0b00111>;
+def SHU0Ind_noImmToMSIA_0 : UCPSHUIndToMSIA_noImm<"SHU0.", 0, 0b00111>;
+def SHU0Ind_constTnToMSIA_0 : UCPSHUIndToMSIA_constTn<"SHU0.", 0, 0b00111>;
+def SHU0Ind_SetTBToMSIA_1 : UCPSHUIndToMSIA_SetTB<"SHU0.", 1, 0b00111>;
+def SHU0Ind_noImmToMSIA_1 : UCPSHUIndToMSIA_noImm<"SHU0.", 1, 0b00111>;
+def SHU0Ind_constTnToMSIA_1 : UCPSHUIndToMSIA_constTn<"SHU0.", 1, 0b00111>;
+
+def SHU1Ind_SetTBToMSIA_0 : UCPSHUIndToMSIA_SetTB<"SHU1.", 0, 0b01000>;
+def SHU1Ind_noImmToMSIA_0 : UCPSHUIndToMSIA_noImm<"SHU1.", 0, 0b01000>;
+def SHU1Ind_constTnToMSIA_0 : UCPSHUIndToMSIA_constTn<"SHU1.", 0, 0b01000>;
+def SHU1Ind_SetTBToMSIA_1 : UCPSHUIndToMSIA_SetTB<"SHU1.", 1, 0b01000>;
+def SHU1Ind_noImmToMSIA_1 : UCPSHUIndToMSIA_noImm<"SHU1.", 1, 0b01000>;
+def SHU1Ind_constTnToMSIA_1 : UCPSHUIndToMSIA_constTn<"SHU1.", 1, 0b01000>;
+
+def SHU2Ind_SetTBToMSIA_0 : UCPSHUIndToMSIA_SetTB<"SHU2.", 0, 0b01001>;
+def SHU2Ind_noImmToMSIA_0 : UCPSHUIndToMSIA_noImm<"SHU2.", 0, 0b01001>;
+def SHU2Ind_constTnToMSIA_0 : UCPSHUIndToMSIA_constTn<"SHU2.", 0, 0b01001>;
+def SHU2Ind_SetTBToMSIA_1 : UCPSHUIndToMSIA_SetTB<"SHU2.", 1, 0b01001>;
+def SHU2Ind_noImmToMSIA_1 : UCPSHUIndToMSIA_noImm<"SHU2.", 1, 0b01001>;
+def SHU2Ind_constTnToMSIA_1 : UCPSHUIndToMSIA_constTn<"SHU2.", 1, 0b01001>;
+
 // NOP
 def SHU0NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00111;
@@ -432,18 +582,52 @@ class SHUByteBit<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     let Inst{7-6} = dest;
     let Inst{5-0} = d{5-0};
 }
+class SHUByteBitToM<string header, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bits<8> op;
+    
+    let Inst{47-43} = slot;
+    let Inst{22-15} = op{7-0};
+    let Inst{12-10} = f{2-0};
+    let Inst{9-8} = tm;
+    let Inst{7} = 1;
+    let Inst{6-0} = d{6-0};
+}
+class SHUByteBitToMSIA<string header, bits<5> slot>
+        :UCPMInst<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f, Flags:$sia), (outs), !strconcat("$op ", header,"$tm$f","-> m[$sia]")>{
+    bits<32> f;
+    bits<2> tm;
+    bits<8> op;
+    bits<3> sia;
+    
+    let Inst{47-43} = slot;
+    let Inst{22-15} = op{7-0};
+    let Inst{12-10} = f{2-0};
+    let Inst{9-8} = tm;
+    let Inst{7-4} = 0b0011;
+    let Inst{3-1} = sia;
+}
 
 def SHU0ByteBitToBIU : SHUByteBit<"SHU0.", 0b00111, 0b00, SHU0DestTI >;
 def SHU0ByteBitToMACC: SHUByteBit<"SHU0.", 0b00111 ,0b01, SHU0DestTI >;
-def SHU0ByteBitToSHU: SHUByteBit<"SHU0.", 0b00111 ,0b00, SHU0DestTI >;
+def SHU0ByteBitToSHU:  SHUByteBit<"SHU0.", 0b00111 ,0b00, SHU0DestTI >;
+def SHU0ByteBitToM:    SHUByteBitToM<"SHU0.", 0b00111, MRegO >;
+def SHU0ByteBitToMSIA: SHUByteBitToMSIA<"SHU0.", 0b00111 >;
 
 def SHU1ByteBitToBIU : SHUByteBit<"SHU1.", 0b01000, 0b00, SHU1DestTI >;
 def SHU1ByteBitToMACC: SHUByteBit<"SHU1.", 0b01000 ,0b01, SHU1DestTI >;
 def SHU1ByteBitToSHU : SHUByteBit<"SHU1.", 0b01000, 0b00, SHU1DestTI >;
+def SHU1ByteBitToM:    SHUByteBitToM<"SHU1.", 0b01000, MRegO >;
+def SHU1ByteBitToMSIA: SHUByteBitToMSIA<"SHU1.", 0b01000 >;
 
 def SHU2ByteBitToBIU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
 def SHU2ByteBitToMACC: SHUByteBit<"SHU2.", 0b01001 ,0b01, SHU2DestTI >;
 def SHU2ByteBitToSHU : SHUByteBit<"SHU2.", 0b01001, 0b00, SHU2DestTI >;
+def SHU2ByteBitToM:    SHUByteBitToM<"SHU2.", 0b01001, MRegO >;
+def SHU2ByteBitToMSIA: SHUByteBitToMSIA<"SHU2.", 0b01001 >;
 
 // WAIT 
 class SHUWaitInstr<string header, bits<5> slot>
