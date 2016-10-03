@@ -261,6 +261,16 @@ mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R5 DOT error { llvmerror(&@3, "Incorrect M.r5 inst."); YYABORT;} ;
            
 
+r0dest: ialut | imact | shu0t | biu0t ;
+r1dest: ialut | imact | shu1t ;
+r2dest: ialut | imact | shu2t | biu2t ;
+r3dest: ifalut | ifmact | shu0t ;
+r4dest: ifalut | ifmact | shu1t | biu1t ;
+r5dest: ifalut | ifmact | shu2t | biu2t ;
+biut: biu0t | biu1t | biu2t ;
+
+
+// start shu --------------------------------------------------
 shuslot: shu0code {$$ = 0;} | shu1code {$$ = 1;} | shu2code {$$ = 2} ;
 shu0code: SHU0 DOT shu0inst | tran0Instr | shu0setcondInstr;
 shu1code: SHU1 DOT shu1inst | tran1Instr | shu1setcondInstr;
@@ -631,6 +641,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
     default : break;
     }
     break;
+    
  case 3://m[t]
      switch ($1) {
     case 0: //tb
@@ -649,6 +660,8 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
     break;
       default : break;
     }
+    break;
+    
   case 4://m[s++,i++,a++]
      switch ($1) {
     case 0: //tb
@@ -667,6 +680,8 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
     break;
   default: break;
   }
+  break;
+  
  default : break;
     }
   
@@ -1085,6 +1100,7 @@ case 3://m[t]
     break;
   default: break;
   }
+  break;
  default : break;
     }
     
@@ -1505,6 +1521,7 @@ case 3://m[t]
     break;
   default: break;
   }
+  break;
  default : break;
     }
     
@@ -1544,17 +1561,6 @@ ucpindtkclause2: ucpshusrcTk {$$ = 1;};
 ucpindtbclause2: TB {$$ = 0; unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//tp is unused
                 revt = OPERAND(Reg, treg, @$.S, @$.E)};
 
-/*Destination types: 0:biu,1:unit,2:m */
-//yangl 
-//here biu0t is only a symbol, t is always 't0'
-r0dest: ialut | imact | shu0t | biu0t ;
-r1dest: ialut | imact | shu1t ;
-r2dest: ialut | imact | shu2t | biu2t ;
-r3dest: ifalut | ifmact | shu0t ;
-r4dest: ifalut | ifmact | shu1t | biu1t ;
-r5dest: ifalut | ifmact | shu2t | biu2t ;
-biut: biu0t | biu1t | biu2t ;
-
 //dcx
 shu0dest: biu0t | biu2t | maccdestp | sshu0t | mindexn | mindexsia;
 shu1dest: biu0t | s1biu1t | maccdestp | sshu1t | mindexn | mindexsia;
@@ -1570,58 +1576,8 @@ mindexsia: M LBRACKET siaflags RBRACKET {$$=4;}| M {$$=4;};
              
 maccdestp: maccdest LPAREN IPATH RPAREN {$$ = $1; ipath = OPERAND(Imm, $3, @3.S, @3.E);};
 maccdest: ialut | imact | ifalut | ifmact ;
-mindex: mindexi | mindexn ;
 
-ialut: ialu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-imact: imac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifalut: ifalu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifmact: ifmac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 
-/*biu0t: biu0 {$$ = 3; unit = b; unit2 = b2;
-             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
-             ut = OPERAND(Reg, treg, @$.S, @$.E); }
-biu1t: biu1 {$$ = 3; unit = b; unit2 = b2;
-             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
-             ut = OPERAND(Reg, treg, @$.S, @$.E); }
-biu2t: biu2 {$$ = 3; unit = b; unit2 = b2;
-             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
-             ut = OPERAND(Reg, treg, @$.S, @$.E); }
-biu0: BIU0 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU0, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU0, @$.S, @$.E);};
-biu1: BIU1 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU1, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU1, @$.S, @$.E);};
-biu2: BIU2 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU2, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU2, @$.S, @$.E);};*/
-
-shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-
-//dcx FOR BIU
-shu0te: SHU0 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-b1shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::B1SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-b2shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::B2SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-//dcx FOR SHU
-biu0t: BIU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-biu2t: BIU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-s1biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S1BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-s2biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S2BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-sshu0t:SHU0 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-sshu1t:SHU1 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-sshu2t:SHU2 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-
-ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifalute: ifalu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifmacte: ifmac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-
-mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
-mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
-mindexn: MINDEXN {$$ = 3; ms = md;
-  md = OPERAND(Reg,
-               MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
-               @$.S, @$.E);
-};
 
 // dcx
 tran0Instr: tran0clause ASSIGNTO shu0dest {
@@ -1904,7 +1860,7 @@ shu1cond: SHU1 DOT IMM5 ASSIGNTO SHU1 DOT SETCOND LBRACKET IMM5 RBRACKET
 shu2cond: SHU2 DOT IMM5 ASSIGNTO SHU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
  
- 
+// end shu -------------------------------------------------- 
 
 ialuslot: IALU DOT ialutodest ;
 ialutodest: ialuasclause ASSIGNTO ialudest {
@@ -3246,6 +3202,59 @@ mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
 // ducx end seq --------------------------------------------------
 
+
+ialut: ialu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+imact: imac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifalut: ifalu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifmact: ifmac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifalute: ifalu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifmacte: ifmac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+/*biu0t: biu0 {$$ = 3; unit = b; unit2 = b2;
+             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
+             ut = OPERAND(Reg, treg, @$.S, @$.E); }
+biu1t: biu1 {$$ = 3; unit = b; unit2 = b2;
+             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
+             ut = OPERAND(Reg, treg, @$.S, @$.E); }
+biu2t: biu2 {$$ = 3; unit = b; unit2 = b2;
+             unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//here 't0' is assigned to biu0t
+             ut = OPERAND(Reg, treg, @$.S, @$.E); }
+biu0: BIU0 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU0, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU0, @$.S, @$.E);};
+biu1: BIU1 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU1, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU1, @$.S, @$.E);};
+biu2: BIU2 {$$ = 2; b = OPERAND(Reg, UCPMReg::BIU2, @$.S, @$.E); b2 = OPERAND(Reg, UCPMReg::MTBIU2, @$.S, @$.E);};*/
+
+shu0t: SHU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu1t: SHU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu2t: SHU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+//dcx FOR BIU
+shu0te: SHU0 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+b1shu2te: SHU2 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::B1SHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+b2shu1te: SHU1 DOT shusrct {$$ = 1; unit = OPERAND(Reg, UCPMReg::B2SHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+//dcx FOR SHU
+biu0t: BIU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+biu2t: BIU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+s1biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S1BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+s2biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S2BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+sshu0t:SHU0 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+sshu1t:SHU1 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+sshu2t:SHU2 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+
+
+mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
+mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
+mindexn: MINDEXN {$$ = 3; ms = md;
+  md = OPERAND(Reg,
+               MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
+               @$.S, @$.E);
+};
 
 
 
