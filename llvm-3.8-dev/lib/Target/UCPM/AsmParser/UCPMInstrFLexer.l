@@ -235,9 +235,8 @@ A   [a-zA-Z_0-9]
 "i"[0-2]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return IPATH;} 
 "t"[0-3]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TREG;} 
 "m["[0-9]+"]"            {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(2, ucpmleng-2)).c_str()); return MINDEXN;}
-"m[s""++]"               {return TOKEN(MINDEXS);}
-"m[i""++]"               {return TOKEN(MINDEXI);}
-"s""++"  		 {return TOKEN(SPP);}//dcx
+
+"s""++"  		 {return TOKEN(SPP);}//dcx  "m[s""++]"               {return TOKEN(MINDEXS);}"m[i""++]"               {return TOKEN(MINDEXI);}
 "i""++"  		 {return TOKEN(IPP);}//dcx
 "cond"                   {return TOKEN(COND);}
 "setcond"                {return TOKEN(SETCOND);}//dcx

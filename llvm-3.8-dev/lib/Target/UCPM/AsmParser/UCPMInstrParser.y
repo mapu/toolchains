@@ -50,7 +50,7 @@ typedef struct YYLTYPE {
 }
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT MASK WAIT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NOT2 NEG ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
-%token <val> IALU IMAC FALU FMAC IFALU IFMAC MINDEXI MINDEXS TB TBB TBH TBW TBD TSQ IND BY
+%token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST Q QL QH ML MH BIT BYTE
@@ -63,7 +63,7 @@ typedef struct YYLTYPE {
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte s1biu1t s2biu1t sshu0t sshu1t sshu2t
 %type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr
-%type <val> ucpshusrcTm ucpindtkclause ucpindtkclause2 ucpshusrcTk ucpindtbclause ucpindtbclause2 ucpshuexp ucpshuexp2 ucpindclause ucpindclause2 shu0dest shu1dest shu2dest mindexs mindexi mindexn mindexsia ialuasclause biu0dest biu1dest biu2dest 
+%type <val> ucpshusrcTm ucpindtkclause ucpindtkclause2 ucpshusrcTk ucpindtbclause ucpindtbclause2 ucpshuexp ucpshuexp2 ucpindclause ucpindclause2 shu0dest shu1dest shu2dest mindexn mindexsia ialuasclause biu0dest biu1dest biu2dest 
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
@@ -127,7 +127,7 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    //r0inst: (mindexi or mindexs) -> r0dest
+    //r0inst: (m[i++] or m[s++]) -> r0dest
     ADDOPERAND(Opc, UCPM::MR0ToDestSI, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
@@ -230,28 +230,28 @@ mr012345slot: R0 DOT r0inst {
 };
 
 r0inst: mindexn ASSIGNTO r0dest {$$ = 0} |
-        mindexi ASSIGNTO r0dest {$$ = 1} |
-        mindexs ASSIGNTO r0dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r0dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r0dest {$$ = 1} ;
 
 r1inst: mindexn ASSIGNTO r1dest {$$ = 0} |
-        mindexi ASSIGNTO r1dest {$$ = 1} |
-        mindexs ASSIGNTO r1dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r1dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r1dest {$$ = 1} ;
 
 r2inst: mindexn ASSIGNTO r2dest {$$ = 0} |
-        mindexi ASSIGNTO r2dest {$$ = 1} |
-        mindexs ASSIGNTO r2dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r2dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r2dest {$$ = 1} ;
 
 r3inst: mindexn ASSIGNTO r3dest {$$ = 0} |
-        mindexi ASSIGNTO r3dest {$$ = 1} |
-        mindexs ASSIGNTO r3dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r3dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r3dest {$$ = 1} ;
         
 r4inst: mindexn ASSIGNTO r4dest {$$ = 0} |
-        mindexi ASSIGNTO r4dest {$$ = 1} |
-        mindexs ASSIGNTO r4dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r4dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r4dest {$$ = 1} ;
         
 r5inst: mindexn ASSIGNTO r5dest {$$ = 0} |
-        mindexi ASSIGNTO r5dest {$$ = 1} |
-        mindexs ASSIGNTO r5dest {$$ = 1} ;
+        M LBRACKET IPP RBRACKET ASSIGNTO r5dest {$$ = 1} |
+        M LBRACKET SPP RBRACKET ASSIGNTO r5dest {$$ = 1} ;
 
 mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R1 DOT error { llvmerror(&@3, "Incorrect M.r1 inst."); YYABORT;} |
@@ -3248,8 +3248,8 @@ sshu1t:SHU1 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU1, @1.S, @1.E); if (
 sshu2t:SHU2 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 
 
-mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
-mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
+//mindexs: MINDEXS {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MSPP, @$.S, @$.E);};
+//mindexi: MINDEXI {$$ = 0; ms = md; md = OPERAND(Reg, UCPMReg::MIPP, @$.S, @$.E);};
 mindexn: MINDEXN {$$ = 3; ms = md;
   md = OPERAND(Reg,
                MRI->getRegClass(UCPMReg::MRegRegClassID).getRegister($1),
