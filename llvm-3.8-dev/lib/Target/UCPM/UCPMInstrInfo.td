@@ -1808,23 +1808,46 @@ class BIUSetCondInstr<string header, bits<5> slot>
 }
 
 // BIUKG
-// class BIUKGInstr<string header, bits<5> slot, bit dest, Operand DestTy>
-//         : MRegAssignInstr<(ins TPort: $tm), header, "$tm", DestTy>{
-// 
-//     
-//     bits<2> tm;
-//     
-//     let Inst{47-43} = slot;
-//     let Inst{20-18} = 0b100;
-//     let Inst{14} = dest;
-//     let Inst{13-12} = d{7-6};  
-//     let Inst{11-10} = tm;
-//     let Inst{9-6} = 0b1001;
-//     let Inst{5-0} = d{5-0};
-// }
-// def BIU0KG : BIUKGInstr<"BIU0.", 0b01110, 1, BIU0DestTE >;
+class BIUKGInstrToM<string header, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $w), header, "$tm", DestTy>{
 
+    
+    bits<2> tm;
+    bit w;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b100;
+    let Inst{14} = 1;
+    let Inst{13} = w;
+    let Inst{12} = d{6};  
+    let Inst{11-10} = tm;
+    let Inst{9-6} = 0b1001;
+    let Inst{5-0} = d{5-0};
+}
+class BIUKGInstrToMSIA<string header, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm", "-> $w.m[$sia]")>{
+    
+    bits<2> tm;
+    bit w;
+    bits<3> sia;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b100;
+    let Inst{14-12} = 0b001;
+    let Inst{11-10} = tm;
+    let Inst{9-6} = 0b1001;
+    let Inst{5} = w;
+    let Inst{4-2} = sia;
+}
 
+def BIU0KGToM : BIUKGInstrToM<"BIU0.", 0b01110, MRegO >;
+def BIU0KGToMSIA : BIUKGInstrToMSIA<"BIU0.", 0b01110>;
+
+def BIU1KGToM : BIUKGInstrToM<"BIU1.", 0b01111, MRegO >;
+def BIU1KGToMSIA : BIUKGInstrToMSIA<"BIU1.", 0b01111>;
+
+def BIU2KGToM : BIUKGInstrToM<"BIU2.", 0b10000, MRegO >;
+def BIU2KGToMSIA : BIUKGInstrToMSIA<"BIU2.", 0b10000>;
 
 //defm BIU0disLd : BIULdInstr_dis<"BIU0.", 0b01110>;
 //defm BIU0comLd : BIULdInstr_com<"BIU0.", 0b01110>;

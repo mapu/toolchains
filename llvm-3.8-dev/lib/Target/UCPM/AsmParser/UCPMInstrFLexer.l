@@ -291,6 +291,7 @@ A   [a-zA-Z_0-9]
 "w2"			 {return TOKEN(W2);}//dcx
 "w3"			 {return TOKEN(W3);}//dcx
 "w4"			 {return TOKEN(W4);}//dcx
+"k"   			 {return TOKEN(K);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}

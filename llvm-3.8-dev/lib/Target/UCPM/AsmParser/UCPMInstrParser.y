@@ -59,7 +59,7 @@ typedef struct YYLTYPE {
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI
-%token <val> W0 W1 W2 W3 W4
+%token <val> W0 W1 W2 W3 W4 K
 
 %type <val> slots slotref slot 
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
@@ -2560,6 +2560,44 @@ biu0inst: ldselect ASSIGNTO biu0dest {
       else
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
     
+}
+| t _flag K flag_ ASSIGNTO biu0dest{
+    
+             if(flags[W0F])
+		flagsort = 0x0;
+	     else if(flags[W2F])
+		flagsort = 0x1;
+	      ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+	
+		      
+	     flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+		sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      
+	     flags.reset();
+	      
+    switch ($6) {
+    
+      case 3://to Wx.m[t]
+       	   	      	      
+	      ADDOPERAND(Opc, UCPM::BIU0KGToM, @$.S, @$.E); 
+              Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+         
+       break;
+       
+        case 4://to Wx.m[s++,i++,a++]
+
+	      ADDOPERAND(Opc, UCPM::BIU0KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+ 
+         break;
+       
+      default:
+	break;
+    }
 };
  
  
@@ -2991,6 +3029,44 @@ biu1inst: ldselect ASSIGNTO biu1dest {
       else
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
     
+}
+| t _flag K flag_ ASSIGNTO biu1dest{
+    
+             if(flags[W1F])
+		flagsort = 0x0;
+	     else if(flags[W3F])
+	        flagsort = 0x1;
+	     ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+	
+		      
+	     flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+		sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      
+	     flags.reset();
+	      
+    switch ($6) {
+    
+      case 3://to Wx.m[t]
+       	   	      	      
+	      ADDOPERAND(Opc, UCPM::BIU1KGToM, @$.S, @$.E); 
+              Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+         
+       break;
+       
+        case 4://to Wx.m[s++,i++,a++]
+
+	      ADDOPERAND(Opc, UCPM::BIU1KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+ 
+         break;
+       
+    default:
+      break;
+  }
 }; 
 
 biu2inst: ldselect ASSIGNTO biu2dest {
@@ -3417,6 +3493,47 @@ biu2inst: ldselect ASSIGNTO biu2dest {
       else
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
     
+}
+| t _flag K flag_ ASSIGNTO biu2dest{
+    
+    switch ($6) {
+    
+      case 3://to Wx.m[t]
+       
+	      if(flags[W4F])
+		flagsort = 0x0;
+	      ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      	      
+	      flags.reset();
+        
+	      ADDOPERAND(Opc, UCPM::BIU2KGToM, @$.S, @$.E); 
+              Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+         
+       break;
+       
+        case 4://to Wx.m[s++,i++,a++]
+       
+	     if(flags[W4F])
+		flagsort = 0x0;
+	      ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      
+	     flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+		sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      
+	      flags.reset();
+        
+	      ADDOPERAND(Opc, UCPM::BIU2KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+ 
+         break;
+       
+    default:
+      break;
+  }	
 }; 
 
 ldselect: lddis{
