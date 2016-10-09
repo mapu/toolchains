@@ -59,7 +59,7 @@ typedef struct YYLTYPE {
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI
-%token <val> W0 W1 W2 W3 W4 K
+%token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5
 
 %type <val> slots slotref slot 
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
@@ -70,7 +70,7 @@ typedef struct YYLTYPE {
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label mpustop
-%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond
+%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr r0cond r1cond r2cond r3cond r4cond r5cond
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -119,6 +119,7 @@ slot: mr012345slot {ADDOPERAND(Slot, slotid, @$.S, @$.E);} |
 hmacro: IDENTIFIER {ADDOPERAND(HMacro, $1, @$.S, @$.E);};
 hmacro: IDENTIFIER LPAREN RPAREN {ADDOPERAND(HMacro, $1, @$.S, @$.E); ADDOPERAND(Imm, 1, @$.S, @$.E);};
 
+// start mreg -------------------------------------------------- 
 //yangl
 mr012345slot: R0 DOT r0inst {
   switch ($3) {
@@ -129,12 +130,20 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
+    
   case 1:
-    //r0inst: (m[i++] or m[s++]) -> r0dest
-    ADDOPERAND(Opc, UCPM::MR0ToDestSI, @$.S, @$.E);
+    //r0inst: (m[i++/s++/a++]) -> r0dest         
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      
+    flags.reset();
+	      
+    ADDOPERAND(Opc, UCPM::MR0ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+    break;
+    
   default:
     //OS<<"Parsing R0 DOT r0inst fails!"<<"\n";
     break;
@@ -150,10 +159,13 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    ADDOPERAND(Opc, UCPM::MR1ToDestSI, @$.S, @$.E);
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+    flags.reset();
+    ADDOPERAND(Opc, UCPM::MR1ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
   default:
     break;
   }
@@ -168,10 +180,13 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    ADDOPERAND(Opc, UCPM::MR2ToDestSI, @$.S, @$.E);
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);      
+    flags.reset();
+    ADDOPERAND(Opc, UCPM::MR2ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
   default:
     break;
   }
@@ -186,10 +201,13 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    ADDOPERAND(Opc, UCPM::MR3ToDestSI, @$.S, @$.E);
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+    flags.reset();
+    ADDOPERAND(Opc, UCPM::MR3ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
   default:
     break;
   }
@@ -204,10 +222,13 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    ADDOPERAND(Opc, UCPM::MR4ToDestSI, @$.S, @$.E);
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+    flags.reset();
+    ADDOPERAND(Opc, UCPM::MR4ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
   default:
     break;
   }
@@ -222,39 +243,130 @@ mr012345slot: R0 DOT r0inst {
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
     break;
   case 1:
-    ADDOPERAND(Opc, UCPM::MR5ToDestSI, @$.S, @$.E);
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+    flags.reset();
+    ADDOPERAND(Opc, UCPM::MR5ToDestSIA, @$.S, @$.E);
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit2));
     Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
   default:
     break;
   }
   slotid = 5;
-};
+}
+| r0setcondInstr | r1setcondInstr | r2setcondInstr |r3setcondInstr | r4setcondInstr |r5setcondInstr;
 
+r0setcondInstr: r0cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR0SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+r1setcondInstr: r1cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR1SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+r2setcondInstr: r2cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR2SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+r3setcondInstr: r3cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR3SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+r4setcondInstr: r4cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR4SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+r5setcondInstr: r5cond{   
+	    
+	    ADDOPERAND(Opc, UCPM::MR5SetCond, @$.S, @$.E);
+	    
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };	  
+
+r0cond: IMMSYM DOT IMM5 ASSIGNTO MREG0 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+r1cond: IMMSYM DOT IMM5 ASSIGNTO MREG1 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+r2cond: IMMSYM DOT IMM5 ASSIGNTO MREG2 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+r3cond: IMMSYM DOT IMM5 ASSIGNTO MREG3 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+r4cond: IMMSYM DOT IMM5 ASSIGNTO MREG4 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+r5cond: IMMSYM DOT IMM5 ASSIGNTO MREG5 DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};  
+	  
+	  
 r0inst: mindexn ASSIGNTO r0dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r0dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r0dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r0dest {$$ = 1};
 
 r1inst: mindexn ASSIGNTO r1dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r1dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r1dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r1dest {$$ = 1};
 
 r2inst: mindexn ASSIGNTO r2dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r2dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r2dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r2dest {$$ = 1};
 
 r3inst: mindexn ASSIGNTO r3dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r3dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r3dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r3dest {$$ = 1};
         
 r4inst: mindexn ASSIGNTO r4dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r4dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r4dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r4dest {$$ = 1};
         
 r5inst: mindexn ASSIGNTO r5dest {$$ = 0} |
-        M LBRACKET IPP RBRACKET ASSIGNTO r5dest {$$ = 1} |
-        M LBRACKET SPP RBRACKET ASSIGNTO r5dest {$$ = 1} ;
+        M LBRACKET siaflags RBRACKET ASSIGNTO r5dest {$$ = 1};
 
 mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R1 DOT error { llvmerror(&@3, "Incorrect M.r1 inst."); YYABORT;} |
@@ -271,6 +383,8 @@ r3dest: ifalut | ifmact | shu0t ;
 r4dest: ifalut | ifmact | shu1t | biu1t ;
 r5dest: ifalut | ifmact | shu2t | biu2t ;
 biut: biu0t | biu1t | biu2t ;
+
+// end mreg -------------------------------------------------- 
 
 
 // start shu --------------------------------------------------
@@ -1856,11 +1970,11 @@ shu2setcondInstr: shu2cond{
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
 	  };
 
-shu0cond: SHU0 DOT IMM5 ASSIGNTO SHU0 DOT SETCOND LBRACKET IMM5 RBRACKET 
+shu0cond: IMMSYM DOT IMM5 ASSIGNTO SHU0 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};      
-shu1cond: SHU1 DOT IMM5 ASSIGNTO SHU1 DOT SETCOND LBRACKET IMM5 RBRACKET 
+shu1cond: IMMSYM DOT IMM5 ASSIGNTO SHU1 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
-shu2cond: SHU2 DOT IMM5 ASSIGNTO SHU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
+shu2cond: IMMSYM DOT IMM5 ASSIGNTO SHU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
  
 // end shu -------------------------------------------------- 
@@ -3648,11 +3762,11 @@ setcond2Instr: biu2cond{
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
 	  };
 
-biu0cond: BIU0 DOT IMM5 ASSIGNTO BIU0 DOT SETCOND LBRACKET IMM5 RBRACKET 
+biu0cond: IMMSYM DOT IMM5 ASSIGNTO BIU0 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};      
-biu1cond: BIU1 DOT IMM5 ASSIGNTO BIU1 DOT SETCOND LBRACKET IMM5 RBRACKET 
+biu1cond: IMMSYM DOT IMM5 ASSIGNTO BIU1 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
-biu2cond: BIU2 DOT IMM5 ASSIGNTO BIU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
+biu2cond: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT SETCOND LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
     	  
 
@@ -3777,23 +3891,23 @@ imm2Instr: biu2imm{
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
 };
 
-biu0imm: BIU0 DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
+biu0imm: IMMSYM DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU0 DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU0 DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU0 DOT t LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
-biu1imm: BIU1 DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
+biu1imm: IMMSYM DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU1 DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU1 DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU1 DOT t LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
-biu2imm: BIU2 DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
+biu2imm: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ _flag biuImmflag flag_
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU2 DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm2flag flag_ 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);}
-	 | BIU2 DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET 
+	 | IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET 
 	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};
       
 // ducx end biu --------------------------------------------------
@@ -3867,9 +3981,9 @@ bbiu2te:BIU2 DOT shusrct {$$ = 0; unit = OPERAND(Reg, UCPMReg::bBIU2, @1.S, @1.E
 
 
 //dcx FOR SHU
-biu0t: BIU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-biu2t: BIU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+biu0t: BIU0 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU0, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTBIU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU1, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTBIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+biu2t: BIU2 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::BIU2, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTBIU2, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 s1biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S1BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 s2biu1t: BIU1 DOT t {$$ = 1; unit = OPERAND(Reg, UCPMReg::S2BIU1, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 sshu0t:SHU0 DOT t {$$ = 0; unit = OPERAND(Reg, UCPMReg::sSHU0, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};

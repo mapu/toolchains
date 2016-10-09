@@ -22,66 +22,97 @@ def NOP : UCPMInst <(ins), (outs), "NOP"> {
   let Inst = 0;
 }
 
-class UCPMRToDest<string header, bits<5> slotid, bits<4> mregid, Operand DestTy>
+// start MReg Instruction -------------------------------------------------
+
+
+class UCPMRToDest<string header, bits<5> slotid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
   let Inst{47-43} = slotid;
-  let Inst{14-11} = mregid;
+  let Inst{10-4} = m;
+  let Inst{3-0} = d;
 }
 
-//MR0 read instructions
-def MR0ToDestCom : UCPMRToDest<"R0.", 0b00001, 0b0110, MR0DestT> {
-  let Inst{10-4} = m;
+class MRSIAToDest<string header, bits<5> slotid, Operand DestTy>
+      : UCPAssignInstr<(ins Flags: $sia), header, "M[$sia]", DestTy> {
+  bits<3> sia;
+  let Inst{47-43} = slotid;
+  let Inst{6-4} = sia;
   let Inst{3-0} = d;
 }
-def MR0ToDestSI : UCPMRToDest<"R0.", 0b00001, 0b1110, MR0DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+
+def MR0ToDestCom : UCPMRToDest<"R0.", 0b00001, MR0DestT>{
+  let Inst{14-11} = 0b0110;
 }
-//MR1 read instructions
-def MR1ToDestCom : UCPMRToDest<"R1.", 0b00010, 0b0110, MR1DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+def MR0ToDestSIA : MRSIAToDest<"R0.", 0b00001, MR0DestT>{
+  let Inst{14-11} = 0b0111;
 }
-def MR1ToDestSI : UCPMRToDest<"R1.", 0b00010, 0b1110, MR1DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+def MR1ToDestCom : UCPMRToDest<"R1.", 0b00010, MR1DestT>{
+  let Inst{12-11} = 0b00;
 }
-//MR2 read instructions
-def MR2ToDestCom : UCPMRToDest<"R2.", 0b00011, 0b0110, MR2DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+def MR1ToDestSIA : MRSIAToDest<"R1.", 0b00010, MR1DestT>{
+  let Inst{12-11} = 0b01;
 }
-def MR2ToDestSI : UCPMRToDest<"R2.", 0b00011, 0b1110, MR2DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+def MR2ToDestCom : UCPMRToDest<"R2.", 0b00011, MR2DestT>{
+  let Inst{13-11} = 0b000;
 }
-//MR3 read instructions
-def MR3ToDestCom : UCPMRToDest<"R3.", 0b00100, 0b0110, MR3DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+def MR2ToDestSIA : MRSIAToDest<"R2.", 0b00011, MR2DestT>{
+  let Inst{13-11} = 0b001;
 }
-def MR3ToDestSI : UCPMRToDest<"R3.", 0b00100, 0b1110, MR3DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+def MR3ToDestCom : UCPMRToDest<"R3.", 0b00100, MR3DestT>{
+  let Inst{12-11} = 0b00;
 }
-//MR4 read instructions
-def MR4ToDestCom : UCPMRToDest<"R4.", 0b00101, 0b0110, MR4DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+def MR3ToDestSIA : MRSIAToDest<"R3.", 0b00100, MR3DestT>{
+  let Inst{12-11} = 0b01;
 }
-def MR4ToDestSI : UCPMRToDest<"R4.", 0b00101, 0b1110, MR4DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+def MR4ToDestCom : UCPMRToDest<"R4.", 0b00101, MR4DestT>{
+  let Inst{13-11} = 0b000;
 }
-//MR5 read instructions
-def MR5ToDestCom : UCPMRToDest<"R5.", 0b00110, 0b0110, MR5DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+def MR4ToDestSIA : MRSIAToDest<"R4.", 0b00101, MR4DestT>{
+  let Inst{13-11} = 0b001;
 }
-def MR5ToDestSI : UCPMRToDest<"R5.", 0b00110, 0b1110, MR5DestT> {
-  let Inst{10-4} = m;
-  let Inst{3-0} = d;
+
+def MR5ToDestCom : UCPMRToDest<"R5.", 0b00110, MR5DestT>{
+  let Inst{12-11} = 0b00;
+}
+def MR5ToDestSIA : MRSIAToDest<"R5.", 0b00110, MR5DestT>{
+  let Inst{12-11} = 0b01;
+}
+
+// SetCond  
+class MRegSetCondInstr<string header, bits<5> slot>
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+                                   {
+  bits<8>  imm8;
+  bit m;
+  
+  let Inst{47-43} = slot;
+  let Inst{8-4} = imm8{7-3};
+  let Inst{3-1} = imm8{2-0};
+  let Inst{0} = m;
+}
+def MR0SetCond : MRegSetCondInstr<"MReg0.", 0b00001>{
+  let Inst{14-11} = 0b1111;
+}
+def MR1SetCond : MRegSetCondInstr<"MReg1.", 0b00010>{
+  let Inst{12-11} = 0b11;
+}
+def MR2SetCond : MRegSetCondInstr<"MReg2.", 0b00011>{
+  let Inst{13-11} = 0b011;
+}
+def MR3SetCond : MRegSetCondInstr<"MReg3.", 0b00100>{
+  let Inst{12-11} = 0b11;
+}
+def MR4SetCond : MRegSetCondInstr<"MReg4.", 0b00101>{
+  let Inst{13-11} = 0b011;
+}
+def MR5SetCond : MRegSetCondInstr<"MReg5.", 0b00110>{
+  let Inst{12-11} = 0b11;
 }
 
 // NOP
@@ -116,6 +147,8 @@ def MReg5NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{12-11} = 0b10;
   let Inst{3-0} = 0b1001;
 }
+// end MReg Instruction -------------------------------------------------
+
 
 // start SHU Instruction -------------------------------------------------
 //3 kinds of base class for SHUIndToDest
@@ -160,7 +193,7 @@ class UCPSHUIndToM_SetTB<string header, bit TBSymbol, bits<5> slot, Operand Dest
 }
 
 class UCPSHUIndToMSIA_SetTB<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk",!if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)"),"-> m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk",!if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)"),"-> M[$sia]")>{
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
@@ -214,7 +247,7 @@ class UCPSHUIndToM_noImm<string header, bit TBSymbol, bits<5> slot, Operand Dest
   let Inst{6-0} = d{6-0};
 }
 class UCPSHUIndToMSIA_noImm<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]")>{
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
@@ -264,7 +297,7 @@ class UCPSHUIndToM_constTn<string header, bit TBSymbol, bits<5> slot, Operand De
   let Inst{6-0} = d{6-0};
 }
 class UCPSHUIndToMSIA_constTn<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TEPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TEPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]")>{
   bits<2> tm;
   bits<4> tn;
   bits<4> tk;
@@ -442,7 +475,7 @@ class SHUByteBitToM<string header, bits<5> slot, Operand DestTy>
     let Inst{6-0} = d{6-0};
 }
 class SHUByteBitToMSIA<string header, bits<5> slot>
-        :UCPMInst<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f, Flags:$sia), (outs), !strconcat("$op ", header,"$tm$f","-> m[$sia]")>{
+        :UCPMInst<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f, Flags:$sia), (outs), !strconcat("$op ", header,"$tm$f","-> M[$sia]")>{
     bits<32> f;
     bits<2> tm;
     bits<8> op;
@@ -1460,7 +1493,7 @@ class BIULdToM_dis<string header, bits<5> slot, Operand DestTy>
 }
 
 class BIULdToMSIA_dis<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm($ts)$f", "-> $w.m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm($ts)$f", "-> $w.M[$sia]")>{
     bits<32> f;
     bits<2> tm;
     bits<2> ts;
@@ -1548,7 +1581,7 @@ class BIULdToM_com<string header, bits<5> slot, Operand DestTy>
 }
 
 class BIULdToMSIA_com<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm$f", "-> $w.m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm$f", "-> $w.M[$sia]")>{
     bits<32> f;
     bits<2> tm;
     bit w;
@@ -1825,7 +1858,7 @@ class BIUKGInstrToM<string header, bits<5> slot, Operand DestTy>
     let Inst{5-0} = d{5-0};
 }
 class BIUKGInstrToMSIA<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm", "-> $w.m[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm", "-> $w.M[$sia]")>{
     
     bits<2> tm;
     bit w;

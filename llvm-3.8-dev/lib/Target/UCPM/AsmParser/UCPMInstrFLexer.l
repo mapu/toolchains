@@ -231,6 +231,12 @@ A   [a-zA-Z_0-9]
 "r3"                     {return TOKEN(R3);}
 "r4"                     {return TOKEN(R4);}
 "r5"                     {return TOKEN(R5);}
+"mreg0"                     {return TOKEN(MREG0);}//dcx
+"mreg1"                     {return TOKEN(MREG1);}//dcx
+"mreg2"                     {return TOKEN(MREG2);}//dcx
+"mreg3"                     {return TOKEN(MREG3);}//dcx
+"mreg4"                     {return TOKEN(MREG4);}//dcx
+"mreg5"                     {return TOKEN(MREG5);}//dcx
 "biu"                    {return TOKEN(BIU);}
 "i"[0-2]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return IPATH;} 
 "t"[0-3]                 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TREG;} 
@@ -307,6 +313,7 @@ A   [a-zA-Z_0-9]
 "h"                      {return TOKEN(H);}
 "s"                      {return TOKEN(S);}
 "stest"                  {return TOKEN(STEST);} //dcx
+"imm"                    {return TOKEN(IMMSYM);} //dcx
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
 "c"                      {return TOKEN(CFLAG);}
