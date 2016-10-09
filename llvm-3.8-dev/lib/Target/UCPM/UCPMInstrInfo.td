@@ -1438,21 +1438,74 @@ class BIULdToDest_dis<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
+class BIULdToM_dis<string header, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w), header, "$tm($ts)$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bits<2> ts;
+    bits<2> QLH;
+    bit w;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = QLH;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = ts;
+    let Inst{9} = f{0};
+    let Inst{8} = 1;
+    let Inst{7} = w;
+    let Inst{6-0} = d{6-0};
+}
+
+class BIULdToMSIA_dis<string header, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm($ts)$f", "-> $w.m[$sia]")>{
+    bits<32> f;
+    bits<2> tm;
+    bits<2> ts;
+    bits<2> QLH;
+    bit w;
+    bits<3> sia;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = QLH;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = ts;
+    let Inst{9} = f{0};
+    let Inst{6} = 1;
+    let Inst{5} = w;
+    let Inst{4-2} = sia;
+}
+
 // multiclass BIULdInstr_dis<string header, bits<5> slot>{
 //     def ToSHU  : BIULdToDest_dis<header, slot ,0b00, SHUT >;
 //     def ToMACC : BIULdToDest_dis<header, slot ,0b01, MACCT>;
 // }
 
-// ducx 20160822: biu0 test
+
 def BIU0disLdToSHU : BIULdToDest_dis<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
 def BIU0disLdToMACC: BIULdToDest_dis<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
-// ducx 20160829: biu1 test
+def BIU0disLdToBIU: BIULdToDest_dis<"BIU0.", 0b01110 ,0b00, BIU0DestTE >
+{ let Inst{4} = 1; }
+def BIU0disLdToM: BIULdToM_dis<"BIU0.", 0b01110 , MRegO >;
+def BIU0disLdToMSIA: BIULdToMSIA_dis<"BIU0.", 0b01110 >;
+
 def BIU1disLdToSHU : BIULdToDest_dis<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
 def BIU1disLdToMACC: BIULdToDest_dis<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
-// ducx 20160830: biu2 test
+def BIU1disLdToBIU: BIULdToDest_dis<"BIU1.", 0b01111 ,0b00, BIU1DestTE >
+{ let Inst{4} = 1; }
+def BIU1disLdToM: BIULdToM_dis<"BIU1.", 0b01111 , MRegO >;
+def BIU1disLdToMSIA: BIULdToMSIA_dis<"BIU1.", 0b01111 >;
+
 def BIU2disLdToSHU : BIULdToDest_dis<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
 def BIU2disLdToMACC: BIULdToDest_dis<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
-
+def BIU2disLdToBIU: BIULdToDest_dis<"BIU2.", 0b10000 ,0b00, BIU2DestTE >
+{ let Inst{4} = 1; }
+def BIU2disLdToM: BIULdToM_dis<"BIU2.", 0b10000 , MRegO >;
+def BIU2disLdToMSIA: BIULdToMSIA_dis<"BIU2.", 0b10000 >;
 
 
 // load: common/step
@@ -1475,21 +1528,70 @@ class BIULdToDest_com<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     let Inst{3-0}   = d{3-0};
 }
 
+class BIULdToM_com<string header, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $w), header, "$tm$f", DestTy>{
+
+    bits<32> f;
+    bits<2> tm;
+    bit w;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = 0b11;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = 0b00;
+    let Inst{9} = f{0};
+    let Inst{8}  = 1;
+    let Inst{7} = w;
+    let Inst{6-0} = d{6-0};
+}
+
+class BIULdToMSIA_com<string header, bits<5> slot>
+        : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm$f", "-> $w.m[$sia]")>{
+    bits<32> f;
+    bits<2> tm;
+    bit w;
+    bits<3> sia;
+    
+    let Inst{47-43} = slot;
+    let Inst{20-18} = 0b111;
+    let Inst{17-16} = f{2-1};
+    let Inst{15-14} = 0b11;
+    let Inst{13-12} = tm;
+    let Inst{11-10} = 0b00;
+    let Inst{9} = f{0};
+    let Inst{6} = 1;
+    let Inst{5} = w;
+    let Inst{4-2} = sia;
+}
+
 // multiclass BIULdInstr_com<string header, bits<5> slot>{
 //     def ToSHU  : BIULdToDest_com<header, slot ,0b00, SHUT >;
 //     def ToMACC : BIULdToDest_com<header, slot ,0b01, MACCT>;
 // }
 
-// ducx 20160822: biu0 test
+
 def BIU0ComLdToSHU : BIULdToDest_com<"BIU0.", 0b01110, 0b00, BIU0DestTE >;
 def BIU0ComLdToMACC: BIULdToDest_com<"BIU0.", 0b01110 ,0b01, BIU0DestTE >;
-// ducx 20160829: biu1 test
+def BIU0ComLdToBIU: BIULdToDest_com<"BIU0.", 0b01110 ,0b00, BIU0DestTE >
+{ let Inst{4} = 1; }
+def BIU0ComLdToM: BIULdToM_com<"BIU0.", 0b01110 , MRegO >;
+def BIU0ComLdToMSIA: BIULdToMSIA_com<"BIU0.", 0b01110  >;
+
 def BIU1ComLdToSHU : BIULdToDest_com<"BIU1.", 0b01111, 0b00, BIU1DestTE >;
 def BIU1ComLdToMACC: BIULdToDest_com<"BIU1.", 0b01111 ,0b01, BIU1DestTE >;
-// ducx 20160830: biu2 test
+def BIU1ComLdToBIU: BIULdToDest_com<"BIU1.", 0b01111 ,0b00, BIU1DestTE >
+{ let Inst{4} = 1; }
+def BIU1ComLdToM: BIULdToM_com<"BIU1.", 0b01111 , MRegO >;
+def BIU1ComLdToMSIA: BIULdToMSIA_com<"BIU1.", 0b01111 >;
+
 def BIU2ComLdToSHU : BIULdToDest_com<"BIU2.", 0b10000, 0b00, BIU2DestTE >;
 def BIU2ComLdToMACC: BIULdToDest_com<"BIU2.", 0b10000 ,0b01, BIU2DestTE >;
-
+def BIU2ComLdToBIU: BIULdToDest_com<"BIU2.", 0b10000 ,0b00, BIU2DestTE >
+{ let Inst{4} = 1; }
+def BIU2ComLdToM: BIULdToM_com<"BIU2.", 0b10000 , MRegO >;
+def BIU2ComLdToMSIA: BIULdToMSIA_com<"BIU2.", 0b10000 >;
 
 
 // store

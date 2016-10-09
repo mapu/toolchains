@@ -146,7 +146,7 @@ public:
         CurInst = CurInst->getOperand(0).getInst();
       else
         CurInst = CurInst->getOperand(CurInst->getNumOperands()-1).getInst();
-      code = getBinaryCodeForInstr(*CurInst, Fixups, STI);
+      code = getBinaryCodeForInstr(*CurInst, Fixups, STI);     
       //NOP
       if(code == 0)
         break;

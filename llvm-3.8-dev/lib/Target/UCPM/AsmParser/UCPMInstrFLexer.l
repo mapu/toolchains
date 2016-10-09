@@ -286,6 +286,11 @@ A   [a-zA-Z_0-9]
 "wait"                   {return TOKEN(WAIT);}//dcx
 "bit"                    {return TOKEN(BIT);}//dcx
 "byte"                   {return TOKEN(BYTE);}//dcx
+"w0"			 {return TOKEN(W0);}//dcx
+"w1"			 {return TOKEN(W1);}//dcx
+"w2"			 {return TOKEN(W2);}//dcx
+"w3"			 {return TOKEN(W3);}//dcx
+"w4"			 {return TOKEN(W4);}//dcx
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}
