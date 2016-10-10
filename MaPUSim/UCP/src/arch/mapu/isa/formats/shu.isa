@@ -1,0 +1,67 @@
+////////////////////////////////////////////////////////////////////
+//
+// Shuffle unit instructions
+//
+output header {{
+using namespace MapuISA;
+
+class ShuOp : public MpuStaticInst {
+protected:
+  // Constructor
+  ShuOp(const char *mnem, ExtMachInst _machInst, MOpClass __mopClass)
+    : MpuStaticInst(mnem, _machInst, __mopClass) {
+    cond = SHU_C;
+    c_not = SHU_CN;
+  }
+
+  void print1stOp(std::ostream &os) const ;
+
+  void print2ndOp(std::ostream &os) const ;
+
+  void printExpHead(std::ostream &os) const ;
+
+  void printExpTail(std::ostream &os) const ;
+
+  void printFlags(std::ostream &os) const ;
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+void ShuOp::print1stOp(std::ostream &os) const {
+  if (SHU_OP == 0x1 || SHU_OP == 0x2) os << " IND ";
+  else os << ",";
+}
+void ShuOp::print2ndOp(std::ostream &os) const {
+  if (SHU_OP == 0x1 || SHU_OP == 0x2) os << "";
+  else os << ",";
+}
+
+void ShuOp::printExpHead(std::ostream &os) const {
+  if (SHU_OP == 0x3) os << "COMB(";
+}
+
+void ShuOp::printExpTail(std::ostream &os) const {
+  if (SHU_OP == 0x2) os << "TB";
+  else if (SHU_OP == 0x3) os << SHU_IMM3 << ")";
+}
+
+void ShuOp::printFlags(std::ostream &os) const {
+  if (SHU_OP == 0x1 && SHU_TB) 
+    ccprintf(os, "(TB=+%d)", SHU_IMM3);
+  else if (SHU_OP == 0x2 && SHU_TB)
+    ccprintf(os, "(TB+=%d)", SHU_IMM3);
+  else if (SHU_TB)
+    os << "(TC)";
+}
+
+}};
+
+def format ShuOp(code, *opt_flags) {{
+  iop = InstObjParams(name, Name, 'ShuOp', code, opt_flags)
+  header_output = BasicDeclare.subst(iop)
+  decoder_output = BasicConstructor.subst(iop)
+  decode_block = CondCheckDecode.subst(iop)
+  exec_output = BasicExecute.subst(iop)
+}};
+

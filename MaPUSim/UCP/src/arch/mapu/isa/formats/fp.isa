@@ -1,0 +1,342 @@
+////////////////////////////////////////////////////////////////////
+//
+// Floating Point operate instructions
+//
+
+output header {{
+        /**
+         * Base class for FP operations.
+         */
+        class FPOp : public MapuStaticInst
+        {
+                protected:
+
+                /// Constructor
+                FPOp(const char *mnem, MachInst _machInst, OpClass __opClass) : MapuStaticInst(mnem, _machInst, __opClass)
+                {
+                }
+
+            //std::string generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+
+                //needs function to check for fpEnable or not
+        };
+
+        class FPCompareOp : public FPOp
+        {
+          protected:
+            FPCompareOp(const char *mnem, MachInst _machInst, OpClass __opClass) : FPOp(mnem, _machInst, __opClass)
+                {
+                }
+
+            std::string generateDisassembly(Addr pc, const SymbolTable *symtab) const;
+
+        };
+}};
+
+output decoder {{
+        std::string FPCompareOp::generateDisassembly(Addr pc, const SymbolTable *symtab) const
+        {
+            std::stringstream ss;
+
+            ccprintf(ss, "%-10s ", mnemonic);
+
+            if(_numSrcRegs > 0) {
+                ss << ", ";
+                printReg(ss, _srcRegIdx[0]);
+            }
+
+            if(_numSrcRegs > 1) {
+                ss << ", ";
+                printReg(ss, _srcRegIdx[1]);
+            }
+
+            return ss.str();
+        }
+}};
+
+output exec {{
+        inline Fault checkFpEnableFault(%(CPU_exec_context)s *xc)
+        {
+            //@TODO: Implement correct CP0 checks to see if the CP1
+            // unit is enable or not
+          //if (!isCoprocessorEnabled(xc, 1))
+             //return new CoprocessorUnusableFault(1);
+
+          return NoFault;
+        }
+
+        //If any operand is Nan return the appropriate QNaN
+        //template <class T>
+        bool
+        fpNanOperands(FPOp *inst, %(CPU_exec_context)s *xc,
+                      Trace::InstRecord *traceData)
+        {
+            uint64_t mapu_nan = 0;
+            //assert(sizeof(T) == 4);
+
+            for (int i = 0; i < inst->numSrcRegs(); i++) {
+                uint64_t src_bits = xc->readFloatRegOperandBits(inst, 0);
+
+                if (isNan(&src_bits, 32) ) {
+                    mapu_nan = MAPU32_QNAN;
+                    xc->setFloatRegOperandBits(inst, 0, mapu_nan);
+                    if (traceData) { traceData->setData(mapu_nan); }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template <class T>
+        bool
+        fpInvalidOp(FPOp *inst, %(CPU_exec_context)s *cpu, const T dest_val,
+                    Trace::InstRecord *traceData)
+        {
+            uint64_t mapu_nan = 0;
+            T src_op = dest_val;
+            assert(sizeof(T) == 4);
+
+            if (isNan(&src_op, 32)) {
+                mapu_nan = MAPU32_QNAN;
+
+                //Set value to QNAN
+                cpu->setFloatRegOperandBits(inst, 0, mapu_nan);
+
+                //Read FCSR from FloatRegFile
+                /*uint32_t fcsr_bits =
+                    cpu->tcBase()->readFloatRegBits(FLOATREG_FCSR);
+
+                uint32_t new_fcsr = genInvalidVector(fcsr_bits);
+
+                //Write FCSR from FloatRegFile
+                cpu->tcBase()->setFloatRegBits(FLOATREG_FCSR, new_fcsr);*/
+
+                if (traceData) { traceData->setData(mapu_nan); }
+                return true;
+            }
+
+            return false;
+        }
+
+        /*void
+        fpResetCauseBits(%(CPU_exec_context)s *cpu)
+        {
+            //Read FCSR from FloatRegFile
+            uint32_t fcsr = cpu->tcBase()->readFloatRegBits(FLOATREG_FCSR);
+
+            // TODO: Use utility function here
+            fcsr = bits(fcsr, 31, 18) << 18 | bits(fcsr, 11, 0);
+
+            //Write FCSR from FloatRegFile
+            cpu->tcBase()->setFloatRegBits(FLOATREG_FCSR, fcsr);
+        }*/
+}};
+
+def template FloatingPointExecute {{
+        Fault %(class_name)s::execute(%(CPU_exec_context)s *xc, Trace::InstRecord *traceData) const
+        {
+                Fault fault = NoFault;
+
+                %(fp_enable_check)s;
+
+
+                //When is the right time to reset cause bits?
+                //start of every instruction or every cycle?
+                //if (FullSystem)
+                    //fpResetCauseBits(xc);
+                %(op_decl)s;
+                %(op_rd)s;
+
+                //Check if any FP operand is a NaN value
+                if (!fpNanOperands((FPOp*)this, xc, traceData)) {
+                    %(code)s;
+
+                    //Change this code for Full-System/Sycall Emulation
+                    //separation
+                    //----
+                    //Should Full System-Mode throw a fault here?
+                    //----
+                    //Check for IEEE 754 FP Exceptions
+                    //fault = fpNanOperands((FPOp*)this, xc, Fd, traceData);
+                    bool invalid_op = false;
+                    if (FullSystem) {
+                        /*invalid_op =
+                            fpInvalidOp((FPOp*)this, xc, Fd, traceData);*/
+                    }
+                    if (!invalid_op && fault == NoFault) {
+                        %(op_wb)s;
+                    }
+                }
+
+                return fault;
+        }
+}};
+
+// Primary format for float point operate instructions:
+def format FloatOp(code, *flags) {{
+        iop = InstObjParams(name, Name, 'FPOp', code, flags)
+        header_output = BasicDeclare.subst(iop)
+        decoder_output = BasicConstructor.subst(iop)
+        decode_block = BasicDecode.subst(iop)
+        exec_output = FloatingPointExecute.subst(iop)
+}};
+
+def format FloatCompareOp(cond_code, *flags) {{
+    import sys
+
+    code = 'bool cond;\n'
+    if '_sf' in cond_code or 'SinglePrecision' in flags:
+        if 'QnanException' in flags:
+            code += 'if (isQnan(&Fs_sf, 32) || isQnan(&Ft_sf, 32)) {\n'
+            code += '\tFCSR = genInvalidVector(FCSR);\n'
+            code += '\treturn NoFault;'
+            code += '}\n else '
+        code += 'if (isNan(&Fs_sf, 32) || isNan(&Ft_sf, 32)) {\n'
+    elif '_df' in cond_code or 'DoublePrecision' in flags:
+        if 'QnanException' in flags:
+            code += 'if (isQnan(&Fs_df, 64) || isQnan(&Ft_df, 64)) {\n'
+            code += '\tFCSR = genInvalidVector(FCSR);\n'
+            code += '\treturn NoFault;'
+            code += '}\n else '
+        code += 'if (isNan(&Fs_df, 64) || isNan(&Ft_df, 64)) {\n'
+    else:
+       sys.exit('Decoder Failed: Can\'t Determine Operand Type\n')
+
+    if 'UnorderedTrue' in flags:
+       code += 'cond = 1;\n'
+    elif 'UnorderedFalse' in flags:
+       code += 'cond = 0;\n'
+    else:
+       sys.exit('Decoder Failed: Float Compare Instruction Needs A Unordered Flag\n')
+
+    code += '} else {\n'
+    code +=  cond_code + '}'
+    code += 'FCSR = genCCVector(FCSR, CC, cond);\n'
+
+    iop = InstObjParams(name, Name, 'FPCompareOp', code)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format FloatConvertOp(code, *flags) {{
+    import sys
+
+    #Determine Source Type
+    convert = 'fpConvert('
+    if '_sf' in code:
+        code = 'float ' + code + '\n'
+        convert += 'SINGLE_TO_'
+    elif '_df' in code:
+        code = 'double ' + code + '\n'
+        convert += 'DOUBLE_TO_'
+    elif '_w' in code:
+        code = 'int32_t ' + code + '\n'
+        convert += 'WORD_TO_'
+    elif '_uw' in code:
+        code = 'uint32_t ' + code + '\n'
+        convert += 'WORD_TO_'
+    else:
+        sys.exit("Error Determining Source Type for Conversion")
+
+    #Determine Destination Type
+    if 'ToSingle' in flags:
+        code += 'Fd_uw = ' + convert + 'SINGLE, '
+    elif 'ToDouble' in flags:
+        code += 'DRd_ud = ' + convert + 'DOUBLE, '
+    elif 'ToUWord' in flags:
+        code += 'Rd_uw = ' + convert + 'WORD, '
+    elif 'UToSingle' in flags:
+        code += 'Fd_uw = ' + convert + 'SINGLE, '
+    elif 'UToDouble' in flags:
+        code += 'DRd_ud = ' + convert + 'DOUBLE, '
+    elif 'ToWord' in flags:
+        code += 'Rd_uw = ' + convert + 'UWORD, '
+    else:
+        sys.exit("Error Determining Destination Type for Conversion")
+
+    #Figure out how to round value
+    if 'Ceil' in flags:
+        code += 'ceil(val)); '
+    elif 'Floor' in flags:
+        code += 'floor(val)); '
+    elif 'Round' in flags:
+        code += 'roundFP(val, 0)); '
+    elif 'Trunc' in flags:
+        code += 'truncFP(val));'
+    else:
+        code += 'val); '
+
+    iop = InstObjParams(name, Name, 'FPOp', code)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+
+def format FloatAccOp(code, *flags) {{
+        iop = InstObjParams(name, Name, 'FPOp', code, flags)
+        header_output = BasicDeclare.subst(iop)
+        decoder_output = BasicConstructor.subst(iop)
+        decode_block = BasicDecode.subst(iop)
+        exec_output = BasicExecute.subst(iop)
+}};
+
+// Primary format for float64 operate instructions:
+def format Float64Op(code, *flags) {{
+        iop = InstObjParams(name, Name, 'MapuStaticInst', code, flags)
+        header_output = BasicDeclare.subst(iop)
+        decoder_output = BasicConstructor.subst(iop)
+        decode_block = BasicDecode.subst(iop)
+        exec_output = BasicExecute.subst(iop)
+}};
+
+def format FloatPSCompareOp(cond_code1, cond_code2, *flags) {{
+    import sys
+
+    code = 'bool cond1, cond2;\n'
+    code += 'bool code_block1, code_block2;\n'
+    code += 'code_block1 = code_block2 = true;\n'
+
+    if 'QnanException' in flags:
+        code += 'if (isQnan(&Fs1_sf, 32) || isQnan(&Ft1_sf, 32)) {\n'
+        code += '\tFCSR = genInvalidVector(FCSR);\n'
+        code += 'code_block1 = false;'
+        code += '}\n'
+        code += 'if (isQnan(&Fs2_sf, 32) || isQnan(&Ft2_sf, 32)) {\n'
+        code += '\tFCSR = genInvalidVector(FCSR);\n'
+        code += 'code_block2 = false;'
+        code += '}\n'
+
+    code += 'if (code_block1) {'
+    code += '\tif (isNan(&Fs1_sf, 32) || isNan(&Ft1_sf, 32)) {\n'
+    if 'UnorderedTrue' in flags:
+       code += 'cond1 = 1;\n'
+    elif 'UnorderedFalse' in flags:
+       code += 'cond1 = 0;\n'
+    else:
+       sys.exit('Decoder Failed: Float Compare Instruction Needs A Unordered Flag\n')
+    code += '} else {\n'
+    code +=  cond_code1
+    code += 'FCSR = genCCVector(FCSR, CC, cond1);}\n}\n'
+
+    code += 'if (code_block2) {'
+    code += '\tif (isNan(&Fs2_sf, 32) || isNan(&Ft2_sf, 32)) {\n'
+    if 'UnorderedTrue' in flags:
+       code += 'cond2 = 1;\n'
+    elif 'UnorderedFalse' in flags:
+       code += 'cond2 = 0;\n'
+    else:
+       sys.exit('Decoder Failed: Float Compare Instruction Needs A Unordered Flag\n')
+    code += '} else {\n'
+    code +=  cond_code2
+    code += 'FCSR = genCCVector(FCSR, CC, cond2);}\n}'
+
+    iop = InstObjParams(name, Name, 'FPCompareOp', code)
+    header_output = BasicDeclare.subst(iop)
+    decoder_output = BasicConstructor.subst(iop)
+    decode_block = BasicDecode.subst(iop)
+    exec_output = BasicExecute.subst(iop)
+}};
+

@@ -1,0 +1,141 @@
+def operand_types {{
+    'sb' : 'int8_t',
+    'ub' : 'uint8_t',
+    'sh' : 'int16_t',
+    'uh' : 'uint16_t',
+    'sw' : 'int32_t',
+    'w' : 'uint32_t',
+    'uw' : 'uint32_t',
+    'sd' : 'int64_t',
+    'ud' : 'uint64_t',
+    'sf' : 'float',
+    'df' : 'double',
+    'v'  : 'MPUReg',
+    'bc' : 'BiuContext',
+}};
+
+def operands {{
+    #General Purpose Integer Reg Operands
+    'Rd': ('IntReg', 'uw', 'RD', 'IsInteger', 3),
+    'Rs': ('IntReg', 'uw', 'RS', 'IsInteger', 2),
+    'Rt': ('IntReg', 'uw', 'RT', 'IsInteger', 3),
+    'Rf': ('IntReg', 'uw', 'RD', 'IsInteger', 4),
+    'Rm': ('IntJReg', 'uw', 'RM', 'IsInteger', 3),
+
+    'Jd': ('IntJReg', 'uw', 'JD', 'IsInteger', 3),
+    'Js': ('IntJReg', 'uw', 'JS', 'IsInteger', 2),
+    'Jt': ('IntJReg', 'uw', 'JT', 'IsInteger', 3),
+    'Jf': ('IntJReg', 'uw', 'JD', 'IsInteger', 4),
+    'Jm': ('IntJReg', 'uw', 'JM', 'IsInteger', 3),
+
+    #Floating Point Reg Operands
+    'Fd': ('FloatReg', 'sf', 'FD', 'IsFloating', 1),
+    'Fs': ('FloatReg', 'sf', 'FS', 'IsFloating', 2),
+    'Ft': ('FloatReg', 'sf', 'FT', 'IsFloating', 3),
+    'Fr': ('FloatReg', 'sf', 'FR', 'IsFloating', 3),
+
+    'DRd': ('DoubleReg', 'df', 'DRD', 'IsFloating', 3),
+    'DRs': ('DoubleReg', 'df', 'DRS', 'IsFloating', 2),
+    'DRt': ('DoubleReg', 'df', 'DRT', 'IsFloating', 3),
+    'DRf': ('DoubleReg', 'df', 'DRD', 'IsFloating', 4),
+
+    #Operands used for Link or Syscall Insts
+    'R31': ('IntReg', 'uw','31','IsInteger', 4),
+    'J30': ('IntJReg', 'uw','30','IsInteger', 4),
+    'J33': ('IntJReg', 'uw','33','IsInteger', 4),
+    'J34': ('IntJReg', 'uw','34','IsInteger', 4),
+    'J35': ('IntJReg', 'uw','35','IsInteger', 4),
+    'R2':  ('IntReg', 'uw','2', 'IsInteger', 5),
+
+    'CI':       ('ControlReg', 'ud', 'MISCREG_CI', None,1),
+
+    'LPEN' :      ('ControlReg', 'uw', 'MISCREG_LPEN', None,1),
+    'LP0S' :      ('ControlReg', 'uw', 'MISCREG_LP0S', None,1),
+    'LP0E' :      ('ControlReg', 'uw', 'MISCREG_LP0E', None,2),
+    'LP0N' :      ('ControlReg', 'uw', 'MISCREG_LP0N', None,3),
+
+    'LP1S' :      ('ControlReg', 'uw', 'MISCREG_LP1S', None,1),
+    'LP1E' :      ('ControlReg', 'uw', 'MISCREG_LP1E', None,2),
+    'LP1N' :      ('ControlReg', 'uw', 'MISCREG_LP1N', None,3),
+
+    # flag reg referred by MPU conditional execution
+    'Cond' :      ('ControlReg', 'uw', 'MISCREG_MPUCOND', None,3),
+    
+    # SYN Operands
+    'KREGs' :     ('ControlReg', 'uw', 'KREGS + MISCREG_KB_BASE', None, 1),
+    'KIReg' :     ('KIReg', 'uw', 'KREGS + MISCREG_KB_BASE', None, 1),
+    'Rm':         ('IntReg', 'uw', 'RM', 'IsInteger', 1),
+    'DRm':        ('DoubleReg', 'df', 'DRM', 'IsFloating', 1),
+    'SHU0s':      ('SPUVector', 'v', 'SYN_SHU0 + NumMRegs', 'IsVector', 1),
+    'SHU1s':      ('SPUVector', 'v', 'SYN_SHU1 + NumMRegs + NumShu0TRegs', 'IsVector', 1),
+    'SVRm' :      ('SPUVector', 'v', 'SYN_SVR + SYN_SVR_BASE', 'IsVector', 1),
+    'SVRp' :      ('SPUVector', 'v', 'SYN_SVR + SYN_SVR_BASE', 'IsVector', 5),
+    'PSVRm' :     ('SPUPartialVector', 'uw', 'SYN_SVR + SYN_SVR_BASE', 'IsVector', 1),
+    'MCi' :       ('ControlReg',   'uw', 'MCI + MISCREG_MC_BASE', None,1),
+    'MIi' :       ('ControlReg',   'uw', 'MCI + MISCREG_MI_BASE', None,1),
+    'MSi' :       ('ControlReg',   'uw', 'MCI + MISCREG_MS_BASE', None,1),
+    'Ri':         ('IntReg', 'uw', 'RI', 'IsInteger', 1),
+    'SVRs' :      ('SPUVector', 'v', 'SVRS + SYN_SVR_BASE', 'IsVector', 5),
+
+    #Memory Operand
+    'Mem': ('Mem', 'uw', None, ('IsMemRef', 'IsLoad', 'IsStore'), 4),
+
+    #Program Counter Operands
+    'PC': ('PCState', 'uw', 'pc', (None, None, 'IsControl'), 4),
+    'NPC': ('PCState', 'uw', 'npc', (None, None, 'IsControl'), 4),
+    'NLPC': ('PCState', 'uw', 'nlpc', (None, None, 'IsControl'), 4),
+
+    # MPU Operands
+    'MPUd': ('MPUReg', 'v', 'DEST', 'IsVector', 4),
+    'MPUd8b': ('MPUReg', 'v', 'DEST8B', 'IsVector', 4),
+    'MPUd4b': ('MPUReg', 'v', 'DEST4B', 'IsVector', 4),
+    'MPUhd': ('MPURegHi', 'v', 'DEST', 'IsVector', 4),
+    'BiuCtxD': ('DMemEADest', 'bc', 'BIUDEST', 'IsInteger', 5),
+
+    'Mr0s': ('MPUReg', 'v', 'MR0_MS', 'IsVector', 1),
+    'Mr1s': ('MPUReg', 'v', 'MR1_MS', 'IsVector', 1),
+    'Mr2s': ('MPUReg', 'v', 'MR2_MS', 'IsVector', 1),
+    'Mr3s': ('MPUReg', 'v', 'MR3_MS', 'IsVector', 1),
+
+    'ShuTm': ('MPUReg', 'v', 'SHU_TM', 'IsVector', 1),
+    'ShuTn': ('MPUReg', 'v', 'SHU_TN', 'IsVector', 2),
+    'ShuTb': ('MPURegTB', 'v', 'SHUTB', 'IsVector', 6),
+    'ShuTcl': ('MPURegTB', 'v', 'SHUTCL', 'IsVector', 6),
+    'ShuTch': ('MPURegTB', 'v', 'SHUTCH', 'IsVector', 6),
+
+    'IaluTm': ('MPUReg', 'v', 'IALU_TM', 'IsVector', 1),
+    'IaluTn': ('MPUReg', 'v', 'IALU_TN', 'IsVector', 2),
+    'IaluTp': ('MPUReg', 'v', 'IALU_TP', 'IsVector', 3),
+
+    'ImacTm': ('MPUReg', 'v', 'IMAC_TM', 'IsVector', 2),
+    'ImacTn': ('MPUReg', 'v', 'IMAC_TN', 'IsVector', 3),
+    'ImacTp': ('MPUReg', 'v', 'IMAC_TP', 'IsVector', 1),
+    'Mrl': ('MPUReg', 'v', 'IMACMRL', 'IsVector', 3),
+    'Mrh': ('MPURegNoTrace', 'v', 'IMACMRH', 'IsVector', 3),
+
+    'FaluTm': ('MPUReg', 'v', 'FALU_TM', 'IsVector', 1),
+    'FaluTmp1': ('MPUReg', 'v', '(FALU_TM + 1) & 3', 'IsVector', 1),
+    'FaluTn': ('MPUReg', 'v', 'FALU_TN', 'IsVector', 2),
+
+    'FmacTm': ('MPUReg', 'v', 'FMAC_TM', 'IsVector', 1),
+    'FmacTn': ('MPUReg', 'v', 'FMAC_TN', 'IsVector', 2),
+    'FmacTp': ('MPUReg', 'v', 'FMAC_TP', 'IsVector', 3),
+    'Mrf': ('MPUReg', 'v', 'FMACMR', 'IsVector', 4),
+
+    'Biu0s': ('MPUReg', 'v', '0', 'IsVector', 1),
+    'Biu1s': ('MPUReg', 'v', '0', 'IsVector', 1),
+    'Biu2s': ('MPUReg', 'v', '0', 'IsVector', 1),
+    'DMem': ('Mem', 'v', None, ('IsMemRef', 'IsLoad', 'IsStore'), 5),
+    'BiuCtx': ('DMemEA', 'bc', None, 'IsInteger', 5),
+    'BiuCtxS': ('DMemEASrc', 'bc', '(SlotNum - 10)', 'IsInteger', 5),
+
+    'DIVQU': ('MPUReg', 'v', 'DIVQU', 'IsVector', 0),
+    'DIVRE': ('MPUReg', 'v', 'DIVRE', 'IsVector',1),
+    'DIV_CNT':('MPUReg', 'v', 'DIV_CNT', 'IsVector',2),
+
+    'KIs': ('ControlReg', 'uw', 'MSEQ_KI + MISCREG_KI_BASE + 12', None, 1),
+    'lps': ('ControlReg', 'uw', 'MISCREG_MLP0S + MSEQ_KI', None, 2),
+    'lpn': ('ControlReg', 'uw', 'MISCREG_MLP0N + MSEQ_KI', None, 3),
+    'lpe': ('ControlReg', 'uw', 'MISCREG_MLP0E + MSEQ_KI', None, 4),
+    'lpen': ('ControlReg', 'uw', 'MISCREG_MLPEN', None, 5)
+}};

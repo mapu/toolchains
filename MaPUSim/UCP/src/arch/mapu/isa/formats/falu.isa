@@ -1,0 +1,105 @@
+////////////////////////////////////////////////////////////////////
+//
+// Floating point ALU instructions
+//
+output header {{
+using namespace MapuISA;
+
+class FaluOp : public MpuStaticInst {
+protected:
+  // Constructor
+  FaluOp(const char *mnem, ExtMachInst _machInst, MOpClass __mopClass)
+    : MpuStaticInst(mnem, _machInst, __mopClass) {
+    cond = FALU_C;
+    c_not = FALU_CN;
+    Flags = FALU_FLAG;
+  }
+
+  void print1stOp(std::ostream &os) const ;
+
+  void printExpHead(std::ostream &os) const ;
+
+  void printExpTail(std::ostream &os) const ;
+
+  void printFlags(std::ostream &os) const ;
+};
+}};
+
+//Outputs to decoder.cc
+output decoder {{
+void FaluOp::print1stOp(std::ostream &os) const {
+  switch (FALU_OP) {
+  case 0x1: os << "+"; break;
+  case 0x2: os << "-"; break;
+  case 0x6: os << "+-"; break;
+  case 0x8: os << "=="; break;
+  case 0x9: os << "!="; break;
+  case 0xA: os << ">"; break;
+  case 0xB: os << ">="; break;
+  case 0xC: os << "<"; break;
+  case 0xD: os << "<="; break;
+  case 0x10:  // Single
+  case 0x11:  // Double
+  case 0x12:  // Int
+  case 0x13:  // UInt
+  case 0x18:  // Recip
+  case 0x19: break;  // RSqrt
+  default: os << ","; break;
+  }
+}
+
+void FaluOp::printExpHead(std::ostream &os) const {
+  switch (FALU_OP) {
+  case 0x3: os << "MAX("; break;
+  case 0x4: os << "MIN("; break;
+  case 0x5: os << "ABS("; break;
+  case 0x10: os << "Single "; break;
+  case 0x11: os << "Double "; break;
+  case 0x12: os << "Int "; break;
+  case 0x13: os << "UInt "; break;
+  case 0x18: os << "Recip "; break;
+  case 0x19: os << "RSqrt "; break;
+  default: break;
+  }
+}
+
+void FaluOp::printExpTail(std::ostream &os) const {
+  switch (FALU_OP) {
+    case 0x3:
+    case 0x4:
+    case 0x5: os << ")"; break;
+    default: break;
+  }
+}
+
+void FaluOp::printFlags(std::ostream &os) const {
+  std::string split = "";
+  if (Flags) {
+    os << "(";
+    if (FALU_T) {
+      os << "T";
+      split = ",";
+    }
+    if (FALU_U) {
+      os << split << "U";
+      split = ",";
+    }
+    if (FALU_S) {
+      os << split << "S";
+      split = ",";
+    }
+    if (FALU_D) os << split << "D";
+    os << ")";
+  }
+}
+
+}};
+
+def format FaluOp(code, *opt_flags) {{
+  iop = InstObjParams(name, Name, 'FaluOp', code, opt_flags)
+  header_output = BasicDeclare.subst(iop)
+  decoder_output = BasicConstructor.subst(iop)
+  decode_block = CondCheckDecode.subst(iop)
+  exec_output = BasicExecute.subst(iop)
+}};
+
