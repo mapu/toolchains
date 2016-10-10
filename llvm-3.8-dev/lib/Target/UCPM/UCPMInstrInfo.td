@@ -115,6 +115,71 @@ def MR5SetCond : MRegSetCondInstr<"MReg5.", 0b00110>{
   let Inst{12-11} = 0b11;
 }
 
+// ConfigBIU  
+class ConfigBIUInstr<string header, bits<5> slot>
+        : UCPMInst<(ins MReg: $s, TPort: $tm, Flags: $mm), (outs), !strconcat(header, "$s", "-> ConfigBIU.", "$tm[$mm]")>{
+  bits<7> s;
+  bits<2> tm;
+  bits<4> mm;
+  
+  let Inst{47-43} = slot;
+  let Inst{12-11} = tm;
+  let Inst{10-4} = s;
+  let Inst{3-0} = mm;
+}
+
+def MR0ConfigBIU : ConfigBIUInstr<"R0.", 0b00001>;
+def MR2ConfigBIU : ConfigBIUInstr<"R2.", 0b00011>{
+  let Inst{13} =1;
+}
+def MR4ConfigBIU : ConfigBIUInstr<"R4.", 0b00101>{
+  let Inst{13} =1;
+}
+
+
+// ConfigMFetch  
+def MR0ConfigMFetch
+        : UCPMInst<(ins MReg: $s, Flags: $mm), (outs), !strconcat("$s", "-> ConfigMFetch", "[$mm]")>{
+  bits<7> s;
+  bits<4> mm;
+  
+  let Inst{47-43} = 0b00001;
+  let Inst{14-11} = 0b0100;
+  let Inst{10-4} = s;
+  let Inst{3-0} = mm;
+}
+
+// ConfigMR
+def MR0ConfigMR
+        : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs), !strconcat("$s", "-> ConfigMr[$x]", "($SI)")>{
+  bits<7> s;
+  bit SI;
+  bits<4> x;
+  
+  let Inst{47-43} = 0b00001;
+  let Inst{14-13} = 0b10;
+  let Inst{12} = 0;
+  let Inst{11} = SI;
+  let Inst{10-4} = s;
+  let Inst{3-0} = x;
+}
+
+// ConfigMW
+def MR0ConfigMW
+        : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs), !strconcat("$s", "-> ConfigMw[$x]", "($SI)")>{
+  bits<7> s;
+  bit SI;
+  bits<4> x;
+  
+  let Inst{47-43} = 0b00001;
+  let Inst{14-13} = 0b10;
+  let Inst{12} = 1;
+  let Inst{11} = SI;
+  let Inst{10-4} = s;
+  let Inst{3-0} = x;
+}
+
+
 // NOP
 def MReg0NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00001;

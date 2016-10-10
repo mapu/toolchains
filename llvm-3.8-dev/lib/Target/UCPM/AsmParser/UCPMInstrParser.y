@@ -6,7 +6,8 @@ std::bitset<64> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, MLF=13, MHF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36,
-               W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42;
+               W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
+               KI5F =58, KI6F=59, KI7F=60;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -55,11 +56,11 @@ typedef struct YYLTYPE {
 %token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND STEST Q QL QH ML MH BIT BYTE
-%token <val> TRUE ASSIGN NOOP UINT DM KG R0 R1 R2 R3 R4 R5 IPATH WFLAG
+%token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGEABLE L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI
-%token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5
+%token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5 KI1215 KI1619 KI2023 KI2427 KI1227 KI1618 KI2022 KI2426 
 
 %type <val> slots slotref slot 
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
@@ -70,7 +71,7 @@ typedef struct YYLTYPE {
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label mpustop
-%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr r0cond r1cond r2cond r3cond r4cond r5cond
+%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr 
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -255,7 +256,168 @@ mr012345slot: R0 DOT r0inst {
   }
   slotid = 5;
 }
-| r0setcondInstr | r1setcondInstr | r2setcondInstr |r3setcondInstr | r4setcondInstr |r5setcondInstr;
+| r0setcondInstr | r1setcondInstr | r2setcondInstr |r3setcondInstr | r4setcondInstr |r5setcondInstr
+| r0configbiu | r2configbiu | r4configbiu | r0configmfetch | r0configmr | r0configmw;
+
+r0configmr: configmr{
+
+		  if(flags[SF])
+		      flagsort = 0x0;
+		  else if(flags[IF])
+		      flagsort = 0x1;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR0ConfigMR, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+}
+configmr: mindexn ASSIGNTO CONFIGMR LBRACKET IMM5 RBRACKET _flag siflag flag_
+	  {imm = OPERAND(Imm, $5, @5.S, @5.E);};
+
+r0configmw: configmw{
+
+		  if(flags[SF])
+		      flagsort = 0x0;
+		  else if(flags[IF])
+		      flagsort = 0x1;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR0ConfigMW, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+}
+configmw: mindexn ASSIGNTO CONFIGMW LBRACKET IMM5 RBRACKET _flag siflag flag_
+	  {imm = OPERAND(Imm, $5, @5.S, @5.E);};
+	  
+	  
+r0configmfetch: mindexn ASSIGNTO CONFIGMFETCH LBRACKET configmflag RBRACKET{
+	     
+		  if(flags[KI0F])
+		      flagsort = 0x0;
+		  else if(flags[KI1F])
+		      flagsort = 0x1;
+		  else if(flags[KI2F])
+		      flagsort = 0x2;
+		  else if(flags[KI3F])
+		      flagsort = 0x3;
+		  else if(flags[KI4F])
+		      flagsort = 0x4;
+		  else if(flags[KI5F])
+		      flagsort = 0x5;
+		  else if(flags[KI6F])
+		      flagsort = 0x6;
+		  else if(flags[KI7F])
+		      flagsort = 0x7;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR0ConfigMFetch, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+};
+
+r0configbiu: R0 DOT mindexn ASSIGNTO CONFIGBIU DOT t LBRACKET configflag RBRACKET{
+	     
+		  if(flags[KMF])
+		      flagsort = 0x0;
+		  else if(flags[KGF])
+		      flagsort = 0x2;
+		  else if(flags[KEF])
+		      flagsort = 0x5;
+		  else if(flags[KMEABLEF])
+		      flagsort = 0x1;
+		  else if(flags[KGEABLEF])
+		      flagsort = 0x3;
+		  else if(flags[BRF])
+		      flagsort = 0x4;
+		  else if(flags[L1F])
+		      flagsort = 0xc;
+		  else if(flags[L2F])
+		      flagsort = 0xd;
+		  else if(flags[L3F])
+		      flagsort = 0xe;
+		  else if(flags[L4F])
+		      flagsort = 0xf;
+		  else if(flags[ALLF])
+		      flagsort = 0x8;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR0ConfigBIU, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm)); 
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+};
+
+r2configbiu: R2 DOT mindexn ASSIGNTO CONFIGBIU DOT t LBRACKET configflag RBRACKET{
+	     
+		  if(flags[KMF])
+		      flagsort = 0x0;
+		  else if(flags[KGF])
+		      flagsort = 0x2;
+		  else if(flags[KEF])
+		      flagsort = 0x5;
+		  else if(flags[KMEABLEF])
+		      flagsort = 0x1;
+		  else if(flags[KGEABLEF])
+		      flagsort = 0x3;
+		  else if(flags[BRF])
+		      flagsort = 0x4;
+		  else if(flags[L1F])
+		      flagsort = 0xc;
+		  else if(flags[L2F])
+		      flagsort = 0xd;
+		  else if(flags[L3F])
+		      flagsort = 0xe;
+		  else if(flags[L4F])
+		      flagsort = 0xf;
+		  else if(flags[ALLF])
+		      flagsort = 0x8;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR2ConfigBIU, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm)); 
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+};
+
+r4configbiu: R4 DOT mindexn ASSIGNTO CONFIGBIU DOT t LBRACKET configflag RBRACKET{
+	     
+		  if(flags[KMF])
+		      flagsort = 0x0;
+		  else if(flags[KGF])
+		      flagsort = 0x2;
+		  else if(flags[KEF])
+		      flagsort = 0x5;
+		  else if(flags[KMEABLEF])
+		      flagsort = 0x1;
+		  else if(flags[KGEABLEF])
+		      flagsort = 0x3;
+		  else if(flags[BRF])
+		      flagsort = 0x4;
+		  else if(flags[L1F])
+		      flagsort = 0xc;
+		  else if(flags[L2F])
+		      flagsort = 0xd;
+		  else if(flags[L3F])
+		      flagsort = 0xe;
+		  else if(flags[L4F])
+		      flagsort = 0xf;
+		  else if(flags[ALLF])
+		      flagsort = 0x8;
+	      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+	      flags.reset();
+	      
+	   ADDOPERAND(Opc, UCPM::MR4ConfigBIU, @$.S, @$.E);
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm)); 
+	   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+};
 
 r0setcondInstr: r0cond{   
 	    
@@ -4109,7 +4271,31 @@ wflag:	       W0 {flags.set(W0F);}     |
                W1 {flags.set(W1F);}     |
                W2 {flags.set(W2F);}     |
                W3 {flags.set(W3F);}     |
-               W4 {flags.set(W4F);}     ;             
+               W4 {flags.set(W4F);}     ;    
                
+configflag:   KM {flags.set(KMF);}     |
+	      KG {flags.set(KGF);}     |
+	      KE {flags.set(KEF);}     |
+	      KMEABLE {flags.set(KMEABLEF);}     |
+	      KGEABLE {flags.set(KGEABLEF);}     |
+	      BR {flags.set(BRF);}     |
+	      L1 {flags.set(L1F);}     |
+	      L2 {flags.set(L2F);}     |
+	      L3 {flags.set(L3F);}     |
+	      L4 {flags.set(L4F);}     |
+	      ALL {flags.set(ALLF);}     ;
+    
+configmflag:  KI1215 {flags.set(KI0F);} |
+	      KI1619 {flags.set(KI1F);} |
+	      KI2023 {flags.set(KI2F);} |
+	      KI2427 {flags.set(KI3F);} |
+	      KI1227 {flags.set(KI4F);} |
+	      KI1618 {flags.set(KI5F);} |
+	      KI2022 {flags.set(KI6F);} |
+	      KI2426 {flags.set(KI7F);} ;
+	      
+siflag :      S   {flags.set(SF);}  |
+              I   {flags.set(IF);}  ;
+
 kiflag: KI;
 label: EXPR{$$=0;expr=$1;  OS<<"Position 1\n";} | IMM5 {$$=$1;expr=0;};

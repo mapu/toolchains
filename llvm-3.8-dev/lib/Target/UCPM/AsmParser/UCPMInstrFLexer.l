@@ -298,6 +298,32 @@ A   [a-zA-Z_0-9]
 "w3"			 {return TOKEN(W3);}//dcx
 "w4"			 {return TOKEN(W4);}//dcx
 "k"   			 {return TOKEN(K);}//dcx
+
+"km"   			 {return TOKEN(KM);}//dcx
+"kg"   			 {return TOKEN(KG);}//dcx
+"ke"   			 {return TOKEN(KE);}//dcx
+"kmeable"   		 {return TOKEN(KMEABLE);}//dcx
+"kgeable"   		 {return TOKEN(KGEABLE);}//dcx
+"l1"   			 {return TOKEN(L1);}//dcx
+"l2"   			 {return TOKEN(L2);}//dcx
+"l3"   			 {return TOKEN(L3);}//dcx
+"l4"   			 {return TOKEN(L4);}//dcx
+"all"   		 {return TOKEN(ALL);}//dcx
+"configbiu" 		 {return TOKEN(CONFIGBIU);}//dcx
+"configmfetch" 		 {return TOKEN(CONFIGMFETCH);}//dcx
+"configmr" 		 {return TOKEN(CONFIGMR);}//dcx
+"configmw" 		 {return TOKEN(CONFIGMW);}//dcx
+
+"ki12-15"   			 {return TOKEN(KI1215);}//dcx
+"ki16-19"   			 {return TOKEN(KI1619);}//dcx
+"ki20-23"   			 {return TOKEN(KI2023);}//dcx
+"ki24-27"   		 	 {return TOKEN(KI2427);}//dcx
+"ki12-27"   			 {return TOKEN(KI1227);}//dcx
+"ki16-18"   			 {return TOKEN(KI1618);}//dcx
+"ki20-22"   			 {return TOKEN(KI2022);}//dcx
+"ki24-26"   			 {return TOKEN(KI2426);}//dcx
+
+
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
 "r"                      {return TOKEN(R);}
@@ -325,7 +351,6 @@ A   [a-zA-Z_0-9]
 "true"                   {return TOKEN(TRUE);}
 "nop"                    {return TOKEN(NOOP);}
 "uint"                   {return TOKEN(UINT);}
-"kg"                     {return TOKEN(KG);}
 "dm"                     {return TOKEN(DM);}
 {L}{A}*                  {SAVE_TOKEN; return IDENTIFIER;}
 .                        {}
