@@ -179,6 +179,38 @@ def MR0ConfigMW
   let Inst{3-0} = x;
 }
 
+// WAIT 
+class MRegWaitInstr<string header, bits<5> slot>
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
+                                   header, "", "", "Wait $imm7">{
+  bits<7>  imm7;
+  
+  let Inst{47-43} = slot;
+  let Inst{10-4} = imm7;
+}
+def MR0Wait : MRegWaitInstr<"R0.", 0b00001>{
+    let Inst{14-11} = 0b1100;
+}
+def MR1Wait : MRegWaitInstr<"R1.", 0b00010>{
+    let Inst{12-11} = 0b10;
+    let Inst{3-0} = 0b1000;
+}
+def MR2Wait : MRegWaitInstr<"R2.", 0b00011>{
+    let Inst{13-11} = 0b010;
+    let Inst{3-0} = 0b1000;
+}
+def MR3Wait : MRegWaitInstr<"R3.", 0b00100>{
+    let Inst{12-11} = 0b10;
+    let Inst{3-0} = 0b1000;
+}
+def MR4Wait : MRegWaitInstr<"R4.", 0b00101>{
+    let Inst{13-11} = 0b010;
+    let Inst{3-0} = 0b1000;
+}
+def MR5Wait : MRegWaitInstr<"R5.", 0b00110>{
+    let Inst{12-11} = 0b10;
+    let Inst{3-0} = 0b1000;
+}
 
 // NOP
 def MReg0NOP :  UCPMInst <(ins), (outs), "NOP"> {

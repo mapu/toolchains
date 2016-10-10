@@ -257,7 +257,36 @@ mr012345slot: R0 DOT r0inst {
   slotid = 5;
 }
 | r0setcondInstr | r1setcondInstr | r2setcondInstr |r3setcondInstr | r4setcondInstr |r5setcondInstr
-| r0configbiu | r2configbiu | r4configbiu | r0configmfetch | r0configmr | r0configmw;
+| r0configbiu | r2configbiu | r4configbiu | r0configmfetch | r0configmr | r0configmw 
+| r0waitInstr | r1waitInstr | r2waitInstr | r3waitInstr | r4waitInstr | r5waitInstr;
+
+
+r0waitInstr: R0 DOT mregwait{          
+      ADDOPERAND(Opc, UCPM::MR0Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+r1waitInstr: R1 DOT mregwait{           
+      ADDOPERAND(Opc, UCPM::MR1Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+r2waitInstr: R2 DOT mregwait{           
+      ADDOPERAND(Opc, UCPM::MR2Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+r3waitInstr: R3 DOT mregwait{           
+      ADDOPERAND(Opc, UCPM::MR3Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+r4waitInstr: R4 DOT mregwait{           
+      ADDOPERAND(Opc, UCPM::MR4Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+r5waitInstr: R5 DOT mregwait{           
+      ADDOPERAND(Opc, UCPM::MR5Wait, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+};
+
+mregwait: WAIT IMM5 {imm = OPERAND(Imm, $2, @2.S, @2.E);};
 
 r0configmr: configmr{
 
