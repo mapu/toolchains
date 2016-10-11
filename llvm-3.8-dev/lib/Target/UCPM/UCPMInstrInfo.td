@@ -149,35 +149,42 @@ def MR0ConfigMFetch
   let Inst{3-0} = mm;
 }
 
-// ConfigMR
-def MR0ConfigMR
+// m[s] -> configmr/configmw
+class MR0ConfigMRW< bit RW >
         : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs), !strconcat("$s", "-> ConfigMr[$x]", "($SI)")>{
   bits<7> s;
   bit SI;
-  bits<4> x;
-  
-  let Inst{47-43} = 0b00001;
-  let Inst{14-13} = 0b10;
-  let Inst{12} = 0;
-  let Inst{11} = SI;
-  let Inst{10-4} = s;
-  let Inst{3-0} = x;
-}
-
-// ConfigMW
-def MR0ConfigMW
-        : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs), !strconcat("$s", "-> ConfigMw[$x]", "($SI)")>{
-  bits<7> s;
-  bit SI;
-  bits<4> x;
+  bits<3> x;
   
   let Inst{47-43} = 0b00001;
   let Inst{14-13} = 0b10;
   let Inst{12} = 1;
   let Inst{11} = SI;
   let Inst{10-4} = s;
-  let Inst{3-0} = x;
+  let Inst{3} = RW;
+  let Inst{2-0} = x;
 }
+
+def MR0ToConfigMR : MR0ConfigMRW< 0 >;
+def MR0ToConfigMW : MR0ConfigMRW< 1 >;
+
+// configmr/configmw -> m[s] 
+class ConfigMRW< bit RW >
+        : UCPMInst<(ins MReg: $s, imm32i: $x), (outs), !strconcat("ConfigMr[$x]", " -> $s")>{
+  bits<7> s;
+  bits<3> x;
+  
+  let Inst{47-43} = 0b00001;
+  let Inst{14-13} = 0b10;
+  let Inst{12} = 0;
+  let Inst{10-4} = s;
+  let Inst{3} = RW;
+  let Inst{2-0} = x;
+}
+
+def ConfigMRToMR0 : ConfigMRW< 0 >;
+def ConfigMWToMR0 : ConfigMRW< 1 >;
+
 
 // WAIT 
 class MRegWaitInstr<string header, bits<5> slot>
