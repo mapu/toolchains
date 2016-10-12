@@ -70,7 +70,7 @@ typedef struct YYLTYPE {
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
-%type <val> reinst repeatexp immrep lpinst lpexp lpcond kiflag label mpustop
+%type <val> reinst repeatexp immrep kirep lpinst lpexp lpcond kiflag label mpustop
 %type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr 
 
 %%
@@ -4169,9 +4169,44 @@ biu2imm: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm
 // ducx start seq --------------------------------------------------
 seqslot: reinst | lpinst | mpustop;
 
+reinst: REPEAT ALPHA repeatexp{
+
+    switch ($3){
+	case 0:
+	  ADDOPERAND(Opc, UCPM::REPEATIMM, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
+	break;
+	
+	case 1:
+	  ADDOPERAND(Opc, UCPM::REPEATK, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	  else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+	break;
+	
+	default:
+	  break;
+    }
+
+
+};
+
+repeatexp: immrep {$$ = 0;}
+	   | kirep {$$ = 1;};
+	
+immrep:  _flag IMM5 {imm = OPERAND(Imm, $2, @2.S, @2.E);};
+kirep:	 _flag kiflag flag_{imm = OPERAND(Imm, $2-12, @2.S, @2.E);}
+	| _flag kiflag SUB IMM5 flag_{
+			      imm = OPERAND(Imm, $2-12, @2.S, @2.E);
+			      imm1 = OPERAND(Imm, $4, @4.S, @4.E);
+	      };
+
+/*	  
 reinst: REPEAT ALPHA _flag repeatexp {Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));};
 repeatexp: immrep{ADDOPERAND(Opc, UCPM::REPEATIMM, @-2.S, @$.E);}; //-2 flag_
-immrep: IMM5 {imm = OPERAND(Imm, $1, @$.S, @$.E); };
+immrep: IMM5 {imm = OPERAND(Imm, $1, @$.S, @$.E); };*/
 
 lpinst: lpexp lpcond;
 lpexp: LOOP label ALPHA{
@@ -4181,12 +4216,12 @@ lpexp: LOOP label ALPHA{
   else ADDOPERAND(Imm, $2, @2.S, @2.E);
 };
 lpcond: _flag kiflag flag_{
-  ADDOPERAND(Imm, $2, @2.S, @2.E);
+  ADDOPERAND(Imm, $2-12, @2.S, @2.E);
   ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 }
 | _flag kiflag SUB IMM5 flag_{
  OS<<"Position 2\n";
-  ADDOPERAND(Imm, $2, @2.S, @2.E);
+  ADDOPERAND(Imm, $2-12, @2.S, @2.E);
   ADDOPERAND(Imm, $4, @4.S, @4.E);
 };
 
