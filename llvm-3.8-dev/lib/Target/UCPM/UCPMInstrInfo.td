@@ -23,8 +23,6 @@ def NOP : UCPMInst <(ins), (outs), "NOP"> {
 }
 
 // start MReg Instruction -------------------------------------------------
-
-
 class UCPMRToDest<string header, bits<5> slotid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
@@ -649,7 +647,7 @@ def SHU2SetCond : SHUSetCondInstr<"SHU2.", 0b01001>;
 // ducx start IALU Instruction --------------------------------------------------------------------
 class IALUBaseCode {
   field bits<48> Inst;
-  let Inst{47-43} = 0b01010;//?
+  let Inst{47-43} = 0b01010;
 }
 
 class IALUCode<bits<2> dest> : IALUBaseCode {
@@ -657,14 +655,13 @@ class IALUCode<bits<2> dest> : IALUBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<32> f;
-  bits<4>  d;
+  bits<5>  d;
 
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 
@@ -821,8 +818,7 @@ class IALUImmInstr<Operand DestTy, bits<2> dest>
   let Inst{9-8} = imm5{1-0};
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 multiclass IALUImmToDest { 
@@ -872,8 +868,7 @@ class IALUMOVCode<Operand DestTy, bits<2> dest>
   let Inst{11-10} = tm;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 multiclass IALUMOVToDest { 
@@ -927,8 +922,7 @@ class IALUSendFlagCode<Operand DestTy, bits<2> dest>
   let Inst{11-8} = f;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 multiclass IALUSendFlagToDest { 
@@ -971,14 +965,14 @@ defm IALUSendFlag: IALUSendFlagToDest;
 // ducx start IFALU Instruction --------------------------------------------------------------------------
 class IFALUBaseCode {
   field bits<48> Inst;
-  let Inst{47-43} = 0b01100;//?
+  let Inst{47-43} = 0b01100;
 }
 
 class IFALUCode<bits<2> dest> : IFALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<4>  d;
+  bits<5>  d;
   bits<32> f;
   
   let Inst{22} = 1;
@@ -986,8 +980,7 @@ class IFALUCode<bits<2> dest> : IFALUBaseCode {
   let Inst{9-8} = tn;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 
@@ -1043,7 +1036,7 @@ defm IFALUUryTran : IFALUUryTranToDest;
 // ducx start IMAC Instruction --------------------------------------------------------------------------
 class IMACBaseCode {
   field bits<48> Inst;
-  let Inst{47-43} = 0b01011;//?
+  let Inst{47-43} = 0b01011;
 }
 
 class IMACCode<bits<2> dest> : IMACBaseCode {
@@ -1051,7 +1044,7 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<2> tp;
-  bits<4>  d;
+  bits<5>  d;
   bits<32> f;
   bit ff;
   bits<2> shift;
@@ -1068,8 +1061,7 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   let Inst{9-8} = shift;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 // Real
@@ -1393,8 +1385,7 @@ class IMACMOVCode<Operand DestTy, bits<2> dest>
   let Inst{11} = f;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
   
 }
@@ -1419,8 +1410,7 @@ class IMACSendFlagCode<Operand DestTy, bits<2> dest>
   let Inst{12-11} = 0b00;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 multiclass IMACSendFlagToDest { 
@@ -1510,14 +1500,14 @@ defm IMACSendFlag: IMACSendFlagToDest;
 // ducx start IFMAC Instruction --------------------------------------------------------------------------
 class IFMACBaseCode {
   field bits<48> Inst;
-  let Inst{47-43} = 0b01101;//?
+  let Inst{47-43} = 0b01101;
 }
 
 class IFMACCode<bits<2> dest> : IFMACBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<4>  d;
+  bits<5>  d;
   bits<32> f;
   
   let Inst{26-23} = op{3-0};
@@ -1527,16 +1517,57 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   let Inst{14-11} = 0b0101;
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
-  let Inst{4-3}  = d{3-2};
-  let Inst{2} = 0;
+  let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
 
 multiclass IFMACToDest{
-    def ToSHU  : BinaryInstr<"", 1, IFMACMulOprtor, SHUT >, IFMACCode<0b00>;
-    def ToBIU  : BinaryInstr<"", 1, IFMACMulOprtor, BIUO >, IFMACCode<0b10>;
-    def ToMACC : BinaryInstr<"", 1, IFMACMulOprtor, MACCT>, IFMACCode<0b01>;
+    def ToSHU  : BinaryInstr<"IFMAC.", 1, IFMACMulOprtor, SHUT >, IFMACCode<0b00>;
+    def ToBIU  : BinaryInstr<"IFMAC.", 1, IFMACMulOprtor, BIUO >, IFMACCode<0b10>;
+    def ToMACC : BinaryInstr<"IFMAC.", 1, IFMACMulOprtor, MACCT>, IFMACCode<0b01>;
 }
+defm IFMAC : IFMACToDest;
+
+class IFMACToMInstr<string header, bits<5> slot, Operand DestTy>
+        : MRegAssignInstr<(ins IFMACMulOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      header, "$tm $op $tn$f", DestTy> {
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<8>  d;
+  bits<32> f;
+  
+  let Inst{47-43} = 0b01101;
+  let Inst{26-23} = op{3-0};
+  let Inst{22} = f{0};
+  let Inst{20-19} = tn;
+  let Inst{16-15} = tm;
+  let Inst{14-11} = 0b0101;
+  let Inst{7} = 1;
+  let Inst{6-0}   = d{6-0};
+}
+def IFMACToM : IFMACToMInstr<"IFMAC.", 0b01101, MRegO>;
+
+
+class IFMACToMSIAInstr<string header, bits<5> slot>
+       : UCPMInst<(ins IFMACMulOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat(header,"$tm $op $tn$f", "-> M[$sia]")>{
+  bits<8> op;
+  bits<2> tm;
+  bits<2> tn;
+  bits<32> f;
+  bits<3> sia;
+  
+  let Inst{47-43} = 0b01101;
+  let Inst{26-23} = op{3-0};
+  let Inst{22} = f{0};
+  let Inst{20-19} = tn;
+  let Inst{16-15} = tm;
+  let Inst{14-11} = 0b0101;
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
+}
+def IFMACToMSIA : IFMACToMSIAInstr<"IFMAC.", 0b01101>;
+
 
 // NOP
 def IFMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFMACBaseCode {
@@ -1546,7 +1577,7 @@ def IFMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFMACBaseCode 
   let Inst{12-11} = 0b00;
 }
 
-defm IFMAC : IFMACToDest;
+
 // ducx end IFMAC Instruction --------------------------------------------------------------------------
 
 

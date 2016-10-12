@@ -49,15 +49,36 @@ def MTIALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
 def MTIMAC  : UCPMReg<1, "IMAC">, DwarfRegNum<[135]>;
 def MTIFALU  : UCPMReg<0, "IFALU">, DwarfRegNum<[136]>;
 def MTIFMAC  : UCPMReg<1, "IFMAC">, DwarfRegNum<[137]>;
-
-def SHU  : RegisterClass<"UCPMReg", [v16i32], 32,
-                          (add SHU0, SHU1, SHU2)>;
+	  
 def MTSHU  : RegisterClass<"UCPMReg", [v16i32], 32,
                           (add MTSHU0, MTSHU1, MTSHU2)>;
+			  
+			  
+// dcx: for the change of instruction document 
+def ALUSHU0  : UCPMReg<0, "SHU0">, DwarfRegNum<[129]>;
+def ALUSHU1  : UCPMReg<4, "SHU1">, DwarfRegNum<[130]>;
+def ALUSHU2  : UCPMReg<6, "SHU2">, DwarfRegNum<[131]>;
+
+def SHU  : RegisterClass<"UCPMReg", [v16i32], 32,
+                          (add ALUSHU0, ALUSHU1, ALUSHU2)>;
+			  
+def ALUIALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
+def ALUIMAC  : UCPMReg<2, "IMAC">, DwarfRegNum<[135]>;
+def ALUIFALU : UCPMReg<4, "IFALU">, DwarfRegNum<[136]>;
+def ALUIFMAC : UCPMReg<6, "IFMAC">, DwarfRegNum<[137]>;
 
 def MACC : RegisterClass<"UCPMReg", [v16i32], 32,
-			 (add IALU, IMAC, IFALU, IFMAC)>;
-			 
+			 (add ALUIALU, ALUIMAC, ALUIFALU, ALUIFMAC)>;
+
+def ALUBIU0  : UCPMReg<1, "BIU0">, DwarfRegNum<[142]>;
+def ALUBIU1  : UCPMReg<2, "BIU1">, DwarfRegNum<[143]>;
+def ALUBIU2  : UCPMReg<4, "BIU2">, DwarfRegNum<[144]>;
+
+def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
+                          (add ALUBIU0, ALUBIU1, ALUBIU2)>;
+			  
+
+			  
 def MTMACC : RegisterClass<"UCPMReg", [v16i32], 32,
 			 (add MTIALU, MTIMAC, MTIFALU, MTIFMAC)>;
 
@@ -73,8 +94,8 @@ def MTBIU0  : UCPMReg<3, "BIU0">, DwarfRegNum<[142]>;//MT: for MReg Target
 def MTBIU1  : UCPMReg<3, "BIU1">, DwarfRegNum<[143]>;
 def MTBIU2  : UCPMReg<3, "BIU2">, DwarfRegNum<[144]>;
 
-def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
-                          (sequence "BIU%u", 0, 2)>;
+
+			  
 def MTBIU   : RegisterClass<"UCPMReg", [v16i32], 32,
                           (sequence "MTBIU%u", 0, 2)>;
 			  
@@ -259,7 +280,7 @@ def SHUTranOprtor : RegisterClass<"UCPMReg", [i32], 32, (add BIT,BYTE)>;
 
 
 // ducx start IFMAC ------------------------------------------------------
-def FMUL : UCPMReg<0b000001000, "*">;
+def FMUL : UCPMReg<0b000000010, "*">;
 def FADD : UCPMReg<0b000001010, "+">;
 def FSUB : UCPMReg<0b000001011, "-">;
 

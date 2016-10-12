@@ -168,7 +168,7 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
         : CommonAssignInstr<ins, (outs DestTy: $d),
                             header, "$d", "->", lclause, pattern> {
-  bits<4>  d;
+  bits<5>  d;
 }
 
 class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
@@ -242,7 +242,7 @@ class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
         : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $c),
                             !strconcat("MR ", mrassign, " "),
                             "$d", "->", lclause> {
-  bits<4> d;
+  bits<5> d;
 }
 
 // ducx end ----------------------------------------------------------------

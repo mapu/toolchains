@@ -338,7 +338,7 @@ A   [a-zA-Z_0-9]
 "b"                      {return TOKEN(B);}
 "h"                      {return TOKEN(H);}
 "s"                      {return TOKEN(S);}
-"stest"                  {return TOKEN(STEST);} //dcx
+"float"                  {return TOKEN(FLOAT);} //dcx
 "imm"                    {return TOKEN(IMMSYM);} //dcx
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
