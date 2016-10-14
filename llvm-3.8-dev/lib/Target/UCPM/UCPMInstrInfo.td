@@ -1007,7 +1007,7 @@ class IFALUBaseCode {
   let Inst{47-43} = 0b01100;
 }
 
-class IFALUCode<bits<2> dest> : IFALUBaseCode {
+class IFALUCode : IFALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
@@ -1017,30 +1017,68 @@ class IFALUCode<bits<2> dest> : IFALUBaseCode {
   let Inst{22} = 1;
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
+}
+class IFALUToDest<bits<2> dest> : IFALUCode{
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
   let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
+class IFALUToM: IFALUCode{
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+class IFALUToMSIA: IFALUCode{
+  bits<3> sia;
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
+}
 
 // EQU NEQ LT NST ST NLT / MAX MIN
-class IFALUComCode<bits<2> dest> : IFALUCode<dest>{
+class IFALUComCode<bits<2> dest> : IFALUToDest<dest>{
   let Inst{21-18} = op{5-2};
   let Inst{14-13} = op{1-0};
 }
 multiclass IFALUComToDest {
-  def ComToSHU  : BinaryInstr<"", 1, IFALUComOprtor, SHUT  >, IFALUComCode<0b00>;
-  def ComToBIU  : BinaryInstr<"", 1, IFALUComOprtor, BIUO  >, IFALUComCode<0b10>;
-  def ComToMACC : BinaryInstr<"", 1, IFALUComOprtor, MACCT >, IFALUComCode<0b01>;
+  def ComToSHU  : BinaryInstr<"IFALU.", 1, IFALUComOprtor, SHUT  >, IFALUComCode<0b00>;
+  def ComToBIU  : BinaryInstr<"IFALU.", 1, IFALUComOprtor, BIUO  >, IFALUComCode<0b10>;
+  def ComToMACC : BinaryInstr<"IFALU.", 1, IFALUComOprtor, MACCT >, IFALUComCode<0b01>;
 
   let isCodeGenOnly = 1 in {
-  def MNToSHU  : BinaryInstr<"", 0, IFALUMNOprtor, SHUT  >, IFALUComCode<0b00>;
-  def MNToBIU  : BinaryInstr<"", 0, IFALUMNOprtor, BIUO  >, IFALUComCode<0b10>;
-  def MNToMACC : BinaryInstr<"", 0, IFALUMNOprtor, MACCT >, IFALUComCode<0b01>;
+  def MNToSHU  : BinaryInstr<"IFALU.", 0, IFALUMNOprtor, SHUT  >, IFALUComCode<0b00>;
+  def MNToBIU  : BinaryInstr<"IFALU.", 0, IFALUMNOprtor, BIUO  >, IFALUComCode<0b10>;
+  def MNToMACC : BinaryInstr<"IFALU.", 0, IFALUMNOprtor, MACCT >, IFALUComCode<0b01>;
   }
 }
+def IFALUComToM
+        : MRegAssignInstr<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IFALU.", "$tm $op $tn$f", MRegO>, IFALUToM {
+  let Inst{21-18} = op{5-2};
+  let Inst{14-13} = op{1-0};
+}
 
-class IFALUUryCode<bits<2> dest> : IFALUCode<dest> {
+def IFALUComToMSIA
+       : UCPMInst<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IFALU.","$tm $op $tn", "-> M[$sia]")>, IFALUToMSIA{
+  let Inst{21-18} = op{5-2};
+  let Inst{14-13} = op{1-0};
+}
+
+def IFALUMNToM
+        : MRegAssignInstr<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IFALU.", "$op($tm, $tn)$f", MRegO>, IFALUToM {
+  let Inst{21-18} = op{5-2};
+  let Inst{14-13} = op{1-0};
+}
+
+def IFALUMNToMSIA
+       : UCPMInst<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IFALU.", "$op($tm, $tn)", "-> M[$sia]")>, IFALUToMSIA{
+  let Inst{21-18} = op{5-2};
+  let Inst{14-13} = op{1-0};
+}
+
+
+
+class IFALUUryCode<bits<2> dest> : IFALUToDest<dest> {
   let tn = 0b00;
 }
 

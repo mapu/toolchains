@@ -2344,27 +2344,62 @@ ialudest: shut {$$ = 0;} | maccdest {$$ = 1;} | biut {$$ = 2;} | mindexn | minde
 // end ialu -------------------------------------------------- 
 
 
-
-ifaluslot: ifalutodest ;
+// start ifalu --------------------------------------------------
+ifaluslot: IFALU DOT ifalutodest ;
 ifalutodest: ifalucomclause ASSIGNTO ifaludest {
+
+     	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
   switch ($3) {
-    case 1://to shu
+    case 0://to shu
       ADDOPERAND(Opc, UCPM::IFALUComToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
-    case 2://to macc
+      
+    case 1://to macc
       ADDOPERAND(Opc, UCPM::IFALUComToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
-    case 3://to biu
+      
+    case 2://to biu
       ADDOPERAND(Opc, UCPM::IFALUComToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IFALUComToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IFALUComToMSIA, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
     default:
       break;
   }
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//AND OR XOR
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
-  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+
 };/*
 | ifaluurytran ASSIGNTO ifaludest {
   
@@ -2383,13 +2418,15 @@ ifalucomclause: ifm_FEQUclause {opc = OPERAND(Reg, UCPMReg::m_FEQU, @$.S, @$.E);
                 ifm_FNSTclause {opc = OPERAND(Reg, UCPMReg::m_FNST, @$.S, @$.E);} |
                 ifm_FSTclause  {opc = OPERAND(Reg, UCPMReg::m_FST, @$.S, @$.E);}  |
                 ifm_FNLTclause {opc = OPERAND(Reg, UCPMReg::m_FNLT, @$.S, @$.E);} ;
-ifm_FEQUclause: t EQU t ;
-ifm_FNEQclause: t NEQ t ;
-ifm_FLTclause: t LT t ;
-ifm_FNSTclause: t NST t ;
-ifm_FSTclause: t ST t ;
-ifm_FNLTclause: t NLT t ;
+ifm_FEQUclause: t EQU t _flag FLOAT flag_;
+ifm_FNEQclause: t NEQ t _flag FLOAT flag_;
+ifm_FLTclause: t LT t _flag FLOAT flag_;
+ifm_FNSTclause: t NST t _flag FLOAT flag_;
+ifm_FSTclause: t ST t _flag FLOAT flag_;
+ifm_FNLTclause: t NLT t _flag FLOAT flag_;
 ifaludest: ialudest ;
+// end ifalu --------------------------------------------------
+
 
 imacslot: imacinst ;
 imacinst: imacclause ASSIGNTO imacdest {
