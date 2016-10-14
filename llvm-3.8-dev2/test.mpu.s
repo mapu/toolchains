@@ -1,2 +1,0 @@
-//SHU0.T0 IND TSQ -> IALU.T0(I0);
-r1.M[3]->IALU.T0(I0);
