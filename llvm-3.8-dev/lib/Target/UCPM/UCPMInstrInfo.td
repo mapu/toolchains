@@ -1116,7 +1116,7 @@ class IMACBaseCode {
   let Inst{47-43} = 0b01011;
 }
 
-class IMACCode<bits<2> dest> : IMACBaseCode {
+class IMACCode : IMACBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
@@ -1136,17 +1136,30 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   let Inst{12-11} = tp;
   let Inst{10} = f{0};
   let Inst{9-8} = shift;
+
+}
+class IMACToDest<bits<2> dest> : IMACCode{
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
   let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
+class IMACToM: IMACCode{
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+class IMACToMSIA: IMACCode{
+  bits<3> sia;
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
+}
+
 // Real
-class IMACRealCode<bits<2> dest> : IMACCode<dest> {
+class IMACRealCode<bits<2> dest> : IMACToDest<dest> {
   let Inst{20} = 0;
 }
 // Complex
-class IMACCompCode<bits<2> dest> : IMACCode<dest> {
+class IMACCompCode<bits<2> dest> : IMACToDest<dest> {
   let Inst{20} = 1;
 }
 
@@ -1160,15 +1173,38 @@ class IMACCompopCode<bits<2> dest> : IMACCompCode<dest> {
 
 // tm*tn -> d
 multiclass IMulRealToDest{
-    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACRealopCode<0b00>;
-    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACRealopCode<0b10>;
-    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACRealopCode<0b01>;
+    def ToSHU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, SHUT >, IMACRealopCode<0b00>;
+    def ToBIU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, BIUO >, IMACRealopCode<0b10>;
+    def ToMACC : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, MACCT>, IMACRealopCode<0b01>;
 }
 multiclass IMulCompToDest{
-    def ToSHU  : IMACBinaryInstr<"", 1, IMACMulOprtor, SHUT >, IMACCompopCode<0b00>;
-    def ToBIU  : IMACBinaryInstr<"", 1, IMACMulOprtor, BIUO >, IMACCompopCode<0b10>;
-    def ToMACC : IMACBinaryInstr<"", 1, IMACMulOprtor, MACCT>, IMACCompopCode<0b01>;
+    def ToSHU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, SHUT >, IMACCompopCode<0b00>;
+    def ToBIU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, BIUO >, IMACCompopCode<0b10>;
+    def ToMACC : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, MACCT>, IMACCompopCode<0b01>;
 }
+def IMulRealToM
+        : MRegAssignInstr<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tm $op $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = op{1-0};
+}
+def IMulRealToMSIA
+       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = op{1-0};
+}
+def IMulCompToM
+        : MRegAssignInstr<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tm $op $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = op{1-0};
+}
+def IMulCompToMSIA
+       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = op{1-0};
+}
+
 
 // MR <- tp +|- tm*tn
 class MAInstr<bit addsub>
