@@ -69,3 +69,6 @@ def UCPM : Target {
   let AssemblyWriters = [DefaultAsmWriter];
   let AssemblyParsers = [UCPMAsmParser];
 }
+def SVNTest : Target {
+  let InstructionSet = UCPMInstrInfo;
+}
