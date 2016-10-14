@@ -650,23 +650,35 @@ class IALUBaseCode {
   let Inst{47-43} = 0b01010;
 }
 
-class IALUCode<bits<2> dest> : IALUBaseCode {
+class IALUCode: IALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
   bits<32> f;
-  bits<5>  d;
+  bits<8>  d;
 
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
+}
+
+class IALUToDest<bits<2> dest> : IALUCode{
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
   let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
 }
+class IALUToM: IALUCode{
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+class IALUToMSIA: IALUCode{
+  bits<3> sia;
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
+}
 
 // MERGE
-class IALUTPCode<bits<2> dest> : IALUCode<dest>  {
+class IALUTPCode<bits<2> dest> : IALUToDest<dest>  {
   bits<2> tp;
 
   let Inst{21-18} = op{3-0};
@@ -682,34 +694,61 @@ multiclass IALUTPToDest {
 }
 
 // ADD SUB
-class IALUASCode<bits<2> dest> : IALUCode<dest> {
+class IALUASCode<bits<2> dest> : IALUToDest<dest> {
   let Inst{21-18} = op{3-0};
   let Inst{17-12} = f{5-0};
 }
+
 multiclass IALUASToDest {
   let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 1, IALUASOprtor, SHUT  >, IALUASCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 1, IALUASOprtor, BIUO  >, IALUASCode<0b10>;
-  def ToMACC : BinaryInstr<"", 1, IALUASOprtor, MACCT >, IALUASCode<0b01>;
+  def ToSHU  : BinaryInstr<"IALU.", 1, IALUASOprtor, SHUT  >, IALUASCode<0b00>;
+  def ToBIU  : BinaryInstr<"IALU.", 1, IALUASOprtor, BIUO  >, IALUASCode<0b10>;
+  def ToMACC : BinaryInstr<"IALU.", 1, IALUASOprtor, MACCT >, IALUASCode<0b01>;
   }
 }
+def IALUASToM
+        : MRegAssignInstr<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IALU.", "$tm $op $tn$f", MRegO>, IALUToM {
+  let Inst{21-18} = op{3-0};
+  let Inst{17-12} = f{5-0};
+}
+
+def IALUASToMSIA
+       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]")>, IALUToMSIA{
+  let Inst{21-18} = op{3-0};
+  let Inst{17-12} = f{5-0};
+}
+
 
 // AND OR XOR
-class IALULogicCode<bits<2> dest> : IALUCode<dest>{
+class IALULogicCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
 multiclass IALULogicToDest {
   let isCodeGenOnly = 1 in {
-  def ToSHU  : BinaryInstr<"", 1, IALULogicOprtor, SHUT  >, IALULogicCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 1, IALULogicOprtor, BIUO  >, IALULogicCode<0b10>;
-  def ToMACC : BinaryInstr<"", 1, IALULogicOprtor, MACCT >, IALULogicCode<0b01>;
+  def ToSHU  : BinaryInstr<"IALU.", 1, IALULogicOprtor, SHUT  >, IALULogicCode<0b00>;
+  def ToBIU  : BinaryInstr<"IALU.", 1, IALULogicOprtor, BIUO  >, IALULogicCode<0b10>;
+  def ToMACC : BinaryInstr<"IALU.", 1, IALULogicOprtor, MACCT >, IALULogicCode<0b01>;
   }
+}
+def IALULogicToM
+        : MRegAssignInstr<(ins IALULogicOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IALU.", "$tm $op $tn", MRegO>, IALUToM {
+  let Inst{21-18} = 0b1001;
+  let Inst{14}    = 0;
+  let Inst{13-12} = op{1-0};
+}
+def IALULogicToMSIA
+       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn", "-> M[$sia]")>, IALUToMSIA{
+  let Inst{21-18} = 0b1001;
+  let Inst{14}    = 0;
+  let Inst{13-12} = op{1-0};
 }
 
 // EQU NEQ LT NST ST NLT / MAX MIN
-class IALUComCode<bits<2> dest> : IALUCode<dest>{
+class IALUComCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{5-3};
   let Inst{14-13} = op{1-0};
@@ -729,7 +768,7 @@ multiclass IALUComToDest {
 }
 
 // LSH RSH
-class IALUShiftCode<bits<2> dest> : IALUCode<dest>{
+class IALUShiftCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = 0b0101;
   let Inst{17-15} = f{5-3};
   let Inst{13} = op{0};
@@ -743,7 +782,7 @@ multiclass IALUShiftToDest {
 }
 
 // SUBABS CPRS
-class IALUSCCode<bits<2> dest> : IALUCode<dest>{
+class IALUSCCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{5-2};
   let Inst{13} = op{0};
@@ -757,7 +796,7 @@ multiclass IALUSCToDest {
   }
 }
 
-class IALUUryCode<bits<2> dest> : IALUCode<dest> {
+class IALUUryCode<bits<2> dest> : IALUToDest<dest> {
   let tn = 0b00;
 }
 // RADD RMAX RMIN EXPD	
@@ -828,7 +867,7 @@ multiclass IALUImmToDest {
 }
 
 // DIV ReadQ ReadR
-class IALUReadQRCode<bits<2> dest> : IALUCode<dest>{
+class IALUReadQRCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{5-2};
   let Inst{13} = op{0};
@@ -972,7 +1011,7 @@ class IFALUCode<bits<2> dest> : IFALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<5>  d;
+  bits<8>  d;
   bits<32> f;
   
   let Inst{22} = 1;
@@ -1044,7 +1083,7 @@ class IMACCode<bits<2> dest> : IMACBaseCode {
   bits<2> tm;
   bits<2> tn;
   bits<2> tp;
-  bits<5>  d;
+  bits<8>  d;
   bits<32> f;
   bit ff;
   bits<2> shift;
@@ -1507,7 +1546,7 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
-  bits<5>  d;
+  bits<8>  d;
   bits<32> f;
   
   let Inst{26-23} = op{3-0};
