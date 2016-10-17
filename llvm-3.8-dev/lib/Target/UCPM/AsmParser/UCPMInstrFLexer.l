@@ -340,6 +340,10 @@ A   [a-zA-Z_0-9]
 "s"                      {return TOKEN(S);}
 "float"                  {return TOKEN(FLOAT);} //dcx
 "imm"                    {return TOKEN(IMMSYM);} //dcx
+"mode0" 		 {return TOKEN(MODE0);}//dcx
+"mode1" 		 {return TOKEN(MODE1);}//dcx
+"!""mode0" 		 {return TOKEN(NMODE0);}//dcx
+"!""mode1" 		 {return TOKEN(NMODE1);}//dcx
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
 "c"                      {return TOKEN(CFLAG);}

@@ -26,6 +26,7 @@ def NOP : UCPMInst <(ins), (outs), "NOP"> {
 class UCPMRToDest<string header, bits<5> slotid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
   bits<7> m;
+  bits<2> mode;
   let Inst{47-43} = slotid;
   let Inst{10-4} = m;
   let Inst{3-0} = d;
@@ -34,6 +35,7 @@ class UCPMRToDest<string header, bits<5> slotid, Operand DestTy>
 class MRSIAToDest<string header, bits<5> slotid, Operand DestTy>
       : UCPAssignInstr<(ins Flags: $sia), header, "M[$sia]", DestTy> {
   bits<3> sia;
+  bits<2> mode;
   let Inst{47-43} = slotid;
   let Inst{6-4} = sia;
   let Inst{3-0} = d;
@@ -41,44 +43,56 @@ class MRSIAToDest<string header, bits<5> slotid, Operand DestTy>
 
 
 def MR0ToDestCom : UCPMRToDest<"R0.", 0b00001, MR0DestT>{
+  let Inst{16-15} = mode;
   let Inst{14-11} = 0b0110;
 }
 def MR0ToDestSIA : MRSIAToDest<"R0.", 0b00001, MR0DestT>{
+  let Inst{16-15} = mode;
   let Inst{14-11} = 0b0111;
 }
 
 def MR1ToDestCom : UCPMRToDest<"R1.", 0b00010, MR1DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b00;
 }
 def MR1ToDestSIA : MRSIAToDest<"R1.", 0b00010, MR1DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b01;
 }
 
 def MR2ToDestCom : UCPMRToDest<"R2.", 0b00011, MR2DestT>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b000;
 }
 def MR2ToDestSIA : MRSIAToDest<"R2.", 0b00011, MR2DestT>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b001;
 }
 
 def MR3ToDestCom : UCPMRToDest<"R3.", 0b00100, MR3DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b00;
 }
 def MR3ToDestSIA : MRSIAToDest<"R3.", 0b00100, MR3DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b01;
 }
 
 def MR4ToDestCom : UCPMRToDest<"R4.", 0b00101, MR4DestT>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b000;
 }
 def MR4ToDestSIA : MRSIAToDest<"R4.", 0b00101, MR4DestT>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b001;
 }
 
 def MR5ToDestCom : UCPMRToDest<"R5.", 0b00110, MR5DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b00;
 }
 def MR5ToDestSIA : MRSIAToDest<"R5.", 0b00110, MR5DestT>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b01;
 }
 
@@ -115,33 +129,38 @@ def MR5SetCond : MRegSetCondInstr<"MReg5.", 0b00110>{
 
 // ConfigBIU  
 class ConfigBIUInstr<string header, bits<5> slot>
-        : UCPMInst<(ins MReg: $s, TPort: $tm, Flags: $mm), (outs), !strconcat(header, "$s", "-> ConfigBIU.", "$tm[$mm]")>{
+        : UCPMInst<(ins MReg: $s, TPort: $tm, Flags: $mm), (outs Condition: $mode), !strconcat(header, "$s", "-> ConfigBIU.", "$tm[$mm]$mode")>{
   bits<7> s;
   bits<2> tm;
   bits<4> mm;
-  
+  bits<2> mode;
   let Inst{47-43} = slot;
   let Inst{12-11} = tm;
   let Inst{10-4} = s;
   let Inst{3-0} = mm;
 }
 
-def MR0ConfigBIU : ConfigBIUInstr<"R0.", 0b00001>;
+def MR0ConfigBIU : ConfigBIUInstr<"R0.", 0b00001>{
+  let Inst{16-15} = mode;
+}
 def MR2ConfigBIU : ConfigBIUInstr<"R2.", 0b00011>{
+  let Inst{15-14} = mode;
   let Inst{13} =1;
 }
 def MR4ConfigBIU : ConfigBIUInstr<"R4.", 0b00101>{
+  let Inst{15-14} = mode;
   let Inst{13} =1;
 }
 
 
 // ConfigMFetch  
 def MR0ConfigMFetch
-        : UCPMInst<(ins MReg: $s, Flags: $mm), (outs), !strconcat("$s", "-> ConfigMFetch", "[$mm]")>{
+        : UCPMInst<(ins MReg: $s, Flags: $mm), (outs Condition:$mode), !strconcat("$s", "-> ConfigMFetch", "[$mm]$mode")>{
   bits<7> s;
   bits<4> mm;
-  
+  bits<2> mode;
   let Inst{47-43} = 0b00001;
+  let Inst{16-15} = mode;
   let Inst{14-11} = 0b0100;
   let Inst{10-4} = s;
   let Inst{3-0} = mm;
@@ -149,12 +168,14 @@ def MR0ConfigMFetch
 
 // m[s] -> configmr/configmw
 class MR0ConfigMRW< bit RW >
-        : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs), !strconcat("$s", "-> ConfigMr[$x]", "($SI)")>{
+        : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs Condition:$mode), !strconcat("$s", "-> ConfigMr[$x]", "($SI)$mode")>{
   bits<7> s;
   bit SI;
   bits<3> x;
+  bits<2> mode;
   
   let Inst{47-43} = 0b00001;
+  let Inst{16-15} = mode;
   let Inst{14-13} = 0b10;
   let Inst{12} = 1;
   let Inst{11} = SI;
@@ -168,11 +189,12 @@ def MR0ToConfigMW : MR0ConfigMRW< 1 >;
 
 // configmr/configmw -> m[s] 
 class ConfigMRW< bit RW >
-        : UCPMInst<(ins MReg: $s, imm32i: $x), (outs), !strconcat("ConfigMr[$x]", " -> $s")>{
+        : UCPMInst<(ins MReg: $s, imm32i: $x), (outs Condition:$mode), !strconcat("ConfigMr[$x]", " -> $s$mode")>{
   bits<7> s;
   bits<3> x;
-  
+  bits<2> mode;
   let Inst{47-43} = 0b00001;
+  let Inst{16-15} = mode;
   let Inst{14-13} = 0b10;
   let Inst{12} = 0;
   let Inst{10-4} = s;
@@ -656,7 +678,9 @@ class IALUCode: IALUBaseCode {
   bits<2> tn;
   bits<32> f;
   bits<8>  d;
+  bits<2> mode;
 
+  let Inst{23-22} = mode;
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
 }
@@ -714,7 +738,7 @@ def IALUASToM
 }
 
 def IALUASToMSIA
-       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]")>, IALUToMSIA{
+       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]$mode")>, IALUToMSIA{
   let Inst{21-18} = op{3-0};
   let Inst{17-12} = f{5-0};
 }
@@ -741,7 +765,7 @@ def IALULogicToM
   let Inst{13-12} = op{1-0};
 }
 def IALULogicToMSIA
-       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn", "-> M[$sia]")>, IALUToMSIA{
+       : UCPMInst<(ins IALUASOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$tm $op $tn", "-> M[$sia]$mode")>, IALUToMSIA{
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
@@ -776,7 +800,7 @@ def IALUComToM
 }
 
 def IALUComToMSIA
-       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]")>, IALUToMSIA{
+       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]$mode")>, IALUToMSIA{
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{3-1};
   let Inst{14-13} = op{1-0};
@@ -793,7 +817,7 @@ def IALUMNToM
 }
 
 def IALUMNToMSIA
-       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.", "$op($tm, $tn)$f", "-> M[$sia]")>, IALUToMSIA{
+       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.", "$op($tm, $tn)$f", "-> M[$sia]$mode")>, IALUToMSIA{
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{3-1};
   let Inst{14-13} = op{1-0};
@@ -884,6 +908,9 @@ class IALUImmInstr<Operand DestTy, bits<2> dest>
   bits<5>  imm5;
   bits<3> f;
   bits<8> op;
+  bits<2> mode;
+  
+  let Inst{23-22} = mode;
   let Inst{21-18} = op{3-0};
   let Inst{17-15} = f{2-0};
   let Inst{14-12} = imm5{4-2};
@@ -915,13 +942,16 @@ multiclass IALUReadQRToDest {
  
 // DIV START CONT
 def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
-                                 (outs),
-                                 "", "", "", "$op($tm, $tn)$f">,
+                                 (outs Condition: $mode),
+                                 "", "", "", "$op($tm, $tn)$f$mode">,
                 IALUBaseCode {
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
   bits<3> f;
+  bits<2> mode;
+  
+  let Inst{23-22} = mode;
   let Inst{21-18} = op{4-1};
   let Inst{17-15} = f{2-0};
   let Inst{14} = 0;
@@ -935,7 +965,9 @@ def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, F
 class IALUMOVCode<Operand DestTy, bits<2> dest> 
             : AssignInstr<(ins TPort: $tm), "", "IALU.$tm", DestTy>, IALUBaseCode {
   bits<2> tm;
- 
+  bits<2> mode;
+  
+  let Inst{23-22} = mode;
   let Inst{21-18} = 0b1011;
   let Inst{14-13} =0b01;
   let Inst{11-10} = tm;
@@ -1005,12 +1037,14 @@ multiclass IALUSendFlagToDest {
 }
 
 // WriteFlag 
-def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(outs), "", "WriteFlag$f", "->", "IALU.$tm">,
+def IALUWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $all, Flags: $f),(outs Condition: $mode), "", "WriteFlag$f$mode", "->", "IALU.$tm">,
                  IALUBaseCode { 
   bits<2>  tm;
   bit all;
   bits<2> f;
+  bits<2> mode;
   
+  let Inst{23-22} = mode;
   let Inst{21-18} = 0b1111;
   let Inst{14-13} = 0b10;
   let Inst{12} = all;
@@ -1047,7 +1081,9 @@ class IFALUCode : IFALUBaseCode {
   bits<2> tn;
   bits<8>  d;
   bits<32> f;
-  
+  bits<2> mode;
+
+  let Inst{24-23} = mode;
   let Inst{22} = 1;
   let Inst{11-10} = tm;
   let Inst{9-8} = tn;
@@ -1092,7 +1128,7 @@ def IFALUComToM
 }
 
 def IFALUComToMSIA
-       : UCPMInst<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IFALU.","$tm $op $tn", "-> M[$sia]")>, IFALUToMSIA{
+       : UCPMInst<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs Condition: $mode), !strconcat("IFALU.","$tm $op $tn", "-> M[$sia]$mode")>, IFALUToMSIA{
   let Inst{21-18} = op{5-2};
   let Inst{14-13} = op{1-0};
 }
@@ -1105,7 +1141,7 @@ def IFALUMNToM
 }
 
 def IFALUMNToMSIA
-       : UCPMInst<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs), !strconcat("IFALU.", "$op($tm, $tn)", "-> M[$sia]")>, IFALUToMSIA{
+       : UCPMInst<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn, Flags: $sia), (outs Condition: $mode), !strconcat("IFALU.", "$op($tm, $tn)", "-> M[$sia]$mode")>, IFALUToMSIA{
   let Inst{21-18} = op{5-2};
   let Inst{14-13} = op{1-0};
 }
@@ -1656,7 +1692,9 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   bits<2> tn;
   bits<8>  d;
   bits<32> f;
+  bits<2> mode;
   
+  let Inst{28-27} = mode;
   let Inst{26-23} = op{3-0};
   let Inst{22} = f{0};
   let Inst{20-19} = tn;
@@ -1683,8 +1721,10 @@ class IFMACToMInstr<string header, bits<5> slot, Operand DestTy>
   bits<2> tn;
   bits<8>  d;
   bits<32> f;
+  bits<2> mode;
   
   let Inst{47-43} = 0b01101;
+  let Inst{28-27} = mode;
   let Inst{26-23} = op{3-0};
   let Inst{22} = f{0};
   let Inst{20-19} = tn;
@@ -1697,14 +1737,16 @@ def IFMACToM : IFMACToMInstr<"IFMAC.", 0b01101, MRegO>;
 
 
 class IFMACToMSIAInstr<string header, bits<5> slot>
-       : UCPMInst<(ins IFMACMulOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat(header,"$tm $op $tn$f", "-> M[$sia]")>{
+       : UCPMInst<(ins IFMACMulOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat(header,"$tm $op $tn$f", "-> M[$sia]$mode")>{
   bits<8> op;
   bits<2> tm;
   bits<2> tn;
   bits<32> f;
   bits<3> sia;
+  bits<2> mode;
   
   let Inst{47-43} = 0b01101;
+  let Inst{28-27} = mode;
   let Inst{26-23} = op{3-0};
   let Inst{22} = f{0};
   let Inst{20-19} = tn;

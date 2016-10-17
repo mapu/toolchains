@@ -348,15 +348,22 @@ def MFetchShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchLSHTimm, 
 
 
 
-def C : UCPMReg<2, "@(C)">;
-def NC : UCPMReg<3, "@(!C)">;
-def NOC : UCPMReg<0, " ">;
+// def C : UCPMReg<2, "@(C)">;
+// def NC : UCPMReg<3, "@(!C)">;
+// def NOC : UCPMReg<0, " ">;
+
 /* 
 class RegisterClass<string namespace, list<ValueType> regTypes, int alignment,
                     dag regList, RegAltNameIndex idx = NoRegAltName>
 */
 
-def Condition : RegisterClass<"UCPMReg", [i32], 32, (add C, NC, NOC)>;
+def Mode0 : UCPMReg<0, "(Mode0)">;
+def Mode1 : UCPMReg<1, "(Mode1)">;
+def NMode0 : UCPMReg<2, "(!Mode0)">;
+def NMode1 : UCPMReg<3, "(!Mode1)">;
+
+def Condition : RegisterClass<"UCPMReg", [i32], 32, (add Mode0, Mode1, NMode0, NMode1)>;
+
 
 foreach i = 1-3 in 
   def WF#i   : UCPMReg<i, "(WF"#i#")" >;

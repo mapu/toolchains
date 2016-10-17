@@ -166,9 +166,10 @@ class CommonAssignInstr<dag ins, dag outs,
 
 class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
+                            header, "$d$mode", "->", lclause, pattern> {
   bits<8>  d;
+  bits<2> mode;
 }
 
 class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
@@ -180,9 +181,10 @@ class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
 
 class MRegAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
+                            header, "$d$mode", "->", lclause, pattern> {
   bits<8>  d;
+  bits<2> mode;
 }
 
 class BinaryInstr<string header, bit mode,
@@ -250,9 +252,10 @@ class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
 //yangl
 class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
+                            header, "$d$mode", "->", lclause, pattern> {
   bits<4>  d;
+  bits<2> mode;
 }
 class UCPSHUIndexAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
