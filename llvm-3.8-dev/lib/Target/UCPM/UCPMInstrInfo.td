@@ -750,22 +750,56 @@ def IALULogicToMSIA
 // EQU NEQ LT NST ST NLT / MAX MIN
 class IALUComCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = op{5-2};
-  let Inst{17-15} = f{5-3};
+  let Inst{17-15} = f{3-1};
   let Inst{14-13} = op{1-0};
   let Inst{12}    = f{0};
 }
 multiclass IALUComToDest {
   let isCodeGenOnly = 1 in {
-  def ComToSHU  : BinaryInstr<"", 1, IALUComOprtor, SHUT  >, IALUComCode<0b00>;
-  def ComToBIU  : BinaryInstr<"", 1, IALUComOprtor, BIUO  >, IALUComCode<0b10>;
-  def ComToMACC : BinaryInstr<"", 1, IALUComOprtor, MACCT >, IALUComCode<0b01>;
+  def ComToSHU  : BinaryInstr<"IALU.", 1, IALUComOprtor, SHUT  >, IALUComCode<0b00>;
+  def ComToBIU  : BinaryInstr<"IALU.", 1, IALUComOprtor, BIUO  >, IALUComCode<0b10>;
+  def ComToMACC : BinaryInstr<"IALU.", 1, IALUComOprtor, MACCT >, IALUComCode<0b01>;
   }
   let isCodeGenOnly = 1 in {
-  def MNToSHU  : BinaryInstr<"", 0, IALUMNOprtor, SHUT  >, IALUComCode<0b00>;
-  def MNToBIU  : BinaryInstr<"", 0, IALUMNOprtor, BIUO  >, IALUComCode<0b10>;
-  def MNToMACC : BinaryInstr<"", 0, IALUMNOprtor, MACCT >, IALUComCode<0b01>;
+  def MNToSHU  : BinaryInstr<"IALU.", 0, IALUMNOprtor, SHUT  >, IALUComCode<0b00>;
+  def MNToBIU  : BinaryInstr<"IALU.", 0, IALUMNOprtor, BIUO  >, IALUComCode<0b10>;
+  def MNToMACC : BinaryInstr<"IALU.", 0, IALUMNOprtor, MACCT >, IALUComCode<0b01>;
   }
 }
+def IALUComToM
+        : MRegAssignInstr<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IALU.", "$tm $op $tn$f", MRegO>, IALUToM {
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+
+def IALUComToMSIA
+       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.","$tm $op $tn$f", "-> M[$sia]")>, IALUToMSIA{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+
+def IALUMNToM
+        : MRegAssignInstr<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IALU.", "$op($tm, $tn)$f", MRegO>, IALUToM {
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+
+def IALUMNToMSIA
+       : UCPMInst<(ins IALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs), !strconcat("IALU.", "$op($tm, $tn)$f", "-> M[$sia]")>, IALUToMSIA{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{12}    = f{0};
+}
+
 
 // LSH RSH
 class IALUShiftCode<bits<2> dest> : IALUToDest<dest>{

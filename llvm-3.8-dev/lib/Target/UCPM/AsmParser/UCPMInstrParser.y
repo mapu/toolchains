@@ -2311,7 +2311,71 @@ ialutodest: ialuasclause ASSIGNTO ialudest {
       break;
   }
 
+}
+| ialucomclause ASSIGNTO ialudest{
+
+      flagsort = (~(flags[UF]) << 3) | (flags[BF] << 2) | (flags[SF] << 1) | flags[FF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUComToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUComToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUComToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUComToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUComToMSIA, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
 };
+
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
               isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
 iaddclause: addexp _flag ialuflags flag_ /*{
@@ -2338,6 +2402,18 @@ iandclause: t AND t ;
 iorclause : t OR t ;
 ixorclause : t XOR t ;
 
+ialucomclause:  ifm_IEQUclause {opc = OPERAND(Reg, UCPMReg::m_IEQU, @$.S, @$.E); flags[UF]=~flags[UF];} |
+                ifm_INEQclause {opc = OPERAND(Reg, UCPMReg::m_INEQ, @$.S, @$.E); flags[UF]=~flags[UF];} |
+                ifm_ILTclause  {opc = OPERAND(Reg, UCPMReg::m_ILT, @$.S, @$.E);}  |
+                ifm_INSTclause {opc = OPERAND(Reg, UCPMReg::m_INST, @$.S, @$.E);} |
+                ifm_ISTclause  {opc = OPERAND(Reg, UCPMReg::m_IST, @$.S, @$.E);}  |
+                ifm_INLTclause {opc = OPERAND(Reg, UCPMReg::m_INLT, @$.S, @$.E);} ;
+ifm_IEQUclause: t EQU t _flag ialuflags flag_ | t EQU t ;
+ifm_INEQclause: t NEQ t _flag ialuflags flag_ | t NEQ t;
+ifm_ILTclause: t LT t _flag ialuflags flag_ | t LT t;
+ifm_INSTclause: t NST t _flag ialuflags flag_ | t NST t;
+ifm_ISTclause: t ST t _flag ialuflags flag_ | t ST t ;
+ifm_INLTclause: t NLT t _flag ialuflags flag_ | t NLT t;
 
 ialudest: shut {$$ = 0;} | maccdest {$$ = 1;} | biut {$$ = 2;} | mindexn | mindexsia;
 
