@@ -300,7 +300,10 @@ class UCPSHUIndToDest_SetTB<string header, bit TBSymbol, bits<5> slot, bits<2> d
   bits<2> tn;
   bits<4> tk;
   bits<5> imm5;
+  bits<2> mode;
+  
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 0;
@@ -319,7 +322,10 @@ class UCPSHUIndToM_SetTB<string header, bit TBSymbol, bits<5> slot, Operand Dest
   bits<2> tn;
   bits<4> tk;
   bits<5> imm5;
+  bits<2> mode;
+  
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 0;
@@ -331,14 +337,16 @@ class UCPSHUIndToM_SetTB<string header, bit TBSymbol, bits<5> slot, Operand Dest
 }
 
 class UCPSHUIndToMSIA_SetTB<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk",!if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)"),"-> M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, imm32i: $imm5, Flags: $sia), (outs Condition:$mode), !strconcat(header,"{$tm,$tn} IND $tk",!if(TBSymbol, "(TB=+$imm5)", "(TB+=$imm5)"),"-> M[$sia]$mode")>{
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
   bits<5> imm5;
   bits<3> sia;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 0;
@@ -356,8 +364,9 @@ class UCPSHUIndToDest_noImm<string header, bit TBSymbol, bits<5> slot, bits<2> d
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
-  
+  bits<2> mode;
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 1;
@@ -373,8 +382,10 @@ class UCPSHUIndToM_noImm<string header, bit TBSymbol, bits<5> slot, Operand Dest
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 1;
@@ -385,13 +396,14 @@ class UCPSHUIndToM_noImm<string header, bit TBSymbol, bits<5> slot, Operand Dest
   let Inst{6-0} = d{6-0};
 }
 class UCPSHUIndToMSIA_noImm<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $tn, TEPort: $tk, Flags: $sia), (outs Condition:$mode), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]$mode")>{
   bits<2> tm;
   bits<2> tn;
   bits<4> tk;
   bits<3> sia;
-  
+  bits<2> mode;
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{18-17} = tn;
   let Inst{16} = 1;
@@ -408,7 +420,9 @@ class UCPSHUIndToDest_constTn<string header, bit TBSymbol, bits<5> slot, bits<2>
   bits<2> tm;
   bits<4> tn;
   bits<4> tk;
+  bits<2> mode;
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{16} = 1;
   let Inst{15} = TBSymbol;
@@ -424,7 +438,10 @@ class UCPSHUIndToM_constTn<string header, bit TBSymbol, bits<5> slot, Operand De
   bits<2> tm;
   bits<4> tn;
   bits<4> tk;
+  bits<2> mode;
+  
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{16} = 1;
   let Inst{15} = TBSymbol;
@@ -435,13 +452,15 @@ class UCPSHUIndToM_constTn<string header, bit TBSymbol, bits<5> slot, Operand De
   let Inst{6-0} = d{6-0};
 }
 class UCPSHUIndToMSIA_constTn<string header, bit TBSymbol, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TEPort: $tn, TEPort: $tk, Flags: $sia), (outs), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TEPort: $tn, TEPort: $tk, Flags: $sia), (outs Condition:$mode), !strconcat(header,"{$tm,$tn} IND $tk", "-> M[$sia]$mode")>{
   bits<2> tm;
   bits<4> tn;
   bits<4> tk;
   bits<3> sia;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-19} = tk;
   let Inst{16} = 1;
   let Inst{15} = TBSymbol;
@@ -590,8 +609,10 @@ class SHUByteBit<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     bits<32> f;
     bits<2> tm;
     bits<8> op;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{24-23} = mode;
     let Inst{22-15} = op{7-0};
     let Inst{12-10} = f{2-0};
     let Inst{9-8} = tm;
@@ -604,8 +625,10 @@ class SHUByteBitToM<string header, bits<5> slot, Operand DestTy>
     bits<32> f;
     bits<2> tm;
     bits<8> op;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{24-23} = mode;
     let Inst{22-15} = op{7-0};
     let Inst{12-10} = f{2-0};
     let Inst{9-8} = tm;
@@ -613,13 +636,15 @@ class SHUByteBitToM<string header, bits<5> slot, Operand DestTy>
     let Inst{6-0} = d{6-0};
 }
 class SHUByteBitToMSIA<string header, bits<5> slot>
-        :UCPMInst<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f, Flags:$sia), (outs), !strconcat("$op ", header,"$tm$f","-> M[$sia]")>{
+        :UCPMInst<(ins SHUTranOprtor: $op, TPort: $tm, Flags: $f, Flags:$sia), (outs Condition:$mode), !strconcat("$op ", header,"$tm$f","-> M[$sia]$mode")>{
     bits<32> f;
     bits<2> tm;
     bits<8> op;
     bits<3> sia;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{24-23} = mode;
     let Inst{22-15} = op{7-0};
     let Inst{12-10} = f{2-0};
     let Inst{9-8} = tm;
@@ -647,11 +672,13 @@ def SHU2ByteBitToMSIA: SHUByteBitToMSIA<"SHU2.", 0b01001 >;
 
 // WAIT 
 class SHUWaitInstr<string header, bits<5> slot>
-        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
-                                   header, "", "", "Wait $imm7">{
-  bits<7>  imm7;
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
+                                   header, "", "", "Wait $imm7 $mode">{
+  bits<7> imm7;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-15} = 0b11111101;
   let Inst{14-8} = imm7;
 }
@@ -661,12 +688,14 @@ def SHU2Wait : SHUWaitInstr<"SHU2.", 0b01001>;
 
 // SetCond  
 class SHUSetCondInstr<string header, bits<5> slot>
-        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs Condition:$mode), !strconcat("$imm8 -> ", header,"SetCond[$m] $mode")> 
                                    {
   bits<8>  imm8;
   bit m;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{24-23} = mode;
   let Inst{22-15} = 0b11111100;
   let Inst{12-10} = 0b100;
   let Inst{8} = m;

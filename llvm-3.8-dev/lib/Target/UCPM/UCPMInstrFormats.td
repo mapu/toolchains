@@ -260,10 +260,11 @@ class UCPAssignInstr<dag ins, string header, string lclause, Operand DestTy,
 }
 class UCPSHUIndexAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
+                            header, "$d$mode", "->", lclause, pattern> {
   //MACCTI: MACC, T, I
   bits<6>  d;
+  bits<2> mode;
 }
 
 
