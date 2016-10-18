@@ -98,10 +98,11 @@ def MR5ToDestSIA : MRSIAToDest<"R5.", 0b00110, MR5DestT>{
 
 // SetCond  
 class MRegSetCondInstr<string header, bits<5> slot>
-        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs Condition:$mode), !strconcat("$imm8 -> ", header,"SetCond[$m]$mode")> 
                                    {
   bits<8>  imm8;
   bit m;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
   let Inst{8-4} = imm8{7-3};
@@ -109,21 +110,27 @@ class MRegSetCondInstr<string header, bits<5> slot>
   let Inst{0} = m;
 }
 def MR0SetCond : MRegSetCondInstr<"MReg0.", 0b00001>{
+  let Inst{16-15} = mode;
   let Inst{14-11} = 0b1111;
 }
 def MR1SetCond : MRegSetCondInstr<"MReg1.", 0b00010>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b11;
 }
 def MR2SetCond : MRegSetCondInstr<"MReg2.", 0b00011>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b011;
 }
 def MR3SetCond : MRegSetCondInstr<"MReg3.", 0b00100>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b11;
 }
 def MR4SetCond : MRegSetCondInstr<"MReg4.", 0b00101>{
+  let Inst{15-14} = mode;
   let Inst{13-11} = 0b011;
 }
 def MR5SetCond : MRegSetCondInstr<"MReg5.", 0b00110>{
+  let Inst{14-13} = mode;
   let Inst{12-11} = 0b11;
 }
 
@@ -208,33 +215,40 @@ def ConfigMWToMR0 : ConfigMRW< 1 >;
 
 // WAIT 
 class MRegWaitInstr<string header, bits<5> slot>
-        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
-                                   header, "", "", "Wait $imm7">{
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
+                                   header, "", "", "Wait $imm7$mode">{
   bits<7>  imm7;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
   let Inst{10-4} = imm7;
 }
 def MR0Wait : MRegWaitInstr<"R0.", 0b00001>{
+    let Inst{16-15} = mode;
     let Inst{14-11} = 0b1100;
 }
 def MR1Wait : MRegWaitInstr<"R1.", 0b00010>{
+    let Inst{14-13} = mode;
     let Inst{12-11} = 0b10;
     let Inst{3-0} = 0b1000;
 }
 def MR2Wait : MRegWaitInstr<"R2.", 0b00011>{
+    let Inst{15-14} = mode;
     let Inst{13-11} = 0b010;
     let Inst{3-0} = 0b1000;
 }
 def MR3Wait : MRegWaitInstr<"R3.", 0b00100>{
+    let Inst{14-13} = mode;
     let Inst{12-11} = 0b10;
     let Inst{3-0} = 0b1000;
 }
 def MR4Wait : MRegWaitInstr<"R4.", 0b00101>{
+    let Inst{15-14} = mode;
     let Inst{13-11} = 0b010;
     let Inst{3-0} = 0b1000;
 }
 def MR5Wait : MRegWaitInstr<"R5.", 0b00110>{
+    let Inst{14-13} = mode;
     let Inst{12-11} = 0b10;
     let Inst{3-0} = 0b1000;
 }

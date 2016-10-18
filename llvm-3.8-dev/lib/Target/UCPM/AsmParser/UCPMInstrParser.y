@@ -160,6 +160,8 @@ mr0code: R0 DOT r0inst {
 }
 | R0 DOT mregwait{          
       ADDOPERAND(Opc, UCPM::MR0Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | r0Toconfigmr{
@@ -274,7 +276,8 @@ mr0code: R0 DOT r0inst {
 | r0setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR0SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -312,12 +315,15 @@ mr1code: R1 DOT r1inst {
 }
 | R1 DOT mregwait{           
       ADDOPERAND(Opc, UCPM::MR1Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | r1setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR1SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -355,6 +361,8 @@ mr2code: R2 DOT r2inst {
 }
 | R2 DOT mregwait{           
       ADDOPERAND(Opc, UCPM::MR2Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | R2 DOT configbiu{
@@ -394,7 +402,8 @@ mr2code: R2 DOT r2inst {
 | r2setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR2SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -432,12 +441,15 @@ mr3code: R3 DOT r3inst {
 }
 | R3 DOT mregwait{           
       ADDOPERAND(Opc, UCPM::MR3Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | r3setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR3SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -475,6 +487,8 @@ mr4code: R4 DOT r4inst {
 }
 | R4 DOT mregwait{           
       ADDOPERAND(Opc, UCPM::MR4Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | R4 DOT configbiu{
@@ -514,7 +528,8 @@ mr4code: R4 DOT r4inst {
 | r4setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR4SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -552,12 +567,15 @@ mr5code: R5 DOT r5inst {
 }
 | R5 DOT mregwait{           
       ADDOPERAND(Opc, UCPM::MR5Wait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));  
 }
 | r5setcondInstr{   
 	    
 	    ADDOPERAND(Opc, UCPM::MR5SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
