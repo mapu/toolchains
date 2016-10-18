@@ -113,7 +113,7 @@ slot: mr012345slot condflag {ADDOPERAND(Slot, 0 + $1, @$.S, @$.E);} |
       ifaluslot condflag {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
       imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot condflag {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
-      biuslot {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|  
+      biuslot condflag {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|  
       seqslot |
       hmacro | //?
       error { llvmerror(&@1, "Unrecognized slot."); YYABORT; };
@@ -2926,6 +2926,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      ADDOPERAND(Opc, UCPM::BIU0disLdToBIU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -2939,6 +2941,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      ADDOPERAND(Opc, UCPM::BIU0ComLdToBIU, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	    break;
@@ -2965,6 +2969,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      ADDOPERAND(Opc, UCPM::BIU0disLdToSHU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -2979,6 +2985,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3006,6 +3014,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      ADDOPERAND(Opc, UCPM::BIU0disLdToMACC, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3020,6 +3030,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3054,6 +3066,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         
 	      ADDOPERAND(Opc, UCPM::BIU0disLdToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+              Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3067,6 +3081,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 
 	      ADDOPERAND(Opc, UCPM::BIU0ComLdToM, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -3103,6 +3119,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      flags.reset();
         
 	      ADDOPERAND(Opc, UCPM::BIU0disLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3116,6 +3134,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 	      flags.reset();
 
 	      ADDOPERAND(Opc, UCPM::BIU0ComLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -3151,7 +3171,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU0St, @$.S, @$.E); 
-        
+      Operands.push_back(nullptr);
+      condpos = Operands.size();  
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3161,7 +3182,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 | binInstr{
         
       ADDOPERAND(Opc, UCPM::BIU0Bin, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3183,7 +3205,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 | shiftInstr{
        
       ADDOPERAND(Opc, UCPM::BIU0Shift, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3204,7 +3227,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 | compareInstr{
        
       ADDOPERAND(Opc, UCPM::BIU0Com, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3221,7 +3245,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 | notInstr{
      
       ADDOPERAND(Opc, UCPM::BIU0NOT, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -3270,7 +3295,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         
       ADDOPERAND(Opc, UCPM::BIU0Mov, @$.S, @$.E);
 
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       if (imm == NULL)
@@ -3302,7 +3328,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         
       ADDOPERAND(Opc, UCPM::BIU0MaskGen, @$.S, @$.E);
 
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       if (imm1 == NULL)
@@ -3321,7 +3348,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
 | waitInstr{
             
       ADDOPERAND(Opc, UCPM::BIU0Wait, @$.S, @$.E);
-      
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       if (imm == NULL)
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
@@ -3348,6 +3376,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
        	   	      	      
 	      ADDOPERAND(Opc, UCPM::BIU0KGToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+              Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
          
@@ -3356,6 +3386,8 @@ biu0inst: ldselect ASSIGNTO biu0dest {
         case 4://to Wx.m[s++,i++,a++]
 
 	      ADDOPERAND(Opc, UCPM::BIU0KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
@@ -3394,6 +3426,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      ADDOPERAND(Opc, UCPM::BIU1disLdToBIU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3407,6 +3441,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      ADDOPERAND(Opc, UCPM::BIU1ComLdToBIU, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	    break;
@@ -3433,6 +3469,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      ADDOPERAND(Opc, UCPM::BIU1disLdToSHU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3447,6 +3485,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3474,6 +3514,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      ADDOPERAND(Opc, UCPM::BIU1disLdToMACC, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3488,6 +3530,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3522,6 +3566,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
         
 	      ADDOPERAND(Opc, UCPM::BIU1disLdToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3535,6 +3581,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 
 	      ADDOPERAND(Opc, UCPM::BIU1ComLdToM, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -3571,6 +3619,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      flags.reset();
         
 	      ADDOPERAND(Opc, UCPM::BIU1disLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3584,6 +3634,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 	      flags.reset();
 
 	      ADDOPERAND(Opc, UCPM::BIU1ComLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size();
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -3619,7 +3671,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU1St, @$.S, @$.E); 
-        
+      Operands.push_back(nullptr);
+      condpos = Operands.size();  
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3629,7 +3682,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 | binInstr{
         
       ADDOPERAND(Opc, UCPM::BIU1Bin, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();  
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3651,7 +3705,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 | shiftInstr{
        
       ADDOPERAND(Opc, UCPM::BIU1Shift, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3672,7 +3727,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 | compareInstr{
        
       ADDOPERAND(Opc, UCPM::BIU1Com, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3689,7 +3745,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 | notInstr{
      
       ADDOPERAND(Opc, UCPM::BIU1NOT, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -3738,7 +3795,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU1Mov, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -3770,7 +3828,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU1MaskGen, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -3790,7 +3849,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
 | waitInstr{
             
       ADDOPERAND(Opc, UCPM::BIU1Wait, @$.S, @$.E);
-      
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       if (imm == NULL)
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
@@ -3817,6 +3877,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
        	   	      	      
 	      ADDOPERAND(Opc, UCPM::BIU1KGToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+              Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
          
@@ -3825,6 +3887,8 @@ biu1inst: ldselect ASSIGNTO biu1dest {
         case 4://to Wx.m[s++,i++,a++]
 
 	      ADDOPERAND(Opc, UCPM::BIU1KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
@@ -3862,6 +3926,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      ADDOPERAND(Opc, UCPM::BIU2disLdToBIU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3875,6 +3941,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      ADDOPERAND(Opc, UCPM::BIU2ComLdToBIU, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	    break;
@@ -3901,6 +3969,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      ADDOPERAND(Opc, UCPM::BIU2disLdToSHU, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3915,6 +3985,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3942,6 +4014,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      ADDOPERAND(Opc, UCPM::BIU2disLdToMACC, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3956,6 +4030,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
     
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 
@@ -3989,6 +4065,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
         
 	      ADDOPERAND(Opc, UCPM::BIU2disLdToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -4002,6 +4080,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 
 	      ADDOPERAND(Opc, UCPM::BIU2ComLdToM, @$.S, @$.E); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -4036,6 +4116,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      flags.reset();
         
 	      ADDOPERAND(Opc, UCPM::BIU2disLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -4049,6 +4131,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      flags.reset();
 
 	      ADDOPERAND(Opc, UCPM::BIU2ComLdToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -4067,7 +4151,7 @@ biu2inst: ldselect ASSIGNTO biu2dest {
   
 }
 | stinst{
-      
+        OS<<"Position 14\n";
 	flagsort = (flags[MF] << 2) | (flags[APPF] << 1) | flags[BRF];
 	f = OPERAND(Imm, flagsort, FlagS, FlagE);
      
@@ -4084,7 +4168,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU2St, @$.S, @$.E); 
-        
+      Operands.push_back(nullptr);
+      condpos = Operands.size();   
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -4094,7 +4179,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 | binInstr{
         
       ADDOPERAND(Opc, UCPM::BIU2Bin, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size();  
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -4116,7 +4202,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 | shiftInstr{
        
       ADDOPERAND(Opc, UCPM::BIU2Shift, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -4137,7 +4224,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 | compareInstr{
        
       ADDOPERAND(Opc, UCPM::BIU2Com, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -4154,7 +4242,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 | notInstr{
         
       ADDOPERAND(Opc, UCPM::BIU2NOT, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       //Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4202,7 +4291,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU2Mov, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4234,7 +4324,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU2MaskGen, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
@@ -4254,7 +4345,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 | waitInstr{
             
       ADDOPERAND(Opc, UCPM::BIU2Wait, @$.S, @$.E);
-      
+      Operands.push_back(nullptr);
+      condpos = Operands.size();       
       if (imm == NULL)
         ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
       else
@@ -4275,6 +4367,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
         
 	      ADDOPERAND(Opc, UCPM::BIU2KGToM, @$.S, @$.E); 
               Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+              Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
          
@@ -4292,6 +4386,8 @@ biu2inst: ldselect ASSIGNTO biu2dest {
 	      flags.reset();
         
 	      ADDOPERAND(Opc, UCPM::BIU2KGToMSIA, @$.S, @$.E); 
+	      Operands.push_back(nullptr);
+	      condpos = Operands.size(); 
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
 	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
@@ -4328,9 +4424,9 @@ w_mindexsia: wflag DOT M LBRACKET siaflags RBRACKET {$$=4;} | wflag DOT M {$$=4;
 
 
 stinst:  t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ _flag storeflag flag_ |
-         t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ |
-         t _flag t flag_ ASSIGNTO DM _flag storeflag flag_|
-         t _flag t flag_ ASSIGNTO DM;
+         t _flag t flag_ ASSIGNTO DM _flag biuflags flag_ {  OS<<"Position 10\n";}|
+         t _flag t flag_ ASSIGNTO DM _flag storeflag flag_{  OS<<"Position 11\n";}|
+         t _flag t flag_ ASSIGNTO DM{  OS<<"Position 12\n";};
 
 
 binInstr:     addclause {opc = OPERAND(Reg, UCPMReg::BIUADD, @$.S, @$.E);} | 
@@ -4378,7 +4474,8 @@ waitInstr: WAIT IMM5 {imm = OPERAND(Imm, $2, @2.S, @2.E);};
 setcond0Instr: biu0cond{   
 	    
 	    ADDOPERAND(Opc, UCPM::BIU0SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+            condpos = Operands.size(); 
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -4391,7 +4488,8 @@ setcond0Instr: biu0cond{
 setcond1Instr: biu1cond{   
 	    
 	    ADDOPERAND(Opc, UCPM::BIU1SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+            condpos = Operands.size(); 
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -4404,7 +4502,8 @@ setcond1Instr: biu1cond{
 setcond2Instr: biu2cond{   
 	    
 	    ADDOPERAND(Opc, UCPM::BIU2SetCond, @$.S, @$.E);
-	    
+	    Operands.push_back(nullptr);
+            condpos = Operands.size(); 
 	    if (imm == NULL)
 	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
 	    else
@@ -4448,7 +4547,8 @@ imm0Instr: biu0imm{
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU0Imm, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 
       if (imm1 == NULL)
@@ -4488,7 +4588,8 @@ imm1Instr: biu1imm{
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU1Imm, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 
       if (imm1 == NULL)
@@ -4528,7 +4629,8 @@ imm2Instr: biu2imm{
         flags.reset();
         
       ADDOPERAND(Opc, UCPM::BIU2Imm, @$.S, @$.E);
-
+      Operands.push_back(nullptr);
+      condpos = Operands.size(); 
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 
       if (imm1 == NULL)

@@ -1795,8 +1795,10 @@ class BIULdToDest_dis<string header, bits<5> slot, bits<2> dest, Operand DestTy>
     bits<2> tm;
     bits<2> ts;
     bits<2> QLH;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = QLH;
@@ -1817,8 +1819,10 @@ class BIULdToM_dis<string header, bits<5> slot, Operand DestTy>
     bits<2> ts;
     bits<2> QLH;
     bit w;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = QLH;
@@ -1831,15 +1835,17 @@ class BIULdToM_dis<string header, bits<5> slot, Operand DestTy>
 }
 
 class BIULdToMSIA_dis<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm($ts)$f", "-> $w.M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH, Flags: $w, Flags: $sia), (outs Condition: $mode), !strconcat(header,"$tm($ts)$f", "-> $w.M[$sia]$mode")>{
     bits<32> f;
     bits<2> tm;
     bits<2> ts;
     bits<2> QLH;
     bit w;
     bits<3> sia;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = QLH;
@@ -1885,8 +1891,10 @@ class BIULdToDest_com<string header, bits<5> slot, bits<2> dest, Operand DestTy>
 
     bits<32> f;
     bits<2> tm;
-  
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = 0b11;
@@ -1905,8 +1913,10 @@ class BIULdToM_com<string header, bits<5> slot, Operand DestTy>
     bits<32> f;
     bits<2> tm;
     bit w;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = 0b11;
@@ -1919,13 +1929,15 @@ class BIULdToM_com<string header, bits<5> slot, Operand DestTy>
 }
 
 class BIULdToMSIA_com<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm$f", "-> $w.M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $w, Flags: $sia), (outs Condition: $mode), !strconcat(header,"$tm$f", "-> $w.M[$sia]$mode")>{
     bits<32> f;
     bits<2> tm;
     bit w;
     bits<3> sia;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b111;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = 0b11;
@@ -1967,14 +1979,16 @@ def BIU2ComLdToMSIA: BIULdToMSIA_com<"BIU2.", 0b10000 >;
 
 // store
 class BIUStInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $SQLH), (outs), !strconcat(header,"$tm($ts)", "-> DM$f")>{
+        : UCPMInst<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $SQLH), (outs Condition: $mode), !strconcat(header,"$tm($ts)", "-> DM$f$mode")>{
             
     bits<32> f;
     bits<2> tm;
     bits<2> ts;
     bits<2> SQLH;
+    bits<2> mode;
 
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = f{2-1};
     let Inst{15-14} = SQLH;
@@ -1987,7 +2001,7 @@ class BIUStInstr<string header, bits<5> slot>
  
 // ADD SUB AND OR
 class BIUBinInstr<string header, bits<5> slot>
-        : UCPMInst<(ins BIUBinOprtor: $op, TPort: $td, TPort: $ts0, TPort: $ts1, imm32i: $d, imm32i: $s0, imm32i: $s1), (outs), !strconcat(header,"$ts0[$s0] $op $ts1[$s1]", "-> $td[d]")>{
+        : UCPMInst<(ins BIUBinOprtor: $op, TPort: $td, TPort: $ts0, TPort: $ts1, imm32i: $d, imm32i: $s0, imm32i: $s1), (outs Condition:$mode), !strconcat(header,"$ts0[$s0] $op $ts1[$s1]", "-> $td[d]$mode")>{
             
     bits<2> td;
     bits<2> ts0;
@@ -1996,8 +2010,10 @@ class BIUBinInstr<string header, bits<5> slot>
     bits<4> d;
     bits<4> s0;
     bits<4> s1;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = op{2-0};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2009,7 +2025,7 @@ class BIUBinInstr<string header, bits<5> slot>
  
 // LSH RSH
 class BIUShiftInstr<string header, bits<5> slot>
-        : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $td, TPort: $ts, imm32i: $imm, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op $imm", "-> $td[$d]")>{
+        : UCPMInst<(ins BIUShiftOprtor: $op, TPort: $td, TPort: $ts, imm32i: $imm, imm32i: $d, imm32i: $s), (outs Condition:$mode), !strconcat(header,"$ts[$s] $op $imm", "-> $td[$d]$mode")>{
             
     bits<2> ts;
     bits<2> td;
@@ -2017,8 +2033,10 @@ class BIUShiftInstr<string header, bits<5> slot>
     bits<2> imm;
     bits<4> s;
     bits<4> d;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = op{6-4};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2030,15 +2048,17 @@ class BIUShiftInstr<string header, bits<5> slot>
 
 // ==  !=
 class BIUComInstr<string header, bits<5> slot>
-        : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s), (outs), !strconcat(header,"$ts[$s] $op 0", "-> $td[$d]")>{
+        : UCPMInst<(ins BIUComOprtor: $op, TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s), (outs Condition:$mode), !strconcat(header,"$ts[$s] $op 0", "-> $td[$d]$mode")>{
             
     bits<2> td;
     bits<2> ts;
     bits<8> op;
     bits<4> d;
     bits<4> s;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = op{6-4};
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2049,15 +2069,17 @@ class BIUComInstr<string header, bits<5> slot>
 
 // MaskGen
 class BIUMaskGenInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs), !strconcat(header,"$ts[$s]$f", "-> $td[$d].Mask")>{
+        : UCPMInst<(ins TPort: $td, TPort: $ts, imm32i: $d, imm32i: $s, Flags: $f), (outs Condition:$mode), !strconcat(header,"$ts[$s]$f", "-> $td[$d].Mask$mode")>{
             
     bits<2> td;
     bits<2> ts;
     bits<4> d;
     bits<4> s;
     bits<2> f;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2069,14 +2091,16 @@ class BIUMaskGenInstr<string header, bits<5> slot>
 
 // NOT
 class BIUNOTInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d), (outs), !strconcat(header,"~$ts[$s]", "-> $td[$d]")>{
+        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d), (outs Condition:$mode), !strconcat(header,"~$ts[$s]", "-> $td[$d]$mode")>{
   
     bits<2> ts;
     bits<2> td;
     bits<4> s;
     bits<4> d;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b100;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2087,15 +2111,17 @@ class BIUNOTInstr<string header, bits<5> slot>
 
 // Imm
 class BIUImmInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f, Flags: $ff), (outs), !strconcat("$imm8 -> ", header,"$td[$d]$f")>{
+        : UCPMInst<(ins TPort: $td, imm32i: $d, imm32i: $imm8, Flags: $f, Flags: $ff), (outs Condition:$mode), !strconcat("$imm8 -> ", header,"$td[$d]$f$mode")>{
   
     bits<8> imm8;
     bits<2> td;
     bits<4> d;
     bits<2> f;
     bits<2> ff;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b110;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2107,7 +2133,7 @@ class BIUImmInstr<string header, bits<5> slot>
 
 // Mov
 class BIUMovInstr<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd1, Flags: $fd2), (outs), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd1$fd2")>{
+        : UCPMInst<(ins TPort: $ts, TPort: $td, imm32i: $s, imm32i: $d, Flags: $fs, Flags: $fd1, Flags: $fd2), (outs Condition:$mode), !strconcat(header,"$ts[$s]$fs", "-> $td[$d]$fd1$fd2$mode")>{
   
     bits<2> ts;
     bits<2> td;
@@ -2116,8 +2142,10 @@ class BIUMovInstr<string header, bits<5> slot>
     bits<2> fs;
     bits<2> fd1;
     bits<2> fd2;
-
+    bits<2> mode;
+    
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b101;
     let Inst{17-16} = td;
     let Inst{15-12} = d;
@@ -2130,11 +2158,13 @@ class BIUMovInstr<string header, bits<5> slot>
 
 // WAIT 
 class BIUWaitInstr<string header, bits<5> slot>
-        : CommonAssignInstr<(ins imm32i: $imm7),(outs),
-                                   header, "", "", "Wait $imm7">{
+        : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
+                                   header, "", "", "Wait $imm7 $mode">{
   bits<7>  imm7;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{22-21} = mode;
   let Inst{20-17} = 0b1000;
   let Inst{16-10} = imm7;
   let Inst{9-6} = 0b1000;
@@ -2165,12 +2195,14 @@ def BIU2NOP: UCPMInst <(ins), (outs), "NOP">{
 
 // SetCond  
 class BIUSetCondInstr<string header, bits<5> slot>
-        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs), !strconcat("$imm8 -> ", header,"SetCond[$m]")> 
+        : UCPMInst<(ins imm32i: $imm8, imm32i: $m), (outs Condition:$mode), !strconcat("$imm8 -> ", header,"SetCond[$m] $mode")> 
                                    {
   bits<8>  imm8;
   bit m;
+  bits<2> mode;
   
   let Inst{47-43} = slot;
+  let Inst{22-21} = mode;
   let Inst{20-16} = 0b10010;
   let Inst{12} = m;
   let Inst{11-10} = imm8{7-6};
@@ -2185,8 +2217,10 @@ class BIUKGInstrToM<string header, bits<5> slot, Operand DestTy>
     
     bits<2> tm;
     bit w;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b100;
     let Inst{14} = 1;
     let Inst{13} = w;
@@ -2196,13 +2230,15 @@ class BIUKGInstrToM<string header, bits<5> slot, Operand DestTy>
     let Inst{5-0} = d{5-0};
 }
 class BIUKGInstrToMSIA<string header, bits<5> slot>
-        : UCPMInst<(ins TPort: $tm, Flags: $w, Flags: $sia), (outs), !strconcat(header,"$tm", "-> $w.M[$sia]")>{
+        : UCPMInst<(ins TPort: $tm, Flags: $w, Flags: $sia), (outs Condition:$mode), !strconcat(header,"$tm", "-> $w.M[$sia] $mode")>{
     
     bits<2> tm;
     bit w;
     bits<3> sia;
+    bits<2> mode;
     
     let Inst{47-43} = slot;
+    let Inst{22-21} = mode;
     let Inst{20-18} = 0b100;
     let Inst{14-12} = 0b001;
     let Inst{11-10} = tm;

@@ -174,9 +174,10 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
 
 class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
                   list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
-                            header, "$d", "->", lclause, pattern> {
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
+                            header, "$d$mode", "->", lclause, pattern> {
   bits<6>  d;
+  bits<2> mode;
 }
 
 class MRegAssignInstr<dag ins, string header, string lclause, Operand DestTy,
