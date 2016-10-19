@@ -214,7 +214,7 @@ class IMACBinaryInstr<string header, bit mode,
 }
 
 class UnaryInstr<string header, RegisterClass OprtorTy, Operand DestTy>
-        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, TPort: $tn, Flags: $f),
+        : AssignInstr<(ins OprtorTy: $op, TPort: $tm, Flags: $f),
                       header,
                       "$op $tm$f", DestTy> {
   bits<2>  tm;

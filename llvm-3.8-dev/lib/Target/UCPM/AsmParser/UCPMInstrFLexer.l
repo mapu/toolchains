@@ -269,6 +269,7 @@ A   [a-zA-Z_0-9]
 "divs"                   {return TOKEN(DIVS);}
 "rmax"                   {return TOKEN(RMAX);}
 "rmin"                   {return TOKEN(RMIN);}
+"radd"                   {return TOKEN(RADD);}//dcx
 "recip"                  {return TOKEN(RECIP);}
 "rsqrt"                  {return TOKEN(RSQRT);}
 "single"                 {return TOKEN(SINGLE);}
@@ -340,10 +341,10 @@ A   [a-zA-Z_0-9]
 "s"                      {return TOKEN(S);}
 "float"                  {return TOKEN(FLOAT);} //dcx
 "imm"                    {return TOKEN(IMMSYM);} //dcx
-"mode0" 		 {return TOKEN(MODE0);}//dcx
-"mode1" 		 {return TOKEN(MODE1);}//dcx
-"!""mode0" 		 {return TOKEN(NMODE0);}//dcx
-"!""mode1" 		 {return TOKEN(NMODE1);}//dcx
+"(mode0)" 		 {return TOKEN(MODE0);}//dcx
+"(mode1)" 		 {return TOKEN(MODE1);}//dcx
+"(!mode0)" 		 {return TOKEN(NMODE0);}//dcx
+"(!mode1)" 		 {return TOKEN(NMODE1);}//dcx
 "d"                      {return TOKEN(D);}
 "i"                      {return TOKEN(I);}
 "c"                      {return TOKEN(CFLAG);}
