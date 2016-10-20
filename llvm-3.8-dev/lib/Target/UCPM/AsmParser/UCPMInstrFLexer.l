@@ -256,6 +256,10 @@ A   [a-zA-Z_0-9]
 "comb"                   {return TOKEN(BY);}
 "cprs"                   {return TOKEN(CPRS);}
 "expd"                   {return TOKEN(EXPD);}
+"conj"                   {return TOKEN(CONJ);}//dcx
+"minus"                  {return TOKEN(MINUS);}//dcx
+"readq"                  {return TOKEN(READQ);}//dcx
+"readr"                  {return TOKEN(READR);}//dcx
 "start"                  {return TOKEN(START);}
 "stop"                   {return TOKEN(STOP);}
 "max"                    {return TOKEN(MAX);}

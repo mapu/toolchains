@@ -967,67 +967,123 @@ class IALUUryNOTCode<bits<2> dest> : IALUUryCode<dest>{
 }
 multiclass IALUUryNOTToDest {
   let isCodeGenOnly = 1 in {
-  def ToSHU  : UnaryInstr<"", IALUUryNOTOprtor, SHUT  >, IALUUryNOTCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IALUUryNOTOprtor, BIUO  >, IALUUryNOTCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryNOTOprtor, MACCT >, IALUUryNOTCode<0b01>;
+  def ToSHU  : UnaryInstr<"IALU.", IALUUryNOTOprtor, SHUT  >, IALUUryNOTCode<0b00>;
+  def ToBIU  : UnaryInstr<"IALU.", IALUUryNOTOprtor, BIUO  >, IALUUryNOTCode<0b10>;
+  def ToMACC : UnaryInstr<"IALU.", IALUUryNOTOprtor, MACCT >, IALUUryNOTCode<0b01>;
   }
+}
+def IALUUryNOTToM
+        : MRegAssignInstr<(ins IALUUryNOTOprtor: $op, TPort: $tm),
+                      "IALU.", "$op $tm", MRegO>, IALUToM {
+  let tn = 0b00;
+  let Inst{21-18} = 0b1001;
+  let Inst{14}    = 0;
+  let Inst{13-12} = op{1-0};
+}
+def IALUUryNOTToMSIA
+       : UCPMInst<(ins IALUUryNOTOprtor: $op, TPort: $tm, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm", "-> M[$sia]$mode")>, IALUToMSIA{
+  let tn = 0b00;
+  let Inst{21-18} = 0b1001;
+  let Inst{14}    = 0;
+  let Inst{13-12} = op{1-0};
 }
 
 // ABS CONJ MINUS
 class IALUUryCONCode<bits<2> dest> : IALUUryCode<dest>{
   let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
+  let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
   let Inst{12} = f{0};
 }
 multiclass IALUUryCONToDest {
   let isCodeGenOnly = 1 in { //???
-  def ToSHU  : UnaryInstr<"", IALUUryCONOprtor, SHUT  >, IALUUryCONCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IALUUryCONOprtor, BIUO  >, IALUUryCONCode<0b10>;
-  def ToMACC : UnaryInstr<"", IALUUryCONOprtor, MACCT >, IALUUryCONCode<0b01>;
+  def ToSHU  : UnaryInstr<"IALU.", IALUUryCONOprtor, SHUT  >, IALUUryCONCode<0b00>;
+  def ToBIU  : UnaryInstr<"IALU.", IALUUryCONOprtor, BIUO  >, IALUUryCONCode<0b10>;
+  def ToMACC : UnaryInstr<"IALU.", IALUUryCONOprtor, MACCT >, IALUUryCONCode<0b01>;
   }
+}
+def IALUUryCONToM
+        : MRegAssignInstr<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f),
+                      "IALU.", "$op $tm$f", MRegO>, IALUToM {
+  let tn = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{17-14} = f{4-1};
+  let Inst{13} = op{0};
+  let Inst{12} = f{0};
+}
+def IALUUryCONToMSIA
+       : UCPMInst<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm$f", "-> M[$sia]$mode")>, IALUToMSIA{
+  let tn = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{17-14} = f{4-1};
+  let Inst{13} = op{0};
+  let Inst{12} = f{0};
 }
 
 // LSHimm RSHimm
 class IALUImmInstr<Operand DestTy, bits<2> dest>
         : AssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm5, Flags: $f),
-                      "", "$tm $op $imm5$f", DestTy>, IALUBaseCode {
-  bits<2>  tm;
-  bits<5>  imm5;
-  bits<3> f;
-  bits<8> op;
-  bits<2> mode;
+                      "IALU.", "$tm $op $imm5$f", DestTy>, IALUToDest<dest> {
+  bits<5> imm5;
   
-  let Inst{23-22} = mode;
   let Inst{21-18} = op{3-0};
   let Inst{17-15} = f{2-0};
   let Inst{14-12} = imm5{4-2};
-  let Inst{11-10} = tm;
   let Inst{9-8} = imm5{1-0};
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-2}  = d{4-2};
-  let Inst{1-0}   = d{1-0};
 }
 multiclass IALUImmToDest { 
   def ToSHU  : IALUImmInstr<SHUT  , 0b00>;
   def ToBIU  : IALUImmInstr<BIUO  , 0b10>;
-  def ToMACC : IALUImmInstr<MACCT, 0b01>;
+  def ToMACC : IALUImmInstr<MACCT,  0b01>;
+}
+
+def IALUImmToM
+        : MRegAssignInstr<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm5, Flags: $f),
+                      "IALU.", "$tm $op $imm5$f", MRegO>, IALUToM {
+  bits<5> imm5;
+  
+  let Inst{21-18} = op{3-0};
+  let Inst{17-15} = f{2-0};
+  let Inst{14-12} = imm5{4-2};
+  let Inst{9-8} = imm5{1-0};
+}
+def IALUImmToMSIA
+       : UCPMInst<(ins IALUImmOprtor: $op, TPort: $tm, imm32i: $imm5, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.", "$tm $op $imm5$f", "-> M[$sia]$mode")>, IALUToMSIA{
+  bits<5> imm5;
+  
+  let Inst{21-18} = op{3-0};
+  let Inst{17-15} = f{2-0};
+  let Inst{14-12} = imm5{4-2};
+  let Inst{9-8} = imm5{1-0};
 }
 
 // DIV ReadQ ReadR
 class IALUReadQRCode<bits<2> dest> : IALUToDest<dest>{
   let Inst{21-18} = op{4-1};
-  let Inst{17-14} = f{5-2};
+  let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
   let Inst{12} = f{0};
 }
 multiclass IALUReadQRToDest {
-  def ToSHU  : BinaryInstr<"", 0, DIVOprtor, SHUT  >, IALUReadQRCode<0b00>;
-  def ToBIU  : BinaryInstr<"", 0, DIVOprtor, BIUO  >, IALUReadQRCode<0b10>;
-  def ToMACC : BinaryInstr<"", 0, DIVOprtor, MACCT >, IALUReadQRCode<0b01>;
+  def ToSHU  : BinaryInstr<"IALU.", 0, DIVOprtor, SHUT  >, IALUReadQRCode<0b00>;
+  def ToBIU  : BinaryInstr<"IALU.", 0, DIVOprtor, BIUO  >, IALUReadQRCode<0b10>;
+  def ToMACC : BinaryInstr<"IALU.", 0, DIVOprtor, MACCT >, IALUReadQRCode<0b01>;
 }
- 
+def IALUReadQRToM
+        : MRegAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
+                      "IALU.", "$op($tm, $tn)$f", MRegO>, IALUToM {
+  let Inst{21-18} = op{4-1};
+  let Inst{17-14} = f{4-1};
+  let Inst{13} = op{0};
+  let Inst{12}    = f{0};
+}
+def IALUReadQRToMSIA
+       : UCPMInst<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op($tm, $tn)$f", "-> M[$sia]$mode")>, IALUToMSIA{
+  let Inst{21-18} = op{4-1};
+  let Inst{17-14} = f{4-1};
+  let Inst{13} = op{0};
+  let Inst{12}    = f{0};
+}
 // DIV START CONT
 def IALUDivSC : CommonAssignInstr<(ins DIVOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
                                  (outs Condition: $mode),

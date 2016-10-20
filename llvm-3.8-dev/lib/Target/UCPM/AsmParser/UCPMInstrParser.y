@@ -53,7 +53,7 @@ typedef struct YYLTYPE {
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT MASK WAIT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
-%token <val> CPRS EXPD START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
+%token <val> CPRS EXPD CONJ MINUS READQ READR START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND FLOAT Q QL QH ML MH BIT BYTE
 %token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGEABLE L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
@@ -2965,6 +2965,280 @@ ialutodest: ialuasclause ASSIGNTO ialudest {
       break;
   }
 
+}
+| ialuurynotclause ASSIGNTO ialudest{
+
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUUryNOTToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));// NOT	
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUUryNOTToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUUryNOTToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUUryNOTToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUUryNOTToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+| ialuuryconclause ASSIGNTO ialudest{
+
+      flagsort = (~(flags[UF]) << 4) | (flags[BF] << 3) | (flags[SF] << 2 ) | (flags[TF] << 1) | flags[FF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUUryCONToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));// ABS CONJ MINUS	
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUUryCONToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUUryCONToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUUryCONToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUUryCONToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+|  ialuuryimmclause ASSIGNTO ialudest{
+
+      flagsort = (~(flags[UF]) << 2) | (flags[BF] << 1) | (flags[SF] << 0 ) ;
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUImmToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));// LSHI RSHI	
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUImmToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUImmToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUImmToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUImmToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+| ialureadqrclause ASSIGNTO ialudest{
+
+      flagsort = (~(flags[UF]) << 4) | (flags[BF] << 3) | (flags[SF] << 2 ) | (flags[TF] << 1 ) | flags[FF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUReadQRToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//READQ READR
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUReadQRToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUReadQRToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUReadQRToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUReadQRToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
 };
 
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
@@ -3024,7 +3298,7 @@ ialuscclause :  ifm_SUBABSclause  {opc = OPERAND(Reg, UCPMReg::m_SUBABS, @$.S, @
 ifm_SUBABSclause :  subabsexp _flag ialuflags flag_ | subabsexp;               
 ifm_CPRSclause : cprsexp _flag ialuflags flag_ | cprsexp;                
 subabsexp : ABS _flag dupara flag_;
-cprsexp : CPRS _flag dupara flag_
+cprsexp : CPRS _flag dupara flag_;
 
 
 ialuuryrmnclause: ifm_RADDclause {opc = OPERAND(Reg, UCPMReg::m_RADD, @$.S, @$.E); } |
@@ -3035,6 +3309,30 @@ ifm_RADDclause: RADD t _flag ialuflags flag_ | RADD t;
 ifm_RMAXclause: RMAX t _flag ialuflags flag_ | RMAX t;
 ifm_RMINclause: RMIN t _flag ialuflags flag_ | RMIN t;
 ifm_EXPDclause: EXPD t _flag ialuflags flag_ | EXPD t;
+
+ialuurynotclause: ifm_NOTclause {opc = OPERAND(Reg, UCPMReg::m_NOT, @$.S, @$.E); };
+ifm_NOTclause: NOT t;
+
+ialuuryconclause:   ifm_ABSclause {opc = OPERAND(Reg, UCPMReg::m_ABS, @$.S, @$.E); } |
+		    ifm_CONJclause  {opc = OPERAND(Reg, UCPMReg::m_CONJ, @$.S, @$.E);flags[UF]=~flags[UF];}  |
+		    ifm_MINUSclause {opc = OPERAND(Reg, UCPMReg::m_MINUS, @$.S, @$.E);flags[UF]=~flags[UF];} ;
+ifm_ABSclause: ABS t _flag ialuflags flag_ | ABS t;
+ifm_CONJclause: CONJ t _flag ialuflags flag_ | CONJ t;
+ifm_MINUSclause: MINUS t _flag ialuflags flag_ | MINUS t;
+      
+ialuuryimmclause:   if_LSHTIclause  {opc = OPERAND(Reg, UCPMReg::f_LSHTI, @$.S, @$.E);flags[UF]=~flags[UF];}  |
+		    if_RSHTIclause {opc = OPERAND(Reg, UCPMReg::f_RSHTI, @$.S, @$.E);} ;    
+if_LSHTIclause: t LSHT IMM5 _flag ialuflags flag_ {imm = OPERAND(Imm, $3, @3.S, @3.E);}
+	      | t LSHT IMM5 {imm = OPERAND(Imm, $3, @3.S, @3.E);};
+if_RSHTIclause: t RSHT IMM5 _flag ialuflags flag_ {imm = OPERAND(Imm, $3, @3.S, @3.E);}
+	      | t RSHT IMM5 {imm = OPERAND(Imm, $3, @3.S, @3.E);};
+
+ialureadqrclause: if_READQclause  {opc = OPERAND(Reg, UCPMReg::READQ, @$.S, @$.E);}  |
+                  if_READRclause {opc = OPERAND(Reg, UCPMReg::READR, @$.S, @$.E);};
+if_READQclause :  readqexp _flag ialuflags flag_ | readqexp;               
+if_READRclause : readrexp _flag ialuflags flag_ | readrexp;                
+readqexp : READQ LBRACE dupara RBRACE;
+readrexp : READR LBRACE dupara RBRACE;
 
 ialudest: shut {$$ = 0;} | maccdest {$$ = 1;} | biut {$$ = 2;} | mindexn | mindexsia;
 
