@@ -260,6 +260,8 @@ A   [a-zA-Z_0-9]
 "minus"                  {return TOKEN(MINUS);}//dcx
 "readq"                  {return TOKEN(READQ);}//dcx
 "readr"                  {return TOKEN(READR);}//dcx
+"divstart"               {return TOKEN(DIVSTART);}//dcx
+"divcont"                {return TOKEN(DIVCONT);}//dcx
 "start"                  {return TOKEN(START);}
 "stop"                   {return TOKEN(STOP);}
 "max"                    {return TOKEN(MAX);}
@@ -318,6 +320,11 @@ A   [a-zA-Z_0-9]
 "configmfetch" 		 {return TOKEN(CONFIGMFETCH);}//dcx
 "configmr" 		 {return TOKEN(CONFIGMR);}//dcx
 "configmw" 		 {return TOKEN(CONFIGMW);}//dcx
+"flag" 			 {return TOKEN(FLAG);}//dcx
+"writeflag"		 {return TOKEN(WRITEFLAG);}//dcx
+"n" 			 {return TOKEN(N);}//dcx
+"v" 			 {return TOKEN(V);}//dcx
+"a" 			 {return TOKEN(A);}//dcx
 
 "ki12-15"   			 {return TOKEN(KI1215);}//dcx
 "ki16-19"   			 {return TOKEN(KI1619);}//dcx

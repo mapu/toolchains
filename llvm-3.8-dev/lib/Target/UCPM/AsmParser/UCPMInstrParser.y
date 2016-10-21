@@ -7,7 +7,7 @@ static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, MLF=13, MHF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36,
                W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
-               KI5F =58, KI6F=59, KI7F=60;
+               KI5F =58, KI6F=59, KI7F=60, NF=61, VF=62, AF=63;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
@@ -53,25 +53,25 @@ typedef struct YYLTYPE {
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT MASK WAIT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
-%token <val> CPRS EXPD CONJ MINUS READQ READR START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
+%token <val> CPRS EXPD CONJ MINUS READQ READR DIVSTART DIVCONT START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND FLOAT Q QL QH ML MH BIT BYTE
 %token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGEABLE L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
 %token <string> IDENTIFIER
 %token <op> EXPR
-%token <val> TREG MINDEXN KI
+%token <val> TREG MINDEXN KI N V A FLAG WRITEFLAG
 %token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5 KI1215 KI1619 KI2023 KI2427 KI1227 KI1618 KI2022 KI2426 
 
 %type <val> slots slotref slot 
 %type <val> mr012345slot shuslot shu0code shu1code shu2code shu0inst shu1inst shu2inst biu0t biu1t biu2t shut shu0t shu1t shu2t biuslot biu0code biu1code biu2code biu0inst biu1inst biu2inst seqslot 
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte s1biu1t s2biu1t sshu0t sshu1t sshu2t bbiu0te bbiu1te bbiu2te
-%type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr
+%type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr ialuwaitInstr
 %type <val> ucpshusrcTm ucpindtkclause ucpindtkclause2 ucpshusrcTk ucpindtbclause ucpindtbclause2 ucpshuexp ucpshuexp2 ucpindclause ucpindclause2 shu0dest shu1dest shu2dest mindexn w_mindexn mindexsia w_mindexsia ialuasclause biu0dest biu1dest biu2dest 
 %type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep kirep lpinst lpexp lpcond kiflag label mpustop condflag
-%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr 
+%type <val> shu0setcondInstr shu1setcondInstr shu2setcondInstr shu0cond shu1cond shu2cond r0setcondInstr r1setcondInstr r2setcondInstr r3setcondInstr r4setcondInstr r5setcondInstr ialusetcondInstr ialucond
 
 %%
 mcodeline: NOOP LINEEND {ADDOPERAND(Opc, UCPM::NOP, @1.S, @1.E); YYACCEPT;}
@@ -2467,8 +2467,8 @@ shu2cond: IMMSYM DOT IMM5 ASSIGNTO SHU2 DOT SETCOND LBRACKET IMM5 RBRACKET
 
 
 // start ialu -------------------------------------------------- 
-ialuslot: IALU DOT ialutodest ;
-ialutodest: ialuasclause ASSIGNTO ialudest {
+ialuslot: IALU DOT ialuinst | ialusetcondInstr;
+ialuinst: ialuasclause ASSIGNTO ialudest {
 
       flagsort = (~(flags[UF]) << 5) | (flags[BF] << 4) | (flags[SF] << 3) | (flags[TF] << 2) | (flags[CIF] << 1) | flags[FF];
       f = OPERAND(Imm, flagsort, FlagS, FlagE);
@@ -2695,7 +2695,7 @@ ialutodest: ialuasclause ASSIGNTO ialudest {
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
       Operands.push_back(nullptr);
       condpos = Operands.size();
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));// MAX MIN
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -3239,8 +3239,274 @@ ialutodest: ialuasclause ASSIGNTO ialudest {
       break;
   }
 
+}
+| ialudivscclause {
+
+      flagsort = (~(flags[UF]) << 2) | (flags[BF] << 1) | (flags[SF] ) ;
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      flags.reset();
+
+      ADDOPERAND(Opc, UCPM::IALUDivSC, @$.S, @$.E); 
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));// DIVSTART, DIVCONT
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+ 
+
+}
+| t ASSIGNTO ialudest{
+  
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUMOVToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUMOVToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUMOVToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUMOVToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUMOVToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+| ialuwaitInstr{
+            
+      ADDOPERAND(Opc, UCPM::IALUWait, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      if (imm == NULL)
+        ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+      else
+	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+    
+}
+| ialutpclause ASSIGNTO ialudest{
+
+      flagsort = (flags[BF] << 1) | (flags[SF] << 0);
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUTPToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//MERGE
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUTPToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUTPToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUTPToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUTPToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+| ialusendflagclause ASSIGNTO ialudest{
+
+             if(flags[UF])
+		flagsort = 0b1000;
+	     else if(flags[NF])
+		flagsort = 0b0100;
+	     else if(flags[CF])
+		flagsort = 0b0010;
+	     else if(flags[VF])
+		flagsort = 0b0001;
+	     else if(flags[AF])
+	        flagsort = 0b1111;
+      	f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      	
+    	flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+	sia = OPERAND(Imm, flagsort, FlagS, FlagE);
+        flags.reset();
+        
+  switch ($3) {
+    case 0://to shu
+      ADDOPERAND(Opc, UCPM::IALUSendFlagToSHU, @$.S, @$.E); 
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 1://to macc
+      ADDOPERAND(Opc, UCPM::IALUSendFlagToMACC, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 2://to biu
+      ADDOPERAND(Opc, UCPM::IALUSendFlagToBIU, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+     
+    case 3://to m[t]
+      ADDOPERAND(Opc, UCPM::IALUSendFlagToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      break;
+      
+    case 4://to m[s++/i++/a++]
+      ADDOPERAND(Opc, UCPM::IALUSendFlagToMSIA, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+      break;
+      
+    default:
+      break;
+  }
+
+}
+| ialuwriteflagclause{
+            
+             if(flags[UF])
+		flagsort = 0b011;
+	     else if(flags[NF])
+		flagsort = 0b010;
+	     else if(flags[CF])
+		flagsort = 0b001;
+	     else if(flags[VF])
+		flagsort = 0b000;
+	     else if(flags[AF])
+	        flagsort = 0b100;
+      	f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      	flags.reset();
+        
+      ADDOPERAND(Opc, UCPM::IALUWriteFlag, @$.S, @$.E);
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+    
 };
 
+ialusetcondInstr: ialucond{   
+	    
+	    ADDOPERAND(Opc, UCPM::IALUSetCond, @$.S, @$.E);
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
+	    if (imm == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+	    if (imm1 == NULL)
+	      ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+	    else
+	      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+	  };
+ialucond: IMMSYM DOT IMM5 ASSIGNTO IALU DOT SETCOND LBRACKET IMM5 RBRACKET 
+	  {imm = OPERAND(Imm, $3, @3.S, @3.E);imm1 = OPERAND(Imm, $9, @9.S, @9.E);};   
+	  
 ialuasclause: iaddclause {opc = OPERAND(Reg, UCPMReg::f_IADD, @$.S, @$.E);} |
               isubclause {opc = OPERAND(Reg, UCPMReg::f_ISUB, @$.S, @$.E);};
 iaddclause: addexp _flag ialuflags flag_ /*{
@@ -3333,6 +3599,26 @@ if_READQclause :  readqexp _flag ialuflags flag_ | readqexp;
 if_READRclause : readrexp _flag ialuflags flag_ | readrexp;                
 readqexp : READQ LBRACE dupara RBRACE;
 readrexp : READR LBRACE dupara RBRACE;
+
+ialudivscclause:  if_DIVSTARTclause  {opc = OPERAND(Reg, UCPMReg::DIVSTART, @$.S, @$.E);}  |
+                  if_DIVCONTclause {opc = OPERAND(Reg, UCPMReg::DIVCONT, @$.S, @$.E);};
+if_DIVSTARTclause :  divstartexp _flag ialuflags flag_ | divstartexp;               
+if_DIVCONTclause : divcontexp _flag ialuflags flag_ | divcontexp;                
+divstartexp : DIVSTART LBRACE dupara RBRACE;
+divcontexp : DIVCONT LBRACE dupara RBRACE;               
+                  
+//ialumovclause: t;
+
+ialuwaitInstr: WAIT IMM5 {imm = OPERAND(Imm, $2, @2.S, @2.E);};
+
+ialutpclause:  if_MERGEclause  {opc = OPERAND(Reg, UCPMReg::f_MERGE, @$.S, @$.E);};
+if_MERGEclause: tpexp _flag ialuflags flag_ | tpexp;
+tpexp: MERGE _flag tripara flag_ ;
+
+ialusendflagclause: FLAG _flag ialusendflag flag_ | FLAG; 
+
+ialuwriteflagclause: writeflagexp _flag ialusendflag flag_ | writeflagexp;
+writeflagexp: t ASSIGNTO WRITEFLAG;
 
 ialudest: shut {$$ = 0;} | maccdest {$$ = 1;} | biut {$$ = 2;} | mindexn | mindexsia;
 
@@ -5668,6 +5954,13 @@ ialuflag:    T   {flags.set(TF);}  |
              B   {flags.set(BF);}  |
              S   {flags.set(SF);}  |
              U   {flags.set(UF);}  ;
+             
+ialusendflag:   U   {flags.set(UF);}  |
+		N   {flags.set(NF);}  |
+		CFLAG   {flags.set(CF);}  |
+		V   {flags.set(VF);}  |
+		A   {flags.set(AF);}  ;
+
 imacrealflag:  B   {flags.set(BF);}  |
                S   {flags.set(SF);}  ;
 imaccompflag:  R   {flags.set(RF);}  |

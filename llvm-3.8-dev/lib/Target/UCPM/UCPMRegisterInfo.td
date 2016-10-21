@@ -220,8 +220,8 @@ def f_RSHTI : UCPMReg<0b000000111, ">>">;
 def IALUImmOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                   (add f_LSHTI, f_RSHTI)>;
 //  DIV                               
-def DIVSTART : UCPMReg<0b000011110, "DIVSTART">;
-def DIVCONT : UCPMReg<0b000011000, "DIVCONT">;
+def DIVSTART : UCPMReg<0b000001111, "DIVSTART">;
+def DIVCONT : UCPMReg<0b000001100, "DIVCONT">;
 def READQ : UCPMReg<0b000011101, "READQ">;
 def READR : UCPMReg<0b000011011, "READR">;
 
