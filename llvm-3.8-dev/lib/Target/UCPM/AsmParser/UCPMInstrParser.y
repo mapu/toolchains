@@ -8,7 +8,7 @@ const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10,
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36,
                W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
                KI5F =58, KI6F=59, KI7F=60, NF=61, VF=62, AF=63;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tk, *tp, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *tk, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -67,7 +67,7 @@ typedef struct YYLTYPE {
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte s1biu1t s2biu1t sshu0t sshu1t sshu2t bbiu0te bbiu1te bbiu2te
 %type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr ialuwaitInstr
 %type <val> ucpshusrcTm ucpindtkclause ucpindtkclause2 ucpshusrcTk ucpindtbclause ucpindtbclause2 ucpshuexp ucpshuexp2 ucpindclause ucpindclause2 shu0dest shu1dest shu2dest mindexn w_mindexn mindexsia w_mindexsia ialuasclause biu0dest biu1dest biu2dest 
-%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacclause ifmacclause 
+%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacmulclause imacmaclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep kirep lpinst lpexp lpcond kiflag label mpustop condflag
@@ -3720,7 +3720,7 @@ ifaludest: ialudest ;
 
 // start imac --------------------------------------------------
 imacslot: IMAC DOT imacinst ;
-imacinst: imacclause ASSIGNTO imacdest {
+imacinst: imacmulclause ASSIGNTO imacdest {
   flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
   //C or SEND flag
   if(flags[CF] | flags[SENDF])
@@ -3746,7 +3746,7 @@ imacinst: imacclause ASSIGNTO imacdest {
   else if(flags[S3F])
     flagsort = 0x3;
   else
-    flagsort = 0x0;
+    flagsort = 0x2;
   shift = OPERAND(Imm, flagsort, FlagS, FlagE);
 
   
@@ -3898,8 +3898,90 @@ imacinst: imacclause ASSIGNTO imacdest {
     
   }
 
+}
+| 
+MR ASSIGN imacmaclause{
+  flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
+  //C or SEND flag
+  if(flags[CF] | flags[SENDF])
+    flagsort |= 0x1;
+  f = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //ff
+  if(flags[BF] | flags[RF])
+    flagsort = 0x0;
+  else if(flags[SF] | flags[IF])
+    flagsort = 0x1;
+  else {
+    llvmerror(&@1, "B/R/S/I flag error!"); 
+    YYABORT;
+  }
+  ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //SHIFT flag
+  if(flags[S0F])
+    flagsort = 0x0;
+  else if(flags[S1F])
+    flagsort = 0x1;
+  else if(flags[S2F])
+    flagsort = 0x2;
+  else if(flags[S3F])
+    flagsort = 0x3;
+  else
+    flagsort = 0x2;
+  shift = OPERAND(Imm, flagsort, FlagS, FlagE);
+  
+  
+  
+  switch ($3) {
+    //real add
+    case 0:
+    ADDOPERAND(Opc, UCPM::IMA_Realadd, @$.S, @$.E); 
+    OS<<"case0!\n";
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+    break;
+    //real sub
+    case 1:
+    ADDOPERAND(Opc, UCPM::IMA_Realsub, @$.S, @$.E); 
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+    OS<<"case1!\n";
+    break;
+    //complex add
+    case 2:
+    ADDOPERAND(Opc, UCPM::IMA_Compadd, @$.S, @$.E); 
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+    OS<<"case2!\n";
+    break;
+    //complex sub
+    case 3:
+    ADDOPERAND(Opc, UCPM::IMA_Compsub, @$.S, @$.E); 
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+    OS<<"case3!\n";
+    break;
+  }
+  
 };
-imacclause: imulreal {
+//???
+
+imacmulclause: imulreal {
               $$ = 0; 
               opc = OPERAND(Reg, UCPMReg::IMUL, @$.S, @$.E); 
               unsigned treg = MRI->getRegClass(UCPMReg::TPortRegClassID).getRegister(0);//tp is unused
@@ -3913,6 +3995,14 @@ imulreal: imulexp _flag imacrealflag flag_ _flag imacflags flag_ |
 imulcomp: imulexp _flag imaccompflag flag_ _flag imacflags flag_ | 
           imulexp _flag imaccompflag flag_ ;
 imulexp: t MUL t ;
+imacmaclause: t ADD t MUL t _flag imacrealflag flag_ _flag imacflags flag_ {$$ = 0;} |
+              t ADD t MUL t _flag imacrealflag flag_ {$$ = 0;OS<<"hahaha1";} |
+              t SUB t MUL t _flag imacrealflag flag_ _flag imacflags flag_ {$$ = 1;} |
+              t SUB t MUL t _flag imacrealflag flag_ {$$ = 1;} |
+              t ADD t MUL t _flag imaccompflag flag_ _flag imacflags flag_ {$$ = 2;} |
+              t ADD t MUL t _flag imaccompflag flag_ {$$ = 2;} |
+              t SUB t MUL t _flag imaccompflag flag_ _flag imacflags flag_ {$$ = 3;} |
+              t SUB t MUL t _flag imaccompflag flag_ {$$ = 3;} |
 imacdest: ialudest;
 // end imac --------------------------------------------------
 

@@ -1473,21 +1473,24 @@ class MAInstr<bit addsub>
     
     let Inst{24} = addsub;
 }
+//???
 def IMA_Realadd : MAInstr<0>, IMACRealCode<0b00>{
     let opc = 0b01;
-    let d = 0;
+    let d = 0b00000100;
 }
 def IMA_Realsub : MAInstr<1>, IMACRealCode<0b00>{
+    let Inst{24} = 1;
     let opc = 0b01;
-    let d = 0;
+    let d = 0b00000100;
 }
 def IMA_Compadd : MAInstr<0>, IMACCompCode<0b00>{
     let opc = 0b01;
-    let d = 0;
+    let d = 0b00000100;
 }
 def IMA_Compsub : MAInstr<1>, IMACCompCode<0b00>{
+    let Inst{24} = 1;
     let opc = 0b01;
-    let d = 0;
+    let d = 0b00000100;
 }
 
 // tp +|- tm*tn -> d
@@ -1837,7 +1840,7 @@ def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
   let Inst{12-11} = 0b00;
   let Inst{7-0} = imm8;
 }
-
+//***
 defm IMulReal : IMulRealToDest;
 defm IMulComp : IMulCompToDest;
 
