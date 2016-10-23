@@ -1473,8 +1473,8 @@ class MAInstr<bit addsub>
     
     let Inst{24} = addsub;
 }
-//???
 def IMA_Realadd : MAInstr<0>, IMACRealCode<0b00>{
+    let Inst{24} = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
@@ -1484,6 +1484,7 @@ def IMA_Realsub : MAInstr<1>, IMACRealCode<0b00>{
     let d = 0b00000100;
 }
 def IMA_Compadd : MAInstr<0>, IMACCompCode<0b00>{
+    let Inst{24} = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
@@ -1506,6 +1507,7 @@ class MAMovInstr<bit addsub, Operand DestTy>
   
     let Inst{24} = addsub;                          
 }
+//???
 multiclass IMARealaddToDest{
     let opc = 0b01 in{
     def ToSHU  : MAMovInstr<0,SHUT  >, IMACRealCode<0b00>;
