@@ -14,7 +14,7 @@ static unsigned condpos;
 SMLoc FlagS, FlagE;
 llvm::raw_ostream &OS = errs();
 %}
-
+//??? CRF is remained to be fixed!!!
 %code requires {
 //Try to trace token's location in terms of LLVM SMLoc
 #if !YYLTYPE_IS_DECLARED
@@ -51,7 +51,7 @@ typedef struct YYLTYPE {
   int token;
 }
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT MASK WAIT COMMA ADD SUB MUL CMUL LSHT RSHT
-%token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
+%token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 SUBEQU ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD CONJ MINUS READQ READR DIVSTART DIVCONT START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
 %token <val> REPEAT LOOP JMP MPUSTOP
@@ -67,7 +67,7 @@ typedef struct YYLTYPE {
 %type <val> r0inst r1inst r2inst r3inst r4inst r5inst maccdestp maccdest ialut imact ifalut ifmact shu0te shu1te shu2te b1shu2te b2shu1te ialute imacte ifalute ifmacte s1biu1t s2biu1t sshu0t sshu1t sshu2t bbiu0te bbiu1te bbiu2te
 %type <val> tran0Instr tran1Instr tran2Instr tran0clause tran1clause tran2clause shuwaitInstr ialuwaitInstr
 %type <val> ucpshusrcTm ucpindtkclause ucpindtkclause2 ucpshusrcTk ucpindtbclause ucpindtbclause2 ucpshuexp ucpshuexp2 ucpindclause ucpindclause2 shu0dest shu1dest shu2dest mindexn w_mindexn mindexsia w_mindexsia ialuasclause biu0dest biu1dest biu2dest 
-%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacmulclause imacmaclause imacmafftclause ifmacclause 
+%type <val> ialudest ifaludest imacdest ifmacdest biut imulreal imulcomp imacmulclause imacmaclause imacmafftclause imacmacclause ifmacclause 
 %type <val> ialu imac falu fmac ifalu ifmac imm imm1 imm2 imm5 mcodeline hmacro _flag flag_ constt _constt
 %type <val> ldselect lddis ldstep stinst binInstr shiftInstr compareInstr notInstr movInstr maskInstr waitInstr imm0Instr imm1Instr imm2Instr biu0imm biu1imm biu2imm setcond0Instr setcond1Instr setcond2Instr biu0cond biu1cond biu2cond
 %type <val> reinst repeatexp immrep kirep lpinst lpexp lpcond kiflag label mpustop condflag
@@ -4194,6 +4194,151 @@ imacmafftclause ASSIGNTO imacdest {
     //other cases for M[n] and M[sia]
   }  
 }
+|
+imacmacclause {
+  flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
+  //C or SEND flag
+  if(flags[CF] | flags[SENDF])
+    flagsort |= 0x1;
+  f = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //ff
+  if(flags[BF] | flags[RF])
+    flagsort = 0x0;
+  else if(flags[SF] | flags[IF])
+    flagsort = 0x1;
+  else {
+    llvmerror(&@1, "B/R/S/I flag error!"); 
+    YYABORT;
+  }
+  ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //SHIFT flag
+  if(flags[S0F])
+    flagsort = 0x0;
+  else if(flags[S1F])
+    flagsort = 0x1;
+  else if(flags[S2F])
+    flagsort = 0x2;
+  else if(flags[S3F])
+    flagsort = 0x3;
+  else
+    flagsort = 0x2;
+  shift = OPERAND(Imm, flagsort, FlagS, FlagE);
+  flags.reset();
+  
+  switch ($1) {
+    case 0: //real +=
+    ADDOPERAND(Opc, UCPM::IMaC_Realadd, @$.S, @$.E); 
+    break;
+    case 1: //real -=
+    ADDOPERAND(Opc, UCPM::IMaC_Realsub, @$.S, @$.E); 
+    break;
+    case 2: //complex +=
+    ADDOPERAND(Opc, UCPM::IMaC_Compadd, @$.S, @$.E); 
+    break;
+    case 3: //complex -=
+    ADDOPERAND(Opc, UCPM::IMaC_Compsub, @$.S, @$.E); 
+    break;
+  }
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+}
+|
+imacmacclause ASSIGNTO imacdest {
+  flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
+  //C or SEND flag
+  if(flags[CF] | flags[SENDF])
+    flagsort |= 0x1;
+  f = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //ff
+  if(flags[BF] | flags[RF])
+    flagsort = 0x0;
+  else if(flags[SF] | flags[IF])
+    flagsort = 0x1;
+  else {
+    llvmerror(&@1, "B/R/S/I flag error!"); 
+    YYABORT;
+  }
+  ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+  //SHIFT flag
+  if(flags[S0F])
+    flagsort = 0x0;
+  else if(flags[S1F])
+    flagsort = 0x1;
+  else if(flags[S2F])
+    flagsort = 0x2;
+  else if(flags[S3F])
+    flagsort = 0x3;
+  else
+    flagsort = 0x2;
+  shift = OPERAND(Imm, flagsort, FlagS, FlagE);
+  flags.reset();
+  
+  switch ($3){
+    case 0://to shu    
+      switch ($1) {
+        case 0: //real +=
+        ADDOPERAND(Opc, UCPM::IMaCRealaddToSHU, @$.S, @$.E); 
+        break;
+        case 1: //real -=
+        ADDOPERAND(Opc, UCPM::IMaCRealsubToSHU, @$.S, @$.E); 
+        break;
+        case 2: //complex +=
+        ADDOPERAND(Opc, UCPM::IMaCCompaddToSHU, @$.S, @$.E); 
+        break;
+        case 3: //complex -=
+        ADDOPERAND(Opc, UCPM::IMaCCompsubToSHU, @$.S, @$.E); 
+        break;
+      }
+      break;
+      
+    case 1://to macc    
+      switch ($1) {
+        case 0: //real +=
+        ADDOPERAND(Opc, UCPM::IMaCRealaddToMACC, @$.S, @$.E); 
+        break;
+        case 1: //real -=
+        ADDOPERAND(Opc, UCPM::IMaCRealsubToMACC, @$.S, @$.E); 
+        break;
+        case 2: //complex +=
+        ADDOPERAND(Opc, UCPM::IMaCCompaddToMACC, @$.S, @$.E); 
+        break;
+        case 3: //complex -=
+        ADDOPERAND(Opc, UCPM::IMaCCompsubToMACC, @$.S, @$.E); 
+        break;
+      }
+      break;
+      
+    case 2://to biu    
+      switch ($1) {
+        case 0: //real +=
+        ADDOPERAND(Opc, UCPM::IMaCRealaddToBIU, @$.S, @$.E); 
+        break;
+        case 1: //real -=
+        ADDOPERAND(Opc, UCPM::IMaCRealsubToBIU, @$.S, @$.E); 
+        break;
+        case 2: //complex +=
+        ADDOPERAND(Opc, UCPM::IMaCCompaddToBIU, @$.S, @$.E); 
+        break;
+        case 3: //complex -=
+        ADDOPERAND(Opc, UCPM::IMaCCompsubToBIU, @$.S, @$.E); 
+        break;
+      }
+      break;  
+      
+    //other cases for M[n] and M[sia]
+  } 
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
+  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(shift));
+}
 ;
 //???
 
@@ -4223,6 +4368,15 @@ imacmafftclause: t ADDSUB t MUL t _flag imacrealflag flag_ _flag imacflags flag_
                  t ADDSUB t MUL t _flag imacrealflag flag_ {$$ = 0;} |
                  t ADDSUB t MUL t _flag imaccompflag flag_ _flag imacflags flag_ {$$ = 2;} |
                  t ADDSUB t MUL t _flag imaccompflag flag_ {$$ = 2;} ;
+imacmacclause: MR ACC1 t MUL t _flag imacrealflag flag_ _flag imacflags flag_ {$$ = 0;} |
+               MR ACC1 t MUL t _flag imacrealflag flag_ {$$ = 0;} |
+               MR SUBEQU t MUL t _flag imacrealflag flag_ _flag imacflags flag_ {$$ = 1;} |
+               MR SUBEQU t MUL t _flag imacrealflag flag_ {$$ = 1;} |
+               MR ACC1 t MUL t _flag imaccompflag flag_ _flag imacflags flag_ {$$ = 2;} |
+               MR ACC1 t MUL t _flag imaccompflag flag_ {$$ = 2;} |
+               MR SUBEQU t MUL t _flag imaccompflag flag_ _flag imacflags flag_ {$$ = 3;} |
+               MR SUBEQU t MUL t _flag imaccompflag flag_ {$$ = 3;} ;
+
 imacdest: ialudest;
 // end imac --------------------------------------------------
 

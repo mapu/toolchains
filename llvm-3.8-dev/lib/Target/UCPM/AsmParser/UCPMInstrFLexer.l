@@ -208,6 +208,7 @@ A   [a-zA-Z_0-9]
 "+-"                   {return TOKEN(ADDSUB);}
 "+="                   {BEGIN EXPRPARSE; return TOKEN(ACC1);}
 "=+"                   {BEGIN EXPRPARSE; return TOKEN(ACC2);}
+"-="                   {return TOKEN(SUBEQU);}
 "@"                    {BEGIN CONDPARSE; return TOKEN(ALPHA);}
 "||"                   {return TOKEN(SPLIT);}
 ";"                    {return TOKEN(LINEEND);}
