@@ -251,16 +251,16 @@ def IFALUMNOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                (add m_FMAX, m_FMIN)>;
                               
 //  Transfer                        
-def IntToSINGLE : UCPMReg<0b000011000, "SINGLE">;
-def DouToSINGLE : UCPMReg<0b000011110, "SINGLE">;
-def IntToDOUBLE : UCPMReg<0b000011001, "DOUBLE">;
-def SinToDOUBLE : UCPMReg<0b000011111, "DOUBLE">;
-def SinToINT  : UCPMReg<0b000011010, "INT">;
-def DouToINT  : UCPMReg<0b000011011, "INT">;
+def IntToSingle : UCPMReg<0b000011000, "SINGLE">;
+def SingleToInt    : UCPMReg<0b000011010, "INT">;
+def DouToSingle : UCPMReg<0b000011110, "SINGLE">;
+def SingleToDou : UCPMReg<0b000011111, "DOUBLE">;
 
-def IFALUUryOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                 (add IntToSINGLE, DouToSINGLE, IntToDOUBLE, 
-                                     SinToDOUBLE, SinToINT, DouToINT)>; 
+
+
+def IFALUTranOprtor : RegisterClass<"UCPMReg", [i32], 32,
+                                 (add IntToSingle, SingleToInt, 
+                                     DouToSingle, SingleToDou )>; 
 // ducx end IFALU ------------------------------------------------------
                         
                                      

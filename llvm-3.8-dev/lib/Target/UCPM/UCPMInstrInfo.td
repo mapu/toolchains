@@ -1305,8 +1305,8 @@ multiclass IFALUComToDest {
   }
 }
 def IFALUComToM
-        : MRegAssignInstr<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
-                      "IFALU.", "$tm $op $tn$f", MRegO>, IFALUToM {
+        : MRegAssignInstr<(ins IFALUComOprtor: $op, TPort: $tm, TPort: $tn),
+                      "IFALU.", "$tm $op $tn", MRegO>, IFALUToM {
   let Inst{21-18} = op{5-2};
   let Inst{14-13} = op{1-0};
 }
@@ -1318,8 +1318,8 @@ def IFALUComToMSIA
 }
 
 def IFALUMNToM
-        : MRegAssignInstr<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn, Flags: $f),
-                      "IFALU.", "$op($tm, $tn)$f", MRegO>, IFALUToM {
+        : MRegAssignInstr<(ins IFALUMNOprtor: $op, TPort: $tm, TPort: $tn),
+                      "IFALU.", "$op($tm, $tn)", MRegO>, IFALUToM {
   let Inst{21-18} = op{5-2};
   let Inst{14-13} = op{1-0};
 }
@@ -1331,24 +1331,78 @@ def IFALUMNToMSIA
 }
 
 
-
-class IFALUUryCode<bits<2> dest> : IFALUToDest<dest> {
+// int <-> single 
+class IFALUISTranCode<bits<2> dest> : IFALUToDest<dest>{
+  bit imm;
   let tn = 0b00;
-}
-
-// Transfer
-class IFALUUryTranCode<bits<2> dest> : IFALUUryCode<dest>{
   let Inst{21-18} = op{4-1};
-  let Inst{17} = f{1};
+  let Inst{17} = imm;
+  let Inst{16-15} = 0b00;
   let Inst{14} = f{0};
   let Inst{13} = op{0};
 }
-multiclass IFALUUryTranToDest {
+multiclass IFALUISTranToDest {
   let isCodeGenOnly = 1 in {
-  def ToSHU  : UnaryInstr<"", IFALUUryOprtor, SHUT  >, IFALUUryTranCode<0b00>;
-  def ToBIU  : UnaryInstr<"", IFALUUryOprtor, BIUO  >, IFALUUryTranCode<0b10>;
-  def ToMACC : UnaryInstr<"", IFALUUryOprtor, MACCT >, IFALUUryTranCode<0b01>;
+  def ToSHU  : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f), "", "$op $tm($imm)", SHUT>, IFALUISTranCode<0b00>;
+  def ToBIU  : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f), "", "$op $tm($imm)", BIUO>, IFALUISTranCode<0b10>;
+  def ToMACC : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f), "", "$op $tm($imm)", MACCT>, IFALUISTranCode<0b01>;
   }
+}
+def IFALUISTranToM
+        : MRegAssignInstr<(ins IFALUTranOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f),
+                      "", "$op $tm($imm)", MRegO>, IFALUToM {
+  bit imm;
+  let tn = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{17} = imm;
+  let Inst{16-15} = 0b00;
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
+}
+
+def IFALUISTranToMSIA
+       : UCPMInst<(ins IFALUTranOprtor: $op, TPort: $tm, imm32i: $imm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("$op $tm($imm)", "-> M[$sia]$mode")>, IFALUToMSIA{
+  bit imm;
+  let tn = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{17} = imm;
+  let Inst{16-15} = 0b00;
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
+}
+
+// double <-> single 
+class IFALUDSTranCode<bits<2> dest> : IFALUToDest<dest>{
+  let tm = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{16-15} = 0b00;
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
+}
+multiclass IFALUDSTranToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tn, Flags: $f), "", "$op $tn$f", SHUT>, IFALUDSTranCode<0b00>;
+  def ToBIU  : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tn, Flags: $f), "", "$op $tn$f", BIUO>, IFALUDSTranCode<0b10>;
+  def ToMACC : AssignInstr<(ins IFALUTranOprtor: $op, TPort: $tn, Flags: $f), "", "$op $tn$f", MACCT>, IFALUDSTranCode<0b01>;
+  }
+}
+def IFALUDSTranToM
+        : MRegAssignInstr<(ins IFALUTranOprtor: $op, TPort: $tn, Flags: $f),
+                      "", "$op $tn$f", MRegO>, IFALUToM {
+  let tm = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{16-15} = 0b00;
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
+}
+
+def IFALUDSTranToMSIA
+       : UCPMInst<(ins IFALUTranOprtor: $op, TPort: $tn, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("$op $tn$f", "-> M[$sia]$mode")>, IFALUToMSIA{
+  let tm = 0b00;
+  let Inst{21-18} = op{4-1};
+  let Inst{16-15} = 0b00;
+  let Inst{14} = f{0};
+  let Inst{13} = op{0};
 }
 
 // NOP
@@ -1359,8 +1413,8 @@ def IFALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFALUBaseCode 
 }
 
 defm IFALU : IFALUComToDest;
-defm IFALUUryTran : IFALUUryTranToDest;
-
+defm IFALUISTran : IFALUISTranToDest;
+defm IFALUDSTran : IFALUDSTranToDest;
 // ducx end IFALU Instruction --------------------------------------------------------------------------
 
 
