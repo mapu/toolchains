@@ -1800,8 +1800,9 @@ multiclass IAccCompsubToDest{
 
 // MOV
 class IMACMOVCode<Operand DestTy, bits<2> dest> 
-            : AssignInstr<(ins TPort: $tm, Flags: $f), "", "IMAC.$tm$f", DestTy>, IMACBaseCode {
+            : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs  DestTy: $d), "IMAC.", "$d", "->", "$tm$f">, IMACBaseCode {
   bits<2> tm;
+  bits<8> d;
   bit f;
 
   let Inst{26-25} = 0b10;
@@ -1813,7 +1814,6 @@ class IMACMOVCode<Operand DestTy, bits<2> dest>
   let Inst{6-5}  = dest;
   let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
-  
 }
 multiclass IMACMOVToDest { 
   def ToSHU  : IMACMOVCode<SHUT  , 0b00>;
@@ -1823,8 +1823,8 @@ multiclass IMACMOVToDest {
 
 // SendFlag
 class IMACSendFlagCode<Operand DestTy, bits<2> dest> 
-            : AssignInstr<(ins Flags: $f),
-                      "", "IMAC.FLAG$f", DestTy>, IMACBaseCode {
+            : CommonAssignInstr<(ins Flags: $f),(outs  DestTy: $d), "IMAC.", "$d", "->", "FLAG$f">, IMACBaseCode {
+  bits<8> d;
   bits<3> f;
  
   let Inst{26-25} = 0b10;
