@@ -237,15 +237,17 @@ class TParaInstr<string header, bit mode, string fop,
 }
 
 class ToMRwoMovInstr<dag ins, string mrassign, string lclause>
-        : CommonAssignInstr<ins, (outs), !strconcat("MR ", mrassign, " "),
+        : CommonAssignInstr<ins, (outs Condition: $mode), !strconcat("MR ", mrassign, " "),
                             "", "", lclause> {
+  bits<2> mode;
 }
 
 class ToMRwMovInstr<dag ins, string mrassign, string lclause, Operand DestTy>
-        : CommonAssignInstr<ins, (outs DestTy: $d),
+        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
                             !strconcat("MR ", mrassign, " "),
                             "$d", "->", lclause> {
   bits<8> d;
+  bits<2> mode;
 }
 
 // ducx end ----------------------------------------------------------------

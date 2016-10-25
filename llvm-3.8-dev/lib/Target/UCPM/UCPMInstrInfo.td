@@ -1258,6 +1258,9 @@ class IFALUBaseCode {
   field bits<48> Inst;
   let Inst{47-43} = 0b01100;
 }
+multiclass IFALUTPToDest  : IALUTPToDest;
+
+defm IFALUTP  : IFALUTPToDest;
 
 class IFALUCode : IFALUBaseCode {
   bits<8> op;
@@ -1434,7 +1437,9 @@ class IMACCode : IMACBaseCode {
   bit ff;
   bits<2> shift;
   bits<2> opc;
+  bits<2> mode;
   
+  let Inst{28-27} = mode;
   let Inst{26-25} = opc;
   let Inst{23-21} = f{6-4};
   let Inst{19} = ff;
@@ -1497,7 +1502,7 @@ def IMulRealToM
   let opc = op{1-0};
 }
 def IMulRealToMSIA
-       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]")>, IMACToMSIA{
+       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
   let Inst{20} = 0;
   let opc = op{1-0};
 }
@@ -1508,7 +1513,7 @@ def IMulCompToM
   let opc = op{1-0};
 }
 def IMulCompToMSIA
-       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]")>, IMACToMSIA{
+       : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
   let Inst{20} = 1;
   let opc = op{1-0};
 }
@@ -1800,11 +1805,13 @@ multiclass IAccCompsubToDest{
 
 // MOV
 class IMACMOVCode<Operand DestTy, bits<2> dest> 
-            : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs  DestTy: $d), "IMAC.", "$d", "->", "$tm$f">, IMACBaseCode {
+            : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs  DestTy: $d, Condition: $mode), "IMAC.", "$d$mode", "->", "$tm$f">, IMACBaseCode {
   bits<2> tm;
   bits<8> d;
   bit f;
-
+  bits<2> mode;
+  
+  let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{16-15} = tm;
   let Inst{14-13} = 0b10;
@@ -1823,10 +1830,12 @@ multiclass IMACMOVToDest {
 
 // SendFlag
 class IMACSendFlagCode<Operand DestTy, bits<2> dest> 
-            : CommonAssignInstr<(ins Flags: $f),(outs  DestTy: $d), "IMAC.", "$d", "->", "FLAG$f">, IMACBaseCode {
+            : CommonAssignInstr<(ins Flags: $f),(outs  DestTy: $d, Condition:$mode), "IMAC.", "$d$mode", "->", "FLAG$f">, IMACBaseCode {
   bits<8> d;
   bits<3> f;
- 
+  bits<2> mode;
+  
+  let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{24} = 0;
   let Inst{23-22} = f{2-1};
@@ -1846,11 +1855,13 @@ multiclass IMACSendFlagToDest {
 }
 
 // WriteFlag 
-def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs), "", "FLAG$f", "->", "IMAC.$tm">,
+def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs Condition:$mode), "", "FLAG$f$mode", "->", "IMAC.$tm">,
                  IMACBaseCode { 
   bits<2>  tm;
   bits<3> f;
- 
+  bits<2> mode;
+  
+  let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{24} = 1;
   let Inst{23-22} = f{2-1};
@@ -1862,11 +1873,13 @@ def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs), "", "F
 }
 
 // WAIT
-def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs),
-                                   "", "", "", "Wait $imm7">,
+def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
+                                   "", "", "", "Wait $imm7 $mode">,
                  IMACBaseCode {
   bits<7>  imm7;
+  bits<2> mode;
   
+  let Inst{28-27} = mode;
   let Inst{26-23} = 0b1011;
   let Inst{21-15} = imm7;
   let Inst{14-13} = 0b11;
@@ -1883,12 +1896,14 @@ def IMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IMACBaseCode {
 }
 
 // SetCond
-def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs),
+def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs Condition:$mode),
                                    "", "IMAC.SetCond[$m]", "->", "$imm8">,
                  IMACBaseCode {
   bits<8>  imm8;
   bit m;
+  bits<2> mode;
   
+  let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{24} = m;
   let Inst{23} = 1;

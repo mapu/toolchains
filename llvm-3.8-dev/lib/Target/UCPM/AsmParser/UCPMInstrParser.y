@@ -111,7 +111,7 @@ slot: mr012345slot condflag {ADDOPERAND(Slot, 0 + $1, @$.S, @$.E);} |
       shuslot condflag {ADDOPERAND(Slot, 6 + $1, @$.S, @$.E);} |
       ialuslot condflag {ADDOPERAND(Slot, 9, @$.S, @$.E);} |
       ifaluslot condflag {ADDOPERAND(Slot, 10, @$.S, @$.E);} |
-      imacslot {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
+      imacslot condflag {ADDOPERAND(Slot, 11, @$.S, @$.E);} |
       ifmacslot condflag {ADDOPERAND(Slot, 12, @$.S, @$.E);} |
       biuslot condflag {ADDOPERAND(Slot, 13 + $1, @$.S, @$.E);}|  
       seqslot |
@@ -3991,6 +3991,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
 	    ADDOPERAND(Opc, UCPM::IMulRealToSHU, @$.S, @$.E); 
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4003,6 +4005,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
             ADDOPERAND(Opc, UCPM::IMulCompToSHU, @$.S, @$.E); 
             Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4020,6 +4024,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
 	    ADDOPERAND(Opc, UCPM::IMulRealToMACC, @$.S, @$.E); 
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4032,6 +4038,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
             ADDOPERAND(Opc, UCPM::IMulCompToMACC, @$.S, @$.E); 
             Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4049,6 +4057,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
 	    ADDOPERAND(Opc, UCPM::IMulRealToBIU, @$.S, @$.E); 
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4061,6 +4071,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
             ADDOPERAND(Opc, UCPM::IMulCompToBIU, @$.S, @$.E); 
             Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4077,6 +4089,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
 	  case 0://imulreal
 	    ADDOPERAND(Opc, UCPM::IMulRealToM, @$.S, @$.E); 
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4088,6 +4102,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
           case 1://imulcomp
             ADDOPERAND(Opc, UCPM::IMulCompToM, @$.S, @$.E); 
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4103,6 +4119,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
          switch ($1) {
 	  case 0://imulreal
 	    ADDOPERAND(Opc, UCPM::IMulRealToMSIA, @$.S, @$.E); 
+	    Operands.push_back(nullptr);
+	    condpos = Operands.size();
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4114,6 +4132,8 @@ imacinst: imacmulclause ASSIGNTO imacdest {
 	  break;
           case 1://imulcomp
             ADDOPERAND(Opc, UCPM::IMulCompToMSIA, @$.S, @$.E); 
+            Operands.push_back(nullptr);
+	    condpos = Operands.size();
             Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));//IMUL
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
 	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
@@ -4178,6 +4198,8 @@ MR ASSIGN imacmaclause{
     ADDOPERAND(Opc, UCPM::IMA_Compsub, @$.S, @$.E); 
     break;
   }
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4233,6 +4255,8 @@ imacmaclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4257,6 +4281,8 @@ imacmaclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4281,6 +4307,8 @@ imacmaclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4329,6 +4357,8 @@ MR ASSIGN imacmafftclause {
     case 2: //complex
     ADDOPERAND(Opc, UCPM::IMAFFT_Comp, @$.S, @$.E); 
   }
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4378,6 +4408,8 @@ imacmafftclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4396,6 +4428,8 @@ imacmafftclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4414,6 +4448,8 @@ imacmafftclause ASSIGNTO imacdest {
       }
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+      Operands.push_back(nullptr);
+      condpos = Operands.size();
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4469,6 +4505,8 @@ imacmacclause {
     ADDOPERAND(Opc, UCPM::IMaC_Compsub, @$.S, @$.E); 
     break;
   }
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
@@ -4562,6 +4600,8 @@ imacmacclause ASSIGNTO imacdest {
   } 
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tn));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tp));
@@ -4614,6 +4654,8 @@ imacaccclause{
     ADDOPERAND(Opc, UCPM::IAcc_Compsub, @$.S, @$.E); 
     break;
   }
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -4706,6 +4748,8 @@ imacaccclause ASSIGNTO imacdest {
   } 
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff));
@@ -4730,6 +4774,8 @@ imacmovclause ASSIGNTO imacdest {
   } 
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(tm));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 }
@@ -4764,11 +4810,15 @@ imacflagclause ASSIGNTO imacdest {
   } 
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit3));
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 }
 |
 imacwaitclause{
   ADDOPERAND(Opc, UCPM::IMACWait, @$.S, @$.E); 
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 }
 |
