@@ -8,7 +8,7 @@ const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10,
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36,
                W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
                KI5F =58, KI6F=59, KI7F=60, NF=61, VF=62, AF=63;
-static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *tk, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
+static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *tk, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *unit4, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
 static unsigned condpos;
 SMLoc FlagS, FlagE;
@@ -94,6 +94,9 @@ slotref : slot {
   ff = NULL;
   shift = NULL;
   unit = NULL;
+  unit2 = NULL;
+  unit3 = NULL;
+  unit4 = NULL;
   expr = NULL;
   b = NULL;
   opc = NULL;
@@ -621,22 +624,28 @@ r5setcondInstr: IMMSYM DOT IMM5 ASSIGNTO MREG5 DOT SETCOND LBRACKET IMM5 RBRACKE
 	  
 	  
 r0inst: mindexn ASSIGNTO r0dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r0dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r0dest {$$ = 1} |
+        M ASSIGNTO r0dest {$$ = 1};
 
 r1inst: mindexn ASSIGNTO r1dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r1dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r1dest {$$ = 1} |
+        M ASSIGNTO r1dest {$$ = 1};
 
 r2inst: mindexn ASSIGNTO r2dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r2dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r2dest {$$ = 1} |
+        M ASSIGNTO r2dest {$$ = 1};
 
 r3inst: mindexn ASSIGNTO r3dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r3dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r3dest {$$ = 1} |
+        M ASSIGNTO r3dest {$$ = 1};
         
 r4inst: mindexn ASSIGNTO r4dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r4dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r4dest {$$ = 1} |
+        M ASSIGNTO r4dest {$$ = 1};
         
 r5inst: mindexn ASSIGNTO r5dest {$$ = 0} |
-        M LBRACKET siaflags RBRACKET ASSIGNTO r5dest {$$ = 1};
+        M LBRACKET siaflags RBRACKET ASSIGNTO r5dest {$$ = 1} |
+        M ASSIGNTO r5dest {$$ = 1};
 
 mr012345slot: R0 DOT error { llvmerror(&@3, "Incorrect M.r0 inst."); YYABORT;} |
            R1 DOT error { llvmerror(&@3, "Incorrect M.r1 inst."); YYABORT;} |
@@ -816,7 +825,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
     switch ($1) {
     case 0: //+=
       ADDOPERAND(Opc, UCPM::SHU0Ind_SetTBToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -831,7 +840,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU0Ind_SetTBToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -846,7 +855,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
       break;
     case 2: //tb,no imm
       ADDOPERAND(Opc, UCPM::SHU0Ind_noImmToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -857,7 +866,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
       break;    
     case 3: //tk,no imm
       ADDOPERAND(Opc, UCPM::SHU0Ind_noImmToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1056,7 +1065,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
     switch ($1) {
     case 0: //tb
       ADDOPERAND(Opc, UCPM::SHU0Ind_constTnToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1067,7 +1076,7 @@ shu0inst: ucpshuexp ASSIGNTO shu0dest {
       break;    
     case 1: //tk
       ADDOPERAND(Opc, UCPM::SHU0Ind_constTnToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1298,7 +1307,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
     switch ($1) {
     case 0: //+=
       ADDOPERAND(Opc, UCPM::SHU1Ind_SetTBToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1313,7 +1322,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU1Ind_SetTBToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1328,7 +1337,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
       break;
     case 2: //tb,no imm
       ADDOPERAND(Opc, UCPM::SHU1Ind_noImmToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1339,7 +1348,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
       break;    
     case 3: //tk,no imm
       ADDOPERAND(Opc, UCPM::SHU1Ind_noImmToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1539,7 +1548,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
     switch ($1) {
     case 0: //tb
       ADDOPERAND(Opc, UCPM::SHU1Ind_constTnToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1550,7 +1559,7 @@ shu1inst: ucpshuexp ASSIGNTO shu1dest {
       break;    
     case 1: //tk
       ADDOPERAND(Opc, UCPM::SHU1Ind_constTnToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1779,7 +1788,7 @@ shu2inst: ucpshuexp ASSIGNTO shu2dest {
     switch ($1) {
     case 0: //+=
       ADDOPERAND(Opc, UCPM::SHU2Ind_SetTBToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1794,7 +1803,7 @@ shu2inst: ucpshuexp ASSIGNTO shu2dest {
       break;
     case 1: //=+
       ADDOPERAND(Opc, UCPM::SHU2Ind_SetTBToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1809,7 +1818,7 @@ shu2inst: ucpshuexp ASSIGNTO shu2dest {
       break;
     case 2: //tb,no imm
       ADDOPERAND(Opc, UCPM::SHU2Ind_noImmToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -1820,7 +1829,7 @@ shu2inst: ucpshuexp ASSIGNTO shu2dest {
       break;    
     case 3: //tk,no imm
       ADDOPERAND(Opc, UCPM::SHU2Ind_noImmToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -2021,7 +2030,7 @@ case 3://m[t]
     switch ($1) {
     case 0: //tb
       ADDOPERAND(Opc, UCPM::SHU2Ind_constTnToMACC_0, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -2032,7 +2041,7 @@ case 3://m[t]
       break;    
     case 1: //tk
       ADDOPERAND(Opc, UCPM::SHU2Ind_constTnToMACC_1, @$.S, @$.E); 
-      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ipath));
       Operands.push_back(nullptr);
@@ -2197,7 +2206,7 @@ tran0Instr: tran0clause ASSIGNTO shu0dest {
         break;
    case 2://to macc
         ADDOPERAND(Opc, UCPM::SHU0ByteBitToMACC, @$.S, @$.E); 
-        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
 	if (ipath == NULL)
 	  ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
@@ -2279,7 +2288,7 @@ tran1Instr: tran1clause ASSIGNTO shu1dest {
         break;
    case 2://to macc
         ADDOPERAND(Opc, UCPM::SHU1ByteBitToMACC, @$.S, @$.E); 
-        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
 	if (ipath == NULL)
 	  ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
@@ -2361,7 +2370,7 @@ tran2Instr: tran2clause ASSIGNTO shu2dest {
         break;
    case 2://to macc
         ADDOPERAND(Opc, UCPM::SHU2ByteBitToMACC, @$.S, @$.E); 
-        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit));
+        Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(unit4));
 	Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ut));//unit'T
 	if (ipath == NULL)
 	  ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
@@ -6825,10 +6834,10 @@ mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 // ducx end seq --------------------------------------------------
 
 
-ialut: ialu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIALU, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-imact: imac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIMAC, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIMAC, @1.S, @1.E);if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifalut: ifalu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFALU, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIFALU, @1.S, @1.E);if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
-ifmact: ifmac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFMAC, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIFMAC, @1.S, @1.E);if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ialut: ialu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIALU, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIALU, @1.S, @1.E); unit4 = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+imact: imac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIMAC, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIMAC, @1.S, @1.E); unit4 = OPERAND(Reg, UCPMReg::sIMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifalut: ifalu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFALU, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIFALU, @1.S, @1.E); unit4 = OPERAND(Reg, UCPMReg::sIFALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
+ifmact: ifmac DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIFMAC, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIFMAC, @1.S, @1.E); unit4 = OPERAND(Reg, UCPMReg::IFMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 
 ialute: ialu DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
 imacte: imac DOT shusrct {$$ = 2; unit = OPERAND(Reg, UCPMReg::IMAC, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};

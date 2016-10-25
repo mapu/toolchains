@@ -1532,23 +1532,23 @@ class MAInstr<bit addsub>
     
     let Inst{24} = addsub;
 }
-def IMA_Realadd : MAInstr<0>, IMACRealCode<0b00>{
-    let Inst{24} = 0;
-    let opc = 0b01;
-    let d = 0b00000100;
-}
-def IMA_Realsub : MAInstr<1>, IMACRealCode<0b00>{
+def IMA_Realadd : MAInstr<1>, IMACRealCode<0b00>{
     let Inst{24} = 1;
     let opc = 0b01;
     let d = 0b00000100;
 }
-def IMA_Compadd : MAInstr<0>, IMACCompCode<0b00>{
+def IMA_Realsub : MAInstr<0>, IMACRealCode<0b00>{
     let Inst{24} = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
-def IMA_Compsub : MAInstr<1>, IMACCompCode<0b00>{
+def IMA_Compadd : MAInstr<1>, IMACCompCode<0b00>{
     let Inst{24} = 1;
+    let opc = 0b01;
+    let d = 0b00000100;
+}
+def IMA_Compsub : MAInstr<0>, IMACCompCode<0b00>{
+    let Inst{24} = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
@@ -1569,30 +1569,30 @@ class MAMovInstr<bit addsub, Operand DestTy>
 //???
 multiclass IMARealaddToDest{
     let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MAMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MAMovInstr<0,MACCT >, IMACRealCode<0b01>;
-    }
-}
-multiclass IMARealsubToDest{
-    let opc = 0b01 in{
     def ToSHU  : MAMovInstr<1,SHUT  >, IMACRealCode<0b00>;
     def ToBIU  : MAMovInstr<1,BIUO  >, IMACRealCode<0b10>;
     def ToMACC : MAMovInstr<1,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IMACompaddToDest{
+multiclass IMARealsubToDest{
     let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MAMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MAMovInstr<0,MACCT >, IMACCompCode<0b01>;
+    def ToSHU  : MAMovInstr<0,SHUT  >, IMACRealCode<0b00>;
+    def ToBIU  : MAMovInstr<0,BIUO  >, IMACRealCode<0b10>;
+    def ToMACC : MAMovInstr<0,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IMACompsubToDest{
+multiclass IMACompaddToDest{
     let opc = 0b01 in{
     def ToSHU  : MAMovInstr<1,SHUT  >, IMACCompCode<0b00>;
     def ToBIU  : MAMovInstr<1,BIUO  >, IMACCompCode<0b10>;
     def ToMACC : MAMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    }
+}
+multiclass IMACompsubToDest{
+    let opc = 0b01 in{
+    def ToSHU  : MAMovInstr<0,SHUT  >, IMACCompCode<0b00>;
+    def ToBIU  : MAMovInstr<0,BIUO  >, IMACCompCode<0b10>;
+    def ToMACC : MAMovInstr<0,MACCT >, IMACCompCode<0b01>;
     }
 }
 
@@ -1658,22 +1658,22 @@ class MaCInstr<bit addsub>
     let Inst{12} = 1;
     let Inst{11} = f{1};
 }
-def IMaC_Realadd : MaCInstr<0>, IMACRealCode<0b00>{
+def IMaC_Realadd : MaCInstr<1>, IMACRealCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tp = 0;
 }
-def IMaC_Realsub : MaCInstr<1>, IMACRealCode<0b00>{
+def IMaC_Realsub : MaCInstr<0>, IMACRealCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tp = 0;
 }
-def IMaC_Compadd : MaCInstr<0>, IMACCompCode<0b00>{
+def IMaC_Compadd : MaCInstr<1>, IMACCompCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tp = 0;
 }
-def IMaC_Compsub : MaCInstr<1>, IMACCompCode<0b00>{
+def IMaC_Compsub : MaCInstr<0>, IMACCompCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tp = 0;
@@ -1695,30 +1695,30 @@ class MaCMovInstr<bit addsub, Operand DestTy>
 }
 multiclass IMaCRealaddToDest{
     let opc = 0b10, tp = 0b00 in{
-    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MaCMovInstr<0,MACCT >, IMACRealCode<0b01>;
-    }
-}
-multiclass IMaCRealsubToDest{
-    let opc = 0b10, tp = 0b00in{
     def ToSHU  : MaCMovInstr<1,SHUT  >, IMACRealCode<0b00>;
     def ToBIU  : MaCMovInstr<1,BIUO  >, IMACRealCode<0b10>;
     def ToMACC : MaCMovInstr<1,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IMaCCompaddToDest{
-    let opc = 0b10, tp = 0b00 in{
-    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MaCMovInstr<0,MACCT >, IMACCompCode<0b01>;
+multiclass IMaCRealsubToDest{
+    let opc = 0b10, tp = 0b00in{
+    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACRealCode<0b00>;
+    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACRealCode<0b10>;
+    def ToMACC : MaCMovInstr<0,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IMaCCompsubToDest{
+multiclass IMaCCompaddToDest{
     let opc = 0b10, tp = 0b00 in{
     def ToSHU  : MaCMovInstr<1,SHUT  >, IMACCompCode<0b00>;
     def ToBIU  : MaCMovInstr<1,BIUO  >, IMACCompCode<0b10>;
     def ToMACC : MaCMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    }
+}
+multiclass IMaCCompsubToDest{
+    let opc = 0b10, tp = 0b00 in{
+    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACCompCode<0b00>;
+    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACCompCode<0b10>;
+    def ToMACC : MaCMovInstr<0,MACCT >, IMACCompCode<0b01>;
     }
 }
 
@@ -1735,25 +1735,25 @@ class AccInstr<bit addsub>
     let Inst{12} = 0;
     let Inst{11} = f{1};
 }
-def IAcc_Realadd : AccInstr<0>, IMACRealCode<0b00>{
+def IAcc_Realadd : AccInstr<1>, IMACRealCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tn = 0;
     let tp = 0;
 }
-def IAcc_Realsub : AccInstr<1>, IMACRealCode<0b00>{
+def IAcc_Realsub : AccInstr<0>, IMACRealCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tn = 0;
     let tp = 0;
 }
-def IAcc_Compadd : AccInstr<0>, IMACCompCode<0b00>{
+def IAcc_Compadd : AccInstr<1>, IMACCompCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tn = 0;
     let tp = 0;
 }
-def IAcc_Compsub : AccInstr<1>, IMACCompCode<0b00>{
+def IAcc_Compsub : AccInstr<0>, IMACCompCode<0b00>{
     let opc = 0b10;
     let d = 0;
     let tn = 0;
@@ -1776,30 +1776,30 @@ class AccMovInstr<bit addsub, Operand DestTy>
 }
 multiclass IAccRealaddToDest{
     let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : AccMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : AccMovInstr<0,MACCT >, IMACRealCode<0b01>;
-    }
-}
-multiclass IAccRealsubToDest{
-    let opc = 0b10, tn =0b00, tp = 0b00 in{
     def ToSHU  : AccMovInstr<1,SHUT  >, IMACRealCode<0b00>;
     def ToBIU  : AccMovInstr<1,BIUO  >, IMACRealCode<0b10>;
     def ToMACC : AccMovInstr<1,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IAccCompaddToDest{
+multiclass IAccRealsubToDest{
     let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : AccMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : AccMovInstr<0,MACCT >, IMACCompCode<0b01>;
+    def ToSHU  : AccMovInstr<0,SHUT  >, IMACRealCode<0b00>;
+    def ToBIU  : AccMovInstr<0,BIUO  >, IMACRealCode<0b10>;
+    def ToMACC : AccMovInstr<0,MACCT >, IMACRealCode<0b01>;
     }
 }
-multiclass IAccCompsubToDest{
+multiclass IAccCompaddToDest{
     let opc = 0b10, tn =0b00, tp = 0b00 in{
     def ToSHU  : AccMovInstr<1,SHUT  >, IMACCompCode<0b00>;
     def ToBIU  : AccMovInstr<1,BIUO  >, IMACCompCode<0b10>;
     def ToMACC : AccMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    }
+}
+multiclass IAccCompsubToDest{
+    let opc = 0b10, tn =0b00, tp = 0b00 in{
+    def ToSHU  : AccMovInstr<0,SHUT  >, IMACCompCode<0b00>;
+    def ToBIU  : AccMovInstr<0,BIUO  >, IMACCompCode<0b10>;
+    def ToMACC : AccMovInstr<0,MACCT >, IMACCompCode<0b01>;
     }
 }
 
@@ -1880,7 +1880,7 @@ def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
   bits<2> mode;
   
   let Inst{28-27} = mode;
-  let Inst{26-23} = 0b1011;
+  let Inst{26-22} = 0b10110;
   let Inst{21-15} = imm7;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
@@ -1889,8 +1889,7 @@ def IMACWait : CommonAssignInstr<(ins imm32i: $imm7),(outs Condition:$mode),
 
 // NOP
 def IMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IMACBaseCode {
-  let Inst{26-25} = 0b10;
-  let Inst{23} = 0;
+  let Inst{26-22} = 0b10000;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
 }
@@ -1906,7 +1905,7 @@ def IMACSetCond : CommonAssignInstr<(ins imm32i: $imm8, Flags: $m), (outs Condit
   let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{24} = m;
-  let Inst{23} = 1;
+  let Inst{23-22} = 0b11;
   let Inst{14-13} = 0b11;
   let Inst{12-11} = 0b00;
   let Inst{7-0} = imm8;
