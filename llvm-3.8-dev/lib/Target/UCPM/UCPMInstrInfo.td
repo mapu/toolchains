@@ -1925,7 +1925,6 @@ def IFALUDSTranToMSIA
 
 // NOP
 def IFALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFALUBaseCode {
-  let Inst{22} = 1;
   let Inst{21-18} = 0b1111;
   let Inst{17} = 0;
   let Inst{14-13} = 0b11;
@@ -1954,9 +1953,11 @@ class IMACCode : IMACBaseCode {
   bits<2> shift;
   bits<2> opc;
   bits<2> mode;
+  bit addsub;
   
   let Inst{28-27} = mode;
   let Inst{26-25} = opc;
+  let Inst{24} = addsub;
   let Inst{23-21} = f{6-4};
   let Inst{19} = ff;
   let Inst{18-17} = f{3-2};
@@ -2002,114 +2003,173 @@ class IMACCompopCode<bits<2> dest> : IMACCompCode<dest> {
 
 // tm*tn -> d
 multiclass IMulRealToDest{
+  let addsub = 0 in {
     def ToSHU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, SHUT >, IMACRealopCode<0b00>;
     def ToBIU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, BIUO >, IMACRealopCode<0b10>;
     def ToMACC : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, MACCT>, IMACRealopCode<0b01>;
+  }
 }
 multiclass IMulCompToDest{
+  let addsub = 0 in {
     def ToSHU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, SHUT >, IMACCompopCode<0b00>;
     def ToBIU  : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, BIUO >, IMACCompopCode<0b10>;
     def ToMACC : IMACBinaryInstr<"IMAC.", 1, IMACMulOprtor, MACCT>, IMACCompopCode<0b01>;
+  } 
 }
 def IMulRealToM
         : MRegAssignInstr<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
                       "IMAC.", "$tm $op $tn$ff$f", MRegO>, IMACToM {
   let Inst{20} = 0;
   let opc = op{1-0};
+  let addsub = 0;
 }
 def IMulRealToMSIA
        : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
   let Inst{20} = 0;
   let opc = op{1-0};
+  let addsub = 0;
 }
 def IMulCompToM
         : MRegAssignInstr<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
                       "IMAC.", "$tm $op $tn$ff$f", MRegO>, IMACToM {
   let Inst{20} = 1;
   let opc = op{1-0};
+  let addsub = 0;
 }
 def IMulCompToMSIA
        : UCPMInst<(ins IMACMulOprtor: $op, TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tm $op $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
   let Inst{20} = 1;
   let opc = op{1-0};
+  let addsub = 0;
 }
 
 
 // MR <- tp +|- tm*tn
-class MAInstr<bit addsub>
+class MAInstr
         : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
-                            "<-", !if(addsub, "$tp + $tm * $tn$ff$f", "$tp - $tm * $tn$ff$f")>{
+                            "<-", "$tp +|- $tm * $tn$ff$f">{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
     bit ff;
-    
-    let Inst{24} = addsub;
 }
-def IMA_Realadd : MAInstr<1>, IMACRealCode<0b00>{
-    let Inst{24} = 1;
+def IMA_Realadd : MAInstr, IMACRealCode<0b00>{
+    let addsub = 1;
     let opc = 0b01;
     let d = 0b00000100;
 }
-def IMA_Realsub : MAInstr<0>, IMACRealCode<0b00>{
-    let Inst{24} = 0;
+def IMA_Realsub : MAInstr, IMACRealCode<0b00>{
+    let addsub = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
-def IMA_Compadd : MAInstr<1>, IMACCompCode<0b00>{
-    let Inst{24} = 1;
+def IMA_Compadd : MAInstr, IMACCompCode<0b00>{
+    let addsub = 1;
     let opc = 0b01;
     let d = 0b00000100;
 }
-def IMA_Compsub : MAInstr<0>, IMACCompCode<0b00>{
-    let Inst{24} = 0;
+def IMA_Compsub : MAInstr, IMACCompCode<0b00>{
+    let addsub = 0;
     let opc = 0b01;
     let d = 0b00000100;
 }
 
 // tp +|- tm*tn -> d
-class MAMovInstr<bit addsub, Operand DestTy>
+class MAMovInstr< Operand DestTy>
         : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f , Flags: $ff, Flags: $shift), 
-                "<-", !if(addsub, "$tp + $tm * $tn$ff$f", "$tp - $tm * $tn$ff$f"), DestTy>{
+                "<-", "$tp +|- $tm * $tn$ff$f", DestTy>{
     bits<2> tm;
     bits<2> tn;
     bits<2> tp;    
     bits<32> f;
     bits<2> shift;
     bit ff;
-  
-    let Inst{24} = addsub;                          
+                       
 }
-//???
 multiclass IMARealaddToDest{
-    let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<1,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MAMovInstr<1,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MAMovInstr<1,MACCT >, IMACRealCode<0b01>;
+    let opc = 0b01, addsub = 1 in{
+    def ToSHU  : MAMovInstr<SHUT  >, IMACRealCode<0b00>;
+    def ToBIU  : MAMovInstr<BIUO  >, IMACRealCode<0b10>;
+    def ToMACC : MAMovInstr<MACCT >, IMACRealCode<0b01>;
     }
 }
+def IMARealaddToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp + $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b01;
+  let addsub = 1;
+}
+def IMARealaddToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp + $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b01;
+  let addsub = 1; 
+}
+
 multiclass IMARealsubToDest{
-    let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MAMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MAMovInstr<0,MACCT >, IMACRealCode<0b01>;
+    let opc = 0b01, addsub = 0 in{
+    def ToSHU  : MAMovInstr<SHUT  >, IMACRealCode<0b00>;
+    def ToBIU  : MAMovInstr<BIUO  >, IMACRealCode<0b10>;
+    def ToMACC : MAMovInstr<MACCT >, IMACRealCode<0b01>;
     }
 }
+def IMARealsubToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp - $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b01;
+  let addsub = 0;
+}
+def IMARealsubToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp - $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b01;
+  let addsub = 0; 
+}
+
 multiclass IMACompaddToDest{
-    let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<1,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MAMovInstr<1,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MAMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    let opc = 0b01, addsub = 1 in{
+    def ToSHU  : MAMovInstr<SHUT  >, IMACCompCode<0b00>;
+    def ToBIU  : MAMovInstr<BIUO  >, IMACCompCode<0b10>;
+    def ToMACC : MAMovInstr<MACCT >, IMACCompCode<0b01>;
     }
 }
+def IMACompaddToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp + $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b01;
+  let addsub = 1;
+}
+def IMACompaddToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp + $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b01;
+  let addsub = 1; 
+}
+
 multiclass IMACompsubToDest{
-    let opc = 0b01 in{
-    def ToSHU  : MAMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MAMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MAMovInstr<0,MACCT >, IMACCompCode<0b01>;
+    let opc = 0b01, addsub = 0 in{
+    def ToSHU  : MAMovInstr<SHUT  >, IMACCompCode<0b00>;
+    def ToBIU  : MAMovInstr<BIUO  >, IMACCompCode<0b10>;
+    def ToMACC : MAMovInstr<MACCT >, IMACCompCode<0b01>;
     }
+}
+def IMACompsubToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp - $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b01;
+  let addsub = 0;
+}
+def IMACompsubToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp - $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b01;
+  let addsub = 0; 
 }
 
 // MAFFT: MR <- tp +- tm*tn
@@ -2126,11 +2186,13 @@ class MAFFTInstr
 }
 def IMAFFT_Real : MAFFTInstr, IMACRealCode<0b00>{
     let opc = 0b11;
-    let d = 0;
+    let d = 0b00000100;
+    let addsub = 0;
 }
 def IMAFFT_Comp : MAFFTInstr, IMACCompCode<0b00>{
     let opc = 0b11;
-    let d = 0;
+    let d = 0b00000100;
+    let addsub = 0;
 }
 
 // MAFFT: tp +- tm*tn -> d
@@ -2146,185 +2208,422 @@ class MAFFTMovInstr<Operand DestTy>
                            
 }
 multiclass IMAFFTRealToDest{
-    let opc = 0b11 in{
+    let opc = 0b11, addsub = 0 in{
     def ToSHU  : MAFFTMovInstr<SHUT  >, IMACRealCode<0b00>;
     def ToBIU  : MAFFTMovInstr<BIUO  >, IMACRealCode<0b10>;
     def ToMACC : MAFFTMovInstr<MACCT >, IMACRealCode<0b01>;
     }
 }
+def IMAFFTRealToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp +- $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b11;
+  let addsub = 0;
+}
+def IMAFFTRealToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp +- $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b11;
+  let addsub = 0;
+}
+
 multiclass IMAFFTCompToDest{
-    let opc = 0b11 in{
+    let opc = 0b11, addsub = 0 in{
     def ToSHU  : MAFFTMovInstr<SHUT  >, IMACCompCode<0b00>;
     def ToBIU  : MAFFTMovInstr<BIUO  >, IMACCompCode<0b10>;
     def ToMACC : MAFFTMovInstr<MACCT >, IMACCompCode<0b01>;
     }
 }
+def IMAFFTCompToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tp +- $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b11;
+  let addsub = 0;
+}
+def IMAFFTCompToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, TPort: $tp, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tp +- $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b11;
+  let addsub = 0;
+}
 
 // MR +=|-= tm*tn
-class MaCInstr<bit addsub>
+class MaCInstr
         : ToMRwoMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
-                            !if(addsub, "+=", "-="), "$tm * $tn$ff$f">{
+                            "+=|-=", "$tm * $tn$ff$f">{
     bits<2> tm;
     bits<2> tn;
     bits<32> f;
     bits<2> shift;
     bit ff;
      
-    let Inst{24} = addsub;
+}
+def IMaC_Realadd : MaCInstr, IMACRealCode<0b00>{
+    let opc = 0b10;
+    let addsub = 1;
+    let d = 0b00000100;
+    let Inst{12} = 1;
+    let Inst{11} = f{1};
+
+}
+def IMaC_Realsub : MaCInstr, IMACRealCode<0b00>{
+    let opc = 0b10;
+    let addsub = 0;
+    let d = 0b00000100;
     let Inst{12} = 1;
     let Inst{11} = f{1};
 }
-def IMaC_Realadd : MaCInstr<1>, IMACRealCode<0b00>{
+def IMaC_Compadd : MaCInstr, IMACCompCode<0b00>{
     let opc = 0b10;
-    let d = 0;
-    let tp = 0;
+    let addsub = 1;
+    let d = 0b00000100;
+    let Inst{12} = 1;
+    let Inst{11} = f{1};
 }
-def IMaC_Realsub : MaCInstr<0>, IMACRealCode<0b00>{
+def IMaC_Compsub : MaCInstr, IMACCompCode<0b00>{
     let opc = 0b10;
-    let d = 0;
-    let tp = 0;
-}
-def IMaC_Compadd : MaCInstr<1>, IMACCompCode<0b00>{
-    let opc = 0b10;
-    let d = 0;
-    let tp = 0;
-}
-def IMaC_Compsub : MaCInstr<0>, IMACCompCode<0b00>{
-    let opc = 0b10;
-    let d = 0;
-    let tp = 0;
+    let addsub = 0;
+    let d = 0b00000100;
+    let Inst{12} = 1;
+    let Inst{11} = f{1};
 }
 
 // MR +=|-= tm*tn -> d
-class MaCMovInstr<bit addsub, Operand DestTy>
+class MaCMovInstr<Operand DestTy, bits<2> dest>
         : ToMRwMovInstr<(ins TPort: $tm, TPort: $tn, Flags: $f , Flags: $ff, Flags: $shift),
-                          !if(addsub, "+=", "-="), "$tm * $tn$ff$f", DestTy>{
-    bits<2> tm;
-    bits<2> tn;
-    bits<32> f;
-    bits<2> shift;
-    bit ff;
+                          "+=|-=", "$tm * $tn$ff$f", DestTy>{
+  bits<2> tm;
+  bits<2> tn;
+  bits<8>  d;
+  bits<32> f;
+  bit ff;
+  bits<2> shift;
+  bits<2> opc;
+  bits<2> mode;
+  bit addsub;
+  bit realcomp;
     
-    let Inst{24} = addsub;
-    let Inst{12} = 1;
-    let Inst{11} = f{1};
+  let Inst{47-43} = 0b01011;
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{24} = addsub;
+  let Inst{23-21} = f{6-4};
+  let Inst{20} = realcomp;
+  let Inst{19} = ff;
+  let Inst{18-17} = f{3-2};
+  let Inst{16-15} = tm;
+  let Inst{14-13} = tn;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+  let Inst{10} = f{0};
+  let Inst{9-8} = shift;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-2}  = d{4-2};
+  let Inst{1-0}   = d{1-0};
+
 }
 multiclass IMaCRealaddToDest{
-    let opc = 0b10, tp = 0b00 in{
-    def ToSHU  : MaCMovInstr<1,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MaCMovInstr<1,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MaCMovInstr<1,MACCT >, IMACRealCode<0b01>;
+    let addsub = 1, realcomp = 0 in{
+    def ToSHU  : MaCMovInstr<SHUT, 0b00>;
+    def ToBIU  : MaCMovInstr<BIUO, 0b10>;
+    def ToMACC : MaCMovInstr<MACCT, 0b01>;
     }
 }
+def IMaCRealaddToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "+= $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+  
+}
+def IMaCRealaddToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","+= $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+}
+
 multiclass IMaCRealsubToDest{
-    let opc = 0b10, tp = 0b00in{
-    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : MaCMovInstr<0,MACCT >, IMACRealCode<0b01>;
+    let addsub = 0, realcomp = 0 in{
+    def ToSHU  : MaCMovInstr<SHUT, 0b00>;
+    def ToBIU  : MaCMovInstr<BIUO, 0b10>;
+    def ToMACC : MaCMovInstr<MACCT, 0b01>;
     }
 }
+def IMaCRealsubToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "-= $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+  
+}
+def IMaCRealsubToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","-= $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+}
+
 multiclass IMaCCompaddToDest{
-    let opc = 0b10, tp = 0b00 in{
-    def ToSHU  : MaCMovInstr<1,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MaCMovInstr<1,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MaCMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    let addsub = 1 , realcomp = 1 in{
+    def ToSHU  : MaCMovInstr<SHUT, 0b00>;
+    def ToBIU  : MaCMovInstr<BIUO, 0b10>;
+    def ToMACC : MaCMovInstr<MACCT, 0b01>;
     }
 }
+def IMaCCompaddToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "+= $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+  
+}
+def IMaCCompaddToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","+= $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+}
+
 multiclass IMaCCompsubToDest{
-    let opc = 0b10, tp = 0b00 in{
-    def ToSHU  : MaCMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : MaCMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : MaCMovInstr<0,MACCT >, IMACCompCode<0b01>;
+    let addsub = 0, realcomp = 1 in{
+    def ToSHU  : MaCMovInstr<SHUT, 0b00>;
+    def ToBIU  : MaCMovInstr<BIUO, 0b10>;
+    def ToMACC : MaCMovInstr<MACCT, 0b01>;
     }
+}
+def IMaCCompsubToM
+        : MRegAssignInstr<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "-= $tm * $tn$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
+  
+}
+def IMaCCompsubToMSIA
+       : UCPMInst<(ins TPort: $tm, TPort: $tn, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","-= $tm * $tn$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 1;
+  let Inst{11} = f{1};
 }
 
 // MR +=|-= tm
-class AccInstr<bit addsub>
+class AccInstr
         : ToMRwoMovInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
-                            !if(addsub, "+=", "-="), "$tm$ff$f">{
+                            "+=|-=", "$tm$ff$f">{
     bits<2> tm;
     bits<32> f;
     bits<2> shift;
     bit ff;
       
-    let Inst{24} = addsub;
+}
+def IAcc_Realadd : AccInstr, IMACRealCode<0b00>{
+    let opc = 0b10;
+    let addsub = 1;
+    let d = 0b00000100;
+    let tn = 0;
     let Inst{12} = 0;
     let Inst{11} = f{1};
 }
-def IAcc_Realadd : AccInstr<1>, IMACRealCode<0b00>{
+def IAcc_Realsub : AccInstr, IMACRealCode<0b00>{
     let opc = 0b10;
-    let d = 0;
+    let addsub = 0;
+    let d = 0b00000100;
     let tn = 0;
-    let tp = 0;
+    let Inst{12} = 0;
+    let Inst{11} = f{1};
 }
-def IAcc_Realsub : AccInstr<0>, IMACRealCode<0b00>{
+def IAcc_Compadd : AccInstr, IMACCompCode<0b00>{
     let opc = 0b10;
-    let d = 0;
+    let addsub = 1;
+    let d = 0b00000100;
     let tn = 0;
-    let tp = 0;
+    let Inst{12} = 0;
+    let Inst{11} = f{1};
 }
-def IAcc_Compadd : AccInstr<1>, IMACCompCode<0b00>{
+def IAcc_Compsub : AccInstr, IMACCompCode<0b00>{
     let opc = 0b10;
-    let d = 0;
+    let addsub = 0;
+    let d = 0b00000100;
     let tn = 0;
-    let tp = 0;
-}
-def IAcc_Compsub : AccInstr<0>, IMACCompCode<0b00>{
-    let opc = 0b10;
-    let d = 0;
-    let tn = 0;
-    let tp = 0;
+    let Inst{12} = 0;
+    let Inst{11} = f{1};
 }
 
 // MR +=|-= tm -> d 
-class AccMovInstr<bit addsub, Operand DestTy>
+class AccMovInstr<Operand DestTy, bits<2> dest>
         : ToMRwMovInstr<(ins TPort: $tm, Flags: $f , Flags: $ff,Flags: $shift),
-                          !if(addsub, "+=", "-="), "$tm$ff$f", DestTy>{
-    bits<2> tm;
-    bits<2> tn;
-    bits<32> f;
-    bits<2> shift;
-    bit ff;
+                           "+=|-=", "$tm$ff$f", DestTy>{
+  bits<2> tm;
+  bits<8>  d;
+  bits<32> f;
+  bit ff;
+  bits<2> shift;
+  bits<2> opc;
+  bits<2> mode;
+  bit addsub;
+  bit realcomp;
     
-    let Inst{24} = addsub;
-    let Inst{12} = 0;
-    let Inst{11} = f{1};
+  let Inst{47-43} = 0b01011;
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{24} = addsub;
+  let Inst{23-21} = f{6-4};
+  let Inst{20} = realcomp;
+  let Inst{19} = ff;
+  let Inst{18-17} = f{3-2};
+  let Inst{16-15} = tm;
+  let Inst{14-13} = 0;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let Inst{10} = f{0};
+  let Inst{9-8} = shift;
+  let Inst{7} = 0;
+  let Inst{6-5}  = dest;
+  let Inst{4-2}  = d{4-2};
+  let Inst{1-0}   = d{1-0};
+
 }
 multiclass IAccRealaddToDest{
-    let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<1,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : AccMovInstr<1,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : AccMovInstr<1,MACCT >, IMACRealCode<0b01>;
+    let addsub = 1, realcomp = 0 in{
+    def ToSHU  : AccMovInstr<SHUT, 0b00>;
+    def ToBIU  : AccMovInstr<BIUO, 0b10>;
+    def ToMACC : AccMovInstr<MACCT, 0b01>;
     }
 }
+def IAccRealaddToM
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "+= $tm$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+  
+}
+def IAccRealaddToMSIA
+       : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","+= $tm$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+}
+
 multiclass IAccRealsubToDest{
-    let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<0,SHUT  >, IMACRealCode<0b00>;
-    def ToBIU  : AccMovInstr<0,BIUO  >, IMACRealCode<0b10>;
-    def ToMACC : AccMovInstr<0,MACCT >, IMACRealCode<0b01>;
+    let addsub = 0, realcomp = 0 in{
+    def ToSHU  : AccMovInstr<SHUT, 0b00>;
+    def ToBIU  : AccMovInstr<BIUO, 0b10>;
+    def ToMACC : AccMovInstr<MACCT, 0b01>;
     }
 }
+def IAccRealsubToM
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "-= $tm$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+  
+}
+def IAccRealsubToMSIA
+       : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","-= $tm$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 0;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+}
+
 multiclass IAccCompaddToDest{
-    let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<1,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : AccMovInstr<1,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : AccMovInstr<1,MACCT >, IMACCompCode<0b01>;
+    let addsub = 1, realcomp = 1 in{
+    def ToSHU  : AccMovInstr<SHUT, 0b00>;
+    def ToBIU  : AccMovInstr<BIUO, 0b10>;
+    def ToMACC : AccMovInstr<MACCT, 0b01>;
     }
 }
+def IAccCompaddToM
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "+= $tm$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+  
+}
+def IAccCompaddToMSIA
+       : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","+= $tm$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 1;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+}
+
 multiclass IAccCompsubToDest{
-    let opc = 0b10, tn =0b00, tp = 0b00 in{
-    def ToSHU  : AccMovInstr<0,SHUT  >, IMACCompCode<0b00>;
-    def ToBIU  : AccMovInstr<0,BIUO  >, IMACCompCode<0b10>;
-    def ToMACC : AccMovInstr<0,MACCT >, IMACCompCode<0b01>;
+    let addsub = 0, realcomp = 1 in{
+    def ToSHU  : AccMovInstr<SHUT, 0b00>;
+    def ToBIU  : AccMovInstr<BIUO, 0b10>;
+    def ToMACC : AccMovInstr<MACCT, 0b01>;
     }
+}
+def IAccCompsubToM
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.MR", "-= $tm$ff$f", MRegO>, IMACToM {
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
+  
+}
+def IAccCompsubToMSIA
+       : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.MR","-= $tm$ff$f", "-> M[$sia]$mode")>, IMACToMSIA{
+  let Inst{20} = 1;
+  let opc = 0b10;
+  let addsub = 0;
+  let Inst{12} = 0;
+  let Inst{11} = f{1};
+  let tn = 0;
 }
 
 // MOV
-class IMACMOVCode<Operand DestTy, bits<2> dest> 
+class IMACMOVCode<Operand DestTy,bits<2> dest> 
             : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs  DestTy: $d, Condition: $mode), "IMAC.", "$d$mode", "->", "$tm$f">, IMACBaseCode {
   bits<2> tm;
   bits<8> d;
-  bit f;
+  bits<32> f;
   bits<2> mode;
   
   let Inst{28-27} = mode;
@@ -2332,30 +2631,66 @@ class IMACMOVCode<Operand DestTy, bits<2> dest>
   let Inst{16-15} = tm;
   let Inst{14-13} = 0b10;
   let Inst{12} = 0;
-  let Inst{11} = f;
+  let Inst{11} = f{0};
   let Inst{7} = 0;
   let Inst{6-5}  = dest;
   let Inst{4-2}  = d{4-2};
   let Inst{1-0}   = d{1-0};
+
 }
 multiclass IMACMOVToDest { 
-  def ToSHU  : IMACMOVCode<SHUT  , 0b00>;
-  def ToBIU  : IMACMOVCode<BIUO  , 0b10>;
-  def ToMACC : IMACMOVCode<MACCT, 0b01>;
+  def ToSHU  : IMACMOVCode<SHUT,0b00>;
+  def ToBIU  : IMACMOVCode<BIUO,0b10>;
+  def ToMACC : IMACMOVCode<MACCT,0b01>;
+}
+def IMACMOVToM
+        : MRegAssignInstr<(ins TPort: $tm, Flags: $f, Flags: $ff, Flags: $shift),
+                      "IMAC.", "$tm$f", MRegO>, IMACBaseCode {
+  bits<2> tm;
+  bits<8> d;
+  bits<32> f;
+  bits<2> mode;
+  
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{16-15} = tm;
+  let Inst{14-13} = 0b10;
+  let Inst{12} = 0;
+  let Inst{11} = f{0};
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+
+def IMACMOVToMSIA
+       : UCPMInst<(ins TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","$tm$f", "-> M[$sia]$mode")>, IMACBaseCode{
+  bits<2> tm;
+  bits<8> d;
+  bits<32> f;
+  bits<2> mode;
+  bits<3> sia;
+    
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{16-15} = tm;
+  let Inst{14-13} = 0b10;
+  let Inst{12} = 0;
+  let Inst{11} = f{0};
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
 }
 
 // SendFlag
 class IMACSendFlagCode<Operand DestTy, bits<2> dest> 
             : CommonAssignInstr<(ins Flags: $f),(outs  DestTy: $d, Condition:$mode), "IMAC.", "$d$mode", "->", "FLAG$f">, IMACBaseCode {
   bits<8> d;
-  bits<3> f;
+  bits<32> f;
   bits<2> mode;
   
   let Inst{28-27} = mode;
   let Inst{26-25} = 0b10;
   let Inst{24} = 0;
   let Inst{23-22} = f{2-1};
-  let Inst{18} = 0;
+  let Inst{21-18} = 0;
   let Inst{17} = f{0};
   let Inst{14-13} = 0b01;
   let Inst{12-11} = 0b00;
@@ -2365,13 +2700,50 @@ class IMACSendFlagCode<Operand DestTy, bits<2> dest>
   let Inst{1-0}   = d{1-0};
 }
 multiclass IMACSendFlagToDest { 
-  def ToSHU  : IMACSendFlagCode<SHUT  , 0b00>;
-  def ToBIU  : IMACSendFlagCode<BIUO  , 0b10>;
-  def ToMACC : IMACSendFlagCode<MACCT, 0b01>;
+  def ToSHU  : IMACSendFlagCode<SHUT,0b00>;
+  def ToBIU  : IMACSendFlagCode<BIUO,0b10>;
+  def ToMACC : IMACSendFlagCode<MACCT,0b01>;
+}
+def IMACSendFlagToM
+        : MRegAssignInstr<(ins Flags: $f, Flags: $shift),
+                      "IMAC.", "FLAG$f", MRegO>, IMACBaseCode {
+  bits<8> d;
+  bits<32> f;
+  bits<2> mode;
+  
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{24} = 0;
+  let Inst{23-22} = f{2-1};
+  let Inst{21-18} = 0;
+  let Inst{17} = f{0};
+  let Inst{14-13} = 0b01;
+  let Inst{12-11} = 0b00;
+  let Inst{7} = 1;
+  let Inst{6-0} = d{6-0};
+}
+
+def IMACSendFlagToMSIA
+       : UCPMInst<(ins Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IMAC.","FLAG$f", "-> M[$sia]$mode")>, IMACBaseCode{
+  bits<8> d;
+  bits<32> f;
+  bits<2> mode;
+  bits<3> sia;
+  
+  let Inst{28-27} = mode;
+  let Inst{26-25} = 0b10;
+  let Inst{24} = 0;
+  let Inst{23-22} = f{2-1};
+  let Inst{21-18} = 0;
+  let Inst{17} = f{0};
+  let Inst{14-13} = 0b01;
+  let Inst{12-11} = 0b00;
+  let Inst{7-5} = 0b011;
+  let Inst{4-2} = sia;
 }
 
 // WriteFlag 
-def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs Condition:$mode), "", "FLAG$f$mode", "->", "IMAC.$tm">,
+def IMACWriteFlag : CommonAssignInstr<(ins TPort: $tm, Flags: $f),(outs Condition:$mode), "IMAC.", "FLAG$f$mode", "->", "$tm">,
                  IMACBaseCode { 
   bits<2>  tm;
   bits<3> f;
