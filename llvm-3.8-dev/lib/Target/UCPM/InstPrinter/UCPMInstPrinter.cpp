@@ -41,13 +41,13 @@ void UCPMInstPrinter::printInst(const MCInst *MI, raw_ostream &O,
 	    curinst = curinst->getOperand(0).getInst();
 	  else
 	    curinst = curinst->getOperand(curinst->getNumOperands()-1).getInst();
-	 /*yangl if (curinst->getOpcode() != UCPM::NOP) {
+	  if (curinst->getOpcode() != UCPM::NOP) {
 	    O << split;
       printInstruction(curinst, O);
       ++MCNumEmitted;
 	    split = "|| ";
 	    isAllNOP = false;
-	  }*/
+	  }
 	} while (curinst->getNumOperands() && curinst->getOperand(curinst->getNumOperands()-1).isInst());
 	if(isAllNOP) {
 		O<<"NOP";
@@ -160,6 +160,14 @@ void UCPMInstPrinter::printMACCTI(const MCInst *MI,
   O << ".";
   printOperand(MI, OpNo + 1, O);
   printIPath(MI, OpNo + 2, O);
+}
+
+void UCPMInstPrinter::printMACCT(const MCInst *MI,
+                                      unsigned int OpNo,
+                                      raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
 }
 
 void UCPMInstPrinter::printSHUT(const MCInst *MI,

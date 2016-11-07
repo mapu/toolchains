@@ -122,7 +122,7 @@ static bool tryAddingSymbolicOperand(uint64_t Value, bool isBranch,
 //  Dis->tryAddingPcLoadReferenceComment(Value, Address);
 //}
 /*******************************************************************/
-/*yangl static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
+static DecodeStatus DecodeMRegRegisterClass(MCInst &Inst,
                                             unsigned RegNo,
                                             uint64_t Address,
                                             const void *Decoder) {
@@ -135,7 +135,7 @@ static bool tryAddingSymbolicOperand(uint64_t Value, bool isBranch,
 
 static DecodeStatus DecodeMRegO(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
-  RegNo = (RegNo >> 2) | ((RegNo & 0x3) << 7);
+  //RegNo = RegNo & 0x7F;
 	if (getReg(Decoder, UCPMReg::MRegRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
 	  return MCDisassembler::Success;
@@ -143,6 +143,7 @@ static DecodeStatus DecodeMRegO(MCInst &Inst, unsigned RegNo,
   else return MCDisassembler::Fail;
 }
 
+/*
 static DecodeStatus
 DecodeSHUOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                         uint64_t Address, const void *Decoder) {
@@ -187,6 +188,16 @@ DecodeIALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                    (UCPM::IALUDPToM - UCPM::IALUBinToM));
     return DecodeIALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
+}*/
+
+static DecodeStatus
+DecodeSHUTranOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::SHUTranOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
 }
 
 static DecodeStatus
@@ -195,13 +206,56 @@ DecodeIALUTPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
   if (getReg(Decoder, UCPMReg::IALUTPOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
-  } else {
+  } 
+  else return MCDisassembler::Fail;
+  /*else {
     Inst.setOpcode(Inst.getOpcode() -
                    (UCPM::IALUTPToM - UCPM::IALUBinToM));
     return DecodeIALUBinOprtorRegisterClass(Inst, RegNo, Address, Decoder);
-  }
+  }*/
 }
 
+static DecodeStatus
+DecodeIALUUryNOTOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUUryNOTOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUShiftOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUShiftOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUASOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUASOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALULogicOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALULogicOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+/*
 static DecodeStatus
 DecodeFALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
@@ -239,26 +293,37 @@ DecodeFALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 static bool TFlag = false;
+*/
 
 static DecodeStatus
 DecodeIMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::IMACMulOprtorRegClassID, RegNo)) {
 	  Inst.addOperand(MCOperand::createReg(RegNo));
-    // T flag in IMAC mcode is not a defined flag, but can only be extracted from opcode
-    // So use a static variable to pass this flag to DecodeFlag function
-    if (RegNo == UCPMReg::IMULT) TFlag = true;
-
-    // "Tm * Tn" is always disassembled as "Tp +- Tn * Tm", and must be fixed
-    // according to the "op", where the real "Tp +- Tn * Tm" uses IMULS, while
-    // "Tm * Tn" uses IMUL or IMULT.
-    if (RegNo != UCPMReg::IMULS)
-     Inst.setOpcode(Inst.getOpcode() + (UCPM::IMulToBIU - UCPM::IMASToBIU));
+//     // T flag in IMAC mcode is not a defined flag, but can only be extracted from opcode
+//     // So use a static variable to pass this flag to DecodeFlag function
+//     if (RegNo == UCPMReg::IMULT) TFlag = true;
+// 
+//     // "Tm * Tn" is always disassembled as "Tp +- Tn * Tm", and must be fixed
+//     // according to the "op", where the real "Tp +- Tn * Tm" uses IMULS, while
+//     // "Tm * Tn" uses IMUL or IMULT.
+//     if (RegNo != UCPMReg::IMULS)
+//      Inst.setOpcode(Inst.getOpcode() + (UCPM::IMulToBIU - UCPM::IMASToBIU));
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
 }
 
+static DecodeStatus
+DecodeIFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+		                             uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IFMACMulOprtorRegClassID, RegNo)) {
+	  Inst.addOperand(MCOperand::createReg(RegNo));
+	  return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+/*
 static DecodeStatus
 DecodeFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
@@ -267,7 +332,7 @@ DecodeFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
 static DecodeStatus
 DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -277,7 +342,7 @@ DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}*/
+}
 
 /*yangl static DecodeStatus
 DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -287,7 +352,7 @@ DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
 static DecodeStatus
 DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -295,17 +360,17 @@ DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
   if (getReg(Decoder, UCPMReg::ConditionRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     // Here fix the "op" operands which were "DisableEncoding"ed in InstInfo.td
-   if ((Inst.getOpcode() >= UCPM::SHU1CombToBIU &&
-         Inst.getOpcode() <= UCPM::SHU1CombToSHU) ||
-        (Inst.getOpcode() >= UCPM::SHU0CombToBIU &&
-         Inst.getOpcode() <= UCPM::SHU0CombToSHU))
-      return DecodeSHUOprtorRegisterClass(Inst, 0, Address, Decoder);*/
+//    if ((Inst.getOpcode() >= UCPM::SHU1CombToBIU &&
+//          Inst.getOpcode() <= UCPM::SHU1CombToSHU) ||
+//         (Inst.getOpcode() >= UCPM::SHU0CombToBIU &&
+//          Inst.getOpcode() <= UCPM::SHU0CombToSHU))
+//       return DecodeSHUOprtorRegisterClass(Inst, 0, Address, Decoder);
     /*if (Inst.getOpcode() == UCPM::IALUDivS)
       return DecodeDIVOprtorRegisterClass(Inst, 0, Address, Decoder);*/
-  /*yangl  return MCDisassembler::Success;
+  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}*/
+}
 
 /*yangl static DecodeStatus
 DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -315,7 +380,7 @@ DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
 static DecodeStatus
 DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -326,6 +391,7 @@ DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
   }
   else return MCDisassembler::Fail;
 }
+
 
 static DecodeStatus
 DecodeTPortRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -345,7 +411,7 @@ DecodeTEPortRegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}*/
+}
 
 /*******************************************************************/
 /*yangl static DecodeStatus
@@ -356,15 +422,15 @@ DecodeBIURegisterClass(MCInst &Inst, unsigned RegNo,
     return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}
+}*/
 
 static DecodeStatus DecodeSHUT(MCInst &Inst, unsigned RegNo,
                                uint64_t Address, const void *Decoder) {
   unsigned Reg = RegNo & 0x3;
-	if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
 	  Inst.addOperand(MCOperand::createReg(Reg));
     Reg = (RegNo >> 2) & 0x3;
-	  if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
 	    Inst.addOperand(MCOperand::createReg(Reg));
 	    return MCDisassembler::Success;
     }
@@ -374,12 +440,24 @@ static DecodeStatus DecodeSHUT(MCInst &Inst, unsigned RegNo,
 
 static DecodeStatus DecodeMACCTI(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
-	unsigned Reg = RegNo & 0x3;
-  if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
-    Reg = (RegNo >> 2) & 0x3;
-    if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
-      int64_t imm = (RegNo >> 4) & 0x3;
+  unsigned Reg = RegNo & 0x3;
+  if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
+    int64_t imm = (RegNo >> 2) & 0x3;
       Inst.addOperand(MCOperand::createImm(imm));
+      Reg = (RegNo >>4) & 0x3;
+    if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
+      return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMACCT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+  unsigned Reg = RegNo & 0x3;
+  if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
+      Reg = (RegNo >>2) & 0x3;
+    if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
       return MCDisassembler::Success;
     }
   }
@@ -388,63 +466,65 @@ static DecodeStatus DecodeMACCTI(MCInst &Inst, unsigned RegNo,
 
 static DecodeStatus DecodeFlags(MCInst &Inst, unsigned Flags,
                                 uint64_t Address, const void *Decoder){
-	const unsigned BF=0, HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7,
-                 APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, TCF=13;
+	const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, MLF=13, MHF=14, NCF=15, 
+               CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27,
+	       QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36, W0F = 37, W1F=38, W2F = 39, W3F = 40,
+	       W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52,
+	       KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57, KI5F =58, KI6F=59, KI7F=60, NF=61, VF=62, AF=63;
 	unsigned op = Inst.getOpcode();
-  if (op >= UCPM::BIU0KG && op <= UCPM::BIU2St) {
-	  Flags |= (Flags & 0x1) << (KPPF + 8);
-	  Flags |= (Flags & 0x2) << (APPF + 7);
-	  Flags |= (Flags & 0x4) << (BRF + 6);
-	  Flags |= (Flags & 0x8) << (MF + 5);
-	  Flags |= (Flags & 0x10) << (IF + 4);
+  if (op >= UCPM::BIU0Bin && op <= UCPM::BIU2disLdToSHU) {
+	  Flags |= (Flags & 0x1) << (BRF-0);
+	  Flags |= (Flags & 0x2) << (APPF-1);
+	  Flags |= (Flags & 0x4) << (MF-2);
   }
-  else if (op >= UCPM::IALUBinToBIU && op <= UCPM::IALUUryToSHU) {
-	  Flags |= (Flags & 0x1) << (HF + 8);
-	  Flags |= (Flags & 0x2) << (BF + 7);
-	  Flags |= (Flags & 0x4) << (UF + 6);
-	  Flags |= (Flags & 0x8) << (TF + 5);
+  else if (op >= UCPM::IALUASToBIU && op <= UCPM::IALUWriteFlag) {
+	  Flags |= (Flags & 0x1) << (FF-0 );
+	  Flags |= (Flags & 0x2) << (CIF-1);
+	  Flags |= (Flags & 0x4) << (TF-2);
+	  Flags |= (Flags & 0x8) << (SF-3);
+	  Flags |= (Flags & 0x10) << (BF-4);
+	//  Flags |= (Flags & 0x20) << (UF-5);
   }
-  else if (op >= UCPM::FALUBinToBIU && op <= UCPM::FALUUryToSHU) {
-	  Flags |= (Flags & 0x1) << (DF + 8);
-	  Flags |= (Flags & 0x2) << (SF + 7);
-	  Flags |= (Flags & 0x4) << (UF + 6);
-	  Flags |= (Flags & 0x8) << (TF + 5);
-  }
-  else if (op >= UCPM::FMA && op <= UCPM::FMulToSHU) {
-	  Flags |= (Flags & 0x1) ? 1 << (DF + 8) : 1 << (SF + 8);
-    if (op >= UCPM::FMaC && op <= UCPM::FMaCToSHU)
-      Flags |= (Flags & 0x2) << (CRF + 7);
-	  else Flags |= (Flags & 0x2) << (TF + 7);
-  }
-  else if (op >= UCPM::IMA && op <= UCPM::IMulToSHU) {
-    if (TFlag) {
-      Flags |= 1 << (TF + 8);
-      TFlag = false;
-    }
-	  Flags |= (Flags & 0x1) << (HF + 8);
-	  Flags |= (Flags & 0x2) << (BF + 7);
-	  Flags |= (Flags & 0x4) << (UF + 6);
-	  Flags |= (Flags & 0x8) << (IF + 5);
-	  Flags |= (Flags & 0x10) << (LF + 4);
-	  Flags |= (Flags & 0x20) << (CRF + 3);
-  }
-  else if (op >= UCPM::SHU0CombToBIU && op <= UCPM::SHU1Stop) {
-	  Flags |= (Flags & 0x1) << (BF + 8);
-	  Flags |= (Flags & 0x2) << (HF + 7);
-	  Flags |= ((Flags & 0x7)==0) << (LF + 8);
-    Flags |= (Flags & 0x8) << (TCF + 5);
+//   else if (op >= UCPM::FALUBinToBIU && op <= UCPM::FALUUryToSHU) {
+// 	  Flags |= (Flags & 0x1) << (DF + 8);
+// 	  Flags |= (Flags & 0x2) << (SF + 7);
+// 	  Flags |= (Flags & 0x4) << (UF + 6);
+// 	  Flags |= (Flags & 0x8) << (TF + 5);
+//   }
+//   else if (op >= UCPM::FMA && op <= UCPM::FMulToSHU) {
+// 	  Flags |= (Flags & 0x1) ? 1 << (DF + 8) : 1 << (SF + 8);
+//     if (op >= UCPM::FMaC && op <= UCPM::FMaCToSHU)
+//       Flags |= (Flags & 0x2) << (CRF + 7);
+// 	  else Flags |= (Flags & 0x2) << (TF + 7);
+//   }
+//   else if (op >= UCPM::IMA && op <= UCPM::IMulToSHU) {
+//     if (TFlag) {
+//       Flags |= 1 << (TF + 8);
+//       TFlag = false;
+//     }
+// 	  Flags |= (Flags & 0x1) << (HF + 8);
+// 	  Flags |= (Flags & 0x2) << (BF + 7);
+// 	  Flags |= (Flags & 0x4) << (UF + 6);
+// 	  Flags |= (Flags & 0x8) << (IF + 5);
+// 	  Flags |= (Flags & 0x10) << (LF + 4);
+// 	  Flags |= (Flags & 0x20) << (CRF + 3);
+//   }
+  else if (op >= UCPM::SHU0ByteBitToBIU && op <= UCPM::SHU2Wait) {
+	  Flags |= (Flags & 0x1) << (APPF2-0);
+	  Flags |= (Flags & 0x2) << (IPPF-1);
+	  Flags |= (Flags & 0X4) << (SPPF-2);
   }
   else return MCDisassembler::Fail;
 	Inst.addOperand(MCOperand::createImm(Flags));
 	return MCDisassembler::Success;
-}*/
+}
 /*******************************************************************/
 static DecodeStatus
 DecodeLabel(MCInst &Inst, unsigned Label,
             uint64_t Address, const void *Decoder) {
   unsigned imm = Label;
   const MCDisassembler* Dis = static_cast<const MCDisassembler *>(Decoder);
-  if (!tryAddingSymbolicOperand(Label * 41, true, Address, 0x25, 2, Inst, Dis))
+  if (!tryAddingSymbolicOperand(Label * 46, true, Address, 0x25, 2, Inst, Dis))
     Inst.addOperand(MCOperand::createImm(imm));
   return MCDisassembler::Success;
 }
@@ -465,7 +545,7 @@ getInstruction(MCInst &Instr, uint64_t &Size,
 	Size=0;
 
 	DecodeStatus result = readInsnLine(Bytes, Address, numBytes, line);
-  /*yangl if (!result) return result;
+  if (!result) return result;
 	Size = numBytes;
 
 	formerInst = &Instr;
@@ -479,16 +559,16 @@ getInstruction(MCInst &Instr, uint64_t &Size,
 		formerInst = curInst;
 	}
 	unsigned Sym = 0;
-	while (!LoopStack.empty() && Address/41 == LoopStack.back()) {
+	while (!LoopStack.empty() && Address/46 == LoopStack.back()) {
     ++Sym;
     LoopStack.pop_back();
   }
 	Scheduler->Schedule(Address, &Instr, Sym);
-  if (formerInst->getOpcode() == UCPM::LPTO*) {
+  if (formerInst->getOpcode() == UCPM::LPTO) {
     if (formerInst->getOperand(0).isImm() &&
         formerInst->getOperand(0).getImm() != 0)
     LoopStack.push_back(formerInst->getOperand(0).getImm() - 1);
-  }*/
+  }
 
 	return result;
 }

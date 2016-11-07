@@ -26,10 +26,10 @@ def MACCTI : Operand<i32> {
   let DecoderMethod = "DecodeMACCTI";
 }
 def MACCT : Operand<i32> {
-  let PrintMethod = "printMACCTI";
+  let PrintMethod = "printMACCT";
   let MIOperandInfo = (ops MACC, TPort);
   let EncoderMethod = "getMACCTEncoding";
-  let DecoderMethod = "DecodeMACCTI";
+  let DecoderMethod = "DecodeMACCT";
 }
 def imm32i : Operand<i32>;
 
@@ -130,7 +130,7 @@ def SHU2DestTI : Operand<i32> {
 
 
 def MRegO: Operand<i32> {
-  //let DecoderMethod = "DecodeMRegO";
+  let DecoderMethod = "DecodeMRegO";
   let MIOperandInfo = (ops MReg);
   let EncoderMethod = "getMRegOEncoding";
 }

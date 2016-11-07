@@ -60,10 +60,10 @@ InsnLine::ExtractCode(uint64_t &code, unsigned slot)
 	uint64_t mask = ~( (uint64_t)(-1) << (layout[slot].numBits) );
 	code &= mask;
 
-	// slot is encoded at 4 bits 47 ~ 44.
+	// slot is encoded at 5 bits 47 ~ 43.
 	// If code is 0, it must be a NOP instruction. And thus we cannot encode slot
-	// number into its bits 47 ~ 44.
-	if(code != 0)	code |= ((uint64_t)(slot) << 44);
+	// number into its bits 47 ~ 43.
+	if(code != 0)	code |= ((uint64_t)(slot) << 43);
 }
 
 void

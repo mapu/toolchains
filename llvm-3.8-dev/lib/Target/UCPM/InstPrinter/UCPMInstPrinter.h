@@ -43,6 +43,8 @@ public:
   void printIPath(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
     
   void printMACCTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  
+  void printMACCT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
     
   void printSHUT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
 };
