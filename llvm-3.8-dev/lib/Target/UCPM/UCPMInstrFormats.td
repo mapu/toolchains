@@ -19,12 +19,12 @@ def Flags : Operand<i32> {
 def IPath : Operand<i32> {
   let PrintMethod = "printIPath";
 }
-def MACCTI : Operand<i32> {
-  let PrintMethod = "printMACCTI";
-  let MIOperandInfo = (ops MACC, TPort, IPath);
-  let EncoderMethod = "getMACCTIEncoding";
-  let DecoderMethod = "DecodeMACCTI";
-}
+// def MACCTI : Operand<i32> {
+//   let PrintMethod = "printMACCTI";
+//   let MIOperandInfo = (ops MACC, TPort, IPath);
+//   let EncoderMethod = "getMACCTIEncoding";
+//   let DecoderMethod = "DecodeMACCTI";
+// }
 def MACCT : Operand<i32> {
   let PrintMethod = "printMACCT";
   let MIOperandInfo = (ops MACC, TPort);
@@ -36,40 +36,40 @@ def imm32i : Operand<i32>;
 
 
 def MR0DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR0DestT";
   let MIOperandInfo = (ops MR0Dest, TPort);
   let EncoderMethod = "getMR0DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR0DestT";  
 }
 def MR1DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR1DestT";
   let MIOperandInfo = (ops MR1Dest, TPort);
   let EncoderMethod = "getMR1DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR1DestT";  
 }
 def MR2DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR2DestT";
   let MIOperandInfo = (ops MR2Dest, TPort);
   let EncoderMethod = "getMR2DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR2DestT";  
 }
 def MR3DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR3DestT";
   let MIOperandInfo = (ops MR3Dest, TPort);
   let EncoderMethod = "getMR3DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR3DestT";  
 }
 def MR4DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR4DestT";
   let MIOperandInfo = (ops MR4Dest, TPort);
   let EncoderMethod = "getMR4DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR4DestT";  
 }
 def MR5DestT : Operand<i32> {
-  //let PrintMethod = "printMR0DestT";
+  let PrintMethod = "printMR5DestT";
   let MIOperandInfo = (ops MR5Dest, TPort);
   let EncoderMethod = "getMR5DestTEncoding";
-  //let DecoderMethod = "DecodeMR0DestT";  
+  let DecoderMethod = "DecodeMR5DestT";  
 }
 
 
@@ -81,7 +81,7 @@ def SHUT : Operand<i32> {
   let DecoderMethod = "DecodeSHUT";
 }
 def BIUO: Operand<i32> {
-  //let DecoderMethod = "DecodeBIURegisterClass";
+  let DecoderMethod = "DecodeBIUT";
   let MIOperandInfo = (ops BIU, TPort);
   let EncoderMethod = "getBIUTEncoding";
 }
@@ -89,43 +89,43 @@ def BIUO: Operand<i32> {
 
 // ducx
 def BIU0DestTE : Operand<i32> {
-  //let PrintMethod = "printBIU0DestTE";
+  let PrintMethod = "printBIU0DestTE";
   let MIOperandInfo = (ops BIU0Dest, TEPort);
   let EncoderMethod = "getBIU0DestTEEncoding";
-  //let DecoderMethod = "DecodeBIU0DestTE";  
+  let DecoderMethod = "DecodeBIU0DestTE";  
 }
 def BIU1DestTE : Operand<i32> {
-  //let PrintMethod = "printBIU1DestTE";
+  let PrintMethod = "printBIU1DestTE";
   let MIOperandInfo = (ops BIU1Dest, TEPort);
   let EncoderMethod = "getBIU1DestTEEncoding";
-  //let DecoderMethod = "DecodeBIU1DestTE";  
+  let DecoderMethod = "DecodeBIU1DestTE";  
 }
 def BIU2DestTE : Operand<i32> {
-  //let PrintMethod = "printBIU2DestTE";
+  let PrintMethod = "printBIU2DestTE";
   let MIOperandInfo = (ops BIU2Dest, TEPort);
   let EncoderMethod = "getBIU2DestTEEncoding";
-  //let DecoderMethod = "DecodeBIU2DestTE";  
+  let DecoderMethod = "DecodeBIU2DestTE";  
 }
 
 def SHU0DestTI : Operand<i32> {
-  //let PrintMethod = "printSHU0DestT";
+  let PrintMethod = "printSHU0DestTI";
   let MIOperandInfo = (ops SHU0Dest, TPort, IPath);
   let EncoderMethod = "getSHU0DestTIEncoding";
-  //let DecoderMethod = "DecodeSHU0DestT";  
+  let DecoderMethod = "DecodeSHU0DestTI";  
 }
 
 def SHU1DestTI : Operand<i32> {
-  //let PrintMethod = "printSHU1DestT";
+  let PrintMethod = "printSHU1DestTI";
   let MIOperandInfo = (ops SHU1Dest, TPort, IPath);
   let EncoderMethod = "getSHU1DestTIEncoding";
-  //let DecoderMethod = "DecodeSHU1DestT";  
+  let DecoderMethod = "DecodeSHU1DestTI";  
 }
 
 def SHU2DestTI : Operand<i32> {
-  //let PrintMethod = "printSHU2DestT";
+  let PrintMethod = "printSHU2DestTI";
   let MIOperandInfo = (ops SHU2Dest, TPort, IPath);
   let EncoderMethod = "getSHU2DestTIEncoding";
-  //let DecoderMethod = "DecodeSHU2DestT";  
+  let DecoderMethod = "DecodeSHU2DestTI";  
 }
 
 
@@ -169,14 +169,6 @@ class AssignInstr<dag ins, string header, string lclause, Operand DestTy,
         : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
                             header, "$d$mode", "->", lclause, pattern> {
   bits<8>  d;
-  bits<2> mode;
-}
-
-class BIUAssignInstr<dag ins, string header, string lclause, Operand DestTy,
-                  list<dag> pattern = []>
-        : CommonAssignInstr<ins, (outs DestTy: $d, Condition: $mode),
-                            header, "$d$mode", "->", lclause, pattern> {
-  bits<6>  d;
   bits<2> mode;
 }
 

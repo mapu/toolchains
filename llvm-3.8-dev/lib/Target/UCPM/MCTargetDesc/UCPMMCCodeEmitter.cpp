@@ -58,9 +58,10 @@ public:
                                  SmallVectorImpl<MCFixup> &Fixups,
                                  const MCSubtargetInfo &STI) const;
   
-  unsigned getMACCTIEncoding(const MCInst &MI, unsigned OpNo,
-                             SmallVectorImpl<MCFixup> &Fixups,
-                             const MCSubtargetInfo &STI) const;
+//   unsigned getMACCTIEncoding(const MCInst &MI, unsigned OpNo,
+//                              SmallVectorImpl<MCFixup> &Fixups,
+//                              const MCSubtargetInfo &STI) const;
+			     
   unsigned getMACCTEncoding(const MCInst &MI, unsigned OpNo,
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
@@ -202,19 +203,20 @@ unsigned UCPMMCCodeEmitter::getMachineOpValue(const MCInst &MI,
   return 0;
 }
 
-unsigned UCPMMCCodeEmitter::
-getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
-                  SmallVectorImpl<llvm::MCFixup>& Fixups,
-                  const MCSubtargetInfo &STI) const {
-  assert(MI.getOperand(OpNo).isReg());
-  unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
-  assert(MI.getOperand(OpNo+1).isReg());
-  unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
-  assert(MI.getOperand(OpNo+2).isImm());
-  unsigned IPathBits = getMachineOpValue(MI, MI.getOperand(OpNo+2), Fixups, STI);
+// unsigned UCPMMCCodeEmitter::
+// getMACCTIEncoding(const llvm::MCInst &MI, unsigned int OpNo,
+//                   SmallVectorImpl<llvm::MCFixup>& Fixups,
+//                   const MCSubtargetInfo &STI) const {
+//   assert(MI.getOperand(OpNo).isReg());
+//   unsigned UnitBits = getMachineOpValue(MI, MI.getOperand(OpNo), Fixups, STI);
+//   assert(MI.getOperand(OpNo+1).isReg());
+//   unsigned TPortBits = getMachineOpValue(MI, MI.getOperand(OpNo+1), Fixups, STI);
+//   assert(MI.getOperand(OpNo+2).isImm());
+//   unsigned IPathBits = getMachineOpValue(MI, MI.getOperand(OpNo+2), Fixups, STI);
+// 
+//   return (TPortBits) | (IPathBits << 2) | (UnitBits << 4);
+// }
 
-  return (TPortBits) | (IPathBits << 2) | (UnitBits << 4);
-}
 unsigned UCPMMCCodeEmitter::
 getMACCTEncoding(const llvm::MCInst &MI, unsigned int OpNo,
                   SmallVectorImpl<llvm::MCFixup>& Fixups,

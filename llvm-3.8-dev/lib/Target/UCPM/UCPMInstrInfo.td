@@ -2920,7 +2920,7 @@ def IFMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFMACBaseCode 
 
 // load: discrete data
 class BIULdToDest_dis<string header, bits<5> slot, bits<2> dest, Operand DestTy>
-        : BIUAssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH), header, "$tm($ts)$f", DestTy>{
+        : AssignInstr<(ins TPort: $tm, TPort: $ts, Flags: $f, Flags: $QLH), header, "$tm($ts)$f", DestTy>{
 
     bits<32> f;
     bits<2> tm;
@@ -3018,7 +3018,7 @@ def BIU2disLdToMSIA: BIULdToMSIA_dis<"BIU2.", 0b10000 >;
 
 // load: common/step
 class BIULdToDest_com<string header, bits<5> slot, bits<2> dest, Operand DestTy>
-        : BIUAssignInstr<(ins TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
+        : AssignInstr<(ins TPort: $tm, Flags: $f), header, "$tm$f", DestTy>{
 
     bits<32> f;
     bits<2> tm;

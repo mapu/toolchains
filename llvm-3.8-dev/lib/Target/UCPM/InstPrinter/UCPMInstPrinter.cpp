@@ -153,14 +153,14 @@ void UCPMInstPrinter::printIPath(const MCInst *MI, unsigned OpNo,
 	  O << "(I" << path - 1 << ")";
 }
 
-void UCPMInstPrinter::printMACCTI(const MCInst *MI,
-                                      unsigned int OpNo,
-                                      raw_ostream &O) const {
-	printOperand(MI, OpNo, O);
-  O << ".";
-  printOperand(MI, OpNo + 1, O);
-  printIPath(MI, OpNo + 2, O);
-}
+// void UCPMInstPrinter::printMACCTI(const MCInst *MI,
+//                                       unsigned int OpNo,
+//                                       raw_ostream &O) const {
+// 	printOperand(MI, OpNo, O);
+//   O << ".";
+//   printOperand(MI, OpNo + 1, O);
+//   printIPath(MI, OpNo + 2, O);
+// }
 
 void UCPMInstPrinter::printMACCT(const MCInst *MI,
                                       unsigned int OpNo,
@@ -177,3 +177,103 @@ void UCPMInstPrinter::printSHUT(const MCInst *MI,
   O << ".";
   printOperand(MI, OpNo + 1, O);
 }
+
+void UCPMInstPrinter::printMR0DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printMR1DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printMR2DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printMR3DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printMR4DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printMR5DestT(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printBIU0DestTE(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printBIU1DestTE(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printBIU2DestTE(const MCInst *MI,
+                                    unsigned int OpNo,
+                                    raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+}
+
+void UCPMInstPrinter::printSHU0DestTI(const MCInst *MI,
+                                      unsigned int OpNo,
+                                      raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+  printIPath(MI, OpNo + 2, O);
+}
+
+void UCPMInstPrinter::printSHU1DestTI(const MCInst *MI,
+                                      unsigned int OpNo,
+                                      raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+  printIPath(MI, OpNo + 2, O);
+}
+
+void UCPMInstPrinter::printSHU2DestTI(const MCInst *MI,
+                                      unsigned int OpNo,
+                                      raw_ostream &O) const {
+	printOperand(MI, OpNo, O);
+  O << ".";
+  printOperand(MI, OpNo + 1, O);
+  printIPath(MI, OpNo + 2, O);
+}
+

@@ -42,11 +42,36 @@ public:
 
   void printIPath(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
     
-  void printMACCTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  //void printMACCTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
   
   void printMACCT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
     
   void printSHUT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  
+  void printMR0DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  
+  void printMR1DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  
+  void printMR2DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+
+  void printMR3DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+
+  void printMR4DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+
+  void printMR5DestT(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+
+  void printBIU0DestTE(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+    
+  void printBIU1DestTE(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+      
+  void printBIU2DestTE(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+  
+  void printSHU0DestTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+    
+  void printSHU1DestTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+      
+  void printSHU2DestTI(const MCInst *MI, unsigned OpNo, raw_ostream &O) const;
+
 };
 }  // end namespace llvm
 

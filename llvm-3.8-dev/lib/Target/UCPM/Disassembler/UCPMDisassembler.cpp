@@ -414,15 +414,20 @@ DecodeTEPortRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 /*******************************************************************/
-/*yangl static DecodeStatus
-DecodeBIURegisterClass(MCInst &Inst, unsigned RegNo,
-		                   uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, UCPMReg::BIURegClassID, RegNo)) {
-    Inst.addOperand(MCOperand::createReg(RegNo));
-    return MCDisassembler::Success;
+static DecodeStatus DecodeBIUT(MCInst &Inst, unsigned RegNo,
+                               uint64_t Address, const void *Decoder) {
+  unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::BIURegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
   }
-  else return MCDisassembler::Fail;
-}*/
+  return MCDisassembler::Fail;
+}
+
 
 static DecodeStatus DecodeSHUT(MCInst &Inst, unsigned RegNo,
                                uint64_t Address, const void *Decoder) {
@@ -438,26 +443,211 @@ static DecodeStatus DecodeSHUT(MCInst &Inst, unsigned RegNo,
   return MCDisassembler::Fail;
 }
 
-static DecodeStatus DecodeMACCTI(MCInst &Inst, unsigned RegNo,
+// static DecodeStatus DecodeMACCTI(MCInst &Inst, unsigned RegNo,
+//                                  uint64_t Address, const void *Decoder) {
+//   unsigned Reg = RegNo & 0x3;
+//   if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
+//     int64_t imm = (RegNo >> 2) & 0x3;
+//       Inst.addOperand(MCOperand::createImm(imm));
+//       Reg = (RegNo >>4) & 0x3;
+//     if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
+//       return MCDisassembler::Success;
+//     }
+//   }
+//   return MCDisassembler::Fail;
+// }
+
+static DecodeStatus DecodeMACCT(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MACCRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMR0DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR0DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMR1DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR1DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+static DecodeStatus DecodeMR2DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR2DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMR3DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR3DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMR4DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR4DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeMR5DestT(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0x3;
+	if (getReg(Decoder, UCPMReg::TPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 2) & 0x3;
+	  if (getReg(Decoder, UCPMReg::MR5DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeBIU0DestTE(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0xf;
+	if (getReg(Decoder, UCPMReg::TEPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 4) & 0x3;
+	  if (getReg(Decoder, UCPMReg::BIU0DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeBIU1DestTE(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0xf;
+	if (getReg(Decoder, UCPMReg::TEPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 4) & 0x3;
+	  if (getReg(Decoder, UCPMReg::BIU1DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeBIU2DestTE(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+   unsigned Reg = RegNo & 0xf;
+	if (getReg(Decoder, UCPMReg::TEPortRegClassID, Reg)) {
+	  Inst.addOperand(MCOperand::createReg(Reg));
+    Reg = (RegNo >> 4) & 0x3;
+	  if (getReg(Decoder, UCPMReg::BIU2DestRegClassID, Reg)) {
+	    Inst.addOperand(MCOperand::createReg(Reg));
+	    return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeSHU0DestTI(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
   unsigned Reg = RegNo & 0x3;
   if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
     int64_t imm = (RegNo >> 2) & 0x3;
       Inst.addOperand(MCOperand::createImm(imm));
       Reg = (RegNo >>4) & 0x3;
-    if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
+     if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
+      Inst.addOperand(MCOperand::createReg(Reg));
       return MCDisassembler::Success;
     }
   }
   return MCDisassembler::Fail;
 }
 
-static DecodeStatus DecodeMACCT(MCInst &Inst, unsigned RegNo,
+static DecodeStatus DecodeSHU1DestTI(MCInst &Inst, unsigned RegNo,
                                  uint64_t Address, const void *Decoder) {
+
   unsigned Reg = RegNo & 0x3;
   if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
-      Reg = (RegNo >>2) & 0x3;
-    if (DecodeMACCRegisterClass(Inst, Reg, Address, Decoder)) {
+    int64_t imm = (RegNo >> 2) & 0x3;
+      Inst.addOperand(MCOperand::createImm(imm));
+      Reg = (RegNo >>4) & 0x3;
+     if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
+      Inst.addOperand(MCOperand::createReg(Reg));
+      return MCDisassembler::Success;
+    }
+  }
+  return MCDisassembler::Fail;
+}
+
+static DecodeStatus DecodeSHU2DestTI(MCInst &Inst, unsigned RegNo,
+                                 uint64_t Address, const void *Decoder) {
+
+  unsigned Reg = RegNo & 0x3;
+  if (DecodeTPortRegisterClass(Inst, Reg, Address, Decoder)) {
+    int64_t imm = (RegNo >> 2) & 0x3;
+      Inst.addOperand(MCOperand::createImm(imm));
+      Reg = (RegNo >>4) & 0x3;
+     if (getReg(Decoder, UCPMReg::SHURegClassID, Reg)) {
+      Inst.addOperand(MCOperand::createReg(Reg));
       return MCDisassembler::Success;
     }
   }
