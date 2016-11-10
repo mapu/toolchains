@@ -6,7 +6,7 @@ std::bitset<64> flags;
 static unsigned int flagsort;
 const unsigned HF=1, UF=2, TF=3, SF=4, DF=5, IF=6, LF=7, APPF=8, KPPF=9, CRF=10, BRF=11, MF=12, MLF=13, MHF=14, NCF=15, 
                CIF = 16, FF = 17, BF=18, PF = 19, RF = 20, CF = 21, SENDF = 22, S0F = 23, S1F = 24, S2F = 25, S3F = 26, SSF=27, QF=28, QLF=29, QHF=30, dLF=31, dHF=32, dMLF=33, dMHF=34, SPPF=35, IPPF=36,
-               W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGEABLEF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
+               W0F = 37, W1F=38, W2F = 39, W3F = 40, W4F = 41, APPF2 = 42, KMF=43, KGF=44, KMEABLEF=45, KGCURRENTF=46, KEF=47, L1F=48, L2F=49, L3F=50, L4F=51, ALLF =52, KI0F= 53, KI1F=54, KI2F=55, KI3F=56, KI4F=57,
                KI5F =58, KI6F=59, KI7F=60, NF=61, VF=62, AF=63;
 static UCPM::UCPMAsmOperand *opc, *tm, *tn, *tp, *tk, *revt, *f, *ff, *shift, *step, *qlh, *sia, *unit, *unit2, *unit3, *unit4, *ut, *b, *b2, *md, *ms, *imm,*imm1,*imm2, *expr, *ipath;//unit2, b2 are used as alternative unit, such as MReg Target
 static int slotid;
@@ -56,7 +56,7 @@ typedef struct YYLTYPE {
 %token <val> CPRS EXPD CONJ MINUS READQ READR DIVSTART DIVCONT START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
 %token <val> REPEAT LOOP JMP MPUSTOP
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND FLOAT Q QL QH ML MH BIT BYTE
-%token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGEABLE L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
+%token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGCURRENT L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
 %token <string> IDENTIFIER
 %token <op> EXPR
 %token <val> TREG MINDEXN KI N V A FLAG WRITEFLAG
@@ -252,7 +252,7 @@ mr0code: R0 DOT r0inst {
 		      flagsort = 0x5;
 		  else if(flags[KMEABLEF])
 		      flagsort = 0x1;
-		  else if(flags[KGEABLEF])
+		  else if(flags[KGCURRENTF])
 		      flagsort = 0x3;
 		  else if(flags[BRF])
 		      flagsort = 0x4;
@@ -378,7 +378,7 @@ mr2code: R2 DOT r2inst {
 		      flagsort = 0x5;
 		  else if(flags[KMEABLEF])
 		      flagsort = 0x1;
-		  else if(flags[KGEABLEF])
+		  else if(flags[KGCURRENTF])
 		      flagsort = 0x3;
 		  else if(flags[BRF])
 		      flagsort = 0x4;
@@ -504,7 +504,7 @@ mr4code: R4 DOT r4inst {
 		      flagsort = 0x5;
 		  else if(flags[KMEABLEF])
 		      flagsort = 0x1;
-		  else if(flags[KGEABLEF])
+		  else if(flags[KGCURRENTF])
 		      flagsort = 0x3;
 		  else if(flags[BRF])
 		      flagsort = 0x4;
@@ -8283,7 +8283,7 @@ configflag:   KM {flags.set(KMF);}     |
 	      KG {flags.set(KGF);}     |
 	      KE {flags.set(KEF);}     |
 	      KMEABLE {flags.set(KMEABLEF);}     |
-	      KGEABLE {flags.set(KGEABLEF);}     |
+	      KGCURRENT {flags.set(KGCURRENTF);}     |
 	      BR {flags.set(BRF);}     |
 	      L1 {flags.set(L1F);}     |
 	      L2 {flags.set(L2F);}     |

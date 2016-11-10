@@ -310,8 +310,8 @@ A   [a-zA-Z_0-9]
 "km"   			 {return TOKEN(KM);}//dcx
 "kg"   			 {return TOKEN(KG);}//dcx
 "ke"   			 {return TOKEN(KE);}//dcx
-"kmeable"   		 {return TOKEN(KMEABLE);}//dcx
-"kgeable"   		 {return TOKEN(KGEABLE);}//dcx
+"kmenable"   		 {return TOKEN(KMEABLE);}//dcx
+"kgcurrent"   		 {return TOKEN(KGCURRENT);}//dcx
 "l1"   			 {return TOKEN(L1);}//dcx
 "l2"   			 {return TOKEN(L2);}//dcx
 "l3"   			 {return TOKEN(L3);}//dcx
