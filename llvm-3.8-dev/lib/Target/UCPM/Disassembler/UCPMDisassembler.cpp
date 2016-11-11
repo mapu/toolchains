@@ -143,53 +143,146 @@ static DecodeStatus DecodeMRegO(MCInst &Inst, unsigned RegNo,
   else return MCDisassembler::Fail;
 }
 
-/*
-static DecodeStatus
-DecodeSHUOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-		                         uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, UCPMReg::SHUOprtorRegClassID, RegNo)) {
-	  Inst.addOperand(MCOperand::createReg(RegNo));
-	  return MCDisassembler::Success;
-  }
-  else return MCDisassembler::Fail;
-}
 
 static DecodeStatus
-DecodeIALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, UCPMReg::IALUUryOprtorRegClassID, RegNo)) {
-	  Inst.addOperand(MCOperand::createReg(RegNo));
-	  return MCDisassembler::Success;
-  }
-  else return MCDisassembler::Fail;
-}
-
-static DecodeStatus
-DecodeIALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+DecodeMFetchBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::IALUDPOprtorRegClassID, RegNo)) {
+  if (getReg(Decoder, UCPMReg::MFetchBinOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
-  } else {
-    Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::IALUUryToM - UCPM::IALUDPToM));
-    return DecodeIALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
+  } 
+  else return MCDisassembler::Fail;
+}
+
+// static DecodeStatus
+// DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
+//                          uint64_t Address, const void *Decoder) {
+//   if (getReg(Decoder, UCPMReg::WFlagRegClassID, RegNo)) {
+//     Inst.addOperand(MCOperand::createReg(RegNo));
+//     return MCDisassembler::Success;
+//   }
+//   else return MCDisassembler::Fail;
+// }
+
+static DecodeStatus
+DecodeIALUComOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUComOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
   }
+  else return MCDisassembler::Fail;
 }
 
 static DecodeStatus
-DecodeIALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::IALUBinOprtorRegClassID, RegNo)) {
+DecodeIFALUComOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IFALUComOprtorRegClassID, RegNo)) {
     Inst.addOperand(MCOperand::createReg(RegNo));
     return MCDisassembler::Success;
-  } else {
-   Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::IALUDPToM - UCPM::IALUBinToM));
-    return DecodeIALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
   }
-}*/
+  else return MCDisassembler::Fail;
+}
 
+static DecodeStatus
+DecodeBIUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::BIUBinOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUUryRMNOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUUryRMNOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIFALUTranOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IFALUTranOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUUryCONOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUUryCONOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeBIUComOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                         uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::BIUComOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeBIUShiftOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::BIUShiftOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUMNOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUMNOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIALUSCOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUSCOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeIFALUMNOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IFALUMNOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
+DecodeMFetchShiftOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::MFetchShiftOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
 static DecodeStatus
 DecodeSHUTranOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
@@ -256,42 +349,6 @@ DecodeIALULogicOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 /*
-static DecodeStatus
-DecodeFALUUryOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-                                 uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::FALUUryOprtorRegClassID, RegNo)) {
-    Inst.addOperand(MCOperand::createReg(RegNo));
-    return MCDisassembler::Success;
-  }
-  else return MCDisassembler::Fail;
-}
-
-static DecodeStatus
-DecodeFALUDPOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-                                uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::FALUDPOprtorRegClassID, RegNo)) {
-    Inst.addOperand(MCOperand::createReg(RegNo));
-    return MCDisassembler::Success;
-  } else {
-    Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::FALUUryToM - UCPM::FALUDParaToM));
-    return DecodeFALUUryOprtorRegisterClass(Inst, RegNo, Address, Decoder);
-  }
-}
-
-static DecodeStatus
-DecodeFALUBinOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, UCPMReg::FALUBinOprtorRegClassID, RegNo)) {
-	  Inst.addOperand(MCOperand::createReg(RegNo));
-	  return MCDisassembler::Success;
-  } else {
-    Inst.setOpcode(Inst.getOpcode() +
-                   (UCPM::FALUDParaToM - UCPM::FALUBinToM));
-    return DecodeFALUDPOprtorRegisterClass(Inst, RegNo, Address, Decoder);
-  }
-}
-
 static bool TFlag = false;
 */
 
@@ -323,16 +380,6 @@ DecodeIFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
   }
   else return MCDisassembler::Fail;
 }
-/*
-static DecodeStatus
-DecodeFMACMulOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-		                             uint64_t Address, const void *Decoder) {
-	if (getReg(Decoder, UCPMReg::FMACMulOprtorRegClassID, RegNo)) {
-	  Inst.addOperand(MCOperand::createReg(RegNo));
-	  return MCDisassembler::Success;
-  }
-  else return MCDisassembler::Fail;
-}*/
 
 static DecodeStatus
 DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -344,7 +391,7 @@ DecodeDIVOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
   else return MCDisassembler::Fail;
 }
 
-/*yangl static DecodeStatus
+static DecodeStatus
 DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 		                             uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::IALUImmOprtorRegClassID, RegNo)) {
@@ -352,7 +399,7 @@ DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 	  return MCDisassembler::Success;
   }
   else return MCDisassembler::Fail;
-}*/
+}
 
 static DecodeStatus
 DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -372,15 +419,7 @@ DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
   else return MCDisassembler::Fail;
 }
 
-/*yangl static DecodeStatus
-DecodeWFlagRegisterClass(MCInst &Inst, unsigned RegNo,
-                         uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::WFlagRegClassID, RegNo)) {
-    Inst.addOperand(MCOperand::createReg(RegNo));
-    return MCDisassembler::Success;
-  }
-  else return MCDisassembler::Fail;
-}*/
+
 
 static DecodeStatus
 DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
@@ -391,7 +430,6 @@ DecodeMACCRegisterClass(MCInst &Inst, unsigned RegNo,
   }
   else return MCDisassembler::Fail;
 }
-
 
 static DecodeStatus
 DecodeTPortRegisterClass(MCInst &Inst, unsigned RegNo,

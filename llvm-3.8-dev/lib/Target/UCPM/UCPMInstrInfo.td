@@ -1930,6 +1930,13 @@ def IFALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFALUBaseCode 
   let Inst{14-13} = 0b11;
 }
 
+// def IFALUNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFALUBaseCode {
+//   let Inst{23-18} = 0b110011;
+//   let Inst{17} = 1;
+//   let Inst{10-9} = 0b00;
+// }
+
+
 defm FALU : FALUComToDest;
 defm IFALUISTran : IFALUISTranToDest;
 defm IFALUDSTran : IFALUDSTranToDest;
@@ -2911,7 +2918,6 @@ def IFMACNOP : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">, IFMACBaseCode 
   let Inst{12-11} = 0b00;
 }
 
-
 // ducx end IFMAC Instruction --------------------------------------------------------------------------
 
 
@@ -3301,13 +3307,6 @@ class BIUWaitInstr<string header, bits<5> slot>
   let Inst{9-6} = 0b1000;
 }
 
-// NOP   ??? can not confirm which biu
-// class BIUNOP<string header, bits<5> slot>
-//         : CommonAssignInstr<(ins),(outs),"", "", "", "NOP">{
-//   let Inst{47-43} = slot;
-//   let Inst{20-16} = 0b10011;
-//   let Inst{9-6} = 0b1000;
-// }
 def BIU0NOP: UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b01110;
   let Inst{20-16} = 0b10011;
@@ -3323,6 +3322,28 @@ def BIU2NOP: UCPMInst <(ins), (outs), "NOP">{
   let Inst{20-16} = 0b10011;
   let Inst{9-6} = 0b1000;
 }
+
+// def BIU0NOP: UCPMInst <(ins), (outs), "NOP"> {
+//   let Inst{47-43} = 0b01110;
+//   let Inst{26-25} = 0b11;
+//   let Inst{23} = 1;
+//   let Inst{14-13} = 0b11;
+//   let Inst{12-11} = 0b00;
+// }
+// def BIU1NOP: UCPMInst <(ins), (outs), "NOP">{
+//   let Inst{47-43} = 0b01111;
+//    let Inst{26-25} = 0b10;
+//   let Inst{23} = 0;
+//   let Inst{14-13} = 0b00;
+//   let Inst{12-11} = 0b11;
+// }
+// def BIU2NOP: UCPMInst <(ins), (outs), "NOP">{
+//   let Inst{47-43} = 0b10000;
+//   let Inst{26-25} = 0b01;
+//   let Inst{23} = 0;
+//   let Inst{14-13} = 0b01;
+//   let Inst{12-11} = 0b10;
+// }
 
 // SetCond  
 class BIUSetCondInstr<string header, bits<5> slot>

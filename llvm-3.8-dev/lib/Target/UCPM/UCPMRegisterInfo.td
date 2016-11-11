@@ -21,11 +21,11 @@ class UCPMReg<bits<9> num, string n > : Register<n> {
 
 foreach i = 0-127 in 
   def M#i   : UCPMReg<i, "M["#i#"]" >, DwarfRegNum< [i] >;
-def MIPP : UCPMReg<2, "M[I++]">, DwarfRegNum<[128]>;
-def MSPP : UCPMReg<1, "M[S++]">, DwarfRegNum<[256]>;
+//def MIPP : UCPMReg<2, "M[I++]">, DwarfRegNum<[128]>;
+//def MSPP : UCPMReg<1, "M[S++]">, DwarfRegNum<[256]>;
 
 def MReg : RegisterClass<"UCPMReg", [v16i32], 32,
-                         (add (sequence "M%u", 0, 127), MIPP, MSPP)>;
+                         (add (sequence "M%u", 0, 127))>;
 
 def IALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
 def IMAC  : UCPMReg<1, "IMAC">, DwarfRegNum<[135]>;
@@ -52,8 +52,8 @@ def MTIFMAC  : UCPMReg<1, "IFMAC">, DwarfRegNum<[137]>;
 def sIMAC   : UCPMReg<2, "IMAC">, DwarfRegNum<[135]>;
 def sIFALU  : UCPMReg<1, "IFALU">, DwarfRegNum<[136]>;
 	  
-def MTSHU  : RegisterClass<"UCPMReg", [v16i32], 32,
-                          (add MTSHU0, MTSHU1, MTSHU2)>;
+// def MTSHU  : RegisterClass<"UCPMReg", [v16i32], 32,
+//                           (add MTSHU0, MTSHU1, MTSHU2)>;
 			  
 			  
 // dcx: for the change of instruction document 
@@ -81,8 +81,8 @@ def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
 			  
 
 			  
-def MTMACC : RegisterClass<"UCPMReg", [v16i32], 32,
-			 (add MTIALU, MTIMAC, MTIFALU, MTIFMAC)>;
+// def MTMACC : RegisterClass<"UCPMReg", [v16i32], 32,
+// 			 (add MTIALU, MTIMAC, MTIFALU, MTIFMAC)>;
 
 //yangl
 			 
@@ -98,8 +98,8 @@ def MTBIU2  : UCPMReg<3, "BIU2">, DwarfRegNum<[144]>;
 
 
 			  
-def MTBIU   : RegisterClass<"UCPMReg", [v16i32], 32,
-                          (sequence "MTBIU%u", 0, 2)>;
+// def MTBIU   : RegisterClass<"UCPMReg", [v16i32], 32,
+//                           (sequence "MTBIU%u", 0, 2)>;
 			  
 def MR0Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIALU, MTIMAC, MTSHU0, MTBIU0)>;
 def MR1Dest : RegisterClass<"UCPMReg", [v16i32], 32, (add MTIALU, MTIMAC, MTSHU1)>;
@@ -134,11 +134,6 @@ def TSQ : UCPMReg<8,  "TSQ">;
 
 def TEPort : RegisterClass<"UCPMReg", [v16i32], 32,
                            (add (sequence "T%u", 0, 3), TBB, TBH, TBW, TBD, TSQ)>;
-
-def COMB : UCPMReg<0, "COMB">;
-
-def SHUOprtor : RegisterClass<"UCPMReg", [i32], 32, (add COMB)>;
-
 
 
 // ducx start IALU ------------------------------------------------
@@ -333,31 +328,17 @@ def MFetchShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchLSHTimm, 
                                                            
 // ducx end MFetch --------------------------------------------------------
 
-// def ADDSUB : UCPMReg<0b000000110, "+-">;
-// 
-// 
-// def FALUBinOprtor : RegisterClass<"UCPMReg", [i32], 32,
-//                                   (add FADD, FSUB, ADDSUB)>;  
 
 
-// def IMUL : UCPMReg<2, "*">;
-// def IMULT : UCPMReg<1, "*">;
-// def IMULS : UCPMReg<3, "*">;
-// def MR : UCPMReg<0, "MR">;
-// 
-// def IMACMulOprtor : RegisterClass<"UCPMReg", [i32], 32,
-//                                   (add IMUL, IMULT, IMULS)>;
-
-
-
-// def C : UCPMReg<2, "@(C)">;
-// def NC : UCPMReg<3, "@(!C)">;
-// def NOC : UCPMReg<0, " ">;
 
 /* 
 class RegisterClass<string namespace, list<ValueType> regTypes, int alignment,
                     dag regList, RegAltNameIndex idx = NoRegAltName>
 */
+
+// def C : UCPMReg<2, "@(C)">;
+// def NC : UCPMReg<3, "@(!C)">;
+// def NOC : UCPMReg<0, " ">;
 
 def Mode0 : UCPMReg<0, "(Mode0)">;
 def Mode1 : UCPMReg<1, "(Mode1)">;
@@ -367,14 +348,14 @@ def NMode1 : UCPMReg<3, "(!Mode1)">;
 def Condition : RegisterClass<"UCPMReg", [i32], 32, (add Mode0, Mode1, NMode0, NMode1)>;
 
 
-foreach i = 1-3 in 
-  def WF#i   : UCPMReg<i, "(WF"#i#")" >;
-  
-foreach i = 1-4 in 
-  def WX#i   : UCPMReg<!add(i, 3), "(WX"#i#")" >;
-  
-
-def WF0   : UCPMReg<0, " " >;
-def WFlag : RegisterClass<"UCPMReg", [i32], 32,
-                          (add (sequence "WF%u", 0, 3),
-                           (sequence "WX%u", 1, 4))>;
+// foreach i = 1-3 in 
+//   def WF#i   : UCPMReg<i, "(WF"#i#")" >;
+//   
+// foreach i = 1-4 in 
+//   def WX#i   : UCPMReg<!add(i, 3), "(WX"#i#")" >;
+//   
+// 
+// def WF0   : UCPMReg<0, " " >;
+// def WFlag : RegisterClass<"UCPMReg", [i32], 32,
+//                           (add (sequence "WF%u", 0, 3),
+//                            (sequence "WX%u", 1, 4))>;
