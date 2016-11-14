@@ -37,7 +37,7 @@ using namespace llvm;
 %token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop
 
 %token _T _B _H _L _N _AT _L0 _L1 _I _Flag _Column _Step
-%token _U _S _D _X _Y _XY _CI
+%token _U _S _D _X _Y _XY _CI _E _L
 %token _SL _SR
 %token _Pl
 
@@ -158,6 +158,12 @@ SCUFlags_ :   {$$ = 0;}
 | SCUFlags_  _I {
 		$$ = $1 | (1<<0);
 	}
+| SCUFlags_  _E {
+		$$ = $1 | (1<<1);
+	}
+| SCUFlags_  _L {
+		$$ = $1 | (1<<0);
+	}
 	
 SCUFlags : SCUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
 	
@@ -198,8 +204,49 @@ SCUInst : RReg '=' RReg '+' RReg SCUFlags {
 | RReg '=' RReg '^' RReg  {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::XOr)));
 	}
+| RReg '=' '~' RReg {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Not)));
+	}
+| RReg '=' RReg _SL RReg SCUFlags{
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LSHT)));
+	}
+| RReg '=' RReg _SR RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RSHT)));
+	}
+| RReg '=' RReg _SL Expr SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LSHTImm)));
+	}	
+| RReg '=' RReg _SR Expr SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RSHTImm)));
+	}	
+| RReg '=' RReg _EQ RReg SCUFlags{
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::EQR)));
+	}
+| RReg '=' RReg _NE RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::NEQR)));
+	}
+| RReg '=' RReg _LT RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LTR)));
+	}	
+| RReg '=' RReg _GE RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::GER)));
+	}
+| RReg '=' RReg _EQ RReg Sflag SCUFlags{
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::EQS)));
+	}
+| RReg '=' RReg _NE RReg Sflag SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::NEQS)));
+	}
+| RReg '=' RReg _LT RReg Sflag SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LTS)));
+	}	
+| RReg '=' RReg _GE RReg Sflag SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::GES)));
+	}
+| RReg '=' Expr SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::AssignImm)));
+	}
 
-	
 /********************************* AGU ********************************/
 
 AGUFlags_ :   {$$ = 0;}

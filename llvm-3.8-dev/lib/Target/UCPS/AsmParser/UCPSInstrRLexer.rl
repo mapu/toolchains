@@ -115,6 +115,7 @@ main := |*
   '('[ \t]*"flag"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Flag;};
   '('[ \t]*"column"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Column;};
   '('[ \t]*"step"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Step;};
+  '('[ \t]*"e"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _E;};
   '('[ \t]*"i"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _I;};
   '('[ \t]*'x'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _X;};
   '('[ \t]*'y'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Y;};

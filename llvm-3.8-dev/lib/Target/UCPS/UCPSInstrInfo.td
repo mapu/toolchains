@@ -118,6 +118,37 @@ def AddS : SInst<"+", 0b000>;
 def SubS : SInst<"-", 0b001>;
 def MulS : SInst<"*", 0b010>;
 
+
+class RCompareInst< string opc, bits<3> opcode, bits<2> x>
+	  	: BinaInst < (outs RReg:$d), 
+		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>{					   
+  let Inst{25} = 1;
+  let Inst{24} = x{1};
+  let Inst{23} = f{2};
+  let Inst{21} = x{0};
+}
+
+class SCompareInst< string opc, bits<3> opcode, bits<2> x >
+	  	: BinaInst < (outs RReg:$d), 
+		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1 (S)$f"), opcode >{
+  let Inst{25} = 0;
+  let Inst{24} = x{1};
+  let Inst{23} = f{2};
+  let Inst{21} = x{0};
+}
+
+def EQR : RCompareInst<"=", 0b011, 0b00>;
+def NEQR : RCompareInst<"!=", 0b011, 0b10>;
+def GER : RCompareInst<">=", 0b011, 0b11>;
+def LTR : RCompareInst<"<", 0b011, 0b01>;
+
+def EQS : SCompareInst<"=", 0b011, 0b00>;
+def NEQS : SCompareInst<"!=", 0b011, 0b10>;
+def GES : SCompareInst<">=", 0b011, 0b11>;
+def LTS : SCompareInst<"<", 0b011, 0b01>;
+
 class LogicInst< string opc, bits<3> opcode , bits<2> x>
 	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1), 
 		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1"), opcode>
@@ -130,6 +161,68 @@ def And : LogicInst<"&", 0b101, 0b00>;
 def Or  : LogicInst<"|", 0b101, 0b01>;
 def XOr : LogicInst<"^", 0b101, 0b10>;
 
+class ShiftInst< string opc, bits<3> opcode, bit x >
+	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>
+{
+  let Inst{25-24} = 0b10;
+  let Inst{23} = f{2};
+  let Inst{22} = 0;
+  let Inst{21} = x;
+}
+
+def LSHT : ShiftInst<"<<", 0b111, 0>;
+def RSHT  : ShiftInst<">>", 0b111, 1>;
+
+class ShiftImmInst< string opc, bits<3> opcode, bit x >
+	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, i32imm:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>
+{
+
+  let Inst{25-24} = 0b11;
+  let Inst{23} = f{2};
+  let Inst{22} = 0;
+  let Inst{21} = x;
+}
+
+def LSHTImm : ShiftImmInst<"<<", 0b111, 0>;
+def RSHTImm  : ShiftImmInst<">>", 0b111, 1>;
+
+class UnaInst< dag outs, dag ins, string asm, bits<3> opcode >
+	  	: SCUInst <outs, ins, asm, opcode>
+{
+  bits<3> f;
+  bits<5> s;
+  bits<5> d;
+
+  let Inst{28-26} = opcode;
+  let Inst{9-5} = s;
+  let Inst{4-0} = d;
+}
+
+def Not : UnaInst< (outs RReg:$d), (ins RReg:$s), "$d = ~$s", 0b101>
+{
+   let Inst{25-24} = 0b11;
+   let Inst{23} = 1;
+}
+		  		  	 
+		  		  	 
+def AssignImm : SCUInst < (outs RReg:$d), (ins i32imm:$imm, SCUFlag:$f), 
+		  		  	 "$d = $imm$f", 0b100>
+{
+  bits<3> f;
+  bits<16> imm;
+  bits<5> d;
+
+  let Inst{25-24} = 0b11;
+  let Inst{23-21} = f{2-0};
+  let Inst{20-5} = imm;
+  let Inst{4-0} = d;
+}
+
+def SCUNOP : SCUInst< (outs), (ins), "NOP", 0b100>{
+  let Inst{25-24} = 0b10;
+}
 // dcx SCU end -------------------------------------------------------
 
 
