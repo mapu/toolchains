@@ -83,7 +83,7 @@ class SCUInst< dag outs, dag ins, string asm, bits<3> opcode >
 class BinaInst< dag outs, dag ins, string asm, bits<3> opcode >
 	  	: SCUInst <outs, ins, asm, opcode>
 {
-  bits<4> f;
+  bits<6> f;
   bits<5> s1;
   bits<5> s0;
   bits<5> d;
@@ -92,67 +92,35 @@ class BinaInst< dag outs, dag ins, string asm, bits<3> opcode >
   let Inst{9-5} = s0;
   let Inst{4-0} = d;
 }
-class RInst< string opc, bits<3> opcode>
+class ASMInst< string opc, bits<3> opcode>
 	  	: BinaInst < (outs RReg:$d), 
 		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>{					   
-  let Inst{25} = 1;
-  let Inst{24-21} = f{3-0};
+  let Inst{25-21} = f{4-0};
 }
 
-class SInst< string opc, bits<3> opcode >
-	  	: BinaInst < (outs RReg:$d), 
-		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
-		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1 (S)$f"), opcode >{
-  let Inst{25} = 0;
-  let Inst{24-21} = f{3-0};
+def Add : ASMInst<"+", 0b000>;
+def Sub : ASMInst<"-", 0b001>;
+def Mul : ASMInst<"*", 0b010>{					   
+  let Inst{20} = f{5};
 }
 
 
-def AddR : RInst<"+", 0b000>;
-def SubR : RInst<"-", 0b001>;
-def MulR : BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f, SCUFlag:$shift), 
-		  		  	  "$d = $s0*$s1$f$shift", 0b010>{					   
-  bit shift;
-  let Inst{25} = 1;
-  let Inst{24-21} = f{3-0};
-  let Inst{20} = shift;
-}
-
-def AddS : SInst<"+", 0b000>;
-def SubS : SInst<"-", 0b001>;
-def MulS : SInst<"*", 0b010>;
-
-
-class RCompareInst< string opc, bits<3> opcode, bits<2> x>
+class CompareInst< string opc, bits<3> opcode, bits<2> x>
 	  	: BinaInst < (outs RReg:$d), 
 		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1$f"), opcode>{					   
-  let Inst{25} = 1;
+  let Inst{25} = f{4};
   let Inst{24} = x{1};
   let Inst{23} = f{2};
   let Inst{21} = x{0};
 }
 
-class SCompareInst< string opc, bits<3> opcode, bits<2> x >
-	  	: BinaInst < (outs RReg:$d), 
-		  		  	 (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
-		  		  	 !subst("OPC", opc, "$d = $s0 OPC $s1 (S)$f"), opcode >{
-  let Inst{25} = 0;
-  let Inst{24} = x{1};
-  let Inst{23} = f{2};
-  let Inst{21} = x{0};
-}
+def EQ : CompareInst<"=", 0b011, 0b00>;
+def NEQ : CompareInst<"!=", 0b011, 0b10>;
+def GE : CompareInst<">=", 0b011, 0b11>;
+def LT : CompareInst<"<", 0b011, 0b01>;
 
-def EQR : RCompareInst<"=", 0b011, 0b00>;
-def NEQR : RCompareInst<"!=", 0b011, 0b10>;
-def GER : RCompareInst<">=", 0b011, 0b11>;
-def LTR : RCompareInst<"<", 0b011, 0b01>;
-
-def EQS : SCompareInst<"=", 0b011, 0b00>;
-def NEQS : SCompareInst<"!=", 0b011, 0b10>;
-def GES : SCompareInst<">=", 0b011, 0b11>;
-def LTS : SCompareInst<"<", 0b011, 0b01>;
 
 class LogicInst< string opc, bits<3> opcode , bits<2> x>
 	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1), 
@@ -196,7 +164,7 @@ def RSHTImm  : ShiftImmInst<">>", 0b111, 1>;
 class UnaInst< dag outs, dag ins, string asm, bits<3> opcode >
 	  	: SCUInst <outs, ins, asm, opcode>
 {
-  bits<4> f;
+  bits<6> f;
   bits<5> s;
   bits<5> d;
 
@@ -210,21 +178,13 @@ def Not : UnaInst< (outs RReg:$d), (ins RReg:$s), "$d = ~$s", 0b101>
    let Inst{23} = 1;
 }
 
-def RABS: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), "$d = ABS $s$f", 0b101 >
+def ABS: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), "$d = ABS $s$f", 0b101 >
 {
-  let Inst{25} = 1;
-  let Inst{24} = f{3};
+  let Inst{25-24} = f{4-3};
   let Inst{23} = 0;
   let Inst{22} = f{1};
 }
 
-def SABS: UnaInst < (outs RReg:$d), (ins RReg:$s), "$d = ABS $s(S)", 0b101 >
-{
-  let Inst{25} = 0;
-  let Inst{24} = f{3};
-  let Inst{23} = 0;
-  let Inst{22} = f{1};
-}
 
 def ReadFlag: SCUInst < (outs RReg:$d), (ins),  "$d = RF", 0b100>
 {
@@ -264,15 +224,13 @@ class Tran0Inst< string opc, bits<3> opcode , bits<2> x>
 }
 
 def IntToSin : Tran0Inst<"SINGLE", 0b110, 0b00>;
-def IntToDou  : Tran0Inst<"DOUBLE", 0b110, 0b01>
+def IntOrSinToDou  : Tran0Inst<"DOUBLE", 0b110, 0b01>
 {
+  let Inst{25} = 0;
+  let Inst{24} = f{4};
   let Inst{21} = f{0};
 }
 def SinToInt : Tran0Inst<"INT", 0b110, 0b10>;
-def SinToDou : Tran0Inst<"DOUBLE", 0b111, 0b00>
-{
-  let Inst{21} = f{0};
-}
 
 class Tran1Inst< string opc, bits<3> opcode , bits<2> x>
 	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
