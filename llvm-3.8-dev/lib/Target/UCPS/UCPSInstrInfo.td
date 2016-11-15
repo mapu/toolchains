@@ -88,7 +88,6 @@ class BinaInst< dag outs, dag ins, string asm, bits<3> opcode >
   bits<5> s0;
   bits<5> d;
 
-  let Inst{28-26} = opcode;
   let Inst{14-10} = s1;
   let Inst{9-5} = s0;
   let Inst{4-0} = d;
@@ -112,7 +111,13 @@ class SInst< string opc, bits<3> opcode >
 
 def AddR : RInst<"+", 0b000>;
 def SubR : RInst<"-", 0b001>;
-def MulR : RInst<"*", 0b010>;
+def MulR : BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f, SCUFlag:$shift), 
+		  		  	  "$d = $s0*$s1$f$shift", 0b010>{					   
+  bit shift;
+  let Inst{25} = 1;
+  let Inst{24-21} = f{3-0};
+  let Inst{20} = shift;
+}
 
 def AddS : SInst<"+", 0b000>;
 def SubS : SInst<"-", 0b001>;
@@ -191,11 +196,10 @@ def RSHTImm  : ShiftImmInst<">>", 0b111, 1>;
 class UnaInst< dag outs, dag ins, string asm, bits<3> opcode >
 	  	: SCUInst <outs, ins, asm, opcode>
 {
-  bits<3> f;
+  bits<4> f;
   bits<5> s;
   bits<5> d;
 
-  let Inst{28-26} = opcode;
   let Inst{9-5} = s;
   let Inst{4-0} = d;
 }
@@ -205,8 +209,39 @@ def Not : UnaInst< (outs RReg:$d), (ins RReg:$s), "$d = ~$s", 0b101>
    let Inst{25-24} = 0b11;
    let Inst{23} = 1;
 }
-		  		  	 
-		  		  	 
+
+def RABS: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), "$d = ABS $s$f", 0b101 >
+{
+  let Inst{25} = 1;
+  let Inst{24} = f{3};
+  let Inst{23} = 0;
+  let Inst{22} = f{1};
+}
+
+def SABS: UnaInst < (outs RReg:$d), (ins RReg:$s), "$d = ABS $s(S)", 0b101 >
+{
+  let Inst{25} = 0;
+  let Inst{24} = f{3};
+  let Inst{23} = 0;
+  let Inst{22} = f{1};
+}
+
+def ReadFlag: SCUInst < (outs RReg:$d), (ins),  "$d = RF", 0b100>
+{
+  bits<5> d;
+  let Inst{25} = 0;
+  let Inst{22} = 0;
+  let Inst{4-0} = d;
+}
+
+def WriteFlag: SCUInst < (outs), (ins RReg:$s), "RF = $s", 0b100 >
+{
+  bits<5> s;
+  let Inst{25} = 0;
+  let Inst{22} = 1;
+  let Inst{9-5} = s;
+}
+
 def AssignImm : SCUInst < (outs RReg:$d), (ins i32imm:$imm, SCUFlag:$f), 
 		  		  	 "$d = $imm$f", 0b100>
 {
@@ -219,6 +254,37 @@ def AssignImm : SCUInst < (outs RReg:$d), (ins i32imm:$imm, SCUFlag:$f),
   let Inst{20-5} = imm;
   let Inst{4-0} = d;
 }
+
+class Tran0Inst< string opc, bits<3> opcode , bits<2> x>
+	  	: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = OPC $s$f"), opcode>
+{
+  let Inst{25-24} = x;
+  let Inst{23-22} = f{2-1};
+}
+
+def IntToSin : Tran0Inst<"SINGLE", 0b110, 0b00>;
+def IntToDou  : Tran0Inst<"DOUBLE", 0b110, 0b01>
+{
+  let Inst{21} = f{0};
+}
+def SinToInt : Tran0Inst<"INT", 0b110, 0b10>;
+def SinToDou : Tran0Inst<"DOUBLE", 0b111, 0b00>
+{
+  let Inst{21} = f{0};
+}
+
+class Tran1Inst< string opc, bits<3> opcode , bits<2> x>
+	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+		  		  	 !subst("OPC", opc, "$d = OPC($s0,$s1)$f"), opcode>
+{
+  let Inst{25-24} = x;
+  let Inst{23-22} = f{2-1};
+}
+
+def DouToInt : Tran1Inst<"INT", 0b110, 0b11>;
+def DouToSin : Tran1Inst<"SINGLE", 0b111, 0b01>;
+
 
 def SCUNOP : SCUInst< (outs), (ins), "NOP", 0b100>{
   let Inst{25-24} = 0b10;

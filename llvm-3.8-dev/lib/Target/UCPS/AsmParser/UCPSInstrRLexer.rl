@@ -62,6 +62,7 @@ main := |*
   "+=" => { CurLoc = SMLoc::getFromPointer(te); return _PlusE; };
   
   "abs"i 	 	=> { CurLoc = SMLoc::getFromPointer(te); return _Abs;};
+  "rf"i 	 	=> { CurLoc = SMLoc::getFromPointer(te); return _RF;};
   "rsqrt"i 	=> { CurLoc = SMLoc::getFromPointer(te); return _RSqRt;};
   "recip"i 	 	=> { CurLoc = SMLoc::getFromPointer(te); return _Recip;};
   "single"i	=> { CurLoc = SMLoc::getFromPointer(te); return _Single;};
@@ -120,6 +121,7 @@ main := |*
   '('[ \t]*'x'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _X;};
   '('[ \t]*'y'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Y;};
   '('[ \t]*"xy"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _XY;};
+  '('[ \t]*"shift"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _SHIFT;};
   
   '-'?([0-9]+|("0x"i[0-9a-f]+))	=> {
     // let llvm handle expression

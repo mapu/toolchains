@@ -37,14 +37,14 @@ using namespace llvm;
 %token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop
 
 %token _T _B _H _L _N _AT _L0 _L1 _I _Flag _Column _Step
-%token _U _S _D _X _Y _XY _CI _E _L
+%token _U _S _D _X _Y _XY _CI _E _L _RF _SHIFT
 %token _SL _SR
 %token _Pl
 
 
-%type <flags>  CallMFlags KMFlags SCUFlags Sflag AGUFlags BHFlags
+%type <flags>  CallMFlags KMFlags SCUFlags Sflag AGUFlags BHFlags ShiftFlag
 
-%type <flags>  SCUFlags_ AGUFlags_ BHFlags_
+%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ ShiftFlag_
 
 
 %type <line>  InstLine
@@ -169,6 +169,12 @@ SCUFlags : SCUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCP
 	
 Sflag: _S 
 
+ShiftFlag_: {$$ = 1;}
+| _SHIFT {$$ = 0;}
+
+ShiftFlag : ShiftFlag_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+
 SCUInst : RReg '=' RReg '+' RReg SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::AddR)));
 	}
@@ -177,7 +183,7 @@ SCUInst : RReg '=' RReg '+' RReg SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SubR)));
 	}
 
-| RReg '=' RReg '*' RReg SCUFlags {
+| RReg '=' RReg '*' RReg SCUFlags ShiftFlag {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MulR)));
 	}
 
@@ -246,7 +252,36 @@ SCUInst : RReg '=' RReg '+' RReg SCUFlags {
 | RReg '=' Expr SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::AssignImm)));
 	}
-
+| RReg '=' _Abs RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RABS)));
+	}
+| RReg '=' _Abs RReg Sflag {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SABS)));
+	}
+| RReg '=' _RF {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::ReadFlag)));
+	}
+| _RF '=' RReg {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::WriteFlag)));
+	}
+| RReg '=' _Single RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntToSin)));
+	}
+| RReg '=' _Double RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntToDou)));
+	}
+| RReg '=' _Int RReg SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SinToInt)));
+	}
+| RReg '=' _Double RReg Sflag SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SinToDou)));
+	}
+| RReg '=' _Int '(' RReg ',' RReg ')' _D SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::DouToInt)));
+	}
+| RReg '=' _Single '(' RReg ',' RReg ')' _D SCUFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::DouToSin)));
+	}
 /********************************* AGU ********************************/
 
 AGUFlags_ :   {$$ = 0;}
