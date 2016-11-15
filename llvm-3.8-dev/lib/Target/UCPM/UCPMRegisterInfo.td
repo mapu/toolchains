@@ -188,27 +188,29 @@ def m_CPRS : UCPMReg<0b000010110, "CPRS">;
 def IALUSCOprtor : RegisterClass<"UCPMReg", [i32], 32,
                                   (add m_SUBABS, m_CPRS)>;
                                   
-// RADD RMAX RMIN EXPD			       
-def m_EXPD : UCPMReg<0b000101111, "EXPD">;
-def m_RADD : UCPMReg<0b000100010, "RADD">;
+// RMAX RMIN 		       
 def m_RMAX : UCPMReg<0b000001010, "RMAX">;
 def m_RMIN : UCPMReg<0b000001011, "RMIN">;
 
 def IALUUryRMNOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add m_EXPD, m_RADD, m_RMAX, m_RMIN)>;		       
+                                  (add m_RMAX, m_RMIN)>;		       
+// EXPD
+def m_EXPD : UCPMReg<0b000101111, "EXPD">;
+def IALUEXPDOprtor : RegisterClass<"UCPMReg", [i32], 32, (add m_EXPD)>;
 
 // NOT                                  
 def m_NOT : UCPMReg<0b000000011, "NOT">;
 
 def IALUUryNOTOprtor : RegisterClass<"UCPMReg", [i32], 32, (add m_NOT)>;
 
-// ABS CONJ MINUS
+// ABS CONJ MINUS RADD
 def m_ABS : UCPMReg<0b000000111, "ABS">;
 def m_CONJ : UCPMReg<0b000001000, "CONJ">;
 def m_MINUS : UCPMReg<0b000001001, "MINUS">;
+def m_RADD : UCPMReg<0b000010000, "RADD">;
 
 def IALUUryCONOprtor : RegisterClass<"UCPMReg", [i32], 32,
-                                  (add m_ABS, m_CONJ, m_MINUS)>;
+                                  (add m_ABS, m_CONJ, m_MINUS, m_RADD)>;
                                   
 // LSHimm RSHimm
 def f_LSHTI : UCPMReg<0b000000110, "<<">;

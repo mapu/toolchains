@@ -951,9 +951,9 @@ def IALUSCToMSIA
 
 
 class IALUUryCode<bits<2> dest> : IALUToDest<dest> {
-  let tn = 0b00;
+  let tm = 0b00;
 }
-// RADD RMAX RMIN EXPD	
+// RMAX RMIN 
 class IALUUryRMNCode<bits<2> dest> : IALUUryCode<dest>{
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
@@ -969,17 +969,49 @@ multiclass IALUUryRMNToDest {
 def IALUUryRMNToM
         : MRegAssignInstr<(ins IALUUryRMNOprtor: $op, TPort: $tm, Flags: $f),
                       "IALU.", "$op $tm$f", MRegO>, IALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
   let Inst{14-13} = op{1-0};
 }
 def IALUUryRMNToMSIA
        : UCPMInst<(ins IALUUryRMNOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm$f", "-> M[$sia]$mode")>, IALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
   let Inst{14-13} = op{1-0};
+}
+
+// EXPD
+class IALUEXPDCode<bits<2> dest> : IALUUryCode<dest>{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
+}
+multiclass IALUEXPDToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : UnaryInstr<"IALU.", IALUEXPDOprtor, SHUT  >, IALUEXPDCode<0b00>;
+  def ToBIU  : UnaryInstr<"IALU.", IALUEXPDOprtor, BIUO  >, IALUEXPDCode<0b10>;
+  def ToMACC : UnaryInstr<"IALU.", IALUEXPDOprtor, MACCT >, IALUEXPDCode<0b01>;
+  }
+}
+def IALUEXPDToM
+        : MRegAssignInstr<(ins IALUEXPDOprtor: $op, TPort: $tm, Flags: $f),
+                      "IALU.", "$op $tm$f", MRegO>, IALUToM {
+  let tm = 0b00;
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
+}
+def IALUEXPDToMSIA
+       : UCPMInst<(ins IALUEXPDOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm$f", "-> M[$sia]$mode")>, IALUToMSIA{
+  let tm = 0b00;
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
 }
 
 // NOT
@@ -998,20 +1030,20 @@ multiclass IALUUryNOTToDest {
 def IALUUryNOTToM
         : MRegAssignInstr<(ins IALUUryNOTOprtor: $op, TPort: $tm),
                       "IALU.", "$op $tm", MRegO>, IALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
 def IALUUryNOTToMSIA
        : UCPMInst<(ins IALUUryNOTOprtor: $op, TPort: $tm, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm", "-> M[$sia]$mode")>, IALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
 
-// ABS CONJ MINUS
+// ABS CONJ MINUS RADD
 class IALUUryCONCode<bits<2> dest> : IALUUryCode<dest>{
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
@@ -1028,7 +1060,7 @@ multiclass IALUUryCONToDest {
 def IALUUryCONToM
         : MRegAssignInstr<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f),
                       "IALU.", "$op $tm$f", MRegO>, IALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
@@ -1036,7 +1068,7 @@ def IALUUryCONToM
 }
 def IALUUryCONToMSIA
        : UCPMInst<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm$f", "-> M[$sia]$mode")>, IALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
@@ -1197,8 +1229,9 @@ class IALUSendFlagCode<Operand DestTy, bits<2> dest>
                       "IALU.", "FLAG$f", DestTy>, IALUToDest<dest> {
  
   let Inst{21-18} = 0b1000;
-  let Inst{14-13} = 0b00;
-  let Inst{11-8} = f{3-0};
+  let Inst{17-14} = f{3-0};
+  let Inst{13} = 0;
+  let Inst{11} = 1;
 }
 multiclass IALUSendFlagToDest { 
   def ToSHU  : IALUSendFlagCode<SHUT  , 0b00>;
@@ -1244,6 +1277,7 @@ defm IALU :      IALUComToDest;
 defm IALUShift : IALUShiftToDest;
 defm IALUSC : IALUSCToDest;
 defm IALUUryRMN:   IALUUryRMNToDest;
+defm IALUEXPD:   IALUEXPDToDest;
 defm IALUUryNOT:   IALUUryNOTToDest;
 defm IALUUryCON:   IALUUryCONToDest;
 defm IALUImm : IALUImmToDest;
@@ -1497,9 +1531,9 @@ def IFALUSCToMSIA
 
 
 class IFALUUryCode<bits<2> dest> : IFALUToDest<dest> {
-  let tn = 0b00;
+  let tm = 0b00;
 }
-// RADD RMAX RMIN EXPD	
+// RMAX RMIN	
 class IFALUUryRMNCode<bits<2> dest> : IFALUUryCode<dest>{
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
@@ -1515,17 +1549,49 @@ multiclass IFALUUryRMNToDest {
 def IFALUUryRMNToM
         : MRegAssignInstr<(ins IALUUryRMNOprtor: $op, TPort: $tm, Flags: $f),
                       "IFALU.", "$op $tm$f", MRegO>, IFALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
   let Inst{14-13} = op{1-0};
 }
 def IFALUUryRMNToMSIA
        : UCPMInst<(ins IALUUryRMNOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IFALU.","$op $tm$f", "-> M[$sia]$mode")>, IFALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{5-2};
   let Inst{17-15} = f{2-0};
   let Inst{14-13} = op{1-0};
+}
+
+// EXPD
+class IFALUEXPDCode<bits<2> dest> : IFALUUryCode<dest>{
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
+}
+multiclass IFALUEXPDToDest {
+  let isCodeGenOnly = 1 in {
+  def ToSHU  : UnaryInstr<"IALU.", IALUEXPDOprtor, SHUT  >, IFALUEXPDCode<0b00>;
+  def ToBIU  : UnaryInstr<"IALU.", IALUEXPDOprtor, BIUO  >, IFALUEXPDCode<0b10>;
+  def ToMACC : UnaryInstr<"IALU.", IALUEXPDOprtor, MACCT >, IFALUEXPDCode<0b01>;
+  }
+}
+def IFALUEXPDToM
+        : MRegAssignInstr<(ins IALUEXPDOprtor: $op, TPort: $tm, Flags: $f),
+                      "IALU.", "$op $tm$f", MRegO>, IFALUToM {
+  let tm = 0b00;
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
+}
+def IFALUEXPDToMSIA
+       : UCPMInst<(ins IALUEXPDOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IALU.","$op $tm$f", "-> M[$sia]$mode")>, IFALUToMSIA{
+  let tm = 0b00;
+  let Inst{21-18} = op{5-2};
+  let Inst{17-15} = f{3-1};
+  let Inst{14-13} = op{1-0};
+  let Inst{10} = f{0};
 }
 
 // NOT
@@ -1544,20 +1610,20 @@ multiclass IFALUUryNOTToDest {
 def IFALUUryNOTToM
         : MRegAssignInstr<(ins IALUUryNOTOprtor: $op, TPort: $tm),
                       "IFALU.", "$op $tm", MRegO>, IFALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
 def IFALUUryNOTToMSIA
        : UCPMInst<(ins IALUUryNOTOprtor: $op, TPort: $tm, Flags: $sia), (outs Condition: $mode), !strconcat("IFALU.","$op $tm", "-> M[$sia]$mode")>, IFALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = 0b1001;
   let Inst{14}    = 0;
   let Inst{13-12} = op{1-0};
 }
 
-// ABS CONJ MINUS
+// ABS CONJ MINUS RADD
 class IFALUUryCONCode<bits<2> dest> : IFALUUryCode<dest>{
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
@@ -1574,7 +1640,7 @@ multiclass IFALUUryCONToDest {
 def IFALUUryCONToM
         : MRegAssignInstr<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f),
                       "IFALU.", "$op $tm$f", MRegO>, IFALUToM {
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
@@ -1582,7 +1648,7 @@ def IFALUUryCONToM
 }
 def IFALUUryCONToMSIA
        : UCPMInst<(ins IALUUryCONOprtor: $op, TPort: $tm, Flags: $f, Flags: $sia), (outs Condition: $mode), !strconcat("IFALU.","$op $tm$f", "-> M[$sia]$mode")>, IFALUToMSIA{
-  let tn = 0b00;
+  let tm = 0b00;
   let Inst{21-18} = op{4-1};
   let Inst{17-14} = f{4-1};
   let Inst{13} = op{0};
@@ -1739,8 +1805,9 @@ class IFALUSendFlagCode<Operand DestTy, bits<2> dest>
                       "IFALU.", "FLAG$f", DestTy>, IFALUToDest<dest> {
  
   let Inst{21-18} = 0b1000;
-  let Inst{14-13} = 0b00;
-  let Inst{11-8} = f{3-0};
+  let Inst{17-14} = f{3-0};
+  let Inst{13} = 0;
+  let Inst{11} = 1;
 }
 multiclass IFALUSendFlagToDest { 
   def ToSHU  : IFALUSendFlagCode<SHUT  , 0b00>;
@@ -1787,6 +1854,7 @@ defm IFALU :      IFALUComToDest;
 defm IFALUShift : IFALUShiftToDest;
 defm IFALUSC : IFALUSCToDest;
 defm IFALUUryRMN:   IFALUUryRMNToDest;
+defm IFALUEXPD:   IFALUEXPDToDest;
 defm IFALUUryNOT:   IFALUUryNOTToDest;
 defm IFALUUryCON:   IFALUUryCONToDest;
 defm IFALUImm : IFALUImmToDest;

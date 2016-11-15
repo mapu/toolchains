@@ -329,6 +329,16 @@ DecodeIALUShiftOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 static DecodeStatus
+DecodeIALUEXPDOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+                                uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::IALUEXPDOprtorRegClassID, RegNo)) {
+    Inst.addOperand(MCOperand::createReg(RegNo));
+    return MCDisassembler::Success;
+  } 
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
 DecodeIALUASOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::IALUASOprtorRegClassID, RegNo)) {
