@@ -78,9 +78,12 @@ main := |*
   "by"i 			=> { CurLoc = SMLoc::getFromPointer(te); return _By;};
   "stop"i |
   "spu"i[ \t]*'.'[ \t]*"stop"i |
-  "spustop"i => { CurLoc = SMLoc::getFromPointer(te); return _Stop;};
+  "spu.stop"i => { CurLoc = SMLoc::getFromPointer(te); return _Stop;};
   "nop"i => { CurLoc = SMLoc::getFromPointer(te); return _NOP;};
   "ch"i => { CurLoc = SMLoc::getFromPointer(te); return _CH;};
+  "dbgbreak"i => { CurLoc = SMLoc::getFromPointer(te); return _Break;};
+  "inten"i => { CurLoc = SMLoc::getFromPointer(te); return _IntEn;};
+  "intaddr"i => { CurLoc = SMLoc::getFromPointer(te); return _IntAddr;};
   
   
   '+'	|
@@ -122,6 +125,8 @@ main := |*
   '('[ \t]*'y'i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _Y;};
   '('[ \t]*"xy"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _XY;};
   '('[ \t]*"shift"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _SHIFT;};
+  '('[ \t]*"disable"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _DISABLE;};
+  '('[ \t]*"enable"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _ENABLE;};
   
   '-'?([0-9]+|("0x"i[0-9a-f]+))	=> {
     // let llvm handle expression

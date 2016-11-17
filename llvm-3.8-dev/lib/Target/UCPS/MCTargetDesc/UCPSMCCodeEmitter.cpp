@@ -540,6 +540,40 @@ public:
     return val / MSPUEncodingBytes;
   }
   
+    unsigned getSImm18Encoding(const MCInst &MI,
+                             unsigned OpNo,
+                             SmallVectorImpl<MCFixup> &Fixups,
+                             const MCSubtargetInfo &STI) const {
+    const MCOperand &MO = MI.getOperand(OpNo);
+    int64_t val;
+
+    if (MO.isImm()) val = MO.getImm();
+    else if (MO.isExpr()) {
+      const MCExpr *Expr = MO.getExpr();
+      if (Expr->getKind() != MCExpr::Constant) {
+        Fixups.push_back(
+          MCFixup::create(LineOffset, Expr, MCFixupKind(UCPS::fixup_UCPS_PC18)));
+        InstNeedsExt = &MI;
+        return 0;
+      }
+
+      const MCConstantExpr *constExpr = static_cast<const MCConstantExpr *>(MO
+        .getExpr());
+      val = constExpr->getValue();
+    } else llvm_unreachable(
+      "getSImm18Encoding expects only expression or immediate");
+
+    if (isInt<18>(val)) val &= 0x3FFFF;
+    else {
+      InstNeedsExt = &MI;
+      //ImmExtInst.setOpcode(UCPSInst::ImmExt);
+      ImmExtInst.addOperand(MCOperand::createImm(val));
+      val &= 0xF;
+    }
+
+    return val;
+  }
+
   
 //   unsigned getSImm17Encoding(const MCInst &MI,
 //                              unsigned OpNo,

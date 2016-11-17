@@ -89,6 +89,7 @@ def J30 : UCPSReg<30, "J30">, DwarfRegNum<[62]>;
 def J31 : UCPSReg<31, "J31">, DwarfRegNum<[63]>;
 
 
+def I32Reg : RegisterClass<"UCPSReg", [i32], 32, (sequence "R%u", 0, 31)>;
 
 // pointer size is defined with data layout, see UCPS subtarget definitions.
 def PtrReg : RegisterClass<"UCPSReg", [i32], 32, (sequence "J%u", 0, 31)>;

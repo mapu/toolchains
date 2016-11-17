@@ -34,17 +34,18 @@ using namespace llvm;
 %token _EOS  _Err
 
 %token _EQ _NE _GT _GE _LT _LE _PlusE _Recip _RSqRt _If _NOP _SysCall
-%token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop
+%token _Abs _Single _Double _Int _UInt _Jump _Call _CallM _LpTo _By _Stop 
+       _Break _IntEn _IntAddr
 
 %token _T _B _H _L _N _AT _L0 _L1 _I _Flag _Column _Step
-%token _U _S _D _X _Y _XY _CI _E _RF _SHIFT
+%token _U _S _D _X _Y _XY _CI _E _RF _SHIFT _DISABLE _ENABLE
 %token _SL _SR
 %token _Pl
 
 
-%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags //KMFlags
+%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags SEQFlags//KMFlags
 
-%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ 
+%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ SEQFlags_
 
 
 %type <line>  InstLine
@@ -69,19 +70,19 @@ using namespace llvm;
 UCPSInstLine : InstLine _EOS { assert($1.cnt < 5 && "at most 4 instructions allowed"); YYACCEPT; }
 
 InstLine:  /*NOPInst  {	$$.cnt = 1;	}*/
-//| SeqInst  {	$$.bits = (1<<0);		$$.cnt = 1;	}
- SCUInst  {	$$.bits = (1<<1);		$$.cnt = 1;	}
+ SeqInst  {	$$.bits = (1<<0);		$$.cnt = 1;	}
+| SCUInst  {	$$.bits = (1<<1);		$$.cnt = 1;	}
 | AGUInst  {	$$.bits = (1<<2);		$$.cnt = 1;	}
 | SynInst  {	$$.bits = (1<<3);		$$.cnt = 1;	}
 
 /*| InstLine  _Pl NOPInst  {
 		$$.cnt = $1.cnt + 1;
-	}
+	}*/
 | InstLine  _Pl SeqInst  {
 		assert(($1.bits & (1<<0)) != (1<<0) && "more than one Seq instructions exist");
 		$$.bits = $1.bits | (1<<0);
 		$$.cnt = $1.cnt + 1;
-	}*/
+	}
 | InstLine  _Pl SCUInst  {
 		assert(($1.bits & (1<<1)) != (1<<1) && "more than one SCU instructions exist");
 		$$.bits = $1.bits | (1<<1);
@@ -288,7 +289,57 @@ AGUInst : RReg '=' '[' RReg '+'   RReg ']' BHFlags AGUFlags{
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::AGUSvrSt)));
 }
 
+/************************* Seq Instructions ***************************/
+SEQFlags_ :   {$$ = 0;}
+| _DISABLE { $$ = 1;}
+| _ENABLE { $$ = 2;}
 
+
+SEQFlags : SEQFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+	
+	
+SeqInst: _Jump Expr SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::JumpImm)));
+	}
+| _If RReg ',' _Jump Expr SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::JumpImmCond)));
+	}
+| _Jump RReg SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::JumpPtr)));
+	}
+| _If RReg ',' _Jump RReg SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::JumpPtrCond)));
+	}
+| _Call Expr SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallImm)));
+	}
+| _If RReg ',' _Call Expr SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallImmCond)));
+	}
+| _Call RReg SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallPtr)));
+	}
+| _If RReg ',' _Call RReg SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallPtrCond)));
+	}
+| _LpTo Expr _By RReg _L0 {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LoopL0)));
+	}
+| _LpTo Expr _By RReg _L1 {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::LoopL1)));
+	}
+| _Stop {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Stop)));
+	}
+| _Break {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Break)));
+	}
+| _IntEn SEQFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Int)));
+	}
+| _IntAddr '[' RReg ']' {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntAddr)));
+	}
 	
 //XYFlag : { InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(0))); };
 

@@ -16,12 +16,21 @@ include "UCPSInstrFormats.td"
 //===----------------------------------------------------------------------===//
 //			Instruction NOP for all slots
 //===----------------------------------------------------------------------===//
-
+// CallM specific, PC-irrelative address
 def UImm12Ptr : Operand<iPTR> {
   let EncoderMethod = "getUImm12Encoding";
   //let DecoderMethod = "DecodeUImm12";
   //let PrintMethod = "printImmExt";
 }
+// branch target, PC-relative address
+def SImm18Ptr : Operand<iPTR> {
+  let EncoderMethod = "getSImm18Encoding";
+  //let DecoderMethod = "DecodeSImm18";
+  //let PrintMethod = "printImmExt";
+}
+
+
+
 
 // dcx SYN start -------------------------------------------------------
 def CallMFlag : Operand<i32> {
@@ -326,3 +335,219 @@ def AGUSvrSt : AGUInst< (outs),
 def AGUNOP : AGUInst< (outs), (ins), "NOP", 0b11>;
 
 // dcx AGU end -------------------------------------------------------------------
+
+
+
+// dcx SEQ start -------------------------------------------------------------------
+
+def SEQFlag : Operand<i32> {
+  //let PrintMethod = "printSEQFlag";
+}
+
+/*----------- jump ------------*/
+// absolute branch is barrier, while conditional branch is not.
+class JumpInstr< dag outs, dag ins, string asm, bit opcode,
+	  		   	 list<dag> pattern = [] >
+		: SeqInstr<outs, ins, asm, opcode, pattern > {
+	let isTerminator=1;
+	let isPredicable = 0;
+}
+
+// branch to a PC-relative immediate address.
+def JumpImm : JumpInstr<
+	    (outs), (ins SImm18Ptr:$t, SEQFlag:$f),
+        "jump $t$f", 0 >
+{
+	bits<2> f;
+	bits<18> t;
+	let Inst{26} = 1;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 0;
+	let Inst{22-5}	= t;
+	let isBranch = 1;
+	let isBarrier = 1;
+	//let Itinerary = ItinSEQNoReg_ImmExt;
+}
+// conditionally branch to a PC-relative immediate address.
+def JumpImmCond : JumpInstr<
+	    (outs), (ins I32Reg:$c, SImm18Ptr:$t, SEQFlag:$f),
+        "if $c, jump $t$f", 0 >
+{
+	bits<5> c;
+	bits<2> f;
+	bits<18> t;
+	let Inst{26} = 0;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 0;
+	let Inst{22-5}	= t;
+	let Inst{4-0} = c;
+	let isBranch = 1;
+	//let Itinerary = ItinSEQ_ImmExt_1;
+}
+// branch to a pointer address which is PC-irrelative.
+def JumpPtr : JumpInstr< 
+	    (outs), (ins RReg:$t, SEQFlag:$f),
+		"jump $t$f", 1 >
+{
+	bits<5> t;
+	bits<2> f;
+	let Inst{26} = 1;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 0;
+  	let Inst{9-5} = t;
+	let isBarrier = 1;
+ 	let isIndirectBranch = 1;
+	//let Itinerary = ItinSEQ_1;
+}
+// conditionally branch to a pointer address which is PC-irrelative.
+def JumpPtrCond : JumpInstr< 
+	    (outs), (ins I32Reg:$c, RReg:$t, SEQFlag:$f),
+		"if $c, jump $t$f", 1 >
+{
+	bits<5> c;
+	bits<5> t;
+	bits<2> f;
+	let Inst{26} = 0;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 0;
+ 	let Inst{9-5}	= t;
+	let Inst{4-0} = c;
+ 	let isIndirectBranch = 1;
+	//let Itinerary = ItinSEQ_1;
+}
+
+/*------------------------- call ---------------------------------*/
+class CallInstr< dag outs, dag ins, string asm, bit opcode,
+	  		   	 list<dag> pattern = [] >
+		: SeqInstr<outs, ins, asm, opcode, pattern> {
+	let isPredicable = 0;
+  //let hasSideEffects = 0;
+	let isCall = 1;
+	let hasDelaySlot = 0;
+	
+	let Defs = [ J30 ];
+
+    // these defs are actually caller-saved registers, and they can
+    // not live across a call-function instruction.
+	// We should use register mask to support call clobber.
+	/*let Defs = [ R0, R1, R2, R3, R4, R5, R6, R7, R8, R9,
+			   	 R10, R11, R12, R13, R14, R15,
+				 J0, J1, J2, J3, J4, J5, J6, J7, J8, J9,
+			   	 J10, J11, J12, J13, J14, J15,
+				 D0, D1, D2, D3, D4, D5, D6, D7 ];*/
+}
+
+// call via to a PC-relative immediate address.
+def CallImm : CallInstr<
+	    (outs), (ins SImm18Ptr:$t, SEQFlag:$f),
+        "call $t$f", 0 >
+{
+	bits<18> t;
+	bits<2> f;
+	let Inst{26} = 1;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 1;
+	let Inst{22-5}	= t;
+	//let Itinerary = ItinSEQNoReg_ImmExt;
+}
+// conditionally call via a PC-relative immediate address.
+def CallImmCond : CallInstr<
+	    (outs), (ins I32Reg:$c, SImm18Ptr:$t, SEQFlag:$f),
+        "if $c, call $t$f", 0 >
+{
+	bits<5> c;
+	bits<18> t;
+	bits<2> f;
+	let Inst{26} = 0;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 1;
+	let Inst{22-5}	= t;
+	let Inst{4-0} = c;
+	//let Itinerary = ItinSEQ_ImmExt_1;
+}
+// call via a pointer address which is PC-irrelative.
+def CallPtr : CallInstr< 
+	    (outs), (ins RReg:$t, SEQFlag:$f),
+		"call $t$f", 1 >
+{
+	bits<5> t;
+	bits<2> f;
+	let Inst{26} = 1;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 1;
+	let Inst{9-5}	= t;
+	//let Itinerary = ItinSEQ_1;
+}
+// conditionally call via a pointer address which is PC-irrelative.
+def CallPtrCond : CallInstr< 
+	    (outs), (ins I32Reg:$c, RReg:$t, SEQFlag:$f),
+		"if $c, call $t$f", 1 >
+{
+	bits<5> c;
+	bits<5> t;
+	bits<2> f;
+	let Inst{26} = 0;
+	let Inst{25-24} = f{1-0};
+	let Inst{23} = 1;
+	let Inst{9-5}	= t;
+	let Inst{4-0} = c;
+	//let Itinerary = ItinSEQ_1;
+}
+
+/*************** Loop ************/
+def LoopL0 : SeqInstr<(outs), (ins SImm18Ptr:$t, RReg:$r),
+		"LpTo $t BY $r (L0)", 1>
+{
+	bits<18> t;
+	bits<5> r;
+	let Inst{26-23} = 0b0110;
+	let Inst{22-5} = t;
+	let Inst{4-0} = r;
+	let isTerminator = 1;
+	//let Itinerary = ItinSEQ_ImmExt_1;
+}
+
+def LoopL1 : SeqInstr< 
+	    (outs),
+ 		(ins SImm18Ptr:$t, RReg:$r),
+		"LpTo $t BY $r (L1)", 1>
+{
+	bits<18> t;
+	bits<5> r;
+	let Inst{26-23} = 0b1110;
+	let Inst{22-5} = t;
+	let Inst{4-0} = r;
+}
+
+def Stop : SeqInstr< (outs), (ins), "SPU.Stop", 1>
+{
+	let Inst{26-22} = 0b10011;
+}
+
+def Break : SeqInstr< (outs), (ins), "DbgBreak", 1>
+{
+	let Inst{26-22} = 0b10111;
+}
+
+def Int : SeqInstr< (outs), (ins SEQFlag:$f), "IntEn$f", 1>
+{
+	bits<2> f;
+	let Inst{26} = 0;
+	let Inst{25-24} = f{1-0};
+	let Inst{23-22} =0b11;
+}
+
+def IntAddr : SeqInstr< (outs), (ins RReg:$r), "IntAddr[$r]", 1>
+{
+	bits<5> r;
+	let Inst{26-22} = 0b11011;
+	let Inst{4-0} = r;
+}
+
+def NOP : SeqInstr<(outs), (ins), "NOP", 1>
+{
+	let Inst{26-22} = 0b11111;
+	//let Itinerary = ItinNop;
+}
+
+// dcx SEQ end -------------------------------------------------------------------

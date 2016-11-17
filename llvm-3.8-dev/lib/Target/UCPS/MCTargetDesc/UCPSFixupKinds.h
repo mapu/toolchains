@@ -25,6 +25,9 @@ namespace llvm {
 		enum FixupKind {
 
 			fixup_UCPS_PC17 = FirstTargetFixupKind,
+			//dcx
+			fixup_UCPS_PC18 = FirstTargetFixupKind,
+			
 			fixup_UCPS_PC28, // imm extension for PC17, bits 27-0 hold original bits 31-4
 
 			fixup_UCPS_11_B5,

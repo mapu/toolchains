@@ -29,3 +29,12 @@ class UCPSInstr< bits<3> group, dag outs, dag ins, string asm,
 
   let Inst{31-29} = group; // encoding for SEQ, SCU, AGU, ...
 }
+
+class SeqInstr< dag outs, dag ins, string asm, bit opcode,
+				list<dag> pattern = []>
+	      : UCPSInstr <0b000, outs, ins, asm, pattern>{
+  let Inst{27} = opcode;
+}
+	      
+	      
+	      
