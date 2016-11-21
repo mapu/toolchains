@@ -43,6 +43,8 @@ main := |*
   "cctrl"i => { CurLoc = SMLoc::getFromPointer(te); return _CCtrl; };
   "cstat"i => { CurLoc = SMLoc::getFromPointer(te); return _CStat; };
   "stat"i  => { CurLoc = SMLoc::getFromPointer(te); return _Stat; };
+  "fifo"i  => { CurLoc = SMLoc::getFromPointer(te); return _FIFO; };
+  "mreg"i  => { CurLoc = SMLoc::getFromPointer(te); return _MREG; };
   "lpctr"i => { CurLoc = SMLoc::getFromPointer(te); return _LPCtr; };
   "mc"i    => { CurLoc = SMLoc::getFromPointer(te); return _MC; };
   "vect"i  => { CurLoc = SMLoc::getFromPointer(te); return _Vect;};

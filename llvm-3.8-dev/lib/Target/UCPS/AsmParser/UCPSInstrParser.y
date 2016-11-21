@@ -30,7 +30,7 @@ using namespace llvm;
 
 %type <op>     RReg JReg SVRReg Expr //FPImm
 
-%token _CCtrl _CStat _MC _Vect _CH  _LPCtr _Stat
+%token _CCtrl _CStat _MC _Vect _CH  _LPCtr _Stat _FIFO _MREG
 %token _EOS  _Err
 
 %token _EQ _NE _GT _GE _LT _LE _PlusE _Recip _RSqRt _If _NOP _SysCall
@@ -128,17 +128,50 @@ Expr : _Imm   { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPS
 CallMFlags :  { $$ = 0; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(0))); }
 | _B 				  {$$ = 1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1))); }
 
+
 /*KMFlags :   {$$ = (1<<0)     ; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1<<0))); }
 | _H 				{$$ = (1<<1); InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1<<1))); }*/
 
-SynInst: RReg '=' _CallM JReg CallMFlags {
+SynInst: RReg '=' _CallM RReg CallMFlags {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallMJReg)));
 	}
 
 | RReg '='_CallM Expr CallMFlags {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallMImm)));
 	}
-	
+| RReg '='_Stat CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Stat)));
+	}
+| RReg '='_FIFO '[' Expr ']' CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::FIFOREAD)));
+	}
+| _FIFO '[' Expr ']' '=' RReg CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::FIFOWRITE)));
+	}
+| _MREG '[' Expr ']' '=' SVRReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRMRegImm)));
+	}
+| _MREG '[' RReg ']' '=' SVRReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRMRegRs)));
+	}
+| SVRReg '=' _MREG '[' Expr ']'{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MRegSVRImm)));
+	}
+| SVRReg '=' _MREG '[' RReg ']'{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MRegSVRRs)));
+	}
+| RReg '=' SVRReg '[' Expr ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToRImm)));
+	}
+| RReg '=' SVRReg '[' RReg ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToRRs)));
+	}
+| SVRReg '[' Expr ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToSVRImm)));
+	}
+| SVRReg '[' RReg ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToSVRRs)));
+	}
 	
 /*************************** SCU Instructions*****************************/
 
