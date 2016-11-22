@@ -31,7 +31,7 @@ main := |*
 		CurLoc = SMLoc::getFromPointer(te); return _JReg;
 	};
 	
-      "svr"i('0'|'1') => {
+      "svr"i([0-3]) => {
 		yylval->op = UCPS::UCPSAsmOperand::createReg(
 		  (UCPS::UCPSAsmParser::getRegInfo())
 		    ->getRegClass(UCPSReg::SVRRegRegClassID).getRegister(atoi(ts+3)));
@@ -43,8 +43,13 @@ main := |*
   "cctrl"i => { CurLoc = SMLoc::getFromPointer(te); return _CCtrl; };
   "cstat"i => { CurLoc = SMLoc::getFromPointer(te); return _CStat; };
   "stat"i  => { CurLoc = SMLoc::getFromPointer(te); return _Stat; };
+  "fifo"i  => { CurLoc = SMLoc::getFromPointer(te); return _FIFO; };
+  "mreg"i  => { CurLoc = SMLoc::getFromPointer(te); return _MREG; };
   "lpctr"i => { CurLoc = SMLoc::getFromPointer(te); return _LPCtr; };
   "mc"i    => { CurLoc = SMLoc::getFromPointer(te); return _MC; };
+  "biu"i    => { CurLoc = SMLoc::getFromPointer(te); return _BIU; };
+  "shu"i    => { CurLoc = SMLoc::getFromPointer(te); return _SHU; };
+  "ki"i    => { CurLoc = SMLoc::getFromPointer(te); return _KI; };
   "vect"i  => { CurLoc = SMLoc::getFromPointer(te); return _Vect;};
 
   "==" => { CurLoc = SMLoc::getFromPointer(te); return _EQ; };
@@ -127,7 +132,27 @@ main := |*
   '('[ \t]*"shift"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _SHIFT;};
   '('[ \t]*"disable"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _DISABLE;};
   '('[ \t]*"enable"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _ENABLE;};
-  
+  '('[ \t]*"km"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KM;};
+  '('[ \t]*"kme"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KME;};
+  '('[ \t]*"kg"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KG;};
+  '('[ \t]*"kge"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KGE;};
+  '('[ \t]*"br"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _BR;};
+  '('[ \t]*"ke"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KE;};
+  '('[ \t]*"l1"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L1;};
+  '('[ \t]*"l2"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L2;};
+  '('[ \t]*"l3"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L3;};
+  '('[ \t]*"l4"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _L4;};
+  '('[ \t]*"all"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _ALL;};
+  '('[ \t]*"v"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _V;};
+  '('[ \t]*"ki12-15"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI1215;};
+  '('[ \t]*"ki16-19"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI1619;};
+  '('[ \t]*"ki20-23"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI2023;};
+  '('[ \t]*"ki24-27"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI2427;};
+  '('[ \t]*"ki12-27"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI1227;};
+  '('[ \t]*"ki16-18"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI1618;};
+  '('[ \t]*"ki20-22"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI2022;};
+  '('[ \t]*"ki24-26"i[ \t]*')' => { CurLoc = SMLoc::getFromPointer(te); return _KI2426;};
+    
   '-'?([0-9]+|("0x"i[0-9a-f]+))	=> {
     // let llvm handle expression
 		// yylval->op = UCPS::UCPSAsmOperand::createImm(strtol(ts, NULL, 0));

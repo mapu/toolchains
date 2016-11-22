@@ -104,5 +104,6 @@ def JReg : RegisterClass<"UCPSReg", [i32], 32, (sequence "J%u", 0, 31)>;
 // TODO: Is the DwarfRegNum correct ?
 def SVR0 : UCPSReg<0, "SVR0">, DwarfRegNum<[32]>;
 def SVR1 : UCPSReg<1, "SVR1">, DwarfRegNum<[32]>;
-
-def SVRReg: RegisterClass<"UCPSReg", [v16i32], 512, (sequence "SVR%u", 0, 1)>;
+def SVR2 : UCPSReg<2, "SVR2">, DwarfRegNum<[32]>;
+def SVR3 : UCPSReg<3, "SVR3">, DwarfRegNum<[32]>;
+def SVRReg: RegisterClass<"UCPSReg", [v16i32], 512, (sequence "SVR%u", 0, 3)>;

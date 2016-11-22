@@ -36,6 +36,9 @@ def SImm18Ptr : Operand<iPTR> {
 def CallMFlag : Operand<i32> {
   //let PrintMethod = "printCallMFlag";
 }
+def SYNFlag : Operand<i32> {
+  //let PrintMethod = "printSYNFlag";
+}
   
 class SynInst< dag outs, dag ins, string asm, bits<3> opcode,
 	  		   	list<dag> pattern = [], InstrItinClass itin = NoItinerary> 
@@ -43,8 +46,7 @@ class SynInst< dag outs, dag ins, string asm, bits<3> opcode,
   let Inst{27-25} = opcode;
 }
 
-def CallMImm : SynInst< 
-			 (outs), 
+def CallMImm : SynInst< (outs), 
 			 (ins RReg:$rs, UImm12Ptr:$i, CallMFlag:$f),
 			 "$rs=CallM $i$f", 0b000>
 {
@@ -52,25 +54,462 @@ def CallMImm : SynInst<
 	bits<5> rs;
 	bits<12> i;
 	bit f;
-	let Inst{23} = 1; // allow imm ext
+	let Inst{24-23} = 0b01; // allow imm ext
 	let Inst{22} = f; 
 	let Inst{16-5} = i;
 	let Inst{4-0} = rs;			 
 }
 
-def CallMJReg : SynInst< 
-			 (outs), 
-			 (ins  RReg:$rs, PtrReg:$i, CallMFlag:$f),
+def CallMJReg : SynInst< (outs), 
+			 (ins  RReg:$rs, RReg:$i, CallMFlag:$f),
 			 "$rs=CallM $i$f", 0b000>
 {
 	
 	bits<5> rs;
 	bits<5> i;
 	bit f;
-	let Inst{23} = 0;
+	let Inst{24-23} = 0;
 	let Inst{22} = f; 
 	let Inst{9-5} = i;
 	let Inst{4-0} = rs;
+}
+
+def Stat : SynInst< (outs), 
+			 (ins  RReg:$rs, CallMFlag:$f),
+			 "$rs=Stat$f", 0b001>
+{
+	
+	bits<5> rs;
+	bit f;
+	let Inst{24-23} = 0;
+	let Inst{22} = f; 
+	let Inst{21} = 0;
+	let Inst{4-0} = rs;
+}
+
+def FIFOREAD : SynInst< (outs), 
+			 (ins  RReg:$rs, i32imm:$m, CallMFlag:$f),
+			 "$rs=FIFO[$m]$f", 0b001>
+{
+	
+	bits<5> rs;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b01;
+	let Inst{22} = f; 
+	let Inst{21} = 0;
+	let Inst{16-10} = m;
+	let Inst{4-0} = rs;
+}
+
+def FIFOWRITE : SynInst< (outs), 
+			 (ins i32imm:$m, RReg:$rs, CallMFlag:$f),
+			 "FIFO[$m]=$rs$f", 0b001>
+{
+	
+	bits<5> rs;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b11;
+	let Inst{22} = f; 
+	let Inst{21} = 0;
+	let Inst{16-10} = m;
+	let Inst{4-0} = rs;
+}
+
+def SVRMRegImm : SynInst< (outs), 
+			 (ins i32imm:$m, SVRReg:$svr),
+			 "MReg[$m]=$svr", 0b010>
+{
+	
+	bits<5> svr;
+	bits<7> m;
+	let Inst{24-23} = 0b01;
+	let Inst{21} = 1;
+	let Inst{11-5} = m;
+	let Inst{4-0} = svr;
+}
+def MRegSVRImm : SynInst< (outs SVRReg:$svr), 
+			 (ins i32imm:$m),
+			 "$svr=MReg[$m]", 0b010>
+{
+	
+	bits<5> svr;
+	bits<7> m;
+	let Inst{24-23} = 0b11;
+	let Inst{21} = 1;
+	let Inst{11-5} = m;
+	let Inst{4-0} = svr;
+}
+def SVRMRegRs : SynInst< (outs), 
+			 (ins RReg:$rs, SVRReg:$svr),
+			 "MReg[$rs]=$svr", 0b010>
+{
+	
+	bits<5> rs;
+	bits<5> svr;
+	let Inst{24-23} = 0b00;
+	let Inst{21} = 1;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+def MRegSVRRs : SynInst< (outs SVRReg:$svr), 
+			 (ins RReg:$rs),
+			 "$svr=MReg[$rs]", 0b010>
+{
+	
+	bits<5> svr;
+	bits<5> rs;
+	let Inst{24-23} = 0b10;
+	let Inst{21} = 1;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+
+def SVRToRImm : SynInst< (outs RReg:$rs), 
+			 (ins SVRReg:$svr, i32imm:$m, SYNFlag:$f ),
+			 "$rs=$svr[$m]$f", 0b111>
+{
+	
+	bits<4> svr;
+	bits<5> rs;
+	bits<6> m;
+	bits<2> f;
+	let Inst{24-23} = 0b01;
+	let Inst{22-21} = 0b10;
+	let Inst{20-17} = svr;
+	let Inst{16-15} = f;
+	let Inst{10-5} = m;
+	let Inst{4-0} = rs;
+}
+def RToSVRImm : SynInst< (outs SVRReg:$svr), 
+			 (ins i32imm:$m, RReg:$rs, SYNFlag:$f),
+			 "$svr[$m]=$rs$f", 0b111>
+{
+	
+	bits<4> svr;
+	bits<5> rs;
+	bits<6> m;
+	bits<2> f;
+	let Inst{24-23} = 0b11;
+	let Inst{22-21} = 0b10;
+	let Inst{20-17} = svr;
+	let Inst{16-15} = f;
+	let Inst{10-5} = m;
+	let Inst{4-0} = rs;
+}
+def SVRToRRs : SynInst< (outs RReg:$rs), 
+			 (ins SVRReg:$svr, RReg:$rm, SYNFlag:$f),
+			 "$rs=$svr[$rm]$f", 0b111>
+{
+	
+	bits<4> svr;
+	bits<5> rs;
+	bits<5> rm;
+	bits<2> f;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b10;
+	let Inst{20-17} = svr;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+def RToSVRRs : SynInst< (outs SVRReg:$svr), 
+			 (ins RReg:$rm, RReg:$rs, SYNFlag:$f),
+			 "$svr[$rm]=$rs$f", 0b111>
+{
+	
+	bits<4> svr;
+	bits<5> rs;
+	bits<5> rm;
+	bits<2> f;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b10;
+	let Inst{20-17} = svr;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def MCWriteImm : SynInst< (outs), 
+			 (ins i32imm:$m, RReg:$rs, SYNFlag:$f),
+			 "MC[$m]=$rs$f", 0b011>
+{
+	
+	bits<5> rs;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b11;
+	let Inst{22} = f;
+	let Inst{21} = 0;
+	let Inst{11-5} = m;
+	let Inst{4-0} = rs;
+}
+def MCWriteRs : SynInst< (outs), 
+			 (ins RReg:$rm, RReg:$rs, SYNFlag:$f),
+			 "MC[$rm]=$rs$f", 0b011>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b10;
+	let Inst{22} = f;
+	let Inst{21} = 0;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def MCReadImm : SynInst< (outs RReg:$rs), 
+			 (ins i32imm:$m, SYNFlag:$f),
+			 "$rs=MC[$m]$f", 0b011>
+{
+	
+	bits<5> rs;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b01;
+	let Inst{22} = f;
+	let Inst{21} = 0;
+	let Inst{11-5} = m;
+	let Inst{4-0} = rs;
+}
+def MCReadRs : SynInst< (outs RReg:$rs), 
+			 (ins RReg:$rm, SYNFlag:$f),
+			 "$rs=MC[$rm]$f", 0b011>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	bits<7> m;
+	bit f;
+	let Inst{24-23} = 0b00;
+	let Inst{22} = f;
+	let Inst{21} = 0;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def BIUToSVRImm : SynInst< (outs SVRReg:$svr), 
+			 (ins i32imm:$m ),
+			 "$svr=BIU[$m]", 0b100>
+{
+	
+	bits<5> svr;
+	bits<4> m;
+	let Inst{24-23} = 0b01;
+	let Inst{22-21} = 0b01;
+	let Inst{8-5} = m;
+	let Inst{4-0} = svr;
+}
+def BIUToSVRRs : SynInst< (outs SVRReg:$svr), 
+			 (ins RReg:$rs),
+			 "$svr=BIU[$rs]", 0b100>
+{
+	
+	bits<5> svr;
+	bits<5> rs;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b01;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+
+def BIUToRImm : SynInst< (outs RReg:$rs), 
+			 (ins i32imm:$m, SYNFlag:$f),
+			 "$rs=BIU[$m]$f", 0b100>
+{
+	
+	bits<5> rs;
+	bits<10> m;
+	bits<2> f;
+	let Inst{24-23} = 0b01;
+	let Inst{22-21} = 0b00;
+	let Inst{16-15} = f;
+	let Inst{14-5} = m;
+	let Inst{4-0} = rs;
+}
+def BIUToRRs : SynInst< (outs RReg:$rs), 
+			 (ins RReg:$rm, SYNFlag:$f),
+			 "$rs=BIU[$rm]$f", 0b100>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	bits<2> f;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b00;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def SVRToBIUImm : SynInst< (outs ), 
+			 (ins i32imm:$m, SVRReg:$svr, SYNFlag:$mode ),
+			 "BIU[$m]=$svr$mode", 0b100>
+{
+	
+	bits<5> svr;
+	bits<4> m;
+	bits<7> mode;
+ 	let Inst{24-23} = 0b11;
+	let Inst{22-21} = 0b01;
+	let Inst{16-10} = mode;
+	let Inst{8-5} = m;
+	let Inst{4-0} = svr;
+}
+def SVRToBIURs : SynInst< (outs),
+			 (ins RReg:$rs, SVRReg:$svr, SYNFlag:$mode),
+			 "BIU[$rs]=$svr$mode", 0b100>
+{
+	
+	bits<5> svr;
+	bits<5> rs;
+	bits<7> mode;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b01;
+	let Inst{16-10} = mode;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+
+def RToBIUImm : SynInst< (outs ), 
+			 (ins i32imm:$m, RReg:$rs, SYNFlag:$f ),
+			 "BIU[$m]=$rs$f", 0b100>
+{
+	
+	bits<5> rs;
+	bits<10> m;
+	bits<2> f;
+ 	let Inst{24-23} = 0b11;
+	let Inst{22-21} = 0b00;
+	let Inst{16-15} = f;
+	let Inst{14-5} = m;
+	let Inst{4-0} = rs;
+}
+def RToBIURs : SynInst< (outs),
+			 (ins RReg:$rm, RReg:$rs, SYNFlag:$f),
+			 "BIU[$rm]=$rs$f", 0b100>
+{
+	
+	bits<5> rm;
+	bits<5> rs;
+	bits<2> f;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b00;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def SVRToSHURs : SynInst< (outs),
+			 (ins RReg:$rs, SVRReg:$svr),
+			 "SHU[$rs]=$svr", 0b110>
+{
+	
+	bits<5> svr;
+	bits<5> rs;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b01;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+def RToSHURs : SynInst< (outs),
+			 (ins RReg:$rm, RReg:$rs, SYNFlag:$f, SYNFlag:$ff),
+			 "SHU[$rm]=$rs$f$ff", 0b110>
+{
+	
+	bits<5> rm;
+	bits<5> rs;
+	bits<2> f;
+	bit ff;
+	let Inst{24-23} = 0b10;
+	let Inst{22} = ff;
+	let Inst{21} = 0;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+def SHUToSVRRs : SynInst< (outs SVRReg:$svr), 
+			 (ins RReg:$rs),
+			 "$svr=SHU[$rs]", 0b110>
+{
+	
+	bits<5> svr;
+	bits<5> rs;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b01;
+	let Inst{9-5} = rs;
+	let Inst{4-0} = svr;
+}
+def SHUToRRs : SynInst< (outs RReg:$rs), 
+			 (ins RReg:$rm, SYNFlag:$f),
+			 "$rs=SHU[$rm]$f", 0b110>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	bits<2> f;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b00;
+	let Inst{16-15} = f;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def KIToSVR : SynInst< (outs SVRReg:$svr), 
+			 (ins SYNFlag:$mode),
+			 "$svr=KI$mode", 0b101>
+{
+	
+	bits<5> svr;
+	bits<7> mode;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b01;
+	let Inst{16-10} = mode;
+	let Inst{4-0} = svr;
+}
+def KIToR : SynInst< (outs RReg:$rs), 
+			 (ins RReg:$rm),
+			 "$rs=KI[$rm]", 0b101>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	let Inst{24-23} = 0b00;
+	let Inst{22-21} = 0b00;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+def SVRToKI : SynInst< (outs), 
+			 (ins SVRReg:$svr, SYNFlag:$mode),
+			 "KI=$svr$mode", 0b101>
+{
+	
+	bits<5> svr;
+	bits<7> mode;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b01;
+	let Inst{16-10} = mode;
+	let Inst{4-0} = svr;
+}
+def RToKI : SynInst< (outs RReg:$rm), 
+			 (ins RReg:$rs),
+			 "KI[$rm]=$rs", 0b101>
+{
+	
+	bits<5> rs;
+	bits<5> rm;
+	let Inst{24-23} = 0b10;
+	let Inst{22-21} = 0b00;
+	let Inst{9-5} = rm;
+	let Inst{4-0} = rs;
+}
+
+def SYNNOP : SynInst< (outs), (ins), "NOP", 0b111>{
+  let Inst{24} = 0;
+  let Inst{21} = 1;
 }
 // dcx SYN end -------------------------------------------------------
 
@@ -544,7 +983,7 @@ def IntAddr : SeqInstr< (outs), (ins RReg:$r), "IntAddr[$r]", 1>
 	let Inst{4-0} = r;
 }
 
-def NOP : SeqInstr<(outs), (ins), "NOP", 1>
+def SEQNOP : SeqInstr<(outs), (ins), "NOP", 1>
 {
 	let Inst{26-22} = 0b11111;
 	//let Itinerary = ItinNop;

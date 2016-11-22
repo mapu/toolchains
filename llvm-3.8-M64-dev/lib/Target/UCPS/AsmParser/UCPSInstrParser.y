@@ -30,7 +30,7 @@ using namespace llvm;
 
 %type <op>     RReg JReg SVRReg Expr //FPImm
 
-%token _CCtrl _CStat _MC _Vect _CH  _LPCtr _Stat
+%token _CCtrl _CStat _MC _Vect _CH  _LPCtr _Stat _FIFO _MREG _BIU _SHU _KI
 %token _EOS  _Err
 
 %token _EQ _NE _GT _GE _LT _LE _PlusE _Recip _RSqRt _If _NOP _SysCall
@@ -41,11 +41,12 @@ using namespace llvm;
 %token _U _S _D _X _Y _XY _CI _E _RF _SHIFT _DISABLE _ENABLE
 %token _SL _SR
 %token _Pl
+%token _KM _KME _KG _KGE _BR _KE _L1 _L2 _L3 _L4 _ALL _V
+%token _KI1215 _KI1619 _KI2023 _KI2427 _KI1227 _KI1618 _KI2022 _KI2426
 
+%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags SEQFlags ISFlags BIUFlags VFlag ModeFlags//KMFlags
 
-%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags SEQFlags//KMFlags
-
-%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ SEQFlags_
+%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ SEQFlags_ ISFlags_ BIUFlags_ VFlag_ ModeFlags_
 
 
 %type <line>  InstLine
@@ -128,18 +129,152 @@ Expr : _Imm   { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPS
 CallMFlags :  { $$ = 0; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(0))); }
 | _B 				  {$$ = 1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1))); }
 
+
 /*KMFlags :   {$$ = (1<<0)     ; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1<<0))); }
 | _H 				{$$ = (1<<1); InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm(1<<1))); }*/
 
-SynInst: RReg '=' _CallM JReg CallMFlags {
+ISFlags_: _I {$$ = 0;}
+| _S {$$ = 1;}
+
+ISFlags : ISFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+VFlag_: {$$=0;}
+| _V {$$=1;}
+
+VFlag : VFlag_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+BIUFlags_ :   _KM {$$ = 0;}
+|  _KME {$$ = 1;}
+|  _KG {$$ = 2;}
+|  _KGE {$$ = 3;}
+|  _BR {$$ = 4;}
+|  _KE {$$ = 5;}
+|  _L1 {$$ = 6;}
+|  _L2 {$$ = 7;}
+|  _L3 {$$ = 8;}
+|  _L4 {$$ = 9;}
+|  _ALL {$$ = 10;}
+	
+BIUFlags : BIUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+ModeFlags_: _KI1215{$$=0;}
+| _KI1619{$$=1;}
+| _KI2023{$$=2;}
+| _KI2427{$$=3;}
+| _KI1227{$$=4;}
+| _KI1618{$$=5;}
+| _KI2022{$$=6;}
+| _KI2426{$$=7;}
+
+ModeFlags : ModeFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+
+
+
+
+
+
+
+SynInst: RReg '=' _CallM RReg CallMFlags {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallMJReg)));
 	}
 
 | RReg '='_CallM Expr CallMFlags {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::CallMImm)));
 	}
-	
-	
+| RReg '='_Stat CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::Stat)));
+	}
+| RReg '='_FIFO '[' Expr ']' CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::FIFOREAD)));
+	}
+| _FIFO '[' Expr ']' '=' RReg CallMFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::FIFOWRITE)));
+	}
+| _MREG '[' Expr ']' '=' SVRReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRMRegImm)));
+	}
+| _MREG '[' RReg ']' '=' SVRReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRMRegRs)));
+	}
+| SVRReg '=' _MREG '[' Expr ']'{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MRegSVRImm)));
+	}
+| SVRReg '=' _MREG '[' RReg ']'{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MRegSVRRs)));
+	}
+| RReg '=' SVRReg '[' Expr ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToRImm)));
+	}
+| RReg '=' SVRReg '[' RReg ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToRRs)));
+	}
+| SVRReg '[' Expr ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToSVRImm)));
+	}
+| SVRReg '[' RReg ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToSVRRs)));
+	}
+| RReg '=' _MC '[' Expr ']' ISFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MCReadImm)));
+	}
+| RReg '=' _MC '[' RReg ']' ISFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MCReadRs)));
+	}
+| _MC '[' Expr ']' '=' RReg ISFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MCWriteImm)));
+	}
+| _MC '[' RReg ']' '=' RReg ISFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::MCWriteRs)));
+	}
+| RReg '=' _BIU '[' Expr ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::BIUToRImm)));
+	}
+| RReg '=' _BIU '[' RReg ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::BIUToRRs)));
+	}
+| SVRReg '=' _BIU '[' Expr ']' {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::BIUToSVRImm)));
+	}
+| SVRReg '=' _BIU '[' RReg ']' {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::BIUToSVRRs)));
+	}
+| _BIU '[' Expr ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToBIUImm)));
+	}
+| _BIU '[' RReg ']' '=' RReg BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToBIURs)));
+	}
+| _BIU '[' Expr ']' '=' SVRReg BIUFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToBIUImm)));
+	}
+| _BIU '[' RReg ']' '=' SVRReg BIUFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToBIURs)));
+	}
+| _SHU '[' RReg ']' '=' SVRReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToSHURs)));
+	}
+| _SHU '[' RReg ']' '=' RReg BHFlags VFlag{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToSHURs)));
+	}
+| SVRReg '=' _SHU '[' RReg ']' {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SHUToSVRRs)));
+	}
+| RReg '=' _SHU '[' RReg ']' BHFlags{
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SHUToRRs)));
+	}
+| _KI '=' SVRReg ModeFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SVRToKI)));
+	}
+| _KI '[' RReg ']' '=' RReg {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToKI)));
+	}
+| SVRReg '=' _KI ModeFlags {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::KIToSVR)));
+	}
+| RReg '=' _KI '[' RReg ']' {
+	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::KIToR)));
+	}
 /*************************** SCU Instructions*****************************/
 
 
