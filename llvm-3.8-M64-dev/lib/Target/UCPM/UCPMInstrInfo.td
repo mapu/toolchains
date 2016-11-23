@@ -25,10 +25,10 @@ def NOP : UCPMInst <(ins), (outs), "NOP"> {
 // start MReg Instruction -------------------------------------------------
 class UCPMRToDest<string header, bits<5> slotid, Operand DestTy>
       : UCPAssignInstr<(ins MReg: $m), header, "$m", DestTy> {
-  bits<7> m;
+  bits<6> m;
   bits<2> mode;
   let Inst{47-43} = slotid;
-  let Inst{10-4} = m;
+  let Inst{9-4} = m;
   let Inst{3-0} = d;
 }
 
@@ -43,57 +43,57 @@ class MRSIAToDest<string header, bits<5> slotid, Operand DestTy>
 
 
 def MR0ToDestCom : UCPMRToDest<"R0.", 0b00001, MR0DestT>{
-  let Inst{16-15} = mode;
-  let Inst{14-11} = 0b0110;
+  let Inst{15-14} = mode;
+  let Inst{13-10} = 0b0110;
 }
 def MR0ToDestSIA : MRSIAToDest<"R0.", 0b00001, MR0DestT>{
-  let Inst{16-15} = mode;
-  let Inst{14-11} = 0b0111;
+  let Inst{15-14} = mode;
+  let Inst{13-10} = 0b0111;
 }
 
 def MR1ToDestCom : UCPMRToDest<"R1.", 0b00010, MR1DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b00;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b00;
 }
 def MR1ToDestSIA : MRSIAToDest<"R1.", 0b00010, MR1DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b01;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b01;
 }
 
 def MR2ToDestCom : UCPMRToDest<"R2.", 0b00011, MR2DestT>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b000;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b000;
 }
 def MR2ToDestSIA : MRSIAToDest<"R2.", 0b00011, MR2DestT>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b001;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b001;
 }
 
 def MR3ToDestCom : UCPMRToDest<"R3.", 0b00100, MR3DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b00;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b00;
 }
 def MR3ToDestSIA : MRSIAToDest<"R3.", 0b00100, MR3DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b01;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b01;
 }
 
 def MR4ToDestCom : UCPMRToDest<"R4.", 0b00101, MR4DestT>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b000;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b000;
 }
 def MR4ToDestSIA : MRSIAToDest<"R4.", 0b00101, MR4DestT>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b001;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b001;
 }
 
 def MR5ToDestCom : UCPMRToDest<"R5.", 0b00110, MR5DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b00;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b00;
 }
 def MR5ToDestSIA : MRSIAToDest<"R5.", 0b00110, MR5DestT>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b01;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b01;
 }
 
 // SetCond  
@@ -110,83 +110,83 @@ class MRegSetCondInstr<string header, bits<5> slot>
   let Inst{0} = m;
 }
 def MR0SetCond : MRegSetCondInstr<"MReg0.", 0b00001>{
-  let Inst{16-15} = mode;
-  let Inst{14-11} = 0b1111;
+  let Inst{15-14} = mode;
+  let Inst{13-10} = 0b1111;
 }
 def MR1SetCond : MRegSetCondInstr<"MReg1.", 0b00010>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b11;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b11;
 }
 def MR2SetCond : MRegSetCondInstr<"MReg2.", 0b00011>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b011;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b011;
 }
 def MR3SetCond : MRegSetCondInstr<"MReg3.", 0b00100>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b11;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b11;
 }
 def MR4SetCond : MRegSetCondInstr<"MReg4.", 0b00101>{
-  let Inst{15-14} = mode;
-  let Inst{13-11} = 0b011;
+  let Inst{14-13} = mode;
+  let Inst{12-10} = 0b011;
 }
 def MR5SetCond : MRegSetCondInstr<"MReg5.", 0b00110>{
-  let Inst{14-13} = mode;
-  let Inst{12-11} = 0b11;
+  let Inst{13-12} = mode;
+  let Inst{11-10} = 0b11;
 }
 
 // ConfigBIU  
 class ConfigBIUInstr<string header, bits<5> slot>
         : UCPMInst<(ins MReg: $s, TPort: $tm, Flags: $mm), (outs Condition: $mode), !strconcat(header, "$s", "-> ConfigBIU.", "$tm[$mm]$mode")>{
-  bits<7> s;
+  bits<6> s;
   bits<2> tm;
   bits<4> mm;
   bits<2> mode;
   let Inst{47-43} = slot;
-  let Inst{12-11} = tm;
-  let Inst{10-4} = s;
+  let Inst{11-10} = tm;
+  let Inst{9-4} = s;
   let Inst{3-0} = mm;
 }
 
 def MR0ConfigBIU : ConfigBIUInstr<"R0.", 0b00001>{
-  let Inst{16-15} = mode;
+  let Inst{15-14} = mode;
 }
 def MR2ConfigBIU : ConfigBIUInstr<"R2.", 0b00011>{
-  let Inst{15-14} = mode;
-  let Inst{13} =1;
+  let Inst{14-13} = mode;
+  let Inst{12} =1;
 }
 def MR4ConfigBIU : ConfigBIUInstr<"R4.", 0b00101>{
-  let Inst{15-14} = mode;
-  let Inst{13} =1;
+  let Inst{14-13} = mode;
+  let Inst{12} =1;
 }
 
 
 // ConfigMFetch  
 def MR0ConfigMFetch
         : UCPMInst<(ins MReg: $s, Flags: $mm), (outs Condition:$mode), !strconcat("$s", "-> ConfigMFetch", "[$mm]$mode")>{
-  bits<7> s;
+  bits<6> s;
   bits<4> mm;
   bits<2> mode;
   let Inst{47-43} = 0b00001;
-  let Inst{16-15} = mode;
-  let Inst{14-11} = 0b0100;
-  let Inst{10-4} = s;
+  let Inst{15-14} = mode;
+  let Inst{13-10} = 0b0100;
+  let Inst{9-4} = s;
   let Inst{3-0} = mm;
 }
 
 // m[s] -> configmr/configmw
 class MR0ConfigMRW< bit RW >
         : UCPMInst<(ins MReg: $s, Flags: $SI, imm32i: $x), (outs Condition:$mode), !strconcat("$s", "-> ConfigMr[$x]", "($SI)$mode")>{
-  bits<7> s;
+  bits<6> s;
   bit SI;
   bits<3> x;
   bits<2> mode;
   
   let Inst{47-43} = 0b00001;
-  let Inst{16-15} = mode;
-  let Inst{14-13} = 0b10;
-  let Inst{12} = 1;
-  let Inst{11} = SI;
-  let Inst{10-4} = s;
+  let Inst{15-14} = mode;
+  let Inst{13-12} = 0b10;
+  let Inst{11} = 1;
+  let Inst{10} = SI;
+  let Inst{9-4} = s;
   let Inst{3} = RW;
   let Inst{2-0} = x;
 }
@@ -197,14 +197,14 @@ def MR0ToConfigMW : MR0ConfigMRW< 1 >;
 // configmr/configmw -> m[s] 
 class ConfigMRW< bit RW >
         : UCPMInst<(ins MReg: $s, imm32i: $x), (outs Condition:$mode), !strconcat("ConfigMr[$x]", " -> $s$mode")>{
-  bits<7> s;
+  bits<6> s;
   bits<3> x;
   bits<2> mode;
   let Inst{47-43} = 0b00001;
-  let Inst{16-15} = mode;
-  let Inst{14-13} = 0b10;
-  let Inst{12} = 0;
-  let Inst{10-4} = s;
+  let Inst{15-14} = mode;
+  let Inst{13-12} = 0b10;
+  let Inst{11} = 0;
+  let Inst{9-4} = s;
   let Inst{3} = RW;
   let Inst{2-0} = x;
 }
@@ -221,68 +221,68 @@ class MRegWaitInstr<string header, bits<5> slot>
   bits<2> mode;
   
   let Inst{47-43} = slot;
-  let Inst{10-4} = imm7;
+  let Inst{9-3} = imm7;
 }
 def MR0Wait : MRegWaitInstr<"R0.", 0b00001>{
-    let Inst{16-15} = mode;
-    let Inst{14-11} = 0b1100;
+    let Inst{15-14} = mode;
+    let Inst{13-10} = 0b1100;
 }
 def MR1Wait : MRegWaitInstr<"R1.", 0b00010>{
-    let Inst{14-13} = mode;
-    let Inst{12-11} = 0b10;
-    let Inst{3-0} = 0b1000;
+    let Inst{13-12} = mode;
+    let Inst{11-10} = 0b10;
+    let Inst{2-0} = 0b000;
 }
 def MR2Wait : MRegWaitInstr<"R2.", 0b00011>{
-    let Inst{15-14} = mode;
-    let Inst{13-11} = 0b010;
-    let Inst{3-0} = 0b1000;
+    let Inst{14-13} = mode;
+    let Inst{12-10} = 0b010;
+    let Inst{2-0} = 0b000;
 }
 def MR3Wait : MRegWaitInstr<"R3.", 0b00100>{
-    let Inst{14-13} = mode;
-    let Inst{12-11} = 0b10;
-    let Inst{3-0} = 0b1000;
+    let Inst{13-12} = mode;
+    let Inst{11-10} = 0b10;
+    let Inst{2-0} = 0b000;
 }
 def MR4Wait : MRegWaitInstr<"R4.", 0b00101>{
-    let Inst{15-14} = mode;
-    let Inst{13-11} = 0b010;
-    let Inst{3-0} = 0b1000;
+    let Inst{14-13} = mode;
+    let Inst{12-10} = 0b010;
+    let Inst{2-0} = 0b000;
 }
 def MR5Wait : MRegWaitInstr<"R5.", 0b00110>{
-    let Inst{14-13} = mode;
-    let Inst{12-11} = 0b10;
-    let Inst{3-0} = 0b1000;
+    let Inst{13-12} = mode;
+    let Inst{11-10} = 0b10;
+    let Inst{2-0} = 0b000;
 }
 
 // NOP
 def MReg0NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00001;
-  let Inst{14-11} = 0b1101;
+  let Inst{13-10} = 0b1101;
   let Inst{3-0} = 0;
 }
 
 def MReg1NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00010;
-  let Inst{12-11} = 0b10;
+  let Inst{11-10} = 0b10;
   let Inst{3-0} = 0b1001;
 }
 def MReg2NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00011;
-  let Inst{13-11} = 0b010;
+  let Inst{12-10} = 0b010;
   let Inst{3-0} = 0b1001;
 }
 def MReg3NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00100;
-  let Inst{12-11} = 0b10;
+  let Inst{11-10} = 0b10;
   let Inst{3-0} = 0b1001;
 }
 def MReg4NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00101;
-  let Inst{13-11} = 0b010;
+  let Inst{12-10} = 0b010;
   let Inst{3-0} = 0b1001;
 }
 def MReg5NOP :  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{47-43} = 0b00110;
-  let Inst{12-11} = 0b10;
+  let Inst{11-10} = 0b10;
   let Inst{3-0} = 0b1001;
 }
 // end MReg Instruction -------------------------------------------------
@@ -729,19 +729,19 @@ class IALUCode: IALUBaseCode {
 }
 
 class IALUToDest<bits<2> dest> : IALUCode{
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-2}  = d{4-2};
+  let Inst{6} = 0;
+  let Inst{5-4}  = dest;
+  let Inst{3-2}  = d{3-2};
   let Inst{1-0}   = d{1-0};
 }
 class IALUToM: IALUCode{
-  let Inst{7} = 1;
-  let Inst{6-0} = d{6-0};
+  let Inst{6} = 1;
+  let Inst{5-0} = d{5-0};
 }
 class IALUToMSIA: IALUCode{
   bits<3> sia;
-  let Inst{7-5} = 0b011;
-  let Inst{4-2} = sia;
+  let Inst{6-4} = 0b011;
+  let Inst{3-1} = sia;
 }
 
 // MERGE
@@ -1309,19 +1309,19 @@ class IFALUCode : IFALUBaseCode {
   let Inst{9-8} = tn;
 }
 class IFALUToDest<bits<2> dest> : IFALUCode{
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-2}  = d{4-2};
+  let Inst{6} = 0;
+  let Inst{5-4}  = dest;
+  let Inst{3-2}  = d{3-2};
   let Inst{1-0}   = d{1-0};
 }
 class IFALUToM: IFALUCode{
-  let Inst{7} = 1;
-  let Inst{6-0} = d{6-0};
+  let Inst{6} = 1;
+  let Inst{5-0} = d{5-0};
 }
 class IFALUToMSIA: IFALUCode{
   bits<3> sia;
-  let Inst{7-5} = 0b011;
-  let Inst{4-2} = sia;
+  let Inst{6-4} = 0b011;
+  let Inst{3-1} = sia;
 }
 
 // MERGE
@@ -2044,19 +2044,19 @@ class IMACCode : IMACBaseCode {
 
 }
 class IMACToDest<bits<2> dest> : IMACCode{
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-2}  = d{4-2};
+  let Inst{6} = 0;
+  let Inst{5-4}  = dest;
+  let Inst{3-2}  = d{3-2};
   let Inst{1-0}   = d{1-0};
 }
 class IMACToM: IMACCode{
-  let Inst{7} = 1;
-  let Inst{6-0} = d{6-0};
+  let Inst{6} = 1;
+  let Inst{5-0} = d{5-0};
 }
 class IMACToMSIA: IMACCode{
   bits<3> sia;
-  let Inst{7-5} = 0b011;
-  let Inst{4-2} = sia;
+  let Inst{6-4} = 0b011;
+  let Inst{3-1} = sia;
 }
 
 // Real
@@ -2920,9 +2920,9 @@ class IFMACCode<bits<2> dest> : IFMACBaseCode {
   let Inst{20-19} = tn;
   let Inst{16-15} = tm;
   let Inst{14-11} = 0b0101;
-  let Inst{7} = 0;
-  let Inst{6-5}  = dest;
-  let Inst{4-2}  = d{4-2};
+  let Inst{6} = 0;
+  let Inst{5-4}  = dest;
+  let Inst{3-2}  = d{3-2};
   let Inst{1-0}   = d{1-0};
 }
 
@@ -2950,8 +2950,8 @@ class IFMACToMInstr<string header, bits<5> slot, Operand DestTy>
   let Inst{20-19} = tn;
   let Inst{16-15} = tm;
   let Inst{14-11} = 0b0101;
-  let Inst{7} = 1;
-  let Inst{6-0}   = d{6-0};
+  let Inst{6} = 1;
+  let Inst{5-0}   = d{5-0};
 }
 def IFMACToM : IFMACToMInstr<"IFMAC.", 0b01101, MRegO>;
 
@@ -2972,8 +2972,8 @@ class IFMACToMSIAInstr<string header, bits<5> slot>
   let Inst{20-19} = tn;
   let Inst{16-15} = tm;
   let Inst{14-11} = 0b0101;
-  let Inst{7-5} = 0b011;
-  let Inst{4-2} = sia;
+  let Inst{6-4} = 0b011;
+  let Inst{3-1} = sia;
 }
 def IFMACToMSIA : IFMACToMSIAInstr<"IFMAC.", 0b01101>;
 

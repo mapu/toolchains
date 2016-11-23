@@ -158,6 +158,15 @@ public:
     } while (CurInst->getNumOperands() &&
              CurInst->getOperand(CurInst->getNumOperands()-1).isInst());
 
+    // dcx 20161123: for change of M128->M64
+    for(int i = 10; i<14; i++)
+    {
+      uint64_t tempcode1 = SlotCode[i] >> 8;
+      uint64_t tempcode2 = SlotCode[i] & 0b1111111;
+      uint64_t tempcode3 = SlotCode[i] >> 43;
+      SlotCode[i] = ((tempcode1<<7) | tempcode2) & 0x3ffffffffff | (tempcode3<<43);
+    }
+	
     for(int i = 0; i < NUMSLOTS; i++)
       line.ConcatCode(SlotCode[i], i);
     ++MCLineNumEmitted;

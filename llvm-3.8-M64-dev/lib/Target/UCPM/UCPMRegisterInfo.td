@@ -19,13 +19,13 @@ class UCPMReg<bits<9> num, string n > : Register<n> {
   let HWEncoding = {0b0000000, num};
 }
 
-foreach i = 0-127 in 
+foreach i = 0-63 in 
   def M#i   : UCPMReg<i, "M["#i#"]" >, DwarfRegNum< [i] >;
 //def MIPP : UCPMReg<2, "M[I++]">, DwarfRegNum<[128]>;
 //def MSPP : UCPMReg<1, "M[S++]">, DwarfRegNum<[256]>;
 
 def MReg : RegisterClass<"UCPMReg", [v16i32], 32,
-                         (add (sequence "M%u", 0, 127))>;
+                         (add (sequence "M%u", 0, 63))>;
 
 def IALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
 def IMAC  : UCPMReg<1, "IMAC">, DwarfRegNum<[135]>;
@@ -58,23 +58,23 @@ def sIFALU  : UCPMReg<1, "IFALU">, DwarfRegNum<[136]>;
 			  
 // dcx: for the change of instruction document 
 def ALUSHU0  : UCPMReg<0, "SHU0">, DwarfRegNum<[129]>;
-def ALUSHU1  : UCPMReg<4, "SHU1">, DwarfRegNum<[130]>;
-def ALUSHU2  : UCPMReg<6, "SHU2">, DwarfRegNum<[131]>;
+def ALUSHU1  : UCPMReg<2, "SHU1">, DwarfRegNum<[130]>;
+def ALUSHU2  : UCPMReg<3, "SHU2">, DwarfRegNum<[131]>;
 
 def SHU  : RegisterClass<"UCPMReg", [v16i32], 32,
                           (add ALUSHU0, ALUSHU1, ALUSHU2)>;
 			  
 def ALUIALU  : UCPMReg<0, "IALU">, DwarfRegNum<[134]>;
-def ALUIMAC  : UCPMReg<2, "IMAC">, DwarfRegNum<[135]>;
-def ALUIFALU : UCPMReg<4, "IFALU">, DwarfRegNum<[136]>;
-def ALUIFMAC : UCPMReg<6, "IFMAC">, DwarfRegNum<[137]>;
+def ALUIMAC  : UCPMReg<1, "IMAC">, DwarfRegNum<[135]>;
+def ALUIFALU : UCPMReg<2, "IFALU">, DwarfRegNum<[136]>;
+def ALUIFMAC : UCPMReg<3, "IFMAC">, DwarfRegNum<[137]>;
 
 def MACC : RegisterClass<"UCPMReg", [v16i32], 32,
 			 (add ALUIALU, ALUIMAC, ALUIFALU, ALUIFMAC)>;
 
-def ALUBIU0  : UCPMReg<1, "BIU0">, DwarfRegNum<[142]>;
-def ALUBIU1  : UCPMReg<2, "BIU1">, DwarfRegNum<[143]>;
-def ALUBIU2  : UCPMReg<4, "BIU2">, DwarfRegNum<[144]>;
+def ALUBIU0  : UCPMReg<0, "BIU0">, DwarfRegNum<[142]>;
+def ALUBIU1  : UCPMReg<1, "BIU1">, DwarfRegNum<[143]>;
+def ALUBIU2  : UCPMReg<2, "BIU2">, DwarfRegNum<[144]>;
 
 def BIU   : RegisterClass<"UCPMReg", [v16i32], 32,
                           (add ALUBIU0, ALUBIU1, ALUBIU2)>;
