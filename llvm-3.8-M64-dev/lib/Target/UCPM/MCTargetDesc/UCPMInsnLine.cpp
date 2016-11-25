@@ -4,7 +4,7 @@
 using namespace llvm::UCPM;
 
 const unsigned llvm::UCPM::numBitsForSlot[] =
-						{/*MFetch*/23,/*Mr0*/16,/*Mr1~5*/14,15,14,15,14,/*SHU0~2*/25,25,25,/*IALU*/24,/*IMAC*/29,/*IFALU*/25,/*IFMAC*/29,/*BIU0~2*/23,23,23
+						{/*MFetch*/23,/*Mr0*/16,/*Mr1~5*/14,15,14,15,14,/*SHU0~2*/25,25,25,/*IALU*/23,/*IMAC*/28,/*IFALU*/24,/*IFMAC*/28,/*BIU0~2*/23,23,23
 						};
 
 
