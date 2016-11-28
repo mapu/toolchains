@@ -3585,7 +3585,7 @@ def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
   let Inst{15-0}  = 0;
 }
 
-// ADD SUB ST NLT EQU NEQ AND OR  
+// ADD SUB ST NLT EQU NEQ AND OR LSHT RSHT   
 def MFetchBinInstr : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, KIReg: $kis0,
                                    KIReg: $kis1), (outs), "", "$kid", "->", "$kis0 $op $kis1">{
     bits<8> op;
@@ -3601,20 +3601,6 @@ def MFetchBinInstr : CommonAssignInstr<(ins MFetchBinOprtor: $op, KIReg: $kid, K
     let Inst{3-0} = kis0;
 }
 
-// LSHT RSHT  
-def MFetchShiftInstr : CommonAssignInstr<(ins MFetchShiftOprtor: $op, KIReg: $kid, KIReg: $kis1, KIReg: $kis0), (outs), "", "$kid", "->", "$kis1 $op $kis0">{
-    bits<8> op;
-    bits<8> kid;
-    bits<4> kis1;
-    bits<4> kis0;
-    
-    let Inst{47-43} = 0b00000;
-    let Inst{22-21} = 0b01;
-    let Inst{19-16} = op{3-0};
-    let Inst{15-8} = kid;
-    let Inst{7-4} = kis1;
-    let Inst{3-0} = kis0;
-}
 
 // NOT
 def MFetchNOTInstr

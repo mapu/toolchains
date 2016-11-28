@@ -275,15 +275,6 @@ DecodeIFALUMNOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 static DecodeStatus
-DecodeMFetchShiftOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
-                                uint64_t Address, const void *Decoder) {
-  if (getReg(Decoder, UCPMReg::MFetchShiftOprtorRegClassID, RegNo)) {
-    Inst.addOperand(MCOperand::createReg(RegNo));
-    return MCDisassembler::Success;
-  } 
-  else return MCDisassembler::Fail;
-}
-static DecodeStatus
 DecodeSHUTranOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::SHUTranOprtorRegClassID, RegNo)) {

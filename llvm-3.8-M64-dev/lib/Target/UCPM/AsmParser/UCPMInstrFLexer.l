@@ -197,8 +197,9 @@ A   [a-zA-Z_0-9]
 "<-"                   {return TOKEN(ASSIGN);}
 
 
-"<<"                   {BEGIN EXPRPARSE; return TOKEN(LSHT);}
-">>"                   {BEGIN EXPRPARSE; return TOKEN(RSHT);}
+
+"<<"                   {return TOKEN(LSHT);} // {BEGIN EXPRPARSE; return TOKEN(LSHT);}
+">>"                   {return TOKEN(RSHT);} // {BEGIN EXPRPARSE; return TOKEN(RSHT);}
 "|"                    {return TOKEN(OR);}
 "&"                    {return TOKEN(AND);}
 "^"                    {return TOKEN(XOR);}

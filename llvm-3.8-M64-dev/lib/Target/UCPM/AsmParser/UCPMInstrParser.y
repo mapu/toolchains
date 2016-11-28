@@ -8176,8 +8176,8 @@ biu2imm: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm
 // ducx end biu --------------------------------------------------
 
 
-// ducx start seq --------------------------------------------------
-seqslot: reinst | lpinst | mpustop;
+// ducx start mfetch --------------------------------------------------
+seqslot: reinst | lpinst | mpustop | mfetchbininst | mfetchnotinst | mfetchmovinst; 
 
 reinst: REPEAT ALPHA repeatexp{
 
@@ -8235,9 +8235,75 @@ lpcond: _flag kiflag flag_{
   ADDOPERAND(Imm, $4, @4.S, @4.E);
 };
 
+mfetchbininst: binexp{
+        
+      ADDOPERAND(Opc, UCPM::MFetchBinInstr, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+     
+}
+
+binexp:     mfetchadd {opc = OPERAND(Reg, UCPMReg::MFetchADD, @$.S, @$.E);} | 
+            mfetchsub {opc = OPERAND(Reg, UCPMReg::MFetchSUB, @$.S, @$.E);} | 
+            mfetchand {opc = OPERAND(Reg, UCPMReg::MFetchAND, @$.S, @$.E);} |
+            mfetchor {opc = OPERAND(Reg, UCPMReg::MFetchOR, @$.S, @$.E);}   |
+            mfetchst {opc = OPERAND(Reg, UCPMReg::MFetchST, @$.S, @$.E);}   | 
+            mfetchnlt {opc = OPERAND(Reg, UCPMReg::MFetchNLT, @$.S, @$.E);} | 
+            mfetchequ {opc = OPERAND(Reg, UCPMReg::MFetchEQU, @$.S, @$.E);} |
+            mfetchneq {opc = OPERAND(Reg, UCPMReg::MFetchNEQ, @$.S, @$.E);} |
+            mfetchlsh {opc = OPERAND(Reg, UCPMReg::MFetchLSHTimm, @$.S, @$.E);} |
+            mfetchrsh {opc = OPERAND(Reg, UCPMReg::MFetchRSHTimm, @$.S, @$.E);};
+            
+mfetchadd: kiflag ADD kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchsub: kiflag SUB kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchand: kiflag AND kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchor : kiflag OR kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchst: kiflag ST kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchnlt: kiflag NLT kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchequ: kiflag EQU kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchneq : kiflag NEQ kiflag ASSIGNTO kiflag
+	  {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchlsh: kiflag LSHT kiflag ASSIGNTO kiflag
+	  {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+mfetchrsh: kiflag RSHT kiflag ASSIGNTO kiflag
+	  {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm = OPERAND(Imm, $3-12, @3.S, @3.E);imm2 = OPERAND(Imm, $5-12, @5.S, @5.E);};
+
+mfetchnotinst: notexp{
+        
+      ADDOPERAND(Opc, UCPM::MFetchNOTInstr, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+}
+notexp:	 NOT kiflag ASSIGNTO kiflag
+	 {imm = OPERAND(Imm, $2-12, @2.S, @2.E);imm1 = OPERAND(Imm, $4-12, @4.S, @4.E);};
+
+	 
+mfetchmovinst: movexp{
+      flagsort = flags[CRF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);
+      flags.reset();
+      ADDOPERAND(Opc, UCPM::MFetchMOVInstr, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+}
+movexp:	 kiflag ASSIGNTO kiflag _flag mfetchflag flag_
+	 {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);};
+
+	 
+	 
 mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
-// ducx end seq --------------------------------------------------
+// ducx end mfetch --------------------------------------------------
 
 
 ialut: ialu DOT t {$$ = 2; unit = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); unit2 = OPERAND(Reg, UCPMReg::MTIALU, @1.S, @1.E); unit3 = OPERAND(Reg, UCPMReg::ALUIALU, @1.S, @1.E); unit4 = OPERAND(Reg, UCPMReg::IALU, @1.S, @1.E); if (!ut) ut = tk ? tk : (tp ? tp : (tn ? tn : tm));};
@@ -8444,6 +8510,7 @@ condflag:  MODE0 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::Mo
 	  | MODE1 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::Mode1, @$.S, @$.E));}
 	  | NMODE0 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NMode0, @$.S, @$.E));}
 	  | NMODE1 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NMode1, @$.S, @$.E));};
-	  
+
+mfetchflag: CR  {flags.set(CRF);};
 kiflag: KI;
 label: EXPR{$$=0;expr=$1;  OS<<"Position 1\n";} | IMM5 {$$=$1;expr=0;};

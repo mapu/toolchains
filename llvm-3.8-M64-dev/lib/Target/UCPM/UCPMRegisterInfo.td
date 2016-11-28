@@ -318,16 +318,13 @@ def MFetchEQU : UCPMReg<0b000000110, "==">;
 def MFetchNEQ : UCPMReg<0b000000111, "!=">;
 def MFetchAND : UCPMReg<0b000001000, "&">;
 def MFetchOR : UCPMReg<0b000001001, "|">;
-
-def MFetchBinOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchADD, MFetchSUB, MFetchST, 
-                                                           MFetchNLT, MFetchEQU, MFetchNEQ, MFetchAND, MFetchOR )>;
-
 def MFetchLSHTimm  : UCPMReg<0b000000010, "<<">;
 def MFetchRSHTimm : UCPMReg<0b000000011, ">>">;
 
-def MFetchShiftOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchLSHTimm, MFetchRSHTimm )>;
-
-                                                           
+def MFetchBinOprtor : RegisterClass<"UCPMReg", [i32], 32, (add MFetchADD, MFetchSUB, MFetchST, 
+                                                           MFetchNLT, MFetchEQU, MFetchNEQ, MFetchAND,
+							   MFetchOR, MFetchLSHTimm, MFetchRSHTimm)>;
+                                                        
 // ducx end MFetch --------------------------------------------------------
 
 
