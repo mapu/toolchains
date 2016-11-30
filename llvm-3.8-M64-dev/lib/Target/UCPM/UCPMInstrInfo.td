@@ -3553,7 +3553,7 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
   let Inst{3-0}   = ki;
 }
 
-// // JUMP label ??? if
+// // // JUMP label ??? if
 // def JUMPlabel : UCPMInst<(ins Label: $l, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $l$s")> {
 //   bits<12> l;
 //   bit s;
@@ -3564,8 +3564,8 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
 //   let Inst{19-8} = l;
 //   let Inst{7-0}  = cond;//??
 // }
-// 
-// // JUMP ki ??? if
+// // 
+// // // JUMP ki ??? if
 // def JUMPK : UCPMInst<(ins KIReg: $ki, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $ki$s")> {
 //   bits<8> ki;
 //   bit s;
@@ -3641,39 +3641,62 @@ def MFetchNOP:  UCPMInst <(ins), (outs), "NOP"> {
   let Inst{3-0} = 0b1011;
 }
 
-// ReadRegi
-// def MFetchReadRegiInstr
-//         : CommonAssignInstr<(ins KIReg: $kid, Flags: $B), (outs), "", "$kid", "->", "Regi$B">{
-//   
-//     bits<7> kid;
-//     bit B;
-//     bits<2> ;
-//     
-//     let Inst{47-43} = 0b00000;
-//     let Inst{22-21} = 0b01;
-//     let Inst{19-16} = 0b1111;
-//     let Inst{15} = B;
-//     let Inst{14-8} = kid;
-//     let Inst{7-6} = 0b10;
-//     let Inst{5-4} = ?;
-// }
+// ReadReg
+def MFetchReadRegInstr
+        : CommonAssignInstr<(ins KIReg: $kid, imm32i: $i, Flags: $B), (outs), "", "Reg$i$B", "=", "$kid">{
+  
+    bits<4> kid;
+    bit B;
+    bits<2> i;
+    
+    let Inst{47-43} = 0b00000;
+    let Inst{22-21} = 0b01;
+    let Inst{19-16} = 0b1111;
+    let Inst{15} = B;
+    let Inst{11-8} = kid;
+    let Inst{7-6} = 0b10;
+    let Inst{5-4} = i;
+}
 
-// WriteRegi
-// def MFetchWriteRegiInstr
-//         : CommonAssignInstr<(ins KIReg: $kis, Flags: $B), (outs), "", "WriteRegi$B", "->", "$kis">{
-//   
-//     bits<4> kis;
-//     bit B;
-//     
-//     let Inst{47-43} = 0b00000;
-//     let Inst{22-21} = 0b01;
-//     let Inst{19-16} = 0b1111;
-//     let Inst{15} = B;
-//     let Inst{7-6} = 0b11;
-//     let Inst{5-4} = ?;
-//     let Inst{3-0} = kis;
-// }
+// WriteReg
+def MFetchWriteRegInstr
+        : CommonAssignInstr<(ins KIReg: $kis, imm32i:$i, Flags: $B), (outs), "", "$kis", "=", "WriteReg$i$B">{
+  
+    bits<4> kis;
+    bit B;
+    bits<2> i;
+    
+    let Inst{47-43} = 0b00000;
+    let Inst{22-21} = 0b01;
+    let Inst{19-16} = 0b1111;
+    let Inst{15} = B;
+    let Inst{7-6} = 0b11;
+    let Inst{5-4} = i;
+    let Inst{3-0} = kis;
+}
 
+
+//  KI-MReg
+def KIMRegToM
+        : MRegAssignInstr<(ins),
+                      "", "ki", MRegO>{
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b01;
+  let Inst{20} = 1;
+  let Inst{19-16} = 0b1110;
+  let Inst{7} = 1;
+  let Inst{5-0} = d{5-0};
+}
+def KIMRegToMSIA
+       : UCPMInst<(ins Flags: $sia), (outs), !strconcat("ki", "-> M[$sia]")>{
+  bits<3> sia;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b01;
+  let Inst{20} = 1;
+  let Inst{19-16} = 0b1110;
+  let Inst{7} = 0;
+  let Inst{2-0} = sia;
+}
 
 // ducx end MFetch Instruction -----------------------------------------------------------------------------  
 

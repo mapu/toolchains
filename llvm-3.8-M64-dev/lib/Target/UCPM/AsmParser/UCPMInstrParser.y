@@ -54,12 +54,12 @@ typedef struct YYLTYPE {
 %token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 SUBEQU ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
 %token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
 %token <val> CPRS EXPD CONJ MINUS READQ READR DIVSTART DIVCONT START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
-%token <val> REPEAT LOOP JMP MPUSTOP
+%token <val> REPEAT LOOP JMP MPUSTOP REG WRITEREG
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND FLOAT Q QL QH ML MH BIT BYTE
-%token <val> TRUE ASSIGN NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGCURRENT L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
+%token <val> TRUE ASSIGN ASSIGNMENT NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGCURRENT L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
 %token <string> IDENTIFIER
 %token <op> EXPR
-%token <val> TREG MINDEXN KI N V A FLAG WRITEFLAG
+%token <val> TREG MINDEXN KI KII N V A FLAG WRITEFLAG
 %token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5 KI1215 KI1619 KI2023 KI2427 KI1227 KI1618 KI2022 KI2426 
 
 %type <val> slots slotref slot 
@@ -8177,7 +8177,8 @@ biu2imm: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm
 
 
 // ducx start mfetch --------------------------------------------------
-seqslot: reinst | lpinst | mpustop | mfetchbininst | mfetchnotinst | mfetchmovinst; 
+seqslot: reinst | lpinst | mpustop | mfetchbininst | mfetchnotinst | mfetchmovinst
+	 | kiMreginst | readwriteReg; 
 
 reinst: REPEAT ALPHA repeatexp{
 
@@ -8299,7 +8300,51 @@ mfetchmovinst: movexp{
 movexp:	 kiflag ASSIGNTO kiflag _flag mfetchflag flag_
 	 {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);};
 
-	 
+kiMreginst: KII ASSIGNTO mindexn{
+
+      ADDOPERAND(Opc, UCPM::KIMRegToM, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(md));
+
+}
+| KII ASSIGNTO mindexsia{
+
+    flagsort = (flags[APPF2] << 2) | (flags[SPPF] << 1) | flags[IPPF];
+    sia = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+    flags.reset();
+    
+      ADDOPERAND(Opc, UCPM::KIMRegToMSIA, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(sia));
+};
+
+readwriteReg: readReg{
+      flagsort = flags[BF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      ADDOPERAND(Opc, UCPM::MFetchReadRegInstr, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+}
+| writeReg{
+      flagsort = flags[BF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      ADDOPERAND(Opc, UCPM::MFetchWriteRegInstr, @$.S, @$.E);
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
+      Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
+
+};
+
+readReg:kiflag ASSIGNMENT REG _flag bflag flag_
+      {imm = OPERAND(Imm, $1-12, @1.S, @1.E); imm1 = OPERAND(Imm, $3, @3.S, @3.E); }
+      | kiflag ASSIGNMENT REG 
+      {imm = OPERAND(Imm, $1-12, @1.S, @1.E); imm1 = OPERAND(Imm, $3, @3.S, @3.E); };
+  
+writeReg:WRITEREG _flag bflag flag_ ASSIGNMENT kiflag
+      {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $6-12, @6.S, @6.E);}
+      | WRITEREG ASSIGNMENT kiflag
+      {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $3-12, @3.S, @3.E);};
 	 
 mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
@@ -8512,5 +8557,7 @@ condflag:  MODE0 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::Mo
 	  | NMODE1 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::NMode1, @$.S, @$.E));};
 
 mfetchflag: CR  {flags.set(CRF);};
+bflag: B {flags.set(BF);};
+
 kiflag: KI;
 label: EXPR{$$=0;expr=$1;  OS<<"Position 1\n";} | IMM5 {$$=$1;expr=0;};

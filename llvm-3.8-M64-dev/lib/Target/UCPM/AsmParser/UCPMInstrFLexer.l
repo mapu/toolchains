@@ -336,7 +336,12 @@ A   [a-zA-Z_0-9]
 "ki16-18"   			 {return TOKEN(KI1618);}//dcx
 "ki20-22"   			 {return TOKEN(KI2022);}//dcx
 "ki24-26"   			 {return TOKEN(KI2426);}//dcx
+"ki"   				 {return TOKEN(KII);}//dcx
 
+"reg"[0-3]  			 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(REG);}//dcx
+"writereg"[0-3]   		 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(WRITEREG);}//dcx
+
+"="   				 {return TOKEN(ASSIGNMENT);}//dcx
 
 "u"                      {return TOKEN(U);}
 "p"                      {return TOKEN(P);}
