@@ -70,15 +70,15 @@ using namespace llvm;
 
 UCPSInstLine : InstLine _EOS { assert($1.cnt < 5 && "at most 4 instructions allowed"); YYACCEPT; }
 
-InstLine:  /*NOPInst  {	$$.cnt = 1;	}*/
- SeqInst  {	$$.bits = (1<<0);		$$.cnt = 1;	}
+InstLine:  NOPInst  {	$$.cnt = 1;	}
+| SeqInst  {	$$.bits = (1<<0);		$$.cnt = 1;	}
 | SCUInst  {	$$.bits = (1<<1);		$$.cnt = 1;	}
 | AGUInst  {	$$.bits = (1<<2);		$$.cnt = 1;	}
 | SynInst  {	$$.bits = (1<<3);		$$.cnt = 1;	}
 
-/*| InstLine  _Pl NOPInst  {
+| InstLine  _Pl NOPInst  {
 		$$.cnt = $1.cnt + 1;
-	}*/
+	}
 | InstLine  _Pl SeqInst  {
 		assert(($1.bits & (1<<0)) != (1<<0) && "more than one Seq instructions exist");
 		$$.bits = $1.bits | (1<<0);
@@ -101,9 +101,9 @@ InstLine:  /*NOPInst  {	$$.cnt = 1;	}*/
 	};
 
 
-/*NOPInst: _NOP {
-		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::NOP)));
-	};*/
+NOPInst: _NOP {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SEQNOP)));
+	};
 	
 RReg : _RReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>($1)); }
 JReg : _JReg      { $$ = $1 ; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>($1)); }
