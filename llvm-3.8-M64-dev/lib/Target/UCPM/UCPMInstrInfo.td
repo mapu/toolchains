@@ -3553,29 +3553,137 @@ def LPTO : SEQInst<(ins Label:$l, KIReg: $ki, imm32i: $imm),
   let Inst{3-0}   = ki;
 }
 
-// // // JUMP label ??? if
-// def JUMPlabel : UCPMInst<(ins Label: $l, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $l$s")> {
-//   bits<12> l;
-//   bit s;
-//   bits<8> cond;
-//   let Inst{47-43} = 0b00000;
-//   let Inst{22-21} = 0b10;
-//   let Inst{20} = s;
-//   let Inst{19-8} = l;
-//   let Inst{7-0}  = cond;//??
-// }
-// // 
-// // // JUMP ki ??? if
-// def JUMPK : UCPMInst<(ins KIReg: $ki, Flags: $s, Flags: $cond), (outs), !strconcat("JUMP", " $ki$s")> {
-//   bits<8> ki;
-//   bit s;
-//   bits<8> cond;
-//   let Inst{47-43} = 0b00000;
-//   let Inst{22-21} = 0b11;
-//   let Inst{20} = s;
-//   let Inst{15-8} = ki;
-//   let Inst{7-0}  = cond;//??
-// }
+// JUMP label
+def JUMP : UCPMInst<(ins Label: $l, Flags: $s), (outs), !strconcat("JUMP", " $l$s")> {
+  bits<12> l;
+  bit s;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b10;
+  let Inst{20} = s;
+  let Inst{19-8} = l;
+  let Inst{7-0} = 0b11011001;
+}
+
+// JUMP kim 
+def JUMPK : UCPMInst<(ins KIReg: $kim, Flags: $s), (outs), !strconcat("JUMP", " $kim$s")> {
+  bits<8> kim;
+  bit s;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b11;
+  let Inst{20} = s;
+  let Inst{15-8} = kim;
+  let Inst{7-0} = 0b11011001;
+}
+
+// JUMPcond label  if ki/!ki 
+def JUMPcondki : UCPMInst<(ins Label: $l, Flags: $s, KIReg: $ki, CondOprtor: $op), (outs), !strconcat("IF($ki$op)", " JUMP", " $l$s")> {
+  bits<12> l;
+  bit s;
+  bits<4> ki;
+  bits<2> op;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b10;
+  let Inst{20} = s;
+  let Inst{19-8} = l;
+  let Inst{7} = 0;
+  let Inst{6-3} = ki;
+  let Inst{2-1} = op;
+  let Inst{0} = 0;
+}
+
+// JUMPcond kim if ki/!ki
+def JUMPKcondki : UCPMInst<(ins KIReg: $kim, Flags: $s, KIReg: $ki, CondOprtor: $op), (outs), !strconcat("IF($ki$op)", "JUMP", " $kim$s")> {
+  bits<8> kim;
+  bit s;
+  bits<4> ki;
+  bits<2> op;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b11;
+  let Inst{20} = s;
+  let Inst{15-8} = kim;
+  let Inst{7} = 0;
+  let Inst{6-3} = ki;
+  let Inst{2-1} = op;
+  let Inst{0} = 0;
+}
+
+
+// JUMPcond label  if ki23/ki19
+def JUMPcondki2319 : UCPMInst<(ins Label: $l, Flags: $s, KIReg: $ki, CondOprtor: $op, imm32i:$imm), (outs), !strconcat("IF($ki$op KI$imm)", " JUMP", " $l$s")> {
+  bits<12> l;
+  bit s;
+  bits<4> ki;
+  bits<2> op;
+  bit imm;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b10;
+  let Inst{20} = s;
+  let Inst{19-8} = l;
+  let Inst{7} = 1;
+  let Inst{6-3} = ki;
+  let Inst{2-1} = op;
+  let Inst{0} = imm;
+}
+
+// JUMPcond kim if ki23/ki19
+def JUMPKcondki2319 : UCPMInst<(ins KIReg: $kim, Flags: $s, KIReg: $ki, CondOprtor: $op, imm32i:$imm), (outs), !strconcat("IF($ki$op KI$imm)", "JUMP", " $kim$s")> {
+  bits<8> kim;
+  bit s;
+  bits<4> ki;
+  bits<2> op;
+  bit imm;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b11;
+  let Inst{20} = s;
+  let Inst{15-8} = kim;
+  let Inst{7} = 1;
+  let Inst{6-3} = ki;
+  let Inst{2-1} = op;
+  let Inst{0} = imm;
+}
+
+
+// JUMPcond label  if UNCQ
+def JUMPcondUNCQ : UCPMInst<(ins Label: $l, Flags: $s, Flags: $uncq, imm32i:$every, imm32i:$neg, MACC:$op),
+			    (outs), !strconcat("IF($neg$every$op.$uncq)", " JUMP", " $l$s")> {
+  bits<12> l;
+  bit s;
+  bits<2> uncq;
+  bit every;
+  bit neg;
+  bits<2> op;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b10;
+  let Inst{20} = s;
+  let Inst{19-8} = l;
+  let Inst{7} = 0;
+  let Inst{6-5} = uncq;
+  let Inst{4} = every;
+  let Inst{3} = neg;
+  let Inst{2-1} = op;
+  let Inst{0} = 1;
+}
+
+// JUMPcond kim if UNCQ
+def JUMPKcondUNCQ : UCPMInst<(ins KIReg: $kim, Flags: $s, Flags: $uncq, imm32i:$every, imm32i:$neg, MACC:$op), 
+			    (outs), !strconcat("IF($neg$every$op.$uncq)", "JUMP", " $kim$s")> {
+  bits<8> kim;
+  bit s;
+  bits<2> uncq;
+  bit every;
+  bit neg;
+  bits<2> op;
+  let Inst{47-43} = 0b00000;
+  let Inst{22-21} = 0b11;
+  let Inst{20} = s;
+  let Inst{15-8} = kim;
+  let Inst{7} = 0;
+  let Inst{6-5} = uncq;
+  let Inst{4} = every;
+  let Inst{3} = neg;
+  let Inst{2-1} = op;
+  let Inst{0} = 1;
+}
 
 // STOP
 def MPUStop : UCPMInst<(ins), (outs), "MPUSTOP"> {
@@ -3705,22 +3813,22 @@ def KIMRegToMSIA
 
 
 
-def JUMPK : SEQInst<(ins Label:$l, KIReg: $ki),
-                     "JUMP", " ($l)", "$ki"> {
-  bits<10> l;
-  bits<23> ki;
-  let Inst{36-33} = 0b0110;
-  let Inst{32-23} = l;
-  let Inst{22-0}  = ki;
-}
-
-def JUMP : SEQInst<(ins Label:$l),
-                     "JUMP", " ($l)", "TRUE"> {
-  bits<10> l;
-  let Inst{36-33} = 0b0101;
-  let Inst{32-23} = l;
-  let Inst{22-0}  = 0;
-}
+// def JUMPK : SEQInst<(ins Label:$l, KIReg: $ki),
+//                      "JUMP", " ($l)", "$ki"> {
+//   bits<10> l;
+//   bits<23> ki;
+//   let Inst{36-33} = 0b0110;
+//   let Inst{32-23} = l;
+//   let Inst{22-0}  = ki;
+// }
+// 
+// def JUMP : SEQInst<(ins Label:$l),
+//                      "JUMP", " ($l)", "TRUE"> {
+//   bits<10> l;
+//   let Inst{36-33} = 0b0101;
+//   let Inst{32-23} = l;
+//   let Inst{22-0}  = 0;
+// }
 
 
 

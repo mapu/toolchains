@@ -59,7 +59,7 @@ typedef struct YYLTYPE {
 %token <val> TRUE ASSIGN ASSIGNMENT NOOP UINT DM R0 R1 R2 R3 R4 R5 IPATH WFLAG KM KE KG KMEABLE KGCURRENT L1 L2 L3 L4 ALL CONFIGBIU CONFIGMFETCH CONFIGMR CONFIGMW
 %token <string> IDENTIFIER
 %token <op> EXPR
-%token <val> TREG MINDEXN KI KII N V A FLAG WRITEFLAG
+%token <val> TREG MINDEXN KI KII N V A FLAG WRITEFLAG IFIF KI23 KI19
 %token <val> W0 W1 W2 W3 W4 K IMMSYM MREG0 MREG1 MREG2 MREG3 MREG4 MREG5 KI1215 KI1619 KI2023 KI2427 KI1227 KI1618 KI2022 KI2426 
 
 %type <val> slots slotref slot 
@@ -8178,7 +8178,7 @@ biu2imm: IMMSYM DOT IMM5 ASSIGNTO BIU2 DOT t LBRACKET IMM5 RBRACKET _flag biuImm
 
 // ducx start mfetch --------------------------------------------------
 seqslot: reinst | lpinst | mpustop | mfetchbininst | mfetchnotinst | mfetchmovinst
-	 | kiMreginst | readwriteReg; 
+	 | kiMreginst | readwriteReg | jumpinst | jumpcondinst; 
 
 reinst: REPEAT ALPHA repeatexp{
 
@@ -8244,7 +8244,7 @@ mfetchbininst: binexp{
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
      
-}
+};
 
 binexp:     mfetchadd {opc = OPERAND(Reg, UCPMReg::MFetchADD, @$.S, @$.E);} | 
             mfetchsub {opc = OPERAND(Reg, UCPMReg::MFetchSUB, @$.S, @$.E);} | 
@@ -8283,7 +8283,7 @@ mfetchnotinst: notexp{
       ADDOPERAND(Opc, UCPM::MFetchNOTInstr, @$.S, @$.E);
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-}
+};
 notexp:	 NOT kiflag ASSIGNTO kiflag
 	 {imm = OPERAND(Imm, $2-12, @2.S, @2.E);imm1 = OPERAND(Imm, $4-12, @4.S, @4.E);};
 
@@ -8296,7 +8296,7 @@ mfetchmovinst: movexp{
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
       Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
-}
+};
 movexp:	 kiflag ASSIGNTO kiflag _flag mfetchflag flag_
 	 {imm = OPERAND(Imm, $1-12, @1.S, @1.E);imm1 = OPERAND(Imm, $3-12, @3.S, @3.E);};
 
@@ -8346,6 +8346,204 @@ writeReg:WRITEREG _flag bflag flag_ ASSIGNMENT kiflag
       | WRITEREG ASSIGNMENT kiflag
       {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $3-12, @3.S, @3.E);};
 	 
+	 
+jumpinst: JMP kimep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPK, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+
+}
+| JMP labelep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+      	  ADDOPERAND(Opc, UCPM::JUMP, @$.S, @$.E);
+	  if(expr) 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
+	  else 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	    
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+
+};
+
+kimep:	 kiflag _flag sflag flag_ {imm = OPERAND(Imm, $1-12, @1.S, @1.E);}
+	| kiflag {imm = OPERAND(Imm, $1-12, @1.S, @1.E);};
+
+labelep:  label { 
+	      if(!expr) 
+		imm = OPERAND(Imm, $1, @1.S, @1.E);
+	  }
+	  | label _flag sflag flag_ { 
+	      if(!expr) 
+		imm = OPERAND(Imm, $1, @1.S, @1.E);
+	  };
+  
+	
+jumpcondinst: IFIF _flag condki flag_ JMP kimep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPKcondki, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+
+}
+| IFIF _flag condki flag_ JMP labelep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPcondki, @$.S, @$.E);
+	  if(expr) 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
+	  else 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+
+}
+| IFIF _flag condki2319 flag_ JMP kimep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPKcondki2319, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2)); 
+
+}
+| IFIF _flag condki2319 flag_ JMP labelep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPcondki2319, @$.S, @$.E);
+	  if(expr) 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
+	  else 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2)); 
+
+}
+| IFIF _flag conduncq flag_ JMP kimep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	
+      
+       if(flags[UF])
+	  flagsort = 0x0;
+       else if(flags[NF])
+	  flagsort = 0x1;
+       else if(flags[CF])
+	  flagsort = 0x2;
+       else if(flags[QF])
+	  flagsort = 0x3;
+      ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPKcondUNCQ, @$.S, @$.E);
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+
+}
+| IFIF _flag conduncq flag_ JMP labelep{
+
+      flagsort = flags[SF];
+      f = OPERAND(Imm, flagsort, FlagS, FlagE);	
+      
+       if(flags[UF])
+	  flagsort = 0x0;
+       else if(flags[NF])
+	  flagsort = 0x1;
+       else if(flags[CF])
+	  flagsort = 0x2;
+       else if(flags[QF])
+	  flagsort = 0x3;
+      ff = OPERAND(Imm, flagsort, FlagS, FlagE);
+      
+      flags.reset();
+      
+	  ADDOPERAND(Opc, UCPM::JUMPcondUNCQ, @$.S, @$.E);
+	  if(expr) 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(expr));
+	  else 
+	    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(ff)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm2)); 
+	  Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(opc)); 
+
+};
+	  
+condki:   condequ0 {opc = OPERAND(Reg, UCPMReg::CondEQU0, @$.S, @$.E);} |
+	  condneq0 {opc = OPERAND(Reg, UCPMReg::CondNEQ0, @$.S, @$.E);} ;
+condequ0: NEG kiflag {imm1 = OPERAND(Imm, $2-12, @2.S, @2.E);};
+condneq0: kiflag {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);};
+
+condki2319: condequ {opc = OPERAND(Reg, UCPMReg::CondEQU, @$.S, @$.E);} |
+	    condneq {opc = OPERAND(Reg, UCPMReg::CondNEQ, @$.S, @$.E);} |
+	    condnst {opc = OPERAND(Reg, UCPMReg::CondNST, @$.S, @$.E);} |
+	    condst {opc = OPERAND(Reg, UCPMReg::CondST, @$.S, @$.E);} ;
+condequ: kiflag EQU KI23 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	 kiflag EQU KI19 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} ;
+condneq: kiflag NEQ KI23 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	 kiflag NEQ KI19 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} ;
+condnst: kiflag NST KI23 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	 kiflag NST KI19 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} ;
+condst:  kiflag ST KI23 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	 kiflag ST KI19 {imm1 = OPERAND(Imm, $1-12, @1.S, @1.E);imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} ;
+
+conduncq: condIALU {opc = OPERAND(Reg, UCPMReg::ALUIALU, @$.S, @$.E);} |
+	  condIMAC {opc = OPERAND(Reg, UCPMReg::ALUIMAC, @$.S, @$.E);} |
+	  condIFALU {opc = OPERAND(Reg, UCPMReg::ALUIFALU, @$.S, @$.E);} |
+	  condIFMAC {opc = OPERAND(Reg, UCPMReg::ALUIFMAC, @$.S, @$.E);} ;
+
+condIALU: AND IALU DOT uncqflag{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  OR IALU DOT uncqflag{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  NEG LPAREN AND IALU DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	  NEG LPAREN OR IALU DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} ;
+condIMAC: AND IMAC DOT uncqflag{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  OR IMAC DOT uncqflag{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  NEG LPAREN AND IMAC DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	  NEG LPAREN OR IMAC DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} ;
+condIFALU: AND IFALU DOT uncqflag{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  OR IFALU DOT uncqflag{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  NEG LPAREN AND IFALU DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	  NEG LPAREN OR IFALU DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} ;
+condIFMAC: AND IFMAC DOT uncqflag{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  OR IFMAC DOT uncqflag{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 0, SMLoc(), SMLoc());} |
+	  NEG LPAREN AND IFMAC DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 1, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} |
+	  NEG LPAREN OR IFMAC DOT uncqflag RPAREN{imm1 = OPERAND(Imm, 0, SMLoc(), SMLoc());imm2 = OPERAND(Imm, 1, SMLoc(), SMLoc());} ;
+
+
 mpustop:MPUSTOP {ADDOPERAND(Opc, UCPM::MPUStop, @$.S, @$.E);};
 
 // ducx end mfetch --------------------------------------------------
@@ -8558,6 +8756,12 @@ condflag:  MODE0 {if(condpos) Operands[condpos-1].reset(OPERAND(Reg, UCPMReg::Mo
 
 mfetchflag: CR  {flags.set(CRF);};
 bflag: B {flags.set(BF);};
+sflag: S {flags.set(SF);};
+
+uncqflag:	U   {flags.set(UF);}  |
+		N   {flags.set(NF);}  |
+		CFLAG   {flags.set(CF);}  |
+		Q   {flags.set(QF);}  ;
 
 kiflag: KI;
 label: EXPR{$$=0;expr=$1;  OS<<"Position 1\n";} | IMM5 {$$=$1;expr=0;};

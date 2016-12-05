@@ -403,6 +403,16 @@ DecodeIALUImmOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
 }
 
 static DecodeStatus
+DecodeCondOprtorRegisterClass(MCInst &Inst, unsigned RegNo,
+		                             uint64_t Address, const void *Decoder) {
+  if (getReg(Decoder, UCPMReg::CondOprtorRegClassID, RegNo)) {
+	  Inst.addOperand(MCOperand::createReg(RegNo));
+	  return MCDisassembler::Success;
+  }
+  else return MCDisassembler::Fail;
+}
+
+static DecodeStatus
 DecodeConditionRegisterClass(MCInst &Inst, unsigned RegNo,
                              uint64_t Address, const void *Decoder) {
   if (getReg(Decoder, UCPMReg::ConditionRegClassID, RegNo)) {

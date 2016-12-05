@@ -307,6 +307,7 @@ A   [a-zA-Z_0-9]
 "w3"			 {return TOKEN(W3);}//dcx
 "w4"			 {return TOKEN(W4);}//dcx
 "k"   			 {return TOKEN(K);}//dcx
+"if"   			 {return TOKEN(IFIF);}//dcx
 
 "km"   			 {return TOKEN(KM);}//dcx
 "kg"   			 {return TOKEN(KG);}//dcx
@@ -337,6 +338,8 @@ A   [a-zA-Z_0-9]
 "ki20-22"   			 {return TOKEN(KI2022);}//dcx
 "ki24-26"   			 {return TOKEN(KI2426);}//dcx
 "ki"   				 {return TOKEN(KII);}//dcx
+"ki23"   			 {return TOKEN(KI23);}//dcx
+"ki19"   			 {return TOKEN(KI19);}//dcx
 
 "reg"[0-3]  			 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(REG);}//dcx
 "writereg"[0-3]   		 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(WRITEREG);}//dcx
