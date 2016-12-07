@@ -341,8 +341,8 @@ A   [a-zA-Z_0-9]
 "ki23"   			 {return TOKEN(KI23);}//dcx
 "ki19"   			 {return TOKEN(KI19);}//dcx
 
-"reg"[0-3]  			 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(REG);}//dcx
-"writereg"[0-3]   		 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(1)).c_str()); return TOKEN(WRITEREG);}//dcx
+"reg"[0-3]  			 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(3)).c_str()); return REG;}//dcx
+"writereg"[0-3]   		 {SAVE_TOKEN; yylval->val = atol((yylval->string->substr(8)).c_str()); return WRITEREG;}//dcx
 
 "="   				 {return TOKEN(ASSIGNMENT);}//dcx
 

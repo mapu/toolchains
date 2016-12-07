@@ -8336,7 +8336,7 @@ readwriteReg: readReg{
 
 };
 
-readReg:kiflag ASSIGNMENT REG _flag bflag flag_
+/*readReg:kiflag ASSIGNMENT REG _flag bflag flag_
       {imm = OPERAND(Imm, $1-12, @1.S, @1.E); imm1 = OPERAND(Imm, $3, @3.S, @3.E); }
       | kiflag ASSIGNMENT REG 
       {imm = OPERAND(Imm, $1-12, @1.S, @1.E); imm1 = OPERAND(Imm, $3, @3.S, @3.E); };
@@ -8344,9 +8344,19 @@ readReg:kiflag ASSIGNMENT REG _flag bflag flag_
 writeReg:WRITEREG _flag bflag flag_ ASSIGNMENT kiflag
       {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $6-12, @6.S, @6.E);}
       | WRITEREG ASSIGNMENT kiflag
-      {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $3-12, @3.S, @3.E);};
+      {imm1 = OPERAND(Imm, $1, @1.S, @1.E); imm = OPERAND(Imm, $3-12, @3.S, @3.E);};*/
 	 
-	 
+readReg:  REG _flag bflag flag_ ASSIGNTO kiflag
+      {imm = OPERAND(Imm, $6-12, @6.S, @6.E); imm1 = OPERAND(Imm, $1, @1.S, @1.E); }
+      | REG ASSIGNTO kiflag
+      {imm = OPERAND(Imm, $3-12, @3.S, @3.E); imm1 = OPERAND(Imm, $1, @1.S, @1.E); };
+  
+writeReg:kiflag ASSIGNTO WRITEREG _flag bflag flag_ 
+      {imm1 = OPERAND(Imm, $3, @3.S, @3.E); imm = OPERAND(Imm, $1-12, @1.S, @1.E);}
+      | kiflag ASSIGNTO WRITEREG
+      {imm1 = OPERAND(Imm, $3, @3.S, @3.E); imm = OPERAND(Imm, $1-12, @1.S, @1.E);};
+
+      
 jumpinst: JMP kimep{
 
       flagsort = flags[SF];
