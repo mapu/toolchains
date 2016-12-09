@@ -1,0 +1,6 @@
+LDFLAGS:= -lmapu -lelf
+TARGET:=@program_name@
+
+CFLAGS += -std=c99
+
+include $(TOPDIR)/arm/Makefile.env
