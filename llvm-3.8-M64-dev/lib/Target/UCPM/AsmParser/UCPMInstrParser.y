@@ -5123,7 +5123,22 @@ ifaludest: ialudest ;
 // end ifalu --------------------------------------------------
 
 // start imac --------------------------------------------------
-imacslot: IMAC DOT imacinst | imacsetcond;
+imacslot: IMAC DOT imacinst 
+|
+imacsetcond {	
+  ADDOPERAND(Opc, UCPM::IMACSetCond, @$.S, @$.E);
+  Operands.push_back(nullptr);
+  condpos = Operands.size();
+  if (imm == NULL)
+    ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+  else
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
+  if (imm1 == NULL)
+    ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
+  else
+    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
+};
+
 imacinst: imacmulclause ASSIGNTO imacdest {
   flagsort = (flags[LF] << 6) | (flags[TF] << 5) | (~flags[UF] << 4) | (flags[FF] << 3) | (flags[PF] << 2);
   //C or SEND flag
@@ -6236,22 +6251,7 @@ imacwaitclause{
   condpos = Operands.size();
   Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(f));
 }
-|
-imacsetcond {	    
-  ADDOPERAND(Opc, UCPM::BIU0SetCond, @$.S, @$.E);
-  Operands.push_back(nullptr);
-  condpos = Operands.size(); 
-  if (imm == NULL)
-    ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
-  else
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm));
-  if (imm1 == NULL)
-    ADDOPERAND(Imm, 0, SMLoc(), SMLoc());
-  else
-    Operands.push_back(std::unique_ptr<UCPM::UCPMAsmOperand>(imm1));   
-}
 ;
-//???
 
 imacmulclause: imulreal {
               $$ = 0; 
