@@ -249,11 +249,24 @@ A   [a-zA-Z_0-9]
 "cond"                   {return TOKEN(COND);}
 "setcond"                {return TOKEN(SETCOND);}//dcx
 "tb"                     {return TOKEN(TB);}
-"tbb"                    {return TOKEN(TBB);}
-"tbh"                    {return TOKEN(TBH);}
-"tbw"                    {return TOKEN(TBW);}
-"tbd"                    {return TOKEN(TBD);}
-"tsq"                    {return TOKEN(TSQ);}
+
+"tc0"                    {return TOKEN(TC0);}
+"tc1"                    {return TOKEN(TC1);}
+"tc2"                    {return TOKEN(TC2);}
+"tc3"                    {return TOKEN(TC3);}
+"tc4"                    {return TOKEN(TC4);}
+"tc5"                    {return TOKEN(TC5);}
+"tc6"                    {return TOKEN(TC6);}
+"tc7"                    {return TOKEN(TC7);}
+"tc8"                    {return TOKEN(TC8);}
+"tc9"                    {return TOKEN(TC9);}
+"tca"                    {return TOKEN(TCA);}
+"tcb"                    {return TOKEN(TCB);}
+"tcc"                    {return TOKEN(TCC);}
+"tcd"                    {return TOKEN(TCD);}
+"tce"                    {return TOKEN(TCE);}
+"tcf"                    {return TOKEN(TCF);}
+
 "ind"                    {return TOKEN(IND);}
 "comb"                   {return TOKEN(BY);}
 "cprs"                   {return TOKEN(CPRS);}

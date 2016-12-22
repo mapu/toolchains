@@ -126,14 +126,32 @@ def VT  : UCPMReg<0, "VT">, DwarfRegNum<[138]>;
 def TPort : RegisterClass<"UCPMReg", [v16i32], 32,
                           (sequence "T%u", 0, 3)>;
 
-def TBB : UCPMReg<4,  "TBB">;
-def TBH : UCPMReg<5,  "TBH">;
-def TBW : UCPMReg<6,  "TBW">;
-def TBD : UCPMReg<7,  "TBD">;
-def TSQ : UCPMReg<8,  "TSQ">;
+// def TBB : UCPMReg<4,  "TBB">;
+// def TBH : UCPMReg<5,  "TBH">;
+// def TBW : UCPMReg<6,  "TBW">;
+// def TBD : UCPMReg<7,  "TBD">;
+// def TSQ : UCPMReg<8,  "TSQ">;
+
+def TC0 : UCPMReg<0,  "TC0">;
+def TC1 : UCPMReg<1,  "TC1">;
+def TC2 : UCPMReg<2,  "TC2">;
+def TC3 : UCPMReg<3,  "TC3">;
+def TC4 : UCPMReg<4,  "TC4">;
+def TC5 : UCPMReg<5,  "TC5">;
+def TC6 : UCPMReg<6,  "TC6">;
+def TC7 : UCPMReg<7,  "TC7">;
+def TC8 : UCPMReg<8,  "TC8">;
+def TC9 : UCPMReg<9,  "TC9">;
+def TCA : UCPMReg<10,  "TCA">;
+def TCB : UCPMReg<11,  "TCB">;
+def TCC : UCPMReg<12,  "TCC">;
+def TCD : UCPMReg<13,  "TCD">;
+def TCE : UCPMReg<14,  "TCE">;
+def TCF : UCPMReg<15,  "TCF">;
 
 def TEPort : RegisterClass<"UCPMReg", [v16i32], 32,
-                           (add (sequence "T%u", 0, 3), TBB, TBH, TBW, TBD, TSQ)>;
+                           (add (sequence "T%u", 0, 3), TC0, TC1, TC2, TC3, TC4,
+			    TC5, TC6, TC7, TC8, TC9, TCA, TCB, TCC, TCD, TCE, TCF)>;
 
 
 // ducx start IALU ------------------------------------------------

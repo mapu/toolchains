@@ -52,7 +52,7 @@ typedef struct YYLTYPE {
 }
 %token <val> NEGIMM IMM3 IMM IMM5 ASSIGNTO EQU NEQ ST NLT LT NST LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT MASK WAIT COMMA ADD SUB MUL CMUL LSHT RSHT
 %token <val> OR AND XOR NOT NOT2 NEG MODE0 MODE1 NMODE0 NMODE1 ADDSUB ACC1 ACC2 SUBEQU ALPHA SPLIT LINEEND SHU0 SHU1 SHU2 BIU0 BIU1 BIU2 M COND SETCOND
-%token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TBB TBH TBW TBD TSQ IND BY
+%token <val> IALU IMAC FALU FMAC IFALU IFMAC TB TC0 TC1 TC2 TC3 TC4 TC5 TC6 TC7 TC8 TC9 TCA TCB TCC TCD TCE TCF IND BY
 %token <val> CPRS EXPD CONJ MINUS READQ READR DIVSTART DIVCONT START STOP MAX MIN ABS MERGE MDIVR MDIVQ DIVR DIVQ DIVS RECIP RSQRT SINGLE DOUBLE MR INT RMAX RMIN RADD
 %token <val> REPEAT LOOP JMP MPUSTOP REG WRITEREG
 %token <val> BR CR APP KPP SPP IPP CI F U P R T B H S D I L TC C CFLAG LABEL SHU BIU SHIFT0 SHIFT1 SHIFT2 SHIFT3 SEND FLOAT Q QL QH ML MH BIT BYTE
@@ -8634,11 +8634,29 @@ constt: _constt {
   else if (!tk) tk = OPERAND(Reg, treg, @$.S, @$.E);
   else if (!ut) ut = OPERAND(Reg, treg, @$.S, @$.E);
 }
-_constt: TBB {$$ = UCPMReg::TBB;} |
+/*_constt: TBB {$$ = UCPMReg::TBB;} |
          TBH {$$ = UCPMReg::TBH;} |
          TBW {$$ = UCPMReg::TBW;} |
          TBD {$$ = UCPMReg::TBD;} |
-         TSQ {$$ = UCPMReg::TSQ;} ;
+         TSQ {$$ = UCPMReg::TSQ;} ;*/
+         
+_constt: TC0 {$$ = UCPMReg::TC0;} |
+         TC1 {$$ = UCPMReg::TC1;} |
+         TC2 {$$ = UCPMReg::TC2;} |
+         TC3 {$$ = UCPMReg::TC3;} |
+         TC4 {$$ = UCPMReg::TC4;} |
+         TC5 {$$ = UCPMReg::TC5;} |
+         TC6 {$$ = UCPMReg::TC6;} |
+         TC7 {$$ = UCPMReg::TC7;} |
+         TC8 {$$ = UCPMReg::TC8;} |
+         TC9 {$$ = UCPMReg::TC9;} |
+         TCA {$$ = UCPMReg::TCA;} |
+         TCB {$$ = UCPMReg::TCB;} |
+         TCC {$$ = UCPMReg::TCC;} |
+         TCD {$$ = UCPMReg::TCD;} |
+         TCE {$$ = UCPMReg::TCE;} |
+         TCF {$$ = UCPMReg::TCF;} ;
+         
 shusrct: t | constt;
 tripara: dupara COMMA t;
 dupara: t COMMA t;
