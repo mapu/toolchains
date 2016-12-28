@@ -52,8 +52,8 @@ unsigned UCPSELFObjectWriter::getRelocType(MCContext &Ctx, const MCValue &Target
     case UCPS::fixup_UCPS_PC28:
       Type = ELF::R_UCPS_PC28;
       break;
-    case UCPS::fixup_UCPS_PC17:
-      Type = ELF::R_UCPS_PC17;
+    case UCPS::fixup_UCPS_PC18:
+      Type = ELF::R_UCPS_PC18;
       break;
     case FK_PCRel_1:
       Type = ELF::R_UCPS_PC_8;
@@ -78,8 +78,8 @@ unsigned UCPSELFObjectWriter::getRelocType(MCContext &Ctx, const MCValue &Target
     case UCPS::fixup_UCPS_11_B10:
       Type = ELF::R_UCPS_11_B10;
       break;
-    case UCPS::fixup_UCPS_17:
-      Type = ELF::R_UCPS_17;
+    case UCPS::fixup_UCPS_12:
+      Type = ELF::R_UCPS_12;
       break;
     case UCPS::fixup_UCPS_28:
       Type = ELF::R_UCPS_28;

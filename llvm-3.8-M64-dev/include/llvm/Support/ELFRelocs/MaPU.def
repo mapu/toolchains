@@ -25,11 +25,13 @@ ELF_RELOC(R_MSPU_32,           13)  // 32 bits
 ELF_RELOC(R_MSPU_64,           14)  // 64 bits
 
 // UCPS relocations
-ELF_RELOC(R_UCPS_PC17,         1)   // PC-relative address, bits 21-5
+//ELF_RELOC(R_UCPS_PC17,         1)   // PC-relative address, bits 21-5
+ELF_RELOC(R_UCPS_PC18,         1)   // PC-relative address, bits 22-5  change by dcx
 ELF_RELOC(R_UCPS_PC28,         2)   // PC-relative address, bits 27-0
 ELF_RELOC(R_UCPS_11_B5,        3)   // 11 bits relo, bits 15-5
 ELF_RELOC(R_UCPS_11_B10,       4)   // 11 bits relo, bits 20-10
-ELF_RELOC(R_UCPS_17,           5)   // PC-irrelative address, bits 21-5
+//ELF_RELOC(R_UCPS_17,           5)   // PC-irrelative address, bits 21-5
+ELF_RELOC(R_UCPS_12,           5)   // PC-irrelative address, bits 16-5 change by dcx
 ELF_RELOC(R_UCPS_28,           6)   // 28-bit extension, at bit 27-0
 // for data sections
 // pc relative

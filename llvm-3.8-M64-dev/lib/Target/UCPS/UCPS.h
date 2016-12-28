@@ -19,7 +19,7 @@
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Target/TargetMachine.h"
 
-#define  MSPUEncodingBytes  41
+#define  MSPUEncodingBytes  45
 
 namespace llvm
 {
