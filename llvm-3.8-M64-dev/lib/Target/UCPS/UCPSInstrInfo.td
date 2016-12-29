@@ -620,6 +620,18 @@ class UnaInst< dag outs, dag ins, string asm, bits<3> opcode >
   let Inst{4-0} = d;
 }
 
+class Una1Inst< dag outs, dag ins, string asm, bits<3> opcode >
+	  	: SCUInst <outs, ins, asm, opcode>
+{
+  bits<6> f;
+  bits<5> s;
+  bits<5> d;
+
+  let Inst{14-10} = s;
+  let Inst{4-0} = d;
+}
+
+
 def Not : UnaInst< (outs RReg:$d), (ins RReg:$s), "$d = ~$s", 0b101>
 {
    let Inst{25-24} = 0b11;
@@ -664,7 +676,7 @@ def AssignImm : SCUInst < (outs RReg:$d), (ins i32imm:$imm, SCUFlag:$f),
 }
 
 class Tran0Inst< string opc, bits<3> opcode , bits<2> x>
-	  	: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), 
+	  	: Una1Inst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = OPC $s$f"), opcode>
 {
   let Inst{25-24} = x;
@@ -672,10 +684,12 @@ class Tran0Inst< string opc, bits<3> opcode , bits<2> x>
 }
 
 def IntToSin : Tran0Inst<"SINGLE", 0b110, 0b00>;
-def IntOrSinToDou  : Tran0Inst<"DOUBLE", 0b110, 0b01>
+def IntToDou  : Tran0Inst<"DOUBLE", 0b110, 0b01>
 {
-  let Inst{25} = 0;
-  let Inst{24} = f{4};
+  let Inst{21} = f{0};
+}
+def SinToDou  : Tran0Inst<"DOUBLE", 0b111, 0b00>
+{
   let Inst{21} = f{0};
 }
 def SinToInt : Tran0Inst<"INT", 0b110, 0b10>;

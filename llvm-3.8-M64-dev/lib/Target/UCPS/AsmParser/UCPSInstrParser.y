@@ -44,9 +44,9 @@ using namespace llvm;
 %token _KM _KME _KG _KGE _BR _KE _L1 _L2 _L3 _L4 _ALL _V
 %token _KI1215 _KI1619 _KI2023 _KI2427 _KI1227 _KI1618 _KI2022 _KI2426
 
-%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags SEQFlags ISFlags BIUFlags VFlag ModeFlags//KMFlags
+%type <flags>  CallMFlags SCUFlags AGUFlags BHFlags SEQFlags ISFlags BIUFlags VFlag ModeFlags IntSinToDouFlags//KMFlags
 
-%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ SEQFlags_ ISFlags_ BIUFlags_ VFlag_ ModeFlags_
+%type <flags>  SCUFlags_ AGUFlags_ BHFlags_ SEQFlags_ ISFlags_ BIUFlags_ VFlag_ ModeFlags_ IntSinToDouFlags_
 
 
 %type <line>  InstLine
@@ -303,12 +303,30 @@ SCUFlags_ :   {$$ = 0b110000;}
 | SCUFlags_  _E {
 		$$ = $1 | (1<<1);
 	}
+| SCUFlags_  _H {
+		$$ = $1 | (1<<0);
+	}
 | SCUFlags_  _L {
 		$$ = $1 | (1<<0);
 	}
 | SCUFlags_  _D 
 	
 SCUFlags : SCUFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+
+
+
+IntSinToDouFlags_ :  {$$ = 0b000;}
+| IntSinToDouFlags_  _U {
+		$$ = $1 | (1<<2);
+	}
+| IntSinToDouFlags_  _H {
+		$$ = $1 | (1<<0);
+	}
+
+IntSinToDouFlags : IntSinToDouFlags_ { $$ = $1; InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createImm($1))); }
+
+
 
 
 SCUInst : RReg '=' RReg '+' RReg SCUFlags {
@@ -371,8 +389,11 @@ SCUInst : RReg '=' RReg '+' RReg SCUFlags {
 | RReg '=' _Single RReg SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntToSin)));
 	}
-| RReg '=' _Double RReg SCUFlags {
-		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntOrSinToDou)));
+| RReg '=' _Double RReg IntSinToDouFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::IntToDou)));
+	}
+| RReg '=' _Double RReg _S IntSinToDouFlags {
+		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SinToDou)));
 	}
 | RReg '=' _Int RReg SCUFlags {
 		InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::SinToInt)));
