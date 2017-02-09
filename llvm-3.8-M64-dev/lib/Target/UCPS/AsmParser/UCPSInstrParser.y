@@ -269,7 +269,7 @@ SynInst: RReg '=' _CallM RReg CallMFlags {
 | _KI '[' RReg ']' '=' RReg {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::RToKI)));
 	}
-| SVRReg '=' _KI ModeFlags {
+| SVRReg '=' _KI {
 	InstLine.Operands->push_back(std::unique_ptr<UCPS::UCPSAsmOperand>(UCPS::UCPSAsmOperand::createOpc(UCPSInst::KIToSVR)));
 	}
 | RReg '=' _KI '[' RReg ']' {

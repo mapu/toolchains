@@ -459,15 +459,13 @@ def SHUToRRs : SynInst< (outs RReg:$rs),
 }
 
 def KIToSVR : SynInst< (outs SVRReg:$svr), 
-			 (ins SYNFlag:$mode),
-			 "$svr=KI$mode", 0b101>
+			 (ins),
+			 "$svr=KI", 0b101>
 {
 	
 	bits<5> svr;
-	bits<7> mode;
 	let Inst{24-23} = 0b00;
 	let Inst{22-21} = 0b01;
-	let Inst{16-10} = mode;
 	let Inst{4-0} = svr;
 }
 def KIToR : SynInst< (outs RReg:$rs), 
@@ -578,8 +576,8 @@ class LogicInst< string opc, bits<3> opcode , bits<2> x>
   let Inst{23} = 1;
 }
 
-def And : LogicInst<"&", 0b101, 0b00>;
-def Or  : LogicInst<"|", 0b101, 0b01>;
+def And : LogicInst<"&", 0b101, 0b01>;
+def Or  : LogicInst<"|", 0b101, 0b00>;
 def XOr : LogicInst<"^", 0b101, 0b10>;
 
 class ShiftInst< string opc, bits<3> opcode, bit x >
@@ -616,21 +614,9 @@ class UnaInst< dag outs, dag ins, string asm, bits<3> opcode >
   bits<5> s;
   bits<5> d;
 
-  let Inst{9-5} = s;
-  let Inst{4-0} = d;
-}
-
-class Una1Inst< dag outs, dag ins, string asm, bits<3> opcode >
-	  	: SCUInst <outs, ins, asm, opcode>
-{
-  bits<6> f;
-  bits<5> s;
-  bits<5> d;
-
   let Inst{14-10} = s;
   let Inst{4-0} = d;
 }
-
 
 def Not : UnaInst< (outs RReg:$d), (ins RReg:$s), "$d = ~$s", 0b101>
 {
@@ -676,7 +662,7 @@ def AssignImm : SCUInst < (outs RReg:$d), (ins i32imm:$imm, SCUFlag:$f),
 }
 
 class Tran0Inst< string opc, bits<3> opcode , bits<2> x>
-	  	: Una1Inst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), 
+	  	: UnaInst < (outs RReg:$d), (ins RReg:$s, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = OPC $s$f"), opcode>
 {
   let Inst{25-24} = x;
@@ -695,7 +681,7 @@ def SinToDou  : Tran0Inst<"DOUBLE", 0b111, 0b00>
 def SinToInt : Tran0Inst<"INT", 0b110, 0b10>;
 
 class Tran1Inst< string opc, bits<3> opcode , bits<2> x>
-	  	: BinaInst < (outs RReg:$d), (ins RReg:$s0, RReg:$s1, SCUFlag:$f), 
+	  	: BinaInst < (outs RReg:$d), (ins RReg:$s1, RReg:$s0, SCUFlag:$f), 
 		  		  	 !subst("OPC", opc, "$d = OPC($s0,$s1)$f"), opcode>
 {
   let Inst{25-24} = x;
