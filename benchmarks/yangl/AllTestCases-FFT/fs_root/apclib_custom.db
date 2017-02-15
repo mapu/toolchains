@@ -1,13 +1,4 @@
 // This is a generated relationship database for APC library reference.
 // The database format is defined as:
 // <"slib_name", ["mlib_name0" "mlib_name1" ...]>
-<"FFTFix1024", ["FFTFix1024", ]>
-<"FFTFix256", ["FFTFix256", ]>
-<"FFTFix4096_spu", ["FFTFix4096_mpu", ]>
-<"FFTFloat1024", ["FFTFloat1024", ]>
-<"FFTFloat2048", ["FFTFloat2048", ]>
-<"FFTFloat256", ["FFTFloat256", ]>
-<"FFTFloat4096_spu", ["FFTFloat4096_mpu", ]>
-<"FFTFloat64_spu", ["FFTFloat64_mpu", ]>
-<"MatSFMul_spu", ["MatSFMul_mpu", ]>
 

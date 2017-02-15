@@ -1,4 +1,4 @@
-// mmpu.cc -- mmpu target support for gold.
+// ucps.cc -- ucps target support for gold.
 
 // Copyright 2012 CASIA.
 // Written by Shawn.Xie <shaolin.xie@ia.ac.cn>
@@ -25,7 +25,7 @@
 #include "elfcpp.h"
 #include "parameters.h"
 #include "reloc.h"
-#include "mmpu.h"
+#include "ucps.h"
 #include "object.h"
 #include "symtab.h"
 #include "layout.h"
@@ -37,20 +37,20 @@
 #include "errors.h"
 #include "gc.h"
 #include <cassert>
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 namespace {
 
 using namespace gold;
 
-//The mmpu only supports 32bit address & little endian
+//The ucps only supports 32bit address & little endian
 template<int size, bool big_endian>
-class Target_mmpu: public Sized_target<size, big_endian> {
+class Target_ucps: public Sized_target<size, big_endian> {
 public:
   typedef Output_data_reloc<elfcpp::SHT_RELA, true, size, big_endian> Reloc_section;
 
   //Construction function
-  Target_mmpu() :
-      Sized_target<size, big_endian>(&mmpu_info) {
+  Target_ucps() : Sized_target<size, big_endian>(&ucps_info) {
   }
 
   /*************************************************/
@@ -94,7 +94,7 @@ public:
       section_size_type view_size, unsigned char* reloc_view,
       section_size_type reloc_view_size);
   /*************************************************/
-  static Target::Target_info mmpu_info;
+  static Target::Target_info ucps_info;
 
 private:
   class Relocatable_size_for_reloc {
@@ -118,7 +118,7 @@ private:
     static inline int get_reference_flags(unsigned int r_type);
 
     //Scan a relocation  for local variable
-    inline void local(Symbol_table* symtab, Layout* layout, Target_mmpu* target,
+    inline void local(Symbol_table* symtab, Layout* layout, Target_ucps* target,
         Sized_relobj_file<size, big_endian>* object, unsigned int data_shndx,
         Output_section* output_section,
         const elfcpp::Rela<size, big_endian>& reloc, unsigned int r_type,
@@ -126,20 +126,20 @@ private:
 
     //Scan a relocation  for global variable
     inline void global(Symbol_table* symtab, Layout* layout,
-        Target_mmpu* target, Sized_relobj_file<size, big_endian>* object,
+        Target_ucps* target, Sized_relobj_file<size, big_endian>* object,
         unsigned int data_shndx, Output_section* output_section,
         const elfcpp::Rela<size, big_endian>& reloc, unsigned int r_type,
         Symbol* gsym);
 
     inline bool local_reloc_may_be_function_pointer(Symbol_table*, Layout*,
-        Target_mmpu*, Sized_relobj_file<size, big_endian>*, unsigned int,
+        Target_ucps*, Sized_relobj_file<size, big_endian>*, unsigned int,
         Output_section*, const elfcpp::Rela<size, big_endian>&, unsigned int,
         const elfcpp::Sym<size, big_endian>&) {
       return false;
     }
 
     inline bool global_reloc_may_be_function_pointer(Symbol_table*, Layout*,
-        Target_mmpu*, Sized_relobj_file<size, big_endian>*, unsigned int,
+        Target_ucps*, Sized_relobj_file<size, big_endian>*, unsigned int,
         Output_section*, const elfcpp::Rela<size, big_endian>&, unsigned int,
         Symbol*) {
       return false;
@@ -159,7 +159,7 @@ private:
   public:
     // Do a relocation.  Return false if the caller should not issue
     // any warnings about this relocation.
-    inline bool relocate(const Relocate_info<size, big_endian>*, Target_mmpu*,
+    inline bool relocate(const Relocate_info<size, big_endian>*, Target_ucps*,
         Output_section*, size_t relnum, const elfcpp::Rela<size, big_endian>&,
         unsigned int r_type, const Sized_symbol<size>*,
         const Symbol_value<size>*, unsigned char*,
@@ -168,61 +168,62 @@ private:
   //end of class Relocate
 
 };
-//end of class Target_mmpu
+//end of class Target_ucps
 
 //////////////////////////////////////////////////////////////////////
 template<>
-Target::Target_info Target_mmpu<32, false>::mmpu_info = { 32,			// size
-    false,		// is_big_endian
-    elfcpp::EM_MMPU,		// machine_code
-    false,		// has_make_symbol
-    false,		// has_resolve
-    false,		// has_code_fill
-    true,			// is_default_stack_executable
-    false,		// can_icf_inline_merge_sections
-    '\0',			// wrap_char
-    "",	// dynamic_linker
-    0x0,		// default_text_segment_address
-    0x100,		// abi_pagesize: 256-byte alignment (overridable by -z max-page-size)
-    0x100,// common_pagesize: 256-byte alignment (overridable by -z common-page-size)
-    false,                // isolate_execinstr
-    0,                    // rosegment_gap
-    elfcpp::SHN_UNDEF,	// small_common_shndx
-    elfcpp::SHN_UNDEF,	// large_common_shndx
-    0,      // small_common_section_flags
-    0,      // large_common_section_flags
-    ".MMPU.attributes",  // attributes_section
-    "mmpuabi",    // attributes_vendor
-    "_start"    // entry_symbol_name
-    };
+Target::Target_info Target_ucps<32, false>::ucps_info = {
+  32,			// size
+  false,		// is_big_endian
+  elfcpp::EM_UCPS,		// machine_code
+  false,		// has_make_symbol
+  false,		// has_resolve
+  false,		// has_code_fill
+  true,			// is_default_stack_executable
+  false,		// can_icf_inline_merge_sections
+  '\0',			// wrap_char
+  "",	// dynamic_linker
+  0x0,		// default_text_segment_address
+  0x100,		// abi_pagesize: 256-byte alignment (overridable by -z max-page-size)
+  0x100,// common_pagesize: 256-byte alignment (overridable by -z common-page-size)
+  false,                // isolate_execinstr
+  0,                    // rosegment_gap
+  elfcpp::SHN_UNDEF,	// small_common_shndx
+  elfcpp::SHN_UNDEF,	// large_common_shndx
+  0,			// small_common_section_flags
+  0,			// large_common_section_flags
+  ".UCPS.attributes",  // attributes_section
+  "ucpsabi",    // attributes_vendor
+  "_start"    // entry_symbol_name
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 template<int size, bool big_endian>
-class Target_selector_mmpu: public Target_selector {
+class Target_selector_ucps: public Target_selector {
 public:
-  Target_selector_mmpu() :
-      Target_selector(elfcpp::EM_NONE, size, big_endian, "elf32-mmpu",
-          "elf32mmpu") {
+  Target_selector_ucps() :
+      Target_selector(elfcpp::EM_NONE, size, big_endian, "elf32-ucps",
+          "elf32ucps") {
   }
 
   Target* do_recognize(Input_file*, off_t, int machine, int, int) {
-    if (machine == elfcpp::EM_MMPU)
+    if (machine == elfcpp::EM_UCPS)
       return this->instantiate_target();
     else
       return NULL;
   }
 
   Target* do_instantiate_target() {
-    return new Target_mmpu<size, big_endian>();
+    return new Target_ucps<size, big_endian>();
   }
 };
 
-Target_selector_mmpu<32, false> target_selector_mmpu32le;
+Target_selector_ucps<32, false> target_selector_ucps32le;
 
 } // End anonymous namespace.
 
 template<int size, bool big_endian>
-class mmpu_relocate_functions {
+class ucps_relocate_functions {
 public:
   // Do a simple relocation using a symbol value with the addend in
   // the relocation.
@@ -237,6 +238,27 @@ public:
     Valtype* wv = reinterpret_cast<Valtype*>(view);
     Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
     Valtype reloc = (psymval->value(object, addend) >> right_shift);
+
+    reloc = reloc << left_shift;
+    val &= ~dst_mask;
+    reloc &= dst_mask;
+
+    elfcpp::Swap<valsize, big_endian>::writeval(wv, val | reloc);
+  }
+
+  // Do a relocation agaist the ucpm object file
+  template<int valsize> static inline void ucpm_rela(unsigned char* view,
+      unsigned int right_shift, unsigned int left_shift,
+      elfcpp::Elf_Xword dst_mask,
+      const Sized_relobj_file<size, big_endian>* object,
+      const Symbol_value<size>* psymval,
+      typename elfcpp::Swap<valsize, big_endian>::Valtype addend) {
+
+    typedef typename elfcpp::Swap<valsize, big_endian>::Valtype Valtype;
+    Valtype* wv = reinterpret_cast<Valtype*>(view);
+    Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
+    Valtype reloc = (psymval->value(object, addend) >> right_shift);
+
     assert(reloc % 45 == 0);
 
     reloc = reloc / 45;        //41 is the instruction size of the microcode.
@@ -246,6 +268,67 @@ public:
 
     elfcpp::Swap<valsize, big_endian>::writeval(wv, val | reloc);
   }
+
+  // Do a simple PC relative relocation with a Symbol_value with the
+  // addend in the relocation.
+  template<int valsize> static inline void pcrela(unsigned char* view,
+      unsigned int right_shift, unsigned int left_shift,
+      elfcpp::Elf_Xword dst_mask,
+      const Sized_relobj_file<size, big_endian>* object,
+      const Symbol_value<size>* psymval,
+      typename elfcpp::Swap<size, big_endian>::Valtype addend,
+      typename elfcpp::Elf_types<size>::Elf_Addr address) {
+
+    typedef typename elfcpp::Swap<valsize, big_endian>::Valtype Valtype;
+    Valtype* wv = reinterpret_cast<Valtype*>(view);
+    Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
+    Valtype reloc = ((psymval->value(object, addend) - address) >> right_shift);
+
+    reloc = reloc << left_shift;
+
+    val &= ~dst_mask;
+    reloc &= dst_mask;
+
+    elfcpp::Swap<valsize, big_endian>::writeval(wv, val | reloc);
+  }
+
+  // Do a absolute function  point relocation
+  template<int valsize> static inline void func_rela(unsigned char* view,
+      elfcpp::Elf_Xword dst_mask,
+      const Sized_relobj_file<size, big_endian>* object,
+      const Symbol_value<size>* psymval,
+      typename elfcpp::Swap<size, big_endian>::Valtype addend) {
+
+    typedef typename elfcpp::Swap<valsize, big_endian>::Valtype Valtype;
+    Valtype* wv = reinterpret_cast<Valtype*>(view);
+    Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
+    Valtype reloc = psymval->value(object, addend);
+
+    val &= ~dst_mask;
+    reloc &= dst_mask;
+
+    elfcpp::Swap<valsize, big_endian>::writeval(wv, val | reloc);
+  }
+
+  // Do a pc-relative function  point relocation
+  template<int valsize> static inline void func_pc_rela(unsigned char* view,
+      elfcpp::Elf_Xword dst_mask,
+      const Sized_relobj_file<size, big_endian>* object,
+      const Symbol_value<size>* psymval,
+      typename elfcpp::Swap<size, big_endian>::Valtype addend,
+      typename elfcpp::Elf_types<size>::Elf_Addr address) {
+
+    typedef typename elfcpp::Swap<valsize, big_endian>::Valtype Valtype;
+    Valtype* wv = reinterpret_cast<Valtype*>(view);
+    Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
+    Valtype reloc = psymval->value(object, addend) - address;
+
+    val &= ~dst_mask;
+    reloc &= dst_mask;
+
+    elfcpp::Swap<valsize, big_endian>::writeval(wv, val | reloc);
+  }
+
 };
 ///////////////////////////////////////////////////////////////////////////////
 /*************************************************/
@@ -254,18 +337,18 @@ public:
 // used to determine unreferenced garbage sections. This procedure is
 // only called during garbage collection.
 template<int size, bool big_endian>
-void Target_mmpu<size, big_endian>::gc_process_relocs(Symbol_table* symtab,
+void Target_ucps<size, big_endian>::gc_process_relocs(Symbol_table* symtab,
     Layout* layout, Sized_relobj_file<size, big_endian>* object,
     unsigned int data_shndx, unsigned int sh_type, const unsigned char* prelocs,
     size_t reloc_count, Output_section* output_section,
     bool needs_special_offset_handling, size_t local_symbol_count,
     const unsigned char* plocal_symbols) {
 
-  typedef Target_mmpu<size, big_endian> Mmpu;
-  typedef typename Target_mmpu<size, big_endian>::Scan Scan;
+  typedef Target_ucps<size, big_endian> Ucps;
+  typedef typename Target_ucps<size, big_endian>::Scan Scan;
 
-  gold::gc_process_relocs<size, big_endian, Mmpu, elfcpp::SHT_RELA, Scan,
-      typename Target_mmpu::Relocatable_size_for_reloc>(symtab, layout, this,
+  gold::gc_process_relocs<size, big_endian, Ucps, elfcpp::SHT_RELA, Scan,
+      typename Target_ucps::Relocatable_size_for_reloc>(symtab, layout, this,
       object, data_shndx, prelocs, reloc_count, output_section,
       needs_special_offset_handling, local_symbol_count, plocal_symbols);
 }
@@ -286,22 +369,22 @@ void Target_mmpu<size, big_endian>::gc_process_relocs(Symbol_table* symtab,
 // sections are not mapped as usual.  
 // PLOCAL_SYMBOLS      -- points to the local symbol data from OBJECT. 
 template<int size, bool big_endian>
-void Target_mmpu<size, big_endian>::scan_relocs(Symbol_table* symtab,
+void Target_ucps<size, big_endian>::scan_relocs(Symbol_table* symtab,
     Layout* layout, Sized_relobj_file<size, big_endian>* object,
     unsigned int data_shndx, unsigned int sh_type, const unsigned char* prelocs,
     size_t reloc_count, Output_section* output_section,
     bool needs_special_offset_handling, size_t local_symbol_count,
     const unsigned char* plocal_symbols) {
 
-  typedef Target_mmpu<size, big_endian> Mmpu;
-  typedef typename Target_mmpu<size, big_endian>::Scan Scan;
+  typedef Target_ucps<size, big_endian> Ucps;
+  typedef typename Target_ucps<size, big_endian>::Scan Scan;
 
   if (sh_type == elfcpp::SHT_REL) {
     gold_error(_("%s: unsupported REL reloc section"), object->name().c_str());
     return;
   }
 
-  gold::scan_relocs<size, big_endian, Mmpu, elfcpp::SHT_RELA, Scan>(symtab,
+  gold::scan_relocs<size, big_endian, Ucps, elfcpp::SHT_RELA, Scan>(symtab,
       layout, this, object, data_shndx, prelocs, reloc_count, output_section,
       needs_special_offset_handling, local_symbol_count, plocal_symbols);
 }
@@ -320,7 +403,7 @@ void Target_mmpu<size, big_endian>::scan_relocs(Symbol_table* symtab,
 // the input section data.
 /****************************************************************/
 template<int size, bool big_endian>
-void Target_mmpu<size, big_endian>::relocate_section(
+void Target_ucps<size, big_endian>::relocate_section(
     const Relocate_info<size, big_endian> * relinfo, unsigned int sh_type,
     const unsigned char* prelocs, size_t reloc_count,
     Output_section* output_section, bool needs_special_offset_handling,
@@ -329,13 +412,13 @@ void Target_mmpu<size, big_endian>::relocate_section(
     section_size_type view_size,
     const Reloc_symbol_changes* reloc_symbol_changes) {
 
-  typedef Target_mmpu<size, big_endian> Mmpu;
-  typedef typename Target_mmpu<size, big_endian>::Relocate Mmpu_relocate;
+  typedef Target_ucps<size, big_endian> Ucps;
+  typedef typename Target_ucps<size, big_endian>::Relocate Ucps_relocate;
 
   gold_assert(sh_type == elfcpp::SHT_RELA);
 
-  gold::relocate_section<size, big_endian, Mmpu, elfcpp::SHT_RELA,
-                         Mmpu_relocate, gold::Default_comdat_behavior>(
+  gold::relocate_section<size, big_endian, Ucps, elfcpp::SHT_RELA,
+                         Ucps_relocate, gold::Default_comdat_behavior>(
     relinfo, this, prelocs, reloc_count, output_section,
     needs_special_offset_handling, view, view_address, view_size,
     reloc_symbol_changes);
@@ -347,7 +430,7 @@ void Target_mmpu<size, big_endian>::relocate_section(
 /****************************************************************/
 
 template<int size, bool big_endian>
-void Target_mmpu<size, big_endian>::scan_relocatable_relocs(
+void Target_ucps<size, big_endian>::scan_relocatable_relocs(
     Symbol_table* symtab, Layout* layout,
     Sized_relobj_file<size, big_endian>* object, unsigned int data_shndx,
     unsigned int sh_type, const unsigned char* prelocs, size_t reloc_count,
@@ -373,7 +456,7 @@ void Target_mmpu<size, big_endian>::scan_relocatable_relocs(
 // the output reloc section.
 /****************************************************************/
 template<int size, bool big_endian>
-void Target_mmpu<size, big_endian>::relocate_relocs(
+void Target_ucps<size, big_endian>::relocate_relocs(
     const Relocate_info<size, big_endian>* relinfo, unsigned int sh_type,
     const unsigned char* prelocs, size_t reloc_count,
     Output_section* output_section,
@@ -398,23 +481,41 @@ void Target_mmpu<size, big_endian>::relocate_relocs(
 //Canditates inclues:
 //  0, ABSOLUTE_REF, RELATIVE_REF, FUNCTION_REF, TSL_REF
 template<int size, bool big_endian>
-int Target_mmpu<size, big_endian>::Scan::get_reference_flags(
+int Target_ucps<size, big_endian>::Scan::get_reference_flags(
     unsigned int r_type) {
-  return Symbol::ABSOLUTE_REF;
+  if (r_type == elfcpp::R_UCPS_PC17)
+    return Symbol::RELATIVE_REF;
+  else
+    return Symbol::ABSOLUTE_REF;
 }
 
 // Scan a relocation for a local symbol, but all code are related to 
 // GOT or share libraries in Powerpc.cc
 template<int size, bool big_endian>
-inline void Target_mmpu<size, big_endian>::Scan::local(Symbol_table* symtab,
-    Layout* layout, Target_mmpu* target,
+inline void Target_ucps<size, big_endian>::Scan::local(Symbol_table* symtab,
+    Layout* layout, Target_ucps* target,
     Sized_relobj_file<size, big_endian>* object, unsigned int data_shndx,
     Output_section* output_section, const elfcpp::Rela<size, big_endian>& reloc,
     unsigned int r_type, const elfcpp::Sym<size, big_endian>& lsym,
     bool is_discarded) {
 
   switch (r_type) {
-  case elfcpp::R_MMPU_11:
+  case elfcpp::R_UCPS_PC17:
+  case elfcpp::R_UCPS_PC28:
+  case elfcpp::R_UCPS_11_B5:
+  case elfcpp::R_UCPS_11_B10:
+  case elfcpp::R_UCPS_17:
+  case elfcpp::R_UCPS_28:
+  case elfcpp::R_UCPS_PC_8:     // 1 byte, 8 bits
+  case elfcpp::R_UCPS_PC_16:    // 2 bytes, 16 bits
+  case elfcpp::R_UCPS_PC_32:    // 32 bits
+  case elfcpp::R_UCPS_PC_64:    // 64 bits
+
+    // pc irrelative,//Write the R_UCPS_8 to  *R_UCPS_8
+  case elfcpp::R_UCPS_8:     // 1 byte, 8 bits
+  case elfcpp::R_UCPS_16:    // 2 bytes, 16 bits
+  case elfcpp::R_UCPS_32:    // 32 bits
+  case elfcpp::R_UCPS_64:    // 64 bits
     break;
   default:
     gold_error(_("%s: unexpected reloc %u in object file"),
@@ -426,13 +527,28 @@ inline void Target_mmpu<size, big_endian>::Scan::local(Symbol_table* symtab,
 // Scan a relocation for a global symbol, but all code are related to 
 // GOT or share libraries in Powerpc.cc
 template<int size, bool big_endian>
-inline void Target_mmpu<size, big_endian>::Scan::global(Symbol_table* symtab,
-    Layout* layout, Target_mmpu* target,
+inline void Target_ucps<size, big_endian>::Scan::global(Symbol_table* symtab,
+    Layout* layout, Target_ucps* target,
     Sized_relobj_file<size, big_endian>* object, unsigned int data_shndx,
     Output_section* output_section, const elfcpp::Rela<size, big_endian>& reloc,
     unsigned int r_type, Symbol* gsym) {
   switch (r_type) {
-  case elfcpp::R_MMPU_11:
+  case elfcpp::R_UCPS_PC17:
+  case elfcpp::R_UCPS_PC28:
+  case elfcpp::R_UCPS_11_B5:
+  case elfcpp::R_UCPS_11_B10:
+  case elfcpp::R_UCPS_17:
+  case elfcpp::R_UCPS_28:
+  case elfcpp::R_UCPS_PC_8:     // 1 byte, 8 bits
+  case elfcpp::R_UCPS_PC_16:    // 2 bytes, 16 bits
+  case elfcpp::R_UCPS_PC_32:    // 32 bits
+  case elfcpp::R_UCPS_PC_64:    // 64 bits
+
+    // pc irrelative,//Write the R_UCPS_8 to  *R_UCPS_8
+  case elfcpp::R_UCPS_8:     // 1 byte, 8 bits
+  case elfcpp::R_UCPS_16:    // 2 bytes, 16 bits
+  case elfcpp::R_UCPS_32:    // 32 bits
+  case elfcpp::R_UCPS_64:    // 64 bits
     break;
   default:
     gold_error(_("%s: unexpected reloc %u in object file"),
@@ -443,31 +559,97 @@ inline void Target_mmpu<size, big_endian>::Scan::global(Symbol_table* symtab,
 /**********************************************************************/
 //  Functions for Class Relocation
 /**********************************************************************/
-template<int size, bool big_endian> inline bool Target_mmpu<size, big_endian>::Relocate::relocate(
-    const Relocate_info<size, big_endian>* relinfo, Target_mmpu* target,
+template<int size, bool big_endian> inline bool Target_ucps<size, big_endian>::Relocate::relocate(
+    const Relocate_info<size, big_endian>* relinfo, Target_ucps* target,
     Output_section*, size_t relnum, const elfcpp::Rela<size, big_endian>& rela,
     unsigned int r_type, const Sized_symbol<size>* gsym,
     const Symbol_value<size>* psymval, unsigned char* view,
     typename elfcpp::Elf_types<size>::Elf_Addr address,
     section_size_type /* view_size */) {
 
-  typedef mmpu_relocate_functions<size, big_endian> Reloc;
+  typedef ucps_relocate_functions<size, big_endian> Reloc;
+  typedef typename elfcpp::Swap<size, big_endian>::Valtype Valtype;
 
   const Sized_relobj_file<size, big_endian>* object = relinfo->object;
   elfcpp::Elf_Xword addend = rela.get_r_addend();
+  //////////////////////////Check if Is Immextended.
+  bool bImmExt = false;
+  for (unsigned i = 0; i <= 3; i++) {
+    Valtype* wv = reinterpret_cast<Valtype*>(view + 4 * i); //get the next instruction code.
+    Valtype val = elfcpp::Swap<size, big_endian>::readval(wv);
+    if (((val >> 28) & 0x7) == 0x5) {
+      bImmExt = true;
+      break;
+    }
+    if ((val >> 31) & 1) break;
+  }
 
   switch (r_type) {
-  case elfcpp::R_MMPU_11:
-    /****************************************************************/
-    /* This is only used for Micorcode Jump & Loop Instructions     */
-    //  -------------------------------------------------------------
-    //MSB|    B40    |    B39    |    B38    |    B37    |    B36    |LSB
-    //  -------------------------------------------------------------
-    //                 -------17                         0
-    //  The View is the address of B37
-    //  The Imm11 is locate in 26-17
-    /* Refer to the Instruction encoding document                   */
-    Reloc::template rela<32>(view, 0, 17, 0x0FFE0000, object, psymval, addend);
+  case elfcpp::R_UCPS_11_B5:   //This is the ImmAssign Instruction
+    if (bImmExt)
+      Reloc::template rela<32>(view, 0, 5, 0x000001E0, object, psymval, addend);
+    else
+      Reloc::template rela<32>(view, 0, 5, 0x0000FFE0, object, psymval, addend);
+    break;
+  case elfcpp::R_UCPS_11_B10: //This is the AGUImm    Instruction
+    if (bImmExt)
+      Reloc::template rela<32>(view, 0, 10, 0x0003C000, object, psymval,
+          addend);
+    else
+      Reloc::template rela<32>(view, 0, 10, 0x01FFC000, object, psymval,
+          addend);
+    break;
+  case elfcpp::R_UCPS_PC17:    //This is the Jump/loop  Instruction,
+    if (bImmExt)
+      Reloc::template pcrela<32>(view, 0, 5, 0x000001E0, object, psymval,
+          addend, address);
+    else
+      Reloc::template pcrela<32>(view, 0, 5, 0x003FFFE0, object, psymval,
+          addend, address);
+    break;
+  case elfcpp::R_UCPS_17:   //This is the CallM instruction
+    Reloc::template ucpm_rela<32>(view, 0, 5, ((1 << 17) - 1) << 5, object,
+        psymval, addend);
+    break;
+  case elfcpp::R_UCPS_28: //This is the Imm Extenion Instruction except the jump/seq
+    Reloc::template rela<32>(view, 4, 0, 0x0FFFFFFF, object, psymval, addend);
+    break;
+  case elfcpp::R_UCPS_PC28:  //This is the Imm Extenion Instruction for jump/seq
+                             //The address must sub 4 , which points to the origial instruction.
+    Reloc::template pcrela<32>(view, 4, 0, 0x0FFFFFFF, object, psymval, addend,
+        address - 4);
+    break;
+    //the absolute funciton point relocation.
+  case elfcpp::R_UCPS_8:
+    Reloc::template func_rela<32>(view, 0xFF, object, psymval, addend);
+    break;
+  case elfcpp::R_UCPS_16:
+    Reloc::template func_rela<32>(view, 0xFFFF, object, psymval, addend);
+    break;
+  case elfcpp::R_UCPS_32:
+    Reloc::template func_rela<32>(view, 0xFFFFFFFF, object, psymval, addend);
+    break;
+  case elfcpp::R_UCPS_64:
+    Reloc::template func_rela<64>(view, 0xFFFFFFFFFFFFFFFFL, object, psymval,
+        addend);
+    break;
+
+    //the relative funciton point relocation.
+  case elfcpp::R_UCPS_PC_8:
+    Reloc::template func_pc_rela<32>(view, 0xFF, object, psymval, addend,
+        address);
+    break;
+  case elfcpp::R_UCPS_PC_16:
+    Reloc::template func_pc_rela<32>(view, 0xFFFF, object, psymval, addend,
+        address);
+    break;
+  case elfcpp::R_UCPS_PC_32:
+    Reloc::template func_pc_rela<32>(view, 0xFFFFFFFF, object, psymval, addend,
+        address);
+    break;
+  case elfcpp::R_UCPS_PC_64:
+    Reloc::template func_pc_rela<64>(view, 0xFFFFFFFFFFFFFFFFL, object, psymval,
+        addend, address);
     break;
   default:
     break;

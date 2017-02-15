@@ -3,8 +3,8 @@ root=`pwd`
 
 # Check argument
 gem5_en=0
-gold_en=0
-llvm_en=1
+gold_en=1
+llvm_en=0
 newlib_en=0
 openocd_en=0
 qemu_en=0
@@ -300,9 +300,10 @@ then
   # $source_path/MaPUGold/gold/configure --prefix=$install_path --program-transform-name="s/ld.gold/llvm-ld/" --enable-targets=all --disable-werror
   $source_path/gold-2.25/configure --disable-optimize --enable-gold --enable-targets=all --prefix=$install_path #--program-transform-name="s/ld.gold/llvm-ld/" 
   make $MCFLAG || gold_err=1
-  if [ "$debug_mode" -eq 0 ]
-  then make install #DATADIRNAME=abc
-  fi
+  #if [ "$debug_mode" -eq 0 ]
+  #then
+  make install #DATADIRNAME=abc
+  #fi
 fi
 
 # Install newlib

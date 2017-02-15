@@ -259,9 +259,9 @@ public:
     Valtype val = elfcpp::Swap<valsize, big_endian>::readval(wv);
     Valtype reloc = (psymval->value(object, addend) >> right_shift);
 
-    assert(reloc % 41 == 0);
+    assert(reloc % 45 == 0);
 
-    reloc = reloc / 41;        //41 is the instruction size of the microcode.
+    reloc = reloc / 45;        //41 is the instruction size of the microcode.
     reloc = reloc << left_shift;
     val &= ~dst_mask;
     reloc &= dst_mask;

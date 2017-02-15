@@ -180,6 +180,20 @@ mspu-*)
   targ_big_endian=false
   targ_extra_big_endian=false
   ;;
+ucps-*)
+  targ_obj=ucps
+  targ_machine=EM_UCPS
+  targ_size=32
+  targ_big_endian=false
+  targ_extra_big_endian=false
+  ;;
+ucps-*)
+  targ_obj=ucpm
+  targ_machine=EM_UCPM
+  targ_size=32
+  targ_big_endian=false
+  targ_extra_big_endian=false
+  ;;
 *)
   targ_obj=UNKNOWN
   ;;

@@ -273,6 +273,9 @@ enum EM
   // ARCH_MAPU
   EM_MSPU = 0x288,
   EM_MMPU = 0x460,
+   // ARCH_UCP
+  EM_UCPS = 0x462,
+  EM_UCPM = 0x460,
   // The Morph MT.
   EM_MT = 0x2530,
   // DLX.
