@@ -3,6 +3,7 @@
 from APCview.APCViewWidget import APCViewWidget
 from ARMview.ARMViewWidget import ARMViewWidget
 from ConfigView.ConfigViewWidget import ConfigViewWidget
+from FunctionView.FunctionLibraryWidget import FunctionLibraryWidget
 from PyQt4.QtCore import QProcess, SIGNAL, Qt
 from PyQt4.QtGui import QMainWindow, QTabWidget, QAction, QIcon, \
     QLabel, QFileDialog, QInputDialog, QPixmap, QLineEdit
@@ -35,7 +36,7 @@ class MainWindow(QMainWindow):
         self.apcViewWidget = APCViewWidget(config, control)
         self.configWidget = ConfigViewWidget(config, control)
         self.progressDialog = ProgressDialog(config, control, self)
-        
+        self.functionLibraryWidget = FunctionLibraryWidget(self.perspTabs)
         # Fix me: this is ugly...
         self.configWidget.ARMmodeGroup.buttonClicked[int].connect(self.armViewWidget.UART0Widget.switchMode)
         #======================================================================
@@ -46,6 +47,7 @@ class MainWindow(QMainWindow):
         self.perspTabs.addTab(self.armViewWidget, self.tr("ARM Perspective"))
         self.perspTabs.addTab(self.apcViewWidget, self.tr("APC Perspective"))
         self.perspTabs.addTab(self.configWidget, self.tr("Configuration"))
+        self.perspTabs.addTab(self.functionLibraryWidget, self.tr("Function Library"))
         
         self.control.ARMGem5Process.stateChanged.connect(self.ARMStatus)
         self.control.ARMQemuProcess.stateChanged.connect(self.ARMStatus)
