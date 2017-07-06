@@ -519,6 +519,7 @@ class ConfigViewWidget(QMainWindow):
 	    if self.num>1:
 	        self.APCCommand=self.APCCommand+" "+"-n"+" "+QString.number(self.num,10)
 	    self.APCProcess=QProcess()
+            self.APCProcess.setProcessChannelMode(QProcess.ForwardedChannels)
             self.connect(self.APCProcess,SIGNAL("readyReadStandardOutput()"),self.APCStartReadOutput)
             self.connect(self.APCProcess,SIGNAL("readyReadStandardError()"),self.APCStartReadErrOutput)
 	    self.connect(self.APCProcess,SIGNAL("finished(int,QProcess::ExitStatus)"),self.APCFinishProcess)
@@ -599,10 +600,12 @@ class ConfigViewWidget(QMainWindow):
 	self.stopButton.setEnabled(False)
 
     def APCStartReadOutput(self):
+        print "APCStartReadOutput"
         ba=self.APCProcess.readAllStandardOutput()
 	self.APCSimulatorShowSignal.emit(0,ba.data())
 
     def APCStartReadErrOutput(self):
+        print "APCStartReaderror"
         ba=self.APCProcess.readAllStandardError()
 	self.APCSimulatorShowSignal.emit(1,ba.data())
 
