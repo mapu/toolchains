@@ -2,15 +2,15 @@
 root=`pwd`
 
 # Check argument
-gem5_en=0
-gold_en=0
+gem5_en=1
+gold_en=1
 llvm_en=1
-newlib_en=0
-openocd_en=0
-qemu_en=0
-res_en=0
-compiler_en=0
-debug_mode=1
+newlib_en=1
+openocd_en=1
+qemu_en=1
+res_en=1
+compiler_en=1
+debug_mode=0
 install_path=
 while (( $# != 0 ))
 do
@@ -158,12 +158,12 @@ then
   then
     mkdir $install_path/res/u-boot --parents
   fi
-  svn export u-boot $install_path/res/u-boot --force -q || uboot_err=1
+  cp -R u-boot $install_path/res/ || uboot_err=1
   if [ ! -e $install_path/res/boot_rom ]
   then
     mkdir $install_path/res/boot_rom --parents
   fi
-  svn export boot_rom $install_path/res/boot_rom --force -q || bootrom_err=1
+  cp -R boot_rom $install_path/res/ || bootrom_err=1
 fi
 
 compiler_err=0
@@ -174,7 +174,7 @@ then
   then
     mkdir $install_path/arm-none-eabi --parents
   fi
-  svn export arm-none-eabi $install_path/arm-none-eabi --force -q || compiler_err=1
+  cp -R arm-none-eabi $install_path/ || compiler_err=1
 fi
 
 # Install Gem5
