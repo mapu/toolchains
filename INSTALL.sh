@@ -302,6 +302,7 @@ then
   make $MCFLAG || gold_err=1
   if [ "$debug_mode" -eq 0 ]
   then make install #DATADIRNAME=abc
+       cp $source_path/gold-2.25/gold/*.ld $install_path/share/
   fi
 fi
 
