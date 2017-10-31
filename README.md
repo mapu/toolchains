@@ -7,8 +7,19 @@ The toolchain is up to date, but we are adding the examples and translating the 
 The toolchain is fully tested in CentOS 7.0.1, we can't guarantee other distributions yet.
 
 ## Quick start
+
+### Compile
+Clone this repository and execute the INSTALL.sh script will install all the toolchain. About 10 mins in Intel Xeon E5 server
 ```bash
-git clone https://github.com/mapu/toolchains.git
-cd toolchains
-./INSTALL.sh <dest_dir> # The dest_dir should be an absolute path.
+./INSTALL.sh <install_dir> # The install_dir should be an absolute path.
 ```
+### Setup the environment 
+The MaPU toolchain relies on an environment variable *MAPU_HOME* which should point to the install directory. Before using the toolchain, we should setup this environment variable.
+```bash
+export MAPU_HOME= <install_dir>
+```
+For convenience, we can also add the executable directory to the system bin path
+```bash
+export PATH=$PATH:$MAPU_HOME/apc/bin
+```
+### Run the simple test
