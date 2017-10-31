@@ -18,8 +18,30 @@ The MaPU toolchain relies on an environment variable *MAPU_HOME* which should po
 ```bash
 export MAPU_HOME= <install_dir>
 ```
-For convenience, we can also add the executable directory to the system bin path
+For convenience, we can also add the executable directory to the system PATH 
 ```bash
 export PATH=$PATH:$MAPU_HOME/apc/bin
+export PATH=$PATH:$MAPU_HOME/simulator/apc
 ```
 ### Run the simple test
+The *examples/1.Hello_MaPU* is the simplest case we can run. The source code is as following:
+```c
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+  printf("--------------------------------\n");
+  printf(">> Hello MaPU!\n");
+  printf("--------------------------------\n");
+  return  0;
+}
+```
+Type *make* command in this directory will outputs followings as expected:
+```bash
+**** REAL SIMULATION ****
+info: Entering event queue @ 0.  Starting simulation...
+--------------------------------
+>> Hello MaPU!
+--------------------------------
+hack: be nice to actually delete the event here
+Exiting @ tick 21392000 because target called exit()
+```
