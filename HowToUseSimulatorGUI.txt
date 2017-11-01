@@ -1,0 +1,16 @@
+sudo rpm -ivh python-nose
+sudo yum install cmake
+sudo yum install qt4-devel*
+sudo yum install sip-devel*
+sudo yum install PyQt4-devel*
+
+
+in qtermwidget-master:
+    1) mkdir -p build && cd build
+    2) cmake path/to/source  # for Qt 4
+    3) make
+    4) sudo make install
+cd pyqt4
+    1) python config.py
+    2) make
+    3) sudo make install
