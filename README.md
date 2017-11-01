@@ -1,30 +1,30 @@
 # Welcome to the MaPU toolchain!
-This repostior contains the complete toolchain used for the first MaPU chip, including assembler, linker, compiler, simulator, debugger and necessary linux port and bootloader.
+This repository contains the complete toolchain used for the first MaPU chip, including assembler, linker, compiler, simulator, debugger and necessary linux port and bootloader.
 
-The toolchain is up to date, but we are adding the examples and translating the documentations.
-## Rerequest
+The toolchain is stable now, but changes may be committed for adding new examples and translating the documentations.
+## Requirement
 
-The toolchain is fully tested in CentOS 7.0.1, we can't guarantee other distributions yet.
+The toolchain is fully tested on CentOS 7.0.1, and we are short of hands to test it on other Linux distributions.
 
 ## Quick start
 
-### Compile
-Clone this repository and execute the INSTALL.sh script will install all the toolchain. About 10 mins in Intel Xeon E5 server
+### Compilation
+Clone this repository and execute the INSTALL.sh script to install all the packages. It takes about 10 mins on an Intel Xeon E5 server.
 ```bash
 ./INSTALL.sh <install_dir> # The install_dir should be an absolute path.
 ```
-### Setup the environment 
-The MaPU toolchain relies on an environment variable *MAPU_HOME* which should point to the install directory. Before using the toolchain, we should setup this environment variable.
+### Environment Setup
+The MaPU toolchain relies on an environment variable *MAPU_HOME* which should point to the install directory. Before using the toolchain, this environment variable should be set.
 ```bash
 export MAPU_HOME= <install_dir>
 ```
-For convenience, we can also add the executable directory to the system PATH 
+For convenience, you can add the executable directory to the system PATH 
 ```bash
 export PATH=$PATH:$MAPU_HOME/apc/bin
 export PATH=$PATH:$MAPU_HOME/simulator/apc
 ```
-### Run the simple test
-The *examples/1.Hello_MaPU* is the simplest case we can run. The source code is as following:
+### Installation Verification
+After setting up the environment, the toolchain should be good to go. There is a simple case *examples/1.Hello_MaPU* under the source tree which can verify the installation. The source code is as following:
 ```c
 #include <stdio.h>
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   return  0;
 }
 ```
-Type *make* command in this directory will outputs followings as expected:
+Type *make* command in this directory will output followings as expected:
 ```bash
 **** REAL SIMULATION ****
 info: Entering event queue @ 0.  Starting simulation...
