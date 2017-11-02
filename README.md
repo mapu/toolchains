@@ -45,3 +45,29 @@ info: Entering event queue @ 0.  Starting simulation...
 hack: be nice to actually delete the event here
 Exiting @ tick 21392000 because target called exit()
 ```
+# The repository structure
+|  files                                | short descriptions        | document              | 
+|  -------------------------------------|---------------------------|-----------------------|
+|  HowToUseSimulatorGUI.txt             |                           |                       |
+|  INSTALL.sh                           |                           |                       |
+|  MaPUSim                              |                           |                       |
+|  README.md                            |                           |                       |
+|  arm-none-eabi                        |                           |                       |
+|  asm-gui                              |                           |                       |
+|  benchmarks                           |                           |                       |
+|  boot_rom                             |                           |                       |
+|  clr_shm.sh                           |                           |                       |
+|  deplibs                              |                           |                       |
+|  docs                                 |                           |                       |
+|  examples                             |                           |                       |
+|  gen_image.sh                         |                           |                       |
+|  gold-2.25                            |                           |                       |
+|  kernel                               |                           |                       |
+|  llvm-3.8                             |                           |                       |
+|  newlib                               |                           |                       |
+|  openocd-0.5                          |                           |                       |
+|  pocl                                 |                           |                       |
+|  python-nose-1.3.7-1.el7.noarch.rpm   |                           |                       |
+|  qtermwidget-master                   |                           |                       |
+|  ragel-6.8                            |                           |                       |
+|  u-boot                               |                           |                       |
