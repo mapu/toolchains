@@ -1,1 +1,4 @@
-theme: jekyll-theme-midnight
+theme: jekyll-theme-slate
+title: MaPU
+description: The next generation DSP architecture
+github: [metadata]
