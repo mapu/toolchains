@@ -1,1 +1,0 @@
-obj-$(CONFIG_APC_IF) += apc_if.o

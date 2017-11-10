@@ -7,9 +7,6 @@ gold_en=1
 llvm_en=1
 newlib_en=1
 openocd_en=1
-qemu_en=1
-res_en=1
-compiler_en=1
 debug_mode=0
 install_path=
 while (( $# != 0 ))
@@ -35,27 +32,12 @@ do
      openocd_en=0
      shift
   ;;
-  "--disable-qemu" )
-     qemu_en=0
-     shift
-  ;;
-  "--disable-res" )
-     res_en=0
-     shift
-  ;;
-  "--disable-compiler" )
-     compiler_en=0
-     shift
-  ;;
   "--disable-all" )
      gem5_en=0
      gold_en=0
      llvm_en=0
      newlib_en=0
      openocd_en=0
-     qemu_en=0
-     res_en=0
-     compiler_en=0
      shift
   ;;
   "--enable-gem5" )
@@ -78,18 +60,6 @@ do
      openocd_en=1
      shift
   ;;
-  "--enable-qemu" )
-     qemu_en=1
-     shift
-  ;;
-  "--enable-res" )
-     res_en=1
-     shift
-  ;;
-  "--enable-compiler" )
-     compiler_en=1
-     shift
-  ;;
   "--enable-debug" )
      debug_mode=1
      shift
@@ -102,9 +72,6 @@ do
     echo -e "\t--disable-llvm\t\t\tDo not install llvm toolchain"
     echo -e "\t--disable-newlib\t\tDo not install newlib"
     echo -e "\t--disable-openocd\t\tDo not install openocd"
-    echo -e "\t--disable-qemu\t\tDo not install qemu"
-    echo -e "\t--disable-res\t\tDo not install res"
-    echo -e "\t--disable-compiler\t\tDo not install compiler"
     echo -e "\t--enable-xxx\t\tInstall xxx package"
     echo -e "\t--disable-all\t\tDo not install anything (used with following --enable-xxx)"
     echo -e "\t--enable-debug\t\tBuild in debug and incremental mode, and do not remove the building dirs"
@@ -148,34 +115,6 @@ llvm_err=0
 gold_err=0
 newlib_err=0
 openocd_err=0
-qemu_err=0
-uboot_err=0
-bootrom_err=0
-if [ "$res_en" -eq 1 ]
-then
-  cd $source_path
-  if [ ! -e $install_path/res/u-boot ]
-  then
-    mkdir $install_path/res/u-boot --parents
-  fi
-  cp -R u-boot $install_path/res/ || uboot_err=1
-  if [ ! -e $install_path/res/boot_rom ]
-  then
-    mkdir $install_path/res/boot_rom --parents
-  fi
-  cp -R boot_rom $install_path/res/ || bootrom_err=1
-fi
-
-compiler_err=0
-if [ "$compiler_en" -eq 1 ]
-then
-  cd $source_path
-  if [ ! -e $install_path/arm-none-eabi ]
-  then
-    mkdir $install_path/arm-none-eabi --parents
-  fi
-  cp -R arm-none-eabi $install_path/ || compiler_err=1
-fi
 
 # Install Gem5
 if [ "$gem5_en" -eq 1 ]
@@ -210,34 +149,6 @@ then
     install -v $source_path/deplibs/protobuf/* -t $install_path/simulator/libs
     install -v $source_path/deplibs/unwind/* -t $install_path/simulator/libs
     install -v $source_path/deplibs/tcmalloc/* -t $install_path/simulator/libs
-  fi
-  #install MaPU GUI
-  if [ -e "$install_path/simulator/gui" ]
-  then
-    rm -rf $install_path/simulator/gui
-  fi
-  mkdir $install_path/simulator/gui
-  cxfreeze --install-dir=$install_path/simulator/gui $source_path/MaPUSim/GUI/main.py
-fi
-
-# Install qemu
-if [ "$qemu_en" -eq 1 ]
-then
-  cd $root
-  if [ -e "build_qemu" ] && [ "$debug_mode" -eq 0 ]
-  then rm -rf build_qemu
-  fi
-  if [ ! -e "build_qemu" ]
-  then mkdir build_qemu
-  fi
-  cd $source_path/MaPUSim/ARM-QEMU
-  make distclean
-  cd $root
-  cd build_qemu
-  $source_path/MaPUSim/ARM-QEMU/configure --prefix=$install_path/simulator/arm --target-list=arm-softmmu --disable-sdl 
-  make $MCFLAG || qemu_err=1 
-  if [ "$debug_mode" -eq 0 ]
-  then make install
   fi
 fi
 
@@ -397,22 +308,6 @@ then
   if [ "$openocd_err" -eq 0 ]
   then rm -rf build_openocd
   else echo "Failed to install openocd"
-  fi
-  if [ "$qemu_err" -eq 0 ]
-  then rm -rf build_qemu
-  else echo "Failed to install qemu"
-  fi
-  if [ "$uboot_err" -eq 1 ]
-  then
-    echo -e "\nFailed to export u-boot\n"
-  fi
-  if [ "$bootrom_err" -eq 1 ]
-  then
-    echo -e "\nFailed to export boot_rom\n"
-  fi
-  if [ "$compiler_err" -eq 1 ]
-  then
-    echo -e "\nFailed to export arm-none-eabi\n"
   fi
 fi
 

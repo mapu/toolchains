@@ -1,3 +1,0 @@
-TARGET_ISA = 'mapu'
-CPU_MODELS = 'InOrderCPU'
-PROTOCOL = 'MI_example'
