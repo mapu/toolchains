@@ -1,2 +1,0 @@
-CONFIG_testFIR=y
-APPSUBDIRS-$(CONFIG_testFIR)+=testFIR

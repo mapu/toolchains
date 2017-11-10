@@ -1,5 +1,0 @@
-This is a template for apc libraries developing with project manager which are working in u-boot environment.
-The template has following features:
-1. Project manager for managing spu and mpu libraries.
-2. Automactically generate relationship database file (apclib.db).
-
