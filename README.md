@@ -46,31 +46,19 @@ hack: be nice to actually delete the event here
 Exiting @ tick 21392000 because target called exit()
 ```
 # The repository structure
-|  files                                | short descriptions        | document              | 
-|  -------------------------------------|---------------------------|-----------------------|
-|  HowToUseSimulatorGUI.txt             |A tutorial showing how to prepare essential libraries to run the simulator GUI (a interface to demonstrate visual simulating result, developed by Qt4).|                       |
-|  INSTALL.sh                           |A script to compile and install all MaPU software, including simulator, compiler, liner, etc.|                       |
-|  MaPUSim                              |Source code for simulator |                       |
-|  README.md                            |README                     |                       |
-|  arm-none-eabi                        |                           |                       |
-|  asm-gui                              |An assistant tool for micro-code developing|                       |
-|  benchmarks                           |Some benchmarks for MaPU   |                       |
-|  boot_rom                             |                           |                       |
-|  clr_shm.sh                           |                           |                       |
-|  deplibs                              |                           |                       |
-|  docs                                 |                           |                       |
-|  examples                             |                           |                       |
-|  gen_image.sh                         |To generate image for applications running on u-boot.                           |                       |
-|  gold-2.25                            |Linker                           |                       |
-|  kernel                               |                           |                       |
-|  llvm-3.8                             |Toolchains including compiler and assembler                           |                       |
-|  newlib                               |                           |                       |
-|  openocd-0.5                          |                           |                       |
-|  pocl                                 |                           |                       |
-|  python-nose-1.3.7-1.el7.noarch.rpm   |Lib for GUI                           |                       |
-|  qtermwidget-master                   |Lib for GUI                           |                       |
-|  ragel-6.8                            |                           |                       |
-|  u-boot                               |                           |                       |
+|  files        | short descriptions        | document              | 
+|  -------------|---------------------------|-----------------------|
+|  INSTALL.sh   |A script to compile and install all MaPU software, including simulator, compiler, liner, etc.|                       |
+|  MaPUSim      |Source code for simulator |                       |
+|  README.md    |README                     |                       |
+|  deplibs      |                           |                       |
+|  docs         |                           |                       |
+|  examples     |                           |                       |
+|  gold-2.25    |Linker                     |                       |
+|  llvm-3.8     |Toolchains including compiler and assembler|                       |
+|  newlib       |                           |                       |
+|  openocd-0.5  |                           |                       |
+|  ragel-6.8    |                           |                       |
 
 # TODO ( please add anything you want to do )
 1. A simplified toolchain version that only supports SPU
