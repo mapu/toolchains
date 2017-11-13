@@ -1,0 +1,28 @@
+# This file contains the rules that automatically match the target
+
+# C source file to elf
+%.elf: %.c 
+	${LLVM_BIN_PATH}/clang -target mspu $< -g -o $@
+# C source file to assembler
+%.S: %.c
+	${LLVM_BIN_PATH}/clang -target mspu $< -S -o $@
+# elf file to disassembler 
+%.dis: %.elf
+	${LLVM_BIN_PATH}/llvm-objdump -arch-name=mspu -t -disassemble  $< > $@
+
+# asm file to object file
+%.o: %.s
+	${LLVM_BIN_PATH}/llvm-mc -arch=mspu -filetype=obj $< -o $@
+
+# object file to elf
+%.elf: %.o
+	${LLVM_BIN_PATH}/ld.gold -T ${ASM_LINK_SCRIPT} $< -o $@ 
+
+# Run with the Gem5
+%.run: %.elf
+	${GEM5_SIM_BIN} ${GEM5_CFG} -c $<
+
+# Run with the trace
+%.exec: %.elf
+	${GEM5_SIM_BIN} --debug-flags=Exec ${GEM5_CFG} -c $<
+

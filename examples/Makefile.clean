@@ -1,0 +1,4 @@
+#This file contains the rules to clean up
+clean:
+	@rm -rf *.lof  *.s.out  *.map  *.mmap  *.sct  *.tab  *.dis  *~  *.def *.xml *.data
+	@rm -rf *.o *.sym *.txt *.ll stderr stdout m5out *.bin

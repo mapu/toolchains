@@ -1,0 +1,12 @@
+##This file contains the PATH and tools setup
+#LLVM
+LLVM_BIN_PATH	=${MAPU_HOME}/apc/bin
+
+#Linker
+ASM_LINK_SCRIPT =${MAPU_HOME}/apc/share/MaPU_ASM.s.ld
+C_LINK_SCRIPT   =${MAPU_HOME}/apc/share/MaPU_C.s.ld
+
+#Gem5
+GEM5_SIM_BIN	=${MAPU_HOME}/simulator/apc/gem5.opt
+GEM5_CFG	=${MAPU_HOME}/simulator/apc/system/se.py
+
