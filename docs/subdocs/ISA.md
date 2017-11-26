@@ -50,11 +50,19 @@ Following example shows the *(B)*, *(U)* are exlusive, which can not appear at t
 ```asm
 Rs |Js 	= [Jm  +   Jn]    { (B) | (H) }  
 ```
+Supported instruction options
+* **(U)** Unsinged operations. 
+* **(T)** Saturate ( rounding) or Truncate the result if it is larger then the maximum values.
+* **(B)** 8 bits operation
+* **(H)** 16 bits operation
+* **(S)** 32 bits float operation
+* **(D)** 64 bits float operation
+* Without any options, default behavior is 32 bits, integer, truncate operation
 
 ### Instructions of FUs 
-1. [SCU](SCU.md)
-2. [AGU](AGU.md)
-3. [SEQ](SEQ.md)
-4. [SYN](SYN.md)
+1. [SCU](SCU)
+2. [AGU](AGU)
+3. [SEQ](SEQ)
+4. [SYN](SYN)
 
-[\<-- \[Table of Content\]](../index.md)  [\[SCU\] -->](SCU.md)
+[\<-- \[Table of Content\]](../index)  [\[SCU\] -->](SCU)
