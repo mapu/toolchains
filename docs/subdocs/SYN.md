@@ -4,4 +4,4 @@ SYN stands for **SYN**chronization with other pipeline or accelerators.  This is
 
 To keep the instructin set simple,  it will be exampled in future.
 
-[\<-- \[ISA\]](ISA) 
+[\<-- \[ISA\]](ISA)  [Instruction Encoding-->](Encoding)

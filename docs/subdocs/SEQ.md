@@ -5,8 +5,8 @@ SEQ stands for instruction **SEQ**uence, which supports most general jump and lo
 
 | Assembly                      | Operation                     |  Completing stage |
 | ------------------------------| ----------------              | ---------------   |
-| {IF Rs,} JUMP Imm32|Jm        | jump                          |   RR              | 
-| {IF Rs,} CALL Imm32|Jm        | call                          |   EX1             | 
+| {IF Rm,} JUMP Imm32|Jm        | jump                          |   RR              | 
+| {IF Rm,} CALL Imm32|Jm        | call                          |   EX1             | 
 | NOP                           |                               |   RR              | 
 | DbgBreak                      | used for soft breakpoin       |   DP              |
 | others                        | to be explained in future     |   -               |

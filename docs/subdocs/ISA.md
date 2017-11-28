@@ -64,5 +64,6 @@ Supported instruction options
 2. [AGU](AGU)
 3. [SEQ](SEQ)
 4. [SYN](SYN)
+5. [Instruction Encoding](Encoding)
 
 [\<-- \[Table of Content\]](../index)  [\[SCU\] -->](SCU)
