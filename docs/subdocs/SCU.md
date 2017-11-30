@@ -68,4 +68,4 @@ SCU stands for **S**calar **C**omputing **U**nit, which supports most general co
 |  Rs = INT    DRm {(T)}(D)     | Convert double float to integer           |   EX5             | 
 | Rs  = SINGLE DRm {(T)}(D)     | Convert double float to single float      |   EX5             | 
 
-[\<-- \[ISA\]](ISA)  [\[AGU\] -->](AGU)
+[\<------ \[ISA\]](ISA)         <span style="float:right">  [\[AGU\] ------>](AGU) </span>

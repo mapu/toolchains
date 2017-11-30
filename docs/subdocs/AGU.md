@@ -33,4 +33,5 @@ STAT is a 32 status register，the zero bit is defined as the CI. Other bits are
 | Others                                            | To be explained in further    |   -               | 
 
 * **+=** : When with '+=', it means the Jm register will be updated with **Jm + Jn** or **Jm + Imm32** in EX2 stage.
-[\<-- \[ISA\]](ISA)  [\[SEQ\] -->](SEQ)
+
+[\<------ \[ISA\]](ISA)      <span style="float:right"> [\[SEQ\] ------>](SEQ) </span>

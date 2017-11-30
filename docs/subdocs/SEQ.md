@@ -11,4 +11,4 @@ SEQ stands for instruction **SEQ**uence, which supports most general jump and lo
 | DbgBreak                      | used for soft breakpoin       |   DP              |
 | others                        | to be explained in future     |   -               |
 
-[\<-- \[ISA\]](ISA)  [\[SYN\] -->](SYN)
+[\<------ \[ISA\]](ISA)         <span style="float:right"> [\[SYN\] ------>](SYN) </span>

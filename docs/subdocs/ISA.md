@@ -66,4 +66,4 @@ Supported instruction options
 4. [SYN](SYN)
 5. [Instruction Encoding](Encoding)
 
-[\<-- \[Table of Content\]](../index)  [\[SCU\] -->](SCU)
+[\<------ \[Table of Content\]](../index) <span style="float:right">  [\[SCU\] ------>](SCU)  </span>
