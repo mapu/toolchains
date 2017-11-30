@@ -28,7 +28,11 @@ We use 's' and 'm', 'n'  suffix to represent the destination index and source in
 ### Pipeline
 In MaPU, the FU shares the instruction fetch pipeline.
 ```asm
-FG --> FS --> FW --> FR --> DP --> RR --> EX1 --> EX2 --> ... 
+                                         |--> EX1 --> EX2 --> ...  FU1
+                                         |
+FG --> FS --> FW --> FR --> DP --> RR ---+--> EX1 --> EX2 --> ...  FU2
+                                         |
+                                         |--> EX1 --> EX2 --> ...  FU3
 ```
 The number of executing pipeline stages is depend on FU. The hardware will detect the data dependence. 
 When there is dependence, a bubble will be inserted.
