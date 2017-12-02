@@ -179,7 +179,7 @@ then
   then mkdir build_llvm
   fi
   cd build_llvm
-  cmake $source_path/llvm-3.9.0 -DLLVM_TARGETS_TO_BUILD="X86;MSPU;MMPULite;UCPM" -DCMAKE_C_FLAGS="-DARCH_MAPU" -DCMAKE_CXX_FLAGS="-DARCH_MAPU" -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="mspu-unknown-unknown" -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On -DCMAKE_BUILD_TYPE=$llvm_cfg -DCMAKE_INSTALL_PREFIX=$install_path -DRAGEL=$root/ragel/bin/ragel -DLLVM_LIBDIR_SUFFIX=64
+  cmake $source_path/llvm-3.8.0-r267675 -DLLVM_TARGETS_TO_BUILD="X86;MSPU;MMPULite;UCPM" -DCMAKE_C_FLAGS="-DARCH_MAPU" -DCMAKE_CXX_FLAGS="-DARCH_MAPU" -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="mspu-unknown-unknown" -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On -DCMAKE_BUILD_TYPE=$llvm_cfg -DCMAKE_INSTALL_PREFIX=$install_path -DRAGEL=$root/ragel/bin/ragel -DLLVM_LIBDIR_SUFFIX=64
   make $MCFLAG || llvm_err=1
   if [ "$debug_mode" -eq 0 ]
   then 
