@@ -55,7 +55,7 @@ Exiting @ tick 21392000 because target called exit()
 |  docs         |                           |                       |
 |  examples     |                           |                       |
 |  gold-2.25    |Linker                     |                       |
-|  llvm-3.8     |Toolchains including compiler and assembler|                       |
+|  llvm-3.8     |Toolchains including compiler and assembler| docs/subdocs/LLVM/LLVM.md           |
 |  newlib       |                           |                       |
 |  openocd-0.5  |                           |                       |
 |  ragel-6.8    |                           |                       |
