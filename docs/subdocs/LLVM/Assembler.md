@@ -46,5 +46,37 @@ _start:
       14:	00 00 00 81 	m.s 	SPU.Stop;;
 ```
 
+## Implementation
+Most of the CPUs in LLVM MC uses *Tablegen* tools to generated 
+the tables in C++ class/files for the asm parser and decoder etc. 
+The instruction format and encodings are depicted as **.td** files.
+Before compiling the MC tools, the *Tablegen* tools are used to generated C++ classes from these **.td** files,
+as shown in following:
+```text
+               Tablegen Passes      Tables in C++ files
+ ARM.td  |--> (-gen-register-info) -->RegisterInfo.inc 
+   |     |--> (-gen-instr-info)    -->InstrInfo.inc 
+   v     |--> (-gen-asm-writer)    -->AsmWriter.inc          --> For Instr Printer 
+Tablegen-+--> (-gen-asm-matcher)   -->AsmMatcher.inc         --> For ASMParser
+         |--> (-gen-fast-isel)     -->FastISel.inc           --> For compiler
+         |--> (-gen-disassembler)  -->DisassemblerTables.inc --> For Disassembler
+```
+MaPU reuses most of this framework to construct the MC tools, except the parser. 
+The reason is though the assembly code in MaPU is more readable, parsing MaPU assembly code is complicated. 
+MaPU uses post operations syntax in the assembly, in which 
+the first token does not indicates the operations.
+The parser can not determine the following up tokens untiles it reaches the end
+of instruction. For example, in 'R0 = R1 + R2 (U)' instruction, when the parser 
+read 'R0' it can not determine what should be followed.
+
+To address this problem, we used standard lexer/parser tools used in compiler to parser the assembly instructions.
+We use [Ragel](http://www.colm.net/open-source/ragel/) for lexical analysis:
+Split input data into a set of tokens (identifiers, keywords, numbers, brackets, braces, etc.)
+And use **Bison** for semantic parsing. 
+
+While the **Bison** tool is pre-installed on most linux distribution, 
+we need to incoporate the **Ragel** tools in our toolchain repository. 
+The version of the *Ragel* we used can be retrived with following command:
+
 
 [\<------ \[Table of Content\]]({{site.url}}/index) <span style="float:right">  [\[Assembler\] ------>](Assembler)  </span>
