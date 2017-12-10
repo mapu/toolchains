@@ -299,7 +299,7 @@ class BinaryInstr< dag outs, dag ins, string asm,
 ```
 'BinaryInstr' is a type of instructions in SCU group with 2 operands, with additional field 'd', 's0', 's1', 
 which are the indice of the destination register and source registers.
-```C++
+```c++
 class AddInstr< dag outs, dag ins, string asm, bits<5> flags,
                 list<dag> pattern=[] 
               >
@@ -307,7 +307,7 @@ class AddInstr< dag outs, dag ins, string asm, bits<5> flags,
 
 ```
 'ADDInstr' is a kind of 'BinaryInstr' whose 'opcode' is set to '0b00001'
-```C++
+```c++
 def AddSI32T : AddInstr <
                (outs I32Reg:$d), (ins  I32Reg:$s0, I32Reg:$s1),
                "$d = $s0 + $s1 (T)", 0b00001,
