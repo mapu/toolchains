@@ -11,6 +11,8 @@ More information about the MC project can be found here: [Introduction to LLVM M
     * [Stand alone Parser](#Parser)
     * [Instructions in Tablegen](#Tablegen)
     * [MSPUAsmParser](#MSPUAsmParser)
+    * [MSPUDisassembler](#MSPUDisassembler)
+    * [MSPUInstrPrinter](#MSPUInstrPrinter)
 
 ## Usage <a name="Usage"></a>
 The Assembler/Disassembler binary is named **llvm-mc** which located in the /bin of the installed directory. 
@@ -359,6 +361,42 @@ This is the function that will called by the LLVM MC. The funciton calling stack
 #### MSPUAsmParser::MatchAndEmitInstruction()
 This the function that intake the Opcode and the followed operands, and output the instructions to the *MCStream*, 
 which is the data format passed different MC component. 
+
+### MSPUDisassembler <a name="MSPUDisassembler"> </a>
+
+This class implements the disassembler:
+
+| class/function                        |  description       |  members     |
+|---------------------------------------|------------------  |--------------|
+| **MSPUDisassembler** :  MCDisassembler{ <br>} | Disassembler | *getInstruction()* | 
+
+The code for disassembler looks like following:
+```c++
+template<typename InsnType> static DecodeStatus
+    DecodeXXXReg( )
+... 
+#include "MSPUGenDisassemblerTables.inc"
+
+DecodeStatus MSPUDisassembler::getInstruction(...)
+```
+The **MSPUGenDisassemblerTables.inc** is generated from the *Tablegen*
+
+### MSPUInstPrinter <a name="MSPUInstrPrinter"> </a>
+
+| class/function                        |  description       |  members     |
+|---------------------------------------|------------------  |--------------|
+| **MSPUInstrPrinter** :  MCInstrPrinter{ <br>} | Print the instructions | *printInst()* | 
+
+
+The code for the instruction printer looks like following:
+```c++
+#include "MSPUGenAsmWriter.inc"
+void MSPUInstPrinter::printInst(...)
+
+void MSPUInstPrinter::printCallMFlag()
+...
+more printXXX()
+```
 
 [\<------ \[Table of Content\]]({{site.url}}/index) <span style="float:right">  [\[Assembler\] ------>](Assembler)  </span>
 
