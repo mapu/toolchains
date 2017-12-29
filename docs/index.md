@@ -2,6 +2,6 @@
 1. [Instruction Set Archiecture](subdocs/ISA/ISA.md)
 2. [LLVM](subdocs/LLVM/LLVM.md)
 3. [Assembler/Disassembler](subdocs/LLVM/Assembler.md)
-4. [linker](subdocs/linker.md)
-5. ...
+4. [Linker](subdocs/Linker.md)
+5. [Simulator](subdocs/Simulator.md) 
 
